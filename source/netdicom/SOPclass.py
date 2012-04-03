@@ -1,0 +1,601 @@
+#
+# Copyright (c) 2012 Patrice Munger
+# This file is part of pynetdicom, released under a modified MIT license.
+#    See the file license.txt included with this distribution, also
+#    available at http://pynetdicom.googlecode.com
+#
+import dicom
+from DIMSEparameters import *
+import DIMSEprovider
+import ACSEprovider
+import StringIO
+if dicom.__version_info__ >= (1,0,0):
+    from dicom.filebase import DicomBytesIO
+else:
+    from dicom.filebase import DicomStringIO as DicomBytesIO
+from dicom.filereader import read_dataset
+from dicom.filewriter import write_dataset
+import time
+
+class Status(object):
+    def __init__(self, Type, Description, CodeRange):
+        self.Type = Type
+        self.Description = Description
+        self.CodeRange = CodeRange
+
+    def __int__(self):
+        return self.CodeRange[0]
+
+    def __repr__(self):
+        return self.Type+self.Description
+
+
+class ServiceClass(object):   
+    def __init__(self):
+        pass
+
+    def Code2Status(self, code):
+        for dd in dir(self):
+            getattr(self,dd).__class__
+            obj = getattr(self,dd)
+            if obj.__class__ == Status:
+                if code in obj.CodeRange:
+                    return obj
+        raise Exception
+
+
+class VerificationServiceClass(ServiceClass):
+
+    Success = Status(
+        'Success',
+        '',
+        xrange(0x0000,0x0000+1)
+        )
+
+    def __init__(self):
+        ServiceClass.__init__(self)
+
+
+    def EchoSCU(self, id):
+        cecho = C_ECHO_ServiceParameters()
+        cecho.MessageID = id
+        cecho.AffectedSOPClassUID = self.UID
+
+        self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
+
+        ans, id = self.DIMSE.Receive(Wait=True)
+        return  self.Code2Status(ans.Status)
+
+    
+    def EchoSCP(self, msg):
+        rsp = C_ECHO_ServiceParameters()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+        rsp.Status = 0
+                
+        # send response
+        self.AE.OnReceiveEcho(self)
+        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+
+
+
+class StorageServiceClass(ServiceClass):
+
+    OutOfResources = Status(
+        'Failure',
+        'Refused: Out of resources',
+        xrange(0xA700,0xA7FF+1)
+        )
+    DataSetDoesNotMatchSOPClassFailure = Status(
+        'Failure',
+        'Error: Data Set does not match SOP Class',
+        xrange(0xA900,0xA9FF+1)
+        )
+    CannotUnderstand = Status(
+        'Failure',
+        'Error: Cannot understand',
+        xrange(0xC000, 0xCFFF+1)
+        )
+    CoercionOfDataElements = Status(
+        'Warning',
+        'Coercion of Data Elements',
+        xrange(0xB000,0xB000+1)
+        )
+    DataSetDoesNotMatchSOPClassWarning = Status(
+        'Warning',
+        'Data Set does not match SOP Class',
+        xrange(0xB007,0xB007+1)
+        )
+    ElementDiscarted = Status(
+        'Warning',
+        'Element Discarted',
+        xrange(0xB006,0xB006+1)
+        )
+    Success = Status(
+        'Success',
+        '',
+        xrange(0x0000,0x0000+1)
+        )
+
+    
+    def StoreSCU(self, dataset, msgid):
+        f = DicomBytesIO()
+        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
+        f.is_little_endian = self.transfersyntax.is_little_endian
+        write_dataset(f, dataset)
+        # build C-STORE primitive
+        csto = C_STORE_ServiceParameters()
+        csto.MessageID = msgid
+        csto.AffectedSOPClassUID = dataset.SOPClassUID
+        csto.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+        csto.Priority = 0x0002
+        csto.DataSet = f.parent.getvalue()
+        f.close()
+
+        # send cstore request
+        self.DIMSE.Send(csto, self.pcid, self.maxpdulength)
+
+        # wait for c-store response
+        ans, id = self.DIMSE.Receive(Wait=True)
+        return self.Code2Status(ans.Status.value)
+
+
+    def __init__(self):
+        ServiceClass.__init__(self)
+
+    def StoreSCP(self, msg):
+        s = StringIO.StringIO(msg.DataSet)
+        status = None
+        try:
+            DS = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+        except:
+            # cannot understand
+            status = CannotUnderstand
+        s.close()
+        # make response
+        rsp = C_STORE_ServiceParameters()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+            
+        # callback
+        if not status:
+            rsp.Status = int(self.AE.OnReceiveStore(self, DS))
+        else:
+            rsp.Status = int(status)
+                
+        # check abort
+        print rsp.Status
+        # send response
+        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+        
+
+
+class QueryRetrieveServiceClass(ServiceClass):
+    pass
+
+
+class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
+    OutOfResources = Status(
+        'Failure',
+        'Refused: Out of resources',
+        xrange(0xA700,0xA700+1)
+        )
+    IdentifierDoesNotMatchSOPClass = Status(
+        'Failure',
+        'Identifier does not match SOP Class',
+        xrange(0xA900,0xA900+1)
+        )
+    UnableToProcess = Status(
+        'Failure',
+        'Unable to process',
+        xrange(0xC000, 0xCFFF+1)
+        )
+    MatchingTerminatedDueToCancelRequest = Status(
+        'Cancel',
+        'Matching terminated due to Cancel request',
+        xrange(0xFE00, 0xFE00+1)
+        )
+    Success = Status(
+        'Success',
+        'Matching is complete - No final Identifier is supplied',
+        xrange(0x0000,0x0000+1)
+        )
+    Pending = Status(
+        'Pending',
+        'Matches are continuing - Current Match is supplied \
+        and any Optional Keys were supported in the same manner as Required Keys',
+        xrange(0xFF00,0xFF00+1)
+        )
+    PendingWarning = Status(
+        'Pending',
+        'Matches are continuing - Warning that one or more Optional\
+        Keys were not supported for existence and/or matching for this identifier',
+        xrange(0xFF01,0xFF01+1)
+        )
+
+
+
+    def FindSCU(self, ds, msgid):
+        # build C-FIND primitive
+        cfind = C_FIND_ServiceParameters()
+        cfind.MessageID = msgid
+        cfind.AffectedSOPClassUID = self.UID
+        cfind.Priority = 0x0002
+        f = DicomBytesIO()
+        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
+        f.is_little_endian = self.transfersyntax.is_little_endian
+        write_dataset(f, ds)
+        cfind.Identifier = f.parent.getvalue()
+        f.close()
+
+        # send c-find request
+        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
+        while 1:
+            # wait for c-find responses
+            ans, id = self.DIMSE.Receive(Wait=False)
+            if not ans: continue
+            s = StringIO.StringIO(ans.Identifier)
+            d = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+            s.close()
+            if self.Code2Status(ans.Status.value).Type <> 'Pending':
+                break
+            yield d
+        
+
+
+    def FindSCP(self, msg):
+        s = StringIO.StringIO(msg.Identifier)
+        ds = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+        s.close()
+        # make response
+        rsp = C_FIND_ServiceParameters()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        
+        gen = self.AE.OnReceiveFind(self, ds)
+        try:
+            while 1:
+                IdentifierDS, status = gen.next()
+                rsp.Status = int(status)
+                f = DicomBytesIO()
+                f.is_implicit_VR = self.transfersyntax.is_implicit_VR
+                f.is_little_endian = self.transfersyntax.is_little_endian
+                write_dataset(f, IdentifierDS)
+                rsp.Identifier = f.parent.getvalue()
+                f.close()
+                # send response
+                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+        except StopIteration:
+            # send final response
+            rsp = C_FIND_ServiceParameters()
+            rsp.MessageIDBeingRespondedTo = msg.MessageID
+            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+            rsp.Status = int(self.Success)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+
+        
+
+
+class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
+
+    OutOfResourcesNumberOfMatches = Status(
+        'Failure',
+        'Refused: Out of resources - Unable to calcultate number of matches',
+        xrange(0xA701, 0xA701+1)
+        )
+
+    OutOfResourcesUnableToPerform = Status(
+        'Failure',
+        'Refused: Out of resources - Unable to perform sub-operations',
+        xrange(0xA702, 0xA702+1)
+        )
+
+    IdentifierDoesNotMatchSOPClass = Status(
+        'Failure',
+        'Identifier does not match SOP Class',
+        xrange(0xA900, 0xA900+1)
+        )
+    UnableToProcess  = Status(
+        'Failure',
+        'Unable to process',
+        xrange(0xC000, 0xCFFF+1)
+        )
+    Cancel = Status(
+        'Cancel',
+        'Sub-operations terminated due to Cancel indication',
+        xrange(0xFE00, 0xFE00+1)
+        )
+    Warning = Status(
+        'Warning',
+        'Sub-operations Complete - One or more Failures or Warnings',
+        xrange(0xB000,0xB000+1)
+        )
+    Success = Status(
+        'Success',
+        'Sub-operations Complete - No Failure or Warnings',
+        xrange(0x0000,0x0000+1)
+        )
+    Pending = Status(
+        'Pending',
+        'Sub-operations are continuing',
+        xrange(0xFF00, 0xFF00+1)
+        )
+
+
+    def GetSCU(self, ds, msgid):
+        # build C-GET primitive
+        cget = C_GET_ServiceParameters()
+        cget.MessageID = msgid
+        cget.AffectedSOPClassUID = self.UID
+        cget.Priority = 0x0002
+        f = DicomBytesIO()
+        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
+        f.is_little_endian = self.transfersyntax.is_little_endian
+        write_dataset(f, ds)
+        cget.Identifier = f.parent.getvalue()
+        f.close()
+
+        # send c-get primitive
+        self.DIMSE.Send(cget, self.pcid, self.maxpdulength)
+        
+        while 1:
+            # receive c-store
+            msg, id = self.DIMSE.Receive(Wait=True)
+            print msg.__class__
+            if msg.__class__ == C_GET_ServiceParameters:
+                if self.Code2Status(msg.Status.value).Type  == 'Pending':
+                    # pending. intermediate C-GET response
+                    pass
+                else:
+                    # last answer
+                    break
+            elif msg.__class__ == C_STORE_ServiceParameters:
+                # send c-store response
+                rsp = C_STORE_ServiceParameters()
+                rsp.MessageIDBeingRespondedTo = msg.MessageID
+                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
+                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+
+                s = StringIO.StringIO(msg.DataSet)
+                status = None
+                try:
+                    d = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+                except:
+                    # cannot understand
+                    status = CannotUnderstand
+                s.close()
+
+                
+                SOPClass = UID2SOPClass(d.SOPClassUID)
+                status = self.AE.OnReceiveStore(SOPClass, d)
+                rsp.Status = int(status)
+
+                self.DIMSE.Send(rsp, id, self.maxpdulength)
+
+
+
+class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
+
+    OutOfResourcesNumberOfMatches = Status(
+        'Failure',
+        'Refused: Out of resources - Unable to calcultate number of matches',
+        xrange(0xA701, 0xA701+1)
+        )
+
+    OutOfResourcesUnableToPerform = Status(
+        'Failure',
+        'Refused: Out of resources - Unable to perform sub-operations',
+        xrange(0xA702, 0xA702+1)
+        )
+    MoveDestinationUnknown = Status(
+        'Failure',
+        'Refused: Move destination unknown',
+        xrange(0xA801, 0xA801+1)
+    )
+    IdentifierDoesNotMatchSOPClass = Status(
+        'Failure',
+        'Identifier does not match SOP Class',
+        xrange(0xA900, 0xA900+1)
+        )
+    UnableToProcess  = Status(
+        'Failure',
+        'Unable to process',
+        xrange(0xC000, 0xCFFF+1)
+        )
+    Cancel = Status(
+        'Cancel',
+        'Sub-operations terminated due to Cancel indication',
+        xrange(0xFE00, 0xFE00+1)
+        )
+    Warning = Status(
+        'Warning',
+        'Sub-operations Complete - One or more Failures or Warnings',
+        xrange(0xB000,0xB000+1)
+        )
+    Success = Status(
+        'Success',
+        'Sub-operations Complete - No Failure or Warnings',
+        xrange(0x0000,0x0000+1)
+        )
+    Pending = Status(
+        'Pending',
+        'Sub-operations are continuing',
+        xrange(0xFF00, 0xFF00+1)
+        )
+
+
+    def MoveSCU(self, ds, destaet, msgid):
+        # build C-FIND primitive
+        cmove = C_MOVE_ServiceParameters()
+        cmove.MessageID = msgid
+        cmove.AffectedSOPClassUID = self.UID
+        cmove.MoveDestination = destaet
+        cmove.Priority = 0x0002
+        f = DicomBytesIO()
+        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
+        f.is_little_endian = self.transfersyntax.is_little_endian
+        write_dataset(f, ds)
+        cmove.Identifier = f.parent.getvalue()
+        f.close()
+
+        # send c-find request
+        self.DIMSE.Send(cmove, self.pcid, self.maxpdulength)
+
+        while 1:
+            # wait for c-move responses
+            ans, id = self.DIMSE.Receive(Wait=False)
+            if not ans: continue
+            print ans.Status.value
+            if self.Code2Status(ans.Status.value).Type <> 'Pending':
+                break
+            yield ans.Status
+
+
+
+
+    def MoveSCP(self, msg):
+        s = StringIO.StringIO(msg.Identifier)
+        ds = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+        
+        # make response
+        rsp = C_MOVE_ServiceParameters()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
+        gen = self.AE.OnReceiveMove(self, ds, msg.MoveDestination.value)
+
+        # first value returned by callback must be the complete remote AE specs
+        remoteAE = gen.next()
+        
+        # request association to move destination
+        ass = self.AE.RequestAssociation(remoteAE)
+        nop = gen.next()
+        print nop
+        try:
+            ncomp = 0
+            nfailed = 0
+            nwarning = 0
+            ncompleted = 0
+            while 1:
+                DataSet = gen.next()
+                # request an association with destination
+                # send C-STORE
+                s=str(UID2SOPClass(DataSet.SOPClassUID))
+                ind = len(s)-s[::-1].find('.')
+                obj = getattr(ass,s[ind:-2])
+                status = obj.StoreSCU(DataSet, ncompleted)
+                if status.Type == 'Failed':
+                     nfailed += 1
+                if status.Type == 'Warning':
+                    nwarning += 1
+                rsp.Status =  int(self.Pending)
+                rsp.NumberOfRemainingSubOperations = nop-ncompleted
+                rsp.NumberOfCompletedSubOperations = ncompleted
+                rsp.NumberOfFailedSubOperations = nfailed
+                rsp.NumberOfWarningSubOperations = nwarning
+                ncompleted += 1
+                
+                # send response
+                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+                print ncompleted
+                
+        except StopIteration:
+            # send final response
+            rsp = C_MOVE_ServiceParameters()
+            rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
+            rsp.NumberOfRemainingSubOperations = nop-ncompleted
+            rsp.NumberOfCompletedSubOperations = ncompleted
+            rsp.NumberOfFailedSubOperations = nfailed
+            rsp.NumberOfWarningSubOperations = nwarning
+            rsp.Status = int(self.Success)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            ass.Release(0)
+
+
+
+
+# VERIFICATION SOP CLASSES
+class VerificationSOPClass(VerificationServiceClass):
+    UID = '1.2.840.10008.1.1'
+
+
+# STORAGE SOP CLASSES
+class StorageSOPClass(StorageServiceClass):
+    pass
+
+class MRImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.4'
+
+class CTImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.2'
+
+class CRImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1'
+
+class SCImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.7'
+
+class RTImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.481.1'
+
+class RTPlanStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.481.5'
+
+
+
+
+# QUERY RETRIEVE SOP Classes
+class QueryRetrieveSOPClass(QueryRetrieveServiceClass):
+    pass
+
+class PatientRootQueryRetrieveSOPClass(QueryRetrieveSOPClass):
+    pass
+
+class StudyRootQueryRetrieveSOPClass(QueryRetrieveSOPClass):
+    pass
+    
+class PatientStudyOnlyQueryRetrieveSOPClass(QueryRetrieveSOPClass):
+    pass
+
+class PatientRootFindSOPClass(PatientRootQueryRetrieveSOPClass, QueryRetrieveFindSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.1.1'
+
+class PatientRootMoveSOPClass(PatientRootQueryRetrieveSOPClass, QueryRetrieveMoveSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.1.2'
+
+class PatientRootGetSOPClass(PatientRootQueryRetrieveSOPClass, QueryRetrieveGetSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.1.3'
+
+class StudyRootFindSOPClass(StudyRootQueryRetrieveSOPClass, QueryRetrieveFindSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.2.1'
+
+class StudyRootMoveSOPClass(StudyRootQueryRetrieveSOPClass, QueryRetrieveMoveSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.2.2'
+
+class StudyRootGetSOPClass(StudyRootQueryRetrieveSOPClass, QueryRetrieveGetSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.2.3'
+
+class PatientStudyOnlyFindSOPClass(PatientStudyOnlyQueryRetrieveSOPClass, QueryRetrieveFindSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.3.1'
+
+class PatientStudyOnlyMoveSOPClass(PatientStudyOnlyQueryRetrieveSOPClass, QueryRetrieveMoveSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.3.2'
+
+class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass, QueryRetrieveGetSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.2.3.3'
+
+
+
+d = dir()
+
+
+def UID2SOPClass(UID):
+    """Returns a SOPClass object from given UID"""
+
+    for ss in d:
+        if hasattr(eval(ss),'UID'):
+            tmpuid = getattr(eval(ss),'UID')
+            if tmpuid == UID:
+                return eval(ss)
+    return None
+
