@@ -60,7 +60,7 @@ class ACSEServiceProvider(object):
         # get answer
         if DEBUG: print "Waiting for Association Response ...",
         
-        assrsp = self.DUL.ReceiveACSE(True)
+        assrsp = self.DUL.Receive(True)
         if DEBUG: print " done"
         if not assrsp:
             return False
@@ -91,7 +91,7 @@ class ACSEServiceProvider(object):
         sends association response based on AcceptablePresentationContexts"""
         if self.DUL == None:
             self.DUL = DUL(Socket=client_socket)
-        ass = self.DUL.ReceiveACSE(Wait)
+        ass = self.DUL.Receive(Wait=True)
         if ass == None:
             return None
         
@@ -143,7 +143,7 @@ class ACSEServiceProvider(object):
         rel = A_RELEASE_ServiceParameters()
         rel.Reason = Reason
         self.DUL.Send(rel)
-        rsp = self.DUL.ReceiveACSE(Wait=True)
+        rsp = self.DUL.Receive(Wait=True)
         return rsp
         #self.DUL.Kill()
 
@@ -152,14 +152,14 @@ class ACSEServiceProvider(object):
         ab = A_ABORT_ServiceParameters()
         self.DUL.Send(rel)
         time.sleep(0.5)
-        self.DUL.Kill()
+        #self.DUL.Kill()
         
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of the request
         a confirmation is sent"""
-        rel = self.DUL.ReceiveACSE(Wait=False, Leave=True)
+        rel = self.DUL.Peek()
         if rel.__class__ == A_RELEASE_ServiceParameters:
-            self.DUL.ReceiveACSE(Wait=False)
+            self.DUL.Receive(Wait=False)
             relrsp = A_RELEASE_ServiceParameters()
             relrsp.Result = 0
             self.DUL.Send(relrsp)
@@ -169,9 +169,9 @@ class ACSEServiceProvider(object):
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
-        rel = self.DUL.ReceiveACSE(Wait=False, Leave=True)
+        rel = self.DUL.Peek()
         if rel.__class__ in (A_ABORT_ServiceParameters, A_P_ABORT_ServiceParameters):
-            self.DUL.ReceiveACSE(Wait=False)
+            self.DUL.Receive(Wait=False)
             return True
         else:
             return False        

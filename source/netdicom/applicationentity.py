@@ -62,12 +62,17 @@ class Association(threading.Thread):
 
                 
     def Kill(self):
-	self.DUL.Kill()
         self._Kill = True
+	for ii in range(100):
+	    if self.DUL.Stop(): return
+	    time.sleep(0.01)
+	self.DUL.Kill()
+
 
     def Release(self, reason):
+	print "RELEASE"
         self.ACSE.Release(reason)
-	self.Kill()
+	#self.Kill()
 
 
 

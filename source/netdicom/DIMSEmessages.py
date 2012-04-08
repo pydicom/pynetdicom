@@ -153,10 +153,12 @@ class DIMSEMessage:
     def Decode(self, pdata):
         """Constructs itself receiving a series of P-DATA primitives. Returns True when complete, False
         otherwise."""
+	if pdata.__class__ <> P_DATA_ServiceParameters:
+	    #not a pdata
+	    return False
         if DEBUG: print "receiving"
         if pdata == None: return False
         ii = pdata
-            
         for vv in ii.PresentationDataValueList:
             if DEBUG: print "DIMSE: ", str(unpack('b',vv[1][0]))
             # must be able to read P-DATA with several PDVs

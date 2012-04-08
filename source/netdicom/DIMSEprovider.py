@@ -8,7 +8,7 @@
 import DIMSEmessages
 import DIMSEparameters
 from DIMSEmessages import DIMSEMessage
-
+from DULparameters import P_DATA_ServiceParameters
 
 class DIMSEServiceProvider(object):
     def __init__(self, DUL):
@@ -48,18 +48,23 @@ class DIMSEServiceProvider(object):
             self.DUL.Send(pp)
 
     def Receive(self, Wait=False):
+        #serv = 
+        #print "class = ", serv.__class__
+        #if serv.__class__ is not 
+        #    return None, None
         if self.message == None:
             self.message = DIMSEMessage()
         if Wait:
-            while not self.message.Decode(self.DUL.ReceiveDIMSE(Wait)):
-                pass
+            while 1:
+                if self.DUL.Peek().__class__ is not P_DATA_ServiceParameters: continue
+                if self.message.Decode(self.DUL.Receive(Wait)):
+                    break
             tmp = self.message
             self.message = None
             return tmp.ToParams(), tmp.ID
         else:
-            if self.message.Decode(self.DUL.ReceiveDIMSE(Wait)):
+            if self.message.Decode(self.DUL.Receive(Wait)):
                 tmp = self.message
-                self.message = None
                 return tmp.ToParams(), tmp.ID
             else:
                 return None, None

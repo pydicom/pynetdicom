@@ -23,10 +23,14 @@ import fsm
 from struct import unpack
 from PDU import *
 import DULparameters
-import  queue as Queue
+import Queue
+import logging
+logger = logging.getLogger('pynetdicom')
+
 
 class InvalidPrimitive(Exception):
     pass
+
 
 def recvn(sock, n):
     ret = ''
@@ -61,13 +65,12 @@ class DULServiceProvider(Thread):
         self.event = Queue.Queue()
         # These variables provide communication between the DUL service
         # user and the DUL service provider. An event occurs when the DUL
-        # service user writes the variable self.ReceivePrimitive.
+        # service user writes the variable self.FromServiceUser.
         # A primitive is sent to the service user when the DUL service provider
-        # writes the variable self.SendPrimitive.
+        # writes the variable self.ToServiceUser.
         # The "None" value means that nothing happens. 
-        self.SendPrimitiveDIMSE = Queue.Queue()
-        self.SendPrimitiveACSE = Queue.Queue()
-        self.ReceivePrimitive = Queue.Queue()
+        self.ToServiceUser = Queue.Queue()
+        self.FromServiceUser = Queue.Queue()
 
 
         # Setup the timer and finite state machines
@@ -77,7 +80,7 @@ class DULServiceProvider(Thread):
 
         if Socket:
             # A client socket has been given
-            # generate an event 5 
+            # generate an event 5
             self.event.put('Evt5')
             self.RemoteClientSocket = Socket
             self.RemoteConnectionAddress = None
@@ -115,33 +118,37 @@ class DULServiceProvider(Thread):
         self.start()
 
 
-    def Flush(self):
-        pass
-        self.ReceivePrimitive.Flush()
-        self.SendPrimitiveDIMSE.Flush()
-        #self.SendPrimitiveACSE.Flush()
-
     def Kill(self):
+        """Immediately interrupts the thread"""
         self.kill = True
- 
+
+    def Stop(self):
+        """Interrupts the thread if state is "Sta1" """
+        if self.SM.CurrentState == 'Sta1':
+            self.kill = True
+            return True
+        else:
+            return False
 
     def Send(self,params):
-        self.ReceivePrimitive.put(params)
+        self.FromServiceUser.put(params)
 
-    def ReceiveACSE(self, Wait=True, Leave=False):
+
+    def Receive(self, Wait=False):
         #if not self.RemoteClientSocket: return None
         try:
-            return self.SendPrimitiveACSE.get(Wait, Leave)
+            tmp = self.ToServiceUser.get(Wait, None)
+            return tmp
         except Queue.Empty:
             return None
 
-
-    def ReceiveDIMSE(self, Wait=False, Leave=False):
-        if not self.RemoteClientSocket: return None
+    def Peek(self):
+        """Look at next item to be returned by get"""
         try:
-            return self.SendPrimitiveDIMSE.get(Wait, Leave)
-        except Queue.Empty:
+            return self.ToServiceUser.queue[0]
+        except:
             return None
+
 
 
     def CheckIncomingPDU(self):
@@ -149,15 +156,19 @@ class DULServiceProvider(Thread):
         # There is something to read
         # read type
         try:
-            rawpdu = self.RemoteClientSocket.recv(1)
+            rawpdu = self.RemoteClientSocket.recv(1)            
         except socket.error:
-            self.RemoteClientSocket = None
-            return
-        if rawpdu == '':
-            # Remote port has been closed
             self.event.put('Evt17')
             self.RemoteClientSocket.close()
             self.RemoteClientSocket = None
+            return
+        
+        if rawpdu == '':
+            # Remote port has been closed
+            self.event.put('Evt17')
+            self.RemoteClientSocket.close()    
+            self.RemoteClientSocket = None
+            return
         else:
             type = unpack('B', rawpdu)
             res = recvn(self.RemoteClientSocket,1)
@@ -176,7 +187,9 @@ class DULServiceProvider(Thread):
 
 
     def CheckTimer(self):
+        #logger.debug('%s: checking timer' % (self.name))  
         if self.Timer.Check() == False:
+            logger.debug('%s: timer expired' % (self.name))  
             # Timer expired
             self.event.put('Evt18')
             return True
@@ -184,24 +197,28 @@ class DULServiceProvider(Thread):
             return False
 
     def CheckIncomingPrimitive(self):
-        # look at self.ReceivePrimitive for incoming primitives        
-        if not self.ReceivePrimitive.IsEmpty():
-            # Determine the type of data coming on local port
-            # and set the event accordingly
-            self.primitive = self.ReceivePrimitive.get(Wait=False)
+        #logger.debug('%s: checking incoming primitive' % (self.name))  
+        # look at self.ReceivePrimitive for incoming primitives
+        try:
+            self.primitive = self.FromServiceUser.get(False, None)
             self.event.put(primitive2event(self.primitive))
             return True
-        else:
+        except Queue.Empty:
             return False
 
     def CheckNetwork(self):
-        #print "RemoteClientSocket: ", self.RemoteClientSocket
-        #if
+        #logger.debug('%s: checking network' % (self.name))
         if self.SM.CurrentState == 'Sta13':
+            # wainting for connection to close
+            #if self.RemoteClientSocket is None: return False
             # wait for remote connection to close
             while self.RemoteClientSocket.recv(1) <> '':
                 continue
-                #self.event.Flush() # flush event queue
+            #    #self.event.Flush() # flush event queue
+            self.RemoteClientSocket.close()
+            self.RemoteClientSocket = None
+            self.event.put('Evt17')
+            return True
         if self.LocalServerSocket and not self.RemoteClientSocket:
             # local server is listening
             [a,b,c] = select.select([self.LocalServerSocket],[],[],0)
@@ -217,39 +234,33 @@ class DULServiceProvider(Thread):
             # check if something comes in the client socket
             [a,b,c] = select.select([self.RemoteClientSocket],[],[],0)
             if a:
-                self.CheckIncomingPDU()             
+                self.CheckIncomingPDU()
                 return True
         else:
             return False
             
     
-    def run(self):      
+    def run(self):
         while 1:
+            #print self.event.qsize(), self.ToServiceUser.qsize(), self.FromServiceUser.qsize()
+            time.sleep(0.00000001)
+            #logger.debug('%s: starting DUL loop' % self.name)
             if self.kill:
                 break
-            time.sleep(0.001)
             # catch an event
             if self.CheckNetwork():
-                pass 
+                pass
             elif self.CheckIncomingPrimitive():
                 pass
             elif self.CheckTimer():
                 pass
-            elif self.kill:
-                break
             try:
-                evt = self.event.get()
-                self.SM.Action(evt,self)
+                evt = self.event.get(False)
             except Queue.Empty:
-                pass
-            except:
-                raise
-                print "error in State Machine", evt
-                
-                #continue
-                break
-
-
+                #logger.debug('%s: no event' % (self.name))
+                continue
+            self.SM.Action(evt,self)
+        logger.debug('%s: DUL loop ended' % self.name)
 
 def primitive2event(primitive):
     if primitive.__class__ == DULparameters.A_ASSOCIATE_ServiceParameters:

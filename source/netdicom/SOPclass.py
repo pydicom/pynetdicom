@@ -148,7 +148,6 @@ class StorageServiceClass(ServiceClass):
         try:
             DS = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
         except:
-            # cannot understand
             status = CannotUnderstand
         s.close()
         # make response
@@ -156,7 +155,6 @@ class StorageServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-            
         # callback
         if not status:
             rsp.Status = int(self.AE.OnReceiveStore(self, DS))

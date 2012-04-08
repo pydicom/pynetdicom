@@ -18,15 +18,18 @@ storescu -v localhost 9999 FILE.dcm
 
 import sys
 import os
-sys.path.append('../')
+sys.path.append('../..')
+import netdicom
 import time
-from applicationentity import AE
-from SOPclass import *
+from netdicom.applicationentity import AE
+from netdicom.SOPclass import *
 import dicom
 import dicom.filebase
 from dicom.dataset import Dataset, FileDataset
 import dcmtkscu
 from utils import testfiles_dir
+
+netdicom.debug(False)
 
 # callbacks
 def OnAssociateRequest(association):
@@ -70,7 +73,7 @@ MyAE.OnReceiveStore = OnReceiveStore
 MyAE.OnReceiveEcho = OnReceiveEcho
 
 
-dcmtkscu.run_in_term('storescu -v localhost 9999 ' + os.path.join(testfiles_dir(), 'rtplan.dcm'))
+dcmtkscu.run_in_term('storescu -d localhost 9999 ' + os.path.join(testfiles_dir(), 'rtplan.dcm'))
 
 # start AE
 print "starting AE ...,"

@@ -6,14 +6,17 @@
 #
 
 import sys
-sys.path.append('..')
-import DULparameters 
-from DULprovider import DULServiceProvider
+sys.path.append('../..')
+import netdicom
+import netdicom.DULparameters as DULparameters
+from netdicom.DULprovider import DULServiceProvider
 import time
-from PDU import MaximumLengthParameters
+from netdicom.PDU import MaximumLengthParameters
 import socket
 import time
 hostname=socket.gethostname()
+#netdicom.debug(True)
+
 
 # construct DUL primitives
 # self test code
@@ -51,13 +54,12 @@ dul1 = DULServiceProvider(Port=4567, Name='Dul1, Requestor')
 print "Ok."
 
 
-
 def Request():
 	#print "DUL1 requesting association ... ",
 	dul1.Send(ass)
 	#print "Ok."
 	#print "DUL2 receiving association request ... ",
-	ass1 = dul2.ReceiveACSE(True)
+	ass1 = dul2.Receive(True)
 	#print "Ok."
 	#print "DUL2 sending association response ... ",
 	ass1.PresentationContextDefinitionResultList = [[1, 0,  '1.2.840.10008.1.2']]
@@ -67,7 +69,7 @@ def Request():
 	#print "Ok."
 
 	#print "DUL1 receiving association response ... ",
-	res = dul1.ReceiveACSE(True)
+	res = dul1.Receive(True)
 	#print "Ok."
 
 def Abort():
@@ -76,26 +78,26 @@ def Abort():
 	#print "Ok."
 
 	#print "DUL2 receiving the abort notification ..."
-	ab2 = dul2.ReceiveACSE(True)
+	ab2 = dul2.Receive(True)
 	#print "Ok."
 
 def Release():
 	# Release Association
 	#print "Release association ... ",
 	dul1.Send(rel)
-	rel1 = dul2.ReceiveACSE(True)
+	rel1 = dul2.Receive(True)
 	rel1.Result = 0
 	dul2.Send(rel1)
-	dul1.ReceiveACSE(True)
+	dul1.Receive(True)
 	#print "Ok."
 
 
 def Send():
 	# Send p-data from dul1 to dul2
 	dul1.Send(pdata)
-	#print dul2.ReceiveDIMSE(True).PresentationDataValueList
+	dul2.Receive(True).PresentationDataValueList
 	dul2.Send(pdata)
-	#print dul1.ReceiveDIMSE(True).PresentationDataValueList
+	dul1.Receive(True).PresentationDataValueList
 
 
 N = 100
@@ -104,14 +106,18 @@ for ii in range(1,N+1):
 	#print "="*50
 	print "%d/%d" % (ii,N)
 	#print "="*50 
+
 	Request()
 	Release()
+	
 	Request()
 	Abort()
+	
 	Request()
 	Send()
 	Send()
 	Abort()
+	
 	Request()
 	Send()
 	Send()
@@ -120,6 +126,7 @@ for ii in range(1,N+1):
 	Send()
 	Send()
 	Release()
+	
     except KeyboardInterrupt:
 	break
 dul1.Kill()

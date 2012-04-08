@@ -339,8 +339,8 @@ class A_ASSOCIATE_RJ_PDU(pdu):
         tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
         tmp = tmp + " PDU length: %d\n" % self.PDULength
         tmp = tmp + " Result: %d\n" % self.Result
-        tmp = tmp + " Source: %d\n" % self.Source
-        tmp = tmp + " Reason/Diagnostic: %d\n" % self.ReasonDiag
+        tmp = tmp + " Source: %s\n" % str(self.Source)
+        tmp = tmp + " Reason/Diagnostic: %s\n" % str(self.ReasonDiag)
         return tmp + "\n"
 
 

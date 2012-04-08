@@ -10,44 +10,35 @@
 import socket
 import PDU
 import time
-from threading import Lock
 # Finite State machine action definitions
+
+import logging
+logger = logging.getLogger('pynetdicom')
 
 def AE_1(provider):
     # Issue TRANSPORT CONNECT request primitive to local transport service
     provider.RemoteClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        provider.RemoteClientSocket.connect(provider.primitive.CalledPresentationAddress)
-    except socket.error:
-        provider.RemoteClientSocket = None
-        provider.Flush()
-        provider.SM.CurrentState = 'Sta1'
+    provider.RemoteClientSocket.connect(provider.primitive.CalledPresentationAddress)
         
 def AE_2(provider):
     # Send A-ASSOCIATE-RQ PDU
     provider.pdu = PDU.A_ASSOCIATE_RQ_PDU()
     provider.pdu.FromParams(provider.primitive)
-    try:
-        provider.RemoteClientSocket.send(provider.pdu.Encode())
-    except socket.error:
-        # connection reset by peer
-        provider.RemoteClientSocket = None
-        provider.Flush()
-        provider.SM.CurrentState = 'Sta1'
+    provider.RemoteClientSocket.send(provider.pdu.Encode())
 
 def AE_3(provider):
     # Issue A-ASSOCIATE confirmation (accept) primitive
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
 
 def AE_4(provider):
     # Issue A-ASSOCIATE confirmation (reject) primitive and close transport connection
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
     provider.RemoteClientSocket.close()
     provider.RemoteClientSocket = None
     
 def AE_5(provider):
     # Issue connection response primitive start ARTIM timer
-    # Don't need to send this promitive.
+    # Don't need to send this primitive.
     provider.Timer.Start()
     
 def AE_6(provider):
@@ -56,7 +47,7 @@ def AE_6(provider):
     provider.Timer.Stop()
     # Accept
     provider.SM.NextState('Sta3')
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
     # otherwise????
 
 def AE_7(provider):
@@ -68,6 +59,13 @@ def AE_7(provider):
 def AE_8(provider):
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     provider.pdu =  PDU.A_ASSOCIATE_RJ_PDU()
+    # not sure about this ...
+    if provider.primitive.Diagnostic is not None:    
+        provider.primitive.ResultSource = 1
+    else:
+        provider.primitive.Diagnostic = 1
+        provider.primitive.ResultSource = 2
+        
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
 
@@ -79,7 +77,7 @@ def DT_1(provider):
     
 def DT_2(provider):
     # Send P-DATA indication primitive
-    provider.SendPrimitiveDIMSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
     
 def AR_1(provider):
     # Send A-RELEASE-RQ PDU
@@ -89,11 +87,11 @@ def AR_1(provider):
     
 def AR_2(provider):
     # Send A-RELEASE indication primitive
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
     
 def AR_3(provider):
     # Issue A-RELEASE confirmation primitive and close transport connection
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
     provider.RemoteClientSocket.close()
     provider.RemoteClientSocket = None
 
@@ -111,7 +109,7 @@ def AR_5(provider):
 
 def AR_6(provider):
     # Issue P-DATA indication
-    provider.SendPrimitiveDIMSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
 
 def AR_7(provider):
     # Issue P-DATA-TF PDU
@@ -121,7 +119,7 @@ def AR_7(provider):
     
 def AR_8(provider):
     # Issue A-RELEASE indication (release collision)
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
     if provider.requestor == 1:
         provider.SM.NextState('Sta9')
     else:
@@ -135,7 +133,7 @@ def AR_9(provider):
 
 def AR_10(provider):
     # Issue A-RELEASE confirmation primitive
-    provider.SendPrimitiveACSE.put(provider.primitive)
+    provider.ToServiceUser.put(provider.primitive)
 
 def AA_1(provider):
     # Send A-ABORT PDU (service-user source) and start (or restart
@@ -161,21 +159,19 @@ def AA_3(provider):
     # Otherwise (service-provider initiated abort):
     #   - Issue A-P-ABORT indication and close transport connection.
     # This action is triggered by the reception of an A-ABORT PDU
-    provider.SendPrimitiveACSE.put(provider.primitive)
-    provider.Flush()
+    provider.ToServiceUser.put(provider.primitive)
     provider.RemoteClientSocket.close()
     provider.RemoteClientSocket = None
 
 
 def AA_4(provider):
     # Issue A-P-ABORT indication primitive.
-    provider.SendPrimitiveACSE.put(provider.primitive)
-    #provider.Reset()
+    provider.ToServiceUser.put(provider.primitive)
 
 def AA_5(provider):
     # Stop ARTIM timer.
     provider.Timer.Stop()
-    #provider.Reset()
+
     
 def AA_6(provider):
     # Ignore PDU.
@@ -197,7 +193,7 @@ def AA_8(provider):
     if provider.RemoteClientSocket:
         provider.RemoteClientSocket.send(provider.pdu.Encode())
         # Issue A-P-ABORT indication
-        provider.SendPrimitiveACSE.put(provider.primitive)
+        provider.ToServiceUser.put(provider.primitive)
         provider.Timer.Start()
 
 
@@ -429,7 +425,7 @@ TransitionTable = {
     ('Evt19','Sta13'):'AA-7' }
 
 class StateMachine:
-    DEBUG = False
+
     def __init__(self, provider):
         self.CurrentState = 'Sta1'
         self.provider = provider
@@ -438,25 +434,26 @@ class StateMachine:
         try:
             action_name = TransitionTable[(event,self.CurrentState)]
         except:
-            print "Invalid event - state", event, self.CurrentState
-            #AA_8(self.provider)
-            #self.provider.Flush()
-            #self.CurrentState = 'Sta1'
-            #self.provider.Kill()
+            self.provider.name, "Invalid (event,state)", event, self.CurrentState
+            logger.debug('%s: current state is: %s %s' % (self.provider.name, self.CurrentState, states[self.CurrentState]))
+            logger.debug('%s: event: %s %s' % (self.provider.name, event, events[event]))   
+            raise
             return
         action = actions[action_name]
-        if self.DEBUG:
-            print 
-            print '#'*20, self.provider.getName(), '#'*20
-            print "State: %s: %s" % (self.CurrentState,states[self.CurrentState])
-            print "Event: %s: %s" % (event, events[event])
-            print "Action: %s: %s" % (action_name,actions[action_name][0])
-            print "Next State: %s" % (str(actions[action_name][2]))
-            print
-        action[1](c)
-        if type(action[2])<>type(()):
-            # only one next state possible
-            self.CurrentState = action[2]
+        try:
+            logger.debug('')
+            logger.debug('%s: current state is: %s %s' % (self.provider.name, self.CurrentState, states[self.CurrentState]))
+            logger.debug('%s: event: %s %s' % (self.provider.name, event, events[event]))
+            logger.debug('%s: entering action: (%s, %s) %s %s' % (self.provider.name, event, self.CurrentState, action_name, actions[action_name][0]))
+            action[1](c)
+            if type(action[2])<>type(()):
+                # only one next state possible
+                self.CurrentState = action[2]   
+            logger.debug('%s: action complete. State is now %s %s' % (self.provider.name, self.CurrentState, states[self.CurrentState]))
+        except:
+            raise
+            self.provider.Kill()
+
 
     def NextState(self,state):
         self.CurrentState = state
