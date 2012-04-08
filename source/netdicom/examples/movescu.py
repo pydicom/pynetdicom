@@ -11,7 +11,6 @@ sys.path.append('..')
 import time
 from applicationentity import AE
 from SOPclass import PatientRootMoveSOPClass, VerificationSOPClass
-import dicom
 from dcmqrscp import start_dcmqrscp
 from dicom.dataset import Dataset
 

@@ -7,19 +7,10 @@
 
 from DIMSEparameters import *
 from DULparameters import *
-import dicom
 from dicom.dataset import Dataset
-from StringIO import StringIO
+import dsutils
 from struct import pack, unpack
 from dicom.UID import ImplicitVRLittleEndian
-from dicom.filereader import read_dataset
-from dicom.filewriter import write_dataset
-if dicom.__version_info__ >= (1,0,0):
-    from dicom.filebase import DicomBytesIO
-else:
-    from dicom.filebase import DicomStringIO as DicomBytesIO
-from dicom.filewriter import write_data_element
-
 ####
 #  pydicom's dictionnary misses command tags. Add them.
 ####
@@ -108,16 +99,8 @@ class DIMSEMessage:
         """Returns the encoded message as a series of P-DATA service parameter objects"""
         self.ID = id
         pdatas = []
-        #f = StringIO()
-        #DatasetWrapper(self.CommandSet).Write(self.ts,f)
 	
-	f = DicomBytesIO()
-        f.is_implicit_VR = self.ts.is_implicit_VR
-        f.is_little_endian = self.ts.is_little_endian
-        write_dataset(f, self.CommandSet)
-	
-	
-        encoded_command_set = f.parent.getvalue()
+        encoded_command_set = dsutils.encode(self.CommandSet, self.ts.is_implicit_VR, self.ts.is_little_endian)
 	
         # fragment command set
         pdvs = fragment(maxpdulength, encoded_command_set)
@@ -168,9 +151,7 @@ class DIMSEMessage:
                 self.encoded_command_set += vv[1][1:]
                 if unpack('b',vv[1][0])[0] == 3:
                     if DEBUG: print "  last command fragment", self.ID
-                    f = StringIO(self.encoded_command_set)
-                    self.CommandSet = read_dataset(f,  self.ts.is_implicit_VR, self.ts.is_little_endian)
-                    f.close()
+                    self.CommandSet = dsutils.decode(self.encoded_command_set, self.ts.is_implicit_VR, self.ts.is_little_endian)
                     self.__class__ = MessageType[self.CommandSet[(0x0000,0x0100)].value]
                     if self.CommandSet[(0x0000,0x0800)].value == 0x0101:
                         # response: no dataset
@@ -190,12 +171,13 @@ class DIMSEMessage:
     def SetLength(self):
         # compute length
         l = 0
-        f = DicomBytesIO()
-        f.is_implicit_VR = self.ts.is_implicit_VR
-        f.is_little_endian = self.ts.is_little_endian
+        s = ''
         for ii in self.CommandSet.values()[1:]:
-            write_data_element(f, ii)
-        l = len(f.parent.getvalue())
+            s += dsutils.encode_element(ii, 
+                                        self.ts.is_implicit_VR, 
+                                        self.ts.is_little_endian)
+
+        l = len(s)
         if self.DataSet<>None:
             l += len(self.DataSet)
         self.CommandSet[(0x0000,0x0000)].value = l

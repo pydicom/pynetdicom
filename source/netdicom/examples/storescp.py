@@ -23,8 +23,6 @@ import netdicom
 import time
 from netdicom.applicationentity import AE
 from netdicom.SOPclass import *
-import dicom
-import dicom.filebase
 from dicom.dataset import Dataset, FileDataset
 import dcmtkscu
 from utils import testfiles_dir

@@ -21,7 +21,6 @@ import time
 from applicationentity import AE
 from SOPclass import PatientRootMoveSOPClass, VerificationSOPClass, RTPlanStorageSOPClass
 import dicom
-from dicom.dataset import Dataset
 from dcmqrscp import start_dcmqrscp
 import dcmtkscu
 
@@ -45,7 +44,7 @@ def OnReceiveMove(self, ident, remoteAE):
     # pretend that we lookup the database to find a list of datasets to be moved
     yield dict(AET=remoteAE, Port=2001, Address='localhost')
     
-    nop = 1000
+    nop = 10
     yield nop
     
     for ii in range(nop):

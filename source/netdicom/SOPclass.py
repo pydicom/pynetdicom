@@ -4,17 +4,10 @@
 #    See the file license.txt included with this distribution, also
 #    available at http://pynetdicom.googlecode.com
 #
-import dicom
+import dsutils
 from DIMSEparameters import *
 import DIMSEprovider
 import ACSEprovider
-import StringIO
-if dicom.__version_info__ >= (1,0,0):
-    from dicom.filebase import DicomBytesIO
-else:
-    from dicom.filebase import DicomStringIO as DicomBytesIO
-from dicom.filereader import read_dataset
-from dicom.filewriter import write_dataset
 import time
 
 class Status(object):
@@ -118,18 +111,15 @@ class StorageServiceClass(ServiceClass):
 
     
     def StoreSCU(self, dataset, msgid):
-        f = DicomBytesIO()
-        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
-        f.is_little_endian = self.transfersyntax.is_little_endian
-        write_dataset(f, dataset)
         # build C-STORE primitive
         csto = C_STORE_ServiceParameters()
         csto.MessageID = msgid
         csto.AffectedSOPClassUID = dataset.SOPClassUID
         csto.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         csto.Priority = 0x0002
-        csto.DataSet = f.parent.getvalue()
-        f.close()
+        csto.DataSet = dsutils.encode(dataset, 
+                                      self.transfersyntax.is_implicit_VR, 
+                                      self.transfersyntax.is_little_endian)
 
         # send cstore request
         self.DIMSE.Send(csto, self.pcid, self.maxpdulength)
@@ -143,13 +133,13 @@ class StorageServiceClass(ServiceClass):
         ServiceClass.__init__(self)
 
     def StoreSCP(self, msg):
-        s = StringIO.StringIO(msg.DataSet)
         status = None
         try:
-            DS = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+            DS = dsutils.decode(msg.DataSet, 
+                                self.transfersyntax.is_implicit_VR, 
+                                self.transfersyntax.is_little_endian)
         except:
             status = CannotUnderstand
-        s.close()
         # make response
         rsp = C_STORE_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
@@ -219,12 +209,9 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         cfind.MessageID = msgid
         cfind.AffectedSOPClassUID = self.UID
         cfind.Priority = 0x0002
-        f = DicomBytesIO()
-        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
-        f.is_little_endian = self.transfersyntax.is_little_endian
-        write_dataset(f, ds)
-        cfind.Identifier = f.parent.getvalue()
-        f.close()
+        cfind.Identifier = dsutils.encode(ds, 
+                                          self.transfersyntax.is_implicit_VR, 
+                                          self.transfersyntax.is_little_endian)
 
         # send c-find request
         self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
@@ -232,9 +219,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             # wait for c-find responses
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans: continue
-            s = StringIO.StringIO(ans.Identifier)
-            d = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
-            s.close()
+            d = dsutils.decode(ans.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
             if self.Code2Status(ans.Status.value).Type <> 'Pending':
                 break
             yield d
@@ -242,9 +227,8 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
 
 
     def FindSCP(self, msg):
-        s = StringIO.StringIO(msg.Identifier)
-        ds = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
-        s.close()
+        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+
         # make response
         rsp = C_FIND_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
@@ -255,12 +239,9 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             while 1:
                 IdentifierDS, status = gen.next()
                 rsp.Status = int(status)
-                f = DicomBytesIO()
-                f.is_implicit_VR = self.transfersyntax.is_implicit_VR
-                f.is_little_endian = self.transfersyntax.is_little_endian
-                write_dataset(f, IdentifierDS)
-                rsp.Identifier = f.parent.getvalue()
-                f.close()
+                rsp.Identifier = dsutils.encode(IdentifierDS, 
+                                                self.transfersyntax.is_implicit_VR, 
+                                                self.transfersyntax.is_little_endian)
                 # send response
                 self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
         except StopIteration:
@@ -326,12 +307,9 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
         cget.MessageID = msgid
         cget.AffectedSOPClassUID = self.UID
         cget.Priority = 0x0002
-        f = DicomBytesIO()
-        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
-        f.is_little_endian = self.transfersyntax.is_little_endian
-        write_dataset(f, ds)
-        cget.Identifier = f.parent.getvalue()
-        f.close()
+        cget.Identifier = dsutils.encode(dataset, 
+                                         self.transfersyntax.is_implicit_VR, 
+                                         self.transfersyntax.is_little_endian)
 
         # send c-get primitive
         self.DIMSE.Send(cget, self.pcid, self.maxpdulength)
@@ -353,11 +331,9 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
                 rsp.MessageIDBeingRespondedTo = msg.MessageID
                 rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
                 rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-
-                s = StringIO.StringIO(msg.DataSet)
                 status = None
                 try:
-                    d = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+                    d = dsutils.decode(msg.DataSet, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
                 except:
                     # cannot understand
                     status = CannotUnderstand
@@ -429,12 +405,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
         cmove.AffectedSOPClassUID = self.UID
         cmove.MoveDestination = destaet
         cmove.Priority = 0x0002
-        f = DicomBytesIO()
-        f.is_implicit_VR = self.transfersyntax.is_implicit_VR
-        f.is_little_endian = self.transfersyntax.is_little_endian
-        write_dataset(f, ds)
-        cmove.Identifier = f.parent.getvalue()
-        f.close()
+        cmove.Identifier = dsutils.encode(ds, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
 
         # send c-find request
         self.DIMSE.Send(cmove, self.pcid, self.maxpdulength)
@@ -452,8 +423,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
 
 
     def MoveSCP(self, msg):
-        s = StringIO.StringIO(msg.Identifier)
-        ds = read_dataset(s, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
         
         # make response
         rsp = C_MOVE_ServiceParameters()
