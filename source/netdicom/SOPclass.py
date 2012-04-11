@@ -110,7 +110,7 @@ class StorageServiceClass(ServiceClass):
         )
 
     
-    def StoreSCU(self, dataset, msgid):
+    def SCU(self, dataset, msgid):
         # build C-STORE primitive
         csto = C_STORE_ServiceParameters()
         csto.MessageID = msgid
@@ -132,7 +132,7 @@ class StorageServiceClass(ServiceClass):
     def __init__(self):
         ServiceClass.__init__(self)
 
-    def StoreSCP(self, msg):
+    def SCP(self, msg):
         status = None
         try:
             DS = dsutils.decode(msg.DataSet, 
@@ -505,6 +505,12 @@ class SCImageStorageSOPClass(StorageSOPClass):
 
 class RTImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.481.1'
+
+class RTDoseStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.481.2'
+
+class RTStructureSetStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.481.3'
 
 class RTPlanStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.481.5'

@@ -45,9 +45,30 @@ class Association(threading.Thread):
         self.AssociationRefused = None
         self.start()
 
+    def GetSOPClass(self, ds):
+        sopclass = UID2SOPClass(ds.SOPClassUID)
+
+
+    def SCU(self, ds, id):
+        obj = UID2SOPClass(ds.SOPClassUID)()
+        try:
+            obj.pcid, obj.sopclass, obj.transfersyntax = \
+                      [x for x in self.SOPClassesAsSCU if \
+                       x[1]==obj.__class__][0]
+        except IndexError:
+            return
+            #raise Exception, "SOP Class %s not supported as SCU"
+            
+        obj.maxpdulength = self.ACSE.MaxPDULength
+        obj.DIMSE = self.DIMSE
+        obj.AE = self.AE
+        return obj.SCU(ds, id)
+
+
     def __getattr__(self, attr):
-        while not self.AssociationEstablished:
-            time.sleep(0.01)
+        #while not self.AssociationEstablished:
+        #    time.sleep(0.01)
+
         obj = eval(attr)()
         try:
             obj.pcid, obj.sopclass, obj.transfersyntax = \
@@ -124,13 +145,14 @@ class Association(threading.Thread):
                                               UID2SOPClass(ss[1]), ss[2]))
 
 	self.AssociationEstablished = True
-        
+
         # association established. Listening on local and remote interfaces
         while not self._Kill:
-            time.sleep(0.01)
+            time.sleep(0.000001)
             # look for incoming DIMSE message
             if self.Mode == 'Acceptor':
-                dimsemsg,pcid = self.DIMSE.Receive(Wait=False)
+                dimsemsg,pcid = self.DIMSE.Receive(Wait=True)
+                print "SET"
                 if dimsemsg:
                     # dimse message received
                     uid = dimsemsg.AffectedSOPClassUID
@@ -147,7 +169,7 @@ class Association(threading.Thread):
                     obj.AE = self.AE
                     # find requested operation
                     if dimsemsg.__class__ == C_STORE_ServiceParameters:
-                        op = obj.StoreSCP
+                        op = obj.SCP
                     elif dimsemsg.__class__ == C_FIND_ServiceParameters:
                         op = obj.FindSCP
                     elif dimsemsg.__class__ == C_GET_ServiceParameters:
@@ -163,6 +185,7 @@ class Association(threading.Thread):
                 # check for release request
                 if self.ACSE.CheckRelease():
                     print "Release requested"
+                    self.ACSE.AcceptRelease()
                     self.Kill()
 
                 # check for abort
@@ -184,9 +207,9 @@ class AE(threading.Thread):
     on received events.
     """
     def __init__(self, AET, port, SOPSCU, SOPSCP, 
-                 SupportedTransferSyntax=[ExplicitVRLittleEndian, 
-                                          ImplicitVRLittleEndian, 
-                                          ExplicitVRBigEndian
+                 SupportedTransferSyntax=[ImplicitVRLittleEndian, 
+                                          #ExplicitVRLittleEndian, 
+                                          #ExplicitVRBigEndian
                                           ], 
                  MaxPDULength=16000):
         self.LocalAE = {'Address': platform.node(), 'Port': port, 'AET':AET}
@@ -237,7 +260,7 @@ class AE(threading.Thread):
             return
         while 1:
             # main loop
-            time.sleep(0.01)
+            time.sleep(0.000001)
             if self.__Quit: break
             [a,b,c] = select.select([self.LocalServerSocket],[],[],0)
             if a:
