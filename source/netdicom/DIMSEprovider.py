@@ -48,22 +48,15 @@ class DIMSEServiceProvider(object):
         for pp in pdatas:
             self.DUL.Send(pp)
 
-    def Receive(self, Wait=False):
+    def Receive(self, Wait=False, Timeout=None):
         if self.message == None:
             self.message = DIMSEMessage()
-        if Wait:
-            while 1:
-                time.sleep(0.0001)
-                if self.DUL.Peek().__class__ is not P_DATA_ServiceParameters: continue
-                if self.message.Decode(self.DUL.Receive(Wait)):
-                    break
-            tmp = self.message
-            self.message = None
-            return tmp.ToParams(), tmp.ID
-        else:
+        while 1:
+            time.sleep(0.00001)
             if self.DUL.Peek().__class__ is not P_DATA_ServiceParameters: return None, None
-            if self.message.Decode(self.DUL.Receive(Wait)):
+            if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
                 tmp = self.message
+                self.message=None
                 return tmp.ToParams(), tmp.ID
-            else:
-                return None, None
+ 
+

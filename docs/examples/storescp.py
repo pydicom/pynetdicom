@@ -31,14 +31,8 @@ def OnReceiveEcho(self):
     print "Echo received"
     return True
  
-import time
-tic = time.time()
 def OnReceiveStore(SOPClass, DS):
-    global tic
-    print time.time()-tic
-    tic = time.time()
     print "Received C-STORE"
-    return 0
     # do something with dataset. For instance, store it.
     file_meta = Dataset()
     file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2' # CT Image Storage

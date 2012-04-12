@@ -67,7 +67,6 @@ DicomDictionary.update( {
 
 DEBUG = False
 
-
 def fragment(maxpdulength, str):
     s = str
     fragments = []

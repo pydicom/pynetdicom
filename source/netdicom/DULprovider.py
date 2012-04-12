@@ -134,10 +134,10 @@ class DULServiceProvider(Thread):
         self.FromServiceUser.put(params)
 
 
-    def Receive(self, Wait=False):
+    def Receive(self, Wait=False, Timeout=None):
         #if not self.RemoteClientSocket: return None
         try:
-            tmp = self.ToServiceUser.get(Wait, None)
+            tmp = self.ToServiceUser.get(Wait, Timeout)
             return tmp
         except Queue.Empty:
             return None

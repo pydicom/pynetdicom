@@ -151,8 +151,7 @@ class Association(threading.Thread):
             time.sleep(0.000001)
             # look for incoming DIMSE message
             if self.Mode == 'Acceptor':
-                dimsemsg,pcid = self.DIMSE.Receive(Wait=True)
-                print "SET"
+                dimsemsg,pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
                 if dimsemsg:
                     # dimse message received
                     uid = dimsemsg.AffectedSOPClassUID
@@ -185,7 +184,7 @@ class Association(threading.Thread):
                 # check for release request
                 if self.ACSE.CheckRelease():
                     print "Release requested"
-                    self.ACSE.AcceptRelease()
+                    self.ACSE.CheckRelease()
                     self.Kill()
 
                 # check for abort
