@@ -51,14 +51,14 @@ assoc = MyAE.RequestAssociation(RemoteAE)
 # perform a DICOM ECHO
 #time.sleep(2)
 print "DICOM Echo ... ",
-st = assoc.VerificationSOPClass.EchoSCU(1)
+st = assoc.VerificationSOPClass.SCU(1)
 print 'done with status "%s"' % st
 
 
 # send dataset using RTPlanStorageSOPClass
 #time.sleep(2)
 print "DICOM StoreSCP ... ",
-st = assoc.RTPlanStorageSOPClass.StoreSCU(d, 1)
+st = assoc.RTPlanStorageSOPClass.SCU(d, 1)
 print 'done with status "%s"' % st
 
 print "Release association"

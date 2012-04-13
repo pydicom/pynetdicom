@@ -17,12 +17,14 @@ movescu -v -P -aem AE1 -k 0010,0010="*" -k 0008,0052="PATIENT" localhost 9999
 
 import sys
 sys.path.append('..')
+import os
 import time
 from applicationentity import AE
 from SOPclass import PatientRootMoveSOPClass, VerificationSOPClass, RTPlanStorageSOPClass
 import dicom
 from dcmqrscp import start_dcmqrscp
 import dcmtkscu
+from utils import testfiles_dir
 
 # first create a partner
 start_dcmqrscp(server_port=2001, server_AET='AE1')
@@ -49,7 +51,7 @@ def OnReceiveMove(self, ident, remoteAE):
     
     for ii in range(nop):
         # create fake dataset
-        ds = dicom.read_file("/usr/share/pyshared/dicom/testfiles/rtplan.dcm")
+        ds = dicom.read_file(os.path.join(testfiles_dir(),"rtplan.dcm"))
         print "sending fake dataset"
         yield ds
 

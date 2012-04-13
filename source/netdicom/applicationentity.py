@@ -151,7 +151,7 @@ class Association(threading.Thread):
             time.sleep(0.000001)
             # look for incoming DIMSE message
             if self.Mode == 'Acceptor':
-                dimsemsg,pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
+                dimsemsg,pcid = self.DIMSE.Receive(Wait=True, Timeout=None)
                 if dimsemsg:
                     # dimse message received
                     uid = dimsemsg.AffectedSOPClassUID
@@ -166,20 +166,9 @@ class Association(threading.Thread):
                     obj.DIMSE = self.DIMSE
                     obj.ACSE = self.ACSE
                     obj.AE = self.AE
-                    # find requested operation
-                    if dimsemsg.__class__ == C_STORE_ServiceParameters:
-                        op = obj.SCP
-                    elif dimsemsg.__class__ == C_FIND_ServiceParameters:
-                        op = obj.FindSCP
-                    elif dimsemsg.__class__ == C_GET_ServiceParameters:
-                        op = obj.GetSCP
-                    elif dimsemsg.__class__ == C_MOVE_ServiceParameters:
-                        op = obj.MoveSCP
-                    elif dimsemsg.__class__ == C_ECHO_ServiceParameters:
-                        op = obj.EchoSCP                    
 
                     # run SCP
-                    op(dimsemsg)
+                    obj.SCP(dimsemsg)
 
                 # check for release request
                 if self.ACSE.CheckRelease():

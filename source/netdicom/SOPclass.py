@@ -49,7 +49,7 @@ class VerificationServiceClass(ServiceClass):
         ServiceClass.__init__(self)
 
 
-    def EchoSCU(self, id):
+    def SCU(self, id):
         cecho = C_ECHO_ServiceParameters()
         cecho.MessageID = id
         cecho.AffectedSOPClassUID = self.UID
@@ -60,7 +60,7 @@ class VerificationServiceClass(ServiceClass):
         return  self.Code2Status(ans.Status)
 
     
-    def EchoSCP(self, msg):
+    def SCP(self, msg):
         rsp = C_ECHO_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID.value
         rsp.Status = 0
@@ -203,7 +203,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
 
 
 
-    def FindSCU(self, ds, msgid):
+    def SCU(self, ds, msgid):
         # build C-FIND primitive
         cfind = C_FIND_ServiceParameters()
         cfind.MessageID = msgid
@@ -226,7 +226,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         
 
 
-    def FindSCP(self, msg):
+    def SCP(self, msg):
         ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
 
         # make response
@@ -301,13 +301,13 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
         )
 
 
-    def GetSCU(self, ds, msgid):
+    def SCU(self, ds, msgid):
         # build C-GET primitive
         cget = C_GET_ServiceParameters()
         cget.MessageID = msgid
         cget.AffectedSOPClassUID = self.UID
         cget.Priority = 0x0002
-        cget.Identifier = dsutils.encode(dataset, 
+        cget.Identifier = dsutils.encode(ds, 
                                          self.transfersyntax.is_implicit_VR, 
                                          self.transfersyntax.is_little_endian)
 
@@ -337,7 +337,6 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
                 except:
                     # cannot understand
                     status = CannotUnderstand
-                s.close()
 
                 
                 SOPClass = UID2SOPClass(d.SOPClassUID)
@@ -398,7 +397,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
         )
 
 
-    def MoveSCU(self, ds, destaet, msgid):
+    def SCU(self, ds, destaet, msgid):
         # build C-FIND primitive
         cmove = C_MOVE_ServiceParameters()
         cmove.MessageID = msgid
@@ -422,7 +421,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
 
 
 
-    def MoveSCP(self, msg):
+    def SCP(self, msg):
         ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
         
         # make response
@@ -450,7 +449,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
                 s=str(UID2SOPClass(DataSet.SOPClassUID))
                 ind = len(s)-s[::-1].find('.')
                 obj = getattr(ass,s[ind:-2])
-                status = obj.StoreSCU(DataSet, ncompleted)
+                status = obj.SCU(DataSet, ncompleted)
                 if status.Type == 'Failed':
                      nfailed += 1
                 if status.Type == 'Warning':

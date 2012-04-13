@@ -37,7 +37,7 @@ assoc = MyAE.RequestAssociation(RemoteAE)
         
 # perform a DICOM ECHO
 print "DICOM Echo ... ",
-st = assoc.VerificationSOPClass.EchoSCU(1)
+st = assoc.VerificationSOPClass.SCU(1)
 print 'done with status "%s"' % st
 
 # send dataset using RTPlanStorageSOPClass
@@ -45,7 +45,7 @@ print "DICOM FindSCU ... ",
 d = Dataset()
 d.PatientsName = '*'
 d.QueryRetrieveLevel = "PATIENT"
-st = assoc.PatientRootFindSOPClass.FindSCU(d, 1)
+st = assoc.PatientRootFindSOPClass.SCU(d, 1)
 print 'done with status "%s"' % st
 
 print "Results"
