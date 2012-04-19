@@ -46,12 +46,12 @@ class TestAssociateService(unittest.TestCase):
         self.dul1 = DULServiceProvider(Port=None, Name='Dul1, Requestor')
         self.dul2 = DULServiceProvider(Port=server_port, Name='Dul2, Acceptor')	
         self.dul1.Send(assoc)
-	ass1 = self.dul2.ReceiveACSE(True)
+	ass1 = self.dul2.Receive(True)
 	ass1.PresentationContextDefinitionResultList = [[1, 0,  '1.2.840.10008.1.2']]
 	ass1.PresentationContextDefinitionList = None
 	ass1.Result = 0
 	self.dul2.Send(ass1)
-	res = self.dul1.ReceiveACSE(True)
+	res = self.dul1.Receive(True)
         self.dul1.Kill()
         self.dul2.Kill()
 
@@ -59,12 +59,12 @@ class TestAssociateService(unittest.TestCase):
         self.dul1 = DULServiceProvider(Port=None, Name='Dul1, Requestor')
         self.dul2 = DULServiceProvider(Port=server_port, Name='Dul2, Acceptor')
 	self.dul1.Send(assoc)
-	ass1 = self.dul2.ReceiveACSE(True)
+	ass1 = self.dul2.Receive(True)
 	ass1.PresentationContextDefinitionResultList = [[1, 0,  '1.2.840.10008.1.2']]
 	ass1.PresentationContextDefinitionList = None
 	ass1.Result = 1
 	self.dul2.Send(ass1)
-	res = self.dul1.ReceiveACSE(True)
+	res = self.dul1.Receive(True)
         self.dul1.Kill()
         self.dul2.Kill()
 
@@ -77,13 +77,13 @@ class TestAssociateService(unittest.TestCase):
         self.dul1 = DULServiceProvider(Port=4567, Name='Dul1, Requestor')
         self.dul2 = DULServiceProvider(Port=server_port, Name='Dul2, Acceptor')
 	self.dul1.Send(assoc)
-	ass1 = self.dul2.ReceiveACSE(True)
+	ass1 = self.dul2.Receive(True)
 	ass1.PresentationContextDefinitionResultList = [[1, 0,  '1.2.840.10008.1.2']]
 	ass1.PresentationContextDefinitionList = None
 	ass1.Result = 1
 	time.sleep(10)
 	self.dul2.Send(ass1)
-	res = self.dul1.ReceiveACSE(True)
+	res = self.dul1.Receive(True)
         self.dul1.Kill()
         self.dul2.Kill()
 

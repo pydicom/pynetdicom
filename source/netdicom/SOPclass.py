@@ -20,7 +20,7 @@ class Status(object):
         return self.CodeRange[0]
 
     def __repr__(self):
-        return self.Type+self.Description
+        return self.Type+' '+self.Description
 
 
 class ServiceClass(object):   
@@ -66,7 +66,10 @@ class VerificationServiceClass(ServiceClass):
         rsp.Status = 0
                 
         # send response
-        self.AE.OnReceiveEcho(self)
+        try:
+            self.AE.OnReceiveEcho(self)
+        except:
+            print "There was an exception on OnReceiveEcho callback"
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
@@ -139,7 +142,7 @@ class StorageServiceClass(ServiceClass):
                                 self.transfersyntax.is_implicit_VR, 
                                 self.transfersyntax.is_little_endian)
         except:
-            status = CannotUnderstand
+            status = self.CannotUnderstand
         # make response
         rsp = C_STORE_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
@@ -147,12 +150,13 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         # callback
         if not status:
-            rsp.Status = int(self.AE.OnReceiveStore(self, DS))
-        else:
-            rsp.Status = int(status)
-                
-        # check abort
-        print rsp.Status
+            try:
+                status = self.AE.OnReceiveStore(self, DS)
+            except:
+                print "There was an exception in OnReceiveStore callback"
+                status = self.CannotUnderstand
+        rsp.Status = int(status)
+        print "Status: %s" % status
         # send response
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
         
@@ -216,6 +220,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         # send c-find request
         self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
         while 1:
+            time.sleep(0.001)
             # wait for c-find responses
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans: continue
@@ -237,6 +242,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         gen = self.AE.OnReceiveFind(self, ds)
         try:
             while 1:
+                time.sleep(0.001)
                 IdentifierDS, status = gen.next()
                 rsp.Status = int(status)
                 rsp.Identifier = dsutils.encode(IdentifierDS, 
@@ -411,6 +417,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
 
         while 1:
             # wait for c-move responses
+            time.sleep(0.001)
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans: continue
             print ans.Status.value
@@ -515,7 +522,7 @@ class RTPlanStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.481.5'
 
 
-
+    
 
 # QUERY RETRIEVE SOP Classes
 class QueryRetrieveSOPClass(QueryRetrieveServiceClass):

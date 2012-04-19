@@ -73,5 +73,5 @@ def start_dcmqrscp(server_port=2000, server_AET='OFFIS_AE',
 
 if __name__ == '__main__':
     # Start two instances of dcmqrscp.
-    start_dcmqrscp(server_port=2001, server_AET='AE1')
-    start_dcmqrscp(server_port=2002, server_AET='AE2')
+    start_dcmqrscp(server_port=2001, server_AET='AE1', populate=True)
+    #start_dcmqrscp(server_port=2002, server_AET='AE2')

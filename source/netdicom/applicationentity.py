@@ -56,9 +56,9 @@ class Association(threading.Thread):
                       [x for x in self.SOPClassesAsSCU if \
                        x[1]==obj.__class__][0]
         except IndexError:
-            return
-            #raise Exception, "SOP Class %s not supported as SCU"
+            raise Exception, "SOP Class %s not supported as SCU"
             
+
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
         obj.AE = self.AE
@@ -67,7 +67,7 @@ class Association(threading.Thread):
 
     def __getattr__(self, attr):
         #while not self.AssociationEstablished:
-        #    time.sleep(0.01)
+        #    time.sleep(0.001)
 
         obj = eval(attr)()
         try:
@@ -86,7 +86,7 @@ class Association(threading.Thread):
         self._Kill = True
 	for ii in range(100):
 	    if self.DUL.Stop(): return
-	    time.sleep(0.01)
+	    time.sleep(0.001)
 	self.DUL.Kill()
 
 
@@ -148,10 +148,10 @@ class Association(threading.Thread):
 
         # association established. Listening on local and remote interfaces
         while not self._Kill:
-            time.sleep(0.000001)
+            time.sleep(0.001)
             # look for incoming DIMSE message
             if self.Mode == 'Acceptor':
-                dimsemsg,pcid = self.DIMSE.Receive(Wait=True, Timeout=None)
+                dimsemsg,pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
                 if dimsemsg:
                     # dimse message received
                     uid = dimsemsg.AffectedSOPClassUID
@@ -173,7 +173,6 @@ class Association(threading.Thread):
                 # check for release request
                 if self.ACSE.CheckRelease():
                     print "Release requested"
-                    self.ACSE.CheckRelease()
                     self.Kill()
 
                 # check for abort
@@ -221,9 +220,15 @@ class AE(threading.Thread):
         count = 1
         self.PresentationContextDefinitionList = []
         for ii in self.SupportedSOPClassesAsSCU+self.SupportedSOPClassesAsSCP:
-            self.PresentationContextDefinitionList.append(
-                [count, UID(ii.UID), [x for x in self.SupportedTransferSyntax]])
-            count += 2
+            if ii.__subclasses__():
+                for jj in ii.__subclasses__():
+                    self.PresentationContextDefinitionList.append(
+                        [count, UID(jj.UID), [x for x in self.SupportedTransferSyntax]])
+                    count += 2
+            else:
+                self.PresentationContextDefinitionList.append(
+                    [count, UID(ii.UID), [x for x in self.SupportedTransferSyntax]])
+                count += 2
 
         # build acceptable context definition list used to decide
         # weither an association from a remote AE will be accepted or
@@ -231,9 +236,14 @@ class AE(threading.Thread):
         # SupportedTransferSyntax values set for this AE.
         self.AcceptablePresentationContexts = []
         for ii in self.SupportedSOPClassesAsSCP:
-            self.AcceptablePresentationContexts.append(
-                [ii.UID, [x for x in self.SupportedTransferSyntax]])
-            
+            if ii.__subclasses__():
+                for jj in ii.__subclasses__():
+                    self.AcceptablePresentationContexts.append(
+                        [jj.UID, [x for x in self.SupportedTransferSyntax]])
+            else:
+                self.AcceptablePresentationContexts.append(
+                    [ii.UID, [x for x in self.SupportedTransferSyntax]])
+
         # used to terminate AE
         self.__Quit = False
 	
@@ -248,7 +258,7 @@ class AE(threading.Thread):
             return
         while 1:
             # main loop
-            time.sleep(0.000001)
+            time.sleep(0.1)
             if self.__Quit: break
             [a,b,c] = select.select([self.LocalServerSocket],[],[],0)
             if a:
@@ -270,7 +280,7 @@ class AE(threading.Thread):
         # must be called from the main thread in order to catch the KeyboardInterrupt exception
         while 1:
             try:
-                time.sleep(0.01)
+                time.sleep(1)
             except KeyboardInterrupt:
                 self.Quit()
                 sys.exit(0)

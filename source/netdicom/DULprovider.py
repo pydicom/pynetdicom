@@ -243,7 +243,7 @@ class DULServiceProvider(Thread):
     def run(self):
         while 1:
             #print self.event.qsize(), self.ToServiceUser.qsize(), self.FromServiceUser.qsize()
-            time.sleep(0.0000001)
+            time.sleep(0.001)
             #logger.debug('%s: starting DUL loop' % self.name)
             if self.kill:
                 break

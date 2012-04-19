@@ -54,7 +54,7 @@ class DIMSEServiceProvider(object):
         if Wait:
             # loop until complete DIMSE message is received
             while 1:    
-                time.sleep(0.00001)
+                time.sleep(0.001)
                 nxt = self.DUL.Peek()
                 if nxt is None: continue
                 if nxt.__class__ is not P_DATA_ServiceParameters: return None, None

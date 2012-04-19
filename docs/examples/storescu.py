@@ -11,7 +11,6 @@ from netdicom.applicationentity import AE
 from netdicom.SOPclass import *
 import dicom
 
-
 # parse commandline
 remote_host = sys.argv[1]
 remote_port = int(sys.argv[2])
@@ -24,10 +23,7 @@ def OnAssociateResponse(association):
 
 
 # create application entity
-MyAE = AE('localhost', 9999, [RTPlanStorageSOPClass, 
-                              RTStructureSetStorageSOPClass, 
-                              CTImageStorageSOPClass, 
-                              VerificationSOPClass],[])
+MyAE = AE('localhost', 9999, [StorageSOPClass,  VerificationSOPClass], [])
 MyAE.OnAssociateResponse = OnAssociateResponse
 
 # remote application entity
@@ -39,11 +35,12 @@ assoc = MyAE.RequestAssociation(RemoteAE)
 
 # perform a DICOM ECHO, just to make sure remote AE is listening
 print "DICOM Echo ... ",
-st = assoc.VerificationSOPClass.EchoSCU(1)
+st = assoc.VerificationSOPClass.SCU(1)
 print 'done with status "%s"' % st
 
 # create some dataset
 for ii in files:
+    print 
     print ii
     d = dicom.read_file(ii)
     print "DICOM StoreSCU ... ",
