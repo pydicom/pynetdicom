@@ -26,7 +26,7 @@ import netdicom
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.extlinks']
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
@@ -215,3 +215,4 @@ man_pages = [
     ('index', 'pynetdicom', u'pynetdicom Documentation',
      [u'Patrice Munger'], 1)
 ]
+extlinks = {'rel': ('http://pypi.python.org/packages/any/p/pynetdicom/pynetdicom-%s.win32.exe' % release, '')}

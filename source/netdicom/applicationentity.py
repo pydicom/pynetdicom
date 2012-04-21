@@ -91,7 +91,6 @@ class Association(threading.Thread):
 
 
     def Release(self, reason):
-	print "RELEASE"
         self.ACSE.Release(reason)
 	#self.Kill()
 

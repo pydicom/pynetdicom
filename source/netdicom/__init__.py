@@ -3,6 +3,32 @@
 from __version__ import __version__
 __version_info__ = __version__.split('.')
 
+
+# some imports
+from applicationentity import AE
+from SOPclass import \
+    VerificationSOPClass,\
+    StorageSOPClass,\
+    MRImageStorageSOPClass,\
+    CTImageStorageSOPClass,\
+    CRImageStorageSOPClass,\
+    SCImageStorageSOPClass,\
+    RTImageStorageSOPClass,\
+    RTDoseStorageSOPClass,\
+    RTStructureSetStorageSOPClass,\
+    RTPlanStorageSOPClass,\
+    PatientRootFindSOPClass,\
+    PatientRootMoveSOPClass,\
+    PatientRootGetSOPClass,\
+    StudyRootFindSOPClass,\
+    StudyRootMoveSOPClass,\
+    StudyRootGetSOPClass,\
+    PatientStudyOnlyFindSOPClass,\
+    PatientStudyOnlyMoveSOPClass,\
+    PatientStudyOnlyGetSOPClass
+
+
+
 # Set up logging system for the whole package.  In each module, set
 # logger=logging.getLogger('pynetdicom') and the same instance will be
 # used by all At command line, turn on debugging for all pynetdicom

@@ -225,10 +225,11 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans: continue
             d = dsutils.decode(ans.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
-            if self.Code2Status(ans.Status.value).Type <> 'Pending':
+            status = self.Code2Status(ans.Status.value).Type
+            if status <> 'Pending':
                 break
-            yield d
-        
+            yield status, d
+        yield status, d
 
 
     def SCP(self, msg):
@@ -420,10 +421,10 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
             time.sleep(0.001)
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans: continue
-            print ans.Status.value
-            if self.Code2Status(ans.Status.value).Type <> 'Pending':
+            status = self.Code2Status(ans.Status.value).Type
+            if status <> 'Pending':
                 break
-            yield ans.Status
+            yield status
 
 
 
