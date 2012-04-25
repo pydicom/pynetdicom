@@ -92,7 +92,7 @@ class Association(threading.Thread):
 
     def Release(self, reason):
         self.ACSE.Release(reason)
-	#self.Kill()
+	self.Kill()
 
 
 

@@ -210,7 +210,7 @@ class DULServiceProvider(Thread):
         #logger.debug('%s: checking network' % (self.name))
         if self.SM.CurrentState == 'Sta13':
             # wainting for connection to close
-            #if self.RemoteClientSocket is None: return False
+            if self.RemoteClientSocket is None: return False
             # wait for remote connection to close
             while self.RemoteClientSocket.recv(1) <> '':
                 continue
