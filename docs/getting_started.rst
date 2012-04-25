@@ -22,6 +22,8 @@ python package, it should run anywhere python runs.
 
 You can find examples in :ref:`here <usecases>`.
 
+pynetdicom is hosted `here <http://code.google.com/p/pynetdicom>`_.
+
 License
 =======
 pynetdicom uses the `MIT license 
@@ -48,7 +50,12 @@ Here are the installation options:
 
         python setup.py install    
 
-  * A :rel:`windows installer <''>` is also available.
+  * A :rel:`windows installer <>` is also available.
+
+  * Finally you can clone the `source tree <http://code.google.com/p/pynetdicom/source>`_
+    with::
+
+        hg clone https://code.google.com/p/pynetdicom/ 
 
 
 Support

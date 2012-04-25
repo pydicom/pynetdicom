@@ -137,6 +137,7 @@ class StorageServiceClass(ServiceClass):
 
     def SCP(self, msg):
         status = None
+        print self.transfersyntax.is_implicit_VR
         try:
             DS = dsutils.decode(msg.DataSet, 
                                 self.transfersyntax.is_implicit_VR, 
@@ -324,7 +325,6 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
         while 1:
             # receive c-store
             msg, id = self.DIMSE.Receive(Wait=True)
-            print msg.__class__
             if msg.__class__ == C_GET_ServiceParameters:
                 if self.Code2Status(msg.Status.value).Type  == 'Pending':
                     # pending. intermediate C-GET response

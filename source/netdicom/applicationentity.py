@@ -193,9 +193,10 @@ class AE(threading.Thread):
     on received events.
     """
     def __init__(self, AET, port, SOPSCU, SOPSCP, 
-                 SupportedTransferSyntax=[ImplicitVRLittleEndian, 
-                                          #ExplicitVRLittleEndian, 
-                                          #ExplicitVRBigEndian
+                 SupportedTransferSyntax=[
+                                          ExplicitVRLittleEndian, 
+                                          ImplicitVRLittleEndian, 
+                                          ExplicitVRBigEndian
                                           ], 
                  MaxPDULength=16000):
         self.LocalAE = {'Address': platform.node(), 'Port': port, 'AET':AET}
