@@ -12,8 +12,9 @@ from PDU import MaximumLengthParameters
 from dicom.UID import UID
 import socket
 import time
-
-DEBUG = False
+DEBUG=True
+import logging
+logger = logging.getLogger('pynetdicom.ACSE')
 
 
 class AssociationRefused(Exception):
@@ -77,6 +78,7 @@ class ACSEServiceProvider(object):
             self.MaxPDULength = assrsp.UserInformation[0].MaximumLengthReceived
         except:
             self.MaxPDULength = 16000
+        print assrsp.UserInformation[0].MaximumLengthReceived
         # Get accepted presentation contexts
         self.AcceptedPresentationContexts = []
         for cc in assrsp.PresentationContextDefinitionResultList:

@@ -11,6 +11,9 @@ from DIMSEmessages import DIMSEMessage
 from DULparameters import P_DATA_ServiceParameters
 import time
 
+import logging
+logger = logging.getLogger('pynetdicom.DIMSE')
+
 class DIMSEServiceProvider(object):
     def __init__(self, DUL):
         self.DUL = DUL
@@ -43,16 +46,23 @@ class DIMSEServiceProvider(object):
                 dimse_msg = DIMSEmessages.C_MOVE_RQ_Message()
             else:
                 dimse_msg = DIMSEmessages.C_MOVE_RSP_Message()
+        logger.debug('DIMSE message of class %s' % DIMSEmessages.__class__)
         dimse_msg.FromParams(primitive)
+        logger.debug('DIMSE message: %s', str(dimse_msg))
         pdatas=dimse_msg.Encode(id,maxpdulength)
-        for pp in pdatas:
+        logger.debug('encoded %d fragments' % len(pdatas))
+        for ii,pp in enumerate(pdatas):
+            logger.debug('sending pdata %d of %d' % (ii+1, len(pdatas)))
             self.DUL.Send(pp)
+         
 
     def Receive(self, Wait=False, Timeout=None):
+        logger.debug('RECEIVING DIMSE MESSAGE')
         if self.message == None:
             self.message = DIMSEMessage()
         if Wait:
             # loop until complete DIMSE message is received
+            logger.debug('Entering loop for receiving DIMSE message')
             while 1:    
                 time.sleep(0.001)
                 nxt = self.DUL.Peek()
@@ -61,12 +71,14 @@ class DIMSEServiceProvider(object):
                 if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
                     tmp = self.message
                     self.message=None
+                    logger.debug('Decoded DIMSE message: %s', str(tmp))
                     return tmp.ToParams(), tmp.ID
         else:
             if self.DUL.Peek().__class__ is not P_DATA_ServiceParameters: return None, None
             if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
                 tmp = self.message
                 self.message=None
+                logger.debug('Decoded DIMSE message: %s', str(tmp))
                 return tmp.ToParams(), tmp.ID
             else:
                 return None, None

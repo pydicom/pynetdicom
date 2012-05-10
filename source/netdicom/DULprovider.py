@@ -25,7 +25,7 @@ from PDU import *
 import DULparameters
 import Queue
 import logging
-logger = logging.getLogger('pynetdicom')
+logger = logging.getLogger('pynetdicom.DUL')
 
 
 class InvalidPrimitive(Exception):
@@ -212,8 +212,11 @@ class DULServiceProvider(Thread):
             # wainting for connection to close
             if self.RemoteClientSocket is None: return False
             # wait for remote connection to close
-            while self.RemoteClientSocket.recv(1) <> '':
-                continue
+            try:
+                while self.RemoteClientSocket.recv(1) <> '':
+                    continue
+            except socket.error:
+                return False
             #    #self.event.Flush() # flush event queue
             self.RemoteClientSocket.close()
             self.RemoteClientSocket = None

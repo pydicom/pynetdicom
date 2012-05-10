@@ -34,7 +34,8 @@ class ServiceClass(object):
             if obj.__class__ == Status:
                 if code in obj.CodeRange:
                     return obj
-        raise Exception
+        # unknown status ...
+        return None
 
 
 class VerificationServiceClass(ServiceClass):
@@ -123,7 +124,6 @@ class StorageServiceClass(ServiceClass):
         csto.DataSet = dsutils.encode(dataset, 
                                       self.transfersyntax.is_implicit_VR, 
                                       self.transfersyntax.is_little_endian)
-
         # send cstore request
         self.DIMSE.Send(csto, self.pcid, self.maxpdulength)
 
@@ -154,6 +154,7 @@ class StorageServiceClass(ServiceClass):
             try:
                 status = self.AE.OnReceiveStore(self, DS)
             except:
+                raise
                 print "There was an exception in OnReceiveStore callback"
                 status = self.CannotUnderstand
         rsp.Status = int(status)
@@ -226,7 +227,10 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans: continue
             d = dsutils.decode(ans.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
-            status = self.Code2Status(ans.Status.value).Type
+            try:
+                status = self.Code2Status(ans.Status.value).Type
+            except:
+                status = None
             if status <> 'Pending':
                 break
             yield status, d

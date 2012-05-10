@@ -15,6 +15,7 @@ from dicom.UID import ImplicitVRLittleEndian
 #  pydicom's dictionnary misses command tags. Add them.
 ####
 from dicom._dicom_dict import DicomDictionary
+import itertools
 DicomDictionary.update( {
    
     0x00000000: ('UL', '1', "CommandGroupLength", ''),
@@ -75,9 +76,11 @@ def fragment(maxpdulength, str):
         fragments.append(s[:maxsize])
         s = s[maxsize:]
 	if len(s)<=maxsize:
-            fragments.append(s)
+	    if len(s)>0:
+		fragments.append(s)
             return fragments
     
+
 
 class DIMSEMessage:
     def __init__(self):
@@ -98,18 +101,19 @@ class DIMSEMessage:
         """Returns the encoded message as a series of P-DATA service parameter objects"""
         self.ID = id
         pdatas = []
-	
         encoded_command_set = dsutils.encode(self.CommandSet, self.ts.is_implicit_VR, self.ts.is_little_endian)
 	
         # fragment command set
         pdvs = fragment(maxpdulength, encoded_command_set)
+	assert ''.join(pdvs) == encoded_command_set
+	#print "%d command pdvs to send"  % len(pdvs)
         for ii in pdvs[:-1]:
             # send only one pdv per pdata primitive
             pdata = P_DATA_ServiceParameters()
             # not last command fragment
-            pdata.PresentationDataValueList = [[self.ID,pack('b',1) + ii]]        
+            pdata.PresentationDataValueList = [[self.ID,pack('b',1) + ii]]
             pdatas.append(pdata)
-            
+        # last command fragment
         pdata = P_DATA_ServiceParameters()
         # last command fragment
         pdata.PresentationDataValueList = [[self.ID,pack('b',3) + pdvs[-1]]]      
@@ -118,6 +122,8 @@ class DIMSEMessage:
         # fragment data set
         if self.__dict__.has_key('DataSet') and self.DataSet:
             pdvs = fragment(maxpdulength, self.DataSet)
+	    #print "%d data pdvs to send"  % len(pdvs)
+	    assert ''.join(pdvs) == self.DataSet
             for ii in pdvs[:-1]:
                 pdata = P_DATA_ServiceParameters()
                 # not last data fragment
@@ -163,6 +169,7 @@ class DIMSEMessage:
                     return True
             else:
                 raise "Error"
+	    
         return False
 
 
@@ -170,18 +177,13 @@ class DIMSEMessage:
     def SetLength(self):
         # compute length
         l = 0
-        s = ''
         for ii in self.CommandSet.values()[1:]:
-            s += dsutils.encode_element(ii, 
+            l += len(dsutils.encode_element(ii, 
                                         self.ts.is_implicit_VR, 
-                                        self.ts.is_little_endian)
-
-        l = len(s)
-        if self.DataSet<>None:
-            l += len(self.DataSet)
+                                        self.ts.is_little_endian))
+        #if self.DataSet<>None:
+        #    l += len(self.DataSet)
         self.CommandSet[(0x0000,0x0000)].value = l
-
-
 
     def __repr__(self):
         return str(self.CommandSet)+'\n'

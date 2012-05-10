@@ -56,6 +56,7 @@ class Association(threading.Thread):
                       [x for x in self.SOPClassesAsSCU if \
                        x[1]==obj.__class__][0]
         except IndexError:
+            return
             raise Exception, "SOP Class %s not supported as SCU"
             
 
@@ -75,6 +76,7 @@ class Association(threading.Thread):
                       [x for x in self.SOPClassesAsSCU if \
                        x[1]==obj.__class__][0]
         except IndexError:
+            return
             raise "SOP Class %s not supported as SCU" % attr
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
@@ -108,6 +110,7 @@ class Association(threading.Thread):
         if self.Mode == 'Acceptor':
             self.ACSE.Accept(self.ClientSocket,
                              self.AE.AcceptablePresentationContexts)
+            print self.ACSE.AcceptedPresentationContexts
             # call back
             self.AE.OnAssociateRequest(self)
             # build list of SOPClasses supported
@@ -172,12 +175,12 @@ class Association(threading.Thread):
                 # check for release request
                 if self.ACSE.CheckRelease():
                     print "Release requested"
-                    self.Kill()
+                    #self.Kill()
 
                 # check for abort
                 if self.ACSE.CheckAbort():
                     print "Abort requested"
-                    self.Kill()
+                    #self.Kill()
                 	
 
 

@@ -6,9 +6,6 @@
 #
 
 
-
-
-
 def classprinter(klass):
     tmp = ''
     for ii in klass.__dict__.keys():
@@ -336,12 +333,16 @@ class AsynchronousOperationsWindowSubItem:
         self.MaximumNumberOperationsInvoked = None          # Unsigned short
         self.MaximumNumberOperationsPerformed = None            # Unsigned short
 
-    def Build(self, MaximumNumberOperationsInvoked, MaximumNumberOperationsPerformed):
-        self.MaximumNumberOperationsInvoked = MaximumNumberOperationsInvoked
-        self.MaximumNumberOperationsPerformed = MaximumNumberOperationsPerformed
+    def FromParams(self, Params):
+        self.MaximumNumberOperationsInvoked = Params.MaximumNumberOperationsInvoked
+        self.MaximumNumberOperationsPerformed = Params.MaximumNumberOperationsPerformed
 
-    def Decompose(self):
-        return (self.MaximumNumberOperationsInvoked, self.MaximumNumberOperationsPerformed)
+
+    def ToParams(self):
+        tmp = AsynchronousOperationsWindowSubItem()
+        tmp.MaximumNumberOperationsInvoked = self.MaximumNumberOperationsInvoked
+        tmp.MaximumNumberOperationsPerformed = self.MaximumNumberOperationsPerformed
+        return tmp
 
     def Encode(self):
         tmp = ''
@@ -439,54 +440,57 @@ class SCP_SCU_RoleSelectionSubItem:
 
 
 
-
-class SOPClassExtentedNegociationSubItem:
-    def __init__(self):
-        self.ItemType = 0x56                                        # Unsigned byte
-        self.Reserved = 0x00                                        # Unsigned byte - 0x00
-        self.ItemLength = None                                  # Unsigned short
-        self.SOPClassUIDLength = None                           # Unsigned short
-        self.SOPClassUID = None                                 # String
-        self.ServiceClassApplicationInformation = None  # Class 
-
-    def Build(self, SOPClassUID, ServiceClassApplicationInformation):
-        self.SOPClassUID = SOPClassUID
-        self.ServiceClassApplicationInformation = ServiceClassApplicationInformation()
-        self.SOPClassUIDLength = len(self.SOPClassUID)
-        self.ItemLength = 2 + self.SOPClassUIDLength + self.ServiceClassApplicationInformation.TotalLength()
-
-    def Decompose(self):
-        return  (self.SOPClassUID, self.ServiceClassApplicationInformation.Decompose())
-
-    def Encode(self):
-        tmp = ''
-        tmp = tmp + struct.pack('B', self.ItemType)
-        tmp = tmp + struct.pack('B', self.Reserved)
-        tmp = tmp + struct.pack('>H', self.ItemLength)
-        tmp = tmp + struct.pack('>H', self.SOPClassUIDLength)
-        tmp = tmp + self.SOPClassUID
-        tmp = tmp + self.ServiceClassApplicationInformation.Encode()
-        return tmp
-
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, 
-         self.ItemLength, self.SOPClassUIDLength) = struct.unpack('> B B H H', Stream.read(6))
-        self.SOPClassUID = Stream.read(self.UIDLength)
-        self.ServiceClassApplicationInformation.Decode(Stream)
-        
-    def TotalLength(self):
-        return 4 + self.ItemLength
-
-    
-    
-    def __repr__(self):
-        tmp = "  SOP class extended negociation sub item\n"
-        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   SOP class UID length: %d\n" % self.SOPClassUIDLength
-        tmp = tmp + "   SOP class UID: %s" % self.SOPClassUID
-        return tmp
-
+#### needs to be re-worked
+#class SOPClassExtentedNegociationSubItem:
+#    def __init__(self):
+#        self.ItemType = 0x56                                        # Unsigned byte
+#        self.Reserved = 0x00                                        # Unsigned byte - 0x00
+#        self.ItemLength = None                                  # Unsigned short
+#        self.SOPClassUIDLength = None                           # Unsigned short
+#        self.SOPClassUID = None                                 # String
+#        self.ServiceClassApplicationInformation = None  # Class 
+#
+#    def FromParams(self, Params):
+#        self.SOPClassUID = Params.SOPClassUID
+#        self.ServiceClassApplicationInformation = Params.ServiceClassApplicationInformation()
+#        self.SOPClassUIDLength = len(self.SOPClassUID)
+#        self.ItemLength = 2 + self.SOPClassUIDLength + self.ServiceClassApplicationInformation.TotalLength()
+#
+#    def ToParams(self):
+#        tmp = SOPClassExtentedNegociationSubItem()
+#        tmp.SOPClassUID = self.SOPClassUID
+#        tmp.ServiceClassApplicationInformation = self.ServiceClassApplicationInformation
+#        return  (self.SOPClassUID, self.ServiceClassApplicationInformation.Decompose())
+#
+#    def Encode(self):
+#        tmp = ''
+#        tmp = tmp + struct.pack('B', self.ItemType)
+#        tmp = tmp + struct.pack('B', self.Reserved)
+#        tmp = tmp + struct.pack('>H', self.ItemLength)
+#        tmp = tmp + struct.pack('>H', self.SOPClassUIDLength)
+#        tmp = tmp + self.SOPClassUID
+#        tmp = tmp + self.ServiceClassApplicationInformation.Encode()
+#        return tmp
+#
+#    def Decode(self,Stream):
+#        (self.ItemType, self.Reserved, 
+#         self.ItemLength, self.SOPClassUIDLength) = struct.unpack('> B B H H', Stream.read(6))
+#        self.SOPClassUID = Stream.read(self.UIDLength)
+#        self.ServiceClassApplicationInformation.Decode(Stream)
+#        
+#    def TotalLength(self):
+#        return 4 + self.ItemLength
+#
+#    
+#    
+#    def __repr__(self):
+#        tmp = "  SOP class extended negociation sub item\n"
+#        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
+#        tmp = tmp + "   Item length: %d\n" % self.ItemLength
+#        tmp = tmp + "   SOP class UID length: %d\n" % self.SOPClassUIDLength
+#        tmp = tmp + "   SOP class UID: %s" % self.SOPClassUID
+#        return tmp
+#
 
 
 

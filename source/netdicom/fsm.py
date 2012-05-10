@@ -13,7 +13,7 @@ import time
 # Finite State machine action definitions
 
 import logging
-logger = logging.getLogger('pynetdicom')
+logger = logging.getLogger('pynetdicom.FSM')
 
 def AE_1(provider):
     # Issue TRANSPORT CONNECT request primitive to local transport service
