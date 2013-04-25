@@ -7,7 +7,7 @@
 
 import StringIO
 import dicom
-if dicom.__version_info__ >= (1,0,0):
+if dicom.__version_info__ >= (0,9,8):
     from dicom.filebase import DicomBytesIO
 else:
     from dicom.filebase import DicomStringIO as DicomBytesIO
