@@ -2,7 +2,6 @@
 
 from __version__ import __version__
 __version_info__ = __version__.split('.')
-print __version_info__
 
 # some imports
 from applicationentity import AE

@@ -526,8 +526,10 @@ class RTStructureSetStorageSOPClass(StorageSOPClass):
 class RTPlanStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.481.5'
 
-
+class SpatialRegistrationSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66.1'
     
+
 
 # QUERY RETRIEVE SOP Classes
 class QueryRetrieveSOPClass(QueryRetrieveServiceClass):
