@@ -18,8 +18,8 @@ from DULprovider import DULServiceProvider
 from DIMSEprovider import DIMSEServiceProvider
 from ACSEprovider import ACSEServiceProvider
 from DIMSEparameters import *
-
-
+from weakref import proxy
+import gc
 
 class Association(threading.Thread):
     def __init__(self, LocalAE, ClientSocket = None, RemoteAE = None):
@@ -85,11 +85,18 @@ class Association(threading.Thread):
 
                 
     def Kill(self):
+        print "KILLING"
         self._Kill = True
-	for ii in range(100):
-	    if self.DUL.Stop(): return
+	for ii in range(1000):
+	    if self.DUL.Stop(): 
+                continue
 	    time.sleep(0.001)
 	self.DUL.Kill()
+        #self.ACSE.Kill()
+        del self.DUL
+        #del self.ACSE
+        print "KILLED"
+
 
 
     def Release(self, reason):
@@ -184,7 +191,6 @@ class Association(threading.Thread):
 
 
 
-
 class AE(threading.Thread):
     """Represents a DICOM application entity
 
@@ -258,6 +264,7 @@ class AE(threading.Thread):
         if not self.SupportedSOPClassesAsSCP:
 	    # no need to loop. This is just a client AE. All events will be triggered by the user
             return
+        count = 0
         while 1:
             # main loop
             time.sleep(0.1)
@@ -271,6 +278,14 @@ class AE(threading.Thread):
             #print [x.isAlive() for x in self.Associations if x.isAlive()]
 
 
+            # delete dead associations
+            for aa in self.Associations:
+                if not aa.isAlive():
+                    self.Associations.remove(aa)
+            if not count%50: 
+                gc.collect()
+            count += 1
+            if count>1e6: count = 0
 
     def Quit(self):
 	for aa in self.Associations:
