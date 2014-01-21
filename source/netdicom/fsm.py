@@ -10,6 +10,7 @@
 import socket
 import PDU
 import time
+import DULparameters
 # Finite State machine action definitions
 
 import logging
@@ -73,6 +74,7 @@ def DT_1(provider):
     # Send P-DATA-TF PDU
     provider.pdu =  PDU.P_DATA_TF_PDU()
     provider.pdu.FromParams(provider.primitive)
+    provider.primitive = None
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     
 def DT_2(provider):
@@ -165,6 +167,7 @@ def AA_3(provider):
 
 def AA_4(provider):
     # Issue A-P-ABORT indication primitive.
+    provider.primitive = DULparameters.A_ABORT_ServiceParameters()
     provider.ToServiceUser.put(provider.primitive)
 
 def AA_5(provider):

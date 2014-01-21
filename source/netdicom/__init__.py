@@ -52,7 +52,7 @@ def logger_setup():
     formatter = logging.Formatter("%(name)s %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logging.getLogger('netdicom.FSM').setLevel(logging.CRITICAL)
+    #logging.getLogger('netdicom.FSM').setLevel(logging.CRITICAL)
     logging.getLogger('netdicom.DUL').setLevel(logging.CRITICAL)
 
 def debug(debug_on=True):

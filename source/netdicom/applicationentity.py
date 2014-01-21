@@ -156,6 +156,7 @@ class Association(threading.Thread):
         # association established. Listening on local and remote interfaces
         while not self._Kill:
             time.sleep(0.001)
+            #time.sleep(1)
             # look for incoming DIMSE message
             if self.Mode == 'Acceptor':
                 dimsemsg,pcid = self.DIMSE.Receive(Wait=False, Timeout=None)

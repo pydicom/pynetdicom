@@ -183,8 +183,9 @@ class DULServiceProvider(Thread):
             # and set the event accordingly
             self.pdu = Socket2PDU(rawpdu)
             self.event.put(PDU2Event(self.pdu))
-            self.primitive = self.pdu.ToParams()
 
+            self.primitive = self.pdu.ToParams()
+            
 
     def CheckTimer(self):
         #logger.debug('%s: checking timer' % (self.name))  
@@ -199,7 +200,7 @@ class DULServiceProvider(Thread):
     def CheckIncomingPrimitive(self):
         #logger.debug('%s: checking incoming primitive' % (self.name))  
         # look at self.ReceivePrimitive for incoming primitives
-        try:
+        try: 
             self.primitive = self.FromServiceUser.get(False, None)
             self.event.put(primitive2event(self.primitive))
             return True
@@ -247,6 +248,7 @@ class DULServiceProvider(Thread):
         logger.debug('%s: DUL loop started' % self.name)
         while 1:
             time.sleep(0.001)
+            #time.sleep(1)
             #logger.debug('%s: starting DUL loop' % self.name)
             if self.kill:
                 break

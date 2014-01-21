@@ -46,7 +46,7 @@ class DIMSEServiceProvider(object):
                 dimse_msg = DIMSEmessages.C_MOVE_RQ_Message()
             else:
                 dimse_msg = DIMSEmessages.C_MOVE_RSP_Message()
-        logger.debug('DIMSE message of class %s' % DIMSEmessages.__class__)
+        logger.debug('DIMSE message of class %s' % dimse_msg.__class__)
         dimse_msg.FromParams(primitive)
         logger.debug('DIMSE message: %s', str(dimse_msg))
         pdatas=dimse_msg.Encode(id,maxpdulength)
@@ -54,9 +54,10 @@ class DIMSEServiceProvider(object):
         for ii,pp in enumerate(pdatas):
             logger.debug('sending pdata %d of %d' % (ii+1, len(pdatas)))
             self.DUL.Send(pp)
-         
+        logger.debug('DIMSE message sent')
 
     def Receive(self, Wait=False, Timeout=None):
+        logger.debug("In DIMSEprovider.Receive")
         if self.message == None:
             self.message = DIMSEMessage()
         if Wait:
@@ -80,7 +81,7 @@ class DIMSEServiceProvider(object):
             if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
                 tmp = self.message
                 self.message=None
-                logger.debug('Received DIMSE message: %s', str(tmp))
+                logger.debug('Received DIMSE message: %s', tmp)
                 return tmp.ToParams(), tmp.ID
             else:
                 return None, None

@@ -183,8 +183,8 @@ class DIMSEMessage:
             l += len(dsutils.encode_element(ii, 
                                         self.ts.is_implicit_VR, 
                                         self.ts.is_little_endian))
-        #if self.DataSet<>None:
-        #    l += len(self.DataSet)
+        if self.DataSet<>None:
+            l += len(self.DataSet)
         self.CommandSet[(0x0000,0x0000)].value = l
 
     def __repr__(self):

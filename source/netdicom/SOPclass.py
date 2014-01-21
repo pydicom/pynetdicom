@@ -67,6 +67,7 @@ class VerificationServiceClass(ServiceClass):
     def SCP(self, msg):
         rsp = C_ECHO_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+        rsp.AffectedSOPClassUID = self.UID
         rsp.Status = 0
                 
         # send response
