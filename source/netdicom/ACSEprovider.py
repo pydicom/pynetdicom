@@ -12,9 +12,9 @@ from PDU import MaximumLengthParameters
 from dicom.UID import UID
 import socket
 import time
-DEBUG=False
+
 import logging
-logger = logging.getLogger('pynetdicom.ACSE')
+logger = logging.getLogger('netdicom.ACSE')
 
 
 class AssociationRefused(Exception):
@@ -52,33 +52,30 @@ class ACSEServiceProvider(object):
         assrq.CallingPresentationAddress = (self.LocalAE['Address'],self.LocalAE['Port'])
         assrq.CalledPresentationAddress = (self.RemoteAE['Address'],self.RemoteAE['Port'])
         assrq.PresentationContextDefinitionList = pcdl
-        if DEBUG: print pcdl
+        logger.debug(pcdl)
         # send A-Associate request 
-        if DEBUG: print "Sending Association Request ...",
+        logger.debug("Sending Association Request")
         self.DUL.Send(assrq)
-        if DEBUG: print " done"     
 
         # get answer
-        if DEBUG: print "Waiting for Association Response ...",
+        logger.debug("Waiting for Association Response")
         
         assrsp = self.DUL.Receive(True)
-        if DEBUG: print " done"
         if not assrsp:
             return False
             raise AssociationRefused
-        if DEBUG: print assrsp
+        logger.debug(assrsp)
                  
         if assrsp.Result <> 'Accepted':
             return False
             raise AssociationRefused
 
         # Get maximum pdu length from answer
-        #print assrsp
         try:
             self.MaxPDULength = assrsp.UserInformation[0].MaximumLengthReceived
         except:
             self.MaxPDULength = 16000
-        #print assrsp.UserInformation[0].MaximumLengthReceived
+
         # Get accepted presentation contexts
         self.AcceptedPresentationContexts = []
         for cc in assrsp.PresentationContextDefinitionResultList:
@@ -131,9 +128,7 @@ class ACSEServiceProvider(object):
         res.Result = 0
         res.UserInformation = []
         #res.UserInformation = ass.UserInformation
-        #print res
         self.DUL.Send(res)
-        #print "response sent"
         return True
 
 

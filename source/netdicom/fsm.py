@@ -13,7 +13,7 @@ import time
 # Finite State machine action definitions
 
 import logging
-logger = logging.getLogger('pynetdicom.FSM')
+logger = logging.getLogger('netdicom.FSM')
 
 def AE_1(provider):
     # Issue TRANSPORT CONNECT request primitive to local transport service
@@ -144,7 +144,6 @@ def AA_1(provider):
     provider.pdu.ReasonDiag=0
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
-    #print "restart timer"
     provider.Timer.Restart()
 
 def AA_2(provider):

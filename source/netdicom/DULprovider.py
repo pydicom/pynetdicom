@@ -25,7 +25,7 @@ from PDU import *
 import DULparameters
 import Queue
 import logging
-logger = logging.getLogger('pynetdicom.DUL')
+logger = logging.getLogger('netdicom.DUL')
 
 
 class InvalidPrimitive(Exception):
@@ -101,7 +101,7 @@ class DULServiceProvider(Thread):
                     self.LocalServerSocket.bind((os.popen('hostname').read()[:-1],
                                                  self.LocalServerPort))
                 except:
-                    print "Already bound"
+                    logger.error("Already bound")
                 self.LocalServerSocket.listen(1)
             else:
                 self.LocalServerSocket = None
@@ -244,8 +244,8 @@ class DULServiceProvider(Thread):
             
     
     def run(self):
+        logger.debug('%s: DUL loop started' % self.name)
         while 1:
-            #print self.event.qsize(), self.ToServiceUser.qsize(), self.FromServiceUser.qsize()
             time.sleep(0.001)
             #logger.debug('%s: starting DUL loop' % self.name)
             if self.kill:

@@ -179,12 +179,10 @@ class Association(threading.Thread):
 
                 # check for release request
                 if self.ACSE.CheckRelease():
-                    print "Release requested"
                     self.Kill()
 
                 # check for abort
                 if self.ACSE.CheckAbort():
-                    print "Abort requested"
                     self.Kill()
                 	
 
@@ -274,8 +272,7 @@ class AE(threading.Thread):
                 client_socket, remote_address = self.LocalServerSocket.accept()
                 # create a new association
                 self.Associations.append(Association(self, client_socket))
-            #print [x.isAlive() for x in self.Associations if x.isAlive()]
-
+           
 
             # delete dead associations
             for aa in self.Associations:

@@ -16,10 +16,16 @@ from dicom.UID import ImplicitVRLittleEndian
 ####
 from dicom._dicom_dict import DicomDictionary
 import itertools
+
+import logging
+
+logger = logging.getLogger('netdicom.DIMSE')
+
+
 DicomDictionary.update( {
    
     0x00000000: ('UL', '1', "CommandGroupLength", ''),
-    0x00000002: ('UI', '1', "Affector SOP class", ''),
+    0x00000002: ('UI', '1', "Affected SOP class", ''),
     0x00000003: ('UI', '1', "RequestedSOPClassUID", ''),
     0x00000100: ('US', '1', "CommandField", ''),
     0x00000110: ('US', '1', "MessageID", ''),
@@ -105,8 +111,7 @@ class DIMSEMessage:
 	
         # fragment command set
         pdvs = fragment(maxpdulength, encoded_command_set)
-	assert ''.join(pdvs) == encoded_command_set
-	#print "%d command pdvs to send"  % len(pdvs)
+        assert ''.join(pdvs) == encoded_command_set
         for ii in pdvs[:-1]:
             # send only one pdv per pdata primitive
             pdata = P_DATA_ServiceParameters()
@@ -122,7 +127,6 @@ class DIMSEMessage:
         # fragment data set
         if self.__dict__.has_key('DataSet') and self.DataSet:
             pdvs = fragment(maxpdulength, self.DataSet)
-	    #print "%d data pdvs to send"  % len(pdvs)
 	    assert ''.join(pdvs) == self.DataSet
             for ii in pdvs[:-1]:
                 pdata = P_DATA_ServiceParameters()
@@ -144,18 +148,16 @@ class DIMSEMessage:
 	if pdata.__class__ <> P_DATA_ServiceParameters:
 	    #not a pdata
 	    return False
-        if DEBUG: print "receiving"
         if pdata == None: return False
         ii = pdata
         for vv in ii.PresentationDataValueList:
-            if DEBUG: print "DIMSE: ", str(unpack('b',vv[1][0]))
             # must be able to read P-DATA with several PDVs
             self.ID = vv[0]
             if unpack('b',vv[1][0])[0] in (1,3):
-                if DEBUG: print "  command fragment", self.ID
+                logger.debug("  command fragment %s", self.ID)
                 self.encoded_command_set += vv[1][1:]
                 if unpack('b',vv[1][0])[0] == 3:
-                    if DEBUG: print "  last command fragment", self.ID
+                    logger.debug("  last command fragment %s", self.ID)
                     self.CommandSet = dsutils.decode(self.encoded_command_set, self.ts.is_implicit_VR, self.ts.is_little_endian)
                     self.__class__ = MessageType[self.CommandSet[(0x0000,0x0100)].value]
                     if self.CommandSet[(0x0000,0x0800)].value == 0x0101:
@@ -163,9 +165,9 @@ class DIMSEMessage:
                         return True
             elif unpack('b',vv[1][0])[0] in (0,2):
                 self.DataSet += vv[1][1:]
-                if DEBUG: print "  data fragment", self.ID
+                logger.debug("  data fragment %s", self.ID)
                 if unpack('b',vv[1][0])[0] == 2:
-                    if DEBUG: print "  last data fragment", self.ID
+                    logger.debug("  last data fragment %s", self.ID)
                     return True
             else:
                 raise "Error"

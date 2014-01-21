@@ -7,6 +7,10 @@
 
 # Timer class
 import time
+import logging
+
+logger = logging.getLogger('netdicom.DUL')
+
 
 class Timer:
     def __init__(self, MaxNbSeconds):
@@ -14,9 +18,11 @@ class Timer:
         self.__StartTime = None
 
     def Start(self):
+        logger.debug("Timer started")
         self.__StartTime = time.time()
         
     def Stop(self):
+        logger.debug("Timer stopped")
         self.__StartTime = None
 
     def Restart(self):
@@ -29,7 +35,7 @@ class Timer:
     def Check(self):
         if self.__StartTime:
             if time.time() - self.__StartTime > self.__MaxNbSeconds:
-                print "Timer expired"
+                logger.warning("Timer expired")
                 return False
             else:
                 return True

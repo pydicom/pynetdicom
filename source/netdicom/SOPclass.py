@@ -9,6 +9,9 @@ from DIMSEparameters import *
 import DIMSEprovider
 import ACSEprovider
 import time
+import logging
+
+logger = logging.getLogger('netdicom.SOPclass')
 
 class Status(object):
     def __init__(self, Type, Description, CodeRange):
@@ -70,7 +73,7 @@ class VerificationServiceClass(ServiceClass):
         try:
             self.AE.OnReceiveEcho(self)
         except:
-            print "There was an exception on OnReceiveEcho callback"
+            logger.error("There was an exception on OnReceiveEcho callback")
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
@@ -137,7 +140,6 @@ class StorageServiceClass(ServiceClass):
 
     def SCP(self, msg):
         status = None
-        print self.transfersyntax.is_implicit_VR
         try:
             DS = dsutils.decode(msg.DataSet, 
                                 self.transfersyntax.is_implicit_VR, 
@@ -154,12 +156,10 @@ class StorageServiceClass(ServiceClass):
             try:
                 status = self.AE.OnReceiveStore(self, DS)
             except:
-                raise
-                print "There was an exception in OnReceiveStore callback"
+                logger.error("There was an exception in OnReceiveStore callback")
                 status = self.CannotUnderstand
+                raise
         rsp.Status = int(status)
-        print "Status: %s" % status
-        # send response
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
         
 
@@ -448,7 +448,6 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
         # request association to move destination
         ass = self.AE.RequestAssociation(remoteAE)
         nop = gen.next()
-        print nop
         try:
             ncomp = 0
             nfailed = 0
@@ -475,7 +474,6 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
                 
                 # send response
                 self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-                print ncompleted
                 
         except StopIteration:
             # send final response

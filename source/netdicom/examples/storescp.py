@@ -10,7 +10,7 @@ python storescp.py -h
 """
 
 import argparse
-from netdicom import AE, StorageSOPClass, VerificationSOPClass
+from netdicom import AE, StorageSOPClass, VerificationSOPClass, logger_setup, debug
 from dicom.dataset import Dataset, FileDataset
 import tempfile
 
@@ -19,6 +19,9 @@ parser = argparse.ArgumentParser(description='storage SCP example')
 parser.add_argument('port', type=int)
 parser.add_argument('-aet', help='AE title of this server', default='PYNETDICOM')
 args = parser.parse_args()
+
+logger_setup()
+debug(True)
 
 
 # callbacks

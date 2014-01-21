@@ -12,7 +12,7 @@ from DULparameters import P_DATA_ServiceParameters
 import time
 
 import logging
-logger = logging.getLogger('pynetdicom.DIMSE')
+logger = logging.getLogger('netdicom.DIMSE')
 
 class DIMSEServiceProvider(object):
     def __init__(self, DUL):
@@ -57,7 +57,6 @@ class DIMSEServiceProvider(object):
          
 
     def Receive(self, Wait=False, Timeout=None):
-        logger.debug('RECEIVING DIMSE MESSAGE')
         if self.message == None:
             self.message = DIMSEMessage()
         if Wait:
@@ -74,11 +73,14 @@ class DIMSEServiceProvider(object):
                     logger.debug('Decoded DIMSE message: %s', str(tmp))
                     return tmp.ToParams(), tmp.ID
         else:
-            if self.DUL.Peek().__class__ is not P_DATA_ServiceParameters: return None, None
+            cls = self.DUL.Peek().__class__
+            if cls not in (type(None), P_DATA_ServiceParameters): 
+                logger.debug('Waiting for P-DATA but received %s', cls)
+                return None, None
             if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
                 tmp = self.message
                 self.message=None
-                logger.debug('Decoded DIMSE message: %s', str(tmp))
+                logger.debug('Received DIMSE message: %s', str(tmp))
                 return tmp.ToParams(), tmp.ID
             else:
                 return None, None

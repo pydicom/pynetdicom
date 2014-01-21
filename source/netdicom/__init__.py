@@ -36,28 +36,26 @@ from SOPclass import \
 import logging
 
 
-def debug(debug_on=True):
-    """Turn debugging of DICOM network operations on or off.
-    When debugging is on, file location and details about the elements
-    read at that location are logged to the 'pynetdicom' logger using
-    python's logging module.
-    
-    :param debug_on: True (default) to turn on debugging, False to turn off.
-    """
-    global logger, debugging
-    if debug_on:
-        logger.setLevel(logging.DEBUG)
-        debugging = True
-    else:
-        logger.setLevel(logging.WARNING)
-        debugging = False
 
-logger = logging.getLogger('pynetdicom')
-handler = logging.StreamHandler()
-# formatter = logging.Formatter("%(asctime)s %(levelname)s:
-# %(message)s", "%Y-%m-%d %H:%M") #'%(asctime)s %(levelname)s
-# %(message)s'
-formatter = logging.Formatter("%(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-debug(False) # force level=WARNING, in case logging default is set differently (issue 102)
+# pynetdicom defines a logger with a NullHandler only.
+# Client code have the responsability to configure 
+# this logger. 
+logger = logging.getLogger('netdicom')
+logger.addHandler(logging.NullHandler())
+
+# helper functions to configure the logger. This should be 
+# called by the client code.
+def logger_setup():
+    logger = logging.getLogger('netdicom')
+    handler = logging.StreamHandler()
+    logger.setLevel(logging.WARNING)
+    formatter = logging.Formatter("%(name)s %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logging.getLogger('netdicom.FSM').setLevel(logging.CRITICAL)
+    logging.getLogger('netdicom.DUL').setLevel(logging.CRITICAL)
+
+def debug(debug_on=True):
+    """Turn debugging of DICOM network operations on or off."""
+    logger = logging.getLogger('netdicom')
+    logger.setLevel(logging.DEBUG)
