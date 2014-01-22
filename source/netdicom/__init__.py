@@ -24,7 +24,9 @@ from SOPclass import \
     StudyRootGetSOPClass,\
     PatientStudyOnlyFindSOPClass,\
     PatientStudyOnlyMoveSOPClass,\
-    PatientStudyOnlyGetSOPClass
+    PatientStudyOnlyGetSOPClass,\
+    ModalityWorklistInformationFindSOPClass
+
 
 
 
@@ -41,7 +43,7 @@ def debug(debug_on=True):
     When debugging is on, file location and details about the elements
     read at that location are logged to the 'pynetdicom' logger using
     python's logging module.
-    
+
     :param debug_on: True (default) to turn on debugging, False to turn off.
     """
     global logger, debugging
