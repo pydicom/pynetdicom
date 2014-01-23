@@ -7,12 +7,11 @@
 
 
 # This module provides association services
-from DULparameters import * 
+from DULparameters import *
 from PDU import MaximumLengthParameters
 from dicom.UID import UID
 import socket
 import time
-DEBUG=False
 import logging
 logger = logging.getLogger('pynetdicom.ACSE')
 
@@ -31,7 +30,7 @@ class ACSEServiceProvider(object):
         self.DUL = DUL
         self.ApplicationContextName = '1.2.840.10008.3.1.1.1'
 
-        
+
     def Request(self, localAE, remoteAE, mp, pcdl, userspdu = None):
         """Requests an association with a remote AE and waits for association response."""
         self.LocalAE = localAE
@@ -52,22 +51,22 @@ class ACSEServiceProvider(object):
         assrq.CallingPresentationAddress = (self.LocalAE['Address'],self.LocalAE['Port'])
         assrq.CalledPresentationAddress = (self.RemoteAE['Address'],self.RemoteAE['Port'])
         assrq.PresentationContextDefinitionList = pcdl
-        if DEBUG: print pcdl
-        # send A-Associate request 
-        if DEBUG: print "Sending Association Request ...",
-        self.DUL.Send(assrq)
-        if DEBUG: print " done"     
+        logger.debug(str(pcdl))
+        # send A-Associate request
+        logger.debug("Sending Association Request ...")
+        self.DUL.Send(str(assrq))
+        logger.debug(" done")
 
         # get answer
-        if DEBUG: print "Waiting for Association Response ...",
-        
+        logger.debug("Waiting for Association Response ...")
+
         assrsp = self.DUL.Receive(True)
-        if DEBUG: print " done"
+        logger.debug(" done")
         if not assrsp:
             return False
             raise AssociationRefused
-        if DEBUG: print assrsp
-                 
+        logger.debug(str(assrsp))
+
         if assrsp.Result <> 'Accepted':
             return False
             raise AssociationRefused
@@ -96,9 +95,9 @@ class ACSEServiceProvider(object):
         ass = self.DUL.Receive(Wait=True)
         if ass == None:
             return None
-        
+
         self.MaxPDULength = ass.UserInformation[0].MaximumLengthReceived
-        
+
         # analyse proposed presentation contexts
         rsp = []
         self.AcceptedPresentationContexts = []
@@ -139,7 +138,7 @@ class ACSEServiceProvider(object):
 
 #    def Receive(self, Wait):
 #        return self.DUL.ReceiveACSE(Wait)
-        
+
     def Release(self, Reason):
         """Requests the release of the associations and waits for confirmation"""
         rel = A_RELEASE_ServiceParameters()
@@ -155,7 +154,7 @@ class ACSEServiceProvider(object):
         self.DUL.Send(rel)
         time.sleep(0.5)
         #self.DUL.Kill()
-        
+
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of the request
         a confirmation is sent"""
@@ -176,9 +175,9 @@ class ACSEServiceProvider(object):
             self.DUL.Receive(Wait=False)
             return True
         else:
-            return False        
+            return False
 
-        
+
     def Status(self):
         return self.DUL.SM.CurrentState()
 

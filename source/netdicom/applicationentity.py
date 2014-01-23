@@ -21,12 +21,15 @@ from DIMSEparameters import *
 from weakref import proxy
 import gc
 
+import logging
+logger = logging.getLogger('pynetdicom.applicationentity')
+
 class Association(threading.Thread):
     def __init__(self, LocalAE, ClientSocket = None, RemoteAE = None):
         if not ClientSocket and not RemoteAE:
             raise
         if ClientSocket and RemoteAE:
-            raise       
+            raise
         if ClientSocket:
             # must respond for request from a remote AE
             self.Mode = 'Acceptor'
@@ -37,7 +40,7 @@ class Association(threading.Thread):
         self.DUL=DULServiceProvider(ClientSocket)
         self.AE=LocalAE
         self.RemoteAE = RemoteAE
-        self._Kill = False  
+        self._Kill = False
         threading.Thread.__init__(self)
         self.SOPClassesAsSCP = []
         self.SOPClassesAsSCU = []
@@ -58,7 +61,7 @@ class Association(threading.Thread):
         except IndexError:
             return
             raise Exception, "SOP Class %s not supported as SCU"
-            
+
 
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
@@ -83,15 +86,15 @@ class Association(threading.Thread):
         obj.AE = self.AE
         return obj
 
-                
+
     def Kill(self):
         print "KILLING"
         self._Kill = True
-	for ii in range(1000):
-	    if self.DUL.Stop(): 
+        for ii in range(1000):
+            if self.DUL.Stop():
                 continue
-	    time.sleep(0.001)
-	self.DUL.Kill()
+            time.sleep(0.001)
+        self.DUL.Kill()
         #self.ACSE.Kill()
         del self.DUL
         #del self.ACSE
@@ -101,13 +104,13 @@ class Association(threading.Thread):
 
     def Release(self, reason):
         self.ACSE.Release(reason)
-	self.Kill()
+        self.Kill()
 
 
 
     def Abort(self, reason):
-        self.ACSE.Abort(reason)     
-	self.Kill()
+        self.ACSE.Abort(reason)
+        self.Kill()
 
 
 
@@ -124,7 +127,6 @@ class Association(threading.Thread):
             for ss in self.ACSE.AcceptedPresentationContexts:
                 self.SOPClassesAsSCP.append( (ss[0], \
                                               UID2SOPClass(ss[1]), ss[2]))
-
         else: # Requestor mode
             # build role extended negociation
             ext = []
@@ -134,25 +136,25 @@ class Association(threading.Thread):
                 tmp.SCURole = 0
                 tmp.SCPRole = 1
                 ext.append(tmp)
-            
+
             ans = self.ACSE.Request(self.AE.LocalAE, self.RemoteAE,
                                     self.AE.MaxPDULength,
                                     self.AE.PresentationContextDefinitionList,\
                                     userspdu=ext)
             if ans:
                 # call back
-		if 'OnAssociateResponse' in self.AE.__dict__:
-		    self.AE.OnAssociateResponse(ans)	
-	    else:
+                if 'OnAssociateResponse' in self.AE.__dict__:
+                    self.AE.OnAssociateResponse(ans)
+            else:
                 self.AssociationRefused = True
                 self.DUL.Kill()
-		return
+                return
             self.SOPClassesAsSCU = []
             for ss in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCU.append( (ss[0], 
+                self.SOPClassesAsSCU.append( (ss[0],
                                               UID2SOPClass(ss[1]), ss[2]))
 
-	self.AssociationEstablished = True
+        self.AssociationEstablished = True
 
         # association established. Listening on local and remote interfaces
         while not self._Kill:
@@ -187,7 +189,7 @@ class Association(threading.Thread):
                 if self.ACSE.CheckAbort():
                     print "Abort requested"
                     self.Kill()
-                	
+
 
 
 
@@ -200,12 +202,12 @@ class AE(threading.Thread):
     trigger callback functions that perform user defined actions based
     on received events.
     """
-    def __init__(self, AET, port, SOPSCU, SOPSCP, 
+    def __init__(self, AET, port, SOPSCU, SOPSCP,
                  SupportedTransferSyntax=[
-                                          ExplicitVRLittleEndian, 
-                                          ImplicitVRLittleEndian, 
+                                          ExplicitVRLittleEndian,
+                                          ImplicitVRLittleEndian,
                                           ExplicitVRBigEndian
-                                          ], 
+                                          ],
                  MaxPDULength=16000):
         self.LocalAE = {'Address': platform.node(), 'Port': port, 'AET':AET}
         self.SupportedSOPClassesAsSCU = SOPSCU
@@ -219,12 +221,12 @@ class AE(threading.Thread):
                                                socket.SOCK_STREAM)
         self.LocalServerSocket.setsockopt(socket.SOL_SOCKET, \
                                           socket.SO_REUSEADDR,1)
-        self.LocalServerSocket.bind(('', port))     
+        self.LocalServerSocket.bind(('', port))
         self.LocalServerSocket.listen(1)
         self.MaxPDULength = MaxPDULength
 
         # build presentation context definition list to be sent to remote AE when
-        # requesting association. 
+        # requesting association.
         count = 1
         self.PresentationContextDefinitionList = []
         for ii in self.SupportedSOPClassesAsSCU+self.SupportedSOPClassesAsSCP:
@@ -254,15 +256,15 @@ class AE(threading.Thread):
 
         # used to terminate AE
         self.__Quit = False
-	
+
         # list of active association objects
-	self.Associations = []
+        self.Associations = []
 
 
 
     def run(self):
         if not self.SupportedSOPClassesAsSCP:
-	    # no need to loop. This is just a client AE. All events will be triggered by the user
+            # no need to loop. This is just a client AE. All events will be triggered by the user
             return
         count = 0
         while 1:
@@ -277,22 +279,21 @@ class AE(threading.Thread):
                 self.Associations.append(Association(self, client_socket))
             #print [x.isAlive() for x in self.Associations if x.isAlive()]
 
-
             # delete dead associations
             for aa in self.Associations:
                 if not aa.isAlive():
                     self.Associations.remove(aa)
-            if not count%50: 
+            if not count%50:
                 gc.collect()
             count += 1
             if count>1e6: count = 0
 
     def Quit(self):
-	for aa in self.Associations:
-	    aa.Kill()	    
-	self.__Quit = True
-       
-	
+        for aa in self.Associations:
+            aa.Kill()
+        self.__Quit = True
+
+
     def QuitOnKeyboardInterrupt(self):
         # must be called from the main thread in order to catch the KeyboardInterrupt exception
         while 1:
@@ -306,7 +307,7 @@ class AE(threading.Thread):
     def RequestAssociation(self, remoteAE):
         """Requests association to a remote application entity"""
         assoc = Association(self, RemoteAE=remoteAE)
-	while not assoc.AssociationEstablished and not assoc.AssociationRefused:
+        while not assoc.AssociationEstablished and not assoc.AssociationRefused:
             time.sleep(0.1)
         if assoc.AssociationEstablished:
             self.Associations.append(assoc)
@@ -314,4 +315,4 @@ class AE(threading.Thread):
         else:
             return None
 
-        
+
