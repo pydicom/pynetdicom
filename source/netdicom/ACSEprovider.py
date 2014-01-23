@@ -127,8 +127,8 @@ class ACSEServiceProvider(object):
         res.PresentationContextDefinitionResultList = rsp
         res.Result = 0
         #res.UserInformation = []
-        res.UserInformation = [ass.UserInformation[0]]
-        #res.UserInformation = ass.UserInformation
+        #res.UserInformation = [ass.UserInformation[0]]
+        res.UserInformation = ass.UserInformation
         self.DUL.Send(res)
         return True
 

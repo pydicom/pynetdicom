@@ -828,7 +828,7 @@ class UserInformationItem(pdu):
     def FromParams(self, Params):
         # Params is a UserData
         for ii in Params:
-            self.UserData.append(ii.ToSubItem())
+            self.UserData.append(ii.ToParams())
         self.ItemLength = 0
         for ii in self.UserData:
             self.ItemLength = self.ItemLength + ii.TotalLength()
@@ -878,7 +878,7 @@ class MaximumLengthParameters(pdu):
     def __init__(self):
         self.MaximumLengthReceived = None
 
-    def ToSubItem(self):
+    def ToParams(self):
         tmp = MaximumLengthSubItem()
         tmp.FromParams(self)
         return tmp

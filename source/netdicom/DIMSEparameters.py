@@ -230,7 +230,7 @@ class ImplementationClassUIDParameters:
         self.ImplementationClassUID = None
 
 
-    def ToSubItem(self):
+    def ToParams(self):
         tmp = ImplementationClassUIDSubItem()
         tmp.FromParams(self)
         return tmp
@@ -246,6 +246,7 @@ class ImplementationClassUIDSubItem:
  
     def FromParams(self, Params):
         self.ImplementationClassUID = Params.ImplementationClassUID 
+        self.ItemLength = len(self.ImplementationClassUID)
 
     def ToParams(self):
         tmp = ImplementationClassUIDParameters()
@@ -257,7 +258,7 @@ class ImplementationClassUIDSubItem:
         tmp = tmp + struct.pack('B', self.ItemType)
         tmp = tmp + struct.pack('B', self.Reserved)
         tmp = tmp + struct.pack('>H', self.ItemLength)
-        tmp = tmp + ImplementationClassUID
+        tmp = tmp + self.ImplementationClassUID
         return tmp
 
     def Decode(self,Stream):
@@ -281,7 +282,7 @@ class ImplementationVersionNameParameters:
     def __init__(self):
         self.ImplementationVersionName = None
 
-    def ToSubItem(self):
+    def ToParams(self):
         tmp = ImplementationVersionNameSubItem()
         tmp.FromParams(self)
         return tmp
@@ -307,7 +308,7 @@ class ImplementationVersionNameSubItem:
         tmp = tmp + struct.pack('B', self.ItemType)
         tmp = tmp + struct.pack('B', self.Reserved)
         tmp = tmp + struct.pack('>H', self.ItemLength)
-        tmp = tmp + ImplementationVersionName
+        tmp = tmp + self.ImplementationVersionName
         return tmp
 
     def Decode(self,Stream):
@@ -379,7 +380,7 @@ class SCP_SCU_RoleSelectionParameters:
         self.SCURole = None
         self.SCPRole = None
 
-    def ToSubItem(self):
+    def ToParams(self):
         tmp = SCP_SCU_RoleSelectionSubItem()
         tmp.FromParams(self)
         return tmp
