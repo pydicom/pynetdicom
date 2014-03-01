@@ -9,7 +9,7 @@ SCP listening on the specified host and port.
 For help on usage, 
 python storescu.py -h 
 """
-
+import sys
 import argparse
 from netdicom import AE, StorageSOPClass, VerificationSOPClass
 from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
@@ -54,6 +54,9 @@ RemoteAE = dict(Address=args.remotehost, Port=args.remoteport, AET=args.aec)
 print "Request association"
 assoc = MyAE.RequestAssociation(RemoteAE)
 
+if not assoc:
+    print "Could not establish association"
+    sys.exit(1)
 # perform a DICOM ECHO, just to make sure remote AE is listening
 print "DICOM Echo ... ",
 st = assoc.VerificationSOPClass.SCU(1)

@@ -617,7 +617,6 @@ class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass, QueryRe
     UID = '1.2.840.10008.5.1.4.1.2.3.3'
 
 
-
 d = dir()
 
 

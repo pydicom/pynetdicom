@@ -32,7 +32,7 @@ class ACSEServiceProvider(object):
         self.ApplicationContextName = '1.2.840.10008.3.1.1.1'
 
         
-    def Request(self, localAE, remoteAE, mp, pcdl, userspdu = None):
+    def Request(self, localAE, remoteAE, mp, pcdl, userspdu = None, timeout = 30):
         """Requests an association with a remote AE and waits for association response."""
         self.LocalAE = localAE
         self.RemoteAE = remoteAE
@@ -60,15 +60,17 @@ class ACSEServiceProvider(object):
         # get answer
         logger.debug("Waiting for Association Response")
         
-        assrsp = self.DUL.Receive(True)
+        assrsp = self.DUL.Receive(True, timeout)
         if not assrsp:
             return False
-            raise AssociationRefused
         logger.debug(assrsp)
-                 
-        if assrsp.Result <> 'Accepted':
+
+        
+        try:         
+            if assrsp.Result <> 'Accepted':
+                return False
+        except AttributeError:
             return False
-            raise AssociationRefused
 
         # Get maximum pdu length from answer
         try:
