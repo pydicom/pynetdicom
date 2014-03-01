@@ -115,6 +115,7 @@ class DULServiceProvider(Thread):
 
             
         self.kill = False
+        self.daemon = True
         self.start()
 
 
