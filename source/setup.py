@@ -7,12 +7,14 @@ import os
 import os.path
 
 import sys
-import netdicom
+
+__version__ = open('netdicom/__version__.py').read().split('"')[1]
+print __version__
 
 setup(name="pynetdicom",
       packages = find_packages(),
       include_package_data = True,
-      version=netdicom.__version__,
+      version=__version__,
       zip_safe = False, # want users to be able to see included examples,tests
       description="Pure python implementation of the DICOM network protocol",
       author="Patrice Munger",
