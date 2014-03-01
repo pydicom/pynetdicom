@@ -10,12 +10,27 @@ from SOPclass import \
     StorageSOPClass,\
     MRImageStorageSOPClass,\
     CTImageStorageSOPClass,\
+    PositronEmissionTomographyImageStorageSOPClass,\
     CRImageStorageSOPClass,\
     SCImageStorageSOPClass,\
     RTImageStorageSOPClass,\
     RTDoseStorageSOPClass,\
     RTStructureSetStorageSOPClass,\
     RTPlanStorageSOPClass,\
+    EnhancedSRSOPClass,\
+    XRayRadiationDoseSRSOPClass,\
+    DigitalXRayImageStorageForPresentationSOPClass,\
+    DigitalXRayImageStorageForProcessingSOPClass,\
+    DigitalMammographyXRayImageStorageForPresentationSOPClass,\
+    DigitalMammographyXRayImageStorageForProcessingSOPClass,\
+    DigitalIntraOralXRayImageStorageForPresentationSOPClass,\
+    DigitalIntraOralXRayImageStorageForProcessingSOPClass,\
+    XRayAngiographicImageStorageSOPClass,\
+    EnhancedXAImageStorageSOPClass,\
+    XRayRadiofluoroscopicImageStorageSOPClass,\
+    EnhancedXRFImageStorageSOPClass,\
+    EnhancedCTImageStorageSOPClass,\
+    NMImageStorageSOPClass,\
     PatientRootFindSOPClass,\
     PatientRootMoveSOPClass,\
     PatientRootGetSOPClass,\

@@ -507,6 +507,9 @@ class MRImageStorageSOPClass(StorageSOPClass):
 class CTImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.2'
 
+class PositronEmissionTomographyImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.128'
+
 class CRImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.1'
 
@@ -527,6 +530,49 @@ class RTPlanStorageSOPClass(StorageSOPClass):
 
 class SpatialRegistrationSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.66.1'
+
+class EnhancedSRSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.88.22'
+
+class XRayRadiationDoseSRSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.88.67'
+
+class DigitalXRayImageStorageForPresentationSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1.1'
+
+class DigitalXRayImageStorageForProcessingSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1.1.1'
+
+class DigitalMammographyXRayImageStorageForPresentationSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1.2'
+
+class DigitalMammographyXRayImageStorageForProcessingSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1.2.1'
+
+class DigitalIntraOralXRayImageStorageForPresentationSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1.3'
+
+class DigitalIntraOralXRayImageStorageForProcessingSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.1.3.1'
+
+class XRayAngiographicImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.1'
+
+class EnhancedXAImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.1.1'
+
+class XRayRadiofluoroscopicImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.2'
+
+class EnhancedXRFImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.2.1'
+
+class EnhancedCTImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.2.1'
+
+class NMImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.20'
+
     
 
 
