@@ -7,10 +7,10 @@
 
 """Starts the Offis Dicom Toolkit dcmqrscp program
 
-dcmqrscp is useful for testing echocsu, storescu, 
+dcmqrscp is useful for testing echocsu, storescu,
 findscu, movescu and getscu.
 """
- 
+
 import os
 import time
 from utils import testfiles_dir
@@ -28,12 +28,14 @@ AE2 = (AE2, localhost, 9999)
 HostTable END
 
 AETable BEGIN
-%s	      %s/db   RW (200, 1024mb) ANY
+%s        %s/db   RW (200, 1024mb) ANY
 AETable END
 """
 
-def start_dcmqrscp(server_port=2000, server_AET='OFFIS_AE', 
-                   install_dir_base='/tmp/dcmqrscp', dcmtk_base='/usr', populate=False):
+
+def start_dcmqrscp(server_port=2000, server_AET='OFFIS_AE',
+                   install_dir_base='/tmp/dcmqrscp', dcmtk_base='/usr',
+                   populate=False):
     """
     Starts an instance of dcmqrscp with server_port and server_AET in
     an xterm window.  The database and config file will be created in
@@ -44,32 +46,34 @@ def start_dcmqrscp(server_port=2000, server_AET='OFFIS_AE',
     """
 
     # clean up
-    install_dir = install_dir_base+'/'+server_AET
+    install_dir = install_dir_base + '/' + server_AET
     os.system('rm -rf %s' % install_dir)
     try:
         os.mkdir(install_dir_base)
     except:
         pass
     os.mkdir(install_dir)
-    os.mkdir(install_dir+'/db')
+    os.mkdir(install_dir + '/db')
 
     # create dcmqrscp configuration file base on config_template
-    f=open(install_dir+'/dcmqrscp.cfg','w')
+    f = open(install_dir + '/dcmqrscp.cfg', 'w')
     f.write(config_template % (server_port, server_AET, install_dir))
     f.close()
 
     # start dcmqrscp in a separate window
-    cmd =  'cd %s;xterm -e "%s/bin/dcmqrscp -d -c dcmqrscp.cfg;read"&' % (install_dir, dcmtk_base)
+    cmd = 'cd %s;xterm -e "%s/bin/dcmqrscp -d -c dcmqrscp.cfg;read"&' % \
+        (install_dir, dcmtk_base)
     os.system(cmd)
     time.sleep(1)
 
     if populate:
         # populate db with a some data
-        storescu_cmd = dcmtk_base+'/bin/storescu localhost %d -aec %s ' % (server_port, server_AET)
+        storescu_cmd = dcmtk_base + \
+            '/bin/storescu localhost %d -aec %s ' % (server_port, server_AET)
         for ii in os.listdir(testfiles_dir()):
             if ii.endswith('.dcm'):
-                os.system(storescu_cmd +  os.path.join(testfiles_dir(),ii))
- 
+                os.system(storescu_cmd + os.path.join(testfiles_dir(), ii))
+
 
 if __name__ == '__main__':
     # Start two instances of dcmqrscp.

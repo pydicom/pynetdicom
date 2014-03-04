@@ -13,6 +13,7 @@ logger = logging.getLogger('netdicom.DUL')
 
 
 class Timer:
+
     def __init__(self, MaxNbSeconds):
         self.__MaxNbSeconds = MaxNbSeconds
         self.__StartTime = None
@@ -20,13 +21,13 @@ class Timer:
     def Start(self):
         logger.debug("Timer started")
         self.__StartTime = time.time()
-        
+
     def Stop(self):
         logger.debug("Timer stopped")
         self.__StartTime = None
 
     def Restart(self):
-        if self.__StartTime != None:
+        if self.__StartTime is not None:
             self.Stop()
             self.Start()
         else:
@@ -43,16 +44,11 @@ class Timer:
             return True
 
 
-
 if __name__ == '__main__':
 
     t = Timer(3)
-    
+
     t.Start()
     for ii in range(32):
-        time.sleep(0.2) 
+        time.sleep(0.2)
         print t.Check()
-
-
-
-

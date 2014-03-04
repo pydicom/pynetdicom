@@ -6,10 +6,10 @@
 #
 
 #
-# This module implements the DUL service provider, allowing a 
+# This module implements the DUL service provider, allowing a
 # DUL service user to send and receive DUL messages. The User and Provider
-# talk to each other using a TCP socket. The DULServer runs in a thread, 
-# so that and implements an event loop whose events will drive the 
+# talk to each other using a TCP socket. The DULServer runs in a thread,
+# so that and implements an event loop whose events will drive the
 # state machine.
 #
 #
@@ -36,18 +36,17 @@ def recvn(sock, n):
     ret = ''
     read_length = 0
     while read_length < n:
-        tmp = sock.recv(n-read_length)
+        tmp = sock.recv(n - read_length)
         ret += tmp
         read_length += len(tmp)
-    if read_length<>n:
+    if read_length != n:
         raise "Low level Network ERROR: "
     return ret
 
 
 class DULServiceProvider(Thread):
 
-    
-    def __init__(self, Socket=None, Port=None, Name = ''):
+    def __init__(self, Socket=None, Port=None, Name=''):
         """Three ways to call DULServiceProvider. If a port number is given,
         the DUL will wait for incoming connections on this port. If a socket
         is given, the DUL will use this socket as the client socket. If none
@@ -68,15 +67,13 @@ class DULServiceProvider(Thread):
         # service user writes the variable self.FromServiceUser.
         # A primitive is sent to the service user when the DUL service provider
         # writes the variable self.ToServiceUser.
-        # The "None" value means that nothing happens. 
+        # The "None" value means that nothing happens.
         self.ToServiceUser = Queue.Queue()
         self.FromServiceUser = Queue.Queue()
-
 
         # Setup the timer and finite state machines
         self.Timer = timer.Timer(10)
         self.SM = fsm.StateMachine(self)
-
 
         if Socket:
             # A client socket has been given
@@ -89,17 +86,18 @@ class DULServiceProvider(Thread):
             # Setup the remote server socket
             # This is the socket that will accept connections
             # from the remote DUL provider
-            # start this instance of DULServiceProvider in a thread.    
+            # start this instance of DULServiceProvider in a thread.
             self.LocalServerSocket = socket.socket(socket.AF_INET,
                                                    socket.SOCK_STREAM)
             self.LocalServerSocket.setsockopt(socket.SOL_SOCKET,
-                                              socket.SO_REUSEADDR,1)
+                                              socket.SO_REUSEADDR, 1)
 
             self.LocalServerPort = Port
             if self.LocalServerPort:
                 try:
-                    self.LocalServerSocket.bind((os.popen('hostname').read()[:-1],
-                                                 self.LocalServerPort))
+                    self.LocalServerSocket.bind(
+                        (os.popen('hostname').read()[:-1],
+                         self.LocalServerPort))
                 except:
                     logger.error("Already bound")
                 self.LocalServerSocket.listen(1)
@@ -113,11 +111,9 @@ class DULServiceProvider(Thread):
             self.RemoteClientSocket = None
             self.RemoteConnectionAddress = None
 
-            
         self.kill = False
         self.daemon = True
         self.start()
-
 
     def Kill(self):
         """Immediately interrupts the thread"""
@@ -131,12 +127,11 @@ class DULServiceProvider(Thread):
         else:
             return False
 
-    def Send(self,params):
+    def Send(self, params):
         self.FromServiceUser.put(params)
 
-
     def Receive(self, Wait=False, Timeout=None):
-        #if not self.RemoteClientSocket: return None
+        # if not self.RemoteClientSocket: return None
         try:
             tmp = self.ToServiceUser.get(Wait, Timeout)
             return tmp
@@ -150,35 +145,33 @@ class DULServiceProvider(Thread):
         except:
             return None
 
-
-
     def CheckIncomingPDU(self):
         rawpdu = ''
         # There is something to read
         # read type
         try:
-            rawpdu = self.RemoteClientSocket.recv(1)            
+            rawpdu = self.RemoteClientSocket.recv(1)
         except socket.error:
             self.event.put('Evt17')
             self.RemoteClientSocket.close()
             self.RemoteClientSocket = None
             return
-        
+
         if rawpdu == '':
             # Remote port has been closed
             self.event.put('Evt17')
-            self.RemoteClientSocket.close()    
+            self.RemoteClientSocket.close()
             self.RemoteClientSocket = None
             return
         else:
             type = unpack('B', rawpdu)
-            res = recvn(self.RemoteClientSocket,1)
+            res = recvn(self.RemoteClientSocket, 1)
             rawpdu += res
-            res = unpack('B',res)
-            length = recvn(self.RemoteClientSocket,4)
+            res = unpack('B', res)
+            length = recvn(self.RemoteClientSocket, 4)
             rawpdu += length
-            length = unpack('>L',length)
-            tmp = recvn(self.RemoteClientSocket,length[0])
+            length = unpack('>L', length)
+            tmp = recvn(self.RemoteClientSocket, length[0])
             rawpdu += tmp
             # Determine the type of PDU coming on remote port
             # and set the event accordingly
@@ -186,12 +179,11 @@ class DULServiceProvider(Thread):
             self.event.put(PDU2Event(self.pdu))
 
             self.primitive = self.pdu.ToParams()
-            
 
     def CheckTimer(self):
-        #logger.debug('%s: checking timer' % (self.name))  
-        if self.Timer.Check() == False:
-            logger.debug('%s: timer expired' % (self.name))  
+        #logger.debug('%s: checking timer' % (self.name))
+        if self.Timer.Check() is False:
+            logger.debug('%s: timer expired' % (self.name))
             # Timer expired
             self.event.put('Evt18')
             return True
@@ -199,9 +191,9 @@ class DULServiceProvider(Thread):
             return False
 
     def CheckIncomingPrimitive(self):
-        #logger.debug('%s: checking incoming primitive' % (self.name))  
+        #logger.debug('%s: checking incoming primitive' % (self.name))
         # look at self.ReceivePrimitive for incoming primitives
-        try: 
+        try:
             self.primitive = self.FromServiceUser.get(False, None)
             self.event.put(primitive2event(self.primitive))
             return True
@@ -212,24 +204,26 @@ class DULServiceProvider(Thread):
         #logger.debug('%s: checking network' % (self.name))
         if self.SM.CurrentState == 'Sta13':
             # wainting for connection to close
-            if self.RemoteClientSocket is None: return False
+            if self.RemoteClientSocket is None:
+                return False
             # wait for remote connection to close
             try:
-                while self.RemoteClientSocket.recv(1) <> '':
+                while self.RemoteClientSocket.recv(1) != '':
                     continue
             except socket.error:
                 return False
-            #    #self.event.Flush() # flush event queue
+            # self.event.Flush() # flush event queue
             self.RemoteClientSocket.close()
             self.RemoteClientSocket = None
             self.event.put('Evt17')
             return True
         if self.LocalServerSocket and not self.RemoteClientSocket:
             # local server is listening
-            [a,b,c] = select.select([self.LocalServerSocket],[],[],0)
+            [a, b, c] = select.select([self.LocalServerSocket], [], [], 0)
             if a:
                 # got an incoming connection
-                self.RemoteClientSocket, address = self.LocalServerSocket.accept()
+                self.RemoteClientSocket, address = \
+                    self.LocalServerSocket.accept()
                 self.event.put('Evt5')
                 return True
         elif self.RemoteClientSocket:
@@ -237,19 +231,18 @@ class DULServiceProvider(Thread):
                 self.event.put('Evt2')
                 return True
             # check if something comes in the client socket
-            [a,b,c] = select.select([self.RemoteClientSocket],[],[],0)
+            [a, b, c] = select.select([self.RemoteClientSocket], [], [], 0)
             if a:
                 self.CheckIncomingPDU()
                 return True
         else:
             return False
-            
-    
+
     def run(self):
         logger.debug('%s: DUL loop started' % self.name)
         while 1:
             time.sleep(0.001)
-            #time.sleep(1)
+            # time.sleep(1)
             #logger.debug('%s: starting DUL loop' % self.name)
             if self.kill:
                 break
@@ -265,12 +258,13 @@ class DULServiceProvider(Thread):
             except Queue.Empty:
                 #logger.debug('%s: no event' % (self.name))
                 continue
-            self.SM.Action(evt,self)
+            self.SM.Action(evt, self)
         logger.debug('%s: DUL loop ended' % self.name)
+
 
 def primitive2event(primitive):
     if primitive.__class__ == DULparameters.A_ASSOCIATE_ServiceParameters:
-        if primitive.Result == None:
+        if primitive.Result is None:
             # A-ASSOCIATE Request
             return 'Evt1'
         elif primitive.Result == 0:
@@ -280,7 +274,7 @@ def primitive2event(primitive):
             # A-ASSOCIATE Response (reject)
             return 'Evt8'
     elif primitive.__class__ == DULparameters.A_RELEASE_ServiceParameters:
-        if primitive.Result == None:
+        if primitive.Result is None:
             # A-Release Request
             return 'Evt11'
         else:
@@ -294,10 +288,9 @@ def primitive2event(primitive):
         raise InvalidPrimitive
 
 
-
 def Socket2PDU(data):
     # Returns the PDU object associated with an incoming data stream
-    pdutype = unpack('B',data[0])[0]
+    pdutype = unpack('B', data[0])[0]
     if pdutype == 0x01:
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(data)
@@ -323,7 +316,6 @@ def Socket2PDU(data):
         "Unrecognized or invalid PDU"
         pdu = None
     return pdu
-    
 
 
 def PDU2Event(pdu):
@@ -333,15 +325,14 @@ def PDU2Event(pdu):
         return 'Evt3'
     elif pdu.__class__ == A_ASSOCIATE_RJ_PDU:
         return 'Evt4'
-    elif pdu.__class__ == P_DATA_TF_PDU: 
+    elif pdu.__class__ == P_DATA_TF_PDU:
         return 'Evt10'
     elif pdu.__class__ == A_RELEASE_RQ_PDU:
         return 'Evt12'
     elif pdu.__class__ == A_RELEASE_RP_PDU:
         return 'Evt13'
-    elif pdu.__class__ == A_ABORT_PDU: 
+    elif pdu.__class__ == A_ABORT_PDU:
         return 'Evt16'
     else:
         "Unrecognized or invalid PDU"
         return 'Evt19'
-    

@@ -6,13 +6,14 @@ This demonstrates a simple application entity that support the RT Plan
 Storage SOP Class as SCU. For this example to work, there must be an
 SCP listening on the specified host and port.
 
-For help on usage, 
-python storescu.py -h 
+For help on usage,
+python storescu.py -h
 """
 import sys
 import argparse
 from netdicom import AE, StorageSOPClass, VerificationSOPClass
-from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+    ExplicitVRBigEndian
 from dicom import read_file
 
 
@@ -20,11 +21,15 @@ from dicom import read_file
 parser = argparse.ArgumentParser(description='storage SCU example')
 parser.add_argument('remotehost')
 parser.add_argument('remoteport', type=int)
-parser.add_argument('file', nargs='+' )
+parser.add_argument('file', nargs='+')
 parser.add_argument('-aet', help='calling AE title', default='PYNETDICOM')
 parser.add_argument('-aec', help='called AE title', default='REMOTESCU')
-parser.add_argument('-implicit', action='store_true', help='negociate implicit transfer syntax only', default=False)
-parser.add_argument('-explicit', action='store_true', help='negociate explicit transfer syntax only', default=False)
+parser.add_argument('-implicit', action='store_true',
+                    help='negociate implicit transfer syntax only',
+                    default=False)
+parser.add_argument('-explicit', action='store_true',
+                    help='negociate explicit transfer syntax only',
+                    default=False)
 
 args = parser.parse_args()
 
@@ -34,12 +39,14 @@ elif args.explicit:
     ts = [ExplicitVRLittleEndian]
 else:
     ts = [
-        ExplicitVRLittleEndian, 
-        ImplicitVRLittleEndian, 
+        ExplicitVRLittleEndian,
+        ImplicitVRLittleEndian,
         ExplicitVRBigEndian
-        ]
+    ]
 
 # call back
+
+
 def OnAssociateResponse(association):
     print "Association response received"
 

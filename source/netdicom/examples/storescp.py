@@ -5,19 +5,21 @@ This demonstrates a simple application entity that support a number of
 Storage service classes. For this example to work, you need an SCU
 sending to this host on specified port.
 
-For help on usage, 
-python storescp.py -h 
+For help on usage,
+python storescp.py -h
 """
 
 import argparse
-from netdicom import AE, StorageSOPClass, VerificationSOPClass, logger_setup, debug
+from netdicom import AE, StorageSOPClass, VerificationSOPClass, logger_setup, \
+    debug
 from dicom.dataset import Dataset, FileDataset
 import tempfile
 
 # parse commandline
 parser = argparse.ArgumentParser(description='storage SCP example')
 parser.add_argument('port', type=int)
-parser.add_argument('-aet', help='AE title of this server', default='PYNETDICOM')
+parser.add_argument('-aet', help='AE title of this server',
+                    default='PYNETDICOM')
 args = parser.parse_args()
 
 logger_setup()

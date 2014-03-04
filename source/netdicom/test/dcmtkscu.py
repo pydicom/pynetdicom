@@ -7,11 +7,11 @@
 
 """Utility to launch various dcmtk clients for testing purposes
 """
- 
+
 import os
 
 
 def run_in_term(cmd):
      # start dcmqrscp in a separate window
-    cmd =  'xterm -e "(sleep 2;%s)" &' % (cmd)
-    print os.system(cmd)   
+    cmd = 'xterm -e "(sleep 2;%s)" &' % (cmd)
+    print os.system(cmd)

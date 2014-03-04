@@ -25,13 +25,17 @@ from dicom.dataset import Dataset
 import dcmtkscu
 
 # call backs
+
+
 def OnAssociateRequest(association):
     print "Association request received"
+
 
 def OnReceiveEcho(self):
     print
     print "Echo received"
     return True
+
 
 def OnReceiveFind(self, ds):
     for ii in range(1000):
@@ -42,16 +46,16 @@ def OnReceiveFind(self, ds):
 
 
 # create application entity
-MyAE = AE('localhost', 9999, [], [PatientRootFindSOPClass, VerificationSOPClass])
+MyAE = AE('localhost', 9999, [],
+          [PatientRootFindSOPClass, VerificationSOPClass])
 MyAE.OnAssociateRequest = OnAssociateRequest
 MyAE.OnReceiveEcho = OnReceiveEcho
 MyAE.OnReceiveFind = OnReceiveFind
 
 
-dcmtkscu.run_in_term('findscu -v -P -aec AE1 -k 0010,0010="*" -k 0008,0052="PATIENT" localhost 9999')
+dcmtkscu.run_in_term(
+    'findscu -v -P -aec AE1 -k 0010,0010="*" -k 0008,0052="PATIENT" localhost 9999')
 
 # start application entity
 MyAE.start()
 MyAE.QuitOnKeyboardInterrupt()
-
-

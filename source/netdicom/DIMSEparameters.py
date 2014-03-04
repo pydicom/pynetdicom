@@ -17,6 +17,7 @@ def classprinter(klass):
 # DIMSE-C Services
 
 class C_STORE_ServiceParameters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -29,11 +30,11 @@ class C_STORE_ServiceParameters:
         self.Status = None
 
     def __repr__(self):
-        return classprinter(self) 
-
+        return classprinter(self)
 
 
 class C_FIND_ServiceParameters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -41,11 +42,13 @@ class C_FIND_ServiceParameters:
         self.Priority = None
         self.Identifier = None
         self.Status = None
-        
+
     def __repr__(self):
-        return classprinter(self) 
+        return classprinter(self)
+
 
 class C_GET_ServiceParameters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -59,9 +62,11 @@ class C_GET_ServiceParameters:
         self.NumberOfWarningSubOperations = None
 
     def __repr__(self):
-        return classprinter(self) 
+        return classprinter(self)
+
 
 class C_MOVE_ServiceParameters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -76,28 +81,24 @@ class C_MOVE_ServiceParameters:
         self.NumberOfWarningSubOperations = None
 
     def __repr__(self):
-        return classprinter(self) 
+        return classprinter(self)
+
 
 class C_ECHO_ServiceParameters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
         self.AffectedSOPClassUID = None
         self.Status = None
 
-
     def __repr__(self):
-        return classprinter(self) 
-
-
-
-
-
-
+        return classprinter(self)
 
 
 # DIMSE-N services
 class N_EVENT_REPORT_ServiceParamters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -109,8 +110,8 @@ class N_EVENT_REPORT_ServiceParamters:
         self.Status = None
 
 
-
 class N_GET_ServiceParamters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -123,8 +124,8 @@ class N_GET_ServiceParamters:
         self.Status = None
 
 
-
 class N_SET_ServiceParamters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -134,11 +135,11 @@ class N_SET_ServiceParamters:
         self.AttributeList = None
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
-        self.Status = None  
-
+        self.Status = None
 
 
 class N_ACTION_ServiceParamters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -152,21 +153,19 @@ class N_ACTION_ServiceParamters:
         self.Status = None
 
 
-
 class N_CREATE_ServiceParamters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.AttributeList = None
-        self.Status = None  
-
-
-
+        self.Status = None
 
 
 class N_DELETE_ServiceParamters:
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -177,58 +176,30 @@ class N_DELETE_ServiceParamters:
         self.Status = None
 
 
-
-
-
-
-
-
-
-
-
-
 class C_STORE_RQ_Message:
+
     def __init__(self):
         pass
-        
-
-
-
 
 
 class C_STORE_Service:
+
     def __init__(self):
         self.Parameters = C_STORE_ServiceParameters()
 
-        
 
-
-
-
-
-
-
-
-
-
-
-
-########
+#
 #
 # Extented association stuff: Defined in part 3.7
 #
 #
-
-
 #
 #
 #
-
-
 class ImplementationClassUIDParameters:
+
     def __init__(self):
         self.ImplementationClassUID = None
-
 
     def ToParams(self):
         tmp = ImplementationClassUIDSubItem()
@@ -236,16 +207,17 @@ class ImplementationClassUIDParameters:
         return tmp
 
 
-
 class ImplementationClassUIDSubItem:
+
     def __init__(self):
         self.ItemType = 0x52                                # Unsigned byte
-        self.Reserved = 0x00                                # Unsigned byte 0x00
+        # Unsigned byte 0x00
+        self.Reserved = 0x00
         self.ItemLength = None                          # Unsigned short
         self.ImplementationClassUID = None          # String
- 
+
     def FromParams(self, Params):
-        self.ImplementationClassUID = Params.ImplementationClassUID 
+        self.ImplementationClassUID = Params.ImplementationClassUID
         self.ItemLength = len(self.ImplementationClassUID)
 
     def ToParams(self):
@@ -261,8 +233,9 @@ class ImplementationClassUIDSubItem:
         tmp = tmp + self.ImplementationClassUID
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = struct.unpack('> B B H', Stream.read(4))
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = struct.unpack('> B B H', Stream.read(4))
         self.ImplementationClassUID = Stream.read(self.ItemLength)
 
     def TotalLength(self):
@@ -272,13 +245,17 @@ class ImplementationClassUIDSubItem:
         tmp = "  Implementation class IUD sub item\n"
         tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   SOP class UID length: %s\n" % self.ImplementationClassUID
+        tmp = tmp + \
+            "   SOP class UID length: %s\n" % self.ImplementationClassUID
         return tmp
 
 #
 #
 #
+
+
 class ImplementationVersionNameParameters:
+
     def __init__(self):
         self.ImplementationVersionName = None
 
@@ -287,15 +264,18 @@ class ImplementationVersionNameParameters:
         tmp.FromParams(self)
         return tmp
 
+
 class ImplementationVersionNameSubItem:
+
     def __init__(self):
         self.ItemType = 0x55                                # Unsigned byte
-        self.Reserved = 0x00                                # Unsigned byte 0x00
+        # Unsigned byte 0x00
+        self.Reserved = 0x00
         self.ItemLength = None                          # Unsigned short
         self.ImplementationVersionName = None       # String
 
     def FromParams(self, Params):
-        self.ImplementationVersionName = Params.ImplementationVersionName 
+        self.ImplementationVersionName = Params.ImplementationVersionName
         self.ItemLength = len(self.ImplementationVersionName)
 
     def ToParams(self):
@@ -311,8 +291,9 @@ class ImplementationVersionNameSubItem:
         tmp = tmp + self.ImplementationVersionName
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = struct.unpack('> B B H', Stream.read(4))
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = struct.unpack('> B B H', Stream.read(4))
         self.ImplementationVersionName = Stream.read(self.ItemLength)
 
     def TotalLength(self):
@@ -322,27 +303,36 @@ class ImplementationVersionNameSubItem:
         tmp = "  Implementation version name sub item\n"
         tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   SOP class UID length: %s\n" % self.ImplementationVersionName
+        tmp = tmp + \
+            "   SOP class UID length: %s\n" % self.ImplementationVersionName
         return tmp
 
 
 class AsynchronousOperationsWindowSubItem:
+
     def __init__(self):
-        self.ItemType = 0x53                                            # Unsigned byte
-        self.Reserved = 0x00                                            # Unsigned byte
-        self.ItemLength = 0x0004                                    # Unsigned short
+        # Unsigned byte
+        self.ItemType = 0x53
+        # Unsigned byte
+        self.Reserved = 0x00
+        # Unsigned short
+        self.ItemLength = 0x0004
         self.MaximumNumberOperationsInvoked = None          # Unsigned short
-        self.MaximumNumberOperationsPerformed = None            # Unsigned short
+        # Unsigned short
+        self.MaximumNumberOperationsPerformed = None
 
     def FromParams(self, Params):
-        self.MaximumNumberOperationsInvoked = Params.MaximumNumberOperationsInvoked
-        self.MaximumNumberOperationsPerformed = Params.MaximumNumberOperationsPerformed
-
+        self.MaximumNumberOperationsInvoked = \
+            Params.MaximumNumberOperationsInvoked
+        self.MaximumNumberOperationsPerformed = \
+            Params.MaximumNumberOperationsPerformed
 
     def ToParams(self):
         tmp = AsynchronousOperationsWindowSubItem()
-        tmp.MaximumNumberOperationsInvoked = self.MaximumNumberOperationsInvoked
-        tmp.MaximumNumberOperationsPerformed = self.MaximumNumberOperationsPerformed
+        tmp.MaximumNumberOperationsInvoked = \
+            self.MaximumNumberOperationsInvoked
+        tmp.MaximumNumberOperationsPerformed = \
+            self.MaximumNumberOperationsPerformed
         return tmp
 
     def Encode(self):
@@ -354,11 +344,12 @@ class AsynchronousOperationsWindowSubItem:
         tmp = tmp + struct.pack('>H', self.MaximumNumberOperationsPerformed)
         return tmp
 
-    def Decode(self,Stream):
+    def Decode(self, Stream):
         (self.ItemType, self.Reserved, self.ItemLength,
          self.MaximumNumberOperationsInvoked,
-         self.MaximumNumberOperationsPerformed) = struct.unpack('> B B H H H', Stream.read(8))
-        
+         self.MaximumNumberOperationsPerformed) = struct.unpack('> B B H H H',
+                                                                Stream.read(8))
+
     def TotalLength(self):
         return 4 + self.ItemLength
 
@@ -366,15 +357,20 @@ class AsynchronousOperationsWindowSubItem:
         tmp = "  Asynchoneous operation window sub item\n"
         tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   Maximum number of operations invoked: %d\n" % self.MaximumNumberOperationsInvoked
-        tmp = tmp + "   Maximum number of operations performed: %d\n" % self.MaximumNumberOperationsPerformed
+        tmp = tmp + \
+            "   Maximum number of operations invoked: %d\n" % \
+            self.MaximumNumberOperationsInvoked
+        tmp = tmp + \
+            "   Maximum number of operations performed: %d\n" % \
+            self.MaximumNumberOperationsPerformed
         return tmp
-
 
 
 import struct
 
+
 class SCP_SCU_RoleSelectionParameters:
+
     def __init__(self):
         self.SOPClassUID = None
         self.SCURole = None
@@ -387,6 +383,7 @@ class SCP_SCU_RoleSelectionParameters:
 
 
 class SCP_SCU_RoleSelectionSubItem:
+
     def __init__(self):
         self.ItemType = 0x54            # Unsigned byte
         self.Reserved = 0x00            # Unsigned byte 0x00
@@ -401,7 +398,7 @@ class SCP_SCU_RoleSelectionSubItem:
         self.SCURole = Params.SCURole
         self.SCPRole = Params.SCPRole
         self.ItemLength = 4 + len(self.SOPClassUID)
-        self.UIDLength = len(self.SOPClassUID)  
+        self.UIDLength = len(self.SOPClassUID)
 
     def ToParams(self):
         tmp = SCP_SCU_RoleSelectionParameters()
@@ -420,12 +417,13 @@ class SCP_SCU_RoleSelectionSubItem:
         tmp += struct.pack('B B', self.SCURole, self.SCPRole)
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, 
-         self.ItemLength, self.UIDLength) = struct.unpack('> B B H H', Stream.read(6))
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength, self.UIDLength) = struct.unpack('> B B H H',
+                                                          Stream.read(6))
         self.SOPClassUID = Stream.read(self.UIDLength)
         (self.SCURole, self.SCPRole) = struct.unpack('B B', Stream.read(2))
-        
+
     def TotalLength(self):
         return 4 + self.ItemLength
 
@@ -441,27 +439,31 @@ class SCP_SCU_RoleSelectionSubItem:
 
 
 
-#### needs to be re-worked
-#class SOPClassExtentedNegociationSubItem:
+# needs to be re-worked
+# class SOPClassExtentedNegociationSubItem:
 #    def __init__(self):
-#        self.ItemType = 0x56                                        # Unsigned byte
-#        self.Reserved = 0x00                                        # Unsigned byte - 0x00
-#        self.ItemLength = None                                  # Unsigned short
-#        self.SOPClassUIDLength = None                           # Unsigned short
-#        self.SOPClassUID = None                                 # String
-#        self.ServiceClassApplicationInformation = None  # Class 
+# self.ItemType = 0x56                                   # Unsigned byte
+# self.Reserved = 0x00                                   # Unsigned byte - 0x00
+# self.ItemLength = None                                 # Unsigned short
+# self.SOPClassUIDLength = None                          # Unsigned short
+# self.SOPClassUID = None                                # String
+# self.ServiceClassApplicationInformation = None         # Class
 #
 #    def FromParams(self, Params):
 #        self.SOPClassUID = Params.SOPClassUID
-#        self.ServiceClassApplicationInformation = Params.ServiceClassApplicationInformation()
+#        self.ServiceClassApplicationInformation = \
+#            Params.ServiceClassApplicationInformation()
 #        self.SOPClassUIDLength = len(self.SOPClassUID)
-#        self.ItemLength = 2 + self.SOPClassUIDLength + self.ServiceClassApplicationInformation.TotalLength()
+#        self.ItemLength = 2 + self.SOPClassUIDLength + \
+#        self.ServiceClassApplicationInformation.TotalLength()
 #
 #    def ToParams(self):
 #        tmp = SOPClassExtentedNegociationSubItem()
 #        tmp.SOPClassUID = self.SOPClassUID
-#        tmp.ServiceClassApplicationInformation = self.ServiceClassApplicationInformation
-#        return  (self.SOPClassUID, self.ServiceClassApplicationInformation.Decompose())
+#        tmp.ServiceClassApplicationInformation = \
+#            self.ServiceClassApplicationInformation
+#        return  (self.SOPClassUID, \
+#                  self.ServiceClassApplicationInformation.Decompose())
 #
 #    def Encode(self):
 #        tmp = ''
@@ -474,16 +476,17 @@ class SCP_SCU_RoleSelectionSubItem:
 #        return tmp
 #
 #    def Decode(self,Stream):
-#        (self.ItemType, self.Reserved, 
-#         self.ItemLength, self.SOPClassUIDLength) = struct.unpack('> B B H H', Stream.read(6))
+#        (self.ItemType, self.Reserved,
+#         self.ItemLength, self.SOPClassUIDLength) = \
+#              struct.unpack('> B B H H', Stream.read(6))
 #        self.SOPClassUID = Stream.read(self.UIDLength)
 #        self.ServiceClassApplicationInformation.Decode(Stream)
-#        
+#
 #    def TotalLength(self):
 #        return 4 + self.ItemLength
 #
-#    
-#    
+#
+#
 #    def __repr__(self):
 #        tmp = "  SOP class extended negociation sub item\n"
 #        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
@@ -492,20 +495,3 @@ class SCP_SCU_RoleSelectionSubItem:
 #        tmp = tmp + "   SOP class UID: %s" % self.SOPClassUID
 #        return tmp
 #
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

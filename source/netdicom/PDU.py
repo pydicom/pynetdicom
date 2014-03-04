@@ -24,26 +24,30 @@ There are seven different PDUs, each of them correspong to distinct class.
 
     All PDU classes implement the following methods:
 
-      FromParams(DULServiceParameterObject):  Builds a PDU from a DULServiceParameter
-                                              object. Used when receiving primitives
+      FromParams(DULServiceParameterObject):  Builds a PDU from a
+                                              DULServiceParameter object.
+                                              Used when receiving primitives
                                               from the DULServiceUser.
-      ToParams()                           :  Convert the PDU into a DULServiceParameter
-                                              object. Used for sending primitives to
+      ToParams()                           :  Convert the PDU into a
+                                              DULServiceParameter object.
+                                              Used for sending primitives to
                                               the DULServiceUser.
       Encode()                     :  Returns the encoded PDU as a string,
                                       ready to be sent over the net.
       Decode(string)               :  Construct PDU from "string".
                                       Used for reading PDU's from the net.
 
-                                FromParams                 Encode
-  |---------------------------| ------->  |------------| -------> |------------|
-  | Service parameters object |           | PDU object |          | TCP socket |
-  |___________________________| <-------  |____________| <------- |____________|
-                                 ToParams                 Decode
+                        FromParams                 Encode
+  |------------ -------| ------->  |------------| -------> |------------|
+  | Service parameters |           |     PDU    |          |    TCP     |
+  |       object       |           |   object   |          |   socket   |
+  |____________________| <-------  |____________| <------- |____________|
+                         ToParams                  Decode
 
 
 
-In addition to PDUs, several items and sub-items classes are implemented. These classes are:
+In addition to PDUs, several items and sub-items classes are implemented.
+These classes are:
 
         ApplicationContextItem
         PresentationContextItemRQ
@@ -62,7 +66,9 @@ from DIMSEparameters import *
 
 
 class pdu:
+
     """Base class for PDUs"""
+
     def __eq__(self, other):
         """Equality of tho PDUs"""
         for ii in self.__dict__:
@@ -72,23 +78,25 @@ class pdu:
 
 
 class A_ASSOCIATE_RQ_PDU(pdu):
+
     '''This class represents the A-ASSOCIATE-RQ PDU'''
 
-    def __init__(self):    
+    def __init__(self):
         self.PDUType = 0x01                                     # Unsigned byte
         self.Reserved1 = 0x00                                   # Unsigned byte
         self.PDULength = None                                   # Unsigned int
         self.ProtocolVersion = 1                            # Unsigned short
-        self.Reserved2 = 0x00                                   # Unsigned short
-        self.CalledAETitle = None                           # string of length 16
+        # Unsigned short
+        self.Reserved2 = 0x00
+        # string of length 16
+        self.CalledAETitle = None
         self.CallingAETitle = None                      # string of length 16
-        self.Reserved3 = (0,0,0,0,0,0,0,0)      # 32 bytes
+        self.Reserved3 = (0, 0, 0, 0, 0, 0, 0, 0)      # 32 bytes
         # VariablesItems is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemRQ
         #   1 UserInformationItem
         self.VariableItems = []
-
 
     def FromParams(self, Params):
         # Params is an A_ASSOCIATE_ServiceParameters object
@@ -113,13 +121,13 @@ class A_ASSOCIATE_RQ_PDU(pdu):
         for ii in self.VariableItems:
             self.PDULength = self.PDULength + ii.TotalLength()
 
-
     def ToParams(self):
         # Returns an A_ASSOCIATE_ServiceParameters object
         ass = DULparameters.A_ASSOCIATE_ServiceParameters()
         ass.CallingAETitle = self.CallingAETitle
         ass.CalledAETitle = self.CalledAETitle
-        ass.ApplicationContextName = self.VariableItems[0].ApplicationContextName
+        ass.ApplicationContextName = self.VariableItems[
+            0].ApplicationContextName
         # Write presentation contexts
         for ii in self.VariableItems[1:-1]:
             ass.PresentationContextDefinitionList.append(ii.ToParams())
@@ -129,14 +137,14 @@ class A_ASSOCIATE_RQ_PDU(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',   self.PDUType) 
-        tmp = tmp + pack('B',   self.Reserved1) 
-        tmp = tmp + pack('>I',  self.PDULength) 
-        tmp = tmp + pack('>H',  self.ProtocolVersion) 
-        tmp = tmp + pack('>H',  self.Reserved2) 
+        tmp = tmp + pack('B',   self.PDUType)
+        tmp = tmp + pack('B',   self.Reserved1)
+        tmp = tmp + pack('>I',  self.PDULength)
+        tmp = tmp + pack('>H',  self.ProtocolVersion)
+        tmp = tmp + pack('>H',  self.Reserved2)
         tmp = tmp + pack('16s', self.CalledAETitle)
-        tmp = tmp + pack('16s', self.CallingAETitle) 
-        tmp = tmp + pack('>8I', 0,0,0,0,0,0,0,0)    
+        tmp = tmp + pack('16s', self.CallingAETitle)
+        tmp = tmp + pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
         # variable item elements
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
@@ -144,8 +152,8 @@ class A_ASSOCIATE_RQ_PDU(pdu):
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved1, self.PDULength, 
-         self.ProtocolVersion, self.Reserved2, self.CalledAETitle, 
+        (self.PDUType, self.Reserved1, self.PDULength,
+         self.ProtocolVersion, self.Reserved2, self.CalledAETitle,
          self.CallingAETitle) = unpack('> B B I H H 16s 16s', Stream.read(42))
         self.Reserved3 = unpack('> 8I', Stream.read(32))
         while 1:
@@ -156,7 +164,7 @@ class A_ASSOCIATE_RQ_PDU(pdu):
                 tmp = PresentationContextItemRQ()
             elif type == 0x50:
                 tmp = UserInformationItem()
-            elif type == None:
+            elif type is None:
                 break
             else:
                 raise 'InvalidVariableItem'
@@ -177,21 +185,26 @@ class A_ASSOCIATE_RQ_PDU(pdu):
         return tmp + "\n"
 
 
-
 #
 #
 #
 class A_ASSOCIATE_AC_PDU(pdu):
+
     '''This class represents the A-ASSOCIATE-AC PDU'''
+
     def __init__(self):
         self.PDUType = 0x02                                     # Unsigned byte
         self.Reserved1 = 0x00                                   # Unsigned byte
         self.PDULength = None                                   # Unsigned int
-        self.ProtocolVersion = 1                                # Unsigned short
-        self.Reserved2 = 0x00                                   # Unsigned short
-        self.Reserved3 = None                                   # string of length 16
-        self.Reserved4 = None                                   # string of length 16
-        self.Reserved5 = (0x0000,0x0000,0x0000,0x0000)  # 32 bytes
+        # Unsigned short
+        self.ProtocolVersion = 1
+        # Unsigned short
+        self.Reserved2 = 0x00
+        # string of length 16
+        self.Reserved3 = None
+        # string of length 16
+        self.Reserved4 = None
+        self.Reserved5 = (0x0000, 0x0000, 0x0000, 0x0000)  # 32 bytes
         # VariablesItems is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemAC
@@ -220,7 +233,6 @@ class A_ASSOCIATE_AC_PDU(pdu):
         for ii in self.VariableItems:
             self.PDULength = self.PDULength + ii.TotalLength()
 
-
     def ToParams(self):
         ass = DULparameters.A_ASSOCIATE_ServiceParameters()
         ass.CallingAETitle = self.Reserved3
@@ -230,7 +242,7 @@ class A_ASSOCIATE_AC_PDU(pdu):
         # Write presentation context
         for ii in self.VariableItems[1:-1]:
             ass.PresentationContextDefinitionResultList.append(ii.ToParams())
-            
+
         # Write user information
         ass.UserInformation = self.VariableItems[-1].ToParams()
         ass.Result = 'Accepted'
@@ -238,14 +250,14 @@ class A_ASSOCIATE_AC_PDU(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',   self.PDUType) 
-        tmp = tmp + pack('B',   self.Reserved1) 
-        tmp = tmp + pack('>I',  self.PDULength) 
-        tmp = tmp + pack('>H',  self.ProtocolVersion) 
-        tmp = tmp + pack('>H',  self.Reserved2) 
+        tmp = tmp + pack('B',   self.PDUType)
+        tmp = tmp + pack('B',   self.Reserved1)
+        tmp = tmp + pack('>I',  self.PDULength)
+        tmp = tmp + pack('>H',  self.ProtocolVersion)
+        tmp = tmp + pack('>H',  self.Reserved2)
         tmp = tmp + pack('16s', self.Reserved3)
-        tmp = tmp + pack('16s', self.Reserved4) 
-        tmp = tmp + pack('>8I',0,0,0,0,0,0,0,0) 
+        tmp = tmp + pack('16s', self.Reserved4)
+        tmp = tmp + pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
         # variable item elements
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
@@ -253,9 +265,9 @@ class A_ASSOCIATE_AC_PDU(pdu):
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved1, self.PDULength, 
-         self.ProtocolVersion, self.Reserved2, self.Reserved3, 
-         self.Reserved4) =  unpack('> B B I H H 16s 16s', Stream.read(42))
+        (self.PDUType, self.Reserved1, self.PDULength,
+         self.ProtocolVersion, self.Reserved2, self.Reserved3,
+         self.Reserved4) = unpack('> B B I H H 16s 16s', Stream.read(42))
         self.Reserved5 = unpack('>8I', Stream.read(32))
         while 1:
             Type = NextType(Stream)
@@ -265,7 +277,7 @@ class A_ASSOCIATE_AC_PDU(pdu):
                 tmp = PresentationContextItemAC()
             elif Type == 0x50:
                 tmp = UserInformationItem()
-            elif Type == None:
+            elif Type is None:
                 break
             else:
                 raise 'InvalidVariableItem'
@@ -286,13 +298,13 @@ class A_ASSOCIATE_AC_PDU(pdu):
         return tmp + "\n"
 
 
-
-
 #
 #
 #
 class A_ASSOCIATE_RJ_PDU(pdu):
+
     '''This class represents the A-ASSOCIATE-RJ PDU'''
+
     def __init__(self):
         self.PDUType = 0x03                           # Unsigned byte
         self.Reserved1 = 0x00                         # Unsigned byte
@@ -317,19 +329,20 @@ class A_ASSOCIATE_RJ_PDU(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.PDUType)
-        tmp = tmp + pack('B',self.Reserved1)
-        tmp = tmp + pack('>I',self.PDULength)
-        tmp = tmp + pack('B',self.Reserved2)
-        tmp = tmp + pack('B',self.Result)
-        tmp = tmp + pack('B',self.Source)
-        tmp = tmp + pack('B',self.ReasonDiag)
+        tmp = tmp + pack('B', self.PDUType)
+        tmp = tmp + pack('B', self.Reserved1)
+        tmp = tmp + pack('>I', self.PDULength)
+        tmp = tmp + pack('B', self.Reserved2)
+        tmp = tmp + pack('B', self.Result)
+        tmp = tmp + pack('B', self.Source)
+        tmp = tmp + pack('B', self.ReasonDiag)
         return tmp
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved1, self.PDULength, self.Reserved2, 
-         self.Result, self.Source,self.ReasonDiag) = unpack('> B B I B B B B', Stream.read(10))
+        (self.PDUType, self.Reserved1, self.PDULength, self.Reserved2,
+         self.Result, self.Source, self.ReasonDiag) = unpack('> B B I B B B B',
+                                                             Stream.read(10))
 
     def TotalLength(self):
         return 10
@@ -348,12 +361,15 @@ class A_ASSOCIATE_RJ_PDU(pdu):
 #
 #
 class P_DATA_TF_PDU(pdu):
+
     '''This class represents the P-DATA-TF PDU'''
+
     def __init__(self):
         self.PDUType = 0x04                     # Unsigned byte
         self.Reserved = 0x00                        # Unsigned byte
         self.PDULength = None                   # Unsigned int
-        self.PresentationDataValueItems = []    # List of one of more PresentationDataValueItem
+        # List of one of more PresentationDataValueItem
+        self.PresentationDataValueItems = []
 
     def FromParams(self, Params):
         # Params is an P_DATA_ServiceParameters object
@@ -364,13 +380,13 @@ class P_DATA_TF_PDU(pdu):
         self.PDULength = 0
         for ii in self.PresentationDataValueItems:
             self.PDULength = self.PDULength + ii.TotalLength()
-            
+
     def ToParams(self):
         tmp = DULparameters.P_DATA_ServiceParameters()
         tmp.PresentationDataValueList = []
         for ii in self.PresentationDataValueItems:
             tmp.PresentationDataValueList.append([ii.PresentationContextID,
-                                  ii.PresentationDataValue])
+                                                  ii.PresentationDataValue])
         return tmp
 
     def Encode(self):
@@ -384,7 +400,8 @@ class P_DATA_TF_PDU(pdu):
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved, self.PDULength) = unpack('> B B I', Stream.read(6))
+        (self.PDUType, self.Reserved,
+         self.PDULength) = unpack('> B B I', Stream.read(6))
         length_read = 0
         while length_read != self.PDULength:
             tmp = PresentationDataValueItem()
@@ -406,14 +423,17 @@ class P_DATA_TF_PDU(pdu):
 #
 #
 #
+
+
 class A_RELEASE_RQ_PDU(pdu):
+
     '''This class represents the A-ASSOCIATE-RQ PDU'''
+
     def __init__(self):
         self.PDUType = 0x05                     # Unsigned byte
         self.Reserved1 = 0x00                   # Unsigned byte
         self.PDULength = 0x00000004         # Unsigned int
         self.Reserved2 = 0x00000000         # Unsigned int
-
 
     def FromParams(self, Params=None):
         # Params is an A_RELEASE_ServiceParameters object. It is optional.
@@ -428,15 +448,15 @@ class A_RELEASE_RQ_PDU(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.PDUType)
-        tmp = tmp + pack('B',self.Reserved1)
-        tmp = tmp + pack('>I',self.PDULength)
-        tmp = tmp + pack('>I',self.Reserved2)
+        tmp = tmp + pack('B', self.PDUType)
+        tmp = tmp + pack('B', self.Reserved1)
+        tmp = tmp + pack('>I', self.PDULength)
+        tmp = tmp + pack('>I', self.Reserved2)
         return tmp
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved1, 
+        (self.PDUType, self.Reserved1,
          self.PDULength, self.Reserved2) = unpack('> B B I I', Stream.read(10))
 
     def TotalLength(self):
@@ -451,14 +471,17 @@ class A_RELEASE_RQ_PDU(pdu):
 #
 #
 #
+
+
 class A_RELEASE_RP_PDU(pdu):
+
     '''This class represents the A-RELEASE-RP PDU'''
+
     def __init__(self):
         self.PDUType = 0x06                     # Unsigned byte
         self.Reserved1 = 0x00                   # Unsigned byte
         self.PDULength = 0x00000004         # Unsigned int
         self.Reserved2 = 0x00000000         # Unsigned int
-
 
     def FromParams(self, Params=None):
         # Params is an A_RELEASE_ServiceParameters object. It is optional.
@@ -473,15 +496,15 @@ class A_RELEASE_RP_PDU(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.PDUType)
-        tmp = tmp + pack('B',self.Reserved1)
-        tmp = tmp + pack('>I',self.PDULength)
-        tmp = tmp + pack('>I',self.Reserved2)
+        tmp = tmp + pack('B', self.PDUType)
+        tmp = tmp + pack('B', self.Reserved1)
+        tmp = tmp + pack('>I', self.PDULength)
+        tmp = tmp + pack('>I', self.Reserved2)
         return tmp
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved1, 
+        (self.PDUType, self.Reserved1,
          self.PDULength, self.Reserved2) = unpack('> B B I I', Stream.read(10))
 
     def TotalLength(self):
@@ -496,8 +519,12 @@ class A_RELEASE_RP_PDU(pdu):
 #
 #
 #
+
+
 class A_ABORT_PDU(pdu):
+
     '''This class represents the A-ABORT PDU'''
+
     def __init__(self):
         self.PDUType = 0x07                         # Unsigned byte
         self.Reserved1 = 0x00                       # Unsigned byte
@@ -508,7 +535,8 @@ class A_ABORT_PDU(pdu):
         self.ReasonDiag = None              # Unsigned byte
 
     def FromParams(self, Params):
-      # Params can be an A_ABORT_ServiceParamters or A_P_ABORT_ServiceParamters object.
+      # Params can be an A_ABORT_ServiceParamters or A_P_ABORT_ServiceParamters
+      # object.
         if Params.__class__ == DULparameters.A_ABORT_ServiceParameters:
             # User initiated abort
             self.ReasonDiag = 0
@@ -520,29 +548,30 @@ class A_ABORT_PDU(pdu):
 
     def ToParams(self):
         # Returns either a A-ABORT of an A-P-ABORT
-        if self.AbortSource != None:
+        if self.AbortSource is not None:
             tmp = DULparameters.A_ABORT_ServiceParameters()
             tmp.AbortSource = self.AbortSource
-        elif self.ReasonDiag != None:
+        elif self.ReasonDiag is not None:
             tmp = DULparameters.A_P_ABORT_ServiceParameters()
             tmp.ProviderReason = self.ReasonDiag
         return tmp
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.PDUType)
-        tmp = tmp + pack('B',self.Reserved1)
-        tmp = tmp + pack('>I',self.PDULength)
-        tmp = tmp + pack('B',self.Reserved2)
-        tmp = tmp + pack('B',self.Reserved3)
-        tmp = tmp + pack('B',self.AbortSource)
-        tmp = tmp + pack('B',self.ReasonDiag)
+        tmp = tmp + pack('B', self.PDUType)
+        tmp = tmp + pack('B', self.Reserved1)
+        tmp = tmp + pack('>I', self.PDULength)
+        tmp = tmp + pack('B', self.Reserved2)
+        tmp = tmp + pack('B', self.Reserved3)
+        tmp = tmp + pack('B', self.AbortSource)
+        tmp = tmp + pack('B', self.ReasonDiag)
         return tmp
 
     def Decode(self, rawstring):
         Stream = StringIO(rawstring)
-        (self.PDUType, self.Reserved1, self.PDULength, self.Reserved2, 
-         self.Reserved3, self.AbortSource, self.ReasonDiag) = unpack('> B B I B B B B', Stream.read(10))
+        (self.PDUType, self.Reserved1, self.PDULength, self.Reserved2,
+         self.Reserved3, self.AbortSource, self.ReasonDiag) = \
+            unpack('> B B I B B B B', Stream.read(10))
 
     def TotalLength(self):
         return 10
@@ -560,6 +589,7 @@ class A_ABORT_PDU(pdu):
 # Items and sub-items classes
 #
 class ApplicationContextItem(pdu):
+
     def __init__(self):
         self.ItemType = 0x10                                    # Unsigned byte
         self.Reserved = 0x00                                    # Unsigned byte
@@ -584,8 +614,9 @@ class ApplicationContextItem(pdu):
         return tmp
 
     def Decode(self, Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = unpack('> B B H', Stream.read(4))
-        self.ApplicationContextName = Stream.read(self.ItemLength)  
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = unpack('> B B H', Stream.read(4))
+        self.ApplicationContextName = Stream.read(self.ItemLength)
 
     def TotalLength(self):
         return 4 + self.ItemLength
@@ -594,27 +625,36 @@ class ApplicationContextItem(pdu):
         tmp = " Application context item\n"
         tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + "  Presentation context ID: %s\n" % self.ApplicationContextName
+        tmp = tmp + \
+            "  Presentation context ID: %s\n" % self.ApplicationContextName
         return tmp
 
 
 class PresentationContextItemRQ(pdu):
+
     def __init__(self):
-        self.ItemType = 0x20                                            # Unsigned byte
-        self.Reserved1 = 0x00                                       # Unsigned byte
-        self.ItemLength = None                                      # Unsigned short
+        # Unsigned byte
+        self.ItemType = 0x20
+        # Unsigned byte
+        self.Reserved1 = 0x00
+        # Unsigned short
+        self.ItemLength = None
         self.PresentationContextID = None                       # Unsigned byte
-        self.Reserved2 = 0x00                                       # Unsigned byte
-        self.Reserved3 = 0x00                                       # Unsigned byte
-        self.Reserved4 = 0x00                                       # Unsigned byte
-        # AbstractTransferSyntaxSubItems is a list 
+        # Unsigned byte
+        self.Reserved2 = 0x00
+        # Unsigned byte
+        self.Reserved3 = 0x00
+        # Unsigned byte
+        self.Reserved4 = 0x00
+        # AbstractTransferSyntaxSubItems is a list
         # containing the following elements:
         #         One AbstractSyntaxtSubItem
         #     One of more TransferSyntaxSubItem
         self.AbstractTransferSyntaxSubItems = []
 
     def FromParams(self, Params):
-        # Params is a list of the form [ID, AbstractSyntaxName, [TransferSyntaxNames]]
+        # Params is a list of the form [ID, AbstractSyntaxName,
+        # [TransferSyntaxNames]]
         self.PresentationContextID = Params[0]
         tmp_abs_syn = AbstractSyntaxSubItem()
         tmp_abs_syn.FromParams(Params[1])
@@ -623,60 +663,63 @@ class PresentationContextItemRQ(pdu):
             tmp_tr_syn = TransferSyntaxSubItem()
             tmp_tr_syn.FromParams(ii)
             self.AbstractTransferSyntaxSubItems.append(tmp_tr_syn)
-        self.ItemLength = 4 
+        self.ItemLength = 4
         for ii in self.AbstractTransferSyntaxSubItems:
             self.ItemLength = self.ItemLength + ii.TotalLength()
-        
+
     def ToParams(self):
-        # Returns a list of the form [ID, AbstractSyntaxName, [TransferSyntaxNames]]
+        # Returns a list of the form [ID, AbstractSyntaxName,
+        # [TransferSyntaxNames]]
         tmp = [None, None, []]
         tmp[0] = self.PresentationContextID
         tmp[1] = self.AbstractTransferSyntaxSubItems[0].ToParams()
         for ii in self.AbstractTransferSyntaxSubItems[1:]:
             tmp[2].append(ii.ToParams())
         return tmp
-    
+
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.ItemType) 
-        tmp = tmp + pack('B',self.Reserved1)
-        tmp = tmp + pack('>H',self.ItemLength)  
-        tmp = tmp + pack('B',self.PresentationContextID)
-        tmp = tmp + pack('B',self.Reserved2)
-        tmp = tmp + pack('B',self.Reserved3)
-        tmp = tmp + pack('B',self.Reserved4)
-        for ii in self.AbstractTransferSyntaxSubItems:  
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.Reserved1)
+        tmp = tmp + pack('>H', self.ItemLength)
+        tmp = tmp + pack('B', self.PresentationContextID)
+        tmp = tmp + pack('B', self.Reserved2)
+        tmp = tmp + pack('B', self.Reserved3)
+        tmp = tmp + pack('B', self.Reserved4)
+        for ii in self.AbstractTransferSyntaxSubItems:
             tmp = tmp + ii.Encode()
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved1, self.ItemLength, self.PresentationContextID,
-         self.Reserved2, self.Reserved3, self.Reserved4) = unpack('> B B H B B B B', Stream.read(8))
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved1, self.ItemLength,
+         self.PresentationContextID, self.Reserved2, self.Reserved3,
+         self.Reserved4) = unpack('> B B H B B B B', Stream.read(8))
         tmp = AbstractSyntaxSubItem()
         tmp.Decode(Stream)
-        self.AbstractTransferSyntaxSubItems.append(tmp) 
+        self.AbstractTransferSyntaxSubItems.append(tmp)
         NextItemType = NextType(Stream)
-        while NextItemType == 0x40 :
+        while NextItemType == 0x40:
             tmp = TransferSyntaxSubItem()
             tmp.Decode(Stream)
             self.AbstractTransferSyntaxSubItems.append(tmp)
             NextItemType = NextType(Stream)
 
     def TotalLength(self):
-        return 4 + self.ItemLength 
+        return 4 + self.ItemLength
 
     def __repr__(self):
         tmp = " Presentation context RQ item\n"
         tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + "  Presentation context ID: %d\n" % self.PresentationContextID
+        tmp = tmp + \
+            "  Presentation context ID: %d\n" % self.PresentationContextID
         for ii in self.AbstractTransferSyntaxSubItems:
             tmp = tmp + ii.__repr__()
         return tmp
 
 
-
 class PresentationContextItemAC(pdu):
+
     def __init__(self):
         self.ItemType = 0x21                        # Unsigned byte
         self.Reserved1 = 0x00                   # Unsigned byte
@@ -694,7 +737,7 @@ class PresentationContextItemAC(pdu):
         self.TransferSyntaxSubItem = TransferSyntaxSubItem()
         self.TransferSyntaxSubItem.FromParams(Params[2])
         self.ItemLength = 4 + self.TransferSyntaxSubItem.TotalLength()
-            
+
     def ToParams(self):
         # Returns a list of the form [ID, Response, TransferSyntax].
         tmp = [None, None, None]
@@ -705,45 +748,46 @@ class PresentationContextItemAC(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.ItemType) 
-        tmp = tmp + pack('B',self.Reserved1)
-        tmp = tmp + pack('>H',self.ItemLength)  
-        tmp = tmp + pack('B',self.PresentationContextID)
-        tmp = tmp + pack('B',self.Reserved2)
-        tmp = tmp + pack('B',self.ResultReason)
-        tmp = tmp + pack('B',self.Reserved3)
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.Reserved1)
+        tmp = tmp + pack('>H', self.ItemLength)
+        tmp = tmp + pack('B', self.PresentationContextID)
+        tmp = tmp + pack('B', self.Reserved2)
+        tmp = tmp + pack('B', self.ResultReason)
+        tmp = tmp + pack('B', self.Reserved3)
         tmp = tmp + self.TransferSyntaxSubItem.Encode()
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved1, self.ItemLength, self.PresentationContextID,
-         self.Reserved2, self.ResultReason, self.Reserved3) = unpack('> B B H B B B B', Stream.read(8))
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved1, self.ItemLength,
+         self.PresentationContextID, self.Reserved2, self.ResultReason,
+         self.Reserved3) = unpack('> B B H B B B B', Stream.read(8))
         self.TransferSyntaxSubItem = TransferSyntaxSubItem()
         self.TransferSyntaxSubItem.Decode(Stream)
 
     def TotalLength(self):
-        return 4 + self.ItemLength 
+        return 4 + self.ItemLength
 
     def __repr__(self):
         tmp = " Presentation context AC item\n"
         tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + "  Presentation context ID: %d\n" % self.PresentationContextID
+        tmp = tmp + \
+            "  Presentation context ID: %d\n" % self.PresentationContextID
         tmp = tmp + "  Result/Reason: %d\n" % self.ResultReason
         tmp = tmp + self.TransferSyntaxSubItem.__repr__()
         return tmp
 
 
-
-
 class AbstractSyntaxSubItem(pdu):
+
     def __init__(self):
         self.ItemType = 0x30                            # Unsigned byte
         self.Reserved = 0x00                            # Unsigned byte
         self.ItemLength = None                      # Unsigned short
         self.AbstractSyntaxName = None        # String
 
-    def FromParams(self,Params):
+    def FromParams(self, Params):
         # Params is a string
         self.AbstractSyntaxName = Params
         self.ItemLength = len(self.AbstractSyntaxName)
@@ -754,36 +798,37 @@ class AbstractSyntaxSubItem(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.ItemType) 
-        tmp = tmp + pack('B',self.Reserved)
-        tmp = tmp + pack('>H',self.ItemLength)      
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.Reserved)
+        tmp = tmp + pack('>H', self.ItemLength)
         tmp = tmp + self.AbstractSyntaxName
         return tmp
-        
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = unpack('> B B H', Stream.read(4))
+
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = unpack('> B B H', Stream.read(4))
         self.AbstractSyntaxName = Stream.read(self.ItemLength)
 
     def TotalLength(self):
-        return 4 + self.ItemLength 
-        
+        return 4 + self.ItemLength
+
     def __repr__(self):
         tmp = "  Abstract syntax sub item\n"
         tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "   Item length: %d\n" % self.ItemLength
         tmp = tmp + "   Abstract syntax name: %s\n" % self.AbstractSyntaxName
         return tmp
-    
 
 
 class TransferSyntaxSubItem(pdu):
+
     def __init__(self):
-        self.ItemType = 0x40                            # Unsigned byte                                 
+        self.ItemType = 0x40                            # Unsigned byte
         self.Reserved = 0x00                            # Unsigned byte
         self.ItemLength = None                      # Unsigned short
         self.TransferSyntaxName = None          # String
 
-    def FromParams(self,Params):
+    def FromParams(self, Params):
         # Params is a string.
         self.TransferSyntaxName = Params
         self.ItemLength = len(self.TransferSyntaxName)
@@ -794,18 +839,19 @@ class TransferSyntaxSubItem(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.ItemType) 
-        tmp = tmp + pack('B',self.Reserved)
-        tmp = tmp + pack('>H',self.ItemLength)      
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.Reserved)
+        tmp = tmp + pack('>H', self.ItemLength)
         tmp = tmp + self.TransferSyntaxName
         return tmp
-        
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = unpack('> B B H', Stream.read(4))
+
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = unpack('> B B H', Stream.read(4))
         self.TransferSyntaxName = Stream.read(self.ItemLength)
 
     def TotalLength(self):
-        return 4 + self.ItemLength 
+        return 4 + self.ItemLength
 
     def __repr__(self):
         tmp = "  Transfer syntax sub item\n"
@@ -816,14 +862,19 @@ class TransferSyntaxSubItem(pdu):
 
 
 class UserInformationItem(pdu):
+
     def __init__(self):
-        self.ItemType = 0x50                                            # Unsigned byte
-        self.Reserved = 0x00                                            # Unsigned byte
-        self.ItemLength = None                                      # Unsigned short
+        # Unsigned byte
+        self.ItemType = 0x50
+        # Unsigned byte
+        self.Reserved = 0x00
+        # Unsigned short
+        self.ItemLength = None
         #  UserData is a list containing the following:
         #  1 MaximumLengthItem
         #  0 or more raw strings encoding user data items
-        self.UserData = []                                          # List  of subitems                                     
+        # List  of subitems
+        self.UserData = []
 
     def FromParams(self, Params):
         # Params is a UserData
@@ -841,23 +892,22 @@ class UserInformationItem(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.ItemType) 
-        tmp = tmp + pack('B',self.Reserved)
-        tmp = tmp + pack('>H',self.ItemLength)      
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.Reserved)
+        tmp = tmp + pack('>H', self.ItemLength)
         for ii in self.UserData:
             tmp += ii.Encode()
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = unpack('> B B H', Stream.read(4))
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = unpack('> B B H', Stream.read(4))
         # read the rest of user info
         self.UserData = []
-        while NextSubItemType(Stream) <> None:
+        while NextSubItemType(Stream) is not None:
             tmp = NextSubItemType(Stream)()
             tmp.Decode(Stream)
             self.UserData.append(tmp)
-                
-
 
     def TotalLength(self):
         return 4 + self.ItemLength
@@ -873,8 +923,8 @@ class UserInformationItem(pdu):
         return tmp
 
 
-
 class MaximumLengthParameters(pdu):
+
     def __init__(self):
         self.MaximumLengthReceived = None
 
@@ -889,7 +939,10 @@ class MaximumLengthParameters(pdu):
 #
 #
 #
+
+
 class MaximumLengthSubItem(pdu):
+
     def __init__(self):
         self.ItemType = 0x51                        # Unsigned byte
         self.Reserved = 0x00                        # Unsigned byte
@@ -912,10 +965,10 @@ class MaximumLengthSubItem(pdu):
         tmp = tmp + pack('>I', self.MaximumLengthReceived)
         return tmp
 
-    def Decode(self,Stream):
-        (self.ItemType, self.Reserved, 
-        self.ItemLength, self.MaximumLengthReceived) = unpack('> B B H I', Stream.read(8))
-        
+    def Decode(self, Stream):
+        (self.ItemType, self.Reserved,
+         self.ItemLength, self.MaximumLengthReceived) = unpack('> B B H I',
+                                                               Stream.read(8))
 
     def TotalLength(self):
         return 0x08
@@ -924,15 +977,16 @@ class MaximumLengthSubItem(pdu):
         tmp = "  Maximum length sub item\n"
         tmp = tmp + "    Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "    Item length: %d\n" % self.ItemLength
-        tmp = tmp + "    Maximum Length Received: %d\n" % self.MaximumLengthReceived
+        tmp = tmp + \
+            "    Maximum Length Received: %d\n" % self.MaximumLengthReceived
         return tmp
-
 
 
 #
 #
 #
 class PresentationDataValueItem(pdu):
+
     def __init__(self):
         self.ItemLength = None                      # Unsigned int
         self.PresentationContextID = None       # Unsigned byte
@@ -952,25 +1006,29 @@ class PresentationDataValueItem(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('>I',self.ItemLength)
-        tmp = tmp + pack('B',self.PresentationContextID)
+        tmp = tmp + pack('>I', self.ItemLength)
+        tmp = tmp + pack('B', self.PresentationContextID)
         tmp = tmp + self.PresentationDataValue
         return tmp
 
     def Decode(self, Stream):
-        (self.ItemLength, self.PresentationContextID) = unpack('> I B', Stream.read(5))  
-        # Presentation data value is left in raw string format. The Application Entity
-        # is responsible for dealing with it.
-        self.PresentationDataValue = Stream.read(int(self.ItemLength)-1)
-    
+        (self.ItemLength, self.PresentationContextID) = unpack(
+            '> I B', Stream.read(5))
+        # Presentation data value is left in raw string format.
+        # The Application Entity is responsible for dealing with it.
+        self.PresentationDataValue = Stream.read(int(self.ItemLength) - 1)
+
     def TotalLength(self):
         return 4 + self.ItemLength
 
     def __repr__(self):
         tmp = " Presentation value data item\n"
         tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + "  Presentation context ID: %d\n" % self.PresentationContextID
-        tmp = tmp + "  Presentation data value: %s ...\n" % self.PresentationDataValue[:20]
+        tmp = tmp + \
+            "  Presentation context ID: %d\n" % self.PresentationContextID
+        tmp = tmp + \
+            "  Presentation data value: %s ...\n" % self.PresentationDataValue[
+                :20]
         return tmp
 
 
@@ -978,16 +1036,17 @@ class PresentationDataValueItem(pdu):
 #
 #
 class GenericUserDataSubItem(pdu):
+
     """
-    This class is provided only to allow user data to converted to and from PDUs.
-    The actual data is not interpreted. This is left to the user.
+    This class is provided only to allow user data to converted to and from
+    PDUs. The actual data is not interpreted. This is left to the user.
     """
+
     def __init__(self):
         self.ItemType = None                # Unsigned byte
         self.Reserved = 0x00                # Unsigned byte
         self.ItemLength = None                        # Unsigned short
         self.UserData = None                # Raw string
-
 
     def FromParams(self, Params):
         self.ItemLength = len(Params.UserData)
@@ -1002,18 +1061,19 @@ class GenericUserDataSubItem(pdu):
 
     def Encode(self):
         tmp = ''
-        tmp = tmp + pack('B',self.ItemType)
-        tmp = tmp + pack('B',self.Reserved)
-        tmp = tmp + pack('>H',self.ItemLength)
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.Reserved)
+        tmp = tmp + pack('>H', self.ItemLength)
         tmp = tmp + self.UserData
         return tmp
 
     def Decode(self, Stream):
-        (self.ItemType, self.Reserved, self.ItemLength) = unpack('> B B H', Stream.read(4))  
+        (self.ItemType, self.Reserved,
+         self.ItemLength) = unpack('> B B H', Stream.read(4))
         # User data value is left in raw string format. The Application Entity
         # is responsible for dealing with it.
-        self.UserData = Stream.read(int(self.ItemLength)-1)
-    
+        self.UserData = Stream.read(int(self.ItemLength) - 1)
+
     def TotalLength(self):
         return 4 + self.ItemLength
 
@@ -1025,25 +1085,13 @@ class GenericUserDataSubItem(pdu):
         return tmp
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 def NextType(Stream):
     chr = Stream.read(1)
     if chr == '':
         # we are at the end of the file
         return None
-    Stream.seek(-1,1)
-    return unpack('B',chr)[0]
+    Stream.seek(-1, 1)
+    return unpack('B', chr)[0]
 
 
 def NextPDUType(Stream):
@@ -1062,39 +1110,37 @@ def NextPDUType(Stream):
         return A_RELEASE_RP_PDU
     elif Type == 0x07:
         return A_ABORT_PDU
-    elif Type == None:
+    elif Type is None:
         # end of file
         return None
     else:
         raise 'InvalidPDU'
 
 
-
 def NextSubItemType(Stream):
-    
+
     ItemType = NextType(Stream)
     if ItemType == 0x52:
         return ImplementationClassUIDSubItem
     elif ItemType == 0x51:
-        return MaximumLengthSubItem 
+        return MaximumLengthSubItem
     elif ItemType == 0x55:
         return ImplementationVersionNameSubItem
     elif ItemType == 0x53:
-        return AsynchronousOperationsWindowSubItem 
+        return AsynchronousOperationsWindowSubItem
     elif ItemType == 0x54:
-        return SCP_SCU_RoleSelectionSubItem 
+        return SCP_SCU_RoleSelectionSubItem
     elif ItemType == 0x56:
-        return SOPClassExtentedNegociationSubItem 
-    elif ItemType == None:
+        return SOPClassExtentedNegociationSubItem
+    elif ItemType is None:
         return None
     else:
-        raise 'Invalid Sub Item', "0x%X"%ItemType
-
+        raise 'Invalid Sub Item', "0x%X" % ItemType
 
 
 def DecodePDU(rawstring):
     """Takes an encoded PDU as a string and return a PDU object"""
-    chr = unpack('B',rawstring[0])[0]
+    chr = unpack('B', rawstring[0])[0]
     if chr == 0x01:
         PDU = A_ASSOCIATE_RQ_PDU()
     elif chr == 0x02:
@@ -1113,7 +1159,3 @@ def DecodePDU(rawstring):
         raise 'InvalidPDUType'
     PDU.Decode(rawstring)
     return PDU
-
-
-
-
