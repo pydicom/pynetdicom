@@ -213,8 +213,8 @@ class A_ASSOCIATE_AC_PDU(pdu):
 
     def FromParams(self, Params):
         # Params is an A_ASSOCIATE_ServiceParameters object
-        self.Reserved3 = Params.CallingAETitle
-        self.Reserved4 = Params.CalledAETitle
+        self.Reserved3 = Params.CalledAETitle
+        self.Reserved4 = Params.CallingAETitle
         # Make application context
         tmp_app_cont = ApplicationContextItem()
         tmp_app_cont.FromParams(Params.ApplicationContextName)
@@ -235,8 +235,8 @@ class A_ASSOCIATE_AC_PDU(pdu):
 
     def ToParams(self):
         ass = DULparameters.A_ASSOCIATE_ServiceParameters()
-        ass.CallingAETitle = self.Reserved3
-        ass.CalledAETitle = self.Reserved4
+        ass.CalledAETitle = self.Reserved3
+        ass.CallingAETitle = self.Reserved4
         ass.ApplicationContextName = self.VariableItems[0].ToParams()
 
         # Write presentation context
@@ -917,9 +917,10 @@ class UserInformationItem(pdu):
         tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "  Item length: %d\n" % self.ItemLength
         tmp = tmp + "  User Data:\n "
-        tmp = tmp + str(self.UserData[0])
-        for ii in self.UserData[1:]:
-            tmp = tmp + "   User Data Item: " + str(ii) + "\n"
+        if len(self.UserData) > 1:
+            tmp = tmp + str(self.UserData[0])
+            for ii in self.UserData[1:]:
+                tmp = tmp + "   User Data Item: " + str(ii) + "\n"
         return tmp
 
 
@@ -1081,7 +1082,8 @@ class GenericUserDataSubItem(pdu):
         tmp = "User data item\n"
         tmp = tmp + "  Item type: %d\n" % self.ItemType
         tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + "  User data: %s ...\n" % self.UserData[:10]
+        if len(self.UserData) > 1:
+            tmp = tmp + "  User data: %s ...\n" % self.UserData[:10]
         return tmp
 
 

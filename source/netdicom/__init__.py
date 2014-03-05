@@ -39,7 +39,10 @@ from SOPclass import \
     StudyRootGetSOPClass,\
     PatientStudyOnlyFindSOPClass,\
     PatientStudyOnlyMoveSOPClass,\
-    PatientStudyOnlyGetSOPClass
+    PatientStudyOnlyGetSOPClass,\
+    ModalityWorklistInformationFindSOPClass
+
+
 
 
 # Set up logging system for the whole package.  In each module, set
