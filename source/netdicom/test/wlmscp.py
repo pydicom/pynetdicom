@@ -41,7 +41,7 @@ MyAE.OnReceiveEcho = OnReceiveEcho
 MyAE.OnReceiveFind = OnReceiveFind
 
 # Start modality simulator
-dcmtkscu.run_in_term('findscu.exe -v -W -aec AE1 -k 0010,0020="*" -k 0010,0040="*" -k 0010,0030="*" -k 0008,0052="PATIENT" -k 0008,0060="MR"  -k 0040,0001="*" localhost 105')
+dcmtkscu.run_in_term('findscu -v -W -aec AE1 -k 0010,0020="*" -k 0010,0040="*" -k 0010,0030="*" -k 0008,0052="PATIENT" -k 0008,0060="MR"  -k 0040,0001="*" localhost 9999')
 
 # start AE
 print "starting AE ... "
