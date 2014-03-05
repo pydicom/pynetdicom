@@ -302,6 +302,11 @@ class AE(threading.Thread):
             except KeyboardInterrupt:
                 self.Quit()
                 sys.exit(0)
+            except IOError:
+                # Catch this exception otherwise when we run an app, using this module, 
+                # as a service this exception is raised when we logoff.
+                continue
+
 
 
     def RequestAssociation(self, remoteAE):
