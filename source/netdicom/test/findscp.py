@@ -10,7 +10,8 @@ FindSCP AE example.
 
 This demonstrates a simple application entity that support the Patient
 Root Find SOP Class as SCP. For this example to work, you need a findscu client
-to query our server. With the offis toolkit, this can be achieved with the command:
+to query our server. With the offis toolkit, this can be achieved with the
+command:
 
 findscu -v -P -aec AE1 -k 0010,0010="*" -k 0008,0052="PATIENT" localhost 9999
 """
@@ -54,7 +55,8 @@ MyAE.OnReceiveFind = OnReceiveFind
 
 
 dcmtkscu.run_in_term(
-    'findscu -v -P -aec AE1 -k 0010,0010="*" -k 0008,0052="PATIENT" localhost 9999')
+    'findscu -v -P -aec AE1 -k 0010,0010="*" -k 0008,0052="PATIENT"'
+    ' localhost 9999')
 
 # start application entity
 MyAE.start()

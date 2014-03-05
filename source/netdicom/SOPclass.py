@@ -555,7 +555,7 @@ class DigitalXRayImageStorageForProcessingSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.1.1.1'
 
 
-class DigitalMammographyXRayImageStorageForPresentationSOPClass(StorageSOPClass):
+class DigitalMammographyXRayImageStorageForPresentationSOPClass(StorageSOPClass):  # noqa
     UID = '1.2.840.10008.5.1.4.1.1.1.2'
 
 
