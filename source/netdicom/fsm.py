@@ -500,7 +500,7 @@ class StateMachine:
                           action_name, actions[action_name][0]))
             action[1](c)
             #if type(action[2]) != type(()):
-            if isinstance(action[2], tuple):
+            if not isinstance(action[2], tuple):
                 # only one next state possible
                 self.CurrentState = action[2]
             logger.debug('%s: action complete. State is now %s %s' %

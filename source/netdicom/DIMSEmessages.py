@@ -134,7 +134,7 @@ class DIMSEMessage:
 
         # fragment data set
         #if self.__dict__.has_key('DataSet') and self.DataSet:
-        if 'DataSet' in self.DataSet:
+        if 'DataSet' in self.__dict__ and self.DataSet is not None:
             pdvs = fragment(maxpdulength, self.DataSet)
             assert ''.join(pdvs) == self.DataSet
             for ii in pdvs[:-1]:
