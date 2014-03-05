@@ -491,45 +491,48 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
 class BasicWorklistServiceClass (ServiceClass):
     pass
 
+
 class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
     OutOfResources = Status(
         'Failure',
         'Refused: Out of resources',
-        xrange(0xA700,0xA700+1)
-        )
+        xrange(0xA700, 0xA700 + 1)
+    )
     IdentifierDoesNotMatchSOPClass = Status(
         'Failure',
         'Identifier does not match SOP Class',
-        xrange(0xA900,0xA900+1)
-        )
+        xrange(0xA900, 0xA900 + 1)
+    )
     UnableToProcess = Status(
         'Failure',
         'Unable to process',
-        xrange(0xC000, 0xCFFF+1)
-        )
+        xrange(0xC000, 0xCFFF + 1)
+    )
     MatchingTerminatedDueToCancelRequest = Status(
         'Cancel',
         'Matching terminated due to Cancel request',
-        xrange(0xFE00, 0xFE00+1)
-        )
+        xrange(0xFE00, 0xFE00 + 1)
+    )
     Success = Status(
         'Success',
         'Matching is complete - No final Identifier is supplied',
-        xrange(0x0000,0x0000+1)
-        )
+        xrange(0x0000, 0x0000 + 1)
+    )
     Pending = Status(
         'Pending',
-        'Matches are continuing - Current Match is supplied \
-        and any Optional Keys were supported in the same manner as Required Keys',
-        xrange(0xFF00,0xFF00+1)
-        )
+        'Matches are continuing - Current Match is supplied'
+        'and any Optional Keys were supported in the same manner as'
+        'Required Keys',
+        xrange(0xFF00, 0xFF00 + 1)
+    )
     PendingWarning = Status(
         'Pending',
-        'Matches are continuing - Warning that one or more Optional\
-        Keys were not supported for existence and/or matching for this identifier',
-        xrange(0xFF01,0xFF01+1)
-        )
+        'Matches are continuing - Warning that one or more Optional'
+        'Keys were not supported for existence and/or matching for'
+        'this identifier',
+        xrange(0xFF01, 0xFF01 + 1)
+    )
 
     def SCU(self, id):
         # build C-FIND primitive
@@ -547,20 +550,23 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             time.sleep(0.001)
             # wait for c-find responses
             ans, id = self.DIMSE.Receive(Wait=False)
-            if not ans: continue
-            d = dsutils.decode(ans.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+            if not ans:
+                continue
+            d = dsutils.decode(
+                ans.Identifier, self.transfersyntax.is_implicit_VR,
+                self.transfersyntax.is_little_endian)
             try:
                 status = self.Code2Status(ans.Status.value).Type
             except:
                 status = None
-            if status <> 'Pending':
+            if status != 'Pending':
                 break
             yield status, d
         yield status, d
 
-
     def SCP(self, msg):
-        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR, self.transfersyntax.is_little_endian)
+        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
+                            self.transfersyntax.is_little_endian)
 
         # make response
         rsp = C_FIND_ServiceParameters()
@@ -573,9 +579,10 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                 time.sleep(0.001)
                 IdentifierDS, status = gen.next()
                 rsp.Status = int(status)
-                rsp.Identifier = dsutils.encode(IdentifierDS,
-                                                self.transfersyntax.is_implicit_VR,
-                                                self.transfersyntax.is_little_endian)
+                rsp.Identifier = dsutils.encode(
+                    IdentifierDS,
+                    self.transfersyntax.is_implicit_VR,
+                    self.transfersyntax.is_little_endian)
                 # send response
                 self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
         except StopIteration:
@@ -759,9 +766,10 @@ class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
 class BasicWorklistSOPClass(BasicWorklistServiceClass):
     pass
 
-class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass, ModalityWorklistServiceSOPClass):
-    UID = '1.2.840.10008.5.1.4.31'
 
+class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
+                                              ModalityWorklistServiceSOPClass):
+    UID = '1.2.840.10008.5.1.4.31'
 
 
 d = dir()

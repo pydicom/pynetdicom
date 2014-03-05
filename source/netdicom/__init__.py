@@ -43,15 +43,12 @@ from SOPclass import \
     ModalityWorklistInformationFindSOPClass
 
 
-
-
 # Set up logging system for the whole package.  In each module, set
 # logger=logging.getLogger('pynetdicom') and the same instance will be
 # used by all At command line, turn on debugging for all pynetdicom
 # functions with: import netdicom netdicom.debug(). Turn off debugging
 # with netdicom.debug(False)
 import logging
-
 
 # pynetdicom defines a logger with a NullHandler only.
 # Client code have the responsability to configure

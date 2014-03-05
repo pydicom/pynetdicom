@@ -8,8 +8,9 @@
 """
 EchoSCP AE example.
 
-This demonstrates a simple application entity that support the Verification SOP Class as SCP. For this example to work, you need a echoscu client
-to query our server. With the offis toolkit, this can be achieved with the command:
+This demonstrates a simple application entity that support the Verification
+SOP Class as SCP. For this example to work, you need a echoscu client to query
+our server. With the offis toolkit, this can be achieved with the command:
 
 echoscu -v  localhost 9999
 """
@@ -21,8 +22,11 @@ import netdicom
 import dcmtkscu
 
 # call backs
+
+
 def OnAssociateRequest(association):
     print "Association request received"
+
 
 def OnReceiveEcho(self):
     print "Echo received"
@@ -38,5 +42,3 @@ dcmtkscu.run_in_term('echoscu -v localhost 9999')
 # start application entity
 MyAE.start()
 MyAE.QuitOnKeyboardInterrupt()
-
-

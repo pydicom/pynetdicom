@@ -214,7 +214,7 @@ class AE(threading.Thread):
         self.MaxPDULength = MaxPDULength
 
         # build presentation context definition list to be sent to remote AE
-        #when requesting association.
+        # when requesting association.
         count = 1
         self.PresentationContextDefinitionList = []
         for ii in self.SupportedSOPClassesAsSCU + \
@@ -224,7 +224,7 @@ class AE(threading.Thread):
                     self.PresentationContextDefinitionList.append([
                         count, UID(jj.UID),
                         [x for x in self.SupportedTransferSyntax]
-                        ])
+                    ])
                     count += 2
             else:
                 self.PresentationContextDefinitionList.append([
@@ -295,11 +295,10 @@ class AE(threading.Thread):
                 self.Quit()
                 sys.exit(0)
             except IOError:
-                # Catch this exception otherwise when we run an app, using this module, 
-                # as a service this exception is raised when we logoff.
+                # Catch this exception otherwise when we run an app,
+                # using this module as a service this exception is raised
+                # when we logoff.
                 continue
-
-
 
     def RequestAssociation(self, remoteAE):
         """Requests association to a remote application entity"""

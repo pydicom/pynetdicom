@@ -14,11 +14,15 @@ import netdicom
 import dcmtkscu
 
 # callbacks
+
+
 def OnAssociateRequest(association):
     print "association requested", association
 
+
 def OnReceiveEcho(self):
     print "Echo received"
+
 
 def OnReceiveFind(self, ds):
     print "Received C-FIND"
@@ -32,21 +36,23 @@ def OnReceiveFind(self, ds):
 
 # setup AE
 print 'Create AE...'
-MyAE = netdicom.AE('localhost', 9999, \
-    SOPSCU=[], \
-    SOPSCP=[netdicom.VerificationSOPClass, netdicom.ModalityWorklistInformationFindSOPClass] \
-    )
+MyAE = netdicom.AE('localhost', 9999,
+                   SOPSCU=[],
+                   SOPSCP=[netdicom.VerificationSOPClass,
+                           netdicom.ModalityWorklistInformationFindSOPClass]
+                   )
 MyAE.OnAssociateRequest = OnAssociateRequest
 MyAE.OnReceiveEcho = OnReceiveEcho
 MyAE.OnReceiveFind = OnReceiveFind
 
 # Start modality simulator
-dcmtkscu.run_in_term('findscu -v -W -aec AE1 -k 0010,0020="*" -k 0010,0040="*" -k 0010,0030="*" -k 0008,0052="PATIENT" -k 0008,0060="MR"  -k 0040,0001="*" localhost 9999')
+dcmtkscu.run_in_term(
+    'findscu -v -W -aec AE1 -k 0010,0020="*" -k 0010,0040="*" -k 0010,0030="*" '
+    '-k 0008,0052="PATIENT" -k 0008,0060="MR"  -k 0040,0001="*" '
+    'localhost 9999')
 
 # start AE
 print "starting AE ... "
 MyAE.start()
 print "Entering processing loop..."
 MyAE.QuitOnKeyboardInterrupt()
-
-
