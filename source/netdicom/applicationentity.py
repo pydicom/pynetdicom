@@ -19,9 +19,14 @@ from DULprovider import DULServiceProvider
 from DIMSEprovider import DIMSEServiceProvider
 from ACSEprovider import ACSEServiceProvider
 from DIMSEparameters import *
+from DULparameters import *
 from weakref import proxy
 import gc
+import struct
 
+
+import logging
+logger = logging.getLogger('netdicom.applicationentity')
 
 class Association(threading.Thread):
 
@@ -42,6 +47,7 @@ class Association(threading.Thread):
         self.RemoteAE = RemoteAE
         self._Kill = False
         threading.Thread.__init__(self)
+        self.daemon = True
         self.SOPClassesAsSCP = []
         self.SOPClassesAsSCU = []
         self.AssociationEstablished = False
@@ -105,9 +111,17 @@ class Association(threading.Thread):
     def run(self):
         self.ACSE = ACSEServiceProvider(self.DUL)
         self.DIMSE = DIMSEServiceProvider(self.DUL)
+        result = None
+        diag  = None
         if self.Mode == 'Acceptor':
-            self.ACSE.Accept(self.ClientSocket,
-                             self.AE.AcceptablePresentationContexts)
+            time.sleep(0.1) # needed because of some thread-related problem. To investiguate.
+            if len(self.AE.Associations)>self.AE.MaxNumberOfAssociations:
+                result = A_ASSOCIATE_Result_RejectedTransient
+                diag = A_ASSOCIATE_Diag_LocalLimitExceeded
+            if not self.ACSE.Accept(self.ClientSocket,
+                             self.AE.AcceptablePresentationContexts, result=result, diag=diag):
+                return
+
             # call back
             self.AE.OnAssociateRequest(self)
             # build list of SOPClasses supported
@@ -201,9 +215,9 @@ class AE(threading.Thread):
         self.SupportedSOPClassesAsSCU = SOPSCU
         self.SupportedSOPClassesAsSCP = SOPSCP
         self.SupportedTransferSyntax = SupportedTransferSyntax
-        self.MaxNumberOfAssociations = 25
+        self.MaxNumberOfAssociations = 2
         threading.Thread.__init__(self, name=self.LocalAE['AET'])
-
+        self.daemon = True
         self.SOPUID = [x for x in self.SupportedSOPClassesAsSCP]
         self.LocalServerSocket = socket.socket(socket.AF_INET,
                                                socket.SOCK_STREAM)
@@ -267,6 +281,7 @@ class AE(threading.Thread):
             if a:
                 # got an incoming connection
                 client_socket, remote_address = self.LocalServerSocket.accept()
+                client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, struct.pack('ll',10,0))
                 # create a new association
                 self.Associations.append(Association(self, client_socket))
 
@@ -275,6 +290,7 @@ class AE(threading.Thread):
                 if not aa.isAlive():
                     self.Associations.remove(aa)
             if not count % 50:
+                logger.debug("number of active associations: %d", len(self.Associations))
                 gc.collect()
             count += 1
             if count > 1e6:

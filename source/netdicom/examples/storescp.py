@@ -22,8 +22,8 @@ parser.add_argument('-aet', help='AE title of this server',
                     default='PYNETDICOM')
 args = parser.parse_args()
 
-logger_setup()
-debug(True)
+#logger_setup()
+#debug(True)
 
 
 # callbacks
@@ -40,7 +40,7 @@ def OnReceiveEcho(self):
 
 
 def OnReceiveStore(SOPClass, DS):
-    print "Received C-STORE"
+    #print "Received C-STORE"
     # do something with dataset. For instance, store it on disk.
     file_meta = Dataset()
     file_meta.MediaStorageSOPClassUID = DS.SOPClassUID
@@ -52,7 +52,7 @@ def OnReceiveStore(SOPClass, DS):
     ds.is_little_endian = True
     ds.is_implicit_VR = True
     ds.save_as(filename)
-    print "File %s written" % filename
+    #print "File %s written" % filename
     # must return appropriate status
     return SOPClass.Success
 

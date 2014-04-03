@@ -37,6 +37,8 @@ def recvn(sock, n):
     read_length = 0
     while read_length < n:
         tmp = sock.recv(n - read_length)
+        if len(tmp)==0:
+            return ret
         ret += tmp
         read_length += len(tmp)
     if read_length != n:

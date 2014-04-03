@@ -177,6 +177,8 @@ class DIMSEMessage:
                         # response: no dataset
                         return True
             elif unpack('b', vv[1][0])[0] in (0, 2):
+                if self.DataSet is None:
+                    self.DataSet = ''
                 self.DataSet += vv[1][1:]
                 logger.debug("  data fragment %s", self.ID)
                 if unpack('b', vv[1][0])[0] == 2:

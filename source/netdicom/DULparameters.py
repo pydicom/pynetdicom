@@ -83,32 +83,42 @@ class P_DATA_ServiceParameters:
         self.PresentationDataValueList = None
 
 
-A_ASSOCIATE_ResultValues = (
-    'accepted',
-    'rejected (permanent)',
-    'rejected (transient)')
-A_ASSOCIATE_ResultSourceValues = (
-    'UL service-user',
-    'UL service provider (ACSE)',
-    'UL service provider (Presentation)')
-A_ASSOCIATE_DiagnosticValues = (
-    # if ResultSource == 0
-    ('no-reason given', 'application-context-name not supported',
-     'calling-AE-title not recognized',
-     'called-AE-title not recognized',
-     'calling-AE-qualifier not recognized',
-     'calling-AP-invocation-identifier not recognized',
-     'calling-AE-invocation-identifier not recognized',
-     'called-AE-qualifier not recognized',
-     'called-AP-invocation-identifier not recognized',
-     'called-AE-invocation-identifier not recognized'),
-    # if ReseultSource == 1
-    ('no-reason-given',
-     'no-common-UL version'),
-    # if ResultSource == 2
-    ('no-reason-given',
-     'temporary-congestion',
-     'local-limit-exceeded',
-     'called-(Presentation)-address-unknown',
-     'Presentation-protocol version not supported',
-     'no-(Presentation) Service Access Point (SAP) available'))
+
+
+
+
+#
+# A-ASSOCIATE results
+#
+A_ASSOCIATE_Result_Accepted = 0
+A_ASSOCIATE_Result_RejectedPermanent = 1
+A_ASSOCIATE_Result_RejectedTransient = 2
+
+
+A_ASSOCIATE_ResultSource_ServiceUser = 1
+A_ASSOCIATE_ResultSource_ServiceProviderACSE = 2
+A_ASSOCIATE_ResultSource_ServiceProviderPresentation = 3
+
+
+class A_ASSOCIATE_Diag(object):
+    def __init__(self, code, source):
+        self.code = code
+        self.source = source
+
+    def __int__(self):
+        return self.code
+
+
+A_ASSOCIATE_Diag_NoReasonUser = A_ASSOCIATE_Diag(1, A_ASSOCIATE_ResultSource_ServiceUser)
+A_ASSOCIATE_Diag_AppContextNameNotRecognized = A_ASSOCIATE_Diag(2, A_ASSOCIATE_ResultSource_ServiceUser)
+A_ASSOCIATE_Diag_CallingAETitleNotRecognized = A_ASSOCIATE_Diag(3, A_ASSOCIATE_ResultSource_ServiceUser)
+A_ASSOCIATE_Diag_CalledAETitleNotRecognized = A_ASSOCIATE_Diag(7, A_ASSOCIATE_ResultSource_ServiceUser)
+
+A_ASSOCIATE_Diag_NoReasonProvider = A_ASSOCIATE_Diag(1, A_ASSOCIATE_ResultSource_ServiceProviderACSE)
+A_ASSOCIATE_Diag_ProtocolVersionNotSupported = A_ASSOCIATE_Diag(2, A_ASSOCIATE_ResultSource_ServiceProviderACSE)
+
+A_ASSOCIATE_Diag_TemporaryCongestion = A_ASSOCIATE_Diag(1, A_ASSOCIATE_ResultSource_ServiceProviderPresentation)
+A_ASSOCIATE_Diag_LocalLimitExceeded = A_ASSOCIATE_Diag(2, A_ASSOCIATE_ResultSource_ServiceProviderPresentation)
+
+
+

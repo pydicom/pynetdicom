@@ -93,7 +93,7 @@ class ACSEServiceProvider(object):
         return True
 
     def Accept(self, client_socket=None, AcceptablePresentationContexts=None,
-               Wait=True):
+               Wait=True, result=None, diag=None):
         """Waits for an association request from a remote AE. Upon reception
         of the request sends association response based on
         AcceptablePresentationContexts"""
@@ -104,6 +104,21 @@ class ACSEServiceProvider(object):
             return None
 
         self.MaxPDULength = ass.UserInformation[0].MaximumLengthReceived
+
+
+        if result is not None and diag is not None:
+            # Association is rejected
+            res = ass
+            res.PresentationContextDefinitionList = []
+            res.PresentationContextDefinitionResultList = []
+            res.Result = result
+            res.Diagnostic = diag
+            res.UserInformation = []
+            #res.UserInformation = ass.UserInformation
+            self.DUL.Send(res)
+            return False
+
+
 
         # analyse proposed presentation contexts
         rsp = []

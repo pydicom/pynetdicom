@@ -73,10 +73,10 @@ def AE_8(provider):
     provider.pdu = PDU.A_ASSOCIATE_RJ_PDU()
     # not sure about this ...
     if provider.primitive.Diagnostic is not None:
-        provider.primitive.ResultSource = 1
-    else:
-        provider.primitive.Diagnostic = 1
-        provider.primitive.ResultSource = 2
+        provider.primitive.ResultSource = provider.primitive.Diagnostic.source
+    #else:
+    #    provider.primitive.Diagnostic = 1
+    #    provider.primitive.ResultSource = 2
 
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
