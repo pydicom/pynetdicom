@@ -99,16 +99,16 @@ class ACSEServiceProvider(object):
         AcceptablePresentationContexts"""
         if self.DUL is None:
             self.DUL = DUL(Socket=client_socket)
-        ass = self.DUL.Receive(Wait=True)
-        if ass is None:
+        assoc = self.DUL.Receive(Wait=True)
+        if assoc is None:
             return None
 
-        self.MaxPDULength = ass.UserInformation[0].MaximumLengthReceived
+        self.MaxPDULength = assoc.UserInformation[0].MaximumLengthReceived
 
 
         if result is not None and diag is not None:
             # Association is rejected
-            res = ass
+            res = assoc
             res.PresentationContextDefinitionList = []
             res.PresentationContextDefinitionResultList = []
             res.Result = result
@@ -116,7 +116,7 @@ class ACSEServiceProvider(object):
             res.UserInformation = []
             #res.UserInformation = ass.UserInformation
             self.DUL.Send(res)
-            return False
+            return None
 
 
 
@@ -124,7 +124,7 @@ class ACSEServiceProvider(object):
         rsp = []
         self.AcceptedPresentationContexts = []
         acceptable_sop = [x[0] for x in AcceptablePresentationContexts]
-        for ii in ass.PresentationContextDefinitionList:
+        for ii in assoc.PresentationContextDefinitionList:
             pcid = ii[0]
             proposed_sop = ii[1]
             proposed_ts = ii[2]
@@ -148,15 +148,15 @@ class ACSEServiceProvider(object):
                 rsp.append((ii[0], 1, ''))
 
         # Send response
-        res = ass
+        res = assoc
         res.PresentationContextDefinitionList = []
         res.PresentationContextDefinitionResultList = rsp
         res.Result = 0
         #res.UserInformation = []
         #res.UserInformation = [ass.UserInformation[0]]
-        res.UserInformation = ass.UserInformation
+        res.UserInformation = assoc.UserInformation
         self.DUL.Send(res)
-        return True
+        return assoc
 
 #    def Receive(self, Wait):
 #        return self.DUL.ReceiveACSE(Wait)

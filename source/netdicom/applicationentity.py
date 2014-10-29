@@ -87,6 +87,7 @@ class Association(threading.Thread):
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
         obj.AE = self.AE
+        obj.RemoteAE = self.AE
         return obj
 
     def Kill(self):
@@ -118,8 +119,9 @@ class Association(threading.Thread):
             if len(self.AE.Associations)>self.AE.MaxNumberOfAssociations:
                 result = A_ASSOCIATE_Result_RejectedTransient
                 diag = A_ASSOCIATE_Diag_LocalLimitExceeded
-            if not self.ACSE.Accept(self.ClientSocket,
-                             self.AE.AcceptablePresentationContexts, result=result, diag=diag):
+            assoc = self.ACSE.Accept(self.ClientSocket,
+                             self.AE.AcceptablePresentationContexts, result=result, diag=diag)
+            if assoc is None:
                 return
 
             # call back
@@ -180,7 +182,7 @@ class Association(threading.Thread):
                     obj.DIMSE = self.DIMSE
                     obj.ACSE = self.ACSE
                     obj.AE = self.AE
-
+                    obj.assoc = assoc
                     # run SCP
                     obj.SCP(dimsemsg)
 
