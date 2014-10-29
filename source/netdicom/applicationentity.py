@@ -23,7 +23,7 @@ from DULparameters import *
 from weakref import proxy
 import gc
 import struct
-
+import timer
 
 import logging
 logger = logging.getLogger('netdicom.applicationentity')
@@ -42,8 +42,9 @@ class Association(threading.Thread):
             # must request
             self.Mode = 'Requestor'
         self.ClientSocket = ClientSocket
-        self.DUL = DULServiceProvider(ClientSocket)
         self.AE = LocalAE
+        self.DUL = DULServiceProvider(ClientSocket,
+                                      MaxIdleSeconds=self.AE.MaxAssociationIdleSeconds)
         self.RemoteAE = RemoteAE
         self._Kill = False
         threading.Thread.__init__(self)
@@ -75,7 +76,6 @@ class Association(threading.Thread):
     def __getattr__(self, attr):
         # while not self.AssociationEstablished:
         #    time.sleep(0.001)
-
         obj = eval(attr)()
         try:
             obj.pcid, obj.sopclass, obj.transfersyntax = \
@@ -122,6 +122,7 @@ class Association(threading.Thread):
             assoc = self.ACSE.Accept(self.ClientSocket,
                              self.AE.AcceptablePresentationContexts, result=result, diag=diag)
             if assoc is None:
+                self.Kill()
                 return
 
             # call back
@@ -193,6 +194,20 @@ class Association(threading.Thread):
                 # check for abort
                 if self.ACSE.CheckAbort():
                     self.Kill()
+                    return
+
+                # check if the DULServiceProvider thread is still running
+                if not self.DUL.isAlive():
+                    logger.warning("DUL provider thread is not running any more; quitting")
+                    self.Kill()
+
+                # check if idle timer has expired
+                logger.debug("checking DUL idle timer")
+                if self.DUL.idle_timer_expired():
+                    logger.warning('%s: DUL provider idle timer expired' % (self.name))  
+                    self.Kill()
+ 
+
 
 
 class AE(threading.Thread):
@@ -218,6 +233,9 @@ class AE(threading.Thread):
         self.SupportedSOPClassesAsSCP = SOPSCP
         self.SupportedTransferSyntax = SupportedTransferSyntax
         self.MaxNumberOfAssociations = 2
+        # maximum amount of time this association can be idle before it gets
+        # terminated
+        self.MaxAssociationIdleSeconds = None
         threading.Thread.__init__(self, name=self.LocalAE['AET'])
         self.daemon = True
         self.SOPUID = [x for x in self.SupportedSOPClassesAsSCP]
@@ -288,9 +306,10 @@ class AE(threading.Thread):
                 self.Associations.append(Association(self, client_socket))
 
             # delete dead associations
-            for aa in self.Associations:
-                if not aa.isAlive():
-                    self.Associations.remove(aa)
+            #for aa in self.Associations:
+            #    if not aa.isAlive():
+            #        self.Associations.remove(aa)
+            self.Associations[:] = [active_assoc for active_assoc in self.Associations if active_assoc.isAlive()]
             if not count % 50:
                 logger.debug("number of active associations: %d", len(self.Associations))
                 gc.collect()

@@ -48,7 +48,7 @@ def recvn(sock, n):
 
 class DULServiceProvider(Thread):
 
-    def __init__(self, Socket=None, Port=None, Name=''):
+    def __init__(self, Socket=None, Port=None, Name='', MaxIdleSeconds=None):
         """Three ways to call DULServiceProvider. If a port number is given,
         the DUL will wait for incoming connections on this port. If a socket
         is given, the DUL will use this socket as the client socket. If none
@@ -74,6 +74,9 @@ class DULServiceProvider(Thread):
         self.FromServiceUser = Queue.Queue()
 
         # Setup the timer and finite state machines
+        self._idle_timer = None
+        if MaxIdleSeconds is not None and MaxIdleSeconds > 0:
+            self._idle_timer = timer.Timer(MaxIdleSeconds)
         self.Timer = timer.Timer(10)
         self.SM = fsm.StateMachine(self)
 
@@ -192,6 +195,21 @@ class DULServiceProvider(Thread):
         else:
             return False
 
+
+    def idle_timer_expired(self):
+        """
+        Checks if the idle timer has expired and returns True if has, False 
+        otherwise
+        """
+        if self._idle_timer is None:
+            return False
+        if self._idle_timer.Check() == False:
+            return True
+        else:
+            return False
+
+
+
     def CheckIncomingPrimitive(self):
         #logger.debug('%s: checking incoming primitive' % (self.name))
         # look at self.ReceivePrimitive for incoming primitives
@@ -243,6 +261,9 @@ class DULServiceProvider(Thread):
     def run(self):
         logger.debug('%s: DUL loop started' % self.name)
         while 1:
+            if self._idle_timer is not None:
+                self._idle_timer.Start()
+
             time.sleep(0.001)
             # time.sleep(1)
             #logger.debug('%s: starting DUL loop' % self.name)
@@ -250,11 +271,12 @@ class DULServiceProvider(Thread):
                 break
             # catch an event
             if self.CheckNetwork():
-                pass
+                if self._idle_timer is not None:
+                    self._idle_timer.Restart()
             elif self.CheckIncomingPrimitive():
                 pass
             elif self.CheckTimer():
-                pass
+                self.kill = True
             try:
                 evt = self.event.get(False)
             except Queue.Empty:
