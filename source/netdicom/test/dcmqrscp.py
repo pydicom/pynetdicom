@@ -61,8 +61,8 @@ def start_dcmqrscp(server_port=2000, server_AET='OFFIS_AE',
     f.close()
 
     # start dcmqrscp in a separate window
-    cmd = 'cd %s;xterm -e "%s/bin/dcmqrscp -d -c dcmqrscp.cfg;read"&' % \
-        (install_dir, dcmtk_base)
+    cmd = 'cd %s;xterm -T %s -e "%s/bin/dcmqrscp -d -c dcmqrscp.cfg;read"&' % \
+        (install_dir, server_AET, dcmtk_base)
     os.system(cmd)
     time.sleep(1)
 
