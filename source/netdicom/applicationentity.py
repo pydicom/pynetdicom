@@ -81,8 +81,8 @@ class Association(threading.Thread):
                 [x for x in self.SOPClassesAsSCU if
                  x[1] == obj.__class__][0]
         except IndexError:
-            return
             raise "SOP Class %s not supported as SCU" % attr
+
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
         obj.AE = self.AE
@@ -252,7 +252,12 @@ class AE(threading.Thread):
         self.PresentationContextDefinitionList = []
         for ii in self.SupportedSOPClassesAsSCU + \
                 self.SupportedSOPClassesAsSCP:
-            if ii.__subclasses__():
+            if isinstance(ii, UID):
+                self.PresentationContextDefinitionList.append([
+                    count, ii,
+                    [x for x in self.SupportedTransferSyntax]])
+                count += 2
+            elif ii.__subclasses__():
                 for jj in ii.__subclasses__():
                     self.PresentationContextDefinitionList.append([
                         count, UID(jj.UID),
@@ -319,6 +324,8 @@ class AE(threading.Thread):
     def Quit(self):
         for aa in self.Associations:
             aa.Kill()
+            if self.LocalServerSocket:
+                self.LocalServerSocket.close()
         self.__Quit = True
 
     def QuitOnKeyboardInterrupt(self):
@@ -340,7 +347,7 @@ class AE(threading.Thread):
         """Requests association to a remote application entity"""
         assoc = Association(self, RemoteAE=remoteAE)
         while not assoc.AssociationEstablished \
-                and not assoc.AssociationRefused:
+                and not assoc.AssociationRefused and not assoc.DUL.kill:
             time.sleep(0.1)
         if assoc.AssociationEstablished:
             self.Associations.append(assoc)

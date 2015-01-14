@@ -270,19 +270,26 @@ class DULServiceProvider(Thread):
             if self.kill:
                 break
             # catch an event
-            if self.CheckNetwork():
-                if self._idle_timer is not None:
-                    self._idle_timer.Restart()
-            elif self.CheckIncomingPrimitive():
-                pass
-            elif self.CheckTimer():
+            try:
+                if self.CheckNetwork():
+                    if self._idle_timer is not None:
+                        self._idle_timer.Restart()
+                elif self.CheckIncomingPrimitive():
+                    pass
+                elif self.CheckTimer():
+                    self.kill = True
+            except:
                 self.kill = True
+                raise
             try:
                 evt = self.event.get(False)
             except Queue.Empty:
                 #logger.debug('%s: no event' % (self.name))
                 continue
-            self.SM.Action(evt, self)
+            try:
+                self.SM.Action(evt, self)
+            except:
+                self.kill = True
         logger.debug('%s: DUL loop ended' % self.name)
 
 

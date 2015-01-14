@@ -5,44 +5,6 @@ __version_info__ = __version__.split('.')
 
 # some imports
 from applicationentity import AE
-from SOPclass import \
-    VerificationSOPClass,\
-    StorageSOPClass,\
-    MRImageStorageSOPClass,\
-    CTImageStorageSOPClass,\
-    PositronEmissionTomographyImageStorageSOPClass,\
-    CRImageStorageSOPClass,\
-    SCImageStorageSOPClass,\
-    RTImageStorageSOPClass,\
-    RTDoseStorageSOPClass,\
-    RTStructureSetStorageSOPClass,\
-    RTPlanStorageSOPClass,\
-    EnhancedSRSOPClass,\
-    XRayRadiationDoseSRSOPClass,\
-    DigitalXRayImageStorageForPresentationSOPClass,\
-    DigitalXRayImageStorageForProcessingSOPClass,\
-    DigitalMammographyXRayImageStorageForPresentationSOPClass,\
-    DigitalMammographyXRayImageStorageForProcessingSOPClass,\
-    DigitalIntraOralXRayImageStorageForPresentationSOPClass,\
-    DigitalIntraOralXRayImageStorageForProcessingSOPClass,\
-    XRayAngiographicImageStorageSOPClass,\
-    EnhancedXAImageStorageSOPClass,\
-    XRayRadiofluoroscopicImageStorageSOPClass,\
-    EnhancedXRFImageStorageSOPClass,\
-    EnhancedCTImageStorageSOPClass,\
-    NMImageStorageSOPClass,\
-    PatientRootFindSOPClass,\
-    PatientRootMoveSOPClass,\
-    PatientRootGetSOPClass,\
-    StudyRootFindSOPClass,\
-    StudyRootMoveSOPClass,\
-    StudyRootGetSOPClass,\
-    PatientStudyOnlyFindSOPClass,\
-    PatientStudyOnlyMoveSOPClass,\
-    PatientStudyOnlyGetSOPClass,\
-    ModalityWorklistInformationFindSOPClass
-
-
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.'
