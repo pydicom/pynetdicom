@@ -65,8 +65,7 @@ class Association(threading.Thread):
                 [x for x in self.SOPClassesAsSCU if
                  x[1] == obj.__class__][0]
         except IndexError:
-            return
-            raise Exception("SOP Class %s not supported as SCU")
+            raise Exception("SOP Class %s not supported as SCU" % ds.SOPClassUID)
 
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
