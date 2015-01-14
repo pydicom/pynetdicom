@@ -21,8 +21,12 @@ def AE_1(provider):
     # Issue TRANSPORT CONNECT request primitive to local transport service
     provider.RemoteClientSocket = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM)
-    provider.RemoteClientSocket.connect(
-        provider.primitive.CalledPresentationAddress)
+    try:
+        provider.RemoteClientSocket.connect(
+            provider.primitive.CalledPresentationAddress)
+    except socket.error:
+        # cannot connect
+        provider.ToServiceUser.put(None)
 
 
 def AE_2(provider):
