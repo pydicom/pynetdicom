@@ -753,6 +753,11 @@ class SegmentationStorageSOPClass(StorageSOPClass):
 class RealWorldValueMappingStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.67'
 
+class XRayRadiationDoseStructuredReportSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.88.67'
+
+class EnhancedStructuredReportSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.88.22'
 
 
 
