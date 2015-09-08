@@ -10,8 +10,8 @@ python storescp.py -h
 """
 
 import argparse
-from netdicom import AE, StorageSOPClass, VerificationSOPClass, logger_setup, \
-    debug
+from netdicom import AE, logger_setup, debug
+from netdicom.SOPclass import StorageSOPClass, VerificationSOPClass
 from dicom.dataset import Dataset, FileDataset
 import tempfile
 
