@@ -11,7 +11,8 @@ python storescu.py -h
 """
 import sys
 import argparse
-from netdicom import AE, StorageSOPClass, VerificationSOPClass
+from netdicom import AE
+from netdicom.SOPclass import StorageSOPClass, VerificationSOPClass
 from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 from dicom import read_file
