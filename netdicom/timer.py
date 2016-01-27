@@ -109,7 +109,7 @@ class Timer:
         bool 
             False if the timer has expired, True otherwise
         """
-        return !self.is_expired()
+        return not self.is_expired()
 
 """
 if __name__ == '__main__':
