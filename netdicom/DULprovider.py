@@ -3,28 +3,33 @@
 # This file is part of pynetdicom, released under a modified MIT license.
 #    See the file license.txt included with this distribution, also
 #    available at http://pynetdicom.googlecode.com
-#
 
-#
+
 # This module implements the DUL service provider, allowing a
 # DUL service user to send and receive DUL messages. The User and Provider
 # talk to each other using a TCP socket. The DULServer runs in a thread,
 # so that and implements an event loop whose events will drive the
 # state machine.
-#
-#
-from threading import Thread
-import socket
-import time
+
+
 import os
-import select
-import timer
-import fsm
-from struct import unpack
-from PDU import *
-import DULparameters
 import Queue
+import select
+import socket
+from struct import unpack
+from threading import Thread
+import time
+import timer
+
+
+import DULparameters
+import fsm
+from PDU import *
+
+
 import logging
+
+
 logger = logging.getLogger('netdicom.DUL')
 
 
@@ -47,14 +52,34 @@ def recvn(sock, n):
 
 
 class DULServiceProvider(Thread):
-
+    """
+    Three ways to call DULServiceProvider. If a port number is given,
+    the DUL will wait for incoming connections on this port. If a socket
+    is given, the DUL will use this socket as the client socket. If none
+    is given, the DUL will not be able to accept connections (but will
+    be able to initiate them.)
+    
+    Arguments
+    ---------
+    Socket - socket.socket, optional
+        The socket to be used as the client socket
+    Port - int, optional
+        The port number on which to wait for incoming connections
+    Name - str, optional
+        Used help identify the DUL service provider
+    MaxIdleSeconds - float, optional
+        The maximum amount of time to wait for connection responses
+        
+    Parameters
+    ----------
+    Timer - timer
+        The ARTIM timer
+    SM - StateMachine
+        The DICOM Upper Layer's State Machine
+    event - Queue.Queue
+        List of queued events to be processed
+    """
     def __init__(self, Socket=None, Port=None, Name='', MaxIdleSeconds=None):
-        """Three ways to call DULServiceProvider. If a port number is given,
-        the DUL will wait for incoming connections on this port. If a socket
-        is given, the DUL will use this socket as the client socket. If none
-        is given, the DUL will not be able to accept connections (but will
-        be able to initiate them.)"""
-
         if Socket and Port:
             raise "Cannot have both socket and port"
 
@@ -195,7 +220,6 @@ class DULServiceProvider(Thread):
         else:
             return False
 
-
     def idle_timer_expired(self):
         """
         Checks if the idle timer has expired and returns True if has, False 
@@ -207,8 +231,6 @@ class DULServiceProvider(Thread):
             return True
         else:
             return False
-
-
 
     def CheckIncomingPrimitive(self):
         #logger.debug('%s: checking incoming primitive' % (self.name))
@@ -267,8 +289,10 @@ class DULServiceProvider(Thread):
             time.sleep(0.001)
             # time.sleep(1)
             #logger.debug('%s: starting DUL loop' % self.name)
+            
             if self.kill:
                 break
+            
             # catch an event
             try:
                 if self.CheckNetwork():
@@ -281,11 +305,13 @@ class DULServiceProvider(Thread):
             except:
                 self.kill = True
                 raise
+            
             try:
                 evt = self.event.get(False)
             except Queue.Empty:
                 #logger.debug('%s: no event' % (self.name))
                 continue
+            
             try:
                 self.SM.Action(evt, self)
             except:
@@ -318,7 +344,6 @@ def primitive2event(primitive):
     else:
         raise InvalidPrimitive
 
-
 def Socket2PDU(data):
     # Returns the PDU object associated with an incoming data stream
     pdutype = unpack('B', data[0])[0]
@@ -347,7 +372,6 @@ def Socket2PDU(data):
         "Unrecognized or invalid PDU"
         pdu = None
     return pdu
-
 
 def PDU2Event(pdu):
     if pdu.__class__ == A_ASSOCIATE_RQ_PDU:
