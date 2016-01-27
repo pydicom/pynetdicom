@@ -59,7 +59,7 @@ class DULServiceProvider(Thread):
     is given, the DUL will not be able to accept connections (but will
     be able to initiate them.)
     
-    Arguments
+    Parameters
     ---------
     Socket - socket.socket, optional
         The socket to be used as the client socket
@@ -70,7 +70,7 @@ class DULServiceProvider(Thread):
     MaxIdleSeconds - float, optional
         The maximum amount of time to wait for connection responses
         
-    Parameters
+    Attributes
     ----------
     Timer - timer
         The ARTIM timer

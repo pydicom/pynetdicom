@@ -27,20 +27,18 @@ def AE_1(provider):
 
     State-event triggers: Sta1 + Evt1
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta4
+        Sta4, the next state of the state machine
     """
     # Issue TRANSPORT CONNECT request primitive to local transport service
     provider.RemoteClientSocket = socket.socket(socket.AF_INET, 
@@ -61,21 +59,19 @@ def AE_2(provider):
     On receiving connection confirmation, send A-ASSOCIATE-RQ
 
     State-event triggers: Sta4 + Evt2
+    
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta5
-        
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+        Sta5, the next state of the state machine
     """
     # Send A-ASSOCIATE-RQ PDU
     provider.pdu = PDU.A_ASSOCIATE_RQ_PDU()
@@ -92,20 +88,18 @@ def AE_3(provider):
 
     State-event triggers: Sta5 + Evt3
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta6
+        Sta6, the next state of the state machine
     """
     # Issue A-ASSOCIATE confirmation (accept) primitive
     provider.ToServiceUser.put(provider.primitive)
@@ -121,20 +115,18 @@ def AE_4(provider):
 
     State-event triggers: Sta5 + Evt4
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta1
+        Sta1, the next state of the state machine
     """
     # Issue A-ASSOCIATE confirmation (reject) primitive and close transport
     # connection
@@ -154,20 +146,18 @@ def AE_5(provider):
 
     State-event triggers: Sta1 + Evt5
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
     
     Returns
     -------
     str
-        Sta2
+        Sta2, the next state of the state machine
     """
     # Issue connection response primitive
     # not required due to implementation
@@ -186,20 +176,18 @@ def AE_6(provider):
 
     State-event triggers: Sta2 + Evt6
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Either Sta3 or Sta13
+        Either Sta3 or Sta13, the next state of the state machine
     """
     # Stop ARTIM timer
     provider.Timer.Stop()
@@ -226,20 +214,18 @@ def AE_7(provider):
 
     State-event triggers: Sta3 + Evt7
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta6
+        Sta6, the next state of the state machine
     """
     # Send A-ASSOCIATE-AC PDU
     provider.pdu = PDU.A_ASSOCIATE_AC_PDU()
@@ -256,20 +242,18 @@ def AE_8(provider):
 
     State-event triggers: Sta3 + Evt8
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-6, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta13
+        Sta13, the next state of the state machine
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     provider.pdu = PDU.A_ASSOCIATE_RJ_PDU()
@@ -295,20 +279,18 @@ def DT_1(provider):
 
     State-event triggers: Sta6 + Evt9
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta6
+        Sta6, the next state of the state machine
     """
     # Send P-DATA-TF PDU
     provider.pdu = PDU.P_DATA_TF_PDU()
@@ -326,20 +308,18 @@ def DT_2(provider):
 
     State-event triggers: Sta6 + Evt10
 
-    References
-    ----------
-    [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
-    Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+        Related Actions"
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
 
     Returns
     -------
     str
-        Sta6
+        Sta6, the next state of the state machine
     """
     # Send P-DATA indication primitive
     provider.ToServiceUser.put(provider.primitive)
@@ -750,12 +730,12 @@ class StateMachine:
     Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
     9.2. 
     
-    Arguments
+    Parameters
     ---------
     provider - DULServiceProvider
         The DICOM Upper Layer Service Provider instance for the local AE
     
-    Parameters
+    Attributes
     ----------
     CurrentState - str
         The current state of the state machine, Sta1 to Sta13
@@ -765,9 +745,9 @@ class StateMachine:
         self.provider = provider
 
     def Action(self, event, c):
-        """ Execute the action triggered by event 
+        """ Execute the action triggered by `event`
         
-        Arguments
+        Parameters
         ---------
         event - str
             The event to be processed, Evt1 to Evt19
@@ -822,7 +802,7 @@ class StateMachine:
         """
         Transition the state machine to the next state
         
-        Arguments
+        Parameters
         ---------
         state - str
             The state to transition to, Sta1 to Sta13
