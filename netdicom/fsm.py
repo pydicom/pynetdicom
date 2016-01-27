@@ -163,7 +163,7 @@ def AE_5(provider):
     pass
 
     # Start ARTIM timer
-    provider.Timer.Start()
+    provider.Timer.start()
     
     return 'Sta2'
 
@@ -189,7 +189,7 @@ def AE_6(provider):
         Either Sta3 or Sta13, the next state of the state machine
     """
     # Stop ARTIM timer
-    provider.Timer.Stop()
+    provider.Timer.stop()
 
     # If A-ASSOCIATE-RQ acceptable by service provider
     if True:
@@ -202,7 +202,7 @@ def AE_6(provider):
         raise NotImplementedError('State machine - AE-6 A-ASSOCIATE-RQ not '
             'acceptable, but issuance of A-ASSOCIATE-RJ not implemented')
         
-        provider.Timer.Start()
+        provider.Timer.start()
         return 'Sta13'
 
 def AE_7(provider):
@@ -278,8 +278,8 @@ def DT_1(provider):
 
     State-event triggers: Sta6 + Evt9
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
-        Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related 
+        Actions"
 
     Parameters
     ----------
@@ -307,8 +307,8 @@ def DT_2(provider):
 
     State-event triggers: Sta6 + Evt10
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
-        Related Actions"
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related 
+        Actions"
 
     Parameters
     ----------
@@ -327,6 +327,26 @@ def DT_2(provider):
 
 
 def AR_1(provider):
+    """
+    Association release AR-1
+
+    Send Association release request
+
+    State-event triggers: Sta6 + Evt11
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta7, the next state of the state machine
+    """
     # Send A-RELEASE-RQ PDU
     provider.pdu = PDU.A_RELEASE_RQ_PDU()
     provider.pdu.FromParams(provider.primitive)
@@ -335,12 +355,53 @@ def AR_1(provider):
     return 'Sta7'
 
 def AR_2(provider):
+    """
+    Association release AR-2
+
+    On receiving an association release request, send release indication
+
+    State-event triggers: Sta6 + Evt12
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta8, the next state of the state machine
+    """
     # Send A-RELEASE indication primitive
     provider.ToServiceUser.put(provider.primitive)
     
     return 'Sta8'
 
 def AR_3(provider):
+    """
+    Association release AR-3
+
+    On receiving an association release response, send release confirmation,
+    close connection and go back to Idle state
+
+    State-event triggers: Sta7 + Evt13, Sta11 + Evt13
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta1, the next state of the state machine
+    """
     # Issue A-RELEASE confirmation primitive and close transport connection
     provider.ToServiceUser.put(provider.primitive)
     provider.RemoteClientSocket.close()
@@ -349,27 +410,110 @@ def AR_3(provider):
     return 'Sta1'
 
 def AR_4(provider):
+    """
+    Association release AR-4
+
+    On receiving an association release response, send release response
+
+    State-event triggers: Sta8 + Evt14, Sta12 + Evt14
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta13, the next state of the state machine
+    """
     # Issue A-RELEASE-RP PDU and start ARTIM timer
     provider.pdu = PDU.A_RELEASE_RP_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
-    provider.Timer.Start()
+    provider.Timer.start()
     
     return 'Sta13'
 
 def AR_5(provider):
+    """
+    Association release AR-5
+
+    On receiving transport connection closed, stop the ARTIM timer and go back
+    to Idle state
+
+    State-event triggers: Sta13 + Evt17
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta1, the next state of the state machine
+    """
     # Stop ARTIM timer
-    provider.Timer.Stop()
+    provider.Timer.stop()
     
     return 'Sta1'
 
 def AR_6(provider):
+    """
+    Association release AR-6
+
+    On receiving P-DATA-TF during attempted association release request 
+    send P-DATA indication
+
+    State-event triggers: Sta7 + Evt10
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta7, the next state of the state machine
+    """
     # Issue P-DATA indication
     provider.ToServiceUser.put(provider.primitive)
     
     return 'Sta7'
 
 def AR_7(provider):
+    """
+    Association release AR-7
+
+    On receiving P-DATA request during attempted association release request 
+    send P-DATA-TF
+
+    State-event triggers: Sta8 + Evt9
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta8, the next state of the state machine
+    """
     # Issue P-DATA-TF PDU
     provider.pdu = PDU.P_DATA_TF_PDU()
     provider.pdu.FromParams(provider.primitive)
@@ -378,6 +522,27 @@ def AR_7(provider):
     return 'Sta8'
 
 def AR_8(provider):
+    """
+    Association release AR-8
+
+    On receiving association release request while local is requesting release
+    then issue release collision indication
+
+    State-event triggers: Sta7 + Evt12
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Either Sta9 or Sta10, the next state of the state machine
+    """
     # Issue A-RELEASE indication (release collision)
     provider.ToServiceUser.put(provider.primitive)
     if provider.requestor == 1:
@@ -386,6 +551,26 @@ def AR_8(provider):
         return 'Sta10'
     
 def AR_9(provider):
+    """
+    Association release AR-9
+
+    On receiving A-RELEASE primitive, send release response
+
+    State-event triggers: Sta9 + Evt14
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta11, the next state of the state machine
+    """
     # Send A-RELEASE-RP PDU
     provider.pdu = PDU.A_RELEASE_RP_PDU()
     provider.pdu.FromParams(provider.primitive)
@@ -394,6 +579,26 @@ def AR_9(provider):
     return 'Sta11'
 
 def AR_10(provider):
+    """
+    Association release AR-10
+
+    On receiving A-RELEASE-RP, issue release confirmation
+
+    State-event triggers: Sta10 + Evt13
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+        Related Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta12, the next state of the state machine
+    """
     # Issue A-RELEASE confirmation primitive
     provider.ToServiceUser.put(provider.primitive)
     
@@ -401,6 +606,28 @@ def AR_10(provider):
 
 
 def AA_1(provider):
+    """
+    Association abort AA-1
+
+    If on sending A-ASSOCIATE-RQ we receive an invalid reply, or an abort
+    request then abort
+
+    State-event triggers: Sta2 + Evt3/Evt4/Evt10/Evt12/Evt13/Evt19, 
+    Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 + Evt15
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta13, the next state of the state machine
+    """
     # Send A-ABORT PDU (service-user source) and start (or restart
     # if already started) ARTIM timer.
     provider.pdu = PDU.A_ABORT_PDU()
@@ -409,19 +636,63 @@ def AA_1(provider):
     provider.pdu.ReasonDiag = 0
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
-    provider.Timer.Restart()
+    
+    provider.Timer.restart()
     
     return 'Sta13'
 
 def AA_2(provider):
+    """
+    Association abort AA-2
+
+    On receiving an A-ABORT or if the ARTIM timer expires, close connection and 
+    return to Idle
+
+    State-event triggers: Sta2 + Evt16/Evt18, Sta4 + Evt15, Sta13 + Evt16/Evt18
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta1, the next state of the state machine
+    """
     # Stop ARTIM timer if running. Close transport connection.
-    provider.Timer.Stop()
+    provider.Timer.stop()
     provider.RemoteClientSocket.close()
     provider.RemoteClientSocket = None
     
     return 'Sta1'
 
 def AA_3(provider):
+    """
+    Association abort AA-3
+
+    On receiving A-ABORT, issue abort indication, close connection and 
+    return to Idle
+
+    State-event triggers: Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 + 
+    Evt16
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta1, the next state of the state machine
+    """
     # If (service-user initiated abort):
     #   - Issue A-ABORT indication and close transport connection.
     # Otherwise (service-provider initiated abort):
@@ -434,6 +705,27 @@ def AA_3(provider):
     return 'Sta1'
 
 def AA_4(provider):
+    """
+    Association abort AA-4
+
+    If connection closed, issue A-P-ABORT and return to Idle
+
+    State-event triggers: Sta3/Sta4/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 
+    + Evt17
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta1, the next state of the state machine
+    """
     # Issue A-P-ABORT indication primitive.
     provider.primitive = DULparameters.A_ABORT_ServiceParameters()
     provider.ToServiceUser.put(provider.primitive)
@@ -441,18 +733,80 @@ def AA_4(provider):
     return 'Sta1'
 
 def AA_5(provider):
+    """
+    Association abort AA-5
+
+    If connection closed during association request, stop ARTIM timer and return
+    to Idle
+
+    State-event triggers: Sta2 + Evt17
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta1, the next state of the state machine
+    """
     # Stop ARTIM timer.
-    provider.Timer.Stop()
+    provider.Timer.stop()
     
     return 'Sta1'
 
 def AA_6(provider):
-    # Ignore PDU.
+    """
+    Association abort AA-6
+
+    If receive a PDU while waiting for connection to close, ignore it
+
+    State-event triggers: Sta13 + Evt3/Evt4/Evt10/Evt12/Evt13
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta13, the next state of the state machine
+    """
+    # Ignore PDU
     provider.primitive = None
     
     return 'Sta13'
 
 def AA_7(provider):
+    """
+    Association abort AA-7
+
+    If receive a association request or invalid PDU while waiting for connection 
+    to close, issue A-ABORT
+
+    State-event triggers: Sta13 + Evt6/Evt19
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta13, the next state of the state machine
+    """
     # Send A-ABORT PDU.
     provider.pdu = PDU.A_ABORT_PDU()
     provider.pdu.FromParams(provider.primitive)
@@ -461,6 +815,30 @@ def AA_7(provider):
     return 'Sta13'
 
 def AA_8(provider):
+    """
+    Association abort AA-8
+
+    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and start
+    ARTIM timer
+
+    State-event triggers: Evt3 + Sta3/6/7/8/9/10/11/12,
+    Evt4 + Sta3/5/6/7/8/9/10/11/12, Evt6 + Sta3/5/6/7/8/9/10/11/12,
+    Evt10 + Sta3/5/8/9/10/11/12, Evt12 + Sta3/5/8/9/10/11/12,
+    Evt13 + Sta3/5/6/8/9/12, Evt19 + Sta3/5/6/7/8/9/10/11/12
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    Actions"
+
+    Parameters
+    ----------
+    provider - DULServiceProvider
+        The DICOM Upper Layer Service Provider instance for the local AE
+
+    Returns
+    -------
+    str
+        Sta13, the next state of the state machine
+    """
     # Send A-ABORT PDU (service-provider source), issue and A-P-ABORT
     # indication, and start ARTIM timer.
     # Send A-ABORT PDU
@@ -472,7 +850,7 @@ def AA_8(provider):
         provider.RemoteClientSocket.send(provider.pdu.Encode())
         # Issue A-P-ABORT indication
         provider.ToServiceUser.put(provider.primitive)
-        provider.Timer.Start()
+        provider.Timer.start()
         
     return 'Sta13'
 
@@ -747,7 +1125,7 @@ class StateMachine:
         """ Execute the action triggered by `event`
         
         Parameters
-        ---------
+        ----------
         event - str
             The event to be processed, Evt1 to Evt19
         c - DULServiceProvider
@@ -802,7 +1180,7 @@ class StateMachine:
         Transition the state machine to the next state
         
         Parameters
-        ---------
+        ----------
         state - str
             The state to transition to, Sta1 to Sta13
             
