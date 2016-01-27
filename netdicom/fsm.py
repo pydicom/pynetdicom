@@ -411,6 +411,8 @@ def AR_9(provider):
     provider.pdu = PDU.A_RELEASE_RP_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
+    
+    return 'Sta11'
 
 def AR_10(provider):
     # Issue A-RELEASE confirmation primitive
