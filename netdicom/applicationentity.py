@@ -3,52 +3,63 @@
 # This file is part of pynetdicom, released under a modified MIT license.
 #    See the file license.txt included with this distribution, also
 #    available at http://pynetdicom.googlecode.com
-#
 
+
+import gc
+import logging
+import os
+import platform
+import select
+import socket
+import struct
+import sys
 import threading
 import time
-import socket
-import os
-import sys
-import select
-import platform
-from SOPclass import *
+from weakref import proxy
+
+
 from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID
-from DULprovider import DULServiceProvider
-from DIMSEprovider import DIMSEServiceProvider
+
+
 from ACSEprovider import ACSEServiceProvider
+from DIMSEprovider import DIMSEServiceProvider
 from DIMSEparameters import *
 from DULparameters import *
-from weakref import proxy
-import gc
-import struct
-import timer
+from DULprovider import DULServiceProvider
+from SOPclass import *
 
-import logging
+
 logger = logging.getLogger('netdicom.applicationentity')
+
 
 class Association(threading.Thread):
 
     def __init__(self, LocalAE, ClientSocket=None, RemoteAE=None):
+        
         if not ClientSocket and not RemoteAE:
             raise
         if ClientSocket and RemoteAE:
             raise
+        
         if ClientSocket:
             # must respond for request from a remote AE
             self.Mode = 'Acceptor'
         if RemoteAE:
             # must request
             self.Mode = 'Requestor'
+        
         self.ClientSocket = ClientSocket
         self.AE = LocalAE
         self.DUL = DULServiceProvider(ClientSocket,
-                                      MaxIdleSeconds=self.AE.MaxAssociationIdleSeconds)
+                        MaxIdleSeconds=self.AE.MaxAssociationIdleSeconds)
         self.RemoteAE = RemoteAE
         self._Kill = False
+        
         threading.Thread.__init__(self)
+        
         self.daemon = True
+        
         self.SOPClassesAsSCP = []
         self.SOPClassesAsSCU = []
         self.AssociationEstablished = False
@@ -62,8 +73,7 @@ class Association(threading.Thread):
         obj = UID2SOPClass(ds.SOPClassUID)()
         try:
             obj.pcid, obj.sopclass, obj.transfersyntax = \
-                [x for x in self.SOPClassesAsSCU if
-                 x[1] == obj.__class__][0]
+                [x for x in self.SOPClassesAsSCU if x[1] == obj.__class__][0]
         except IndexError:
             raise Exception("SOP Class %s not supported as SCU" % ds.SOPClassUID)
 
@@ -96,6 +106,7 @@ class Association(threading.Thread):
                 continue
             time.sleep(0.001)
         self.DUL.Kill()
+        
         # self.ACSE.Kill()
         #del self.DUL
         #del self.ACSE
@@ -113,13 +124,18 @@ class Association(threading.Thread):
         self.DIMSE = DIMSEServiceProvider(self.DUL)
         result = None
         diag  = None
+        
         if self.Mode == 'Acceptor':
             time.sleep(0.1) # needed because of some thread-related problem. To investiguate.
             if len(self.AE.Associations)>self.AE.MaxNumberOfAssociations:
                 result = A_ASSOCIATE_Result_RejectedTransient
                 diag = A_ASSOCIATE_Diag_LocalLimitExceeded
+            
             assoc = self.ACSE.Accept(self.ClientSocket,
-                             self.AE.AcceptablePresentationContexts, result=result, diag=diag)
+                                     self.AE.AcceptablePresentationContexts, 
+                                     result=result, 
+                                     diag=diag)
+            
             if assoc is None:
                 self.Kill()
                 return
@@ -130,7 +146,8 @@ class Association(threading.Thread):
             self.SOPClassesAsSCP = []
             for ss in self.ACSE.AcceptedPresentationContexts:
                 self.SOPClassesAsSCP.append((ss[0],
-                                             UID2SOPClass(ss[1]), ss[2]))
+                                             UID2SOPClass(ss[1]), 
+                                             ss[2]))
 
         else:  # Requestor mode
             # build role extended negociation
@@ -154,10 +171,12 @@ class Association(threading.Thread):
                 self.AssociationRefused = True
                 self.DUL.Kill()
                 return
+                
             self.SOPClassesAsSCU = []
             for ss in self.ACSE.AcceptedPresentationContexts:
                 self.SOPClassesAsSCU.append((ss[0],
-                                             UID2SOPClass(ss[1]), ss[2]))
+                                             UID2SOPClass(ss[1]), 
+                                             ss[2]))
 
         self.AssociationEstablished = True
 
@@ -175,7 +194,7 @@ class Association(threading.Thread):
                     try:
                         obj.pcid, obj.sopclass, obj.transfersyntax = \
                             [x for x in self.SOPClassesAsSCP
-                             if x[0] == pcid][0]
+                                if x[0] == pcid][0]
                     except IndexError:
                         raise "SOP Class %s not supported as SCP" % uid
                     obj.maxpdulength = self.ACSE.MaxPDULength
@@ -213,38 +232,73 @@ class AE(threading.Thread):
 
     """Represents a DICOM application entity
 
-    Instance if this class represent an application entity. Once
-    instanciated, it starts a new thread and enters an event loop,
+    Once instantiated, starts a new thread and enters an event loop,
     where events are association requests from remote AEs. Events
     trigger callback functions that perform user defined actions based
     on received events.
+    
+    Parameters
+    ----------
+    AET - str
+        The AE title of the AE, 16 characters max
+    port - int
+        The port number to user for connections
+    SOPSCU - list of DICOM SOP Classes
+        Supported SOP Classes when the AE is operating as an SCU
+    SOPSCP - list of DICOM SOP Classes
+        Supported SOP Classes when the AE is operating as an SCP
+    SupportedTransferSyntax - list of DICOM transfer syntaxes
+        Supported DICOM Transfer Syntaxes
+    MaxPDULength - int
+        The maximum supported size of the PDU
+        
+    Attributes
+    ----------
+    LocalAE - dict
+        Stores the AE's address, port and title
+    MaxNumberOfAssociations - int
+        The maximum number of simultaneous associations
+    LocalServerSocket - socket.socket
+        The socket used for connections with remote hosts
+    Associations - list of Association
+        The associations between the local AE and peer AEs
     """
 
-    def __init__(self, AET, port, SOPSCU, SOPSCP,
-                 SupportedTransferSyntax=[
-                     ExplicitVRLittleEndian,
-                     ImplicitVRLittleEndian,
-                     ExplicitVRBigEndian
-                 ],
+    def __init__(self, 
+                 AET, 
+                 port, 
+                 SOPSCU, 
+                 SOPSCP,
+                 SupportedTransferSyntax=[ExplicitVRLittleEndian,
+                                          ImplicitVRLittleEndian,
+                                          ExplicitVRBigEndian],
                  MaxPDULength=16000):
-        self.LocalAE = {'Address': platform.node(), 'Port': port, 'AET': AET}
+                     
+        self.LocalAE = {'Address': platform.node(), 
+                        'Port': port, 
+                        'AET': AET}
         self.SupportedSOPClassesAsSCU = SOPSCU
         self.SupportedSOPClassesAsSCP = SOPSCP
         self.SupportedTransferSyntax = SupportedTransferSyntax
+        self.MaxPDULength = MaxPDULength
+        
         self.MaxNumberOfAssociations = 2
+        
         # maximum amount of time this association can be idle before it gets
         # terminated
         self.MaxAssociationIdleSeconds = None
+        
         threading.Thread.__init__(self, name=self.LocalAE['AET'])
+        
         self.daemon = True
         self.SOPUID = [x for x in self.SupportedSOPClassesAsSCP]
+        
         self.LocalServerSocket = socket.socket(socket.AF_INET,
                                                socket.SOCK_STREAM)
         self.LocalServerSocket.setsockopt(socket.SOL_SOCKET,
                                           socket.SO_REUSEADDR, 1)
         self.LocalServerSocket.bind(('', port))
         self.LocalServerSocket.listen(1)
-        self.MaxPDULength = MaxPDULength
 
         # build presentation context definition list to be sent to remote AE
         # when requesting association.
@@ -291,11 +345,17 @@ class AE(threading.Thread):
         self.Associations = []
 
     def run(self):
+        """
+        The main threading.Thread loop, it listens for connection attempts
+        on self.LocalServerSocket and attempts to Associate with them. 
+        Successful associations get added to self.Associations
+        """
         if not self.SupportedSOPClassesAsSCP:
             # no need to loop. This is just a client AE. All events will be
             # triggered by the user
             return
         count = 0
+        
         while 1:
             # main loop
             time.sleep(0.1)
@@ -322,6 +382,8 @@ class AE(threading.Thread):
                 count = 0
 
     def Quit(self):
+        """
+        """
         for aa in self.Associations:
             aa.Kill()
             if self.LocalServerSocket:
@@ -329,6 +391,8 @@ class AE(threading.Thread):
         self.__Quit = True
 
     def QuitOnKeyboardInterrupt(self):
+        """
+        """
         # must be called from the main thread in order to catch the
         # KeyboardInterrupt exception
         while 1:
@@ -344,13 +408,28 @@ class AE(threading.Thread):
                 continue
 
     def RequestAssociation(self, remoteAE):
-        """Requests association to a remote application entity"""
+        """Requests association to a remote application entity
+        
+        Parameters
+        ----------
+        remoteAE - dict
+            A dict containing the remote AE's address, port and title
+            
+        Returns
+        -------
+        assoc
+            The Association if it was successfully established
+        None
+            If the association failed or was rejected
+        """
         assoc = Association(self, RemoteAE=remoteAE)
+        
         while not assoc.AssociationEstablished \
                 and not assoc.AssociationRefused and not assoc.DUL.kill:
             time.sleep(0.1)
+        
         if assoc.AssociationEstablished:
             self.Associations.append(assoc)
             return assoc
-        else:
-            return None
+
+        return None

@@ -38,6 +38,9 @@ class InvalidPrimitive(Exception):
 
 
 def recvn(sock, n):
+    """
+    
+    """
     ret = ''
     read_length = 0
     while read_length < n:
@@ -150,17 +153,45 @@ class DULServiceProvider(Thread):
         self.kill = True
 
     def Stop(self):
-        """Interrupts the thread if state is "Sta1" """
+        """
+        Interrupts the thread if state is "Sta1" 
+        
+        Returns
+        -------
+        bool
+            True if Sta1, False otherwise
+        """
         if self.SM.CurrentState == 'Sta1':
             self.kill = True
             return True
-        else:
-            return False
+
+        return False
 
     def Send(self, params):
+        """
+        
+        Parameters
+        ----------
+        params - 
+            The parameters to put on FromServiceUser [FIXME]
+        """
         self.FromServiceUser.put(params)
 
     def Receive(self, Wait=False, Timeout=None):
+        """
+        
+        Parameters
+        ----------
+        Wait - bool, optional
+        Timeout - ?, optional
+        
+        Returns
+        -------
+        ???
+            The get from the ToServiceUser [FIXME]
+        None 
+            If the [FIXME] queue is empty
+        """
         # if not self.RemoteClientSocket: return None
         try:
             tmp = self.ToServiceUser.get(Wait, Timeout)
@@ -176,6 +207,9 @@ class DULServiceProvider(Thread):
             return None
 
     def CheckIncomingPDU(self):
+        """
+    
+        """
         rawpdu = ''
         # There is something to read
         # read type
@@ -211,28 +245,43 @@ class DULServiceProvider(Thread):
             self.primitive = self.pdu.ToParams()
 
     def CheckTimer(self):
-        #logger.debug('%s: checking timer' % (self.name))
-        if self.Timer.Check() is False:
+        """
+        Check if the state machine's ARTIM timer has expired. If it has then
+        Evt18 is added to the event queue.
+        
+        Returns
+        -------
+        bool
+            True if the ARTIM timer has expired, False otherwise
+        """
+        if self.Timer.is_expired():
             logger.debug('%s: timer expired' % (self.name))
-            # Timer expired
             self.event.put('Evt18')
             return True
-        else:
-            return False
+
+        return False
 
     def idle_timer_expired(self):
         """
-        Checks if the idle timer has expired and returns True if has, False 
-        otherwise
+        Checks if the idle timer has expired
+        
+        Returns
+        -------
+        bool
+            True if the idle timer has expired, False otherwise
         """
         if self._idle_timer is None:
             return False
-        if self._idle_timer.Check() == False:
+        
+        if self._idle_timer.is_expired() == True:
             return True
-        else:
-            return False
+        
+        return False
 
     def CheckIncomingPrimitive(self):
+        """
+    
+        """
         #logger.debug('%s: checking incoming primitive' % (self.name))
         # look at self.ReceivePrimitive for incoming primitives
         try:
@@ -243,6 +292,9 @@ class DULServiceProvider(Thread):
             return False
 
     def CheckNetwork(self):
+        """
+    
+        """
         #logger.debug('%s: checking network' % (self.name))
         if self.SM.CurrentState == 'Sta13':
             # wainting for connection to close
@@ -259,6 +311,7 @@ class DULServiceProvider(Thread):
             self.RemoteClientSocket = None
             self.event.put('Evt17')
             return True
+        
         if self.LocalServerSocket and not self.RemoteClientSocket:
             # local server is listening
             [a, b, c] = select.select([self.LocalServerSocket], [], [], 0)
@@ -281,10 +334,16 @@ class DULServiceProvider(Thread):
             return False
 
     def run(self):
+        """
+        The main threading.Thread run loop
+        
+        """
         logger.debug('%s: DUL loop started' % self.name)
-        while 1:
+        
+        # Main DUL loop
+        while True:
             if self._idle_timer is not None:
-                self._idle_timer.Start()
+                self._idle_timer.start()
 
             time.sleep(0.001)
             # time.sleep(1)
@@ -297,7 +356,7 @@ class DULServiceProvider(Thread):
             try:
                 if self.CheckNetwork():
                     if self._idle_timer is not None:
-                        self._idle_timer.Restart()
+                        self._idle_timer.restart()
                 elif self.CheckIncomingPrimitive():
                     pass
                 elif self.CheckTimer():
@@ -320,6 +379,24 @@ class DULServiceProvider(Thread):
 
 
 def primitive2event(primitive):
+    """
+    Returns the event associated with the primitive
+    
+    Parameters
+    ----------
+    primitive - 
+        
+        
+    Returns
+    -------
+    str
+        The event associated with the primitive
+    
+    Raises
+    ------
+    InvalidPrimitive
+        If the primitive is not valid
+    """
     if primitive.__class__ == DULparameters.A_ASSOCIATE_ServiceParameters:
         if primitive.Result is None:
             # A-ASSOCIATE Request
@@ -345,35 +422,56 @@ def primitive2event(primitive):
         raise InvalidPrimitive
 
 def Socket2PDU(data):
-    # Returns the PDU object associated with an incoming data stream
+    """
+    Returns the PDU object associated with an incoming data stream
+    
+    Parameters
+    ----------
+    data - 
+        The incoming data stream
+    
+    Returns
+    -------
+    pdu
+        The PDU object
+    """
     pdutype = unpack('B', data[0])[0]
     if pdutype == 0x01:
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(data)
     elif pdutype == 0x02:
         pdu = A_ASSOCIATE_AC_PDU()
-        pdu.Decode(data)
     elif pdutype == 0x03:
         pdu = A_ASSOCIATE_RJ_PDU()
-        pdu.Decode(data)
     elif pdutype == 0x04:
         pdu = P_DATA_TF_PDU()
-        pdu.Decode(data)
     elif pdutype == 0x05:
         pdu = A_RELEASE_RQ_PDU()
-        pdu.Decode(data)
     elif pdutype == 0x06:
         pdu = A_RELEASE_RP_PDU()
-        pdu.Decode(data)
     elif pdutype == 0x07:
         pdu = A_ABORT_PDU()
-        pdu.Decode(data)
     else:
-        "Unrecognized or invalid PDU"
-        pdu = None
+        #"Unrecognized or invalid PDU"
+        return None
+
+    pdu.Decode(data)
+
     return pdu
 
 def PDU2Event(pdu):
+    """
+    Returns the event associated with the PDU
+    
+    Parameters
+    ----------
+    pdu - 
+        The PDU
+    
+    Returns
+    -------
+    str
+        The event str associated with the PDU
+    """
     if pdu.__class__ == A_ASSOCIATE_RQ_PDU:
         return 'Evt6'
     elif pdu.__class__ == A_ASSOCIATE_AC_PDU:
@@ -389,5 +487,5 @@ def PDU2Event(pdu):
     elif pdu.__class__ == A_ABORT_PDU:
         return 'Evt16'
     else:
-        "Unrecognized or invalid PDU"
+        #"Unrecognized or invalid PDU"
         return 'Evt19'
