@@ -4,12 +4,10 @@ use_setuptools()
 
 from setuptools import setup, find_packages
 import os
-import os.path
-
 import sys
 
-__version__ = open('netdicom/__version__.py').read().split('"')[1]
-print __version__
+__version__ = open('pynetdicom/__version__.py').read().split('"')[1]
+#print __version__
 
 setup(name="pynetdicom",
       packages = find_packages(),
@@ -37,5 +35,5 @@ setup(name="pynetdicom",
         "Topic :: Software Development :: Libraries",
         ],
       long_description = open('README.txt').read(),
-      install_requires=["pydicom >= 0.9.7"]
+      install_requires=["pydicom >= 0.9.9"]
      )
