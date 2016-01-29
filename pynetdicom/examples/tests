@@ -1,0 +1,10 @@
+export PYTHONPATH=$PYTHONPATH:../..
+
+
+# storescu
+python storescu.py -aec=DCM4CHEE -aet=PYNETDICOM -implicit localhost 11112 /data/PatientsTests/0002-IMRT_Larynx/*
+python storescu.py -aec=CONQUEST -aet=PYNETDICOM -implicit localhost  5678 /data/PatientsTests/0002-IMRT_Larynx/*
+
+# qrscu
+python qrscu.py  -aec=DCM4CHEE -aet=PYNETDICOM localhost 11112 "*"
+python qrscu.py  -aec=CONQUEST -aet=PYNETDICOM localhost 5678 "*"
