@@ -104,10 +104,6 @@ class Association(threading.Thread):
                 continue
             time.sleep(0.001)
         self.DUL.Kill()
-        
-        # self.ACSE.Kill()
-        #del self.DUL
-        #del self.ACSE
 
     def Release(self, reason):
         """
