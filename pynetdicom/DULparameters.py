@@ -58,13 +58,58 @@ class A_RELEASE_ServiceParameters:
     """ 
     A-RELEASE Parameters
     
-    See PS3.8 Section 7.2.1
+    The release of an association between two AEs shall be performed through
+    ACSE A-RELEASE request, indication, response and confirmation primitives.
+    The initiator of the service is called a Requestor and the service-user that 
+    receives the A-RELEASE indication is called the acceptor.
+    
+    Service Procedure
+    1. The user (Requestor) that desires to end the association issues an 
+    A-RELEASE request primitive. The Requestor shall not issue any other
+    primitives other than A-ABORT until it receives an A-RELEASE confirmation
+    primitive.
+    2. The DUL provider issues an A-RELEASE indication to the Acceptor. The
+    Acceptor shall not issue any other primitives other than A-RELEASE response,
+    A-ABORT request or P-DATA request.
+    3. To complete the release, the Acceptor replies using an A-RELEASE response
+    primitive, with "affirmative" as the result parameter.
+    4. After the Acceptor issues the A-RELEASE response it shall not issue any
+    more primitives.
+    5. The Requestor shall issue an A-RELEASE confirmation primitive always
+    with an "affirmative" value for the Result parameter.
+    6. A user may disrupt the release by issuing an A-ABORT request.
+    7. A collision may occur when both users issue A-RELEASE requests
+    simultaneously. In this situation both users receive an unexpect A-RELEASE
+    indication primitive (instead of an A-RELEASE acceptance):
+        a. The association requestor issues an A-RELEASE response primitive
+        b. The association acceptor waits for an A-RELEASE confirmation 
+        primitive from its peer. When it receives one it issues an A-RELEASE
+        response primitive
+        c. The association requestor receives an A-RELEASE confirmation 
+        primitive.
+    When both ACSE users have received an A-RELEASE confirmation primitive the
+    association shall be released.
+    
+    Parameter   Request     Indication      Response        Confirmation
+    reason      UF          UF(=)           UF              UF(=)
+    user info   NU          NU(=)           NU              NU(=)
+    result                                  MF              MF(=)
+    
+    UF - User option, fixed
+    NU - Not used
+    MF - Mandatory, fixed
+    (=) - shall have same value as request or response
+    
+    See PS3.8 Section 7.2
     """
     def __init__(self):
         # 7.2.1.1 Reason (fixed value)
         self.Reason = "normal"
         # 7.2.1.2 Result (fixed value)
-        self.Result = "affirmative"
+        # Must be None for request and indication
+        # "affirmative" for response and confirmation
+        #self.Result = "affirmative"
+        self.Result = None
 
 
 class A_ABORT_ServiceParameters:

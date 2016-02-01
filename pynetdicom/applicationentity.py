@@ -16,7 +16,7 @@ import threading
 import time
 from weakref import proxy
 
-from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
@@ -110,6 +110,14 @@ class Association(threading.Thread):
         #del self.ACSE
 
     def Release(self, reason):
+        """
+        Release the association
+        
+        Parameters
+        ----------
+        reason - int
+            The reason for releasing the association 
+        """
         self.ACSE.Release(reason)
         self.Kill()
 
@@ -148,7 +156,7 @@ class Association(threading.Thread):
                                              ss[2]))
 
         else:  # Requestor mode
-            # build role extended negociation
+            # build role extended negotiation
             ext = []
             for ii in self.AE.AcceptablePresentationContexts:
                 tmp = SCP_SCU_RoleSelectionParameters()
@@ -156,7 +164,7 @@ class Association(threading.Thread):
                 tmp.SCURole = 0
                 tmp.SCPRole = 1
                 ext.append(tmp)
-
+            
             ans = self.ACSE.Request(self.AE.LocalAE, 
                                     self.RemoteAE,
                                     self.AE.MaxPDULength,

@@ -12,7 +12,7 @@ import logging
 import socket
 import time
 
-from dicom.UID import UID
+from pydicom.uid import UID
 
 from pynetdicom.DULparameters import *
 from pynetdicom.exceptions import AssociationRefused, NoAcceptablePresentationContext
@@ -44,6 +44,7 @@ class ACSEServiceProvider(object):
         assrq.CalledAETitle = self.RemoteAE['AET']
         MaxPDULengthPar = MaximumLengthParameters()
         MaxPDULengthPar.MaximumLengthReceived = mp
+        
         if userspdu is not None:
             assrq.UserInformation = [MaxPDULengthPar] + userspdu
         else:
@@ -56,14 +57,20 @@ class ACSEServiceProvider(object):
         logger.debug(pcdl)
         # send A-Associate request
         logger.debug("Sending Association Request")
+        
+        #print("Sending association request to the DUL service provider")
+        #print(assrq)
         self.DUL.Send(assrq)
-
+        #print("Post associate-rq send")
         # get answer
         logger.debug("Waiting for Association Response")
 
         assrsp = self.DUL.Receive(True, timeout)
+        
+        #print('Association response', assrsp)
         if not assrsp:
             return False
+        
         logger.debug(assrsp)
 
         try:
@@ -83,8 +90,9 @@ class ACSEServiceProvider(object):
         for cc in assrsp.PresentationContextDefinitionResultList:
             if cc[1] == 0:
                 uid = [x[1] for x in pcdl if x[0] == cc[0]][0]
+                #print(cc[2], type(cc[2]))
                 self.AcceptedPresentationContexts.append(
-                    (cc[0], uid, UID(cc[2])))
+                    (cc[0], uid, UID(str(cc[2]))))
         return True
 
     def Accept(self, client_socket=None, AcceptablePresentationContexts=None,
@@ -156,12 +164,24 @@ class ACSEServiceProvider(object):
 #    def Receive(self, Wait):
 #        return self.DUL.ReceiveACSE(Wait)
     def Release(self, Reason):
-        """Requests the release of the associations and waits for
-        confirmation"""
+        """
+        Requests the release of the associations and waits for confirmation.
+        A-RELEASE always gives a reason of 'normal' and a result of 
+        'affirmative'
+        
+        Returns
+        -------
+        rsp 
+            The A-RELEASE-RSP
+        """
         rel = A_RELEASE_ServiceParameters()
-        rel.Reason = Reason
+        #print('ACSE - Before sending release')
+        #print('ACSE - Release:' , rel)
         self.DUL.Send(rel)
+        #print(self.DUL.SM.CurrentState)
+        #print('ACSE - After sending release')
         rsp = self.DUL.Receive(Wait=True)
+        #print('ACSE - After receiving response')
         return rsp
         # self.DUL.Kill()
 
