@@ -58,16 +58,12 @@ class ACSEServiceProvider(object):
         # send A-Associate request
         logger.debug("Sending Association Request")
         
-        #print("Sending association request to the DUL service provider")
-        #print(assrq)
         self.DUL.Send(assrq)
-        #print("Post associate-rq send")
+
         # get answer
         logger.debug("Waiting for Association Response")
-
         assrsp = self.DUL.Receive(True, timeout)
         
-        #print('Association response', assrsp)
         if not assrsp:
             return False
         
@@ -90,7 +86,6 @@ class ACSEServiceProvider(object):
         for cc in assrsp.PresentationContextDefinitionResultList:
             if cc[1] == 0:
                 uid = [x[1] for x in pcdl if x[0] == cc[0]][0]
-                #print(cc[2], type(cc[2]))
                 self.AcceptedPresentationContexts.append(
                     (cc[0], uid, UID(str(cc[2]))))
         return True
@@ -161,8 +156,6 @@ class ACSEServiceProvider(object):
         self.DUL.Send(res)
         return assoc
 
-#    def Receive(self, Wait):
-#        return self.DUL.ReceiveACSE(Wait)
     def Release(self, Reason):
         """
         Requests the release of the associations and waits for confirmation.
@@ -183,14 +176,12 @@ class ACSEServiceProvider(object):
         rsp = self.DUL.Receive(Wait=True)
         #print('ACSE - After receiving response')
         return rsp
-        # self.DUL.Kill()
 
     def Abort(self):
         """Signifies the abortion of the association."""
         ab = A_ABORT_ServiceParameters()
         self.DUL.Send(rel)
         time.sleep(0.5)
-        # self.DUL.Kill()
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
