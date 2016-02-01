@@ -1,4 +1,4 @@
-#!venv/bin/python
+#!../../../venv/bin/python
 
 """
     A dcmtk style echoscu application. 
@@ -14,6 +14,12 @@ import sys
 
 from pynetdicom.applicationentity import AE
 from pynetdicom.SOPclass import VerificationSOPClass
+from pydicom.uid import ExplicitVRLittleEndian
+
+# Temporary until I get better debug logging included
+if True:
+    print("D: $pynetdicom: echoscu v0.1.0 2016-02-21 $")
+    print("D:")
 
 # Description
 parser = argparse.ArgumentParser(
@@ -111,7 +117,8 @@ def OnAssociateRequest(association):
     #print "Association request received"
     pass
 
-def OnAssociateResponse():
+def OnAssociateResponse(answer):
+    #print(answer)
     pass
 
 def OnReceiveEcho(self):
@@ -119,31 +126,27 @@ def OnReceiveEcho(self):
     return True
 
 # create application entity
-print("Creating AE")
-ae = AE(args.calling_aet, 11112, [], [VerificationSOPClass])
+print("ECHOSCU: Creating AE")
+ae = AE(args.calling_aet, 11112, [], [VerificationSOPClass], 
+        SupportedTransferSyntax=[ExplicitVRLittleEndian])
 ae.OnAssociateRequest = OnAssociateRequest
 ae.OnAssociateResponse = OnAssociateResponse
 ae.OnReceiveEcho = OnReceiveEcho
 
-# start application entity
-#print("Starting AE")
-#ae.start()
-#ae.QuitOnKeyboardInterrupt()
-
 # Request association with remote
-print("Associating...")
+print("ECHOSCU: Associating...")
 assoc = ae.RequestAssociation(called_ae)
 
 if assoc is not None:
     # Send echo
-    print("Sending echo")
+    print("ECHOSCU: Sending echo")
     status = assoc.VerificationSOPClass.SCU(1)
 
     # Release association
-    print("Releasing")
+    print("ECHOSCU: Releasing")
     assoc.Release(0)
 else:
-    print("Failed to associate")
+    print("ECHOSCU: Failed to associate")
 
 # Quit
 ae.Quit()

@@ -4,16 +4,18 @@
 #    See the file license.txt included with this distribution, also
 #    available at http://pynetdicom.googlecode.com
 #
+from io import BytesIO
 import itertools
 import logging
 from struct import pack, unpack
-from dicom.dataset import Dataset
-from dicom._dicom_dict import DicomDictionary
-from dicom.UID import ImplicitVRLittleEndian
+
+from pydicom.dataset import Dataset
+from pydicom._dicom_dict import DicomDictionary
+from pydicom.uid import ImplicitVRLittleEndian
 
 
 from pynetdicom.DIMSEparameters import *
-import pynetdicom.dsutils
+from pynetdicom.dsutils import encode_element, encode, decode
 from pynetdicom.DULparameters import *
 
 
@@ -81,6 +83,7 @@ def fragment(maxpdulength, str):
     s = str
     fragments = []
     maxsize = maxpdulength - 6
+    
     while 1:
         fragments.append(s[:maxsize])
         s = s[maxsize:]
@@ -89,50 +92,83 @@ def fragment(maxpdulength, str):
                 fragments.append(s)
             return fragments
 
+def wrap_list(lst, items_per_line=16):
+    lines = []
+    for i in range(0, len(lst), items_per_line):
+        chunk = lst[i:i + items_per_line]
+        line = 'D:   ' + '  '.join(format(x, '02x') for x in chunk)
+        lines.append(line)
+    return "\n".join(lines)
 
 class DIMSEMessage:
-
+    """
+    
+    Attributes
+    ----------
+    CommandSet - pydicom.Dataset
+        
+    EncodedDataSet
+    
+    DataSet
+    """
     def __init__(self):
         self.CommandSet = None
         self.EncodedDataSet = None
         self.DataSet = None
-        self.encoded_command_set = ''
+        self.encoded_command_set = BytesIO()
         self.ID = id
 
-        self.ts = ImplicitVRLittleEndian  # imposed by standard.
+        self.ts = ImplicitVRLittleEndian  # imposed by standard
+        
         if self.__class__ != DIMSEMessage:
             self.CommandSet = Dataset()
             for ii in self.CommandFields:
                 self.CommandSet.add_new(ii[1], ii[2], '')
 
-    def Encode(self, id, maxpdulength):
+    def Encode(self, id, max_pdu_length):
         """Returns the encoded message as a series of P-DATA service
-        parameter objects"""
+        parameter objects
+        
+        Parameters
+        ----------
+        id - int
+            The message ID
+        max_pdu_length - int
+            The maximum PDU length in bytes
+            
+        Returns
+        -------
+        pdatas - BytesIO 
+            The message encoded as a byte stream
+        """
         self.ID = id
         pdatas = []
-        encoded_command_set = dsutils.encode(
-            self.CommandSet, self.ts.is_implicit_VR, self.ts.is_little_endian)
-
+        encoded_command_set = encode(self.CommandSet, 
+                                     self.ts.is_implicit_VR, 
+                                     self.ts.is_little_endian)
+        #print("DIMSEMessage::Encode()\n", self.CommandSet)
+        #print(wrap_list(encoded_command_set))
+        
         # fragment command set
-        pdvs = fragment(maxpdulength, encoded_command_set)
-        assert ''.join(pdvs) == encoded_command_set
+        pdvs = fragment(max_pdu_length, encoded_command_set)
+
         for ii in pdvs[:-1]:
             # send only one pdv per pdata primitive
             pdata = P_DATA_ServiceParameters()
             # not last command fragment
             pdata.PresentationDataValueList = [[self.ID, pack('b', 1) + ii]]
             pdatas.append(pdata)
+        
         # last command fragment
         pdata = P_DATA_ServiceParameters()
+        
         # last command fragment
         pdata.PresentationDataValueList = [[self.ID, pack('b', 3) + pdvs[-1]]]
         pdatas.append(pdata)
 
         # fragment data set
-        #if self.__dict__.has_key('DataSet') and self.DataSet:
         if 'DataSet' in self.__dict__ and self.DataSet is not None:
-            pdvs = fragment(maxpdulength, self.DataSet)
-            assert ''.join(pdvs) == self.DataSet
+            pdvs = fragment(max_pdu_length, self.DataSet)
             for ii in pdvs[:-1]:
                 pdata = P_DATA_ServiceParameters()
                 # not last data fragment
@@ -140,6 +176,7 @@ class DIMSEMessage:
                     [self.ID, pack('b', 0) + ii]]
                 pdatas.append(pdata)
             pdata = P_DATA_ServiceParameters()
+
             # last data fragment
             pdata.PresentationDataValueList = [
                 [self.ID, pack('b', 2) + pdvs[-1]]]
@@ -149,49 +186,87 @@ class DIMSEMessage:
 
     def Decode(self, pdata):
         """Constructs itself receiving a series of P-DATA primitives.
-        Returns True when complete, False otherwise."""
-        if pdata.__class__ != P_DATA_ServiceParameters:
-            # not a pdata
+        
+        PS3.9 Section 9.3.1: The encoding of the DICOM UL PDUs is
+        big endian byte ordering, while the encoding of the PDV message
+        fragments is defined by the negotiated Transfer Syntax at association
+        establishment
+        
+        Returns
+        -------
+        bool
+            True when complete, False otherwise.
+        """
+        # Make sure this is a P-DATA
+        if pdata.__class__ != P_DATA_ServiceParameters or pdata is None:
             return False
-        if pdata is None:
-            return False
-        ii = pdata
-        for vv in ii.PresentationDataValueList:
+        
+        for pdv_item in pdata.PresentationDataValueList:
             # must be able to read P-DATA with several PDVs
-            self.ID = vv[0]
-            if unpack('b', vv[1][0])[0] in (1, 3):
+            self.ID = pdv_item[0]
+            
+            #print(wrap_list(pdv_item[1]))
+            
+            control_header_byte = pdv_item[1][0]
+            
+            #print("P-DATA Message Control Header Byte: {:08b}".format(control_header_byte))
+            
+            # The first byte of the P-DATA is the Message Control Header
+            # See PS3.8 Annex E.2
+            # 0x00 (00000000) - Message Dataset information, 
+            #   not the last fragment
+            # 0x01 (00000001) - Command information, not the last fragment
+            # 0x02 (00000010) - Message Dataset information, the last fragment
+            # 0x03 (00000011) - Command information, the last fragment
+            
+            # P-DATA fragment contains Command information (0x01, 0x03)
+            if control_header_byte & 1:
                 logger.debug("  command fragment %s", self.ID)
-                self.encoded_command_set += vv[1][1:]
-                if unpack('b', vv[1][0])[0] == 3:
+                
+                #self.encoded_command_set += str(pdv_item[1][1:])
+                self.encoded_command_set.write(pdv_item[1][1:])
+                
+                # The P-DATA fragment is the last one (0x03)
+                if control_header_byte & 2:
                     logger.debug("  last command fragment %s", self.ID)
-                    self.CommandSet = dsutils.decode(
+                    #print(self.ts.is_implicit_VR, self.ts.is_little_endian)
+                    self.CommandSet = decode(
                         self.encoded_command_set, self.ts.is_implicit_VR,
                         self.ts.is_little_endian)
+
                     self.__class__ = MessageType[
                         self.CommandSet[(0x0000, 0x0100)].value]
+
+                    # (0000, 0800) CommandDataSetType US 1
+                    #   if value is 0101H no dataset present
+                    #   otherwise a dataset is included in the Message
                     if self.CommandSet[(0x0000, 0x0800)].value == 0x0101:
                         # response: no dataset
                         return True
-            elif unpack('b', vv[1][0])[0] in (0, 2):
+
+            # P-DATA fragment contains Message Dataset information (0x00, 0x02)
+            else:
                 if self.DataSet is None:
                     self.DataSet = ''
-                self.DataSet += vv[1][1:]
+                self.DataSet += pdv_item[1][1:]
+                
                 logger.debug("  data fragment %s", self.ID)
-                if unpack('b', vv[1][0])[0] == 2:
+                
+                # The P-DATA fragment is the last one (0x02)
+                if control_header_byte & 2 == 0:
                     logger.debug("  last data fragment %s", self.ID)
                     return True
-            else:
-                raise "Error"
 
         return False
 
     def SetLength(self):
         # compute length
         l = 0
-        for ii in self.CommandSet.values()[1:]:
-            l += len(dsutils.encode_element(ii,
-                                            self.ts.is_implicit_VR,
-                                            self.ts.is_little_endian))
+        #print(self.CommandSet.values())
+        for ii in list(self.CommandSet.values())[1:]:
+            l += len(encode_element(ii,
+                                    self.ts.is_implicit_VR,
+                                    self.ts.is_little_endian))
         # if self.DataSet<>None:
         #    l += len(self.DataSet)
         self.CommandSet[(0x0000, 0x0000)].value = l

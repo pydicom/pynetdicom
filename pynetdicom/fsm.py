@@ -7,7 +7,8 @@
 import logging
 import socket
 
-import pynetdicom.PDU
+from pynetdicom.PDU import *
+from pynetdicom.DIMSEmessages import wrap_list
 import pynetdicom.DULparameters
 
 
@@ -53,7 +54,8 @@ def AE_2(provider):
     """
     Association establishment action AE-2
 
-    On receiving connection confirmation, send A-ASSOCIATE-RQ
+    On receiving connection confirmation, send A-ASSOCIATE-RQ to the peer AE
+    This send a byte stream with the format given by Table 9-11
 
     State-event triggers: Sta4 + Evt2
     
@@ -71,9 +73,12 @@ def AE_2(provider):
         Sta5, the next state of the state machine
     """
     # Send A-ASSOCIATE-RQ PDU
-    provider.pdu = PDU.A_ASSOCIATE_RQ_PDU()
+    provider.pdu = A_ASSOCIATE_RQ_PDU()
     provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    bytestream = provider.pdu.Encode()
+    #print("AE-2")
+    #print(wrap_list(bytestream))
+    provider.RemoteClientSocket.send(bytestream)
     
     return 'Sta5'
 
@@ -225,7 +230,7 @@ def AE_7(provider):
         Sta6, the next state of the state machine
     """
     # Send A-ASSOCIATE-AC PDU
-    provider.pdu = PDU.A_ASSOCIATE_AC_PDU()
+    provider.pdu = A_ASSOCIATE_AC_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     
@@ -253,7 +258,7 @@ def AE_8(provider):
         Sta13, the next state of the state machine
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-    provider.pdu = PDU.A_ASSOCIATE_RJ_PDU()
+    provider.pdu = A_ASSOCIATE_RJ_PDU()
     
     # not sure about this ...
     if provider.primitive.Diagnostic is not None:
@@ -290,10 +295,14 @@ def DT_1(provider):
         Sta6, the next state of the state machine
     """
     # Send P-DATA-TF PDU
-    provider.pdu = PDU.P_DATA_TF_PDU()
+    provider.pdu = P_DATA_TF_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.primitive = None
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    bytestream = provider.pdu.Encode()
+    #print("DT-1")
+    #print(wrap_list(bytestream))
+    provider.RemoteClientSocket.send(bytestream)
+    #provider.RemoteClientSocket.send(provider.pdu.Encode())
     
     return 'Sta6'
 
@@ -319,6 +328,8 @@ def DT_2(provider):
         Sta6, the next state of the state machine
     """
     # Send P-DATA indication primitive
+    #print("DT-2")
+    #print(wrap_list(provider.primitive))
     provider.ToServiceUser.put(provider.primitive)
 
     return 'Sta6'
@@ -346,8 +357,11 @@ def AR_1(provider):
         Sta7, the next state of the state machine
     """
     # Send A-RELEASE-RQ PDU
-    provider.pdu = PDU.A_RELEASE_RQ_PDU()
+    provider.pdu = A_RELEASE_RQ_PDU()
     provider.pdu.FromParams(provider.primitive)
+    bytestream = provider.pdu.Encode()
+    #print("AR-1")
+    #print(wrap_list(bytestream))
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     
     return 'Sta7'
@@ -429,7 +443,7 @@ def AR_4(provider):
         Sta13, the next state of the state machine
     """
     # Issue A-RELEASE-RP PDU and start ARTIM timer
-    provider.pdu = PDU.A_RELEASE_RP_PDU()
+    provider.pdu = A_RELEASE_RP_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     provider.Timer.start()
@@ -513,7 +527,7 @@ def AR_7(provider):
         Sta8, the next state of the state machine
     """
     # Issue P-DATA-TF PDU
-    provider.pdu = PDU.P_DATA_TF_PDU()
+    provider.pdu = P_DATA_TF_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     
@@ -570,7 +584,7 @@ def AR_9(provider):
         Sta11, the next state of the state machine
     """
     # Send A-RELEASE-RP PDU
-    provider.pdu = PDU.A_RELEASE_RP_PDU()
+    provider.pdu = A_RELEASE_RP_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     
@@ -628,7 +642,7 @@ def AA_1(provider):
     """
     # Send A-ABORT PDU (service-user source) and start (or restart
     # if already started) ARTIM timer.
-    provider.pdu = PDU.A_ABORT_PDU()
+    provider.pdu = A_ABORT_PDU()
     # CHECK THIS ...
     provider.pdu.AbortSource = 1
     provider.pdu.ReasonDiag = 0
@@ -806,7 +820,7 @@ def AA_7(provider):
         Sta13, the next state of the state machine
     """
     # Send A-ABORT PDU.
-    provider.pdu = PDU.A_ABORT_PDU()
+    provider.pdu = A_ABORT_PDU()
     provider.pdu.FromParams(provider.primitive)
     provider.RemoteClientSocket.send(provider.pdu.Encode())
     
@@ -840,7 +854,7 @@ def AA_8(provider):
     # Send A-ABORT PDU (service-provider source), issue and A-P-ABORT
     # indication, and start ARTIM timer.
     # Send A-ABORT PDU
-    provider.pdu = PDU.A_ABORT_PDU()
+    provider.pdu = A_ABORT_PDU()
     provider.pdu.Source = 2
     provider.pdu.ReasonDiag = 0  # No reason given
     
@@ -1146,7 +1160,7 @@ class StateMachine:
         # action is the (description, function, state) tuple
         #   associated with the action_name
         action = actions[action_name]
-
+        
         # Attempt to execute the action and move the state machine to its
         #   next state
         try:
@@ -1162,6 +1176,8 @@ class StateMachine:
             
             # Execute the required action 
             next_state = action[1](c)
+            
+            #print('SM: %s + %s -> %s -> %s' %(self.CurrentState, event, action_name, next_state))
             
             # Move the state machine to the next state
             self.NextState(next_state)    

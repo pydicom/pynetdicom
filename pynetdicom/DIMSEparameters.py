@@ -85,7 +85,6 @@ class C_MOVE_ServiceParameters:
 
 
 class C_ECHO_ServiceParameters:
-
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -408,12 +407,12 @@ class SCP_SCU_RoleSelectionSubItem:
         return tmp
 
     def Encode(self):
-        tmp = ''
+        tmp = b''
         tmp += struct.pack('B', self.ItemType)
         tmp += struct.pack('B', self.Reserved)
         tmp += struct.pack('>H', self.ItemLength)
         tmp += struct.pack('>H', self.UIDLength)
-        tmp += self.SOPClassUID
+        tmp += bytes(self.SOPClassUID, 'utf-8')
         tmp += struct.pack('B B', self.SCURole, self.SCPRole)
         return tmp
 

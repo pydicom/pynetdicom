@@ -20,6 +20,7 @@ from struct import unpack
 from threading import Thread
 import time
 
+from pynetdicom.DIMSEmessages import wrap_list
 from pynetdicom.DULparameters import *
 from pynetdicom.exceptions import InvalidPrimitive
 from pynetdicom.fsm import StateMachine
@@ -34,7 +35,7 @@ def recvn(sock, n):
     """
     
     """
-    ret = ''
+    ret = b''
     read_length = 0
     while read_length < n:
         tmp = sock.recv(n - read_length)
@@ -224,6 +225,7 @@ class DULServiceProvider(Thread):
             type = unpack('B', rawpdu)
             res = recvn(self.RemoteClientSocket, 1)
             rawpdu += res
+            
             res = unpack('B', res)
             length = recvn(self.RemoteClientSocket, 4)
             rawpdu += length
@@ -364,10 +366,11 @@ class DULServiceProvider(Thread):
                 #logger.debug('%s: no event' % (self.name))
                 continue
             
-            try:
-                self.SM.Action(evt, self)
-            except:
-                self.kill = True
+            #try:
+            #print("%s + %s " %(self.SM.CurrentState, evt))
+            self.SM.Action(evt, self)
+            #except:
+            #    self.kill = True
         logger.debug('%s: DUL loop ended' % self.name)
 
 
@@ -428,7 +431,7 @@ def Socket2PDU(data):
     pdu
         The PDU object
     """
-    pdutype = unpack('B', data[0])[0]
+    pdutype = unpack('B', data[0:1])[0]
     if pdutype == 0x01:
         pdu = A_ASSOCIATE_RQ_PDU()
     elif pdutype == 0x02:
