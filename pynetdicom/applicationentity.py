@@ -20,6 +20,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
+from pynetdicom.association import Association
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import *
@@ -30,206 +31,7 @@ from pynetdicom.SOPclass import *
 logger = logging.getLogger('netdicom.applicationentity')
 
 
-class Association(threading.Thread):
-    """ 
-    """
-    def __init__(self, LocalAE, ClientSocket=None, RemoteAE=None):
-        
-        if not ClientSocket and not RemoteAE:
-            raise
-        if ClientSocket and RemoteAE:
-            raise
-        
-        if ClientSocket:
-            # must respond for request from a remote AE
-            self.Mode = 'Acceptor'
-        if RemoteAE:
-            # must request
-            self.Mode = 'Requestor'
-        
-        self.ClientSocket = ClientSocket
-        self.AE = LocalAE
-        self.DUL = DULServiceProvider(ClientSocket,
-                        MaxIdleSeconds=self.AE.MaxAssociationIdleSeconds)
-        self.RemoteAE = RemoteAE
-        self._Kill = False
-        
-        threading.Thread.__init__(self)
-        
-        self.daemon = True
-        
-        self.SOPClassesAsSCP = []
-        self.SOPClassesAsSCU = []
-        self.AssociationEstablished = False
-        self.AssociationRefused = None
-        self.start()
-
-    def GetSOPClass(self, ds):
-        sopclass = UID2SOPClass(ds.SOPClassUID)
-
-    def SCU(self, ds, id):
-        obj = UID2SOPClass(ds.SOPClassUID)()
-        try:
-            obj.pcid, obj.sopclass, obj.transfersyntax = \
-                [x for x in self.SOPClassesAsSCU if x[1] == obj.__class__][0]
-        except IndexError:
-            raise Exception("SOP Class %s not supported as SCU" % ds.SOPClassUID)
-
-        obj.maxpdulength = self.ACSE.MaxPDULength
-        obj.DIMSE = self.DIMSE
-        obj.AE = self.AE
-        return obj.SCU(ds, id)
-
-    def __getattr__(self, attr):
-        # while not self.AssociationEstablished:
-        #    time.sleep(0.001)
-        obj = eval(attr)()
-        try:
-            obj.pcid, obj.sopclass, obj.transfersyntax = \
-                [x for x in self.SOPClassesAsSCU if
-                 x[1] == obj.__class__][0]
-        except IndexError:
-            raise "SOP Class %s not supported as SCU" % attr
-
-        obj.maxpdulength = self.ACSE.MaxPDULength
-        obj.DIMSE = self.DIMSE
-        obj.AE = self.AE
-        obj.RemoteAE = self.AE
-        return obj
-
-    def Kill(self):
-        self._Kill = True
-        for ii in range(1000):
-            if self.DUL.Stop():
-                continue
-            time.sleep(0.001)
-        self.DUL.Kill()
-
-    def Release(self, reason):
-        """
-        Release the association
-        
-        Parameters
-        ----------
-        reason - int
-            The reason for releasing the association 
-        """
-        self.ACSE.Release(reason)
-        self.Kill()
-
-    def Abort(self, reason):
-        self.ACSE.Abort(reason)
-        self.Kill()
-
-    def run(self):
-        self.ACSE = ACSEServiceProvider(self.DUL)
-        self.DIMSE = DIMSEServiceProvider(self.DUL)
-        result = None
-        diag  = None
-        
-        if self.Mode == 'Acceptor':
-            time.sleep(0.1) # needed because of some thread-related problem. To investiguate.
-            if len(self.AE.Associations)>self.AE.MaxNumberOfAssociations:
-                result = A_ASSOCIATE_Result_RejectedTransient
-                diag = A_ASSOCIATE_Diag_LocalLimitExceeded
-            
-            assoc = self.ACSE.Accept(self.ClientSocket,
-                                     self.AE.AcceptablePresentationContexts, 
-                                     result=result, 
-                                     diag=diag)
-            
-            if assoc is None:
-                self.Kill()
-                return
-
-            # call back
-            self.AE.OnAssociateRequest(self)
-            # build list of SOPClasses supported
-            self.SOPClassesAsSCP = []
-            for ss in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCP.append((ss[0],
-                                             UID2SOPClass(ss[1]), 
-                                             ss[2]))
-
-        else:  # Requestor mode
-            # build role extended negotiation
-            ext = []
-            for ii in self.AE.AcceptablePresentationContexts:
-                tmp = SCP_SCU_RoleSelectionParameters()
-                tmp.SOPClassUID = ii[0]
-                tmp.SCURole = 0
-                tmp.SCPRole = 1
-                ext.append(tmp)
-            
-            ans = self.ACSE.Request(self.AE.LocalAE, 
-                                    self.RemoteAE,
-                                    self.AE.MaxPDULength,
-                                    self.AE.PresentationContextDefinitionList,
-                                    userspdu=ext)
-            if ans:
-                # call back
-                if 'OnAssociateResponse' in self.AE.__dict__:
-                    self.AE.OnAssociateResponse(ans)
-            else:
-                self.AssociationRefused = True
-                self.DUL.Kill()
-                return
-                
-            self.SOPClassesAsSCU = []
-            for ss in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCU.append((ss[0],
-                                             UID2SOPClass(ss[1]), 
-                                             ss[2]))
-
-        self.AssociationEstablished = True
-
-        # association established. Listening on local and remote interfaces
-        while not self._Kill:
-            time.sleep(0.001)
-            # time.sleep(1)
-            # look for incoming DIMSE message
-            if self.Mode == 'Acceptor':
-                dimsemsg, pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
-                if dimsemsg:
-                    # dimse message received
-                    uid = dimsemsg.AffectedSOPClassUID
-                    obj = UID2SOPClass(uid.value)()
-                    try:
-                        obj.pcid, obj.sopclass, obj.transfersyntax = \
-                            [x for x in self.SOPClassesAsSCP
-                                if x[0] == pcid][0]
-                    except IndexError:
-                        raise "SOP Class %s not supported as SCP" % uid
-                    obj.maxpdulength = self.ACSE.MaxPDULength
-                    obj.DIMSE = self.DIMSE
-                    obj.ACSE = self.ACSE
-                    obj.AE = self.AE
-                    obj.assoc = assoc
-                    # run SCP
-                    obj.SCP(dimsemsg)
-
-                # check for release request
-                if self.ACSE.CheckRelease():
-                    self.Kill()
-
-                # check for abort
-                if self.ACSE.CheckAbort():
-                    self.Kill()
-                    return
-
-                # check if the DULServiceProvider thread is still running
-                if not self.DUL.isAlive():
-                    logger.warning("DUL provider thread is not running any more; quitting")
-                    self.Kill()
-
-                # check if idle timer has expired
-                logger.debug("checking DUL idle timer")
-                if self.DUL.idle_timer_expired():
-                    logger.warning('%s: DUL provider idle timer expired' % (self.name))  
-                    self.Kill()
-
-
-class AE(threading.Thread):
+class ApplicationEntity(threading.Thread):
     """Represents a DICOM application entity
 
     Once instantiated, starts a new thread and enters an event loop,
@@ -247,7 +49,7 @@ class AE(threading.Thread):
         Supported SOP Classes when the AE is operating as an SCU
     SOPSCP - list of DICOM SOP Classes
         Supported SOP Classes when the AE is operating as an SCP
-    SupportedTransferSyntax - list of DICOM transfer syntaxes
+    SupportedTransferSyntax - list of pydicom.uid.UID transfer syntaxes
         Supported DICOM Transfer Syntaxes
     MaxPDULength - int
         The maximum supported size of the PDU
@@ -272,15 +74,31 @@ class AE(threading.Thread):
                                           ImplicitVRLittleEndian,
                                           ExplicitVRBigEndian],
                  MaxPDULength=16000):
-                     
+
         self.LocalAE = {'Address': platform.node(), 
                         'Port': port, 
                         'AET': AET}
         self.SupportedSOPClassesAsSCU = SOPSCU
         self.SupportedSOPClassesAsSCP = SOPSCP
-        self.SupportedTransferSyntax = SupportedTransferSyntax
-        self.MaxPDULength = MaxPDULength
+    
+        # Check and add transfer syntaxes
+        self.SupportedTransferSyntax = []
+        if not isinstance(SupportedTransferSyntax, list):
+            raise ValueError("SupportedTransferSyntax must be a list of "
+                "pydicom.uid.UID Transfer Syntaxes supported by the AE")
         
+        for transfer_syntax in SupportedTransferSyntax:
+            # Check that the transfer_syntax is a pydicom.uid.UID
+            if isinstance(transfer_syntax, UID):
+                # Check that the UID is one of the valid transfer syntaxes
+                if transfer_syntax.is_transfer_syntax:
+                    self.SupportedTransferSyntax.append(transfer_syntax)
+            else:
+                raise ValueError("Attempted to instantiate Application "
+                    "Entity using invalid transfer syntax pydicom.UID "
+                    "instance: %s" %transfer_syntax)
+        
+        self.MaxPDULength = MaxPDULength
         self.MaxNumberOfAssociations = 2
         
         # maximum amount of time this association can be idle before it gets
@@ -290,7 +108,6 @@ class AE(threading.Thread):
         threading.Thread.__init__(self, name=self.LocalAE['AET'])
         
         self.daemon = True
-        self.SOPUID = [x for x in self.SupportedSOPClassesAsSCP]
         
         self.LocalServerSocket = socket.socket(socket.AF_INET,
                                                socket.SOCK_STREAM)
@@ -299,48 +116,73 @@ class AE(threading.Thread):
         self.LocalServerSocket.bind(('', port))
         self.LocalServerSocket.listen(1)
 
-        # build presentation context definition list to be sent to remote AE
-        # when requesting association.
-        count = 1
+        # Build presentation context definition list to be sent to remote AE
+        #   when requesting association.
+        #
+        # Each item in the PresentationContextDefinitionList is made up of
+        #   [n, pydicom.UID, [list of Transfer Syntax pydicom.UID]]
+        #   where n is the Presentation Context ID and shall be odd integers
+        #   between 1 and 255
+        # See PS3.8 Sections 7.1.1.13 and 9.3.2.2
         self.PresentationContextDefinitionList = []
-        for ii in self.SupportedSOPClassesAsSCU + \
-                self.SupportedSOPClassesAsSCP:
-            if isinstance(ii, UID):
-                self.PresentationContextDefinitionList.append([
-                    count, ii,
-                    [x for x in self.SupportedTransferSyntax]])
-                count += 2
-            elif ii.__subclasses__():
-                for jj in ii.__subclasses__():
-                    self.PresentationContextDefinitionList.append([
-                        count, UID(jj.UID),
-                        [x for x in self.SupportedTransferSyntax]
-                    ])
-                    count += 2
-            else:
-                self.PresentationContextDefinitionList.append([
-                    count, UID(ii.UID),
-                    [x for x in self.SupportedTransferSyntax]])
-                count += 2
+        for ii, sop_class in enumerate(self.SupportedSOPClassesAsSCU +
+                                             self.SupportedSOPClassesAsSCP):
+            
+            # Must be an odd integer between 1 and 255
+            presentation_context_id = ii * 2 + 1
+            abstract_syntax = None
 
-        # build acceptable context definition list used to decide
-        # weither an association from a remote AE will be accepted or
-        # not. This is based on the SupportedSOPClassesAsSCP and
-        # SupportedTransferSyntax values set for this AE.
+            # If supplied SOPClass is already a pydicom.UID class
+            if isinstance(sop_class, UID):
+                abstract_syntax = sop_class
+            
+            # If supplied SOP Class is a UID string, try and see if we can
+            #   create a pydicom UID class from it
+            elif isinstance(sop_class, str):
+                abstract_syntax = UID(sop_class)
+
+            # If the supplied SOP class is one of the pynetdicom.SOPclass SOP 
+            #   class instances, convert it to pydicom UID 
+            else:
+                abstract_syntax = UID(sop_class.UID)
+            
+            # Add the Presentation Context Definition Item
+            # If we have too many Items, warn and skip the rest
+            if presentation_context_id < 255:
+                self.PresentationContextDefinitionList.append(
+                    [presentation_context_id,
+                     abstract_syntax,
+                     self.SupportedTransferSyntax[:]])
+            else:
+                raise UserWarning("More than 126 supported SOP Classes have "
+                    "been supplied to the Application Entity, but the "
+                    "Presentation Context Definition ID can only be an odd "
+                    "integer between 1 and 255. The remaining SOP Classes will "
+                    "not be included")
+                break
+            
+        # Build acceptable context definition list used to decide
+        #   whether an association from a remote AE will be accepted or
+        #   not. This is based on the SupportedSOPClassesAsSCP and
+        #   SupportedTransferSyntax values set for this AE.
         self.AcceptablePresentationContexts = []
-        for ii in self.SupportedSOPClassesAsSCP:
-            if ii.__subclasses__():
-                for jj in ii.__subclasses__():
+        for sop_class in self.SupportedSOPClassesAsSCP:
+            
+            # If our sop_class has any subclasses then add those
+            if sop_class.__subclasses__():
+                for jj in sop_class.__subclasses__():
                     self.AcceptablePresentationContexts.append(
-                        [jj.UID, [x for x in self.SupportedTransferSyntax]])
+                        [jj.UID, 
+                         [x for x in self.SupportedTransferSyntax]])
             else:
                 self.AcceptablePresentationContexts.append(
-                    [ii.UID, [x for x in self.SupportedTransferSyntax]])
-
-        # used to terminate AE
+                    [sop_class.UID, 
+                     [x for x in self.SupportedTransferSyntax]])
+        
+        # Used to terminate AE
         self.__Quit = False
 
-        # list of active association objects
+        # List of active association objects
         self.Associations = []
 
     def run(self):
@@ -432,3 +274,7 @@ class AE(threading.Thread):
             return assoc
 
         return None
+
+
+class AE(ApplicationEntity):
+    pass

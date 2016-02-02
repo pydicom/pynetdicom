@@ -204,7 +204,7 @@ class DULServiceProvider(Thread):
         """
     
         """
-        rawpdu = ''
+        rawpdu = b''
         # There is something to read
         # read type
         try:
@@ -215,7 +215,7 @@ class DULServiceProvider(Thread):
             self.RemoteClientSocket = None
             return
 
-        if rawpdu == '':
+        if rawpdu == b'':
             # Remote port has been closed
             self.event.put('Evt17')
             self.RemoteClientSocket.close()

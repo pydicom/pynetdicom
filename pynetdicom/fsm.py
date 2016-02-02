@@ -739,7 +739,7 @@ def AA_4(provider):
         Sta1, the next state of the state machine
     """
     # Issue A-P-ABORT indication primitive.
-    provider.primitive = DULparameters.A_ABORT_ServiceParameters()
+    provider.primitive = A_ABORT_ServiceParameters()
     provider.ToServiceUser.put(provider.primitive)
     
     return 'Sta1'

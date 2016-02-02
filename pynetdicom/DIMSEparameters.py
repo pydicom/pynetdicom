@@ -225,7 +225,7 @@ class ImplementationClassUIDSubItem:
         return tmp
 
     def Encode(self):
-        tmp = ''
+        tmp = b''
         tmp = tmp + struct.pack('B', self.ItemType)
         tmp = tmp + struct.pack('B', self.Reserved)
         tmp = tmp + struct.pack('>H', self.ItemLength)
@@ -283,7 +283,7 @@ class ImplementationVersionNameSubItem:
         return tmp
 
     def Encode(self):
-        tmp = ''
+        tmp = b''
         tmp = tmp + struct.pack('B', self.ItemType)
         tmp = tmp + struct.pack('B', self.Reserved)
         tmp = tmp + struct.pack('>H', self.ItemLength)
@@ -335,7 +335,7 @@ class AsynchronousOperationsWindowSubItem:
         return tmp
 
     def Encode(self):
-        tmp = ''
+        tmp = b''
         tmp = tmp + struct.pack('B', self.ItemType)
         tmp = tmp + struct.pack('B', self.Reserved)
         tmp = tmp + struct.pack('>H', self.ItemLength)
