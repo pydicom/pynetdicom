@@ -28,7 +28,7 @@ class ACSEServiceProvider(object):
     """
     def __init__(self, DUL):
         self.DUL = DUL
-        self.ApplicationContextName = '1.2.840.10008.3.1.1.1'
+        self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
 
     def Request(self, localAE, remoteAE, mp, pcdl, userspdu=None, timeout=30):
         """Requests an association with a remote AE and waits for association
@@ -103,7 +103,6 @@ class ACSEServiceProvider(object):
 
         self.MaxPDULength = assoc.UserInformation[0].MaximumLengthReceived
 
-
         if result is not None and diag is not None:
             # Association is rejected
             res = assoc
@@ -116,34 +115,44 @@ class ACSEServiceProvider(object):
             self.DUL.Send(res)
             return None
 
-
-
         # analyse proposed presentation contexts
         rsp = []
         self.AcceptedPresentationContexts = []
-        acceptable_sop = [x[0] for x in AcceptablePresentationContexts]
-        for ii in assoc.PresentationContextDefinitionList:
-            pcid = ii[0]
-            proposed_sop = ii[1]
-            proposed_ts = ii[2]
-            if proposed_sop in acceptable_sop:
+        # [SOP Class UID, [Transfer Syntax UIDs]]
+        acceptable_sop_classes = [x[0] for x in AcceptablePresentationContexts]
+
+        for context_definition in assoc.PresentationContextDefinitionList:
+            # Presentation Context ID
+            pcid = context_definition[0]
+            # SOP Class UID
+            proposed_sop = context_definition[1].decode('utf-8')
+            # Transfer Syntax list
+            proposed_ts = [x.decode('utf-8') for x in context_definition[2]]
+            
+            if proposed_sop in acceptable_sop_classes:
                 acceptable_ts = [x[1] for x in AcceptablePresentationContexts
                                  if x[0] == proposed_sop][0]
-                for ts in proposed_ts:
+                for transfer_syntax in proposed_ts:
                     ok = False
-                    if ts in acceptable_ts:
+  
+                    if transfer_syntax in acceptable_ts:
                         # accept sop class and ts
-                        rsp.append((ii[0], 0, ts))
+                        rsp.append((context_definition[0], 0, transfer_syntax))
                         self.AcceptedPresentationContexts.append(
-                            (ii[0], proposed_sop, UID(ts)))
+                            (context_definition[0], 
+                             proposed_sop, 
+                             UID(transfer_syntax)))
+                        
                         ok = True
                         break
+                
                 if not ok:
                     # Refuse sop class because of TS not supported
-                    rsp.append((ii[0], 1, ''))
+                    rsp.append((context_definition[0], 1, ''))
+            
             else:
                 # Refuse sop class because of SOP class not supported
-                rsp.append((ii[0], 1, ''))
+                rsp.append((context_definition[0], 1, ''))
 
         # Send response
         res = assoc

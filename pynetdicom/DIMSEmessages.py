@@ -13,41 +13,12 @@ from pydicom.dataset import Dataset
 from pydicom._dicom_dict import DicomDictionary
 from pydicom.uid import ImplicitVRLittleEndian
 
-
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.dsutils import encode_element, encode, decode
 from pynetdicom.DULparameters import *
 
 
 logger = logging.getLogger('netdicom.DIMSE')
-
-
-DicomDictionary.update({
-    0x00000000: ('UL', '1', "CommandGroupLength", ''),
-    0x00000002: ('UI', '1', "Affected SOP class", ''),
-    0x00000003: ('UI', '1', "RequestedSOPClassUID", ''),
-    0x00000100: ('US', '1', "CommandField", ''),
-    0x00000110: ('US', '1', "MessageID", ''),
-    0x00000120: ('US', '1', "MessageIDBeingRespondedTo", ''),
-    0x00000600: ('AE', '1', "MoveDestination", ''),
-    0x00000700: ('US', '1', "Priority", ''),
-    0x00000800: ('US', '1', "DataSetType", ''),
-    0x00000900: ('US', '1', "Status", ''),
-    0x00000901: ('AT', '1', "OffendingElement", ''),
-    0x00000902: ('LO', '1', "ErrorComment", ''),
-    0x00000903: ('US', '1', "ErrorID", ''),
-    0x00001000: ('UI', '1', " AffectedSOPInstanceUID", ''),
-    0x00001001: ('UI', '1', "RequestedSOPInstanceUID", ''),
-    0x00001002: ('US', '1', "EventTypeID", ''),
-    0x00001005: ('AT', '1', "AttributeIdentifierList", ''),
-    0x00001008: ('US', '1', "ActionTypeID", ''),
-    0x00001020: ('US', '1', "NumberOfRemainingSuboperations", ''),
-    0x00001021: ('US', '1', "NumberOfCompletedSuboperations", ''),
-    0x00001022: ('US', '1', "NumberOfFailedSuboperations", ''),
-    0x00001023: ('US', '1', "NumberOfWarningSuboperations", ''),
-    0x00001030: ('AE', '1', "MoveOriginatorApplicationEntityTitle", ''),
-    0x00001031: ('US', '1', "MoveOriginatorMessageID", ''),
-})
 
 
 """

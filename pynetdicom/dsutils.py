@@ -16,6 +16,13 @@ from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
+def wrap_list(lst, items_per_line=16):
+    lines = []
+    for i in range(0, len(lst), items_per_line):
+        chunk = lst[i:i + items_per_line]
+        line = 'D:   ' + '  '.join(format(x, '02x') for x in chunk)
+        lines.append(line)
+    return "\n".join(lines)
 
 def decode(s, is_implicit_VR, is_little_endian):
     """
@@ -37,6 +44,7 @@ def decode(s, is_implicit_VR, is_little_endian):
         The Message contents decoded into a Dataset
     """
     # Rewind to the start of the stream
+    s.seek(0)
     s.seek(0)
     return read_dataset(s, is_implicit_VR, is_little_endian)
 
