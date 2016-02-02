@@ -95,7 +95,7 @@ class ApplicationEntity(threading.Thread):
                     self.SupportedTransferSyntax.append(transfer_syntax)
             else:
                 raise ValueError("Attempted to instantiate Application "
-                    "Entity using invalid transfer syntax pydicom.UID "
+                    "Entity using invalid transfer syntax pydicom.uid.UID "
                     "instance: %s" %transfer_syntax)
         
         self.MaxPDULength = MaxPDULength
