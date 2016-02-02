@@ -92,9 +92,15 @@ class ACSEServiceProvider(object):
 
     def Accept(self, client_socket=None, AcceptablePresentationContexts=None,
                Wait=True, result=None, diag=None):
-        """Waits for an association request from a remote AE. Upon reception
+        """
+        Waits for an association request from a remote AE. Upon reception
         of the request sends association response based on
-        AcceptablePresentationContexts"""
+        AcceptablePresentationContexts
+        
+        The acceptability of the proposed Transfer Syntax is checked in the 
+        order of appearance in the local AE's SupportedTransferSyntax list
+        
+        """
         if self.DUL is None:
             self.DUL = DUL(Socket=client_socket)
         assoc = self.DUL.Receive(Wait=True)
@@ -121,21 +127,26 @@ class ACSEServiceProvider(object):
         # [SOP Class UID, [Transfer Syntax UIDs]]
         acceptable_sop_classes = [x[0] for x in AcceptablePresentationContexts]
 
+        # Our Transfer Syntax are ordered in terms of preference
         for context_definition in assoc.PresentationContextDefinitionList:
+            # The proposed_ values come from the peer AE, the acceptable_
+            #   values from the local AE
+            
             # Presentation Context ID
             pcid = context_definition[0]
             # SOP Class UID
             proposed_sop = context_definition[1].decode('utf-8')
-            # Transfer Syntax list
+            # Transfer Syntax list - preference ordered
             proposed_ts = [x.decode('utf-8') for x in context_definition[2]]
             
             if proposed_sop in acceptable_sop_classes:
                 acceptable_ts = [x[1] for x in AcceptablePresentationContexts
                                  if x[0] == proposed_sop][0]
-                for transfer_syntax in proposed_ts:
+                
+                for transfer_syntax in acceptable_ts:
                     ok = False
   
-                    if transfer_syntax in acceptable_ts:
+                    if transfer_syntax in proposed_ts:
                         # accept sop class and ts
                         rsp.append((context_definition[0], 0, transfer_syntax))
                         self.AcceptedPresentationContexts.append(
