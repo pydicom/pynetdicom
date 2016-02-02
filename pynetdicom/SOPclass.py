@@ -46,11 +46,7 @@ class ServiceClass(object):
 
 
 class VerificationServiceClass(ServiceClass):
-    Success = Status(
-        'Success',
-        '',
-        range(0x0000, 0x0000 + 1)
-    )
+    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
     def __init__(self):
         ServiceClass.__init__(self)
