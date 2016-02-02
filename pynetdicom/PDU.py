@@ -712,9 +712,9 @@ class ApplicationContextItem(PDU):
         self.ItemLength = None                              # Unsigned short
         self.ApplicationContextName = None              # String
 
-    def FromParams(self, Params):
-        # Params is a string
-        self.ApplicationContextName = Params
+    def FromParams(self, params):
+        # params is a string
+        self.ApplicationContextName = params
         self.ItemLength = len(self.ApplicationContextName)
 
     def ToParams(self):
@@ -726,7 +726,7 @@ class ApplicationContextItem(PDU):
         tmp = tmp + pack('B', self.ItemType)
         tmp = tmp + pack('B', self.Reserved)
         tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + bytes(self.ApplicationContextName, 'utf-8')
+        tmp = tmp + self.ApplicationContextName
         return tmp
 
     def Decode(self, Stream):

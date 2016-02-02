@@ -179,8 +179,9 @@ class Association(threading.Thread):
         diag  = None
         
         if self.Mode == 'Acceptor':
-            time.sleep(0.1) # needed because of some thread-related problem. To investiguate.
-            if len(self.AE.Associations)>self.AE.MaxNumberOfAssociations:
+            # needed because of some thread-related problem. To investiguate.
+            time.sleep(0.1) 
+            if len(self.AE.Associations) > self.AE.MaxNumberOfAssociations:
                 result = A_ASSOCIATE_Result_RejectedTransient
                 diag = A_ASSOCIATE_Diag_LocalLimitExceeded
             

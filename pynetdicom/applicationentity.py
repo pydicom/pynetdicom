@@ -105,17 +105,6 @@ class ApplicationEntity(threading.Thread):
         # terminated
         self.MaxAssociationIdleSeconds = None
         
-        threading.Thread.__init__(self, name=self.LocalAE['AET'])
-        
-        self.daemon = True
-        
-        self.LocalServerSocket = socket.socket(socket.AF_INET,
-                                               socket.SOCK_STREAM)
-        self.LocalServerSocket.setsockopt(socket.SOL_SOCKET,
-                                          socket.SO_REUSEADDR, 1)
-        self.LocalServerSocket.bind(('', port))
-        self.LocalServerSocket.listen(1)
-
         # Build presentation context definition list to be sent to remote AE
         #   when requesting association.
         #
@@ -184,6 +173,17 @@ class ApplicationEntity(threading.Thread):
 
         # List of active association objects
         self.Associations = []
+        
+        threading.Thread.__init__(self, name=self.LocalAE['AET'])
+        
+        self.daemon = True
+        
+        self.LocalServerSocket = socket.socket(socket.AF_INET,
+                                               socket.SOCK_STREAM)
+        self.LocalServerSocket.setsockopt(socket.SOL_SOCKET,
+                                          socket.SO_REUSEADDR, 1)
+        self.LocalServerSocket.bind(('', port))
+        self.LocalServerSocket.listen(1)
 
     def run(self):
         """
@@ -191,22 +191,27 @@ class ApplicationEntity(threading.Thread):
         on self.LocalServerSocket and attempts to Associate with them. 
         Successful associations get added to self.Associations
         """
-        if not self.SupportedSOPClassesAsSCP:
-            # no need to loop. This is just a client AE. All events will be
-            # triggered by the user
-            return
-        count = 0
         
+        # If the SCP has no supported SOP Classes then there's no point 
+        #   running as a server
+        if not self.SupportedSOPClassesAsSCP:
+            return
+        
+        count = 0
         while 1:
             # main loop
             time.sleep(0.1)
             if self.__Quit:
                 break
-            [a, b, c] = select.select([self.LocalServerSocket], [], [], 0)
-            if a:
+            
+            read_list, _, _ = select.select([self.LocalServerSocket], [], [], 0)
+            
+            if read_list:
                 # got an incoming connection
                 client_socket, remote_address = self.LocalServerSocket.accept()
-                client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, struct.pack('ll',10,0))
+                client_socket.setsockopt(socket.SOL_SOCKET, 
+                                         socket.SO_RCVTIMEO, 
+                                         struct.pack('ll',10,0))
                 # create a new association
                 self.Associations.append(Association(self, client_socket))
 
@@ -214,10 +219,14 @@ class ApplicationEntity(threading.Thread):
             #for aa in self.Associations:
             #    if not aa.isAlive():
             #        self.Associations.remove(aa)
-            self.Associations[:] = [active_assoc for active_assoc in self.Associations if active_assoc.isAlive()]
+            self.Associations[:] = [active_assoc for active_assoc in 
+                self.Associations if active_assoc.isAlive()]
+                
             if not count % 50:
-                logger.debug("number of active associations: %d", len(self.Associations))
+                logger.debug("Number of active associations: %d", 
+                             len(self.Associations))
                 gc.collect()
+            
             count += 1
             if count > 1e6:
                 count = 0
