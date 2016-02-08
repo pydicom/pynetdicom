@@ -137,6 +137,30 @@ class A_P_ABORT_ServiceParameters:
         self.ProviderReason = None
 
 
+def wrap_list(lst, prefix='D:   ', items_per_line=16, max_size=None):
+    lines = []
+    cutoff_output = False
+    byte_count = 0
+    for i in range(0, len(lst), items_per_line):
+        chunk = lst[i:i + items_per_line]
+        byte_count += len(chunk)
+        
+        if max_size is not None:
+            if byte_count <= max_size:
+                line = prefix + '  '.join(format(x, '02x') for x in chunk)
+                lines.append(line)
+            else:
+                cutoff_output = True
+                break
+        else:
+            line = prefix + '  '.join(format(x, '02x') for x in chunk)
+            lines.append(line)
+    
+    if cutoff_output:
+        lines.insert(0, prefix + 'Only dumping 512 bytes.')
+    
+    return "\n".join(lines)
+
 class P_DATA_ServiceParameters:
     """ 
     P-DATA Parameters
@@ -144,8 +168,20 @@ class P_DATA_ServiceParameters:
     See PS3.8 Section 7.6.1
     """
     def __init__(self):
-        # should be of the form [ [ID, pdv], [ID, pdv] ... ]
+        # Should be of the form [ [context ID, pdv], [context ID, pdv] ... ]
         self.PresentationDataValueList = None
+        
+    def __str__(self):
+        #print(dir(self))
+        s = 'P-DATA\n'
+        s += 'Presentation Data Value Items\n'
+        for item in self.PresentationDataValueList:
+            s += '  Context ID: %s\n' %item[0]
+            s += '  Value Length: %s bytes\n' %len(item[1])
+            header_byte = item[1][0]
+            s += "  Message Control Header Byte: {:08b}\n".format(header_byte)
+            s += wrap_list(item[1][1:], '    ', max_size=512) # Data value
+        return s
 
 
 #
@@ -156,7 +192,6 @@ class P_DATA_ServiceParameters:
 A_ASSOCIATE_Result_Accepted = 0
 A_ASSOCIATE_Result_RejectedPermanent = 1
 A_ASSOCIATE_Result_RejectedTransient = 2
-
 
 A_ASSOCIATE_ResultSource_ServiceUser = 1
 A_ASSOCIATE_ResultSource_ServiceProviderACSE = 2

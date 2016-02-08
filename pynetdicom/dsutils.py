@@ -45,7 +45,6 @@ def decode(s, is_implicit_VR, is_little_endian):
     """
     # Rewind to the start of the stream
     s.seek(0)
-    s.seek(0)
     return read_dataset(s, is_implicit_VR, is_little_endian)
 
 def encode(ds, is_implicit_VR, is_little_endian):

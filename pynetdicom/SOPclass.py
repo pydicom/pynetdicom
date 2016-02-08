@@ -14,7 +14,7 @@ import pynetdicom.DIMSEprovider
 import pynetdicom.ACSEprovider
 
 
-logger = logging.getLogger('netdicom.SOPclass')
+logger = logging.getLogger('pynetdicom.SOPclass')
 
 
 class Status(object):
@@ -62,15 +62,28 @@ class VerificationServiceClass(ServiceClass):
         return self.Code2Status(ans.Status)
 
     def SCP(self, msg):
+        """
+        When the local AE is acting as an SCP for the VerificationSOPClass
+        and a C-ECHO-RQ is received then create a C-ECHO-RSP and send it
+        to the peer AE via the DIMSE provider
+        
+        Parameters
+        ----------
+        msg - pydicom.Dataset
+            The dataset containing the C-ECHO-RQ
+        """
         rsp = C_ECHO_ServiceParameters()
+        self.message_id = msg.MessageID.value
         rsp.MessageIDBeingRespondedTo = msg.MessageID.value
         rsp.Status = int(self.Success)
 
-        # send response
         try:
             self.AE.OnReceiveEcho(self)
         except:
-            logger.error("There was an exception on OnReceiveEcho callback")
+            #logger.error("There was an exception on OnReceiveEcho callback")
+            pass
+        
+        # Send response via DIMSE provider
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
@@ -149,8 +162,8 @@ class StorageServiceClass(ServiceClass):
             try:
                 status = self.AE.OnReceiveStore(self, DS)
             except:
-                logger.error(
-                    "There was an exception in OnReceiveStore callback")
+                #logger.error(
+                #    "There was an exception in OnReceiveStore callback")
                 status = self.CannotUnderstand
                 raise
         rsp.Status = int(status)

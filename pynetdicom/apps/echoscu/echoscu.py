@@ -17,7 +17,7 @@ from pynetdicom.applicationentity import AE
 from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian
 
-logger = logging.Logger('')
+logger = logging.Logger('echoscu')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
@@ -113,6 +113,8 @@ if args.verbose:
     
 if args.debug:
     logger.setLevel(logging.DEBUG)
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger.setLevel(logging.DEBUG)
 
 logger.debug('$echoscu.py v%s %s $' %('0.1.0', '2016-02-01'))
 logger.debug('')
@@ -137,14 +139,15 @@ def OnReceiveEcho():
     return True
 
 # Create application entity
-ae = AE(args.calling_aet, 11112, [], [VerificationSOPClass], 
+# Bind to port 0, OS will pick an available port
+ae = AE(args.calling_aet, 0, [], [VerificationSOPClass], 
         SupportedTransferSyntax=[ExplicitVRLittleEndian])
 ae.OnAssociateRequest = OnAssociateRequest
 ae.OnAssociateResponse = OnAssociateResponse
 ae.OnReceiveEcho = OnReceiveEcho
 
 # Request association with remote
-logger.info('Requesting Association')
+#logger.info('Requesting Association')
 assoc = ae.RequestAssociation(called_ae)
 
 if assoc is not None:

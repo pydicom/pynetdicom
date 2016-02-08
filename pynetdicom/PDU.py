@@ -59,12 +59,25 @@ These classes are:
 """
 
 from io import StringIO, BytesIO
+import logging
 from struct import *
-#from StringIO import StringIO
 
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import *
 
+logger = logging.getLogger('pynetdicom.pdu')
+
+def wrap_list(lst, items_per_line=16):
+    lines = []
+    
+    if isinstance(lst, BytesIO):
+        lst = lst.getvalue()
+        
+    for i in range(0, len(lst), items_per_line):
+        chunk = lst[i:i + items_per_line]
+        line = '  '.join(format(x, '02x') for x in chunk)
+        lines.append(line)
+    return lines
 
 class PDU:
     """ Base class for PDUs """
@@ -191,18 +204,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         #   1 or more PresentationContextItemRQ
         #   1 UserInformationItem
         self.VariableItems = []
-        
-        # Refactor
-        #self.parameters = [(0x01, 'B')                 # PDU-type
-        #                   (0x00, 'B')                 # Reserved
-        #                   (None, '>I')                # PDU-length
-        #                   (1, '>H')                   # Protocol-version
-        #                   (0x00, '>H')                # Reserved
-        #                   (None, '16s')               # Called-AE-title
-        #                   (None,'16s')                # Calling-AE-title
-        #                   ((0,0,0,0,0,0,0,0), '>8I')] # Reserved
-        
-        #                                               # Variable items
+
+    def __str__(self):
+        pass
 
     def FromParams(self, Params):
         """
@@ -250,7 +254,10 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         return ass
 
     def Encode(self):
-        # Python3 must implicitly defined string as bytes
+        
+        logger.debug('Constructing Associate RQ PDU')
+        
+        # Python3 must implicitly define string as bytes
         tmp = b''
         tmp = tmp + pack('B',   self.PDUType)
         tmp = tmp + pack('B',   self.Reserved1)
@@ -264,10 +271,19 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         # variable item elements
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
+        
         return tmp
 
     def Decode(self, rawstring):
-        Stream = BytesIO(rawstring)
+        s = BytesIO(rawstring)
+        
+        logger.debug('PDU Type: Associate Request, PDU Length: %s + %s bytes '
+                        'PDU header' %(len(s.getvalue()), 6))
+        
+        for line in wrap_list(s):
+            logger.debug('  ' + line)
+        
+        logger.debug('Parsing an A-ASSOCIATE PDU')
         
         (self.PDUType, 
          self.Reserved1, 
@@ -275,11 +291,12 @@ class A_ASSOCIATE_RQ_PDU(PDU):
          self.ProtocolVersion, 
          self.Reserved2, 
          self.CalledAETitle,
-         self.CallingAETitle) = unpack('> B B I H H 16s 16s', Stream.read(42))
-        self.Reserved3 = unpack('> 8I', Stream.read(32))
+         self.CallingAETitle) = unpack('> B B I H H 16s 16s', s.read(42))
+        self.Reserved3 = unpack('> 8I', s.read(32))
+        
         
         while 1:
-            type = NextType(Stream)
+            type = NextType(s)
             
             if type == 0x10:
                 tmp = ApplicationContextItem()
@@ -291,7 +308,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                 break
             else:
                 raise #'InvalidVariableItem'
-            tmp.Decode(Stream)
+                
+            tmp.Decode(s)
             self.VariableItems.append(tmp)
 
     def TotalLength(self):
@@ -328,7 +346,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         #   1 or more PresentationContextItemAC
         #   1 UserInformationItem
         self.VariableItems = []
-
+    
     def FromParams(self, Params):
         # Params is an A_ASSOCIATE_ServiceParameters object
         self.Reserved3 = Params.CalledAETitle
@@ -353,6 +371,8 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
     def ToParams(self):
         ass = A_ASSOCIATE_ServiceParameters()
+        
+        # Reserved3 and Reserved4 shouldn't be used like this
         ass.CalledAETitle = self.Reserved3
         ass.CallingAETitle = self.Reserved4
         ass.ApplicationContextName = self.VariableItems[0].ToParams()
@@ -383,18 +403,27 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return tmp
 
     def Decode(self, rawstring):
-        Stream = BytesIO(rawstring)
+        
+        s = BytesIO(rawstring)
+        logger.debug('PDU Type: Associate Accept, PDU Length: %s + %s bytes '
+                        'PDU header' %(len(s.getvalue()), 6))
+        
+        for line in wrap_list(s):
+            logger.debug('  ' + line)
+        
+        logger.debug('Parsing an A-ASSOCIATE PDU')
+        
         (self.PDUType, 
          self.Reserved1, 
          self.PDULength,
          self.ProtocolVersion, 
          self.Reserved2, 
          self.Reserved3,
-         self.Reserved4) = unpack('> B B I H H 16s 16s', Stream.read(42))
-        self.Reserved5 = unpack('>8I', Stream.read(32))
+         self.Reserved4) = unpack('> B B I H H 16s 16s', s.read(42))
+        self.Reserved5 = unpack('>8I', s.read(32))
         
         while 1:
-            Type = NextType(Stream)
+            Type = NextType(s)
             if Type == 0x10:
                 tmp = ApplicationContextItem()
             elif Type == 0x21:
@@ -405,7 +434,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
                 break
             else:
                 raise #'InvalidVariableItem'
-            tmp.Decode(Stream)
+            tmp.Decode(s)
             self.VariableItems.append(tmp)
 
     def TotalLength(self):
@@ -484,7 +513,7 @@ class P_DATA_TF_PDU(PDU):
     '''This class represents the P-DATA-TF PDU'''
     def __init__(self):
         self.PDUType = 0x04                     # Unsigned byte
-        self.Reserved = 0x00                        # Unsigned byte
+        self.Reserved = 0x00                    # Unsigned byte
         self.PDULength = None                   # Unsigned int
         # List of one of more PresentationDataValueItem
         self.PresentationDataValueItems = []
@@ -563,7 +592,6 @@ class A_RELEASE_RQ_PDU(PDU):
         #return A_RELEASE_ServiceParameters()
         return tmp
         
-
     def Encode(self):
         tmp = b''
         tmp = tmp + pack('B', self.PDUType)

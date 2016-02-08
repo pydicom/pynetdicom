@@ -19,11 +19,13 @@ from pynetdicom.exceptions import AssociationRefused, NoAcceptablePresentationCo
 from pynetdicom.PDU import MaximumLengthParameters
 
 
-logger = logging.getLogger('netdicom.ACSE')
+logger = logging.getLogger('pynetdicom.acse')
 
 
 class ACSEServiceProvider(object):
     """ 
+    Association Control Service Provider
+    
     
     """
     def __init__(self, DUL):
@@ -49,25 +51,24 @@ class ACSEServiceProvider(object):
             assrq.UserInformation = [MaxPDULengthPar] + userspdu
         else:
             assrq.UserInformation = [MaxPDULengthPar]
-        assrq.CallingPresentationAddress = (
-            self.LocalAE['Address'], self.LocalAE['Port'])
-        assrq.CalledPresentationAddress = (
-            self.RemoteAE['Address'], self.RemoteAE['Port'])
+        assrq.CallingPresentationAddress = (self.LocalAE['Address'], 
+                                            self.LocalAE['Port'])
+        assrq.CalledPresentationAddress = (self.RemoteAE['Address'], 
+                                           self.RemoteAE['Port'])
         assrq.PresentationContextDefinitionList = pcdl
-        logger.debug(pcdl)
-        # send A-Associate request
-        logger.debug("Sending Association Request")
+        #logger.debug(pcdl)
         
+        logger.info("Requesting Association")
         self.DUL.Send(assrq)
 
         # get answer
-        logger.debug("Waiting for Association Response")
+        #logger.debug("Waiting for Association Response")
         assrsp = self.DUL.Receive(True, timeout)
         
         if not assrsp:
             return False
         
-        logger.debug(assrsp)
+        #logger.debug(assrsp)
 
         try:
             if assrsp.Result != 'Accepted':
@@ -93,16 +94,25 @@ class ACSEServiceProvider(object):
     def Accept(self, client_socket=None, AcceptablePresentationContexts=None,
                Wait=True, result=None, diag=None):
         """
+        When an AE gets a connection on its listen socket it creates an
+        Association instance which creates an ACSE instance and forwards
+        the socket onwards (`client_socket`).
+        
         Waits for an association request from a remote AE. Upon reception
         of the request sends association response based on
         AcceptablePresentationContexts
         
         The acceptability of the proposed Transfer Syntax is checked in the 
         order of appearance in the local AE's SupportedTransferSyntax list
-        
         """
+        
+        # If the DUL provider hasn't been created
+        # I don't think its even possible to get to this stage without
+        #   a DUL
         if self.DUL is None:
             self.DUL = DUL(Socket=client_socket)
+        
+        # 
         assoc = self.DUL.Receive(Wait=True)
         if assoc is None:
             return None
