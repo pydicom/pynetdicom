@@ -18,7 +18,7 @@ from pynetdicom.dsutils import encode_element, encode, decode
 from pynetdicom.DULparameters import *
 
 
-logger = logging.getLogger('netdicom.DIMSE')
+logger = logging.getLogger('pynetdicom.dimse')
 
 
 """
@@ -49,8 +49,10 @@ logger = logging.getLogger('netdicom.DIMSE')
 
 DEBUG = False
 
-
 def fragment(maxpdulength, str):
+    
+    if isinstance(str, BytesIO):
+        str = str.getvalue()
     s = str
     fragments = []
     maxsize = maxpdulength - 6
@@ -71,6 +73,7 @@ def wrap_list(lst, items_per_line=16):
         lines.append(line)
     return "\n".join(lines)
 
+
 class DIMSEMessage:
     """
     
@@ -85,7 +88,7 @@ class DIMSEMessage:
     def __init__(self):
         self.CommandSet = None
         self.EncodedDataSet = None
-        self.DataSet = None
+        self.DataSet = BytesIO()
         self.encoded_command_set = BytesIO()
         self.ID = id
 
@@ -118,7 +121,7 @@ class DIMSEMessage:
                                      self.ts.is_implicit_VR, 
                                      self.ts.is_little_endian)
         #print("DIMSEMessage::Encode()\n", self.CommandSet)
-        #print(wrap_list(encoded_command_set))
+        #print('DIMSEMessage::Encode()\n' + wrap_list(encoded_command_set))
         
         # fragment command set
         pdvs = fragment(max_pdu_length, encoded_command_set)
@@ -137,20 +140,20 @@ class DIMSEMessage:
         pdata.PresentationDataValueList = [[self.ID, pack('b', 3) + pdvs[-1]]]
         pdatas.append(pdata)
 
-        # fragment data set
-        if 'DataSet' in self.__dict__ and self.DataSet is not None:
+        # Split out dataset up into fragment with maximum size = max_pdu_length
+        if 'DataSet' in self.__dict__ and self.DataSet.getvalue() != b'':
             pdvs = fragment(max_pdu_length, self.DataSet)
+
             for ii in pdvs[:-1]:
                 pdata = P_DATA_ServiceParameters()
                 # not last data fragment
-                pdata.PresentationDataValueList = [
-                    [self.ID, pack('b', 0) + ii]]
+                pdata.PresentationDataValueList = [[self.ID, pack('b', 0) + ii]]
                 pdatas.append(pdata)
             pdata = P_DATA_ServiceParameters()
 
-            # last data fragment
-            pdata.PresentationDataValueList = [
-                [self.ID, pack('b', 2) + pdvs[-1]]]
+            # Last data fragment
+            pdata.PresentationDataValueList = \
+                                        [[self.ID, pack('b', 2) + pdvs[-1]]]
             pdatas.append(pdata)
 
         return pdatas
@@ -192,19 +195,19 @@ class DIMSEMessage:
             
             # P-DATA fragment contains Command information (0x01, 0x03)
             if control_header_byte & 1:
-                logger.debug("  command fragment %s", self.ID)
+                #logger.debug("  command fragment %s", self.ID)
                 
                 #self.encoded_command_set += str(pdv_item[1][1:])
                 self.encoded_command_set.write(pdv_item[1][1:])
                 
                 # The P-DATA fragment is the last one (0x03)
                 if control_header_byte & 2:
-                    logger.debug("  last command fragment %s", self.ID)
-                    #print(self.ts.is_implicit_VR, self.ts.is_little_endian)
-                    self.CommandSet = decode(
-                        self.encoded_command_set, self.ts.is_implicit_VR,
-                        self.ts.is_little_endian)
-
+                    #logger.debug("  last command fragment %s", self.ID)
+                    self.CommandSet = decode(self.encoded_command_set, 
+                                             self.ts.is_implicit_VR,
+                                             self.ts.is_little_endian)
+                                             
+                    # Determine which class to use
                     self.__class__ = MessageType[
                         self.CommandSet[(0x0000, 0x0100)].value]
 
@@ -217,15 +220,14 @@ class DIMSEMessage:
 
             # P-DATA fragment contains Message Dataset information (0x00, 0x02)
             else:
-                if self.DataSet is None:
-                    self.DataSet = ''
-                self.DataSet += pdv_item[1][1:]
-                
-                logger.debug("  data fragment %s", self.ID)
+                self.DataSet.write(pdv_item[1][1:])
+                #print(pdv_item[1][1:50])
+                #print(self.DataSet)
+                #logger.debug("  data fragment %s", self.ID)
                 
                 # The P-DATA fragment is the last one (0x02)
                 if control_header_byte & 2 == 0:
-                    logger.debug("  last data fragment %s", self.ID)
+                    #logger.debug("  last data fragment %s", self.ID)
                     return True
 
         return False
@@ -247,16 +249,23 @@ class DIMSEMessage:
 
 
 class C_ECHO_RQ_Message(DIMSEMessage):
+    """ 
+    PS3.7 Section 9.3.5.1 and Table 9.3-12
+    
+    Required Fields
+    (0000,0000) CommandGroupLength          UL 1 
+    (0000,0002) AffectedSOPClassUID         UI 1
+    (0000,0100) CommandField                US 1    (=0x00 0x30)
+    (0000,0110) MessageID                   US 1
+    (0000,0800) CommandDataSetType          US 1    (=0x01 0x01)
+    """
+    
     CommandFields = [
-        ('Group Length',
-         (0x0000, 0x0000), 'UL', 1),
-        ('Affected SOP Class UID',
-         (0x0000, 0x0002), 'UI', 1),
-        ('Command Field',
-         (0x0000, 0x0100), 'US', 1),
-        ('Message ID',
-         (0x0000, 0x0110), 'US', 1),
-        ('Data Set Type',                            (0x0000, 0x0800), 'US', 1)
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1)
     ]
     DataField = None
 
@@ -265,36 +274,43 @@ class C_ECHO_RQ_Message(DIMSEMessage):
         self.CommandSet[(0x0000, 0x0100)].value = 0x0030
         self.CommandSet[(0x0000, 0x0110)].value = params.MessageID
         self.CommandSet[(0x0000, 0x0800)].value = 0x0101
-        self.DataSet = None
+        self.DataSet = BytesIO()
         self.SetLength()
 
     def ToParams(self):
         tmp = C_ECHO_ServiceParameters()
         tmp.MessageID = self.CommandSet[(0x0000, 0x0110)]
         tmp.AffectedSOPClassUID = self.CommandSet[(0x0000, 0x0002)]
+        #print('C-ECHO-RQ', tmp)
         return tmp
 
 
 class C_ECHO_RSP_Message(DIMSEMessage):
+    """ 
+    PS3.7 Section 9.3.5.2 and Table 9.3-13
+    
+    Required Fields
+    (0000,0000) CommandGroupLength          UL 1 
+    (0000,0002) AffectedSOPClassUID         UI 1
+    (0000,0100) CommandField                US 1    (=0x80 0x30)
+    (0000,0120) MessageIDBeingRespondedTo   US 1
+    (0000,0800) CommandDataSetType          US 1    (=0x01 0x01)
+    (0000,0900) Status                      US 1    (=0x00 0x00 Success)
+    """
     CommandFields = [
-        ('Group Length',
-         (0x0000, 0x0000), 'UL', 1),
-        ('Affected SOP Class UID',
-         (0x0000, 0x0002), 'UI', 1),
-        ('Command Field',
-         (0x0000, 0x0100), 'US', 1),
-        ('Message ID Being Responded To',
-         (0x0000, 0x0120), 'US', 1),
-        ('Data Set Type',
-         (0x0000, 0x0800), 'US', 1),
-        ('Status',                                   (0x0000, 0x0900), 'US', 1)
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1)
     ]
     DataField = None
 
     def FromParams(self, params):
+        #print('C-ECHO-RSP', params)
         if params.AffectedSOPClassUID:
-            self.CommandSet[(0x0000, 0x0002)
-                            ].value = params.AffectedSOPClassUID
+            self.CommandSet[(0x0000, 0x0002)].value = params.AffectedSOPClassUID
         self.CommandSet[(0x0000, 0x0100)].value = 0x8030
         self.CommandSet[(0x0000, 0x0120)
                         ].value = params.MessageIDBeingRespondedTo
@@ -390,7 +406,7 @@ class C_STORE_RSP_Message(DIMSEMessage):
         self.CommandSet[(0x0000, 0x0900)].value = params.Status
         self.CommandSet[(0x0000, 0x1000)
                         ].value = params.AffectedSOPInstanceUID.value
-        self.DataSet = None
+        self.DataSet = BytesIO()
         self.SetLength()
 
     def ToParams(self):

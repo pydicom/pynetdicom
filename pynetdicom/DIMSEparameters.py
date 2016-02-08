@@ -85,6 +85,23 @@ class C_MOVE_ServiceParameters:
 
 
 class C_ECHO_ServiceParameters:
+    """
+    C-ECHO Service Procedures
+    1. The invoking DIMSE user requests verification of communication to the
+        performing DIMSE user by issuing a C-ECHO request primitive to the 
+        DIMSE provider.
+    2. The DIMSE provider issues a C-ECHO indication primitive to the
+        performing DIMSE user
+    3. The performing DIMSE user verifies communication by issuing a C-ECHO
+        response primitive to the DISME provider
+    4. The DIMSE provider issues a C-ECHO confirmation primitive to the 
+        invoking DIMSE user, completing the C-ECHO operations
+        
+    So, local AE sends C-ECHO-RQ to peer, peer sends C-ECHO-RP to local.
+    
+    PS3.7 Section 9.1.5
+    
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -417,9 +434,10 @@ class SCP_SCU_RoleSelectionSubItem:
         return tmp
 
     def Decode(self, Stream):
-        (self.ItemType, self.Reserved,
-         self.ItemLength, self.UIDLength) = struct.unpack('> B B H H',
-                                                          Stream.read(6))
+        (self.ItemType, 
+         self.Reserved,
+         self.ItemLength, 
+         self.UIDLength) = struct.unpack('> B B H H', Stream.read(6))
         self.SOPClassUID = Stream.read(self.UIDLength)
         (self.SCURole, self.SCPRole) = struct.unpack('B B', Stream.read(2))
 

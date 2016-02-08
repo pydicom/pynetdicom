@@ -12,10 +12,10 @@ from pynetdicom.DIMSEmessages import wrap_list
 import pynetdicom.DULparameters
 
 
-logger = logging.getLogger('netdicom.FSM')
+logger = logging.getLogger('pynetdicom.sm')
 
 
-def AE_1(provider):
+def AE_1(dul):
     """
     Association establishment action AE-1
 
@@ -30,8 +30,8 @@ def AE_1(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -39,18 +39,16 @@ def AE_1(provider):
         Sta4, the next state of the state machine
     """
     # Issue TRANSPORT CONNECT request primitive to local transport service
-    provider.RemoteClientSocket = socket.socket(socket.AF_INET, 
-                                                socket.SOCK_STREAM)
+    dul.scu_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        provider.RemoteClientSocket.connect(
-            provider.primitive.CalledPresentationAddress)
+        dul.scu_socket.connect(dul.primitive.CalledPresentationAddress)
     except socket.error:
         # cannot connect
-        provider.ToServiceUser.put(None)
+        dul.to_user_queue.put(None)
         
     return 'Sta4'
 
-def AE_2(provider):
+def AE_2(dul):
     """
     Association establishment action AE-2
 
@@ -64,8 +62,8 @@ def AE_2(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -73,16 +71,18 @@ def AE_2(provider):
         Sta5, the next state of the state machine
     """
     # Send A-ASSOCIATE-RQ PDU
-    provider.pdu = A_ASSOCIATE_RQ_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    bytestream = provider.pdu.Encode()
-    #print("AE-2")
-    #print(wrap_list(bytestream))
-    provider.RemoteClientSocket.send(bytestream)
+    dul.pdu = A_ASSOCIATE_RQ_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_associate_rq(dul.pdu)
+    
+    bytestream = dul.pdu.Encode()
+    dul.scu_socket.send(bytestream)
     
     return 'Sta5'
 
-def AE_3(provider):
+def AE_3(dul):
     """
     Association establishment action AE-3
 
@@ -95,8 +95,8 @@ def AE_3(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -104,11 +104,11 @@ def AE_3(provider):
         Sta6, the next state of the state machine
     """
     # Issue A-ASSOCIATE confirmation (accept) primitive
-    provider.ToServiceUser.put(provider.primitive)
+    dul.to_user_queue.put(dul.primitive)
     
     return 'Sta6'
 
-def AE_4(provider):
+def AE_4(dul):
     """
     Association establishment action AE-4
 
@@ -122,8 +122,8 @@ def AE_4(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -132,13 +132,13 @@ def AE_4(provider):
     """
     # Issue A-ASSOCIATE confirmation (reject) primitive and close transport
     # connection
-    provider.ToServiceUser.put(provider.primitive)
-    provider.RemoteClientSocket.close()
-    provider.RemoteClientSocket = None
+    dul.to_user_queue.put(dul.primitive)
+    dul.scu_socket.close()
+    dul.peer_socket = None
     
     return 'Sta1'
 
-def AE_5(provider):
+def AE_5(dul):
     """
     Association establishment action AE-5
 
@@ -153,8 +153,8 @@ def AE_5(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
     
     Returns
     -------
@@ -166,11 +166,11 @@ def AE_5(provider):
     pass
 
     # Start ARTIM timer
-    provider.Timer.start()
+    dul.artim_timer.start()
     
     return 'Sta2'
 
-def AE_6(provider):
+def AE_6(dul):
     """
     Association establishment action AE-6
 
@@ -183,8 +183,8 @@ def AE_6(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -192,12 +192,12 @@ def AE_6(provider):
         Either Sta3 or Sta13, the next state of the state machine
     """
     # Stop ARTIM timer
-    provider.Timer.stop()
+    dul.artim_timer.stop()
 
-    # If A-ASSOCIATE-RQ acceptable by service provider
+    # If A-ASSOCIATE-RQ acceptable by service dul
     if True:
         # Issue A-ASSOCIATE indication primitive and move to Sta3
-        provider.ToServiceUser.put(provider.primitive)
+        dul.to_user_queue.put(dul.primitive)
 
         return 'Sta3'
     else:
@@ -205,10 +205,10 @@ def AE_6(provider):
         raise NotImplementedError('State machine - AE-6 A-ASSOCIATE-RQ not '
             'acceptable, but issuance of A-ASSOCIATE-RJ not implemented')
         
-        provider.Timer.start()
+        dul.artim_timer.start()
         return 'Sta13'
 
-def AE_7(provider):
+def AE_7(dul):
     """
     Association establishment action AE-7
 
@@ -221,8 +221,8 @@ def AE_7(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -230,13 +230,18 @@ def AE_7(provider):
         Sta6, the next state of the state machine
     """
     # Send A-ASSOCIATE-AC PDU
-    provider.pdu = A_ASSOCIATE_AC_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.pdu = A_ASSOCIATE_AC_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_associate_ac(dul.pdu)
+    
+    bytestream = dul.pdu.Encode()
+    dul.scu_socket.send(bytestream)
     
     return 'Sta6'
 
-def AE_8(provider):
+def AE_8(dul):
     """
     Association establishment action AE-8
 
@@ -249,8 +254,8 @@ def AE_8(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -258,22 +263,22 @@ def AE_8(provider):
         Sta13, the next state of the state machine
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-    provider.pdu = A_ASSOCIATE_RJ_PDU()
+    dul.pdu = A_ASSOCIATE_RJ_PDU()
     
     # not sure about this ...
-    if provider.primitive.Diagnostic is not None:
-        provider.primitive.ResultSource = provider.primitive.Diagnostic.source
+    if dul.primitive.Diagnostic is not None:
+        dul.primitive.ResultSource = dul.primitive.Diagnostic.source
     #else:
-    #    provider.primitive.Diagnostic = 1
-    #    provider.primitive.ResultSource = 2
+    #    dul.primitive.Diagnostic = 1
+    #    dul.primitive.ResultSource = 2
 
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.pdu.FromParams(dul.primitive)
+    dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta13'
 
 
-def DT_1(provider):
+def DT_1(dul):
     """
     Data transfer DT-1
 
@@ -286,8 +291,8 @@ def DT_1(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -295,18 +300,17 @@ def DT_1(provider):
         Sta6, the next state of the state machine
     """
     # Send P-DATA-TF PDU
-    provider.pdu = P_DATA_TF_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    provider.primitive = None
-    bytestream = provider.pdu.Encode()
+    dul.pdu = P_DATA_TF_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    dul.primitive = None # Why this?
+    bytestream = dul.pdu.Encode()
     #print("DT-1")
     #print(wrap_list(bytestream))
-    provider.RemoteClientSocket.send(bytestream)
-    #provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.scu_socket.send(bytestream)
     
     return 'Sta6'
 
-def DT_2(provider):
+def DT_2(dul):
     """
     Data transfer DT-2
 
@@ -319,8 +323,8 @@ def DT_2(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -329,13 +333,12 @@ def DT_2(provider):
     """
     # Send P-DATA indication primitive
     #print("DT-2")
-    #print(wrap_list(provider.primitive))
-    provider.ToServiceUser.put(provider.primitive)
+    dul.to_user_queue.put(dul.primitive)
 
     return 'Sta6'
 
 
-def AR_1(provider):
+def AR_1(dul):
     """
     Association release AR-1
 
@@ -348,8 +351,8 @@ def AR_1(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -357,16 +360,16 @@ def AR_1(provider):
         Sta7, the next state of the state machine
     """
     # Send A-RELEASE-RQ PDU
-    provider.pdu = A_RELEASE_RQ_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    bytestream = provider.pdu.Encode()
+    dul.pdu = A_RELEASE_RQ_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    bytestream = dul.pdu.Encode()
     #print("AR-1")
     #print(wrap_list(bytestream))
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta7'
 
-def AR_2(provider):
+def AR_2(dul):
     """
     Association release AR-2
 
@@ -379,8 +382,8 @@ def AR_2(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServiceProvider
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -388,11 +391,11 @@ def AR_2(provider):
         Sta8, the next state of the state machine
     """
     # Send A-RELEASE indication primitive
-    provider.ToServiceUser.put(provider.primitive)
+    dul.to_user_queue.put(dul.primitive)
     
     return 'Sta8'
 
-def AR_3(provider):
+def AR_3(dul):
     """
     Association release AR-3
 
@@ -406,8 +409,8 @@ def AR_3(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -415,13 +418,13 @@ def AR_3(provider):
         Sta1, the next state of the state machine
     """
     # Issue A-RELEASE confirmation primitive and close transport connection
-    provider.ToServiceUser.put(provider.primitive)
-    provider.RemoteClientSocket.close()
-    provider.RemoteClientSocket = None
+    dul.to_user_queue.put(dul.primitive)
+    dul.scu_socket.close()
+    dul.peer_socket = None
     
     return 'Sta1'
 
-def AR_4(provider):
+def AR_4(dul):
     """
     Association release AR-4
 
@@ -434,8 +437,8 @@ def AR_4(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -443,14 +446,14 @@ def AR_4(provider):
         Sta13, the next state of the state machine
     """
     # Issue A-RELEASE-RP PDU and start ARTIM timer
-    provider.pdu = A_RELEASE_RP_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
-    provider.Timer.start()
+    dul.pdu = A_RELEASE_RP_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    dul.scu_socket.send(dul.pdu.Encode())
+    dul.artim_timer.start()
     
     return 'Sta13'
 
-def AR_5(provider):
+def AR_5(dul):
     """
     Association release AR-5
 
@@ -464,8 +467,8 @@ def AR_5(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -473,11 +476,11 @@ def AR_5(provider):
         Sta1, the next state of the state machine
     """
     # Stop ARTIM timer
-    provider.Timer.stop()
+    dul.artim_timer.stop()
     
     return 'Sta1'
 
-def AR_6(provider):
+def AR_6(dul):
     """
     Association release AR-6
 
@@ -491,8 +494,8 @@ def AR_6(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -500,11 +503,11 @@ def AR_6(provider):
         Sta7, the next state of the state machine
     """
     # Issue P-DATA indication
-    provider.ToServiceUser.put(provider.primitive)
+    dul.to_user_queue.put(dul.primitive)
     
     return 'Sta7'
 
-def AR_7(provider):
+def AR_7(dul):
     """
     Association release AR-7
 
@@ -518,8 +521,8 @@ def AR_7(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -527,13 +530,17 @@ def AR_7(provider):
         Sta8, the next state of the state machine
     """
     # Issue P-DATA-TF PDU
-    provider.pdu = P_DATA_TF_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.pdu = P_DATA_TF_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    bytestream = dul.pdu.Encode()
+    #print("AR-7")
+    #print(wrap_list(bytestream))
+    dul.scu_socket.send(bytestream)
+    #dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta8'
 
-def AR_8(provider):
+def AR_8(dul):
     """
     Association release AR-8
 
@@ -547,8 +554,8 @@ def AR_8(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -556,13 +563,13 @@ def AR_8(provider):
         Either Sta9 or Sta10, the next state of the state machine
     """
     # Issue A-RELEASE indication (release collision)
-    provider.ToServiceUser.put(provider.primitive)
-    if provider.requestor == 1:
+    dul.to_user_queue.put(dul.primitive)
+    if dul.requestor == 1:
         return 'Sta9'
     else:
         return 'Sta10'
     
-def AR_9(provider):
+def AR_9(dul):
     """
     Association release AR-9
 
@@ -575,8 +582,8 @@ def AR_9(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -584,13 +591,13 @@ def AR_9(provider):
         Sta11, the next state of the state machine
     """
     # Send A-RELEASE-RP PDU
-    provider.pdu = A_RELEASE_RP_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.pdu = A_RELEASE_RP_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta11'
 
-def AR_10(provider):
+def AR_10(dul):
     """
     Association release AR-10
 
@@ -603,8 +610,8 @@ def AR_10(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -612,12 +619,12 @@ def AR_10(provider):
         Sta12, the next state of the state machine
     """
     # Issue A-RELEASE confirmation primitive
-    provider.ToServiceUser.put(provider.primitive)
+    dul.to_user_queue.put(dul.primitive)
     
     return 'Sta12'
 
 
-def AA_1(provider):
+def AA_1(dul):
     """
     Association abort AA-1
 
@@ -632,8 +639,8 @@ def AA_1(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -642,18 +649,18 @@ def AA_1(provider):
     """
     # Send A-ABORT PDU (service-user source) and start (or restart
     # if already started) ARTIM timer.
-    provider.pdu = A_ABORT_PDU()
+    dul.pdu = A_ABORT_PDU()
     # CHECK THIS ...
-    provider.pdu.AbortSource = 1
-    provider.pdu.ReasonDiag = 0
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.pdu.AbortSource = 1
+    dul.pdu.ReasonDiag = 0
+    dul.pdu.FromParams(dul.primitive)
+    dul.scu_socket.send(dul.pdu.Encode())
     
-    provider.Timer.restart()
+    dul.artim_timer.restart()
     
     return 'Sta13'
 
-def AA_2(provider):
+def AA_2(dul):
     """
     Association abort AA-2
 
@@ -667,8 +674,8 @@ def AA_2(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -676,13 +683,13 @@ def AA_2(provider):
         Sta1, the next state of the state machine
     """
     # Stop ARTIM timer if running. Close transport connection.
-    provider.Timer.stop()
-    provider.RemoteClientSocket.close()
-    provider.RemoteClientSocket = None
+    dul.artim_timer.stop()
+    dul.scu_socket.close()
+    dul.peer_socket = None
     
     return 'Sta1'
 
-def AA_3(provider):
+def AA_3(dul):
     """
     Association abort AA-3
 
@@ -697,8 +704,8 @@ def AA_3(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -707,16 +714,16 @@ def AA_3(provider):
     """
     # If (service-user initiated abort):
     #   - Issue A-ABORT indication and close transport connection.
-    # Otherwise (service-provider initiated abort):
+    # Otherwise (service-dul initiated abort):
     #   - Issue A-P-ABORT indication and close transport connection.
     # This action is triggered by the reception of an A-ABORT PDU
-    provider.ToServiceUser.put(provider.primitive)
-    provider.RemoteClientSocket.close()
-    provider.RemoteClientSocket = None
+    dul.to_user_queue.put(dul.primitive)
+    dul.scu_socket.close()
+    dul.peer_socket = None
     
     return 'Sta1'
 
-def AA_4(provider):
+def AA_4(dul):
     """
     Association abort AA-4
 
@@ -730,8 +737,8 @@ def AA_4(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -739,12 +746,12 @@ def AA_4(provider):
         Sta1, the next state of the state machine
     """
     # Issue A-P-ABORT indication primitive.
-    provider.primitive = A_ABORT_ServiceParameters()
-    provider.ToServiceUser.put(provider.primitive)
+    dul.primitive = A_ABORT_ServiceParameters()
+    dul.to_user_queue.put(dul.primitive)
     
     return 'Sta1'
 
-def AA_5(provider):
+def AA_5(dul):
     """
     Association abort AA-5
 
@@ -758,8 +765,8 @@ def AA_5(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -767,11 +774,11 @@ def AA_5(provider):
         Sta1, the next state of the state machine
     """
     # Stop ARTIM timer.
-    provider.Timer.stop()
+    dul.artim_timer.stop()
     
     return 'Sta1'
 
-def AA_6(provider):
+def AA_6(dul):
     """
     Association abort AA-6
 
@@ -784,8 +791,8 @@ def AA_6(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -793,11 +800,11 @@ def AA_6(provider):
         Sta13, the next state of the state machine
     """
     # Ignore PDU
-    provider.primitive = None
+    dul.primitive = None
     
     return 'Sta13'
 
-def AA_7(provider):
+def AA_7(dul):
     """
     Association abort AA-7
 
@@ -811,8 +818,8 @@ def AA_7(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
@@ -820,13 +827,13 @@ def AA_7(provider):
         Sta13, the next state of the state machine
     """
     # Send A-ABORT PDU.
-    provider.pdu = A_ABORT_PDU()
-    provider.pdu.FromParams(provider.primitive)
-    provider.RemoteClientSocket.send(provider.pdu.Encode())
+    dul.pdu = A_ABORT_PDU()
+    dul.pdu.FromParams(dul.primitive)
+    dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta13'
 
-def AA_8(provider):
+def AA_8(dul):
     """
     Association abort AA-8
 
@@ -843,26 +850,26 @@ def AA_8(provider):
 
     Parameters
     ----------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
 
     Returns
     -------
     str
         Sta13, the next state of the state machine
     """
-    # Send A-ABORT PDU (service-provider source), issue and A-P-ABORT
+    # Send A-ABORT PDU (service-dul source), issue and A-P-ABORT
     # indication, and start ARTIM timer.
     # Send A-ABORT PDU
-    provider.pdu = A_ABORT_PDU()
-    provider.pdu.Source = 2
-    provider.pdu.ReasonDiag = 0  # No reason given
+    dul.pdu = A_ABORT_PDU()
+    dul.pdu.Source = 2
+    dul.pdu.ReasonDiag = 0  # No reason given
     
-    if provider.RemoteClientSocket:
-        provider.RemoteClientSocket.send(provider.pdu.Encode())
+    if dul.peer_socket:
+        dul.scu_socket.send(dul.pdu.Encode())
         # Issue A-P-ABORT indication
-        provider.ToServiceUser.put(provider.primitive)
-        provider.Timer.start()
+        dul.to_user_queue.put(dul.primitive)
+        dul.artim_timer.start()
         
     return 'Sta13'
 
@@ -906,7 +913,7 @@ actions = {
     'AE-5': ('Issue Transport connection response primitive; start ARTIM '
              'timer', AE_5, 'Sta2'),
     'AE-6': ('Stop ARTIM timer and if A-ASSOCIATE-RQ acceptable by '
-             'service-provider: issue A-ASSOCIATE indication primitive '
+             'service-dul: issue A-ASSOCIATE indication primitive '
              'otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer', AE_6, 
              ('Sta3', 'Sta13')),
     'AE-7': ('Send A-ASSOCIATE-AC PDU', AE_7, 'Sta6'),
@@ -934,14 +941,14 @@ actions = {
     'AA-2': ('Stop ARTIM timer if running. Close transport connection', AA_2,
              'Sta1'),
     'AA-3': ('If (service-user initiated abort): issue A-ABORT indication and '
-             'close transport connection, otherwise (service-provider '
+             'close transport connection, otherwise (service-dul '
              'initiated abort): issue A-P-ABORT indication and close transport '
              'connection', AA_3, 'Sta1'),
     'AA-4': ('Issue A-P-ABORT indication primitive', AA_4, 'Sta1'),
     'AA-5': ('Stop ARTIM timer', AA_5, 'Sta1'),
     'AA-6': ('Ignore PDU', AA_6, 'Sta13'),
     'AA-7': ('Send A-ABORT PDU', AA_7, 'Sta13'),
-    'AA-8': ('Send A-ABORT PDU (service-provider source), issue an A-P-ABORT '
+    'AA-8': ('Send A-ABORT PDU (service-dul source), issue an A-P-ABORT '
              'indication and start ARTIM timer', AA_8, 'Sta13')
 }
 
@@ -1121,39 +1128,39 @@ class StateMachine:
     
     Parameters
     ---------
-    provider - DULServiceProvider
-        The DICOM Upper Layer Service Provider instance for the local AE
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
     
     Attributes
     ----------
     CurrentState - str
         The current state of the state machine, Sta1 to Sta13
     """
-    def __init__(self, provider):
-        self.CurrentState = 'Sta1'
-        self.provider = provider
+    def __init__(self, dul):
+        self.current_state = 'Sta1'
+        self.dul = dul
 
-    def Action(self, event, c):
+    def do_action(self, event):
         """ Execute the action triggered by `event`
         
         Parameters
         ----------
         event - str
             The event to be processed, Evt1 to Evt19
-        c - DULServiceProvider
-            The DICOM Upper Layer Service Provider instance for the local AE
+        c - DULServicedul
+            The DICOM Upper Layer Service dul instance for the local AE
         """
         
         # Attempt to get the action corresponding to the event-state
         try:
-            action_name = TransitionTable[(event, self.CurrentState)]
+            action_name = TransitionTable[(event, self.current_state)]
         except:
-            logger.debug('%s: current state is: %s %s' %
-                         (self.provider.name, 
-                          self.CurrentState,
-                          states[self.CurrentState]))
-            logger.debug('%s: event: %s %s' %
-                         (self.provider.name, event, events[event]))
+            #logger.debug('%s: current state is: %s %s' %
+            #             (self.dul.name, 
+            #              self.CurrentState,
+            #              states[self.CurrentState]))
+            #logger.debug('%s: event: %s %s' %
+            #             (self.dul.name, event, events[event]))
             raise
             return
 
@@ -1164,32 +1171,35 @@ class StateMachine:
         # Attempt to execute the action and move the state machine to its
         #   next state
         try:
-            logger.debug('')
-            logger.debug('%s: current state is: %s %s' %
-                         (self.provider.name, self.CurrentState,
-                          states[self.CurrentState]))
-            logger.debug('%s: event: %s %s' %
-                         (self.provider.name, event, events[event]))
-            logger.debug('%s: entering action: (%s, %s) %s %s' %
-                         (self.provider.name, event, self.CurrentState,
-                          action_name, actions[action_name][0]))
+            #logger.debug('')
+            #logger.debug('%s: current state is: %s %s' %
+            #             (self.dul.name, self.CurrentState,
+            #              states[self.CurrentState]))
+            #logger.debug('%s: event: %s %s' %
+            #             (self.dul.name, event, events[event]))
+            #logger.debug('%s: entering action: (%s, %s) %s %s' %
+            #             (self.dul.name, event, self.CurrentState,
+            #              action_name, actions[action_name][0]))
             
             # Execute the required action 
-            next_state = action[1](c)
+            next_state = action[1](self.dul)
             
-            #print('SM: %s + %s -> %s -> %s' %(self.CurrentState, event, action_name, next_state))
+            #print('SM: %s + %s -> %s -> %s' %(self.current_state, 
+            #                                  event, 
+            #                                  action_name, 
+            #                                  next_state))
             
             # Move the state machine to the next state
-            self.NextState(next_state)    
+            self.transition(next_state)    
             
-            logger.debug('%s: action complete. State is now %s %s' %
-                         (self.provider.name, self.CurrentState,
-                          states[self.CurrentState]))
+            #logger.debug('%s: action complete. State is now %s %s' %
+            #             (self.dul.name, self.CurrentState,
+            #              states[self.CurrentState]))
         except:
             raise
-            self.provider.Kill()
+            self.dul.Kill()
 
-    def NextState(self, state):
+    def transition(self, state):
         """
         Transition the state machine to the next state
         
@@ -1205,6 +1215,6 @@ class StateMachine:
         """
         # Validate that state is acceptable
         if state in states.keys():
-            self.CurrentState = state
+            self.current_state = state
         else:
             raise ValueError('Invalid state for State Machine:\n\t %s' %state)

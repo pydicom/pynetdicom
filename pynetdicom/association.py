@@ -26,7 +26,7 @@ from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
 
 
-logger = logging.getLogger('netdicom.association')
+logger = logging.getLogger('pynetdicom.assoc')
 
 
 class Association(threading.Thread):
@@ -64,28 +64,35 @@ class Association(threading.Thread):
         A list of the supported SOP classes when acting as an SCU
     supported_sop_classes_scp
         A list of the supported SOP classes when acting as an SCP
+
+    
     """
     def __init__(self, LocalAE, ClientSocket=None, RemoteAE=None):
         
         if not ClientSocket and not RemoteAE:
             raise
+        
         if ClientSocket and RemoteAE:
             raise
         
+        # Received a connection from a peer AE
         if ClientSocket:
-            # must respond for request from a remote AE
-            self.Mode = 'Acceptor'
+            self.mode = 'Acceptor'
+        # Initiated a connection to a peer AE
         if RemoteAE:
-            # must request
-            self.Mode = 'Requestor'
+            self.mode = 'Requestor'
         
         self.ClientSocket = ClientSocket
         self.AE = LocalAE
         self.DUL = DULServiceProvider(ClientSocket,
-                        MaxIdleSeconds=self.AE.MaxAssociationIdleSeconds)
+                        timeout_seconds=self.AE.MaxAssociationIdleSeconds,
+                        local_ae=self.AE)
+        
         self.RemoteAE = RemoteAE
+        
         self.SOPClassesAsSCP = []
         self.SOPClassesAsSCU = []
+        
         self.AssociationEstablished = False
         self.AssociationRefused = None
         
@@ -173,18 +180,29 @@ class Association(threading.Thread):
         self.Kill()
 
     def run(self):
+        """
+        The main Association thread
+        """
+        # Set new ACSE and DIMSE providers
         self.ACSE = ACSEServiceProvider(self.DUL)
         self.DIMSE = DIMSEServiceProvider(self.DUL)
+        
         result = None
         diag  = None
         
-        if self.Mode == 'Acceptor':
+        # If the remote AE initiated the Association
+        if self.mode == 'Acceptor':
+            
             # needed because of some thread-related problem. To investiguate.
-            time.sleep(0.1) 
+            time.sleep(0.1)
+            
+            # If we are already at the limit of the number of associations
             if len(self.AE.Associations) > self.AE.MaxNumberOfAssociations:
+                # Reject the Association and give the reason
                 result = A_ASSOCIATE_Result_RejectedTransient
                 diag = A_ASSOCIATE_Diag_LocalLimitExceeded
             
+            # Send the Association response via the ACSE
             assoc = self.ACSE.Accept(self.ClientSocket,
                                      self.AE.AcceptablePresentationContexts, 
                                      result=result, 
@@ -194,17 +212,21 @@ class Association(threading.Thread):
                 self.Kill()
                 return
 
-            # call back
+            # Callbacks
             self.AE.OnAssociateRequest(self)
-            # build list of SOPClasses supported
+            self.AE.on_association_accepted()
+            
+            # Build supported SOP Classes for the Association
             self.SOPClassesAsSCP = []
-            for ss in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCP.append((ss[0],
-                                             UID2SOPClass(ss[1]), 
-                                             ss[2]))
-
+            for context in self.ACSE.AcceptedPresentationContexts:
+                self.SOPClassesAsSCP.append((context[0],
+                                             UID2SOPClass(context[1]), 
+                                             context[2]))
+        
+        # If the local AE initiated the Association
         else:  # Requestor mode
-            # build role extended negotiation
+            
+            # Build role extended negotiation
             ext = []
             for ii in self.AE.AcceptablePresentationContexts:
                 tmp = SCP_SCU_RoleSelectionParameters()
@@ -213,69 +235,97 @@ class Association(threading.Thread):
                 tmp.SCPRole = 1
                 ext.append(tmp)
             
+            # Request an Association via the ACSE
             ans = self.ACSE.Request(self.AE.LocalAE, 
                                     self.RemoteAE,
                                     self.AE.MaxPDULength,
                                     self.AE.PresentationContextDefinitionList,
                                     userspdu=ext)
+            
+            # Reply from the remote AE
             if ans:
-                # call back
+                # Callback trigger
                 if 'OnAssociateResponse' in self.AE.__dict__:
                     self.AE.OnAssociateResponse(ans)
+                    
             else:
+                # Callback trigger
+                self.AE.on_association_refused()
                 self.AssociationRefused = True
                 self.DUL.Kill()
                 return
-                
+            
+            # Build supported SOP Classes for the Association
             self.SOPClassesAsSCU = []
-            for ss in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCU.append((ss[0],
-                                             UID2SOPClass(ss[1]), 
-                                             ss[2]))
+            for context in self.ACSE.AcceptedPresentationContexts:
+                self.SOPClassesAsSCU.append((context[0],
+                                             UID2SOPClass(context[1]), 
+                                             context[2]))
 
+        # Assocation established OK
         self.AssociationEstablished = True
+        
+        # Callback trigger
+        self.AE.on_association_established()
 
-        # association established. Listening on local and remote interfaces
+        # If acting as an SCP, listen for further messages on the Association
         while not self._Kill:
             time.sleep(0.001)
-            # time.sleep(1)
-            # look for incoming DIMSE message
-            if self.Mode == 'Acceptor':
-                dimsemsg, pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
-                if dimsemsg:
-                    # dimse message received
-                    uid = dimsemsg.AffectedSOPClassUID
+            
+            if self.mode == 'Acceptor':
+                # Check with the DIMSE provider for incoming messages
+                msg, pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
+                if msg:
+                    # DIMSE message received
+                    uid = msg.AffectedSOPClassUID
+                    # New SOPClass instance
                     obj = UID2SOPClass(uid.value)()
-                    try:
-                        obj.pcid, obj.sopclass, obj.transfersyntax = \
-                            [x for x in self.SOPClassesAsSCP
-                                if x[0] == pcid][0]
-                    except IndexError:
-                        raise "SOP Class %s not supported as SCP" % uid
+                    
+                    print(uid, obj)
+                    
+                    matching_sop = False
+                    for sop_class in self.SOPClassesAsSCP:
+                        # (pc id, SOPClass(), TransferSyntax)
+                        if sop_class[0] == pcid:
+                            obj.pcid = sop_class[0]
+                            obj.sopclass = sop_class[1]
+                            obj.transfersyntax = sop_class[2]
+                            
+                            matching_sop = True
+                    
+                    # If we don't have any matching SOP classes then ???
+                    if not matching_sop:
+                        pass
+                    
                     obj.maxpdulength = self.ACSE.MaxPDULength
                     obj.DIMSE = self.DIMSE
                     obj.ACSE = self.ACSE
                     obj.AE = self.AE
                     obj.assoc = assoc
-                    # run SCP
-                    obj.SCP(dimsemsg)
+                    
+                    # Callback trigger
+                    self.AE.on_receive_dimse_message(obj, msg)
+                    
+                    # Run SOPClass in SCP mode
+                    obj.SCP(msg)
 
-                # check for release request
+                # Check for release request
                 if self.ACSE.CheckRelease():
+                    # Callback trigger
+                    self.AE.on_association_released()
                     self.Kill()
 
-                # check for abort
+                # Check for abort
                 if self.ACSE.CheckAbort():
+                    # Callback trigger
+                    self.AE.on_association_aborted()
                     self.Kill()
                     return
 
-                # check if the DULServiceProvider thread is still running
+                # Check if the DULServiceProvider thread is still running
                 if not self.DUL.isAlive():
-                    logger.warning("DUL provider thread is not running any more; quitting")
                     self.Kill()
 
-                # check if idle timer has expired
-                logger.debug("checking DUL idle timer")
+                # Check if idle timer has expired
                 if self.DUL.idle_timer_expired():
-                    logger.warning('%s: DUL provider idle timer expired' % (self.name))  
                     self.Kill()
