@@ -31,17 +31,25 @@ logger = logging.getLogger('pynetdicom.assoc')
 
 class Association(threading.Thread):
     """
+    A higher level class that handles incoming and outgoing Associations. The
+    actual low level work done for Associations is performed by 
+    pynetdicom.ACSEprovider.ACSEServiceProvider
     
-    
+    When the local AE is acting as an SCP, initialise the Association using 
+    the socket to listen on for incoming Association requests. When the local 
+    AE is acting as an SCU, initialise the Association with the details of the 
+    peer AE
     
     Parameters
     ----------
     local_ae - dict
         The AE title, host and port of the local AE
-    peer_socket - socket.socket, optional
-        The socket to listen for incoming Association requests
-    remote_ae - dict, optional
-        If acting as an SCU this is the AE title, host and port of the peer AE
+    local_socket - socket.socket, optional
+        If the local AE is acting as an SCP, this is the listen socket for 
+        incoming connection requests
+    peer_ae - dict, optional
+        If the local AE is acting as an SCU this is the AE title, host and port 
+        of the peer AE that we want to Associate with
 
     Attributes
     ----------
@@ -55,7 +63,7 @@ class Association(threading.Thread):
         The local ApplicationEntity instance
     mode - str
         Whether the local AE is acting as the Association 'Requestor' or 
-        'Acceptor'
+        'Acceptor' (i.e. SCU or SCP)
     peer_ae - ApplicationEntity
         The peer ApplicationEntity instance
     socket - socket.socket
@@ -64,30 +72,34 @@ class Association(threading.Thread):
         A list of the supported SOP classes when acting as an SCU
     supported_sop_classes_scp
         A list of the supported SOP classes when acting as an SCP
-
-    
     """
     def __init__(self, LocalAE, ClientSocket=None, RemoteAE=None):
         
-        if not ClientSocket and not RemoteAE:
-            raise
+        if [ClientSocket, RemoteAE] == [None, None]:
+            raise ValueError("Association can't be initialised with both "
+                                        "ClientSocket and RemoteAE parameters")
         
         if ClientSocket and RemoteAE:
-            raise
+            raise ValueError("Association must be initialised with either "
+                                        "ClientSocket or RemoteAE parameter")
         
         # Received a connection from a peer AE
         if ClientSocket:
             self.mode = 'Acceptor'
+        
         # Initiated a connection to a peer AE
         if RemoteAE:
             self.mode = 'Requestor'
         
         self.ClientSocket = ClientSocket
         self.AE = LocalAE
-        self.DUL = DULServiceProvider(ClientSocket,
-                        timeout_seconds=self.AE.MaxAssociationIdleSeconds,
-                        local_ae=self.AE)
         
+        # Why do we instantiate the DUL provider with a socket when acting
+        #   as an SCU?
+        self.DUL = DULServiceProvider(ClientSocket,
+                            timeout_seconds=self.AE.MaxAssociationIdleSeconds,
+                            local_ae = LocalAE)
+                            
         self.RemoteAE = RemoteAE
         
         self.SOPClassesAsSCP = []
@@ -213,7 +225,7 @@ class Association(threading.Thread):
                 return
 
             # Callbacks
-            self.AE.OnAssociateRequest(self)
+            #self.AE.OnAssociateRequest(self)
             self.AE.on_association_accepted()
             
             # Build supported SOP Classes for the Association
@@ -224,7 +236,7 @@ class Association(threading.Thread):
                                              context[2]))
         
         # If the local AE initiated the Association
-        else:  # Requestor mode
+        elif self.mode == 'Requestor':
             
             # Build role extended negotiation
             ext = []
@@ -236,7 +248,8 @@ class Association(threading.Thread):
                 ext.append(tmp)
             
             # Request an Association via the ACSE
-            ans = self.ACSE.Request(self.AE.LocalAE, 
+            ans, response = self.ACSE.Request(
+                                    self.AE.LocalAE, 
                                     self.RemoteAE,
                                     self.AE.MaxPDULength,
                                     self.AE.PresentationContextDefinitionList,
@@ -250,7 +263,8 @@ class Association(threading.Thread):
                     
             else:
                 # Callback trigger
-                self.AE.on_association_refused()
+                if response is not None:
+                    self.AE.on_association_rejected(response)
                 self.AssociationRefused = True
                 self.DUL.Kill()
                 return
@@ -280,8 +294,6 @@ class Association(threading.Thread):
                     uid = msg.AffectedSOPClassUID
                     # New SOPClass instance
                     obj = UID2SOPClass(uid.value)()
-                    
-                    print(uid, obj)
                     
                     matching_sop = False
                     for sop_class in self.SOPClassesAsSCP:

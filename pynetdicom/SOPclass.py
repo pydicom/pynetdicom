@@ -8,7 +8,7 @@
 import logging
 import time
 
-import pynetdicom.dsutils
+from pynetdicom.dsutils import *
 from pynetdicom.DIMSEparameters import *
 import pynetdicom.DIMSEprovider
 import pynetdicom.ACSEprovider
@@ -88,42 +88,31 @@ class VerificationServiceClass(ServiceClass):
 
 
 class StorageServiceClass(ServiceClass):
-    OutOfResources = Status(
-        'Failure',
-        'Refused: Out of resources',
-        range(0xA700, 0xA7FF + 1)
-    )
+    OutOfResources = Status('Failure',
+                            'Refused: Out of resources',
+                            range(0xA700, 0xA7FF + 1)) 
     DataSetDoesNotMatchSOPClassFailure = Status(
-        'Failure',
-        'Error: Data Set does not match SOP Class',
-        range(0xA900, 0xA9FF + 1)
-    )
+                            'Failure',
+                            'Error: Data Set does not match SOP Class',
+                            range(0xA900, 0xA9FF + 1))
     CannotUnderstand = Status(
-        'Failure',
-        'Error: Cannot understand',
-        range(0xC000, 0xCFFF + 1)
-    )
+                            'Failure',
+                            'Error: Cannot understand',
+                            range(0xC000, 0xCFFF + 1))
     CoercionOfDataElements = Status(
-        'Warning',
-        'Coercion of Data Elements',
-        range(0xB000, 0xB000 + 1)
-    )
+                            'Warning',
+                            'Coercion of Data Elements',
+                            range(0xB000, 0xB000 + 1))
     DataSetDoesNotMatchSOPClassWarning = Status(
-        'Warning',
-        'Data Set does not match SOP Class',
-        range(0xB007, 0xB007 + 1)
-    )
+                            'Warning',
+                            'Data Set does not match SOP Class',
+                            range(0xB007, 0xB007 + 1))
     ElementDiscarted = Status(
-        'Warning',
-        'Element Discarted',
-        range(0xB006, 0xB006 + 1)
-    )
-    Success = Status(
-        'Success',
-        '',
-        range(0x0000, 0x0000 + 1)
-    )
-
+                            'Warning',
+                            'Element Discarted',
+                            range(0xB006, 0xB006 + 1))
+    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
+    
     def SCU(self, dataset, msgid):
         # build C-STORE primitive
         csto = C_STORE_ServiceParameters()
@@ -131,7 +120,7 @@ class StorageServiceClass(ServiceClass):
         csto.AffectedSOPClassUID = dataset.SOPClassUID
         csto.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         csto.Priority = 0x0002
-        csto.DataSet = dsutils.encode(dataset,
+        csto.DataSet = encode(dataset,
                                       self.transfersyntax.is_implicit_VR,
                                       self.transfersyntax.is_little_endian)
         # send cstore request
@@ -146,26 +135,44 @@ class StorageServiceClass(ServiceClass):
 
     def SCP(self, msg):
         status = None
+        
         try:
-            DS = dsutils.decode(msg.DataSet,
-                                self.transfersyntax.is_implicit_VR,
-                                self.transfersyntax.is_little_endian)
+            DS = decode(msg.DataSet,
+                        self.transfersyntax.is_implicit_VR,
+                        self.transfersyntax.is_little_endian)
         except:
+            logger.error("StorageServiceClass failed to decode the dataset")
             status = self.CannotUnderstand
+            
+        
         # make response
         rsp = C_STORE_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        # callback
-        if not status:
+        
+        # Callback
+        #   We expect a valid Status from on_store to send back to the AE
+        if status is None:
             try:
-                status = self.AE.OnReceiveStore(self, DS)
-            except:
-                #logger.error(
-                #    "There was an exception in OnReceiveStore callback")
+                status = self.AE.on_store(self, DS)
+            except Exception as e:
+                #logger.error()
+                logger.exception("Failed to implement the "
+                    "ApplicationEntity::on_store() callback function correctly")
                 status = self.CannotUnderstand
-                raise
+                
+        
+        
+        # Callback
+        #if not status:
+        #    try:
+        #        status = self.AE.OnReceiveStore(self, DS)
+        #    except:
+        #        #logger.error(
+        #        #    "There was an exception in OnReceiveStore callback")
+        #        status = self.CannotUnderstand
+        #        raise
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
@@ -221,7 +228,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         cfind.MessageID = msgid
         cfind.AffectedSOPClassUID = self.UID
         cfind.Priority = 0x0002
-        cfind.Identifier = dsutils.encode(ds,
+        cfind.Identifier = encode(ds,
                                           self.transfersyntax.is_implicit_VR,
                                           self.transfersyntax.is_little_endian)
 
@@ -233,7 +240,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans:
                 continue
-            d = dsutils.decode(
+            d = decode(
                 ans.Identifier, self.transfersyntax.is_implicit_VR,
                 self.transfersyntax.is_little_endian)
             try:
@@ -246,7 +253,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         yield status, d
 
     def SCP(self, msg):
-        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
+        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
 
         # make response
@@ -260,7 +267,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
                 time.sleep(0.001)
                 IdentifierDS, status = gen.next()
                 rsp.Status = int(status)
-                rsp.Identifier = dsutils.encode(
+                rsp.Identifier = encode(
                     IdentifierDS,
                     self.transfersyntax.is_implicit_VR,
                     self.transfersyntax.is_little_endian)
@@ -325,7 +332,7 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
         cget.MessageID = msgid
         cget.AffectedSOPClassUID = self.UID
         cget.Priority = 0x0002
-        cget.Identifier = dsutils.encode(ds,
+        cget.Identifier = encode(ds,
                                          self.transfersyntax.is_implicit_VR,
                                          self.transfersyntax.is_little_endian)
 
@@ -350,7 +357,7 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
                 rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
                 status = None
                 try:
-                    d = dsutils.decode(
+                    d = decode(
                         msg.DataSet, self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
                 except:
@@ -419,7 +426,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
         cmove.AffectedSOPClassUID = self.UID
         cmove.MoveDestination = destaet
         cmove.Priority = 0x0002
-        cmove.Identifier = dsutils.encode(
+        cmove.Identifier = encode(
             ds, self.transfersyntax.is_implicit_VR,
             self.transfersyntax.is_little_endian)
 
@@ -438,7 +445,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
             yield status
 
     def SCP(self, msg):
-        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
+        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
 
         # make response
@@ -545,7 +552,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         cfind.MessageID = msgid
         cfind.AffectedSOPClassUID = self.UID
         cfind.Priority = 0x0002
-        cfind.Identifier = dsutils.encode(ds,
+        cfind.Identifier = encode(ds,
                                           self.transfersyntax.is_implicit_VR,
                                           self.transfersyntax.is_little_endian)
 
@@ -557,7 +564,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans:
                 continue
-            d = dsutils.decode(
+            d = decode(
                 ans.Identifier, self.transfersyntax.is_implicit_VR,
                 self.transfersyntax.is_little_endian)
             try:
@@ -570,7 +577,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         yield status, d
 
     def SCP(self, msg):
-        ds = dsutils.decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
+        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
 
         # make response
@@ -584,7 +591,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                 time.sleep(0.001)
                 IdentifierDS, status = gen.next()
                 rsp.Status = int(status)
-                rsp.Identifier = dsutils.encode(
+                rsp.Identifier = encode(
                     IdentifierDS,
                     self.transfersyntax.is_implicit_VR,
                     self.transfersyntax.is_little_endian)
@@ -770,58 +777,46 @@ class EnhancedStructuredReportSOPClass(StorageSOPClass):
 class QueryRetrieveSOPClass(QueryRetrieveServiceClass):
     pass
 
-
 class PatientRootQueryRetrieveSOPClass(QueryRetrieveSOPClass):
     pass
-
 
 class StudyRootQueryRetrieveSOPClass(QueryRetrieveSOPClass):
     pass
 
-
 class PatientStudyOnlyQueryRetrieveSOPClass(QueryRetrieveSOPClass):
     pass
-
 
 class PatientRootFindSOPClass(PatientRootQueryRetrieveSOPClass,
                               QueryRetrieveFindSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.1.1'
 
-
 class PatientRootMoveSOPClass(PatientRootQueryRetrieveSOPClass,
                               QueryRetrieveMoveSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.1.2'
-
 
 class PatientRootGetSOPClass(PatientRootQueryRetrieveSOPClass,
                              QueryRetrieveGetSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.1.3'
 
-
 class StudyRootFindSOPClass(StudyRootQueryRetrieveSOPClass,
                             QueryRetrieveFindSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.2.1'
-
 
 class StudyRootMoveSOPClass(StudyRootQueryRetrieveSOPClass,
                             QueryRetrieveMoveSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.2.2'
 
-
 class StudyRootGetSOPClass(StudyRootQueryRetrieveSOPClass,
                            QueryRetrieveGetSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.2.3'
-
 
 class PatientStudyOnlyFindSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
                                    QueryRetrieveFindSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.3.1'
 
-
 class PatientStudyOnlyMoveSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
                                    QueryRetrieveMoveSOPClass):
     UID = '1.2.840.10008.5.1.4.1.2.3.2'
-
 
 class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
                                   QueryRetrieveGetSOPClass):
@@ -832,11 +827,9 @@ class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
 class BasicWorklistSOPClass(BasicWorklistServiceClass):
     pass
 
-
 class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
                                               ModalityWorklistServiceSOPClass):
     UID = '1.2.840.10008.5.1.4.31'
-
 
 d = dir()
 

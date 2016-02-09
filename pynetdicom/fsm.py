@@ -15,6 +15,86 @@ import pynetdicom.DULparameters
 logger = logging.getLogger('pynetdicom.sm')
 
 
+class StateMachine:
+    """
+    Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
+    9.2. 
+    
+    Parameters
+    ---------
+    dul - DULServicedul
+        The DICOM Upper Layer Service dul instance for the local AE
+    
+    Attributes
+    ----------
+    CurrentState - str
+        The current state of the state machine, Sta1 to Sta13
+    """
+    def __init__(self, dul):
+        self.current_state = 'Sta1'
+        self.dul = dul
+
+    def do_action(self, event):
+        """ Execute the action triggered by `event`
+        
+        Parameters
+        ----------
+        event - str
+            The event to be processed, Evt1 to Evt19
+        c - DULServicedul
+            The DICOM Upper Layer Service dul instance for the local AE
+        """
+        
+        # Check (event + state) is valid
+        if (event, self.current_state) not in TransitionTable.keys():
+            raise KeyError("DUL State Machine received an invalid event "
+                "'%s' for the current state '%s'" %(event, self.current_state))
+        
+        action_name = TransitionTable[(event, self.current_state)]
+
+        # action is the (description, function, state) tuple
+        #   associated with the action_name
+        action = actions[action_name]
+        
+        # Attempt to execute the action and move the state machine to its
+        #   next state
+        try:
+            # Execute the required action 
+            next_state = action[1](self.dul)
+            
+            #print('SM: %s + %s -> %s -> %s' %(self.current_state, 
+            #                                  event, 
+            #                                  action_name, 
+            #                                  next_state))
+            
+            # Move the state machine to the next state
+            self.transition(next_state)    
+
+        except:
+            raise
+            self.dul.Kill()
+
+    def transition(self, state):
+        """
+        Transition the state machine to the next state
+        
+        Parameters
+        ----------
+        state - str
+            The state to transition to, Sta1 to Sta13
+            
+        Raises
+        ------
+        ValueError
+            If the state is not valid
+        """
+        # Validate that state is acceptable
+        if state in states.keys():
+            self.current_state = state
+        else:
+            raise ValueError('Invalid state "%s" for State Machine' %state)
+
+
 def AE_1(dul):
     """
     Association establishment action AE-1
@@ -22,6 +102,8 @@ def AE_1(dul):
     From Idle state, local AE issues a connection request to a remote. This
     is the first step in associating a local AE (requestor) to a remote AE
     (acceptor).
+    
+    Used when the local AE is acting as an SCU
 
     State-event triggers: Sta1 + Evt1
 
@@ -41,9 +123,15 @@ def AE_1(dul):
     # Issue TRANSPORT CONNECT request primitive to local transport service
     dul.scu_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        # CalledPresentationAddress is set by the ACSE and
+        #   is an (address, port) tuple
         dul.scu_socket.connect(dul.primitive.CalledPresentationAddress)
     except socket.error:
-        # cannot connect
+        # Failed to connect
+        logger.error("Association Request Failed: Failed to establish "
+                                                            "association")
+        logger.error("Peer aborted Association (or never connected)")
+        logger.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
         
     return 'Sta4'
@@ -56,6 +144,8 @@ def AE_2(dul):
     This send a byte stream with the format given by Table 9-11
 
     State-event triggers: Sta4 + Evt2
+    
+    Callbacks: ApplicationEntity.on_send_associate_rq(PDU)
     
     .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
         Related Actions"
@@ -331,8 +421,7 @@ def DT_2(dul):
     str
         Sta6, the next state of the state machine
     """
-    # Send P-DATA indication primitive
-    #print("DT-2")
+    # Send P-DATA indication primitive to DUL
     dul.to_user_queue.put(dul.primitive)
 
     return 'Sta6'
@@ -1119,102 +1208,3 @@ TransitionTable = {
     ('Evt19', 'Sta12'): 'AA-8',
     ('Evt19', 'Sta13'): 'AA-7'
 }
-
-
-class StateMachine:
-    """
-    Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
-    9.2. 
-    
-    Parameters
-    ---------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
-    
-    Attributes
-    ----------
-    CurrentState - str
-        The current state of the state machine, Sta1 to Sta13
-    """
-    def __init__(self, dul):
-        self.current_state = 'Sta1'
-        self.dul = dul
-
-    def do_action(self, event):
-        """ Execute the action triggered by `event`
-        
-        Parameters
-        ----------
-        event - str
-            The event to be processed, Evt1 to Evt19
-        c - DULServicedul
-            The DICOM Upper Layer Service dul instance for the local AE
-        """
-        
-        # Attempt to get the action corresponding to the event-state
-        try:
-            action_name = TransitionTable[(event, self.current_state)]
-        except:
-            #logger.debug('%s: current state is: %s %s' %
-            #             (self.dul.name, 
-            #              self.CurrentState,
-            #              states[self.CurrentState]))
-            #logger.debug('%s: event: %s %s' %
-            #             (self.dul.name, event, events[event]))
-            raise
-            return
-
-        # action is the (description, function, state) tuple
-        #   associated with the action_name
-        action = actions[action_name]
-        
-        # Attempt to execute the action and move the state machine to its
-        #   next state
-        try:
-            #logger.debug('')
-            #logger.debug('%s: current state is: %s %s' %
-            #             (self.dul.name, self.CurrentState,
-            #              states[self.CurrentState]))
-            #logger.debug('%s: event: %s %s' %
-            #             (self.dul.name, event, events[event]))
-            #logger.debug('%s: entering action: (%s, %s) %s %s' %
-            #             (self.dul.name, event, self.CurrentState,
-            #              action_name, actions[action_name][0]))
-            
-            # Execute the required action 
-            next_state = action[1](self.dul)
-            
-            #print('SM: %s + %s -> %s -> %s' %(self.current_state, 
-            #                                  event, 
-            #                                  action_name, 
-            #                                  next_state))
-            
-            # Move the state machine to the next state
-            self.transition(next_state)    
-            
-            #logger.debug('%s: action complete. State is now %s %s' %
-            #             (self.dul.name, self.CurrentState,
-            #              states[self.CurrentState]))
-        except:
-            raise
-            self.dul.Kill()
-
-    def transition(self, state):
-        """
-        Transition the state machine to the next state
-        
-        Parameters
-        ----------
-        state - str
-            The state to transition to, Sta1 to Sta13
-            
-        Raises
-        ------
-        ValueError
-            If the state is not valid
-        """
-        # Validate that state is acceptable
-        if state in states.keys():
-            self.current_state = state
-        else:
-            raise ValueError('Invalid state for State Machine:\n\t %s' %state)

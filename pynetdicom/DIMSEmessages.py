@@ -166,6 +166,10 @@ class DIMSEMessage:
         fragments is defined by the negotiated Transfer Syntax at association
         establishment
         
+        Parameters
+        ----------
+        pdata - 
+        
         Returns
         -------
         bool
@@ -178,8 +182,6 @@ class DIMSEMessage:
         for pdv_item in pdata.PresentationDataValueList:
             # must be able to read P-DATA with several PDVs
             self.ID = pdv_item[0]
-            
-            #print(wrap_list(pdv_item[1]))
             
             control_header_byte = pdv_item[1][0]
             
@@ -195,14 +197,10 @@ class DIMSEMessage:
             
             # P-DATA fragment contains Command information (0x01, 0x03)
             if control_header_byte & 1:
-                #logger.debug("  command fragment %s", self.ID)
-                
-                #self.encoded_command_set += str(pdv_item[1][1:])
                 self.encoded_command_set.write(pdv_item[1][1:])
                 
                 # The P-DATA fragment is the last one (0x03)
                 if control_header_byte & 2:
-                    #logger.debug("  last command fragment %s", self.ID)
                     self.CommandSet = decode(self.encoded_command_set, 
                                              self.ts.is_implicit_VR,
                                              self.ts.is_little_endian)
@@ -221,12 +219,9 @@ class DIMSEMessage:
             # P-DATA fragment contains Message Dataset information (0x00, 0x02)
             else:
                 self.DataSet.write(pdv_item[1][1:])
-                #print(pdv_item[1][1:50])
-                #print(self.DataSet)
-                #logger.debug("  data fragment %s", self.ID)
-                
+
                 # The P-DATA fragment is the last one (0x02)
-                if control_header_byte & 2 == 0:
+                if control_header_byte & 2 != 0:
                     #logger.debug("  last data fragment %s", self.ID)
                     return True
 
@@ -745,17 +740,3 @@ MessageType = {
     0x0030: C_ECHO_RQ_Message,
     0x8030: C_ECHO_RSP_Message
 }
-
-"""
-if __name__ == '__main__':
-
-    c = C_ECHO_ServiceParameters()
-    c.MessageID = 0
-    c.AffectedSOPClassUID = '12.1232.23.123.231.'
-
-    C_ECHO_msg = C_ECHO_RQ_Message()
-    C_ECHO_msg.FromParams(c)
-    print(C_ECHO_msg)
-    print(C_ECHO_msg.ToParams())
-    print(C_ECHO_msg.Encode(1, 100))
-"""

@@ -26,70 +26,99 @@ class ACSEServiceProvider(object):
     """ 
     Association Control Service Provider
     
-    
+    Parameters
+    ----------
+    DUL - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM UL service provider instance
     """
     def __init__(self, DUL):
         self.DUL = DUL
+        # DICOM Application Context Name, see PS3.7 Annex A.2.1
         self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
 
-    def Request(self, localAE, remoteAE, mp, pcdl, userspdu=None, timeout=30):
-        """Requests an association with a remote AE and waits for association
-        response."""
-        self.LocalAE = localAE
-        self.RemoteAE = remoteAE
+    def Request(self, local_ae, peer_ae, mp, pcdl, userspdu=None, timeout=30):
+        """
+        Requests an association with a remote AE and waits for association
+        response.
+        
+        Parameters
+        ----------
+        local_ae - pynetdicom.applicationentity.ApplicationEntity
+            The local AE instance
+        peer_ae - dict
+            A dict containing the peer AE's IP/TCP address, port and title
+        mp - ?
+            ???
+        pcdl - ?
+            ???
+        userpdu - ?
+            ???
+        timeout - int
+            ???
+            
+        Returns
+        -------
+        bool
+            True if the Association was accepted, false otherwise
+        assoc_rsp - pynetdicom..A_ASSOCIATE_ServiceParameters
+            The Association response
+        """
+        self.LocalAE = local_ae
+        self.RemoteAE = peer_ae
         self.MaxPDULength = mp
 
-        # build association service parameters object
-        assrq = A_ASSOCIATE_ServiceParameters()
-        assrq.ApplicationContextName = self.ApplicationContextName
-        assrq.CallingAETitle = self.LocalAE['AET']
-        assrq.CalledAETitle = self.RemoteAE['AET']
+        # Build association service parameters object
+        assoc_rq = A_ASSOCIATE_ServiceParameters()
+        assoc_rq.ApplicationContextName = self.ApplicationContextName
+        assoc_rq.CallingAETitle = self.LocalAE['AET']
+        assoc_rq.CalledAETitle = self.RemoteAE['AET']
+        
         MaxPDULengthPar = MaximumLengthParameters()
         MaxPDULengthPar.MaximumLengthReceived = mp
         
         if userspdu is not None:
-            assrq.UserInformation = [MaxPDULengthPar] + userspdu
+            assoc_rq.UserInformation = [MaxPDULengthPar] + userspdu
         else:
-            assrq.UserInformation = [MaxPDULengthPar]
-        assrq.CallingPresentationAddress = (self.LocalAE['Address'], 
-                                            self.LocalAE['Port'])
-        assrq.CalledPresentationAddress = (self.RemoteAE['Address'], 
-                                           self.RemoteAE['Port'])
-        assrq.PresentationContextDefinitionList = pcdl
+            assoc_rq.UserInformation = [MaxPDULengthPar]
+        
+        assoc_rq.CallingPresentationAddress = (self.LocalAE['Address'], 
+                                               self.LocalAE['Port'])
+        assoc_rq.CalledPresentationAddress = (self.RemoteAE['Address'], 
+                                              self.RemoteAE['Port'])
+        assoc_rq.PresentationContextDefinitionList = pcdl
         #logger.debug(pcdl)
         
         logger.info("Requesting Association")
-        self.DUL.Send(assrq)
+        self.DUL.Send(assoc_rq)
 
-        # get answer
-        #logger.debug("Waiting for Association Response")
-        assrsp = self.DUL.Receive(True, timeout)
+        # Association response
+        assoc_rsp = self.DUL.Receive(True, timeout)
         
-        if not assrsp:
-            return False
+        if not assoc_rsp:
+            return False, assoc_rsp
         
-        #logger.debug(assrsp)
-
         try:
-            if assrsp.Result != 'Accepted':
-                return False
+            if assoc_rsp.Result != 'Accepted':
+                return False, assoc_rsp
         except AttributeError:
-            return False
+            return False, assoc_rsp
 
         # Get maximum pdu length from answer
         try:
-            self.MaxPDULength = assrsp.UserInformation[0].MaximumLengthReceived
+            self.MaxPDULength = \
+                assoc_rsp.UserInformation[0].MaximumLengthReceived
         except:
             self.MaxPDULength = 16000
 
         # Get accepted presentation contexts
         self.AcceptedPresentationContexts = []
-        for cc in assrsp.PresentationContextDefinitionResultList:
+        for cc in assoc_rsp.PresentationContextDefinitionResultList:
             if cc[1] == 0:
                 uid = [x[1] for x in pcdl if x[0] == cc[0]][0]
                 self.AcceptedPresentationContexts.append(
                     (cc[0], uid, UID(str(cc[2]))))
-        return True
+        
+        return True, assoc_rsp
 
     def Accept(self, client_socket=None, AcceptablePresentationContexts=None,
                Wait=True, result=None, diag=None):
@@ -237,7 +266,7 @@ class ACSEServiceProvider(object):
             return False
 
     def Status(self):
-        return self.DUL.SM.CurrentState()
+        return self.DUL.state_machine.current_state()
 
     def Kill(self):
         self.DUL.Kill()
