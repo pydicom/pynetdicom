@@ -288,9 +288,6 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
         
-        #for line in wrap_list(tmp, max_size=512):
-        #    logger.debug(line)
-
         return tmp
 
     def Decode(self, rawstring):
@@ -299,7 +296,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         logger.debug('PDU Type: Associate Request, PDU Length: %s + %s bytes '
                         'PDU header' %(len(s.getvalue()), 6))
         
-        for line in wrap_list(s):
+        for line in wrap_list(s, max_size=512):
             logger.debug('  ' + line)
         
         logger.debug('Parsing an A-ASSOCIATE PDU')
