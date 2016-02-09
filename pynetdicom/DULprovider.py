@@ -374,7 +374,6 @@ class DULServiceProvider(Thread):
         """
         # Sta13 is waiting for the transport connection to close
         if self.state_machine.current_state == 'Sta13':
-            
             # If we have no connection to the SCU
             if self.scu_socket is None:
                 return False
@@ -384,7 +383,7 @@ class DULServiceProvider(Thread):
                 # socket.Socket().recv(bufsize)
                 # If we are still receiving data from the socket
                 #   wait until its done  
-                while self.scu_socket.recv(1) != '':
+                while self.scu_socket.recv(1) != b'':
                     continue
             except socket.error:
                 return False
