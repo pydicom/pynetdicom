@@ -168,12 +168,8 @@ class Association(threading.Thread):
     def Kill(self):
         self._Kill = True
         
-        for ii in range(1000):
-            if self.DUL.Stop():
-                continue
+        while not self.DUL.Stop():
             time.sleep(0.001)
-        
-        self.DUL.Kill()
 
     def Release(self, reason):
         """
