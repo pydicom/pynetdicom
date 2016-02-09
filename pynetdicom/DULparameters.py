@@ -157,7 +157,7 @@ def wrap_list(lst, prefix='D:   ', items_per_line=16, max_size=None):
             lines.append(line)
     
     if cutoff_output:
-        lines.insert(0, prefix + 'Only dumping 512 bytes.')
+        lines.insert(0, prefix + 'Only dumping %s bytes.' %max_size)
     
     return "\n".join(lines)
 
@@ -180,6 +180,28 @@ class P_DATA_ServiceParameters:
             s += '  Value Length: %s bytes\n' %len(item[1])
             header_byte = item[1][0]
             s += "  Message Control Header Byte: {:08b}\n".format(header_byte)
+            
+            # 00000001 and 00000011
+            if header_byte & 1:
+                # 00000011
+                if header_byte & 2:
+                    s += '  Command information, last fragment of the ' \
+                                'DIMSE message\n'
+                # 00000001
+                else:
+                    s += '  Command information, not the last fragment of ' \
+                                'the DIMSE message\n'
+            # 00000000, 00000010
+            else:
+                # 00000010
+                if header_byte & 2 != 0:
+                    s += '  Dataset information, last fragment of the ' \
+                                'DIMSE message\n'
+                # 00000000
+                else:
+                    s += '  Dataset information, not the last fragment of ' \
+                                'the DIMSE message\n'
+            
             s += wrap_list(item[1][1:], '    ', max_size=512) # Data value
         return s
 

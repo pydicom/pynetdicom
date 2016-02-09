@@ -70,7 +70,7 @@ class DULServiceProvider(Thread):
     Parameters
     ---------
     Socket - socket.socket, optional
-        The socket to be used as the client socket
+        The local AE's listen socket
     Port - int, optional
         The port number on which to wait for incoming connections
     Name - str, optional
@@ -98,11 +98,12 @@ class DULServiceProvider(Thread):
     state_machine - pynetdicom.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
-    def __init__(self, Socket=None, Port=None, Name='', timeout_seconds=None, local_ae=None):
+    def __init__(self, Socket=None, Port=None, Name='', 
+                            timeout_seconds=None, local_ae=None):
         
         if Socket and Port:
-            # FIXME: Needs proper exception
-            raise #"Cannot have both socket and port"
+            raise ValueError("DULServiceProvider can't be instantiated with "
+                                        "both Socket and Port parameters")
 
         # The local AE
         self.local_ae = local_ae
@@ -139,17 +140,16 @@ class DULServiceProvider(Thread):
         self.state_machine = StateMachine(self)
 
         if Socket:
-            # A client socket has been given
+            # A client socket has been given, so the local AE is acting as
+            #   an SCP
             # generate an event 5
             self.event_queue.put('Evt5')
             self.scu_socket = Socket
             self.peer_address = None
             self.scp_socket = None
         elif Port:
-            # Setup the local server socket
-            # This is the socket that will accept connections
-            # from the remote DUL provider
-            # start this instance of DULServiceProvider in a thread.
+            # A port number has been given, so the local AE is acting as an
+            #   SCU. Create a new socket using the given port number
             self.scp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.scp_socket.setsockopt(socket.SOL_SOCKET,
                                        socket.SO_REUSEADDR, 
@@ -165,6 +165,7 @@ class DULServiceProvider(Thread):
                     #logger.error("Already bound")
                     # FIXME: If already bound then warn?
                     #   Why would it already be bound?
+                    # A: Another process may be using it
                     pass
                 self.scp_socket.listen(1)
 
@@ -234,13 +235,9 @@ class DULServiceProvider(Thread):
         None 
             If the queue is empty
         """
-        # if not self.scu_socket: return None
         try:
             queue_item = self.to_user_queue.get(block=Wait, timeout=Timeout)
-            #logger.debug('DUL processing item to service user')
-            #print(queue_item)
             return queue_item
-            
         except queue.Empty:
             return None
 

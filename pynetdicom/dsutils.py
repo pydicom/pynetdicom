@@ -6,46 +6,50 @@
 #
 
 from io import StringIO, BytesIO
+import logging
 
 import pydicom
 
-#if dicom.__version_info__ >= (0, 9, 8):
 from pydicom.filebase import DicomBytesIO
-#else:
-#    from dicom.filebase import DicomStringIO as DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
-def wrap_list(lst, items_per_line=16):
-    lines = []
-    for i in range(0, len(lst), items_per_line):
-        chunk = lst[i:i + items_per_line]
-        line = 'D:   ' + '  '.join(format(x, '02x') for x in chunk)
-        lines.append(line)
-    return "\n".join(lines)
+logger = logging.getLogger('pynetdicom.dsutils')
 
-def decode(s, is_implicit_VR, is_little_endian):
+def decode(b, is_implicit_VR, is_little_endian):
     """
     When sent a DIMSE Message from a peer AE, decode the data and convert
     it to a pydicom Dataset instance
     
     Parameters
     ----------
-    s - io.BytesIO
+    b - io.BytesIO
         The DIMSE Message sent from the peer AE
     is_implicit_VR - bool
-        The Transfer Syntax type
+        Is implicit or explicit VR
     is_little_endian - bool
-        The byte ordering
+        The byte ordering, little or big endian
         
     Returns
     -------
     pydicom.Dataset
         The Message contents decoded into a Dataset
     """
+    if is_little_endian:
+        transfer_syntax = "Little Endian"
+    else:
+        transfer_syntax = "Big Endian"
+    
+    if is_implicit_VR:
+        transfer_syntax += " Implicit"
+    else:
+        transfer_syntax += " Explicit"
+    
+    logger.debug('pydicom::read_dataset() TransferSyntax="%s"' %transfer_syntax)
+    
     # Rewind to the start of the stream
-    s.seek(0)
-    return read_dataset(s, is_implicit_VR, is_little_endian)
+    b.seek(0)
+    return read_dataset(b, is_implicit_VR, is_little_endian)
 
 def encode(ds, is_implicit_VR, is_little_endian):
     f = DicomBytesIO()

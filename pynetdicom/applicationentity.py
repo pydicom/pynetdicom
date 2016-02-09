@@ -53,7 +53,7 @@ class ApplicationEntity(threading.Thread):
     AET - str
         The AE title of the AE, 16 characters max
     port - int
-        The port number to user for connections
+        The port number to listen for connections on when acting as an SCP
     SOPSCU - list of DICOM SOP Classes
         Supported SOP Classes when the AE is operating as an SCU
     SOPSCP - list of DICOM SOP Classes
@@ -192,6 +192,8 @@ class ApplicationEntity(threading.Thread):
         
         self.daemon = True
         
+        # The socket to listen for connections on, port is always specified
+        #   When acting as an SCU this isn't really necessary?
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.local_socket.bind(('', port))
@@ -229,7 +231,8 @@ class ApplicationEntity(threading.Thread):
                                          socket.SO_RCVTIMEO, 
                                          struct.pack('ll', 10, 0))
                 
-                # Create a new association
+                # Create a new Association
+                # Association(local_ae, local_socket=None, peer_ae=None)
                 assoc = Association(self, client_socket)
                 self.Associations.append(assoc)
 
@@ -270,13 +273,21 @@ class ApplicationEntity(threading.Thread):
                 # when we logoff.
                 continue
 
-    def RequestAssociation(self, remoteAE):
+    def request_association(self, port, ip_address, ae_title='ANYSCP'):
         """Requests association to a remote application entity
+        
+        When requesting an association the local AE is acting as an SCU and
+        hence passes the remote AE's dict to Association
         
         Parameters
         ----------
-        remoteAE - dict
-            A dict containing the remote AE's address, port and title
+        port - int
+            The peer AE's listen port number
+        ip_address - str
+            The peer AE's IP/TCP address (IPv4)
+        ae_title - str, optional
+            The peer AE's title, must conform to AE title requirements as per
+            PS
             
         Returns
         -------
@@ -285,17 +296,30 @@ class ApplicationEntity(threading.Thread):
         None
             If the association failed or was rejected
         """
-        assoc = Association(self, RemoteAE=remoteAE)
         
+        peer_ae = {'AET' : ae_title, 
+                   'Address' : ip_address, 
+                   'Port' : port}
+        
+        # Association(local_ae, local_socket=None, remote_ae=None)
+        assoc = Association(self, RemoteAE=peer_ae)
+        
+        # Endlessly loops while the Association negotiation is taking place
         while not assoc.AssociationEstablished \
                 and not assoc.AssociationRefused and not assoc.DUL.kill:
             time.sleep(0.1)
         
+        # If the Association was established
         if assoc.AssociationEstablished:
             self.Associations.append(assoc)
             return assoc
 
         return None
+
+    def RequestAssociation(self, remoteAE):
+        return self.request_association(remoteAE['Port'], 
+                                         remoteAE['Address'], 
+                                         remoteAE['AET'])
 
 
     # Communication related callback
@@ -313,8 +337,56 @@ class ApplicationEntity(threading.Thread):
     def on_association_accepted(self):
         pass
     
-    def on_association_refused(self):
-        pass
+    def on_association_rejected(self, associate_rj_pdu):
+        """
+        Placeholder for a function callback. Function will be called 
+        when an association attempt is rejected by a peer AE
+        
+        The default implementation is used for logging debugging information
+        
+        Parameters
+        ----------
+        associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        """
+        
+        # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
+        #   for information on the result and diagnostic information
+        source = associate_rj_pdu.ResultSource
+        result = associate_rj_pdu.Result
+        reason = associate_rj_pdu.Diagnostic
+        
+        source_str = { 1 : 'Service User',
+                       2 : 'Service Provider (ACSE)',
+                       3 : 'Service Provider (Presentation)'}
+        
+        reason_str = [{ 1 : 'No reason given',
+                        2 : 'Application context name not supported',
+                        3 : 'Calling AE title not recognised',
+                        4 : 'Reserved',
+                        5 : 'Reserved',
+                        6 : 'Reserved',
+                        7 : 'Called AE title not recognised',
+                        8 : 'Reserved',
+                        9 : 'Reserved',
+                       10 : 'Reserved'},
+                      { 1 : 'No reason given',
+                        2 : 'Protocol version not supported'},
+                      { 0 : 'Reserved',
+                        1 : 'Temporary congestion',
+                        2 : 'Local limit exceeded',
+                        3 : 'Reserved',
+                        4 : 'Reserved',
+                        5 : 'Reserved',
+                        6 : 'Reserved',
+                        7 : 'Reserved'}]
+        
+        result_str = { 1 : 'Rejected Permanent',
+                       2 : 'Rejected Transient'}
+        
+        logger.error('Association Rejected:')
+        logger.error('Result: %s, Source: %s' %(result_str[result], source_str[source]))
+        logger.error('Reason: %s' %reason_str[source - 1][reason])
         
     def on_association_released(self):
         logger.info('Association Release')
@@ -739,9 +811,41 @@ class ApplicationEntity(threading.Thread):
         """
         pass
 
+
+    # High-level DIMSE related callbacks
+    def on_echo(self):
+        pass
     
-    # Higher-level DIMSE related callbacks
-    def on_echo_received(self, pres_context_id, echo):
+    def on_store(self, sop_class, dataset):
+        """
+        Function callback called when a dataset is received following a C-STORE.
+        
+        Parameters
+        ----------
+        sop_class - pydicom.SOPclass.StorageServiceClass
+            The StorageServiceClass representing the object
+        dataset - pydicom.Dataset
+            The DICOM dataset sent via the C-STORE
+            
+        Returns
+        -------
+        status
+            A valid return status, see the StorageServiceClass for the 
+            available statuses
+        """
+        return sop_class.Success
+        
+    def on_find(self, dataset):
+        pass
+        
+    def on_c_get(self, dataset):
+        pass
+        
+    def on_move(self, dataset):
+        pass
+    
+    # Mid-level DIMSE related callbacks
+    def on_receive_c_echo_rq(self, pres_context_id, echo):
         """
         Placeholder for a function callback. Function will be called 
         after receiving and decoding a C-ECHO-RQ. The C-ECHO service is used
@@ -760,7 +864,7 @@ class ApplicationEntity(threading.Thread):
         for line in s:
             logger.debug(line)
     
-    def on_store_received(self, dataset):
+    def on_receive_c_store_rq(self, sop_class, store):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-STORE-RQ
@@ -770,9 +874,33 @@ class ApplicationEntity(threading.Thread):
         dataset - pydicom.Dataset
             The dataset sent to the local AE
         """
-        pass
+        priority_str = {2 : 'Low',
+                        0 : 'Medium',
+                        1 : 'High'}
+        priority = priority_str[store.Priority.value]
 
-    def on_find_received(self, attributes):
+        if 'DataSet' in store.__dict__.keys():
+            dataset = 'Present'
+        else:
+            dataset = 'None'
+        
+        s = ['Received Storage Request']
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type               : %s' %'C-STORE RQ')
+        s.append('Presentation Context ID    : %s' %sop_class.pcid)
+        s.append('Message ID                 : %s' %store.MessageID.value)
+        s.append('Affected SOP Class UID     : %s' %store.AffectedSOPClassUID.value)
+        s.append('Affected SOP Instance UID  : %s' %store.AffectedSOPInstanceUID.value)
+        
+        s.append('Data Set                   : %s' %dataset)
+        s.append('Priority                   : %s' %priority)
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            logger.debug(line)
+
+    def on_receive_c_find_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-FIND-RQ. The C-FIND service is used by a DIMSE to match
@@ -794,7 +922,7 @@ class ApplicationEntity(threading.Thread):
         """
         return None
         
-    def on_c_get_received(self, attributes):
+    def on_receive_c_get_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
@@ -817,7 +945,7 @@ class ApplicationEntity(threading.Thread):
         """
         return None
         
-    def on_move_received(self, attributes):
+    def on_receive_c_move_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
@@ -841,7 +969,7 @@ class ApplicationEntity(threading.Thread):
         return None
 
 
-    def on_event_report_received(self, event):
+    def on_receive_n_event_report_rq(self, event):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-EVENT-REPORT-RQ. The N-EVENT-REPORT service is used 
@@ -856,7 +984,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_n_get_received(self, attributes):
+    def on_receive_n_get_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-GET-RQ. The N-GET service is used 
@@ -875,7 +1003,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_n_set(self, attributes):
+    def on_receive_n_set_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-SET-RQ. The N-SET service is used 
@@ -891,7 +1019,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_n_action(self, actions):
+    def on_receive_n_action_rq(self, actions):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-ACTION-RQ. The N-ACTION service is used 
@@ -906,7 +1034,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_n_create(self, attributes):
+    def on_receive_n_create_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-CREATE-RQ. The N-CREATE service is used 
@@ -923,7 +1051,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_n_delete(self, attributes):
+    def on_receive_n_delete_rq(self, attributes):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-DELETE-RQ. The N-DELETE service is used 
@@ -967,20 +1095,9 @@ class ApplicationEntity(threading.Thread):
             The DIMSE message that was received as a Dataset
         """
         if isinstance(sop_class, VerificationServiceClass):
-            self.on_echo_received(sop_class.pcid, message)
+            self.on_receive_c_echo_rq(sop_class.pcid, message)
         elif isinstance(sop_class, StorageServiceClass):
-            s = ['Received Storage Request']
-            s.append(sop_class)
-            s.append('===================== INCOMING DIMSE MESSAGE ================'
-                     '====')
-            s.append('Message Type               : %s' %'C-STORE RQ')
-            s.append('Presentation Context ID    : %s' %'FIXME')
-            s.append('Message ID                 : %s' %message.MessageID.value)
-            s.append('Data Set                   : %s' %'none')
-            s.append('======================= END DIMSE MESSAGE ==================='
-                     '====')
-            for line in s:
-                logger.debug(line)
+            self.on_receive_c_store_rq(sop_class, message)
         else:
             pass
 

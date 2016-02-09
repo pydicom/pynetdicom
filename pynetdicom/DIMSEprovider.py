@@ -61,13 +61,12 @@ class DIMSEServiceProvider(object):
             self.DUL.Send(pp)
 
     def Receive(self, Wait=False, Timeout=None):
-
         if self.message is None:
             self.message = DIMSEMessage()
 
         if Wait:
             # loop until complete DIMSE message is received
-            #logger.debug('Entering loop for receiving DIMSE message')
+            logger.debug('DIMSE: Entering loop for receiving DIMSE message')
             
             while 1:
                 time.sleep(0.001)
@@ -77,8 +76,10 @@ class DIMSEServiceProvider(object):
                 
                 if nxt.__class__ is not P_DATA_ServiceParameters:
                     return None, None
-                    
-                if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
+                
+                dul_obj = self.DUL.Receive(Wait, Timeout)
+
+                if self.message.Decode(dul_obj):
                     tmp = self.message
                     self.message = None
                     #logger.debug('Decoded DIMSE message: %s', str(tmp))
@@ -89,6 +90,7 @@ class DIMSEServiceProvider(object):
                 return None, None
             
             dul_obj = self.DUL.Receive(Wait, Timeout)
+
             if self.message.Decode(dul_obj):
                 tmp = self.message
                 #print(type(tmp))
