@@ -693,8 +693,8 @@ class A_ABORT_PDU(PDU):
         self.ReasonDiag = None              # Unsigned byte
 
     def FromParams(self, Params):
-      # Params can be an A_ABORT_ServiceParamters or A_P_ABORT_ServiceParamters
-      # object.
+        # Params can be an A_ABORT_ServiceParamters or A_P_ABORT_ServiceParamters
+        # object.
         if Params.__class__ == A_ABORT_ServiceParameters:
             # User initiated abort
             self.ReasonDiag = 0

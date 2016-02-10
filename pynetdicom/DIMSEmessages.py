@@ -303,7 +303,6 @@ class C_ECHO_RSP_Message(DIMSEMessage):
     DataField = None
 
     def FromParams(self, params):
-        #print('C-ECHO-RSP', params)
         if params.AffectedSOPClassUID:
             self.CommandSet[(0x0000, 0x0002)].value = params.AffectedSOPClassUID
         self.CommandSet[(0x0000, 0x0100)].value = 0x8030
@@ -322,26 +321,17 @@ class C_ECHO_RSP_Message(DIMSEMessage):
 
 
 class C_STORE_RQ_Message(DIMSEMessage):
-    CommandFields = [
-        ('Group Length',
-         (0x0000, 0x0000), 'UL', 1),
-        ('Affected SOP Class UID',
-         (0x0000, 0x0002), 'UI', 1),
-        ('Command Field',
-         (0x0000, 0x0100), 'US', 1),
-        ('Message ID',
-         (0x0000, 0x0110), 'US', 1),
-        ('Priority',
-         (0x0000, 0x0700), 'US', 1),
-        ('Data Set Type',
-         (0x0000, 0x0800), 'US', 1),
-        ('Affected SOP Instance UID',
-         (0x0000, 0x1000), 'UI', 1),
-        ('Move Originator Application Entity Title',
-         (0x0000, 0x1030), 'AE', 1),
-        ('Move Originator Message ID',
-         (0x0000, 0x1031), 'US', 1),
-    ]
+    CommandFields = [('Group Length', (0x0000, 0x0000), 'UL', 1),
+                     ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+                     ('Command Field', (0x0000, 0x0100), 'US', 1),
+                     ('Message ID', (0x0000, 0x0110), 'US', 1),
+                     ('Priority', (0x0000, 0x0700), 'US', 1),
+                     ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+                     ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1),
+                     ('Move Originator Application Entity Title',
+                            (0x0000, 0x1030), 'AE', 1),
+                     ('Move Originator Message ID', (0x0000, 0x1031), 'US', 1)]
+    
     DataField = 'Data Set'
 
     def FromParams(self, params):
@@ -351,16 +341,19 @@ class C_STORE_RQ_Message(DIMSEMessage):
         self.CommandSet[(0x0000, 0x0700)].value = params.Priority
         self.CommandSet[(0x0000, 0x0800)].value = 0x0001
         self.CommandSet[(0x0000, 0x1000)].value = params.AffectedSOPInstanceUID
+        
         if params.MoveOriginatorApplicationEntityTitle:
             self.CommandSet[(0x0000, 0x1030)].value = \
                 params.MoveOriginatorApplicationEntityTitle
         else:
             self.CommandSet[(0x0000, 0x1030)].value = ""
+        
         if params.MoveOriginatorMessageID:
             self.CommandSet[(0x0000, 0x1031)
                             ].value = params.MoveOriginatorMessageID
         else:
             self.CommandSet[(0x0000, 0x1031)].value = ""
+        
         self.DataSet = params.DataSet
         self.SetLength()
 
@@ -372,6 +365,9 @@ class C_STORE_RQ_Message(DIMSEMessage):
         tmp.DataSet = self.DataSet
         tmp.MessageID = self.CommandSet[(0x0000, 0x0110)]
         return tmp
+        
+    #def __str__(self):
+    #    return 'C-STORE-RQ'
 
 
 class C_STORE_RSP_Message(DIMSEMessage):

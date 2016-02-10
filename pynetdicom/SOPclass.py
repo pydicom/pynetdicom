@@ -107,7 +107,7 @@ class StorageServiceClass(ServiceClass):
                             'Warning',
                             'Data Set does not match SOP Class',
                             range(0xB007, 0xB007 + 1))
-    ElementDiscarted = Status(
+    ElementDisgarded = Status(
                             'Warning',
                             'Element Discarted',
                             range(0xB006, 0xB006 + 1))
@@ -121,13 +121,20 @@ class StorageServiceClass(ServiceClass):
         csto.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         csto.Priority = 0x0002
         csto.DataSet = encode(dataset,
-                                      self.transfersyntax.is_implicit_VR,
-                                      self.transfersyntax.is_little_endian)
+                              self.transfersyntax.is_implicit_VR,
+                              self.transfersyntax.is_little_endian)
+        csto.DataSet = BytesIO(csto.DataSet)
+        
+        # If we failed to encode our dataset, abort the association and return
+        if csto.DataSet is None:
+            #self.DIMSE.DUL
+            return None
+
         # send cstore request
         self.DIMSE.Send(csto, self.pcid, self.maxpdulength)
 
         # wait for c-store response
-        ans, id = self.DIMSE.Receive(Wait=True)
+        ans, _ = self.DIMSE.Receive(Wait=True)
         return self.Code2Status(ans.Status.value)
 
     def __init__(self):
@@ -831,12 +838,11 @@ class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
                                               ModalityWorklistServiceSOPClass):
     UID = '1.2.840.10008.5.1.4.31'
 
-d = dir()
 
+d = dir()
 
 def UID2SOPClass(UID):
     """Returns a SOPClass object from given UID"""
-
     for ss in d:
         if hasattr(eval(ss), 'UID'):
             tmpuid = getattr(eval(ss), 'UID')

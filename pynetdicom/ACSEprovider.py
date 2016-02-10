@@ -114,9 +114,11 @@ class ACSEServiceProvider(object):
         self.AcceptedPresentationContexts = []
         for cc in assoc_rsp.PresentationContextDefinitionResultList:
             if cc[1] == 0:
+                transfer_syntax = UID(cc[2].decode('utf-8'))
                 uid = [x[1] for x in pcdl if x[0] == cc[0]][0]
-                self.AcceptedPresentationContexts.append(
-                    (cc[0], uid, UID(str(cc[2]))))
+                self.AcceptedPresentationContexts.append((cc[0], 
+                                                          uid, 
+                                                          transfer_syntax))
         
         return True, assoc_rsp
 
@@ -215,7 +217,7 @@ class ACSEServiceProvider(object):
         self.DUL.Send(res)
         return assoc
 
-    def Release(self, Reason):
+    def Release(self, reason):
         """
         Requests the release of the associations and waits for confirmation.
         A-RELEASE always gives a reason of 'normal' and a result of 
@@ -223,23 +225,26 @@ class ACSEServiceProvider(object):
         
         Returns
         -------
-        rsp 
+        response 
             The A-RELEASE-RSP
         """
-        rel = A_RELEASE_ServiceParameters()
-        #print('ACSE - Before sending release')
-        #print('ACSE - Release:' , rel)
-        self.DUL.Send(rel)
-        #print(self.DUL.SM.CurrentState)
-        #print('ACSE - After sending release')
-        rsp = self.DUL.Receive(Wait=True)
-        #print('ACSE - After receiving response')
-        return rsp
+        release = A_RELEASE_ServiceParameters()
+        self.DUL.Send(release)
+        response = self.DUL.Receive(Wait=True)
 
-    def Abort(self):
-        """Signifies the abortion of the association."""
-        ab = A_ABORT_ServiceParameters()
-        self.DUL.Send(rel)
+        return response
+
+    def Abort(self, reason):
+        """
+        Sends an A-ABORT to the peer AE
+        
+        Parameters
+        ----------
+        reason - ?
+        """
+        abort = A_ABORT_ServiceParameters()
+        abort.AbortSource = 0
+        self.DUL.Send(abort)
         time.sleep(0.5)
 
     def CheckRelease(self):

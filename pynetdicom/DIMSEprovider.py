@@ -9,7 +9,6 @@ import time
 
 from pynetdicom.DIMSEmessages import *
 from pynetdicom.DIMSEparameters import *
-from pynetdicom.DIMSEmessages import DIMSEMessage
 from pynetdicom.DULparameters import P_DATA_ServiceParameters
 
 
@@ -49,10 +48,10 @@ class DIMSEServiceProvider(object):
                 dimse_msg = C_MOVE_RQ_Message()
             else:
                 dimse_msg = C_MOVE_RSP_Message()
-                
+        
         #logger.debug('DIMSE message of class %s' % dimse_msg.__class__)
         dimse_msg.FromParams(primitive)
-        #self.DUL.local_ae.on_send_dimse_message(dimse_msg)
+        self.DUL.local_ae.on_send_dimse_message(dimse_msg)
         #logger.debug('DIMSE message: %s', str(dimse_msg))
         pdatas = dimse_msg.Encode(id, maxpdulength)
         #logger.debug('encoded %d fragments' % len(pdatas))
@@ -66,7 +65,7 @@ class DIMSEServiceProvider(object):
 
         if Wait:
             # loop until complete DIMSE message is received
-            logger.debug('DIMSE: Entering loop for receiving DIMSE message')
+            #logger.debug('DIMSE: Entering loop for receiving DIMSE message')
             
             while 1:
                 time.sleep(0.001)
@@ -80,10 +79,13 @@ class DIMSEServiceProvider(object):
                 dul_obj = self.DUL.Receive(Wait, Timeout)
 
                 if self.message.Decode(dul_obj):
+                    self.DUL.local_ae.on_receive_dimse_message(self.message)
                     tmp = self.message
                     self.message = None
-                    #logger.debug('Decoded DIMSE message: %s', str(tmp))
-                    return tmp.ToParams(), tmp.ID
+                    ID = tmp.ID
+                    tmp = tmp.ToParams()
+                    
+                    return tmp, ID
         else:
             cls = self.DUL.Peek().__class__
             if cls not in (type(None), P_DATA_ServiceParameters):
@@ -92,11 +94,12 @@ class DIMSEServiceProvider(object):
             dul_obj = self.DUL.Receive(Wait, Timeout)
 
             if self.message.Decode(dul_obj):
+                self.DUL.local_ae.on_receive_dimse_message(self.message)
                 tmp = self.message
-                #print(type(tmp))
                 self.message = None
-                #logger.debug('Received DIMSE message: %s', tmp)
-                #print('DIMSE::Receive()', tmp, tmp.ID)
-                return tmp.ToParams(), tmp.ID
+                ID = tmp.ID
+                tmp = tmp.ToParams()
+
+                return tmp, ID
             else:
                 return None, None

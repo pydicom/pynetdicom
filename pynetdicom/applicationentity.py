@@ -163,7 +163,7 @@ class ApplicationEntity(threading.Thread):
                     "integer between 1 and 255. The remaining SOP Classes will "
                     "not be included")
                 break
-            
+                
         # Build acceptable context definition list used to decide
         #   whether an association from a remote AE will be accepted or
         #   not. This is based on the SupportedSOPClassesAsSCP and
@@ -273,7 +273,7 @@ class ApplicationEntity(threading.Thread):
                 # when we logoff.
                 continue
 
-    def request_association(self, port, ip_address, ae_title='ANYSCP'):
+    def request_association(self, ip_address, port, ae_title='ANYSCP'):
         """Requests association to a remote application entity
         
         When requesting an association the local AE is acting as an SCU and
@@ -281,10 +281,10 @@ class ApplicationEntity(threading.Thread):
         
         Parameters
         ----------
-        port - int
-            The peer AE's listen port number
         ip_address - str
             The peer AE's IP/TCP address (IPv4)
+        port - int
+            The peer AE's listen port number
         ae_title - str, optional
             The peer AE's title, must conform to AE title requirements as per
             PS
@@ -296,6 +296,15 @@ class ApplicationEntity(threading.Thread):
         None
             If the association failed or was rejected
         """
+        
+        if not isinstance(ip_address, str):
+            raise ValueError("ip_address must be a valid IPv4 string")
+            
+        if not isinstance(port, int):
+            raise ValueError("port must be a valid port number")
+            
+        if not isinstance(ae_title, str):
+            raise ValueError("ae_title must be a valid AE title string")
         
         peer_ae = {'AET' : ae_title, 
                    'Address' : ip_address, 
@@ -334,8 +343,24 @@ class ApplicationEntity(threading.Thread):
     def on_association_requested(self):
         pass
     
-    def on_association_accepted(self):
-        pass
+    def on_association_accepted(self, associate_ac_pdu):
+        """
+        Placeholder for a function callback. Function will be called 
+        when an association attempt is rejected by a peer AE
+        
+        The default implementation is used for logging debugging information
+        
+        Parameters
+        ----------
+        associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        """
+        
+        for user_info in associate_ac_pdu.UserInformation:
+            if isinstance(user_info, MaximumLengthParameters):
+                max_send_pdv = user_info.MaximumLengthReceived
+        
+        logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
     
     def on_association_rejected(self, associate_rj_pdu):
         """
@@ -844,26 +869,95 @@ class ApplicationEntity(threading.Thread):
     def on_move(self, dataset):
         pass
     
+    
     # Mid-level DIMSE related callbacks
-    def on_receive_c_echo_rq(self, pres_context_id, echo):
+    def on_send_c_echo_rq(self, dimse_msg):
+        """
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.SOPclass.C_ECHO_RQ 
+        """
+        d = dimse_msg.CommandSet
+        logger.info("Sending Echo Request: MsgID %s" %(d.MessageID))
+        
+    def on_send_c_echo_rsp(self, dimse_msg):
+        pass
+    
+    def on_send_c_store_rq(self, dimse_msg):
+        """
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_STORE_RQ 
+        """
+        d = dimse_msg.CommandSet
+
+        priority_str = {2 : 'Low',
+                        0 : 'Medium',
+                        1 : 'High'}
+        priority = priority_str[d.Priority]
+
+        dataset = 'None'
+        if 'DataSet' in dimse_msg.__dict__.keys():
+            dataset = 'Present'
+            
+        if d.AffectedSOPClassUID == 'CT Image Storage':
+            dataset_type = ', (CT)'
+        else:
+            dataset_type = ''
+        
+        logger.info("Sending Store Request: MsgID %s%s" 
+                %(d.MessageID, dataset_type))
+        
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-STORE RQ')
+        s.append('Message ID                    : %s' %d.MessageID)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('Priority                      : %s' %priority)
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            logger.debug(line)
+    
+    def on_send_c_store_rsp(self, dimse_msg):
+        pass
+    
+    
+    def on_receive_c_echo_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         after receiving and decoding a C-ECHO-RQ. The C-ECHO service is used
         to verify end-to-end communications with a peer DIMSE user.
         """
+        d = dimse_msg.CommandSet
+        
         s = ['Received Echo Request']
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type               : %s' %'C-ECHO RQ')
-        s.append('Presentation Context ID    : %s' %pres_context_id)
-        s.append('Message ID                 : %s' %echo.MessageID.value)
-        s.append('Data Set                   : %s' %'none')
+        s.append('Message Type                  : %s' %'C-ECHO RQ')
+        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
+        s.append('Message ID                    : %s' %d.MessageID)
+        s.append('Data Set                      : %s' %'none')
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
                  
         for line in s:
             logger.debug(line)
     
+    def on_receive_c_echo_rsp(self, dimse_msg):
+        """
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
+        """
+        d = dimse_msg.CommandSet
+        
+        # Status must always be Success for C_ECHO_RSP
+        logger.info("Received Echo Response (Status: Success)")
+        
     def on_receive_c_store_rq(self, sop_class, store):
         """
         Placeholder for a function callback. Function will be called 
@@ -887,16 +981,47 @@ class ApplicationEntity(threading.Thread):
         s = ['Received Storage Request']
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type               : %s' %'C-STORE RQ')
-        s.append('Presentation Context ID    : %s' %sop_class.pcid)
-        s.append('Message ID                 : %s' %store.MessageID.value)
-        s.append('Affected SOP Class UID     : %s' %store.AffectedSOPClassUID.value)
-        s.append('Affected SOP Instance UID  : %s' %store.AffectedSOPInstanceUID.value)
-        
-        s.append('Data Set                   : %s' %dataset)
-        s.append('Priority                   : %s' %priority)
+        s.append('Message Type                  : %s' %'C-STORE RQ')
+        s.append('Presentation Context ID       : %s' %sop_class.pcid)
+        s.append('Message ID                    : %s' %store.MessageID.value)
+        s.append('Affected SOP Class UID        : %s' %store.AffectedSOPClassUID.value)
+        s.append('Affected SOP Instance UID     : %s' %store.AffectedSOPInstanceUID.value)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('Priority                      : %s' %priority)
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
+        for line in s:
+            logger.debug(line)
+
+    def on_receive_c_store_rsp(self, dimse_msg):
+
+        d = dimse_msg.CommandSet
+        
+        dataset = 'None'
+        if 'DataSet' in dimse_msg.__dict__.keys():
+            if dimse_msg.DataSet.getvalue() != b'':
+                dataset = 'Present'
+        
+        status = '0x%04x' %d.Status
+        if status == '0x0000':
+            status += ': Success'
+        else:
+            pass
+        
+        s = ['Received Storage Response']
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-STORE RSP')
+        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
+        s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('DIMSE Status                  : %s' %status)
+        
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+                 
         for line in s:
             logger.debug(line)
 
@@ -1079,10 +1204,16 @@ class ApplicationEntity(threading.Thread):
         message - pynetdicom.DIMSEmessage.DIMSEMessage
             The DIMSE message to be sent
         """
-        #print(message)
-        pass
+        #logger.info('ae::on_send_dimse_message: %s' %type(message))
+                
+        callback = {C_ECHO_RQ_Message   : self.on_send_c_echo_rq,
+                    C_ECHO_RSP_Message  : self.on_send_c_echo_rsp,
+                    C_STORE_RQ_Message  : self.on_send_c_store_rq,
+                    C_STORE_RSP_Message : self.on_send_c_store_rsp}
+
+        callback[type(message)](message)
         
-    def on_receive_dimse_message(self, sop_class, message):
+    def on_receive_dimse_message(self, message):
         """
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding a DIMSE message
@@ -1094,12 +1225,14 @@ class ApplicationEntity(threading.Thread):
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
         """
-        if isinstance(sop_class, VerificationServiceClass):
-            self.on_receive_c_echo_rq(sop_class.pcid, message)
-        elif isinstance(sop_class, StorageServiceClass):
-            self.on_receive_c_store_rq(sop_class, message)
-        else:
-            pass
+        #logger.info('ae::on_receive_dimse_message: %s' %type(message))
+                
+        callback = {C_ECHO_RQ_Message   : self.on_receive_c_echo_rq,
+                    C_ECHO_RSP_Message  : self.on_receive_c_echo_rsp,
+                    C_STORE_RQ_Message  : self.on_receive_c_store_rq,
+                    C_STORE_RSP_Message : self.on_receive_c_store_rsp}
+
+        callback[type(message)](message)
 
 
 class AE(ApplicationEntity):
