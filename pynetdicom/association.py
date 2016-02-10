@@ -184,6 +184,13 @@ class Association(threading.Thread):
         self.Kill()
 
     def Abort(self, reason):
+        """
+        Abort the Association
+        
+        Parameters
+        ----------
+        reason - ???
+        """
         self.ACSE.Abort(reason)
         self.Kill()
 
@@ -222,7 +229,7 @@ class Association(threading.Thread):
 
             # Callbacks
             #self.AE.OnAssociateRequest(self)
-            self.AE.on_association_accepted()
+            self.AE.on_association_accepted(assoc)
             
             # Build supported SOP Classes for the Association
             self.SOPClassesAsSCP = []
@@ -250,13 +257,17 @@ class Association(threading.Thread):
                                     self.AE.MaxPDULength,
                                     self.AE.PresentationContextDefinitionList,
                                     userspdu=ext)
-            
+
             # Reply from the remote AE
             if ans:
                 # Callback trigger
                 if 'OnAssociateResponse' in self.AE.__dict__:
                     self.AE.OnAssociateResponse(ans)
                     
+                # Callback trigger
+                if response.Result == 'Accepted':
+                    self.AE.on_association_accepted(response)
+
             else:
                 # Callback trigger
                 if response is not None:
@@ -288,6 +299,7 @@ class Association(threading.Thread):
                 if msg:
                     # DIMSE message received
                     uid = msg.AffectedSOPClassUID
+
                     # New SOPClass instance
                     obj = UID2SOPClass(uid.value)()
                     
@@ -310,9 +322,6 @@ class Association(threading.Thread):
                     obj.ACSE = self.ACSE
                     obj.AE = self.AE
                     obj.assoc = assoc
-                    
-                    # Callback trigger
-                    self.AE.on_receive_dimse_message(obj, msg)
                     
                     # Run SOPClass in SCP mode
                     obj.SCP(msg)

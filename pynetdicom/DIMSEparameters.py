@@ -5,6 +5,8 @@
 #    available at http://pynetdicom.googlecode.com
 #
 
+import struct
+
 
 def classprinter(klass):
     tmp = ''
@@ -15,7 +17,6 @@ def classprinter(klass):
 
 
 # DIMSE-C Services
-
 class C_STORE_ServiceParameters:
 
     def __init__(self):
@@ -32,7 +33,6 @@ class C_STORE_ServiceParameters:
     def __repr__(self):
         return classprinter(self)
 
-
 class C_FIND_ServiceParameters:
 
     def __init__(self):
@@ -45,7 +45,6 @@ class C_FIND_ServiceParameters:
 
     def __repr__(self):
         return classprinter(self)
-
 
 class C_GET_ServiceParameters:
 
@@ -64,7 +63,6 @@ class C_GET_ServiceParameters:
     def __repr__(self):
         return classprinter(self)
 
-
 class C_MOVE_ServiceParameters:
 
     def __init__(self):
@@ -82,7 +80,6 @@ class C_MOVE_ServiceParameters:
 
     def __repr__(self):
         return classprinter(self)
-
 
 class C_ECHO_ServiceParameters:
     """
@@ -125,7 +122,6 @@ class N_EVENT_REPORT_ServiceParamters:
         self.EventReply = None
         self.Status = None
 
-
 class N_GET_ServiceParamters:
 
     def __init__(self):
@@ -138,7 +134,6 @@ class N_GET_ServiceParamters:
         self.AffectedSOPInstanceUID = None
         self.AttributeList = None
         self.Status = None
-
 
 class N_SET_ServiceParamters:
 
@@ -153,9 +148,7 @@ class N_SET_ServiceParamters:
         self.AffectedSOPInstanceUID = None
         self.Status = None
 
-
 class N_ACTION_ServiceParamters:
-
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -187,13 +180,14 @@ class N_DELETE_ServiceParamters:
         self.AffectedSOPInstanceUID = None
         self.Status = None
 
-class C_STORE_RQ_Message:
-    def __init__(self):
-        pass
+# Why are these here?
+#class C_STORE_RQ_Message:
+#    def __init__(self):
+#        pass
 
-class C_STORE_Service:
-    def __init__(self):
-        self.Parameters = C_STORE_ServiceParameters()
+#class C_STORE_Service:
+#    def __init__(self):
+#        self.Parameters = C_STORE_ServiceParameters()
 
 
 # Extended association stuff: Defined in part 3.7
@@ -249,7 +243,6 @@ class ImplementationClassUIDSubItem:
             "   SOP class UID length: %s\n" % self.ImplementationClassUID
         return tmp
 
-
 class ImplementationVersionNameParameters:
 
     def __init__(self):
@@ -259,7 +252,6 @@ class ImplementationVersionNameParameters:
         tmp = ImplementationVersionNameSubItem()
         tmp.FromParams(self)
         return tmp
-
 
 class ImplementationVersionNameSubItem:
 
@@ -302,7 +294,6 @@ class ImplementationVersionNameSubItem:
         tmp = tmp + \
             "   SOP class UID length: %s\n" % self.ImplementationVersionName
         return tmp
-
 
 class AsynchronousOperationsWindowSubItem:
 
@@ -362,9 +353,6 @@ class AsynchronousOperationsWindowSubItem:
         return tmp
 
 
-import struct
-
-
 class SCP_SCU_RoleSelectionParameters:
 
     def __init__(self):
@@ -376,7 +364,6 @@ class SCP_SCU_RoleSelectionParameters:
         tmp = SCP_SCU_RoleSelectionSubItem()
         tmp.FromParams(self)
         return tmp
-
 
 class SCP_SCU_RoleSelectionSubItem:
 

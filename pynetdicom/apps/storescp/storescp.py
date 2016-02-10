@@ -105,7 +105,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$storescp.py v%s %s $' %('0.0.1', '2016-02-02'))
+logger.debug('$storescp.py v%s %s $' %('0.1.0', '2016-02-10'))
 logger.debug('')
 
 # Validate port

@@ -55,7 +55,13 @@ def encode(ds, is_implicit_VR, is_little_endian):
     f = DicomBytesIO()
     f.is_implicit_VR = is_implicit_VR
     f.is_little_endian = is_little_endian
-    write_dataset(f, ds)
+    try:
+        write_dataset(f, ds)
+    except Exception as e:
+        logger.error("pydicom.write_dataset() failed:")
+        logger.error(e)
+        raise
+    
     rawstr = f.parent.getvalue()
     f.close()
     return rawstr
