@@ -110,6 +110,8 @@ args = _setup_argparser()
 
 if args.verbose:
     logger.setLevel(logging.INFO)
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger.setLevel(logging.INFO)
     
 if args.debug:
     logger.setLevel(logging.DEBUG)
@@ -138,6 +140,8 @@ ae.OnReceiveEcho = OnReceiveEcho
 assoc = ae.request_association(args.peer, args.port, args.called_aet)
 
 if assoc is not None:
+    # This seems inelegant...
+    # status = assoc.'acftvw\send(sop_class)
     status = assoc.VerificationSOPClass.SCU(1)
     
     # Release association

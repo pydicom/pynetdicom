@@ -114,6 +114,9 @@ class StorageServiceClass(ServiceClass):
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
     
     def SCU(self, dataset, msgid):
+        """
+        
+        """
         # build C-STORE primitive
         csto = C_STORE_ServiceParameters()
         csto.MessageID = msgid
@@ -127,7 +130,6 @@ class StorageServiceClass(ServiceClass):
         
         # If we failed to encode our dataset, abort the association and return
         if csto.DataSet is None:
-            #self.DIMSE.DUL
             return None
 
         # send cstore request
@@ -159,27 +161,15 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         
         # Callback
-        #   We expect a valid Status from on_store to send back to the AE
+        #   We expect a valid Status from on_store to send back to the peer AE
         if status is None:
             try:
                 status = self.AE.on_store(self, DS)
             except Exception as e:
-                #logger.error()
                 logger.exception("Failed to implement the "
                     "ApplicationEntity::on_store() callback function correctly")
                 status = self.CannotUnderstand
                 
-        
-        
-        # Callback
-        #if not status:
-        #    try:
-        #        status = self.AE.OnReceiveStore(self, DS)
-        #    except:
-        #        #logger.error(
-        #        #    "There was an exception in OnReceiveStore callback")
-        #        status = self.CannotUnderstand
-        #        raise
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 

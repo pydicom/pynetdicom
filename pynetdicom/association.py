@@ -108,6 +108,8 @@ class Association(threading.Thread):
         self.AssociationEstablished = False
         self.AssociationRefused = None
         
+        self.established = False
+        
         self.dimse = None
         self.acse = None
         
@@ -118,45 +120,50 @@ class Association(threading.Thread):
 
         self.start()
 
-    """
-    def GetSOPClass(self, ds):
-        
-        Does this even do anything?
-        
-        Parameters
-        ----------
-        ds
-        
-        sopclass = UID2SOPClass(ds.SOPClassUID)
-    """
+    def SCU(self, dataset, id):
 
-    def SCU(self, ds, id):
-        
         obj = UID2SOPClass(ds.SOPClassUID)()
         
         try:
             obj.pcid, obj.sopclass, obj.transfersyntax = \
                 [x for x in self.SOPClassesAsSCU if x[1] == obj.__class__][0]
         except IndexError:
-            raise Exception("SOP Class %s not supported as SCU" % ds.SOPClassUID)
+            raise ValueError("'%s' is not listed as one of the AE's "
+                    "supported SCU SOP Classes" %obj.__class__.__name__)
 
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
         obj.AE = self.AE
         
-        return obj.SCU(ds, id)
+        return obj.SCU(dataset, id)
 
     def __getattr__(self, attr):
-        # while not self.AssociationEstablished:
-        #    time.sleep(0.001)
+        """
+        
+        """
+        # Wow, eval? Really?
         obj = eval(attr)()
         
-        try:
-            obj.pcid, obj.sopclass, obj.transfersyntax = \
-                [x for x in self.SOPClassesAsSCU if
-                 x[1] == obj.__class__][0]
-        except IndexError:
-            raise #"SOP Class %s not supported as SCU" % attr
+        found_match = False
+        for sop_class in self.SOPClassesAsSCU:
+            if sop_class[1] == obj.__class__:
+                obj.pcid = sop_class[0]
+                obj.sopclass = sop_class[1]
+                obj.transfersyntax = sop_class[2]
+                
+                found_match = True
+                
+        if not found_match:
+            raise ValueError("'%s' is not listed as one of the AE's "
+                    "supported SOP Classes" %obj.__class__.__name__)
+            
+        
+        #try:
+        #    obj.pcid, obj.sopclass, obj.transfersyntax = \
+        #        [x for x in self.SOPClassesAsSCU if x[1] == obj.__class__][0]
+        #except IndexError:
+        #    raise ValueError("'%s' is not listed as one of the AE's "
+        #            "supported SOP Classes" %obj.__class__.__name__)
 
         obj.maxpdulength = self.ACSE.MaxPDULength
         obj.DIMSE = self.DIMSE
@@ -178,7 +185,8 @@ class Association(threading.Thread):
         Parameters
         ----------
         reason - int
-            The reason for releasing the association 
+            The reason for releasing the association. Need to find a list of
+            possible reasons
         """
         self.ACSE.Release(reason)
         self.Kill()
@@ -189,7 +197,8 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        reason - ???
+        reason - in
+            The reason to abort the association. Need to find a list of reasons
         """
         self.ACSE.Abort(reason)
         self.Kill()
@@ -285,15 +294,17 @@ class Association(threading.Thread):
 
         # Assocation established OK
         self.AssociationEstablished = True
+        self.established = True
         
         # Callback trigger
         self.AE.on_association_established()
 
         # If acting as an SCP, listen for further messages on the Association
-        while not self._Kill:
-            time.sleep(0.001)
-            
-            if self.mode == 'Acceptor':
+        if self.mode == 'Acceptor':
+
+            while not self._Kill:
+                time.sleep(0.001)
+
                 # Check with the DIMSE provider for incoming messages
                 msg, pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
                 if msg:
@@ -346,3 +357,18 @@ class Association(threading.Thread):
                 # Check if idle timer has expired
                 if self.DUL.idle_timer_expired():
                     self.Kill()
+
+    def store_dataset(self, dataset):
+        pass
+        
+    def send_echo(self):
+        pass
+        
+    def find_dataset(self, dataset):
+        pass
+        
+    def move_dataset(self, dataset):
+        pass
+        
+    def get_dataset(self, dataset):
+        pass

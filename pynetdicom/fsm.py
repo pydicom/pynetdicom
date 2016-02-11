@@ -46,11 +46,11 @@ class StateMachine:
         """
         
         # Check (event + state) is valid
-        if (event, self.current_state) not in TransitionTable.keys():
+        if (event, self.current_state) not in transition_table.keys():
             raise KeyError("DUL State Machine received an invalid event "
                 "'%s' for the current state '%s'" %(event, self.current_state))
         
-        action_name = TransitionTable[(event, self.current_state)]
+        action_name = transition_table[(event, self.current_state)]
 
         # action is the (description, function, state) tuple
         #   associated with the action_name
@@ -742,6 +742,7 @@ def AA_1(dul):
     # CHECK THIS ...
     dul.pdu.AbortSource = 1
     dul.pdu.ReasonDiag = 0
+    
     dul.pdu.FromParams(dul.primitive)
     dul.scu_socket.send(dul.pdu.Encode())
     
@@ -1065,7 +1066,7 @@ events = {
 }
 
 # State Machine Transitions, PS3.8 Table 9-10
-TransitionTable = {
+transition_table = {
     ('Evt1',  'Sta1'): 'AE-1',
 
     ('Evt2',  'Sta4'): 'AE-2',
