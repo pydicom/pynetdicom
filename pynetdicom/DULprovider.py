@@ -439,7 +439,7 @@ class DULServiceProvider(Thread):
         categorises it and add its to the `to_user_queue`.
         
         """
-        logger.info('Starting DICOM UL service "%s"' %self.name)
+        logger.debug('Starting DICOM UL service "%s"' %self.name)
 
         # Main DUL loop
         while True:
@@ -477,7 +477,7 @@ class DULServiceProvider(Thread):
             
             self.state_machine.do_action(event)
     
-        logger.info('DICOM UL service "%s" stopped' %self.name)
+        logger.debug('DICOM UL service "%s" stopped' %self.name)
 
 
 def primitive2event(primitive):

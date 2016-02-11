@@ -16,7 +16,7 @@ import sys
 from pydicom import read_file
 
 from pynetdicom.applicationentity import AE
-from pynetdicom.SOPclass import VerificationSOPClass, CTImageStorageSOPClass
+from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
@@ -91,6 +91,8 @@ args = _setup_argparser()
 
 if args.verbose:
     logger.setLevel(logging.INFO)
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger.setLevel(logging.INFO)
     
 if args.debug:
     logger.setLevel(logging.DEBUG)
@@ -108,11 +110,9 @@ try:
     f.close()
 except IOError:
     logger.error('Cannot read input file %s' %args.dcmfile_in)
-    f.close()
     sys.exit()
 except:
     logger.error('File may not be DICOM %s' %args.dcmfile_in)
-    f.close()
     sys.exit()
 
 if dataset.file_meta.TransferSyntaxUID in ['1.2.840.10008.1.2', 
@@ -121,8 +121,6 @@ if dataset.file_meta.TransferSyntaxUID in ['1.2.840.10008.1.2',
 else:
     byte_order = 'big'
     
-
-
 # Create application entity
 # Set Transfer Syntax options
 transfer_syntax = [ImplicitVRLittleEndian,
@@ -132,22 +130,22 @@ transfer_syntax = [ImplicitVRLittleEndian,
 # Bind to port 0, OS will pick an available port
 ae = AE(args.calling_aet,
         0,
-        [], 
-        [VerificationSOPClass, CTImageStorageSOPClass],
+        [CTImageStorageSOPClass], 
+        [],
         SupportedTransferSyntax=transfer_syntax)
 
 # Request association with remote
 assoc = ae.request_association(args.peer, args.port, args.called_aet)
 
-if assoc is not None:
+if assoc.established:
     logger.info('Sending file: %s' %args.dcmfile_in)
     
+    # Correct ambiguous VRs for Implicit
     for elem in dataset:
         elem_name = ''.join(elem.description().split(' '))
         elem_group = elem.tag.group
         elem_element = elem.tag.elem
         if elem.VR == 'US or SS':
-            
             logger.debug("Setting undefined VR of %s (%04x, %04x) to 'US'" 
                 %(elem_name, elem_group, elem_element))
             elem.VR = 'US'
@@ -160,7 +158,15 @@ if assoc is not None:
     status = None
 
     #try:
+    # This seems like a inelegant way to do this as it makes it seem like
+    #   this would have to be done for each type of Storage SOP Class
+    #   when in reality any of the StorageServiceClass subclasses will work
     status = assoc.CTImageStorageSOPClass.SCU(dataset, 1)
+    
+    # Instead we should be able to use the generic StorageServiceClass
+    #   however this doesn't work
+    #status = assoc.StorageServiceClass.SCU(dataset, 1)
+    
     #except:
     #    logger.info('Aborting Association')
     #    assoc.Abort(0)

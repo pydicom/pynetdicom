@@ -134,7 +134,7 @@ class ApplicationEntity(threading.Thread):
             # Must be an odd integer between 1 and 255
             presentation_context_id = ii * 2 + 1
             abstract_syntax = None
-
+            
             # If supplied SOPClass is already a pydicom.UID class
             if isinstance(sop_class, UID):
                 abstract_syntax = sop_class
@@ -838,10 +838,10 @@ class ApplicationEntity(threading.Thread):
 
 
     # High-level DIMSE related callbacks
-    def on_echo(self):
+    def on_c_echo(self):
         pass
     
-    def on_store(self, sop_class, dataset):
+    def on_c_store(self, sop_class, dataset):
         """
         Function callback called when a dataset is received following a C-STORE.
         
@@ -860,13 +860,13 @@ class ApplicationEntity(threading.Thread):
         """
         return sop_class.Success
         
-    def on_find(self, dataset):
+    def on_c_find(self, dataset):
         pass
         
     def on_c_get(self, dataset):
         pass
         
-    def on_move(self, dataset):
+    def on_c_move(self, dataset):
         pass
     
     
@@ -902,6 +902,8 @@ class ApplicationEntity(threading.Thread):
             
         if d.AffectedSOPClassUID == 'CT Image Storage':
             dataset_type = ', (CT)'
+        if d.AffectedSOPClassUID == 'MR Image Storage':
+            dataset_type = ', (MR)'
         else:
             dataset_type = ''
         
@@ -958,7 +960,7 @@ class ApplicationEntity(threading.Thread):
         # Status must always be Success for C_ECHO_RSP
         logger.info("Received Echo Response (Status: Success)")
         
-    def on_receive_c_store_rq(self, sop_class, store):
+    def on_receive_c_store_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-STORE-RQ
@@ -968,24 +970,27 @@ class ApplicationEntity(threading.Thread):
         dataset - pydicom.Dataset
             The dataset sent to the local AE
         """
+        d = dimse_msg.CommandSet
+        
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[store.Priority.value]
+        priority = priority_str[d.Priority]
 
-        if 'DataSet' in store.__dict__.keys():
+        dataset = 'None'
+        if 'DataSet' in dimse_msg.__dict__.keys():
             dataset = 'Present'
-        else:
-            dataset = 'None'
         
-        s = ['Received Storage Request']
+        logger.info('Received Store Request')
+        
+        s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : %s' %'C-STORE RQ')
-        s.append('Presentation Context ID       : %s' %sop_class.pcid)
-        s.append('Message ID                    : %s' %store.MessageID.value)
-        s.append('Affected SOP Class UID        : %s' %store.AffectedSOPClassUID.value)
-        s.append('Affected SOP Instance UID     : %s' %store.AffectedSOPInstanceUID.value)
+        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
+        s.append('Message ID                    : %s' %d.MessageID)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
         s.append('Data Set                      : %s' %dataset)
         s.append('Priority                      : %s' %priority)
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -1008,7 +1013,8 @@ class ApplicationEntity(threading.Thread):
         else:
             pass
         
-        s = ['Received Storage Response']
+        logger.info('Received Store Response')
+        s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : %s' %'C-STORE RSP')
@@ -1025,7 +1031,7 @@ class ApplicationEntity(threading.Thread):
         for line in s:
             logger.debug(line)
 
-    def on_receive_c_find_rq(self, attributes):
+    def on_receive_c_find_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-FIND-RQ. The C-FIND service is used by a DIMSE to match
@@ -1047,7 +1053,7 @@ class ApplicationEntity(threading.Thread):
         """
         return None
         
-    def on_receive_c_get_rq(self, attributes):
+    def on_receive_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
@@ -1070,7 +1076,7 @@ class ApplicationEntity(threading.Thread):
         """
         return None
         
-    def on_receive_c_move_rq(self, attributes):
+    def on_receive_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
@@ -1094,7 +1100,7 @@ class ApplicationEntity(threading.Thread):
         return None
 
 
-    def on_receive_n_event_report_rq(self, event):
+    def on_receive_n_event_report_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-EVENT-REPORT-RQ. The N-EVENT-REPORT service is used 
@@ -1109,7 +1115,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_receive_n_get_rq(self, attributes):
+    def on_receive_n_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-GET-RQ. The N-GET service is used 
@@ -1128,7 +1134,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_receive_n_set_rq(self, attributes):
+    def on_receive_n_set_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-SET-RQ. The N-SET service is used 
@@ -1144,7 +1150,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_receive_n_action_rq(self, actions):
+    def on_receive_n_action_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-ACTION-RQ. The N-ACTION service is used 
@@ -1159,7 +1165,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_receive_n_create_rq(self, attributes):
+    def on_receive_n_create_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-CREATE-RQ. The N-CREATE service is used 
@@ -1176,7 +1182,7 @@ class ApplicationEntity(threading.Thread):
         """
         raise NotImplementedError
         
-    def on_receive_n_delete_rq(self, attributes):
+    def on_receive_n_delete_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving an N-DELETE-RQ. The N-DELETE service is used 
