@@ -852,7 +852,19 @@ class ApplicationEntity(threading.Thread):
         a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
             The A-ASSOCIATE-RJ PDU instance
         """
-        pass
+        # Shorthand
+        assoc_rj = a_associate_rj
+        
+        s = ['Reject Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
+                '=====')
+        s.append('Rejection Result: %s'assoc_rj.ResultString)
+        s.append('Rejection Source: %s'assoc_rj.SourceString)
+        s.append('Rejection Reason: %s'assoc_rj.Reason)
+        s.append('======================= END A-ASSOCIATE-RJ =================='
+                '====')
+        for line in s:
+            logger.debug(line)
     
     def on_receive_data_tf(self, p_data_tf):
         """
@@ -864,7 +876,17 @@ class ApplicationEntity(threading.Thread):
         a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
             The P-DATA-TF PDU instance
         """
-        pass
+        # Shorthand
+        p_data = p_data_tf
+        
+        s = ['Data Parameters:']
+        s.append('========================= BEGIN P-DATA-TF ==================='
+                '=====')
+        s.append('Number of PDVs Received: %s'len(p_data.PDVs))
+        s.append('========================== END P-DATA-TF ===================='
+                '====')
+        for line in s:
+            logger.debug(line)
         
     def on_receive_release_rq(self, a_release_rq):
         """
@@ -900,7 +922,16 @@ class ApplicationEntity(threading.Thread):
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        pass
+        
+        s = ['Abort Parameters:']
+        s.append('========================== BEGIN A-ABORT ===================='
+                '=====')
+        s.append('Abort Source: %s'assoc_rj.Source)
+        s.append('Abort Reason: %s'assoc_rj.Reason)
+        s.append('=========================== END A-ABORT ====================='
+                '====')
+        for line in s:
+            logger.debug(line)
 
 
     # High-level DIMSE related callbacks
