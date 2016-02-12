@@ -20,7 +20,8 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom.DIMSEparameters import *
+#from pynetdicom.DIMSEparameters import *
+from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
