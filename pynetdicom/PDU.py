@@ -621,6 +621,73 @@ class A_ASSOCIATE_RJ_PDU(PDU):
         tmp = tmp + " Reason/Diagnostic: %s\n" % str(self.ReasonDiag)
         return tmp + "\n"
 
+    @property
+    def ResultString(self):
+        """
+        See PS3.8 9.3.4
+        
+        Returns
+        -------
+        str
+            The type of Association rejection
+        """
+        if self.Result == 0x01:
+            return 'Rejected (Permanent)'
+        else:
+            return 'Rejected (Transient)'
+    
+    @property
+    def SourceString(self):
+        """
+        See PS3.8 9.3.4
+        
+        Returns
+        -------
+        str
+            The source of the Association rejection
+        """
+        if self.Source == 0x01:
+            return 'User'
+        elif self.Source == 0x02:
+            return 'Provider (ACSE)'
+        else:
+            return 'Provider (Presentation)'
+    
+    @property
+    def Reason(self):
+        """
+        See PS3.8 9.3.4
+        
+        Returns
+        -------
+        str
+            The reason given for the Association rejection
+        """
+        if self.Source == 0x01:
+            reason_str = { 1 : "No reason given",
+                           2 : "Application context name not supported",
+                           3 : "Calling AE title not recognised",
+                           4 : "Reserved",
+                           5 : "Reserved",
+                           6 : "Reserved",
+                           7 : "Called AE title not recognised",
+                           8 : "Reserved",
+                           9 : "Reserved",
+                          10: "Reserved"}
+        elif self.Source == 0x02:
+            reason_str = { 1 : "No reason given",
+                           2 : "Protocol version not supported"}
+        else:
+            reason_str = { 0 : "Reserved",
+                           1 : "Temporary congestion",
+                           2 : "Local limit exceeded",
+                           3 : "Reserved",
+                           4 : "Reserved",
+                           5 : "Reserved",
+                           6 : "Reserved",
+                           7 : "Reserved"}
+        return reason_str[self.ReasonDiag]
+                          
 
 class P_DATA_TF_PDU(PDU):
     '''This class represents the P-DATA-TF PDU'''
