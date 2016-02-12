@@ -906,7 +906,47 @@ class A_ABORT_PDU(PDU):
         tmp = tmp + " Reason/Diagnostic: %d\n" % self.ReasonDiag
         return tmp + "\n"
 
+    @property
+    def Source(self):
+        """
+        See PS3.8 9.3.8
+        
+        Returns
+        -------
+        str
+            The source of the Association abort
+        """
+        if self.Source == 0x00:
+            return 'DUL User'
+        elif self.Source == 0x01:
+            return 'Reserved'
+        else:
+            return 'DUL Provider'
+    
+    @property
+    def Reason(self):
+        """
+        See PS3.8 9.3.8
+        
+        Returns
+        -------
+        str
+            The reason given for the Association abort
+        """
+        if self.Source == 0x02:
+            reason_str = { 0 : "No reason given",
+                           1 : "Unrecognised PDU",
+                           2 : "Unexpected PDU",
+                           3 : "Reserved",
+                           4 : "Unrecognised PDU parameter",
+                           5 : "Unexpected PDU parameter",
+                           6 : "Invalid PDU parameter value"}
+            return reason_str[self.ReasonDiag]
+        else:
+            return 'No reason given'
 
+                          
+                          
 # Items and sub-items classes
 class ApplicationContextItem(PDU):
     """
