@@ -844,12 +844,14 @@ class A_RELEASE_RP_PDU(PDU):
 
 
 class A_ABORT_PDU(PDU):
-    '''This class represents the A-ABORT PDU'''
+    """
+    This class represents the A-ABORT PDU
+    """
     def __init__(self):
-        self.PDUType = 0x07                         # Unsigned byte
-        self.PDULength = 0x00000004         # Unsigned int
-        self.AbortSource = None                          # Unsigned byte
-        self.ReasonDiag = None              # Unsigned byte
+        self.PDUType = 0x07
+        self.PDULength = 0x00000004
+        self.AbortSource = None
+        self.ReasonDiag = None
 
     def FromParams(self, Params):
         # Params can be an A_ABORT_ServiceParamters or A_P_ABORT_ServiceParamters
@@ -875,9 +877,9 @@ class A_ABORT_PDU(PDU):
 
     def Encode(self):
         tmp = b''
-        tmp = tmp + pack('B', self.PDUType)
+        tmp = tmp + pack('B', 0x07)
         tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>I', self.PDULength)
+        tmp = tmp + pack('>I', 0x00000004)
         tmp = tmp + pack('B', 0x00)
         tmp = tmp + pack('B', 0x00)
         tmp = tmp + pack('B', self.AbortSource)
@@ -945,8 +947,7 @@ class A_ABORT_PDU(PDU):
         else:
             return 'No reason given'
 
-                          
-                          
+
 # Items and sub-items classes
 class ApplicationContextItem(PDU):
     """
@@ -2085,6 +2086,7 @@ class UserIdentitySubItemRQ:
 
 class UserIdentitySubItemAC:
     pass
+
 
 def get_next_item_type(s):
     """
