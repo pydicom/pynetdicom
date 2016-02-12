@@ -148,7 +148,7 @@ class ACSEServiceProvider(object):
         if assoc is None:
             return None
 
-        self.MaxPDULength = assoc.UserInformation[0].MaximumLengthReceived
+        self.MaxPDULength = assoc.UserInformationItem[0].MaximumLengthReceived
 
         if result is not None and diag is not None:
             # Association is rejected
@@ -157,7 +157,7 @@ class ACSEServiceProvider(object):
             res.PresentationContextDefinitionResultList = []
             res.Result = result
             res.Diagnostic = diag
-            res.UserInformation = []
+            res.UserInformationItem = []
             #res.UserInformation = ass.UserInformation
             self.DUL.Send(res)
             return None
@@ -211,9 +211,7 @@ class ACSEServiceProvider(object):
         res.PresentationContextDefinitionList = []
         res.PresentationContextDefinitionResultList = rsp
         res.Result = 0
-        #res.UserInformation = []
-        #res.UserInformation = [ass.UserInformation[0]]
-        res.UserInformation = assoc.UserInformation
+        res.UserInformationItem = assoc.UserInformationItem
         self.DUL.Send(res)
         return assoc
 
