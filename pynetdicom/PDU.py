@@ -750,6 +750,10 @@ class P_DATA_TF_PDU(PDU):
             tmp = tmp + ii.__repr__()
         return tmp + "\n"
 
+    @property
+    def PDVs(self):
+        return self.PresentationDataValueItems
+
 
 class A_RELEASE_RQ_PDU(PDU):
     '''This class represents the A-ASSOCIATE-RQ PDU'''
@@ -1571,6 +1575,58 @@ class PresentationDataValueItem(PDU):
             "  Presentation data value: %s ...\n" % self.PresentationDataValue[
                 :20]
         return tmp
+        
+    @property
+    def ID(self):
+        """
+        See PS3.8 9.3.5
+        
+        Returns
+        -------
+        int
+            The Presentation Context ID (odd number 1 to 255)
+        """
+        return self.PresentationContextID
+    
+    @property
+    def MessageControlHeader(self):
+        """
+        See PS3.8 9.3.5
+        
+        Returns
+        -------
+        str
+            The value of the Message Control Header byte formatted as an 8-bit
+            binary
+        """
+        return "{:08b}".format(self.PresentationDataValue[0])
+    
+    @property
+    def Value(self, bytes_per_line=16, delimiter='  ', max_size=512):
+        """
+        See PS3.8 9.3.5
+        
+        Parameters
+        ----------
+        bytes_per_line - int, optional
+            The number of bytes to per line
+        max_size - int, optional
+            The total number of bytes to return
+        delimiter - str, optional
+            The delimiter of the bytes
+        
+        Returns
+        -------
+        list of str
+            The first N bytes of the PDV formatted as a list of hex strings
+            with M bytes per line
+        """
+        str_list = wrap_list(self.PresentationDataValue, 
+                             items_per_line=bytes_per_line, 
+                             delimiter=delimiter, 
+                             max_size=max_size)
+        return str_list
+    
 
 class GenericUserDataSubItem(PDU):
     """
