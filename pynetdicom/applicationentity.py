@@ -883,6 +883,12 @@ class ApplicationEntity(threading.Thread):
         s.append('========================= BEGIN P-DATA-TF ==================='
                 '=====')
         s.append('Number of PDVs Received: %d' %len(p_data.PDVs))
+        
+        for ii, pdv in enumerate(p_data.PDVs):
+            s.append('PDV %d' %(ii + 1))
+            s.append('  Presentation context ID: %s' %pdv.ID)
+            s.append('  Message control header byte: %s' %pdv.MessageControlHeader)
+        
         s.append('========================== END P-DATA-TF ===================='
                 '====')
         for line in s:
