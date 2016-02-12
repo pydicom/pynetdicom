@@ -77,9 +77,9 @@ class ACSEServiceProvider(object):
         MaxPDULengthPar.MaximumLengthReceived = mp
         
         if userspdu is not None:
-            assoc_rq.UserInformation = [MaxPDULengthPar] + userspdu
+            assoc_rq.UserInformationItem = [MaxPDULengthPar] + userspdu
         else:
-            assoc_rq.UserInformation = [MaxPDULengthPar]
+            assoc_rq.UserInformationItem = [MaxPDULengthPar]
         
         assoc_rq.CallingPresentationAddress = (self.LocalAE['Address'], 
                                                self.LocalAE['Port'])

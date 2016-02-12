@@ -287,7 +287,7 @@ class ApplicationEntity(threading.Thread):
             The peer AE's listen port number
         ae_title - str, optional
             The peer AE's title, must conform to AE title requirements as per
-            PS
+            PS (16 char max, not allowed to be all spaces)
             
         Returns
         -------
@@ -306,7 +306,15 @@ class ApplicationEntity(threading.Thread):
         if not isinstance(ae_title, str):
             raise ValueError("ae_title must be a valid AE title string")
         
-        peer_ae = {'AET' : ae_title, 
+        # Check AE title is OK
+        if ae_title.strip() == '':
+            raise ValueError("ae_title must not be all spaces")
+            
+        if len(ae_title) > 16:
+            logger.info("Supplied local AE title is greater than 16 characters "
+                "and will be truncated")
+        
+        peer_ae = {'AET' : ae_title[:16], 
                    'Address' : ip_address, 
                    'Port' : port}
         
@@ -343,24 +351,89 @@ class ApplicationEntity(threading.Thread):
     def on_association_requested(self):
         pass
     
-    def on_association_accepted(self, associate_ac_pdu):
+    def on_association_accepted(self, assoc):
         """
         Placeholder for a function callback. Function will be called 
-        when an association attempt is rejected by a peer AE
+        when an association attempt is accepted by either the local or peer AE
         
         The default implementation is used for logging debugging information
         
         Parameters
         ----------
-        associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
-            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        assoc - pynetdicom.Association
+            The Association parameters negotiated between the local and peer AEs
+        
+        #max_send_pdv = associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
+        
+        #logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
+        
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+                
+        # Shorthand
+        assoc_ac = a_associate_ac
+        
+        # Needs some cleanup
+        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_ac.PresentationContext
+        user_info     = assoc_ac.UserInformation
+        
+        responding_ae = 'resp. AP Title'
+        our_max_pdu_length = '[FIXME]'
+        their_class_uid = 'unknown'
+        their_version = 'unknown'
+        
+        if user_info.ImplementationClassUID:
+            their_class_uid = user_info.ImplementationClassUID
+        if user_info.ImplementationVersionName:
+            their_version = user_info.ImplementationVersionName
+        
+        s = ['Association Parameters Negotiated:']
+        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
+                '=====')
+        
+        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
+        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
+        s.append('Their Implementation Class UID:    %s' %their_class_uid)
+        s.append('Their Implementation Version Name: %s' %their_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
+        #s.append('Responding Application Name: %s' %responding_ae)
+        s.append('Our Max PDU Receive Size:    %s' %our_max_pdu_length)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
+        s.append('Presentation Contexts:')
+        
+        for item in pres_contexts:
+            context_id = item.PresentationContextID
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
+            s.append('    Abstract Syntax: =%s' %'FIXME')
+            s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
+
+            if item.ResultReason == 0:
+                s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
+                s.append('    Accepted Transfer Syntax: =%s' 
+                                            %item.TransferSyntax)
+        
+        ext_nego = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Requested Extended Negotiation: %s' %'[FIXME]')
+        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_ac.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        
+        s.append('Requested User Identity Negotiation: %s' %'[FIXME]')
+        s.append('User Identity Negotiation Response:  %s' %usr_id)
+        s.append('======================= END A-ASSOCIATE-AC =================='
+                '====')
+        
+        for line in s:
+            logger.debug(line)
         """
-        
-        for user_info in associate_ac_pdu.UserInformation:
-            if isinstance(user_info, MaximumLengthParameters):
-                max_send_pdv = user_info.MaximumLengthReceived
-        
-        logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
+        pass
+
     
     def on_association_rejected(self, associate_rj_pdu):
         """
@@ -434,54 +507,60 @@ class ApplicationEntity(threading.Thread):
         a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance to be encoded and sent
         """
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
         
-        # Needs some cleanup
-        application_context = a_associate_rq.VariableItems[0]
-        presentation_context_items = a_associate_rq.VariableItems[1:-1]
-        user_information = a_associate_rq.VariableItems[-1]
+        # Shorthand
+        assoc_rq = a_associate_rq
         
-        max_pdu_length = 'none'
-        for user_data in user_information.UserData:
-            if user_data.__class__ == MaximumLengthSubItem:
-                max_pdu_length = user_data.MaximumLengthReceived
+        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_rq.PresentationContext
+        user_info     = assoc_rq.UserInformation
         
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                 '=====')
         
         s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
-        s.append('Our Implementation Version Name:   %s' %(
-                'PYNETDICOM_' + ''.join(__version__.split('.'))))
+        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
+        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
         
-        s.append('Their Implementation Class UID:')
-        s.append('Their Implementation Version Name:')
-        s.append('Application Context Name:    %s' %(
-                application_context.ApplicationContextName.decode('utf-8')))
-        
-        s.append('Calling Application Name:    %s' %(
-                a_associate_rq.CallingAETitle))
-        
-        s.append('Called Application Name:     %s' %(
-                a_associate_rq.CalledAETitle))
-        
-        s.append('Responding Application Name: resp. AP Title')
-        s.append('Our Max PDU Receive Size:    %s' %max_pdu_length)
-        s.append('Their Max PDU Receive Size:  0')
-        s.append('Presentation Contexts:')
-        for item in presentation_context_items:
-            s.append('  Context ID:        %s (Proposed)' %(
-                    item.PresentationContextID))
+        # Presentation Contexts
+        if len(pres_contexts) == 1:
+            s.append('Presentation Context:')
+        else:
+            s.append('Presentation Contexts:')
+
+        for context in pres_contexts:
+            s.append('  Context ID:        %s (Proposed)' %(context.ID))
+            s.append('    Abstract Syntax: =%s' %context.AbstractSyntax)
             
-            sop_class = item.AbstractTransferSyntaxSubItems[0]
-            s.append('    Abstract Syntax: =%s' %sop_class.AbstractSyntaxName)
-            s.append('    Proposed SCP/SCU Role: %s' %'test')
-            s.append('    Proposed Transfer Syntax(es):')
-            for transfer_syntax in item.AbstractTransferSyntaxSubItems[1:]:
-                s.append('      =%s' %transfer_syntax.TransferSyntaxName)
-        s.append('Requested Extended Negotiation: %s' %'test')
-        s.append('Accepted Extended Negotiation:  none')
-        s.append('Requested User Identity Negotiation: %s' %'test')
-        s.append('User Identity Negotiation Response:  none')
+            if 'SCU' in context.__dict__.keys():
+                scp_scu_role = '%s/%s' %(context.SCP, context.SCU)
+            else:
+                scp_scu_role = 'Default'
+            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
+            
+            # Transfer Syntaxes
+            if len(context.TransferSyntax) == 1:
+                s.append('    Proposed Transfer Syntax:')
+            else:
+                s.append('    Proposed Transfer Syntaxes:')
+                
+            for ts in context.TransferSyntax:
+                s.append('      =%s' %ts.name)
+        
+        ext_nego = 'None'
+        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Requested Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_rq.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        s.append('Requested User Identity Negotiation: %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-RQ =================='
                 '====')
         
@@ -698,78 +777,65 @@ class ApplicationEntity(threading.Thread):
         
         The default implementation is used for logging debugging information
         
+        Most of this should be moved to on_association_accepted()
+        
         Parameters
         ----------
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
-        #print(a_associate_ac)
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+                
+        # Shorthand
+        assoc_ac = a_associate_ac
         
         # Needs some cleanup
-        app_context = a_associate_ac.VariableItems[0]
-        pres_context_items = a_associate_ac.VariableItems[1:-1]
-        user_information = a_associate_ac.VariableItems[-1]
+        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_ac.PresentationContext
+        user_info     = assoc_ac.UserInformation
         
-        app_context_name = app_context.ApplicationContextName.decode('utf-8')
-        calling_ae = a_associate_ac.Reserved4.decode('utf-8')
-        called_ae = a_associate_ac.Reserved3.decode('utf-8')
         responding_ae = 'resp. AP Title'
-        
-        our_class_uid = pynetdicom_uid_prefix
-        our_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-        our_max_pdu_length = 'unknown'
-        
         their_class_uid = 'unknown'
         their_version = 'unknown'
-        their_max_pdu_length = 'unknown'
         
-        for user_data in user_information.UserData:
-            if user_data.__class__ == MaximumLengthSubItem:
-                their_max_pdu_length = user_data.MaximumLengthReceived
+        if user_info.ImplementationClassUID:
+            their_class_uid = user_info.ImplementationClassUID
+        if user_info.ImplementationVersionName:
+            their_version = user_info.ImplementationVersionName
         
-        s = ['Association Parameters Negotiated:']
+        s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
                 '=====')
         
-        s.append('Our Implementation Class UID:      %s' %our_class_uid)
-        s.append('Our Implementation Version Name:   %s' %our_version)
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context_name)
-        s.append('Calling Application Name:    %s' %calling_ae)
-        s.append('Called Application Name:     %s' %called_ae)
-        #s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %our_max_pdu_length)
-        s.append('Their Max PDU Receive Size:  %s' %their_max_pdu_length)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
         s.append('Presentation Contexts:')
         
-        result_options = {0 : 'Accepted', 
-                          1 : 'User Rejection', 
-                          2 : 'Provider Rejection',
-                          3 : 'Provider Rejection',
-                          4 : 'Provider Rejection'} 
-        
-        for item in pres_context_items:
+        for item in pres_contexts:
             context_id = item.PresentationContextID
-            result = result_options[item.ResultReason]
-            s.append('  Context ID:        %s (%s)' %(context_id, result))
-            
-            sop_class = item.TransferSyntaxSubItem
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
             s.append('    Abstract Syntax: =%s' %'FIXME')
             s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
-            
-            # If Presentation Context was accepted show the SCU/SCP role and
-            #   transfer syntax
+
             if item.ResultReason == 0:
                 s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
-                syntax_name = UID(sop_class.TransferSyntaxName.decode('utf-8'))
-                syntax_name = ''.join(syntax_name.name.split(' '))
-                s.append('    Accepted Transfer Syntax: =%s' %syntax_name)
-                
-        s.append('Requested Extended Negotiation: %s' %'[FIXME]')
-        s.append('Accepted Extended Negotiation:  %s' %'[FIXME]')
-        s.append('Requested User Identity Negotiation: %s' %'[FIXME]')
-        s.append('User Identity Negotiation Response:  %s' %'[FIXME]')
+                s.append('    Accepted Transfer Syntax: =%s' 
+                                            %item.TransferSyntax)
+        
+        ext_nego = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_ac.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        
+        s.append('User Identity Negotiation Response:  %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-AC =================='
                 '====')
         

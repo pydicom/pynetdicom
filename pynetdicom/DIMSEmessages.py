@@ -365,9 +365,6 @@ class C_STORE_RQ_Message(DIMSEMessage):
         tmp.DataSet = self.DataSet
         tmp.MessageID = self.CommandSet[(0x0000, 0x0110)]
         return tmp
-        
-    #def __str__(self):
-    #    return 'C-STORE-RQ'
 
 
 class C_STORE_RSP_Message(DIMSEMessage):
