@@ -501,7 +501,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         Returns
         -------
         pydicom.uid.UID
-            The Requestor AE's Application Context Name
+            The Acceptor AE's Application Context Name
         """
         for ii in self.VariableItems:
             if isinstance(ii, ApplicationContextItem):
@@ -509,6 +509,14 @@ class A_ASSOCIATE_AC_PDU(PDU):
         
     @property
     def PresentationContext(self):
+        """
+        See PS3.8 9.3.2, 7.1.1.13
+        
+        Returns
+        -------
+        list of pynetdicom.PDU.PresentationContextItemAC
+            The Acceptor AE's Presentation Context objects
+        """
         contexts = []
         for ii in self.VariableItems[1:]:
             if isinstance(ii, PresentationContextItemAC):
@@ -517,21 +525,46 @@ class A_ASSOCIATE_AC_PDU(PDU):
         
     @property
     def UserInformation(self):
+        """
+        See PS3.8 9.3.2, 7.1.1.6
+        
+        Returns
+        -------
+        pynetdicom.PDU.UserInformationItem
+            The Acceptor AE's User Information object
+        """
         for ii in self.VariableItems[1:]:
             if isinstance(ii, UserInformationItem):
                 return ii
         
     @property
-    def Version(self):
-        return self.ProtocolVersion
-    
-    @property
     def CalledAETitle(self):
+        """
+        While the standard says this value should match the A-ASSOCIATE-RQ
+        value there is no guarantee and this should not be used as a check
+        value
+        
+        Returns
+        -------
+        str
+            The Requestor's AE Called AE Title
+        """
         return self.Reserved3.decode('utf-8')
     
     @property
     def CallingAETitle(self):
+        """
+        While the standard says this value should match the A-ASSOCIATE-RQ
+        value there is no guarantee and this should not be used as a check
+        value
+        
+        Returns
+        -------
+        str
+            The Requestor's AE Calling AE Title
+        """
         return self.Reserved4.decode('utf-8')
+
 
 class A_ASSOCIATE_RJ_PDU(PDU):
     '''This class represents the A-ASSOCIATE-RJ PDU'''
@@ -1060,6 +1093,12 @@ class PresentationContextItemAC(PDU):
 
     @property
     def Result(self):
+        """
+        Returns
+        -------
+        str
+            The Acceptor AE's Presentation Context item's acceptance Result 
+        """
         result_options = {0 : 'Accepted', 
                           1 : 'User Rejection', 
                           2 : 'Provider Rejection',
@@ -1075,7 +1114,7 @@ class PresentationContextItemAC(PDU):
         Returns
         -------
         pydicom.uid.UID
-            The Requestor AE's Presentation Context item's accepted Transfer 
+            The Acceptor AE's Presentation Context item's accepted Transfer 
             Syntax
         """
         syntax_name = self.TransferSyntaxSubItem.TransferSyntaxName
