@@ -858,9 +858,9 @@ class ApplicationEntity(threading.Thread):
         s = ['Reject Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
                 '=====')
-        s.append('Rejection Result: %s'assoc_rj.ResultString)
-        s.append('Rejection Source: %s'assoc_rj.SourceString)
-        s.append('Rejection Reason: %s'assoc_rj.Reason)
+        s.append('Rejection Result: %s' %assoc_rj.ResultString)
+        s.append('Rejection Source: %s' %assoc_rj.SourceString)
+        s.append('Rejection Reason: %s' %assoc_rj.Reason)
         s.append('======================= END A-ASSOCIATE-RJ =================='
                 '====')
         for line in s:
@@ -882,7 +882,7 @@ class ApplicationEntity(threading.Thread):
         s = ['Data Parameters:']
         s.append('========================= BEGIN P-DATA-TF ==================='
                 '=====')
-        s.append('Number of PDVs Received: %s'len(p_data.PDVs))
+        s.append('Number of PDVs Received: %d' %len(p_data.PDVs))
         s.append('========================== END P-DATA-TF ===================='
                 '====')
         for line in s:
@@ -926,8 +926,8 @@ class ApplicationEntity(threading.Thread):
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
                 '=====')
-        s.append('Abort Source: %s'assoc_rj.Source)
-        s.append('Abort Reason: %s'assoc_rj.Reason)
+        s.append('Abort Source: %s' %a_abort.Source)
+        s.append('Abort Reason: %s' %a_abort.Reason)
         s.append('=========================== END A-ABORT ====================='
                 '====')
         for line in s:
