@@ -64,7 +64,6 @@ from struct import *
 
 from pydicom.uid import UID
 
-#from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import *
 from pynetdicom.utils import wrap_list
 
@@ -181,9 +180,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         # Unsigned short
         self.ProtocolVersion = 1
         # string of length 16
-        self.CalledAETitle = None
+        self.bCalledAETitle = None
         # string of length 16
-        self.CallingAETitle = None
+        self.bCallingAETitle = None
         
         # VariableItems is a list containing the following:
         #   1 ApplicationContextItem
@@ -200,8 +199,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         Params - A_ASSOCIATE_ServiceParameters
             The parameters to use for setting up the PDU
         """
-        self.CallingAETitle = Params.CallingAETitle
-        self.CalledAETitle = Params.CalledAETitle
+        self.bCallingAETitle = Params.CallingAETitle
+        self.bCalledAETitle = Params.CalledAETitle
         
         tmp_app_cont = ApplicationContextItem()
         tmp_app_cont.FromParams(Params.ApplicationContextName)
@@ -225,8 +224,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def ToParams(self):
         # Returns an A_ASSOCIATE_ServiceParameters object
         ass = A_ASSOCIATE_ServiceParameters()
-        ass.CallingAETitle = self.CallingAETitle
-        ass.CalledAETitle = self.CalledAETitle
+        ass.CallingAETitle = self.bCallingAETitle
+        ass.CalledAETitle = self.bCalledAETitle
         ass.ApplicationContextName = self.VariableItems[
             0].ApplicationContextName
         # Write presentation contexts
@@ -247,8 +246,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         tmp = tmp + pack('>I',  self.PDULength)
         tmp = tmp + pack('>H',  self.ProtocolVersion)
         tmp = tmp + pack('>H',  0x00)
-        tmp = tmp + pack('16s', bytes(self.CalledAETitle, 'utf-8'))
-        tmp = tmp + pack('16s', bytes(self.CallingAETitle, 'utf-8'))
+        tmp = tmp + pack('16s', bytes(self.bCalledAETitle, 'utf-8'))
+        tmp = tmp + pack('16s', bytes(self.bCallingAETitle, 'utf-8'))
         tmp = tmp + pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
         
         # variable item elements
@@ -273,8 +272,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
          self.PDULength,
          self.ProtocolVersion, 
          _, 
-         self.CalledAETitle,
-         self.CallingAETitle) = unpack('> B B I H H 16s 16s', s.read(42))
+         self.bCalledAETitle,
+         self.bCallingAETitle) = unpack('> B B I H H 16s 16s', s.read(42))
         s.read(32)
         
         
@@ -366,6 +365,34 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         for ii in self.VariableItems[1:]:
             if isinstance(ii, UserInformationItem):
                 return ii
+ 
+    @property
+    def CalledAETitle(self):
+        """
+        While the standard says this value should match the A-ASSOCIATE-RQ
+        value there is no guarantee and this should not be used as a check
+        value
+        
+        Returns
+        -------
+        str
+            The Requestor's AE Called AE Title
+        """
+        return self.bCalledAETitle.decode('utf-8')
+    
+    @property
+    def CallingAETitle(self):
+        """
+        While the standard says this value should match the A-ASSOCIATE-RQ
+        value there is no guarantee and this should not be used as a check
+        value
+        
+        Returns
+        -------
+        str
+            The Requestor's AE Calling AE Title
+        """
+        return self.bCallingAETitle.decode('utf-8')
 
 
 class A_ASSOCIATE_AC_PDU(PDU):
@@ -936,9 +963,9 @@ class A_ABORT_PDU(PDU):
         str
             The source of the Association abort
         """
-        if self.Source == 0x00:
+        if self.AbortSource == 0x00:
             return 'DUL User'
-        elif self.Source == 0x01:
+        elif self.AbortSource == 0x01:
             return 'Reserved'
         else:
             return 'DUL Provider'
@@ -1141,7 +1168,7 @@ class PresentationContextItemRQ(PDU):
         """
         for ii in self.AbstractTransferSyntaxSubItems:
             if isinstance(ii, AbstractSyntaxSubItem):
-                return UID(ii.AbstractSyntaxName)
+                return UID(ii.AbstractSyntaxName.decode('utf-8'))
                 
     @property
     def TransferSyntax(self):
@@ -1156,7 +1183,7 @@ class PresentationContextItemRQ(PDU):
         syntaxes = []
         for ii in self.AbstractTransferSyntaxSubItems:
             if isinstance(ii, TransferSyntaxSubItem):
-                syntaxes.append( UID(ii.TransferSyntaxName) )
+                syntaxes.append( UID(ii.TransferSyntaxName.decode('utf-8')) )
                 
         return syntaxes
 
@@ -1274,8 +1301,8 @@ class PresentationContextItemAC(PDU):
             pydicom.uid.UID.SCP: Defaults to None if not used, 0 or 1 if used
             pydicom.uid.UID.SCU: Defaults to None if not used, 0 or 1 if used
         """
-        syntax_name = self.TransferSyntaxSubItem.TransferSyntaxName
-        return UID(syntax_name.decode('utf-8'))
+        ts_uid = self.TransferSyntaxSubItem.TransferSyntaxName
+        return ts_uid
 
 class AbstractSyntaxSubItem(PDU):
     def __init__(self):
