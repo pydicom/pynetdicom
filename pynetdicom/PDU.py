@@ -66,7 +66,7 @@ from pydicom.uid import UID
 
 #from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import *
-from pynetdicom.logging import wrap_list
+from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom.pdu')
 
@@ -327,22 +327,22 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         """
         See PS3.8 9.3.2, 7.1.1.13
         
+        Also sets a SCP and SCU variable for each of the PresentationContextAC 
+        instances that can be used to track the SCP/SCU role negotiation. 
+        See the PresentationContextItemRQ and documentation for more information
+        
         Returns
         -------
         list of pynetdicom.PDU.PresentationContextItemRQ
             The Requestor AE's Presentation Context objects
         """
-        has_role_negotiation = (self.UserInformation.RoleSelection is not None)
-        
         contexts = []
         for ii in self.VariableItems[1:]:
             if isinstance(ii, PresentationContextItemRQ):
                 # We determine if there are any SCP/SCU Role Negotiations
                 #   for each Transfer Syntax in each Presentation Context
-                #   and if so we add a .SCP and .SCU property somehow...?
-                # Since the Transfer Syntax returns a pydicom.uid.UID class
-                #   then we should be able to do this
-                if has_role_negotiation:
+                #   and if so we set the SCP and SCU attributes.
+                if self.UserInformation.RoleSelection is not None:
                     # Iterate through the role negotiations looking for a 
                     #   SOP Class match to the Abstract Syntaxes
                     for role in self.UserInformation.RoleSelection:
@@ -350,7 +350,6 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                             if role.SOPClass == sop_class:
                                 ii.SCP = role.SCP
                                 ii.SCU = role.SCU
-                
                 contexts.append(ii)
         return contexts
         
@@ -515,11 +514,30 @@ class A_ASSOCIATE_AC_PDU(PDU):
         Returns
         -------
         list of pynetdicom.PDU.PresentationContextItemAC
-            The Acceptor AE's Presentation Context objects
+            The Acceptor AE's Presentation Context objects. Each of the 
+            Presentation Context items instances in the list has been extended
+            with two variables for tracking if SCP/SCU role negotiation has been 
+            accepted:
+                SCP: Defaults to None if not used, 0 or 1 if used
+                SCU: Defaults to None if not used, 0 or 1 if used
         """
         contexts = []
         for ii in self.VariableItems[1:]:
             if isinstance(ii, PresentationContextItemAC):
+                # We determine if there are any SCP/SCU Role Negotiations
+                #   for each Transfer Syntax in each Presentation Context
+                #   and if so we set the SCP and SCU attributes
+                if self.UserInformation.RoleSelection is not None:
+                    # Iterate through the role negotiations looking for a 
+                    #   SOP Class match to the Abstract Syntaxes
+                    for role in self.UserInformation.RoleSelection:
+                        pass
+                        # FIXME: Pretty sure -AC has no Abstract Syntax
+                        #   need to check against standard
+                        #for sop_class in ii.AbstractSyntax:
+                        #    if role.SOPClass == sop_class:
+                        #        ii.SCP = role.SCP
+                        #        ii.SCU = role.SCU
                 contexts.append(ii)
         return contexts
         
@@ -1001,6 +1019,14 @@ class ApplicationContextItem(PDU):
         return tmp
 
 class PresentationContextItemRQ(PDU):
+    """
+    Attributes
+    ----------
+    SCP - None or int
+        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
+    SCU - None or int
+        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
+    """
     def __init__(self):
         # Unsigned byte
         self.ItemType = 0x20
@@ -1008,6 +1034,10 @@ class PresentationContextItemRQ(PDU):
         self.ItemLength = None
         # Unsigned byte
         self.PresentationContextID = None
+        
+        # Use for tracking SCP/SCU Role Negotiation
+        self.SCP = None
+        self.SCU = None
         
         # AbstractTransferSyntaxSubItems is a list
         # containing the following elements:
@@ -1131,12 +1161,24 @@ class PresentationContextItemRQ(PDU):
         return syntaxes
 
 class PresentationContextItemAC(PDU):
+    """
+    Attributes
+    ----------
+    SCP - None or int
+        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
+    SCU - None or int
+        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
+    """
     def __init__(self):
         self.ItemType = 0x21                        # Unsigned byte
         self.ItemLength = None                  # Unsigned short
         self.PresentationContextID = None   # Unsigned byte
         self.ResultReason = None                # Unsigned byte
         self.TransferSyntaxSubItem = None   # TransferSyntaxSubItem object
+
+        # Use for tracking SCP/SCU Role Negotiation
+        self.SCP = None
+        self.SCU = None
 
     def FromParams(self, Params):
         # Params is a list of the form [ID, Response, TransferSyntax].
@@ -1227,11 +1269,13 @@ class PresentationContextItemAC(PDU):
         -------
         pydicom.uid.UID
             The Acceptor AE's Presentation Context item's accepted Transfer 
-            Syntax
+            Syntax. The UID instance has been extended with two variables
+            for tracking if SCP/SCU role negotiation has been accepted:
+            pydicom.uid.UID.SCP: Defaults to None if not used, 0 or 1 if used
+            pydicom.uid.UID.SCU: Defaults to None if not used, 0 or 1 if used
         """
         syntax_name = self.TransferSyntaxSubItem.TransferSyntaxName
         return UID(syntax_name.decode('utf-8'))
-
 
 class AbstractSyntaxSubItem(PDU):
     def __init__(self):
@@ -1668,6 +1712,15 @@ class PresentationDataValueItem(PDU):
                              max_size=max_size)
         return str_list
     
+    @property
+    def Length(self):
+        """
+        Returns
+        -------
+        int
+            The length of the PDV in bytes
+        """
+        return  self.TotalLength()
 
 class GenericUserDataSubItem(PDU):
     """
@@ -1763,7 +1816,7 @@ class ImplementationClassUIDSubItem:
         return 4 + self.ItemLength
 
     def __repr__(self):
-        tmp = "  Implementation class IUD sub item\n"
+        tmp = "  Implementation class UID sub item\n"
         tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
         tmp = tmp + "   Item length: %d\n" % self.ItemLength
         tmp = tmp + \

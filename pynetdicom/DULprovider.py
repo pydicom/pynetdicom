@@ -423,11 +423,19 @@ class DULServiceProvider(Thread):
             # By this point the connection is established
             #   If theres incoming data on the connection then check the PDU
             #   type
+            #
+            # FIXME: bug related to socket closing, see socket_bug.note
+            #
+            #try:
+            #print(self.scu_socket)
             read_list, _, _ = select.select([self.scu_socket], [], [], 0)
             
             if read_list:
                 self.CheckIncomingPDU()
                 return True
+            #except ValueError:
+            #    self.event_queue.put('Evt17')
+            #    return False
         
         else:
             return False
@@ -476,7 +484,9 @@ class DULServiceProvider(Thread):
                 continue
             
             self.state_machine.do_action(event)
-    
+        
+        # FIXME: Bug related to DUL not ending properly, maybe ACSE shuts
+        # down early? See dul_thread_bug.note
         logger.debug('DICOM UL service "%s" stopped' %self.name)
 
 
