@@ -434,7 +434,6 @@ class ApplicationEntity(threading.Thread):
         """
         pass
 
-    
     def on_association_rejected(self, associate_rj_pdu):
         """
         Placeholder for a function callback. Function will be called 
@@ -816,13 +815,17 @@ class ApplicationEntity(threading.Thread):
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
-            context_id = item.PresentationContextID
             s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
             s.append('    Abstract Syntax: =%s' %'FIXME')
-            s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
 
             if item.ResultReason == 0:
-                s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
+                if item.SCP is None and item.SCU is None:
+                    ac_scp_scu_role = 'Default'
+                    rq_scp_scu_role = 'Default'
+                else:
+                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
+                s.append('    Proposed SCP/SCU Role: %s' %rq_scp_scu_role)
+                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
                 s.append('    Accepted Transfer Syntax: =%s' 
                                             %item.TransferSyntax)
         
@@ -888,6 +891,7 @@ class ApplicationEntity(threading.Thread):
             s.append('PDV %d' %(ii + 1))
             s.append('  Presentation context ID: %s' %pdv.ID)
             s.append('  Message control header byte: %s' %pdv.MessageControlHeader)
+            s.append('  Size: %s bytes' %pdv.Length)
         
         s.append('========================== END P-DATA-TF ===================='
                 '====')

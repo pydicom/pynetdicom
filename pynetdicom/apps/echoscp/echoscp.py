@@ -1,4 +1,4 @@
-#!../../../venv/bin/python
+#!/usr/bin/env python
 
 """
     A dcmtk style echoscu application. 
