@@ -378,7 +378,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         str
             The Requestor's AE Called AE Title
         """
-        return self.bCalledAETitle.decode('utf-8')
+        return self.bCalledAETitle
     
     @property
     def CallingAETitle(self):
@@ -392,7 +392,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         str
             The Requestor's AE Calling AE Title
         """
-        return self.bCallingAETitle.decode('utf-8')
+        return self.bCallingAETitle
 
 
 class A_ASSOCIATE_AC_PDU(PDU):
@@ -1168,7 +1168,10 @@ class PresentationContextItemRQ(PDU):
         """
         for ii in self.AbstractTransferSyntaxSubItems:
             if isinstance(ii, AbstractSyntaxSubItem):
-                return UID(ii.AbstractSyntaxName.decode('utf-8'))
+                if isinstance(ii.AbstractSyntaxName, UID):
+                    return ii.AbstractSyntaxName
+                else:
+                    return UID(ii.AbstractSyntaxName.decode('utf-8'))
                 
     @property
     def TransferSyntax(self):
@@ -1183,7 +1186,10 @@ class PresentationContextItemRQ(PDU):
         syntaxes = []
         for ii in self.AbstractTransferSyntaxSubItems:
             if isinstance(ii, TransferSyntaxSubItem):
-                syntaxes.append( UID(ii.TransferSyntaxName.decode('utf-8')) )
+                if isinstance(ii.TransferSyntaxName, UID):
+                    syntaxes.append(ii.TransferSyntaxName)
+                else:
+                    syntaxes.append( UID(ii.TransferSyntaxName.decode('utf-8')) )
                 
         return syntaxes
 
@@ -1310,13 +1316,17 @@ class AbstractSyntaxSubItem(PDU):
         self.ItemLength = None                      # Unsigned short
         self.AbstractSyntaxName = None        # String
 
-    def FromParams(self, Params):
-        # Params is a string
-        self.AbstractSyntaxName = Params
+    def FromParams(self, syntax_name):
+        """
+        Parameters
+        ----------
+        syntax_name - pydicom.uid.UID
+            The abstract syntax name as a UID
+        """
+        self.AbstractSyntaxName = syntax_name
         self.ItemLength = len(self.AbstractSyntaxName)
 
     def ToParams(self):
-        # Retruns the abstract syntax name
         return self.AbstractSyntaxName
 
     def Encode(self):
@@ -1332,6 +1342,7 @@ class AbstractSyntaxSubItem(PDU):
          _,
          self.ItemLength) = unpack('> B B H', Stream.read(4))
         self.AbstractSyntaxName = Stream.read(self.ItemLength)
+        print(type(self.AbstractSyntaxName))
 
     def TotalLength(self):
         return 4 + self.ItemLength

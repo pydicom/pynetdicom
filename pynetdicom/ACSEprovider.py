@@ -14,6 +14,8 @@ import time
 
 from pydicom.uid import UID
 
+from pynetdicom.__init__ import pynetdicom_uid_prefix
+from pynetdicom.__version__ import __version__
 from pynetdicom.DULparameters import *
 from pynetdicom.exceptions import AssociationRefused, NoAcceptablePresentationContext
 from pynetdicom.PDU import MaximumLengthParameters
@@ -47,10 +49,10 @@ class ACSEServiceProvider(object):
             The local AE instance
         peer_ae - dict
             A dict containing the peer AE's IP/TCP address, port and title
-        mp - ?
-            ???
+        mp - int
+            Maximum PDV length in bytes
         pcdl - ?
-            ???
+            Presentation Context Definition List
         userpdu - ?
             ???
         timeout - int
@@ -273,3 +275,444 @@ class ACSEServiceProvider(object):
 
     def Kill(self):
         self.DUL.Kill()
+
+
+    # ACSE logging/debugging functions
+    # Local AE sending PDU to peer AE
+    def debug_send_associate_rq(self, a_associate_rq):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an A-ASSOCIATE-RQ to 
+        a peer AE
+        
+        The default implementation is used for logging debugging information
+        
+        Parameters
+        ----------
+        a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
+            The A-ASSOCIATE-RQ PDU instance to be encoded and sent
+        """
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+        
+        # Shorthand
+        assoc_rq = a_associate_rq
+        
+        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_rq.PresentationContext
+        user_info     = assoc_rq.UserInformation
+        
+        s = ['Request Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
+                '=====')
+        
+        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
+        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
+        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
+        
+        # Presentation Contexts
+        if len(pres_contexts) == 1:
+            s.append('Presentation Context:')
+        else:
+            s.append('Presentation Contexts:')
+
+        for context in pres_contexts:
+            s.append('  Context ID:        %s (Proposed)' %(context.ID))
+            s.append('    Abstract Syntax: =%s' %context.AbstractSyntax)
+            
+            if 'SCU' in context.__dict__.keys():
+                scp_scu_role = '%s/%s' %(context.SCP, context.SCU)
+            else:
+                scp_scu_role = 'Default'
+            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
+            
+            # Transfer Syntaxes
+            if len(context.TransferSyntax) == 1:
+                s.append('    Proposed Transfer Syntax:')
+            else:
+                s.append('    Proposed Transfer Syntaxes:')
+                
+            for ts in context.TransferSyntax:
+                s.append('      =%s' %ts.name)
+        
+        ext_nego = 'None'
+        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Requested Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_rq.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        s.append('Requested User Identity Negotiation: %s' %usr_id)
+        s.append('======================= END A-ASSOCIATE-RQ =================='
+                '====')
+        
+        for line in s:
+            logger.debug(line)
+        
+    def debug_send_associate_ac(self, a_associate_ac):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
+        
+        Parameters
+        ----------
+        a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
+            The A-ASSOCIATE-AC PDU instance
+        """
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+                
+        # Shorthand
+        assoc_ac = a_associate_ac
+        
+        # Needs some cleanup
+        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_ac.PresentationContext
+        user_info     = assoc_ac.UserInformation
+        
+        responding_ae = 'resp. AP Title'
+        
+        our_class_uid = pynetdicom_uid_prefix
+        our_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+        
+        s = ['Accept Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
+                '=====')
+        
+        s.append('Our Implementation Class UID:      %s' %our_class_uid)
+        s.append('Our Implementation Version Name:   %s' %our_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Responding Application Name: %s' %responding_ae)
+        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
+        s.append('Presentation Contexts:')
+        
+        for item in pres_contexts:
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
+            
+            # If Presentation Context was accepted
+            if item.ResultReason == 0:
+                if item.SCP is None and item.SCU is None:
+                    ac_scp_scu_role = 'Default'
+                else:
+                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
+                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
+                s.append('    Accepted Transfer Syntax: =%s' %item.TransferSyntax)
+                
+        ext_nego = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_ac.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        
+        s.append('User Identity Negotiation Response:  %s' %usr_id)
+        s.append('======================= END A-ASSOCIATE-AC =================='
+                '====')
+        
+        for line in s:
+            logger.debug(line)
+        
+    def debug_send_associate_rj(self, a_associate_rj):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
+        
+        Parameters
+        ----------
+        a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+            The A-ASSOCIATE-RJ PDU instance
+        """
+        pass
+    
+    def debug_send_data_tf(self, p_data_tf):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an P-DATA-TF to a peer AE
+        
+        Parameters
+        ----------
+        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
+            The P-DATA-TF PDU instance
+        """
+        pass
+    
+    def debug_send_release_rq(self, a_release_rq):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
+        
+        Parameters
+        ----------
+        a_release_rq - pynetdicom.PDU.A_RELEASE_RQ_PDU
+            The A-RELEASE-RQ PDU instance
+        """
+        pass
+        
+    def debug_send_release_rp(self, a_release_rp):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an A-RELEASE-RP to a peer AE
+        
+        Parameters
+        ----------
+        a_release_rp - pynetdicom.PDU.A_RELEASE_RP_PDU
+            The A-RELEASE-RP PDU instance
+        """
+        pass
+        
+    def debug_send_abort(self, a_abort):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an A-ABORT to a peer AE
+        
+        Parameters
+        ----------
+        a_abort - pynetdicom.PDU.A_ABORT_PDU
+            The A-ABORT PDU instance
+        """
+        pass
+
+    # Local AE receiving PDU from peer AE
+    def debug_receive_associate_rq(self, a_associate_rq):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an A-ASSOCIATE-RQ
+        
+        Parameters
+        ----------
+        a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
+            The A-ASSOCIATE-RQ PDU instance
+        """
+        # Shorthand
+        assoc_rq = a_associate_rq
+        
+        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_rq.PresentationContext
+        user_info     = assoc_rq.UserInformation
+        
+        responding_ae = 'resp. AP Title'
+        their_class_uid = 'unknown'
+        their_version = 'unknown'
+        
+        if user_info.ImplementationClassUID:
+            their_class_uid = user_info.ImplementationClassUID
+        if user_info.ImplementationVersionName:
+            their_version = user_info.ImplementationVersionName
+        
+        s = ['Request Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
+                '=====')
+        s.append('Their Implementation Class UID:    %s' %their_class_uid)
+        s.append('Their Implementation Version Name: %s' %their_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
+        s.append('Presentation Contexts:')
+        for item in pres_contexts:
+            s.append('  Context ID:        %s (Proposed)' %item.ID)
+            s.append('    Abstract Syntax: =%s' %item.AbstractSyntax)
+            
+            if item.SCU is None and item.SCP is None:
+                scp_scu_role = 'Default'
+            else:
+                scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
+            
+            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
+            s.append('    Proposed Transfer Syntax(es):')
+            for ts in item.TransferSyntax:
+                s.append('      =%s' %ts)
+        
+        ext_nego = 'None'
+        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Requested Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if user_info.UserIdentity is not None:
+            usr_id = 'Yes'
+        s.append('Requested User Identity Negotiation: %s' %usr_id)
+        s.append('======================= END A-ASSOCIATE-RQ =================='
+                '====')
+        
+        for line in s:
+            logger.debug(line)
+        
+    def debug_receive_associate_ac(self, a_associate_ac):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an A-ASSOCIATE-AC
+        
+        The default implementation is used for logging debugging information
+        
+        Most of this should be moved to on_association_accepted()
+        
+        Parameters
+        ----------
+        a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
+            The A-ASSOCIATE-AC PDU instance
+        """
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+                
+        # Shorthand
+        assoc_ac = a_associate_ac
+        
+        # Needs some cleanup
+        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_ac.PresentationContext
+        user_info     = assoc_ac.UserInformation
+        
+        responding_ae = 'resp. AP Title'
+        their_class_uid = 'unknown'
+        their_version = 'unknown'
+        
+        if user_info.ImplementationClassUID:
+            their_class_uid = user_info.ImplementationClassUID
+        if user_info.ImplementationVersionName:
+            their_version = user_info.ImplementationVersionName
+        
+        s = ['Accept Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
+                '=====')
+        
+        s.append('Their Implementation Class UID:    %s' %their_class_uid)
+        s.append('Their Implementation Version Name: %s' %their_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
+        s.append('Presentation Contexts:')
+        
+        for item in pres_contexts:
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
+            s.append('    Abstract Syntax: =%s' %'FIXME')
+
+            if item.ResultReason == 0:
+                if item.SCP is None and item.SCU is None:
+                    ac_scp_scu_role = 'Default'
+                    rq_scp_scu_role = 'Default'
+                else:
+                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
+                s.append('    Proposed SCP/SCU Role: %s' %rq_scp_scu_role)
+                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
+                s.append('    Accepted Transfer Syntax: =%s' 
+                                            %item.TransferSyntax)
+        
+        ext_nego = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_ac.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        
+        s.append('User Identity Negotiation Response:  %s' %usr_id)
+        s.append('======================= END A-ASSOCIATE-AC =================='
+                '====')
+        
+        for line in s:
+            logger.debug(line)
+        
+    def debug_receive_associate_rj(self, a_associate_rj):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an A-ASSOCIATE-RJ
+        
+        Parameters
+        ----------
+        a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+            The A-ASSOCIATE-RJ PDU instance
+        """
+        # Shorthand
+        assoc_rj = a_associate_rj
+        
+        s = ['Reject Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
+                '=====')
+        s.append('Rejection Result: %s' %assoc_rj.ResultString)
+        s.append('Rejection Source: %s' %assoc_rj.SourceString)
+        s.append('Rejection Reason: %s' %assoc_rj.Reason)
+        s.append('======================= END A-ASSOCIATE-RJ =================='
+                '====')
+        for line in s:
+            logger.debug(line)
+    
+    def debug_receive_data_tf(self, p_data_tf):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an P-DATA-TF
+        
+        Parameters
+        ----------
+        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
+            The P-DATA-TF PDU instance
+        """
+        # Shorthand
+        p_data = p_data_tf
+        
+        s = ['Data Parameters:']
+        s.append('========================= BEGIN P-DATA-TF ==================='
+                '=====')
+        s.append('Number of PDVs Received: %d' %len(p_data.PDVs))
+        
+        for ii, pdv in enumerate(p_data.PDVs):
+            s.append('PDV %d' %(ii + 1))
+            s.append('  Presentation context ID: %s' %pdv.ID)
+            s.append('  Message control header byte: %s' %pdv.MessageControlHeader)
+            s.append('  Size: %s bytes' %pdv.Length)
+        
+        s.append('========================== END P-DATA-TF ===================='
+                '====')
+        for line in s:
+            logger.debug(line)
+        
+    def debug_receive_release_rq(self, a_release_rq):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an A-RELEASE-RQ
+        
+        Parameters
+        ----------
+        a_release_rq - pynetdicom.PDU.A_RELEASE_RQ_PDU
+            The A-RELEASE-RQ PDU instance
+        """
+        pass
+        
+    def debug_receive_release_rp(self, a_release_rp):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an A-RELEASE-RP
+        
+        Parameters
+        ----------
+        a_release_rp - pynetdicom.PDU.A_RELEASE_RP_PDU
+            The A-RELEASE-RP PDU instance
+        """
+        pass
+        
+    def debug_receive_abort(self, a_abort):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an A-ABORT
+        
+        Parameters
+        ----------
+        a_abort - pynetdicom.PDU.A_ABORT_PDU
+            The A-ABORT PDU instance
+        """
+        
+        s = ['Abort Parameters:']
+        s.append('========================== BEGIN A-ABORT ===================='
+                '=====')
+        s.append('Abort Source: %s' %a_abort.Source)
+        s.append('Abort Reason: %s' %a_abort.Reason)
+        s.append('=========================== END A-ABORT ====================='
+                '====')
+        for line in s:
+            logger.debug(line)
+

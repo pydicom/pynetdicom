@@ -362,75 +362,6 @@ class ApplicationEntity(threading.Thread):
         ----------
         assoc - pynetdicom.Association
             The Association parameters negotiated between the local and peer AEs
-        
-        #max_send_pdv = associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
-        
-        #logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
-        
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-                
-        # Shorthand
-        assoc_ac = a_associate_ac
-        
-        # Needs some cleanup
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
-        
-        responding_ae = 'resp. AP Title'
-        our_max_pdu_length = '[FIXME]'
-        their_class_uid = 'unknown'
-        their_version = 'unknown'
-        
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
-        
-        s = ['Association Parameters Negotiated:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
-        
-        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
-        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
-        #s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %our_max_pdu_length)
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
-        s.append('Presentation Contexts:')
-        
-        for item in pres_contexts:
-            context_id = item.PresentationContextID
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
-            s.append('    Abstract Syntax: =%s' %'FIXME')
-            s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
-
-            if item.ResultReason == 0:
-                s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
-                s.append('    Accepted Transfer Syntax: =%s' 
-                                            %item.TransferSyntax)
-        
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %'[FIXME]')
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
-        
-        usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
-            usr_id = 'Yes'
-        
-        s.append('Requested User Identity Negotiation: %s' %'[FIXME]')
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
-        
-        for line in s:
-            logger.debug(line)
         """
         pass
 
@@ -446,47 +377,10 @@ class ApplicationEntity(threading.Thread):
         associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
-        
-        # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
-        #   for information on the result and diagnostic information
-        source = associate_rj_pdu.ResultSource
-        result = associate_rj_pdu.Result
-        reason = associate_rj_pdu.Diagnostic
-        
-        source_str = { 1 : 'Service User',
-                       2 : 'Service Provider (ACSE)',
-                       3 : 'Service Provider (Presentation)'}
-        
-        reason_str = [{ 1 : 'No reason given',
-                        2 : 'Application context name not supported',
-                        3 : 'Calling AE title not recognised',
-                        4 : 'Reserved',
-                        5 : 'Reserved',
-                        6 : 'Reserved',
-                        7 : 'Called AE title not recognised',
-                        8 : 'Reserved',
-                        9 : 'Reserved',
-                       10 : 'Reserved'},
-                      { 1 : 'No reason given',
-                        2 : 'Protocol version not supported'},
-                      { 0 : 'Reserved',
-                        1 : 'Temporary congestion',
-                        2 : 'Local limit exceeded',
-                        3 : 'Reserved',
-                        4 : 'Reserved',
-                        5 : 'Reserved',
-                        6 : 'Reserved',
-                        7 : 'Reserved'}]
-        
-        result_str = { 1 : 'Rejected Permanent',
-                       2 : 'Rejected Transient'}
-        
-        logger.error('Association Rejected:')
-        logger.error('Result: %s, Source: %s' %(result_str[result], source_str[source]))
-        logger.error('Reason: %s' %reason_str[source - 1][reason])
+        pass
         
     def on_association_released(self):
-        logger.info('Association Release')
+        pass
         
     def on_association_aborted(self):
         pass
@@ -499,141 +393,35 @@ class ApplicationEntity(threading.Thread):
         immediately prior to encoding and sending an A-ASSOCIATE-RQ to 
         a peer AE
         
-        The default implementation is used for logging debugging information
+        Called by fsm.StateMachine::do_action(AE_2)
         
         Parameters
         ----------
         a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance to be encoded and sent
         """
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-        
-        # Shorthand
-        assoc_rq = a_associate_rq
-        
-        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_rq.PresentationContext
-        user_info     = assoc_rq.UserInformation
-        
-        s = ['Request Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-                '=====')
-        
-        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
-        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
-        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
-        
-        # Presentation Contexts
-        if len(pres_contexts) == 1:
-            s.append('Presentation Context:')
-        else:
-            s.append('Presentation Contexts:')
-
-        for context in pres_contexts:
-            s.append('  Context ID:        %s (Proposed)' %(context.ID))
-            s.append('    Abstract Syntax: =%s' %context.AbstractSyntax)
-            
-            if 'SCU' in context.__dict__.keys():
-                scp_scu_role = '%s/%s' %(context.SCP, context.SCU)
-            else:
-                scp_scu_role = 'Default'
-            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
-            
-            # Transfer Syntaxes
-            if len(context.TransferSyntax) == 1:
-                s.append('    Proposed Transfer Syntax:')
-            else:
-                s.append('    Proposed Transfer Syntaxes:')
-                
-            for ts in context.TransferSyntax:
-                s.append('      =%s' %ts.name)
-        
-        ext_nego = 'None'
-        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %ext_nego)
-        
-        usr_id = 'None'
-        if assoc_rq.UserInformation.UserIdentity is not None:
-            usr_id = 'Yes'
-        s.append('Requested User Identity Negotiation: %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-RQ =================='
-                '====')
-        
-        for line in s:
-            logger.debug(line)
+        pass
         
     def on_send_associate_ac(self, a_associate_ac):
         """
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
         
+        Called by fsm.StateMachine::do_action(AE_7)
+        
         Parameters
         ----------
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-                
-        # Shorthand
-        assoc_ac = a_associate_ac
-        
-        # Needs some cleanup
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
-        
-        responding_ae = 'resp. AP Title'
-        
-        our_class_uid = pynetdicom_uid_prefix
-        our_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-        
-        s = ['Accept Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
-        
-        s.append('Our Implementation Class UID:      %s' %our_class_uid)
-        s.append('Our Implementation Version Name:   %s' %our_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
-        s.append('Presentation Contexts:')
-        
-        for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
-            
-            # If Presentation Context was accepted
-            if item.ResultReason == 0:
-                if item.SCP is None and item.SCU is None:
-                    ac_scp_scu_role = 'Default'
-                else:
-                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
-                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
-                s.append('    Accepted Transfer Syntax: =%s' %item.TransferSyntax)
-                
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
-        
-        usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
-            usr_id = 'Yes'
-        
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
-        
-        for line in s:
-            logger.debug(line)
+        pass
         
     def on_send_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
+        
+        Called by fsm.StateMachine::do_action(AE_8)
         
         Parameters
         ----------
@@ -647,6 +435,8 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending an P-DATA-TF to a peer AE
         
+        Called by fsm.StateMachine::do_action(DT_1 or AR_7)
+        
         Parameters
         ----------
         a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
@@ -658,6 +448,8 @@ class ApplicationEntity(threading.Thread):
         """
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
+        
+        Called by fsm.StateMachine::do_action(AR_1)
         
         Parameters
         ----------
@@ -671,6 +463,8 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending an A-RELEASE-RP to a peer AE
         
+        Called by fsm.StateMachine::do_action(AR_4 or AR_9)
+        
         Parameters
         ----------
         a_release_rp - pynetdicom.PDU.A_RELEASE_RP_PDU
@@ -682,6 +476,8 @@ class ApplicationEntity(threading.Thread):
         """
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending an A-ABORT to a peer AE
+        
+        Called by fsm.StateMachine::do_action(AA_1 or AA_7 or AA_8)
         
         Parameters
         ----------
@@ -696,199 +492,63 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an A-ASSOCIATE-RQ
         
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
+        
         Parameters
         ----------
         a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance
         """
-        # Shorthand
-        assoc_rq = a_associate_rq
-        
-        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_rq.PresentationContext
-        user_info     = assoc_rq.UserInformation
-        
-        responding_ae = 'resp. AP Title'
-        their_class_uid = 'unknown'
-        their_version = 'unknown'
-        
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
-        
-        s = ['Request Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-                '=====')
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
-        s.append('Presentation Contexts:')
-        for item in pres_contexts:
-            s.append('  Context ID:        %s (Proposed)' %item.ID)
-            s.append('    Abstract Syntax: =%s' %item.AbstractSyntax)
-            
-            if item.SCU is None and item.SCP is None:
-                scp_scu_role = 'Default'
-            else:
-                scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
-            
-            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
-            s.append('    Proposed Transfer Syntax(es):')
-            for ts in item.TransferSyntax:
-                s.append('      =%s' %ts)
-        
-        ext_nego = 'None'
-        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %ext_nego)
-        
-        usr_id = 'None'
-        if user_info.UserIdentity is not None:
-            usr_id = 'Yes'
-        s.append('Requested User Identity Negotiation: %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-RQ =================='
-                '====')
-        
-        for line in s:
-            logger.debug(line)
+        pass
         
     def on_receive_associate_ac(self, a_associate_ac):
         """
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an A-ASSOCIATE-AC
         
-        The default implementation is used for logging debugging information
-        
-        Most of this should be moved to on_association_accepted()
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
         
         Parameters
         ----------
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-                
-        # Shorthand
-        assoc_ac = a_associate_ac
-        
-        # Needs some cleanup
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
-        
-        responding_ae = 'resp. AP Title'
-        their_class_uid = 'unknown'
-        their_version = 'unknown'
-        
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
-        
-        s = ['Accept Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
-        
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
-        s.append('Presentation Contexts:')
-        
-        for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
-            s.append('    Abstract Syntax: =%s' %'FIXME')
-
-            if item.ResultReason == 0:
-                if item.SCP is None and item.SCU is None:
-                    ac_scp_scu_role = 'Default'
-                    rq_scp_scu_role = 'Default'
-                else:
-                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
-                s.append('    Proposed SCP/SCU Role: %s' %rq_scp_scu_role)
-                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
-                s.append('    Accepted Transfer Syntax: =%s' 
-                                            %item.TransferSyntax)
-        
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
-        
-        usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
-            usr_id = 'Yes'
-        
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
-        
-        for line in s:
-            logger.debug(line)
+        pass
         
     def on_receive_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an A-ASSOCIATE-RJ
         
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
+        
         Parameters
         ----------
         a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
             The A-ASSOCIATE-RJ PDU instance
         """
-        # Shorthand
-        assoc_rj = a_associate_rj
-        
-        s = ['Reject Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
-                '=====')
-        s.append('Rejection Result: %s' %assoc_rj.ResultString)
-        s.append('Rejection Source: %s' %assoc_rj.SourceString)
-        s.append('Rejection Reason: %s' %assoc_rj.Reason)
-        s.append('======================= END A-ASSOCIATE-RJ =================='
-                '====')
-        for line in s:
-            logger.debug(line)
+        pass
     
     def on_receive_data_tf(self, p_data_tf):
         """
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an P-DATA-TF
         
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
+        
         Parameters
         ----------
         a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
             The P-DATA-TF PDU instance
         """
-        # Shorthand
-        p_data = p_data_tf
-        
-        s = ['Data Parameters:']
-        s.append('========================= BEGIN P-DATA-TF ==================='
-                '=====')
-        s.append('Number of PDVs Received: %d' %len(p_data.PDVs))
-        
-        for ii, pdv in enumerate(p_data.PDVs):
-            s.append('PDV %d' %(ii + 1))
-            s.append('  Presentation context ID: %s' %pdv.ID)
-            s.append('  Message control header byte: %s' %pdv.MessageControlHeader)
-            s.append('  Size: %s bytes' %pdv.Length)
-        
-        s.append('========================== END P-DATA-TF ===================='
-                '====')
-        for line in s:
-            logger.debug(line)
+        pass
         
     def on_receive_release_rq(self, a_release_rq):
         """
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an A-RELEASE-RQ
+        
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
         
         Parameters
         ----------
@@ -902,6 +562,8 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an A-RELEASE-RP
         
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
+        
         Parameters
         ----------
         a_release_rp - pynetdicom.PDU.A_RELEASE_RP_PDU
@@ -914,21 +576,14 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding an A-ABORT
         
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
+        
         Parameters
         ----------
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        
-        s = ['Abort Parameters:']
-        s.append('========================== BEGIN A-ABORT ===================='
-                '=====')
-        s.append('Abort Source: %s' %a_abort.Source)
-        s.append('Abort Reason: %s' %a_abort.Reason)
-        s.append('=========================== END A-ABORT ====================='
-                '====')
-        for line in s:
-            logger.debug(line)
+        pass
 
 
     # High-level DIMSE related callbacks
@@ -967,58 +622,45 @@ class ApplicationEntity(threading.Thread):
     # Mid-level DIMSE related callbacks
     def on_send_c_echo_rq(self, dimse_msg):
         """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
         Parameters
         ----------
         dimse_msg - pynetdicom.SOPclass.C_ECHO_RQ 
         """
-        d = dimse_msg.CommandSet
-        logger.info("Sending Echo Request: MsgID %s" %(d.MessageID))
+        pass
         
     def on_send_c_echo_rsp(self, dimse_msg):
-        pass
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
+        """
     
     def on_send_c_store_rq(self, dimse_msg):
         """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
         Parameters
         ----------
         store - pynetdicom.SOPclass.C_STORE_RQ 
         """
-        d = dimse_msg.CommandSet
-
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
-        priority = priority_str[d.Priority]
-
-        dataset = 'None'
-        if 'DataSet' in dimse_msg.__dict__.keys():
-            dataset = 'Present'
-            
-        if d.AffectedSOPClassUID == 'CT Image Storage':
-            dataset_type = ', (CT)'
-        if d.AffectedSOPClassUID == 'MR Image Storage':
-            dataset_type = ', (MR)'
-        else:
-            dataset_type = ''
-        
-        logger.info("Sending Store Request: MsgID %s%s" 
-                %(d.MessageID, dataset_type))
-        
-        s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
-        s.append('Message Type                  : %s' %'C-STORE RQ')
-        s.append('Message ID                    : %s' %d.MessageID)
-        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
-        s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
-        for line in s:
-            logger.debug(line)
+        pass
     
     def on_send_c_store_rsp(self, dimse_msg):
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_STORE_RSP
+        """
         pass
     
     
@@ -1027,104 +669,48 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         after receiving and decoding a C-ECHO-RQ. The C-ECHO service is used
         to verify end-to-end communications with a peer DIMSE user.
-        """
-        d = dimse_msg.CommandSet
         
-        s = ['Received Echo Request']
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
-        s.append('Message Type                  : %s' %'C-ECHO RQ')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID                    : %s' %d.MessageID)
-        s.append('Data Set                      : %s' %'none')
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
-                 
-        for line in s:
-            logger.debug(line)
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        """
+        pass
     
     def on_receive_c_echo_rsp(self, dimse_msg):
         """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
         Parameters
         ----------
         dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
         """
-        d = dimse_msg.CommandSet
-        
-        # Status must always be Success for C_ECHO_RSP
-        logger.info("Received Echo Response (Status: Success)")
+        pass
         
     def on_receive_c_store_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-STORE-RQ
         
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
         Parameters
         ----------
-        dataset - pydicom.Dataset
-            The dataset sent to the local AE
+        dimse_msg - 
         """
-        d = dimse_msg.CommandSet
-        
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
-        priority = priority_str[d.Priority]
-
-        dataset = 'None'
-        if 'DataSet' in dimse_msg.__dict__.keys():
-            dataset = 'Present'
-        
-        logger.info('Received Store Request')
-        
-        s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
-        s.append('Message Type                  : %s' %'C-STORE RQ')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID                    : %s' %d.MessageID)
-        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
-        s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
-        for line in s:
-            logger.debug(line)
+        pass
 
     def on_receive_c_store_rsp(self, dimse_msg):
-
-        d = dimse_msg.CommandSet
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-STORE-RSP
         
-        dataset = 'None'
-        if 'DataSet' in dimse_msg.__dict__.keys():
-            if dimse_msg.DataSet.getvalue() != b'':
-                dataset = 'Present'
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
         
-        status = '0x%04x' %d.Status
-        if status == '0x0000':
-            status += ': Success'
-        else:
-            pass
+        Parameters
+        ----------
+        dimse_msg - 
+        """
+        pass
         
-        logger.info('Received Store Response')
-        s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
-        s.append('Message Type                  : %s' %'C-STORE RSP')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
-        s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : %s' %status)
-        
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
-                 
-        for line in s:
-            logger.debug(line)
-
     def on_receive_c_find_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1134,10 +720,11 @@ class ApplicationEntity(threading.Thread):
         SOP Instances that match. It triggers one or more C-STORE 
         sub-operations on the same Association.
         
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
         Parameters
         ----------
-        attributes - pydicom.Dataset
-            A Dataset containing the attributes to match against.
+        
             
         Returns
         -------
@@ -1156,10 +743,11 @@ class ApplicationEntity(threading.Thread):
         SOP Instances that match. It triggers one or more C-STORE 
         sub-operations on the same Association.
         
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
         Parameters
         ----------
-        attributes - pydicom.Dataset
-            A Dataset containing the attributes to match against.
+        
             
         Returns
         -------
@@ -1179,10 +767,10 @@ class ApplicationEntity(threading.Thread):
         SOP Instances that match. It triggers one or more C-STORE 
         sub-operations on the same Association.
         
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
         Parameters
         ----------
-        attributes - pydicom.Dataset
-            A Dataset containing the attributes to match against.
             
         Returns
         -------
@@ -1299,24 +887,21 @@ class ApplicationEntity(threading.Thread):
         Placeholder for a function callback. Function will be called 
         immediately prior to encoding and sending a DIMSE message
         
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
         Parameters
         ----------
         message - pynetdicom.DIMSEmessage.DIMSEMessage
             The DIMSE message to be sent
         """
-        #logger.info('ae::on_send_dimse_message: %s' %type(message))
-                
-        callback = {C_ECHO_RQ_Message   : self.on_send_c_echo_rq,
-                    C_ECHO_RSP_Message  : self.on_send_c_echo_rsp,
-                    C_STORE_RQ_Message  : self.on_send_c_store_rq,
-                    C_STORE_RSP_Message : self.on_send_c_store_rsp}
-
-        callback[type(message)](message)
+        pass
         
     def on_receive_dimse_message(self, message):
         """
         Placeholder for a function callback. Function will be called 
         immediately after receiving and decoding a DIMSE message
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
         
         Parameters
         ----------
@@ -1325,14 +910,7 @@ class ApplicationEntity(threading.Thread):
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
         """
-        #logger.info('ae::on_receive_dimse_message: %s' %type(message))
-                
-        callback = {C_ECHO_RQ_Message   : self.on_receive_c_echo_rq,
-                    C_ECHO_RSP_Message  : self.on_receive_c_echo_rsp,
-                    C_STORE_RQ_Message  : self.on_receive_c_store_rq,
-                    C_STORE_RSP_Message : self.on_receive_c_store_rsp}
-
-        callback[type(message)](message)
+        pass
 
 
 class AE(ApplicationEntity):
