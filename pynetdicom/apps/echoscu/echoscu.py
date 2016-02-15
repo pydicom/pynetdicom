@@ -125,28 +125,19 @@ called_ae = {'AET' : args.called_aet,
              'Address' : args.peer, 
              'Port' : args.port}
 
-def OnReceiveEcho():
-    logger.info('Received Echo Response (Status: %s)' %'Success')
-    return True
-
 # Create application entity
-# Bind to port 0, OS will pick an available port
+# Binding to port 0, OS will pick an available port
 ae = AE(args.calling_aet, 0, [VerificationSOPClass], [], 
         SupportedTransferSyntax=[ExplicitVRLittleEndian])
-ae.OnReceiveEcho = OnReceiveEcho
 
 # Request association with remote
-#logger.info('Requesting Association')
 assoc = ae.request_association(args.peer, args.port, args.called_aet)
 
 if assoc.AssociationEstablished:
-    # This seems inelegant...
-    # status = assoc.'acftvw\send(sop_class)
     status = assoc.send_c_echo()
     
     # Release association
-    logger.info('Releasing Association')
-    assoc.Release(0)
+    assoc.Release()
 
 # Quit
 ae.Quit()

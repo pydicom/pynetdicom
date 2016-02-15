@@ -52,14 +52,15 @@ class VerificationServiceClass(ServiceClass):
     def __init__(self):
         ServiceClass.__init__(self)
 
-    def SCU(self, id):
+    def SCU(self, msg_id):
         cecho = C_ECHO_ServiceParameters()
-        cecho.MessageID = id
+        cecho.MessageID = msg_id
         cecho.AffectedSOPClassUID = self.UID
 
         self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
 
-        msg, id = self.DIMSE.Receive(Wait=True)
+        msg, _ = self.DIMSE.Receive(Wait=True)
+        
         return self.Code2Status(msg.Status)
 
     def SCP(self, msg):
