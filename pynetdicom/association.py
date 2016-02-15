@@ -176,21 +176,15 @@ class Association(threading.Thread):
 
     def Kill(self):
         self._Kill = True
-        
+        self.AssociationEstablished = False
         while not self.DUL.Stop():
             time.sleep(0.001)
 
-    def Release(self, reason):
+    def Release(self):
         """
         Release the association
-        
-        Parameters
-        ----------
-        reason - int
-            The reason for releasing the association. Need to find a list of
-            possible reasons
         """
-        self.ACSE.Release(reason)
+        self.ACSE.Release()
         self.Kill()
 
     def Abort(self, reason):
@@ -250,6 +244,12 @@ class Association(threading.Thread):
                 self.SOPClassesAsSCP.append((context[0],
                                              UID2SOPClass(context[1]), 
                                              context[2]))
+            
+            # No acceptable presentation contexts so abort the association
+            if self.SOPClassesAsSCP == []:
+                logger.info("No Acceptable Presentation Contexts")
+                self.Abort()
+                return
         
         # If the local AE initiated the Association
         elif self.mode == 'Requestor':
@@ -297,20 +297,25 @@ class Association(threading.Thread):
                 self.SOPClassesAsSCU.append((context[0],
                                              UID2SOPClass(context[1]), 
                                              context[2]))
-
+            
+            # No acceptable presentation contexts so release the association
+            if self.SOPClassesAsSCU == []:
+                logger.info("No Acceptable Presentation Contexts")
+                self.Release()
+                return
+            
         # Assocation established OK
         self.AssociationEstablished = True
-        self.established = True
         
         # AE callback trigger
         self.debug_association_established()
         self.AE.on_association_established()
 
         # If acting as an SCP, listen for further messages on the Association
-        if self.mode == 'Acceptor':
-
-            while not self._Kill:
-                time.sleep(0.001)
+        while not self._Kill:
+            time.sleep(0.001)
+                
+            if self.mode == 'Acceptor':
 
                 # Check with the DIMSE provider for incoming messages
                 msg, pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
@@ -366,29 +371,108 @@ class Association(threading.Thread):
                 # Check if idle timer has expired
                 if self.DUL.idle_timer_expired():
                     self.Kill()
+                    
+            if self.mode == 'Requestor':
+                # Check for release request
+                if self.ACSE.CheckRelease():
+                    # Callback trigger
+                    self.debug_association_released()
+                    self.AE.on_association_released()
+                    self.Kill()
 
+                # Check for abort
+                if self.ACSE.CheckAbort():
+                    # Callback trigger
+                    self.debug_association_aborted()
+                    self.AE.on_association_aborted()
+                    self.Kill()
+                    return
+                    
+                # Check if the DULServiceProvider thread is still running
+                if not self.DUL.isAlive():
+                    self.Kill()
+
+                # Check if idle timer has expired
+                if self.DUL.idle_timer_expired():
+                    self.Kill()
+
+    @property
+    def Established(self):
+        return self.AssociationEstablished
     
     # DIMSE services provided by the Association
     # Replaces the old assoc.SOPClass.SCU method
-    def store_dataset(self, dataset):
+    def send_c_store(self, dataset):
         pass
         
-    def send_echo(self):
+    def send_c_echo(self, msg_id=1):
+        sop_class = VerificationSOPClass()
+        
+        found_match = False
+        for scu_sop_class in self.SOPClassesAsSCU:
+            if scu_sop_class[1] == sop_class.__class__:
+                sop_class.pcid = scu_sop_class[0]
+                sop_class.sopclass = scu_sop_class[1]
+                sop_class.transfersyntax = scu_sop_class[2]
+                
+                found_match = True
+                
+        if not found_match:
+            raise ValueError("'%s' is not listed as one of the AE's "
+                    "supported SOP Classes" %sop_class.__class__.__name__)
+            
+        sop_class.maxpdulength = self.ACSE.MaxPDULength
+        sop_class.DIMSE = self.DIMSE
+        sop_class.AE = self.AE
+        sop_class.RemoteAE = self.AE
+        
+        status = sop_class.SCU(msg_id)
+        
+    def send_c_find(self, dataset, query_model='W', msg_id=1, query_priority=2):
+
+        if query_model == 'W':
+            sop_class = ModalityWorklistInformationFindSOPClass()
+        elif query_model == "P":
+            sop_class = PatientRootFindSOPClass()
+        elif query_model == "S":
+            sop_class = StudyRootFindSOPClass()
+        elif query_model == "O":
+            sop_class = PatientStudyOnlyFindSOPClass()
+        else:
+            raise ValueError("Association::send_c_find() query_model must be "
+                "one of ['W'|'P'|'S'|'O']")
+
+        found_match = False
+        for scu_sop_class in self.SOPClassesAsSCU:
+            if scu_sop_class[1] == sop_class.__class__:
+                sop_class.pcid = scu_sop_class[0]
+                sop_class.sopclass = scu_sop_class[1]
+                sop_class.transfersyntax = scu_sop_class[2]
+                
+                found_match = True
+                
+        if not found_match:
+            raise ValueError("'%s' is not listed as one of the AE's "
+                    "supported SOP Classes" %sop_class.__class__.__name__)
+            
+        sop_class.maxpdulength = self.ACSE.MaxPDULength
+        sop_class.DIMSE = self.DIMSE
+        sop_class.AE = self.AE
+        sop_class.RemoteAE = self.AE
+        
+        # Send the query
+        return sop_class.SCU(dataset, msg_id, query_priority)
+        
+    def send_c_move(self, dataset):
         pass
         
-    def find_dataset(self, dataset):
-        pass
-        
-    def move_dataset(self, dataset):
-        pass
-        
-    def get_dataset(self, dataset):
+    def send_c_get(self, dataset):
         pass
 
 
     # Association logging/debugging functions
     def debug_association_established(self):
-        pass
+        logger.info('Association Established')
     
     def debug_association_requested(self):
         pass
@@ -474,7 +558,7 @@ class Association(threading.Thread):
         for line in s:
             logger.debug(line)
         """
-        pass
+        logger.info('Association Accepted')
 
     def debug_association_rejected(self, associate_rj_pdu):
         """
@@ -528,8 +612,8 @@ class Association(threading.Thread):
         logger.error('Reason: %s' %reason_str[source - 1][reason])
         
     def debug_association_released(self):
-        logger.info('Association Release')
+        logger.info('Association Released')
         
     def debug_association_aborted(self):
-        pass
+        logger.info('Association Aborted')
 

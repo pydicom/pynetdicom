@@ -3,8 +3,7 @@
 """
     A dcmtk style storescu application. 
     
-    Used for verifying basic DICOM connectivity and as such has a focus on
-    providing useful debugging and logging information.
+    Used as an SCU for sending DICOM objects from
 """
 
 import argparse
@@ -36,7 +35,7 @@ def _setup_argparser():
                     "Storage Service Class Provider (SCP) and waits for a "
                     "response. The application can be used to transmit DICOM "
                     "images and other composite objectes.", 
-        usage="echoscu [options] peer port")
+        usage="storescu [options] peer port")
         
     # Parameters
     req_opts = parser.add_argument_group('Parameters')

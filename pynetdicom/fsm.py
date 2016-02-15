@@ -840,6 +840,7 @@ def AA_3(dul):
     dul.to_user_queue.put(dul.primitive)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.Kill()
     
     return 'Sta1'
 

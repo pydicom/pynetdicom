@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 """
-    A dcmtk style echoscu application. 
+    A dcmtk style storescp application. 
     
-    Used for verifying basic DICOM connectivity and as such has a focus on
-    providing useful debugging and logging information.
+    Used as a SCP for sending DICOM objects to
 """
 
 import argparse

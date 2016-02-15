@@ -131,7 +131,7 @@ def OnReceiveEcho():
 
 # Create application entity
 # Bind to port 0, OS will pick an available port
-ae = AE(args.calling_aet, 0, [], [VerificationSOPClass], 
+ae = AE(args.calling_aet, 0, [VerificationSOPClass], [], 
         SupportedTransferSyntax=[ExplicitVRLittleEndian])
 ae.OnReceiveEcho = OnReceiveEcho
 
@@ -139,10 +139,10 @@ ae.OnReceiveEcho = OnReceiveEcho
 #logger.info('Requesting Association')
 assoc = ae.request_association(args.peer, args.port, args.called_aet)
 
-if assoc is not None:
+if assoc.AssociationEstablished:
     # This seems inelegant...
     # status = assoc.'acftvw\send(sop_class)
-    status = assoc.VerificationSOPClass.SCU(1)
+    status = assoc.send_c_echo()
     
     # Release association
     logger.info('Releasing Association')

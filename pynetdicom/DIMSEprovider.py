@@ -79,7 +79,10 @@ class DIMSEServiceProvider(object):
                 dul_obj = self.DUL.Receive(Wait, Timeout)
 
                 if self.message.Decode(dul_obj):
+                    # Callbacks
                     self.DUL.local_ae.on_receive_dimse_message(self.message)
+                    self.on_receive_dimse_message(self.message)
+                    
                     tmp = self.message
                     self.message = None
                     ID = tmp.ID
@@ -94,8 +97,10 @@ class DIMSEServiceProvider(object):
             dul_obj = self.DUL.Receive(Wait, Timeout)
 
             if self.message.Decode(dul_obj):
+                # Callbacks
                 self.DUL.local_ae.on_receive_dimse_message(self.message)
                 self.on_receive_dimse_message(self.message)
+                
                 tmp = self.message
                 self.message = None
                 ID = tmp.ID
@@ -104,6 +109,7 @@ class DIMSEServiceProvider(object):
                 return tmp, ID
             else:
                 return None, None
+
 
     def on_send_dimse_message(self, message):
         """
@@ -117,6 +123,8 @@ class DIMSEServiceProvider(object):
         """
         debug_callback = {C_ECHO_RQ_Message   : self.debug_send_c_echo_rq,
                           C_ECHO_RSP_Message  : self.debug_send_c_echo_rsp,
+                          C_FIND_RQ_Message   : self.debug_send_c_find_rq,
+                          C_FIND_RSP_Message  : self.debug_send_c_find_rsp,
                           C_STORE_RQ_Message  : self.debug_send_c_store_rq,
                           C_STORE_RSP_Message : self.debug_send_c_store_rsp}
         debug_callback[type(message)](message)
@@ -124,6 +132,8 @@ class DIMSEServiceProvider(object):
         ae = self.DUL.local_ae
         ae_callback = {C_ECHO_RQ_Message   : ae.on_send_c_echo_rq,
                        C_ECHO_RSP_Message  : ae.on_send_c_echo_rsp,
+                       C_FIND_RQ_Message   : ae.on_send_c_find_rq,
+                       C_FIND_RSP_Message  : ae.on_send_c_find_rsp,
                        C_STORE_RQ_Message  : ae.on_send_c_store_rq,
                        C_STORE_RSP_Message : ae.on_send_c_store_rsp}
         ae_callback[type(message)](message)
@@ -140,10 +150,10 @@ class DIMSEServiceProvider(object):
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
         """
-        #logger.info('ae::on_receive_dimse_message: %s' %type(message))
-                
         callback = {C_ECHO_RQ_Message   : self.debug_receive_c_echo_rq,
                     C_ECHO_RSP_Message  : self.debug_receive_c_echo_rsp,
+                    C_FIND_RQ_Message   : self.debug_receive_c_find_rq,
+                    C_FIND_RSP_Message  : self.debug_receive_c_find_rsp,
                     C_STORE_RQ_Message  : self.debug_receive_c_store_rq,
                     C_STORE_RSP_Message : self.debug_receive_c_store_rsp}
         callback[type(message)](message)
@@ -151,6 +161,8 @@ class DIMSEServiceProvider(object):
         ae = self.DUL.local_ae
         ae_callback = {C_ECHO_RQ_Message   : ae.on_receive_c_echo_rq,
                        C_ECHO_RSP_Message  : ae.on_receive_c_echo_rsp,
+                       C_FIND_RQ_Message   : ae.on_receive_c_find_rq,
+                       C_FIND_RSP_Message  : ae.on_receive_c_find_rsp,
                        C_STORE_RQ_Message  : ae.on_receive_c_store_rq,
                        C_STORE_RSP_Message : ae.on_receive_c_store_rsp}
         ae_callback[type(message)](message)
@@ -212,6 +224,50 @@ class DIMSEServiceProvider(object):
             logger.debug(line)
     
     def debug_send_c_store_rsp(self, dimse_msg):
+        pass
+    
+    def debug_send_c_find_rq(self, dimse_msg):
+        """
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_STORE_RQ 
+        """
+        d = dimse_msg.CommandSet
+
+        priority_str = {2 : 'Low',
+                        0 : 'Medium',
+                        1 : 'High'}
+        priority = priority_str[d.Priority]
+
+        dataset = 'None'
+        if 'DataSet' in dimse_msg.__dict__.keys():
+            dataset = 'Present'
+            
+        #if d.AffectedSOPClassUID == 'CT Image Storage':
+        #    dataset_type = ', (CT)'
+        #if d.AffectedSOPClassUID == 'MR Image Storage':
+        #    dataset_type = ', (MR)'
+        #else:
+        #    dataset_type = ''
+        
+        #logger.info("Sending Store Request: MsgID %s%s" 
+        #        %(d.MessageID, dataset_type))
+        
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-FIND RQ')
+        s.append('Message ID                    : %s' %d.MessageID)
+        #s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        #s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('Priority                      : %s' %priority)
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            logger.debug(line)
+    
+    def debug_send_c_find_rsp(self, dimse_msg):
         pass
     
     
@@ -340,6 +396,45 @@ class DIMSEServiceProvider(object):
         """
         return None
         
+    def debug_receive_c_find_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-FIND-RQ. The C-FIND service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.DIMSEmessage.C_FIND_RSP_Message
+            The received C-FIND response
+        """
+        logger.info("Received Find Response")
+        
+        d = dimse_msg.CommandSet
+        
+        dataset = 'None'
+        if 'DataSet' in dimse_msg.__dict__.keys():
+            if dimse_msg.DataSet.getvalue() != b'':
+                dataset = 'Present'
+        
+        if d.Status == 0x0000:
+            s = []
+            s.append('===================== INCOMING DIMSE MESSAGE ================'
+                     '====')
+            s.append('Message Type                  : %s' %'C-FIND RSP')
+            s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
+            s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+            s.append('Data Set                      : %s' %dataset)
+            s.append('DIMSE Status                  : %s' %dimse_msg.Status)
+            
+            s.append('======================= END DIMSE MESSAGE ==================='
+                     '====')
+            
+            for line in s:
+                logger.debug(line)
+
     def debug_receive_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 

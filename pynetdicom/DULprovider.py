@@ -77,6 +77,10 @@ class DULServiceProvider(Thread):
         Used help identify the DUL service provider
     timeout_seconds - float, optional
         The maximum amount of time to wait for connection responses in seconds
+    local_ae - pynetdicom.applicationentity.ApplicationEntity
+        The local AE instance
+    assoc - pynetdicom.association.Association
+        The DUL's current Association
         
     Attributes
     ----------
@@ -446,7 +450,6 @@ class DULServiceProvider(Thread):
         The main threading.Thread run loop. Runs constantly, checking the
         connection for incoming data. When incoming data is received it 
         categorises it and add its to the `to_user_queue`.
-        
         """
         logger.debug('Starting DICOM UL service "%s"' %self.name)
 
@@ -466,7 +469,6 @@ class DULServiceProvider(Thread):
                 if self.CheckNetwork():
                     if self._idle_timer is not None:
                         self._idle_timer.restart()
-                
                 elif self.CheckIncomingPrimitive():
                     pass
                 

@@ -331,7 +331,7 @@ class ApplicationEntity(threading.Thread):
             self.Associations.append(assoc)
             return assoc
 
-        return None
+        return assoc
 
     def RequestAssociation(self, remoteAE):
         return self.request_association(remoteAE['Port'], 
@@ -663,6 +663,28 @@ class ApplicationEntity(threading.Thread):
         """
         pass
     
+    def on_send_c_find_rq(self, dimse_msg):
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_FIND_RQ 
+        """
+        pass
+    
+    def on_send_c_find_rsp(self, dimse_msg):
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_FIND_RSP
+        """
+        pass
+    
     
     def on_receive_c_echo_rq(self, dimse_msg):
         """
@@ -715,6 +737,28 @@ class ApplicationEntity(threading.Thread):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-FIND-RQ. The C-FIND service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+        
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances. If no matching SOP Instances are found 
+            then return the empty list or None.
+        """
+        return None
+        
+    def on_receive_c_find_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-FIND-RSP. The C-FIND service is used by a DIMSE to match
         a set of Attributes against the Attributes of a set of composite SOP
         Instances maintained by a peer DIMSE user, and retrieve all composite
         SOP Instances that match. It triggers one or more C-STORE 
