@@ -166,6 +166,7 @@ def AE_2(dul):
     
     # Callback
     dul.local_ae.on_send_associate_rq(dul.pdu)
+    dul.association.ACSE.debug_send_associate_rq(dul.pdu)
     
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -325,6 +326,7 @@ def AE_7(dul):
     
     # Callback
     dul.local_ae.on_send_associate_ac(dul.pdu)
+    dul.association.ACSE.debug_send_associate_ac(dul.pdu)
     
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -363,6 +365,11 @@ def AE_8(dul):
     #    dul.primitive.ResultSource = 2
 
     dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_associate_rj(dul.pdu)
+    dul.association.ACSE.debug_send_associate_rj(dul.pdu)
+    
     dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta13'
@@ -393,9 +400,12 @@ def DT_1(dul):
     dul.pdu = P_DATA_TF_PDU()
     dul.pdu.FromParams(dul.primitive)
     dul.primitive = None # Why this?
+    
+    # Callback
+    dul.local_ae.on_send_data_tf(dul.pdu)
+    dul.association.ACSE.debug_send_data_tf(dul.pdu)
+    
     bytestream = dul.pdu.Encode()
-    #print("DT-1")
-    #print(wrap_list(bytestream))
     dul.scu_socket.send(bytestream)
     
     return 'Sta6'
@@ -451,10 +461,13 @@ def AR_1(dul):
     # Send A-RELEASE-RQ PDU
     dul.pdu = A_RELEASE_RQ_PDU()
     dul.pdu.FromParams(dul.primitive)
+
+    # Callback
+    dul.local_ae.on_send_release_rq(dul.pdu)
+    dul.association.ACSE.debug_send_release_rq(dul.pdu)
+
     bytestream = dul.pdu.Encode()
-    #print("AR-1")
-    #print(wrap_list(bytestream))
-    dul.scu_socket.send(dul.pdu.Encode())
+    dul.scu_socket.send(bytestream)
     
     return 'Sta7'
 
@@ -537,6 +550,11 @@ def AR_4(dul):
     # Issue A-RELEASE-RP PDU and start ARTIM timer
     dul.pdu = A_RELEASE_RP_PDU()
     dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_release_rp(dul.pdu)
+    dul.association.ACSE.debug_send_release_rp(dul.pdu)
+    
     dul.scu_socket.send(dul.pdu.Encode())
     dul.artim_timer.start()
     
@@ -621,11 +639,13 @@ def AR_7(dul):
     # Issue P-DATA-TF PDU
     dul.pdu = P_DATA_TF_PDU()
     dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_data_tf(dul.pdu)
+    dul.association.ACSE.debug_send_data_tf(dul.pdu)
+    
     bytestream = dul.pdu.Encode()
-    #print("AR-7")
-    #print(wrap_list(bytestream))
     dul.scu_socket.send(bytestream)
-    #dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta8'
 
@@ -682,6 +702,11 @@ def AR_9(dul):
     # Send A-RELEASE-RP PDU
     dul.pdu = A_RELEASE_RP_PDU()
     dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_release_rp(dul.pdu)
+    dul.association.ACSE.debug_send_release_rp(dul.pdu)
+    
     dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta11'
@@ -744,6 +769,11 @@ def AA_1(dul):
     dul.pdu.ReasonDiag = 0
     
     dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_abort(dul.pdu)
+    dul.association.ACSE.debug_send_abort(dul.pdu)
+    
     dul.scu_socket.send(dul.pdu.Encode())
     
     dul.artim_timer.restart()
@@ -919,6 +949,11 @@ def AA_7(dul):
     # Send A-ABORT PDU.
     dul.pdu = A_ABORT_PDU()
     dul.pdu.FromParams(dul.primitive)
+    
+    # Callback
+    dul.local_ae.on_send_abort(dul.pdu)
+    dul.association.ACSE.debug_send_abort(dul.pdu)
+    
     dul.scu_socket.send(dul.pdu.Encode())
     
     return 'Sta13'
@@ -950,14 +985,17 @@ def AA_8(dul):
     """
     # Send A-ABORT PDU (service-dul source), issue and A-P-ABORT
     # indication, and start ARTIM timer.
-    # Send A-ABORT PDU
     dul.pdu = A_ABORT_PDU()
     dul.pdu.Source = 2
-    dul.pdu.ReasonDiag = 0  # No reason given
+    dul.pdu.ReasonDiag = 0
     
     if dul.peer_socket:
+        # Callback
+        dul.local_ae.on_send_abort(dul.pdu)
+        dul.association.ACSE.debug_send_abort(dul.pdu)
+        
+        # Encode and send
         dul.scu_socket.send(dul.pdu.Encode())
-        # Issue A-P-ABORT indication
         dul.to_user_queue.put(dul.primitive)
         dul.artim_timer.start()
         

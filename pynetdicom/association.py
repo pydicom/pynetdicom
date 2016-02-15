@@ -99,7 +99,8 @@ class Association(threading.Thread):
         #   as an SCU?
         self.DUL = DULServiceProvider(ClientSocket,
                             timeout_seconds=self.AE.MaxAssociationIdleSeconds,
-                            local_ae = LocalAE)
+                            local_ae=LocalAE,
+                            assoc=self)
                             
         self.RemoteAE = RemoteAE
         
@@ -111,8 +112,8 @@ class Association(threading.Thread):
         
         self.established = False
         
-        self.dimse = None
-        self.acse = None
+        #self.dimse = None
+        #self.acse = None
         
         self._Kill = False
         
@@ -239,6 +240,8 @@ class Association(threading.Thread):
 
             # Callbacks
             #self.AE.OnAssociateRequest(self)
+            # Local debugging log
+            self.debug_association_accepted(assoc)
             self.AE.on_association_accepted(assoc)
             
             # Build supported SOP Classes for the Association
@@ -276,11 +279,13 @@ class Association(threading.Thread):
                     
                 # Callback trigger
                 if response.Result == 'Accepted':
+                    self.debug_association_accepted(response)
                     self.AE.on_association_accepted(response)
 
             else:
                 # Callback trigger
                 if response is not None:
+                    self.debug_association_rejected(response)
                     self.AE.on_association_rejected(response)
                 self.AssociationRefused = True
                 self.DUL.Kill()
@@ -297,7 +302,8 @@ class Association(threading.Thread):
         self.AssociationEstablished = True
         self.established = True
         
-        # Callback trigger
+        # AE callback trigger
+        self.debug_association_established()
         self.AE.on_association_established()
 
         # If acting as an SCP, listen for further messages on the Association
@@ -341,12 +347,14 @@ class Association(threading.Thread):
                 # Check for release request
                 if self.ACSE.CheckRelease():
                     # Callback trigger
+                    self.debug_association_released()
                     self.AE.on_association_released()
                     self.Kill()
 
                 # Check for abort
                 if self.ACSE.CheckAbort():
                     # Callback trigger
+                    self.debug_association_aborted()
                     self.AE.on_association_aborted()
                     self.Kill()
                     return
@@ -359,6 +367,9 @@ class Association(threading.Thread):
                 if self.DUL.idle_timer_expired():
                     self.Kill()
 
+    
+    # DIMSE services provided by the Association
+    # Replaces the old assoc.SOPClass.SCU method
     def store_dataset(self, dataset):
         pass
         
@@ -373,3 +384,152 @@ class Association(threading.Thread):
         
     def get_dataset(self, dataset):
         pass
+
+
+    # Association logging/debugging functions
+    def debug_association_established(self):
+        pass
+    
+    def debug_association_requested(self):
+        pass
+    
+    def debug_association_accepted(self, assoc):
+        """
+        Placeholder for a function callback. Function will be called 
+        when an association attempt is accepted by either the local or peer AE
+        
+        The default implementation is used for logging debugging information
+        
+        Parameters
+        ----------
+        assoc - pynetdicom.Association
+            The Association parameters negotiated between the local and peer AEs
+        
+        #max_send_pdv = associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
+        
+        #logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
+        
+        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+                
+        # Shorthand
+        assoc_ac = a_associate_ac
+        
+        # Needs some cleanup
+        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
+        pres_contexts = assoc_ac.PresentationContext
+        user_info     = assoc_ac.UserInformation
+        
+        responding_ae = 'resp. AP Title'
+        our_max_pdu_length = '[FIXME]'
+        their_class_uid = 'unknown'
+        their_version = 'unknown'
+        
+        if user_info.ImplementationClassUID:
+            their_class_uid = user_info.ImplementationClassUID
+        if user_info.ImplementationVersionName:
+            their_version = user_info.ImplementationVersionName
+        
+        s = ['Association Parameters Negotiated:']
+        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
+                '=====')
+        
+        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
+        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
+        s.append('Their Implementation Class UID:    %s' %their_class_uid)
+        s.append('Their Implementation Version Name: %s' %their_version)
+        s.append('Application Context Name:    %s' %app_context)
+        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
+        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
+        #s.append('Responding Application Name: %s' %responding_ae)
+        s.append('Our Max PDU Receive Size:    %s' %our_max_pdu_length)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
+        s.append('Presentation Contexts:')
+        
+        for item in pres_contexts:
+            context_id = item.PresentationContextID
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
+            s.append('    Abstract Syntax: =%s' %'FIXME')
+            s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
+
+            if item.ResultReason == 0:
+                s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
+                s.append('    Accepted Transfer Syntax: =%s' 
+                                            %item.TransferSyntax)
+        
+        ext_nego = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Requested Extended Negotiation: %s' %'[FIXME]')
+        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        
+        usr_id = 'None'
+        if assoc_ac.UserInformation.UserIdentity is not None:
+            usr_id = 'Yes'
+        
+        s.append('Requested User Identity Negotiation: %s' %'[FIXME]')
+        s.append('User Identity Negotiation Response:  %s' %usr_id)
+        s.append('======================= END A-ASSOCIATE-AC =================='
+                '====')
+        
+        for line in s:
+            logger.debug(line)
+        """
+        pass
+
+    def debug_association_rejected(self, associate_rj_pdu):
+        """
+        Placeholder for a function callback. Function will be called 
+        when an association attempt is rejected by a peer AE
+        
+        The default implementation is used for logging debugging information
+        
+        Parameters
+        ----------
+        associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        """
+        
+        # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
+        #   for information on the result and diagnostic information
+        source = associate_rj_pdu.ResultSource
+        result = associate_rj_pdu.Result
+        reason = associate_rj_pdu.Diagnostic
+        
+        source_str = { 1 : 'Service User',
+                       2 : 'Service Provider (ACSE)',
+                       3 : 'Service Provider (Presentation)'}
+        
+        reason_str = [{ 1 : 'No reason given',
+                        2 : 'Application context name not supported',
+                        3 : 'Calling AE title not recognised',
+                        4 : 'Reserved',
+                        5 : 'Reserved',
+                        6 : 'Reserved',
+                        7 : 'Called AE title not recognised',
+                        8 : 'Reserved',
+                        9 : 'Reserved',
+                       10 : 'Reserved'},
+                      { 1 : 'No reason given',
+                        2 : 'Protocol version not supported'},
+                      { 0 : 'Reserved',
+                        1 : 'Temporary congestion',
+                        2 : 'Local limit exceeded',
+                        3 : 'Reserved',
+                        4 : 'Reserved',
+                        5 : 'Reserved',
+                        6 : 'Reserved',
+                        7 : 'Reserved'}]
+        
+        result_str = { 1 : 'Rejected Permanent',
+                       2 : 'Rejected Transient'}
+        
+        logger.error('Association Rejected:')
+        logger.error('Result: %s, Source: %s' %(result_str[result], source_str[source]))
+        logger.error('Reason: %s' %reason_str[source - 1][reason])
+        
+    def debug_association_released(self):
+        logger.info('Association Release')
+        
+    def debug_association_aborted(self):
+        pass
+
