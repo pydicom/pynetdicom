@@ -142,19 +142,19 @@ class DIMSEMessage:
 
         # Split out dataset up into fragment with maximum size = max_pdu_length
         if 'DataSet' in self.__dict__ and self.DataSet.getvalue() != b'':
-            pdvs = fragment(max_pdu_length, self.DataSet)
+                pdvs = fragment(max_pdu_length, self.DataSet)
 
-            for ii in pdvs[:-1]:
+                for ii in pdvs[:-1]:
+                    pdata = P_DATA_ServiceParameters()
+                    # not last data fragment
+                    pdata.PresentationDataValueList = [[self.ID, pack('b', 0) + ii]]
+                    pdatas.append(pdata)
                 pdata = P_DATA_ServiceParameters()
-                # not last data fragment
-                pdata.PresentationDataValueList = [[self.ID, pack('b', 0) + ii]]
-                pdatas.append(pdata)
-            pdata = P_DATA_ServiceParameters()
 
-            # Last data fragment
-            pdata.PresentationDataValueList = \
-                                        [[self.ID, pack('b', 2) + pdvs[-1]]]
-            pdatas.append(pdata)
+                # Last data fragment
+                pdata.PresentationDataValueList = \
+                                            [[self.ID, pack('b', 2) + pdvs[-1]]]
+                pdatas.append(pdata)
 
         return pdatas
 
@@ -408,20 +408,12 @@ class C_STORE_RSP_Message(DIMSEMessage):
 
 
 class C_FIND_RQ_Message(DIMSEMessage):
-    CommandFields = [
-        ('Group Length',
-         (0x0000, 0x0000), 'UL', 1),
-        ('Affected SOP Class UID',
-         (0x0000, 0x0002), 'UI', 1),
-        ('Command Field',
-         (0x0000, 0x0100), 'US', 1),
-        ('Message ID',
-         (0x0000, 0x0110), 'US', 1),
-        ('Data Set Type',
-         (0x0000, 0x0800), 'US', 1),
-        ('Priority',
-         (0x0000, 0x0700), 'US', 1),
-    ]
+    CommandFields = [('Group Length', (0x0000, 0x0000), 'UL', 1),
+                     ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+                     ('Command Field', (0x0000, 0x0100), 'US', 1),
+                     ('Message ID', (0x0000, 0x0110), 'US', 1),
+                     ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+                     ('Priority', (0x0000, 0x0700), 'US', 1)]
     DataField = 'Identifier'
 
     def FromParams(self, params):
@@ -481,6 +473,26 @@ class C_FIND_RSP_Message(DIMSEMessage):
         tmp.Identifier = self.DataSet
         return tmp
 
+    @property
+    def Dataset(self):
+        if self.DataSet.getvalue() != b'':
+            return self.Dataset
+        else:
+            return None
+    
+    @property
+    def Status(self):
+        status = {0x0000 : 'Success',
+                  0x0001 : 'Warning',
+                  0x0107 : 'Attribute List Error',
+                  0x0116 : 'Attribute Value Out of Range',
+                  0xfe00 : 'Cancel',
+                  0xff00 : 'Pending',
+                  0xff01 : 'Pending'}
+
+        status_str = '0x%04X (%s)' %(self.CommandSet.Status, 
+                                     status[self.CommandSet.Status])
+        return status_str
 
 class C_GET_RQ_Message(DIMSEMessage):
     CommandFields = [

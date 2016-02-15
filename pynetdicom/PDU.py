@@ -1308,7 +1308,10 @@ class PresentationContextItemAC(PDU):
             pydicom.uid.UID.SCU: Defaults to None if not used, 0 or 1 if used
         """
         ts_uid = self.TransferSyntaxSubItem.TransferSyntaxName
-        return ts_uid
+        if isinstance(ts_uid, UID):
+            return ts_uid
+        else:
+            return UID(ts_uid.decode('utf-8'))
 
 class AbstractSyntaxSubItem(PDU):
     def __init__(self):

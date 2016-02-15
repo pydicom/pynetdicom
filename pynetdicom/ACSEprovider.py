@@ -217,7 +217,7 @@ class ACSEServiceProvider(object):
         self.DUL.Send(res)
         return assoc
 
-    def Release(self, reason):
+    def Release(self):
         """
         Requests the release of the associations and waits for confirmation.
         A-RELEASE always gives a reason of 'normal' and a result of 
@@ -228,19 +228,17 @@ class ACSEServiceProvider(object):
         response 
             The A-RELEASE-RSP
         """
+        logger.info("Releasing Association")
+        
         release = A_RELEASE_ServiceParameters()
         self.DUL.Send(release)
         response = self.DUL.Receive(Wait=True)
 
         return response
 
-    def Abort(self, reason):
+    def Abort(self):
         """
         Sends an A-ABORT to the peer AE
-        
-        Parameters
-        ----------
-        reason - ?
         """
         abort = A_ABORT_ServiceParameters()
         abort.AbortSource = 0
@@ -634,9 +632,9 @@ class ACSEServiceProvider(object):
         s = ['Reject Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
                 '=====')
-        s.append('Rejection Result: %s' %assoc_rj.ResultString)
-        s.append('Rejection Source: %s' %assoc_rj.SourceString)
-        s.append('Rejection Reason: %s' %assoc_rj.Reason)
+        s.append('Result:    %s' %assoc_rj.ResultString)
+        s.append('Source:    %s' %assoc_rj.SourceString)
+        s.append('Reason:    %s' %assoc_rj.Reason)
         s.append('======================= END A-ASSOCIATE-RJ =================='
                 '====')
         for line in s:
@@ -652,6 +650,8 @@ class ACSEServiceProvider(object):
         a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
             The P-DATA-TF PDU instance
         """
+        return
+        
         # Shorthand
         p_data = p_data_tf
         
