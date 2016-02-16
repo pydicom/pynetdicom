@@ -17,7 +17,8 @@ import time
 
 from pynetdicom.applicationentity import ApplicationEntity as AE
 from pynetdicom.SOPclass import *
-from pydicom.uid import ExplicitVRLittleEndian
+from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+                                ExplicitVRBigEndian
 
 logger = logging.Logger('echoscu')
 stream_logger = logging.StreamHandler()
@@ -213,7 +214,18 @@ if args.log_level:
 if args.log_config:
     fileConfig(args.log_config)
 
-# Transfer Syntaxes
+# Propose extra transfer syntaxes
+transfer_syntaxes = [ImplicitVRLittleEndian,
+                     ExplicitVRLittleEndian,
+                     ExplicitVRBigEndian]
+
+try:
+    if 2 <= args.propose_ts:
+        transfer_syntaxes = [ts for ts in transfer_syntaxes[:args.propose_ts]]
+    else:
+        transfer_syntaxes = [ImplicitVRLittleEndian]
+except:
+    transfer_syntaxes = [ImplicitVRLittleEndian]
 
 
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
@@ -228,7 +240,7 @@ ae = AE(AET=args.calling_aet,
         port=0, 
         SOPSCU=[VerificationSOPClass], 
         SOPSCP=[], 
-        SupportedTransferSyntax=[ExplicitVRLittleEndian],
+        SupportedTransferSyntax=transfer_syntaxes,
         MaxPDULength=args.max_pdu)
 
 # Set timeouts
@@ -242,6 +254,11 @@ if args.acse_timeout:
 
 if args.dimse_timeout:
     ae.set_dimse_timeout(args.dimse_timeout)
+
+# Repeat presentation contexts
+if args.propose_pc:
+    pass
+    
 
 # Request association with remote AE
 assoc = ae.request_association(args.peer, 
