@@ -114,9 +114,17 @@ class ApplicationEntity(threading.Thread):
         # terminated
         self.MaxAssociationIdleSeconds = None
         
-        # To be implemented
+        # All three get set in their respective service providers during
+        #   association
+        #
+        # ACSE timeout: the maximum amount of time (in seconds) that the 
+        #   association can be idle before it gets terminated
         self.acse_timeout = None
+        # DUL timeout: the maximum amount of time (in seconds) to wait for
+        #   connection requests
         self.dul_timeout = None
+        # DIMSE timeout: the maximum amount of time (in seconds) to wait for
+        #   DIMSE messages before the association gets released
         self.dimse_timeout = None
         
         # Build presentation context definition list to be sent to remote AE
@@ -212,10 +220,9 @@ class ApplicationEntity(threading.Thread):
             logger.info("AE is running as an SCP but no supported SOP Classes "
                 "have been included")
             return
-        
+
         no_loops = 0
         while True:
-            
             time.sleep(0.1)
             
             if self.__Quit:
@@ -296,36 +303,38 @@ class ApplicationEntity(threading.Thread):
         None
             If the association failed or was rejected
         """
-        
         if not isinstance(ip_address, str):
             raise ValueError("ip_address must be a valid IPv4 string")
-            
+
         if not isinstance(port, int):
             raise ValueError("port must be a valid port number")
-            
+
         if not isinstance(ae_title, str):
             raise ValueError("ae_title must be a valid AE title string")
-        
+
         # Check AE title is OK
         if ae_title.strip() == '':
             raise ValueError("ae_title must not be all spaces")
-            
+
         if len(ae_title) > 16:
             logger.info("Supplied local AE title is greater than 16 characters "
                 "and will be truncated")
-        
+
         peer_ae = {'AET' : ae_title[:16], 
                    'Address' : ip_address, 
                    'Port' : port}
-        
-        # Association(local_ae, local_socket=None, remote_ae=None)
-        assoc = Association(self, RemoteAE=peer_ae)
-        
+
+        # Associate
+        assoc = Association(self, 
+                            RemoteAE=peer_ae, 
+                            acse_timeout=self.acse_timeout,
+                            dimse_timeout=self.dimse_timeout)
+
         # Endlessly loops while the Association negotiation is taking place
         while not assoc.AssociationEstablished \
                 and not assoc.AssociationRefused and not assoc.DUL.kill:
             time.sleep(0.1)
-        
+
         # If the Association was established
         if assoc.AssociationEstablished:
             self.Associations.append(assoc)
@@ -338,6 +347,44 @@ class ApplicationEntity(threading.Thread):
                                          remoteAE['Address'], 
                                          remoteAE['AET'])
 
+    # Timeout setters
+    def set_network_timeout(self, timeout):
+        """ 
+        The maximum amount of time that the DUL provider should wait before 
+        terminating the connection
+        
+        Parameters
+        ----------
+        timeout - float
+            The maximum amount of time (in seconds) to wait
+        """
+        self.dul_timeout = timeout
+        self.MaxAssociationIdleSeconds = timeout
+        
+    def set_acse_timeout(self, timeout):
+        """ 
+        The maximum amount of time that the ACSE provider should wait for 
+        messages before aborting the association
+        
+        Parameters
+        ----------
+        timeout - float
+            The maximum amount of time (in seconds) to wait
+        """
+        self.acse_timeout = timeout
+        
+    def set_dimse_timeout(self, timeout):
+        """ 
+        The maximum amount of time that the DIMSE provider should wait for 
+        messages before aborting the association
+        
+        Parameters
+        ----------
+        timeout - float
+            The maximum amount of time (in seconds) to wait
+        """
+        self.dimse_timeout = timeout
+
 
     # Communication related callback
     def on_receive_connection(self):
@@ -347,10 +394,10 @@ class ApplicationEntity(threading.Thread):
     # High-level Association related callbacks
     def on_association_established(self):
         pass
-    
+
     def on_association_requested(self):
         pass
-    
+
     def on_association_accepted(self, assoc):
         """
         Placeholder for a function callback. Function will be called 
@@ -378,10 +425,10 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
         pass
-        
+
     def on_association_released(self):
         pass
-        
+
     def on_association_aborted(self):
         pass
 
@@ -401,7 +448,7 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-RQ PDU instance to be encoded and sent
         """
         pass
-        
+
     def on_send_associate_ac(self, a_associate_ac):
         """
         Placeholder for a function callback. Function will be called 
@@ -415,7 +462,7 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-AC PDU instance
         """
         pass
-        
+
     def on_send_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 
@@ -429,7 +476,7 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-RJ PDU instance
         """
         pass
-    
+
     def on_send_data_tf(self, p_data_tf):
         """
         Placeholder for a function callback. Function will be called 
@@ -443,7 +490,7 @@ class ApplicationEntity(threading.Thread):
             The P-DATA-TF PDU instance
         """
         pass
-    
+
     def on_send_release_rq(self, a_release_rq):
         """
         Placeholder for a function callback. Function will be called 
@@ -457,7 +504,7 @@ class ApplicationEntity(threading.Thread):
             The A-RELEASE-RQ PDU instance
         """
         pass
-        
+
     def on_send_release_rp(self, a_release_rp):
         """
         Placeholder for a function callback. Function will be called 
@@ -471,7 +518,7 @@ class ApplicationEntity(threading.Thread):
             The A-RELEASE-RP PDU instance
         """
         pass
-        
+
     def on_send_abort(self, a_abort):
         """
         Placeholder for a function callback. Function will be called 
@@ -500,7 +547,7 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-RQ PDU instance
         """
         pass
-        
+
     def on_receive_associate_ac(self, a_associate_ac):
         """
         Placeholder for a function callback. Function will be called 
@@ -514,7 +561,7 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-AC PDU instance
         """
         pass
-        
+
     def on_receive_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 
@@ -528,7 +575,7 @@ class ApplicationEntity(threading.Thread):
             The A-ASSOCIATE-RJ PDU instance
         """
         pass
-    
+
     def on_receive_data_tf(self, p_data_tf):
         """
         Placeholder for a function callback. Function will be called 
@@ -542,7 +589,7 @@ class ApplicationEntity(threading.Thread):
             The P-DATA-TF PDU instance
         """
         pass
-        
+
     def on_receive_release_rq(self, a_release_rq):
         """
         Placeholder for a function callback. Function will be called 
@@ -556,7 +603,7 @@ class ApplicationEntity(threading.Thread):
             The A-RELEASE-RQ PDU instance
         """
         pass
-        
+
     def on_receive_release_rp(self, a_release_rp):
         """
         Placeholder for a function callback. Function will be called 
@@ -570,7 +617,7 @@ class ApplicationEntity(threading.Thread):
             The A-RELEASE-RP PDU instance
         """
         pass
-        
+
     def on_receive_abort(self, a_abort):
         """
         Placeholder for a function callback. Function will be called 
@@ -589,7 +636,7 @@ class ApplicationEntity(threading.Thread):
     # High-level DIMSE related callbacks
     def on_c_echo(self):
         pass
-    
+
     def on_c_store(self, sop_class, dataset):
         """
         Function callback called when a dataset is received following a C-STORE.
@@ -608,17 +655,17 @@ class ApplicationEntity(threading.Thread):
             available statuses
         """
         return sop_class.Success
-        
+
     def on_c_find(self, dataset):
         pass
-        
+
     def on_c_get(self, dataset):
         pass
-        
+
     def on_c_move(self, dataset):
         pass
-    
-    
+
+
     # Mid-level DIMSE related callbacks
     def on_send_c_echo_rq(self, dimse_msg):
         """
@@ -630,7 +677,7 @@ class ApplicationEntity(threading.Thread):
         dimse_msg - pynetdicom.SOPclass.C_ECHO_RQ 
         """
         pass
-        
+
     def on_send_c_echo_rsp(self, dimse_msg):
         """
         
@@ -640,7 +687,7 @@ class ApplicationEntity(threading.Thread):
         ----------
         dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
         """
-    
+
     def on_send_c_store_rq(self, dimse_msg):
         """
         
@@ -651,7 +698,7 @@ class ApplicationEntity(threading.Thread):
         store - pynetdicom.SOPclass.C_STORE_RQ 
         """
         pass
-    
+
     def on_send_c_store_rsp(self, dimse_msg):
         """
         
@@ -662,7 +709,7 @@ class ApplicationEntity(threading.Thread):
         store - pynetdicom.SOPclass.C_STORE_RSP
         """
         pass
-    
+
     def on_send_c_find_rq(self, dimse_msg):
         """
         
@@ -673,7 +720,7 @@ class ApplicationEntity(threading.Thread):
         store - pynetdicom.SOPclass.C_FIND_RQ 
         """
         pass
-    
+
     def on_send_c_find_rsp(self, dimse_msg):
         """
         
@@ -684,7 +731,7 @@ class ApplicationEntity(threading.Thread):
         store - pynetdicom.SOPclass.C_FIND_RSP
         """
         pass
-    
+
     def on_send_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -708,7 +755,7 @@ class ApplicationEntity(threading.Thread):
             None.
         """
         return None
-        
+
     def on_send_c_get_rsp(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -732,7 +779,7 @@ class ApplicationEntity(threading.Thread):
             None.
         """
         return None
-        
+
     def on_send_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -779,7 +826,7 @@ class ApplicationEntity(threading.Thread):
         """
         return None
 
-    
+
     def on_receive_c_echo_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -789,7 +836,7 @@ class ApplicationEntity(threading.Thread):
         Called by DIMSEprovider.DIMSEServiceProvider.Receive()
         """
         pass
-    
+
     def on_receive_c_echo_rsp(self, dimse_msg):
         """
         
@@ -800,7 +847,7 @@ class ApplicationEntity(threading.Thread):
         dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
         """
         pass
-        
+
     def on_receive_c_store_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -826,7 +873,7 @@ class ApplicationEntity(threading.Thread):
         dimse_msg - 
         """
         pass
-        
+
     def on_receive_c_find_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -848,7 +895,7 @@ class ApplicationEntity(threading.Thread):
             then return the empty list or None.
         """
         return None
-        
+
     def on_receive_c_find_rsp(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -871,7 +918,7 @@ class ApplicationEntity(threading.Thread):
             then return the empty list or None.
         """
         return None
-        
+
     def on_receive_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -895,7 +942,7 @@ class ApplicationEntity(threading.Thread):
             None.
         """
         return None
-        
+
     def on_receive_c_get_rsp(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -919,7 +966,7 @@ class ApplicationEntity(threading.Thread):
             None.
         """
         return None
-        
+
     def on_receive_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -981,7 +1028,7 @@ class ApplicationEntity(threading.Thread):
             ???
         """
         raise NotImplementedError
-        
+
     def on_receive_n_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1000,7 +1047,7 @@ class ApplicationEntity(threading.Thread):
             The attribute values to be retrieved
         """
         raise NotImplementedError
-        
+
     def on_receive_n_set_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1016,7 +1063,7 @@ class ApplicationEntity(threading.Thread):
             ???
         """
         raise NotImplementedError
-        
+
     def on_receive_n_action_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1031,7 +1078,7 @@ class ApplicationEntity(threading.Thread):
             ???
         """
         raise NotImplementedError
-        
+
     def on_receive_n_create_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1048,7 +1095,7 @@ class ApplicationEntity(threading.Thread):
             ???
         """
         raise NotImplementedError
-        
+
     def on_receive_n_delete_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1080,7 +1127,7 @@ class ApplicationEntity(threading.Thread):
             The DIMSE message to be sent
         """
         pass
-        
+
     def on_receive_dimse_message(self, message):
         """
         Placeholder for a function callback. Function will be called 
@@ -1096,7 +1143,3 @@ class ApplicationEntity(threading.Thread):
             The DIMSE message that was received as a Dataset
         """
         pass
-
-
-class AE(ApplicationEntity):
-    pass

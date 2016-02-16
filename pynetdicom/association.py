@@ -20,7 +20,6 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
-#from pynetdicom.DIMSEparameters import *
 from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
@@ -74,7 +73,11 @@ class Association(threading.Thread):
     supported_sop_classes_scp
         A list of the supported SOP classes when acting as an SCP
     """
-    def __init__(self, LocalAE, ClientSocket=None, RemoteAE=None):
+    def __init__(self, LocalAE, 
+                       ClientSocket=None, 
+                       RemoteAE=None, 
+                       acse_timeout=30,
+                       dimse_timeout=None):
         
         if [ClientSocket, RemoteAE] == [None, None]:
             raise ValueError("Association can't be initialised with both "
@@ -98,7 +101,8 @@ class Association(threading.Thread):
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
         self.DUL = DULServiceProvider(ClientSocket,
-                            timeout_seconds=self.AE.MaxAssociationIdleSeconds,
+                            dul_timeout=self.AE.dul_timeout,
+                            acse_timeout=acse_timeout,
                             local_ae=LocalAE,
                             assoc=self)
                             
@@ -112,8 +116,8 @@ class Association(threading.Thread):
         
         self.established = False
         
-        #self.dimse = None
-        #self.acse = None
+        self.dimse_timeout = dimse_timeout
+        self.acse_timeout = acse_timeout
         
         self._Kill = False
         
@@ -204,8 +208,8 @@ class Association(threading.Thread):
         The main Association thread
         """
         # Set new ACSE and DIMSE providers
-        self.ACSE = ACSEServiceProvider(self.DUL)
-        self.DIMSE = DIMSEServiceProvider(self.DUL)
+        self.ACSE = ACSEServiceProvider(self.DUL, self.acse_timeout)
+        self.DIMSE = DIMSEServiceProvider(self.DUL, self.dimse_timeout)
         
         result = None
         diag  = None
@@ -316,7 +320,8 @@ class Association(threading.Thread):
             if self.mode == 'Acceptor':
 
                 # Check with the DIMSE provider for incoming messages
-                msg, pcid = self.DIMSE.Receive(Wait=False, Timeout=None)
+                msg, pcid = self.DIMSE.Receive(Wait=False, 
+                                               dimse_timeout=self.dimse_timeout)
                 if msg:
                     # DIMSE message received
                     uid = msg.AffectedSOPClassUID
@@ -397,6 +402,7 @@ class Association(threading.Thread):
     @property
     def Established(self):
         return self.AssociationEstablished
+    
     
     # DIMSE services provided by the Association
     # Replaces the old assoc.SOPClass.SCU method

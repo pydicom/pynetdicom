@@ -13,8 +13,9 @@ from logging.config import fileConfig
 import os
 import socket
 import sys
+import time
 
-from pynetdicom.applicationentity import AE
+from pynetdicom.applicationentity import ApplicationEntity as AE
 from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian
 
@@ -212,6 +213,8 @@ if args.log_level:
 if args.log_config:
     fileConfig(args.log_config)
 
+# Transfer Syntaxes
+
 
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
@@ -228,6 +231,18 @@ ae = AE(AET=args.calling_aet,
         SupportedTransferSyntax=[ExplicitVRLittleEndian],
         MaxPDULength=args.max_pdu)
 
+# Set timeouts
+if args.timeout:
+    if args.timeout <= 0:
+        args.timeout = None
+    ae.set_network_timeout(args.timeout)
+
+if args.acse_timeout:
+    ae.set_acse_timeout(args.acse_timeout)
+
+if args.dimse_timeout:
+    ae.set_dimse_timeout(args.dimse_timeout)
+
 # Request association with remote AE
 assoc = ae.request_association(args.peer, 
                                args.port, 
@@ -235,7 +250,6 @@ assoc = ae.request_association(args.peer,
 
 # If we successfully Associated then send n DIMSE C-ECHO's
 if assoc.Established:
-    
     for ii in range(args.repeat):
         status = assoc.send_c_echo()
     
