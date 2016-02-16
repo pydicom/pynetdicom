@@ -32,18 +32,17 @@ When attempting to associate with a non-DICOM peer
     E: TCP Initialisation Error: (Connection refused) 
     user@host: 
 
-The echoscu application can also propose more than one Presentation Context in 
-order to provide debugging assistance for association negotiation.
-The supported SOP Classes are:
-::
-    
+Using the *--propose-pc [n]* option, the echoscu application can also 
+propose n Presentation Contexts[#]_ (all with an Abstract Syntax of 
+*Verification SOP Class*) in order to provide debugging assistance for 
+association negotiation.
 
 DICOM Conformance
 =================
 The echoscu application supports the following SOP Classes as an SCU:
 ::
     Verification SOP Class          1.2.840.10008.1.1
-    
+
 Unless the *--propose-ts* option is used, the echoscu application will only 
 propose the *Little Endian Implicit VR Transfer Syntax* (UID 1.2.840.10008.1.2).
 The supported Transfer Syntaxes [#]_ are:
@@ -56,4 +55,5 @@ The supported Transfer Syntaxes [#]_ are:
 
 .. [#] See DICOM Standard 2015b PS3.6 Table A-1
 .. [#] See DICOM Standard 2015b PS3.7 Sections 9.1.5 and 9.3.5
+.. [#] See DICOM Standard 2015b PS3.8 Sections 7.1.1.13 and 9.3.2.2
 .. [#] See DICOM Standard 2015b PS3.5 Section 10 and Annex A
