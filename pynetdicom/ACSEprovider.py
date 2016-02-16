@@ -236,7 +236,7 @@ class ACSEServiceProvider(object):
 
         return response
 
-    def Abort(self):
+    def Abort(self, reason):
         """
         Sends an A-ABORT to the peer AE
         """
@@ -472,7 +472,17 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        pass
+        logger.info("Aborting Association")
+        
+        s = ['Abort Parameters:']
+        s.append('========================== BEGIN A-ABORT ===================='
+                '=====')
+        s.append('Abort Source: %s' %a_abort.Source)
+        s.append('Abort Reason: %s' %a_abort.Reason)
+        s.append('=========================== END A-ABORT ====================='
+                '====')
+        for line in s:
+            logger.debug(line)
 
     # Local AE receiving PDU from peer AE
     def debug_receive_associate_rq(self, a_associate_rq):
