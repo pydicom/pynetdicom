@@ -119,13 +119,16 @@ class StorageServiceClass(ServiceClass):
                             range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
     
-    def SCU(self, dataset, msgid):
+    def __init__(self):
+        ServiceClass.__init__(self)
+
+    def SCU(self, dataset, msg_id, priority=2):
         """
         
         """
         # build C-STORE primitive
         csto = C_STORE_ServiceParameters()
-        csto.MessageID = msgid
+        csto.MessageID = msg_id
         csto.AffectedSOPClassUID = dataset.SOPClassUID
         csto.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         csto.Priority = 0x0002
@@ -144,9 +147,6 @@ class StorageServiceClass(ServiceClass):
         # wait for c-store response
         ans, _ = self.DIMSE.Receive(Wait=True)
         return self.Code2Status(ans.Status.value)
-
-    def __init__(self):
-        ServiceClass.__init__(self)
 
     def SCP(self, msg):
         status = None
@@ -179,8 +179,7 @@ class StorageServiceClass(ServiceClass):
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
-class StorageSOPClass(StorageServiceClass):
-    pass
+class StorageSOPClass(StorageServiceClass): pass
 
 class MRImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.4'
@@ -846,7 +845,16 @@ class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
 d = dir()
 
 def UID2SOPClass(UID):
-    """Returns a SOPClass object from given UID"""
+    """
+    Parameters
+    ----------
+    UID - str
+        The class UID as a string
+    
+    Returns
+    -------
+    SOPClass object corresponding to the given UID
+    """
     for ss in d:
         if hasattr(eval(ss), 'UID'):
             tmpuid = getattr(eval(ss), 'UID')
