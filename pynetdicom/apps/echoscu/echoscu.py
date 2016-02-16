@@ -55,11 +55,11 @@ def _setup_argparser():
                           help="debug mode, print debug information", 
                           action="store_true")
     gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
-                          help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
+                          help="use level l for the logger (critical, error, warn, "
+                               "info, debug)", 
                           type=str, 
-                          choices=['fatal', 'error', 'warn', 
-                                   'info', 'debug', 'trace'])
+                          choices=['critical', 'error', 'warn', 
+                                   'info', 'debug'])
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
                           help="use config file f for the logger", 
                           type=str)
@@ -172,6 +172,8 @@ def _setup_argparser():
 
 args = _setup_argparser()
 
+
+
 if args.quiet:
     for h in logger.handlers:
         logger.removeHandler(h)
@@ -193,6 +195,16 @@ if args.debug:
     logger.setLevel(logging.DEBUG)
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
+
+if args.log_level:
+    levels = {'critical' : logging.CRITICAL,
+              'error'    : logging.ERROR, 
+              'warn'     : logging.WARNING,
+              'info'     : logging.INFO,
+              'debug'    : logging.DEBUG}
+    logger.setLevel(levels[args.log_level])
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger.setLevel(levels[args.log_level])
 
 logger.debug('$echoscu.py v%s %s $' %('0.2.0', '2016-02-16'))
 logger.debug('')
