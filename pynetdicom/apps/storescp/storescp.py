@@ -180,7 +180,7 @@ def on_c_store(sop_class, dataset):
 ae = AE(args.aetitle,
         args.port,
         [], 
-        [VerificationSOPClass, CTImageStorageSOPClass],
+        [CTImageStorageSOPClass],
         SupportedTransferSyntax=transfer_syntax)
 
 ae.on_c_store = on_c_store
