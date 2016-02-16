@@ -302,8 +302,8 @@ class Association(threading.Thread):
             
             # No acceptable presentation contexts so release the association
             if self.SOPClassesAsSCU == []:
-                logger.info("No Acceptable Presentation Contexts")
-                self.Release()
+                logger.error("No Acceptable Presentation Contexts")
+                self.Abort(0x00)
                 return
             
         # Assocation established OK

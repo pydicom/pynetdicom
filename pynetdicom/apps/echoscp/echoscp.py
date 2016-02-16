@@ -142,9 +142,9 @@ ae = AE(args.aetitle,
         SupportedTransferSyntax=transfer_syntax)
 
 # Set timeouts
-ae.set_network_timeout(None)
-ae.set_acse_timeout(5)
-ae.set_dimse_timeout(5)
+#ae.set_network_timeout(None)
+#ae.set_acse_timeout(5)
+#ae.set_dimse_timeout(5)
 
 ae.start()
 ae.QuitOnKeyboardInterrupt()

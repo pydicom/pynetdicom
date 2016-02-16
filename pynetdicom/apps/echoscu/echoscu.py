@@ -16,7 +16,7 @@ import sys
 import time
 
 from pynetdicom.applicationentity import ApplicationEntity as AE
-from pynetdicom.SOPclass import VerificationSOPClass
+from pynetdicom.SOPclass import *
 from pydicom.uid import ExplicitVRLittleEndian
 
 logger = logging.Logger('echoscu')
