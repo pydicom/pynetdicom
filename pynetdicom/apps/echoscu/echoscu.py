@@ -228,6 +228,13 @@ except:
     transfer_syntaxes = [ImplicitVRLittleEndian]
 
 
+# Repeat presentation contexts
+try:
+    if 0 < args.propose_pc:
+        scu_sop_classes = [VerificationSOPClass] * args.propose_pc
+except:
+    scu_sop_classes = [VerificationSOPClass]
+
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
 logger.debug('$echoscu.py v%s %s $' %('0.2.0', '2016-02-16'))
@@ -238,7 +245,7 @@ logger.debug('')
 # Binding to port 0, OS will pick an available port
 ae = AE(AET=args.calling_aet, 
         port=0, 
-        SOPSCU=[VerificationSOPClass], 
+        SOPSCU=scu_sop_classes, 
         SOPSCP=[], 
         SupportedTransferSyntax=transfer_syntaxes,
         MaxPDULength=args.max_pdu)
@@ -254,11 +261,6 @@ if args.acse_timeout:
 
 if args.dimse_timeout:
     ae.set_dimse_timeout(args.dimse_timeout)
-
-# Repeat presentation contexts
-if args.propose_pc:
-    pass
-    
 
 # Request association with remote AE
 assoc = ae.request_association(args.peer, 
