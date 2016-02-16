@@ -1,15 +1,16 @@
 =======
 echoscu
 =======
-echoscu [options] peer port
+::
+    echoscu [options] peer port
 
 Description
 ===========
 The echoscu application implements a Service Class User (SCU) for the 
-*Verification SOP Class* (UID 1.2.840.10008.1.1). It establishes an Association 
-with a peer Application Entity (AE) which it then sends a DICOM C-ECHO message 
-and waits for a response. The application can be used to verify basic DICOM 
-connectivity.
+*Verification SOP Class* (UID 1.2.840.10008.1.1) [#]. It establishes an Association 
+with a peer Application Entity (AE) which it then sends a DICOM C-ECHO-RQ 
+message [#] and waits for a response. The application can be used to verify 
+basic DICOM connectivity.
 
 The following simple example shows what happens when it is succesfully run on 
 an SCP that supports the Verification SOP Class:
@@ -38,13 +39,22 @@ The supported SOP Classes are:
 ::
     
 
+DICOM Conformance
+=================
+The echoscu application supports the following SOP Classes as an SCU:
+::
+    Verification SOP Class          1.2.840.10008.1.1
+    
 Unless the *--propose-ts* option is used, the echoscu application will only 
 propose the *Little Endian Implicit VR Transfer Syntax* (UID 1.2.840.10008.1.2).
-The supported Transfer Syntaxes are:
+The supported Transfer Syntaxes [#] are:
 ::
     Little Endian Implicit VR       1.2.840.10008.1.2 
     Little Endian Explicit VR       1.2.840.10008.1.2.1 
     Big Endian Explicit VR          1.2.840.10008.1.2.2 
 
-DICOM Conformance
-=================
+.. rubric:: Footnotes::
+
+.. [#] See DICOM Standard 2015b PS3.6 Table A-1
+.. [#] See DICOM Standard 2015b PS3.7 Sections 9.1.5 and 9.3.5
+.. [#] See DICOM Standard 2015b PS3.5 Section 10 and Annex A

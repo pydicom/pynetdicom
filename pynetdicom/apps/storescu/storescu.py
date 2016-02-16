@@ -140,6 +140,7 @@ if assoc.Established:
     logger.info('Sending file: %s' %args.dcmfile_in)
     
     # Correct ambiguous VRs for Implicit
+    # See PS3.5 Annex A
     for elem in dataset:
         elem_name = ''.join(elem.description().split(' '))
         elem_group = elem.tag.group
