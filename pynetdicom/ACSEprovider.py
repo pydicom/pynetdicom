@@ -33,12 +33,14 @@ class ACSEServiceProvider(object):
     DUL - pynetdicom.DULprovider.DULServiceProvider
         The DICOM UL service provider instance
     """
-    def __init__(self, DUL):
+    def __init__(self, DUL, acse_timeout=30):
         self.DUL = DUL
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
         self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
+        self.acse_timeout = acse_timeout
 
-    def Request(self, local_ae, peer_ae, mp, pcdl, userspdu=None, timeout=30):
+    def Request(self, local_ae, peer_ae, mp, pcdl, 
+                       userspdu=None):
         """
         Requests an association with a remote AE and waits for association
         response.
@@ -55,8 +57,9 @@ class ACSEServiceProvider(object):
             Presentation Context Definition List
         userpdu - ?
             ???
-        timeout - int
-            ???
+        dimse_timeout - int
+            The maximum amount of time (in seconds) that the association can
+            be idle before it gets terminated
             
         Returns
         -------
@@ -94,7 +97,7 @@ class ACSEServiceProvider(object):
         self.DUL.Send(assoc_rq)
 
         # Association response
-        assoc_rsp = self.DUL.Receive(True, timeout)
+        assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
         
         if not assoc_rsp:
             return False, assoc_rsp

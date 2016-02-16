@@ -18,9 +18,10 @@ logger = logging.getLogger('pynetdicom.dimse')
 
 
 class DIMSEServiceProvider(object):
-    def __init__(self, DUL):
+    def __init__(self, DUL, dimse_timeout=None):
         self.DUL = DUL
         self.message = None
+        self.dimse_timeout = None
 
     def Send(self, primitive, id, maxpdulength):
         # take a DIMSE primitive, convert it to one or more DUL primitive and
@@ -59,7 +60,7 @@ class DIMSEServiceProvider(object):
         for ii, pp in enumerate(pdatas):
             self.DUL.Send(pp)
 
-    def Receive(self, Wait=False, Timeout=None):
+    def Receive(self, Wait=False, dimse_timeout=None):
         if self.message is None:
             self.message = DIMSEMessage()
 
@@ -76,7 +77,7 @@ class DIMSEServiceProvider(object):
                 if nxt.__class__ is not P_DATA_ServiceParameters:
                     return None, None
                 
-                dul_obj = self.DUL.Receive(Wait, Timeout)
+                dul_obj = self.DUL.Receive(Wait, dimse_timeout)
 
                 if self.message.Decode(dul_obj):
                     # Callbacks
@@ -94,7 +95,7 @@ class DIMSEServiceProvider(object):
             if cls not in (type(None), P_DATA_ServiceParameters):
                 return None, None
             
-            dul_obj = self.DUL.Receive(Wait, Timeout)
+            dul_obj = self.DUL.Receive(Wait, dimse_timeout)
 
             if self.message.Decode(dul_obj):
                 # Callbacks

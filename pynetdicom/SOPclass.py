@@ -59,7 +59,8 @@ class VerificationServiceClass(ServiceClass):
 
         self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
 
-        msg, _ = self.DIMSE.Receive(Wait=True)
+        msg, _ = self.DIMSE.Receive(Wait=True, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
         
         return self.Code2Status(msg.Status)
 
@@ -145,7 +146,8 @@ class StorageServiceClass(ServiceClass):
         self.DIMSE.Send(csto, self.pcid, self.maxpdulength)
 
         # wait for c-store response
-        ans, _ = self.DIMSE.Receive(Wait=True)
+        ans, _ = self.DIMSE.Receive(Wait=True, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
         return self.Code2Status(ans.Status.value)
 
     def SCP(self, msg):
@@ -402,7 +404,8 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         while 1:
             time.sleep(0.001)
             # wait for c-find responses
-            ans, id = self.DIMSE.Receive(Wait=False)
+            ans, id = self.DIMSE.Receive(Wait=False, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
             if not ans:
                 continue
             d = decode(
@@ -523,7 +526,8 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             time.sleep(0.001)
             
             # wait for c-find responses
-            ans, _ = self.DIMSE.Receive(Wait=False)
+            ans, _ = self.DIMSE.Receive(Wait=False, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
             if not ans:
                 continue
             
@@ -650,7 +654,8 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
         while 1:
             # wait for c-move responses
             time.sleep(0.001)
-            ans, id = self.DIMSE.Receive(Wait=False)
+            ans, id = self.DIMSE.Receive(Wait=False, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
             if not ans:
                 continue
             status = self.Code2Status(ans.Status.value).Type
@@ -784,7 +789,8 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
 
         while 1:
             
-            msg, id = self.DIMSE.Receive(Wait=True)
+            msg, id = self.DIMSE.Receive(Wait=True, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
             
             # Received a C-GET response
             if msg.__class__ == C_GET_ServiceParameters:

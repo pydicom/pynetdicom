@@ -75,8 +75,8 @@ class DULServiceProvider(Thread):
         The port number on which to wait for incoming connections
     Name - str, optional
         Used help identify the DUL service provider
-    timeout_seconds - float, optional
-        The maximum amount of time to wait for connection responses in seconds
+    dul_timeout - float, optional
+        The maximum amount of time to wait for connection responses (in seconds)
     local_ae - pynetdicom.applicationentity.ApplicationEntity
         The local AE instance
     assoc - pynetdicom.association.Association
@@ -102,8 +102,8 @@ class DULServiceProvider(Thread):
     state_machine - pynetdicom.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
-    def __init__(self, Socket=None, Port=None, Name='', 
-                            timeout_seconds=None, local_ae=None, assoc=None):
+    def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None, 
+                        acse_timeout=30, local_ae=None, assoc=None):
         
         if Socket and Port:
             raise ValueError("DULServiceProvider can't be instantiated with "
@@ -135,11 +135,11 @@ class DULServiceProvider(Thread):
 
         # Setup the idle timer, ARTIM timer and finite state machine
         self._idle_timer = None
-        if timeout_seconds is not None and timeout_seconds > 0:
-            self._idle_timer = Timer(timeout_seconds)
+        if dul_timeout is not None and dul_timeout > 0:
+            self._idle_timer = Timer(dul_timeout)
         
         # ARTIM timer
-        self.artim_timer = Timer(10)
+        self.artim_timer = Timer(acse_timeout)
         
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)

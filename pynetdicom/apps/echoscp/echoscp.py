@@ -112,7 +112,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient priveleges" 
+        logger.error("Cannot listen on port %d, insufficient privileges" 
             %args.port)
         sys.exit()
 
@@ -135,8 +135,16 @@ if args.prefer_big:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 # Create application entity
-ae = AE(args.aetitle, args.port, [], [VerificationSOPClass], 
+ae = AE(args.aetitle, 
+        args.port, 
+        [], 
+        [VerificationSOPClass], 
         SupportedTransferSyntax=transfer_syntax)
+
+# Set timeouts
+ae.set_network_timeout(None)
+ae.set_acse_timeout(5)
+ae.set_dimse_timeout(5)
 
 ae.start()
 ae.QuitOnKeyboardInterrupt()
