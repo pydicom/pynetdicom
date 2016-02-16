@@ -9,6 +9,7 @@
 
 import argparse
 import logging
+from logging.config import fileConfig
 import os
 import socket
 import sys
@@ -97,7 +98,8 @@ def _setup_argparser():
                           default=16384)
     net_opts.add_argument("--repeat", metavar='[n]umber', 
                           help="repeat n times", 
-                          type=int)
+                          type=int,
+                          default=1)
     net_opts.add_argument("--abort", 
                           help="abort association instead of releasing it", 
                           action="store_true")
@@ -172,8 +174,9 @@ def _setup_argparser():
 
 args = _setup_argparser()
 
+#--------------------------- SETUP USING ARGUMENTS ----------------------------
 
-
+# Logging/Output
 if args.quiet:
     for h in logger.handlers:
         logger.removeHandler(h)
@@ -206,12 +209,15 @@ if args.log_level:
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(levels[args.log_level])
 
+if args.log_config:
+    fileConfig(args.log_config)
+
+
+#-------------------------- CREATE AE and ASSOCIATE ---------------------------
+
 logger.debug('$echoscu.py v%s %s $' %('0.2.0', '2016-02-16'))
 logger.debug('')
 
-called_ae = {'AET' : args.called_aet, 
-             'Address' : args.peer, 
-             'Port' : args.port}
 
 # Create local AE
 # Binding to port 0, OS will pick an available port
@@ -227,14 +233,16 @@ assoc = ae.request_association(args.peer,
                                args.port, 
                                args.called_aet)
 
+# If we successfully Associated then send n DIMSE C-ECHO's
 if assoc.Established:
     
-    for ii in args.repeat:
+    for ii in range(args.repeat):
         status = assoc.send_c_echo()
     
     # Abort or release association
     if args.abort:
-        assoc.Abort()
+        # 0x00 - Reason not specified (PS3.8 Table 9.26)
+        assoc.Abort(0x00)
     else:
         assoc.Release()
 
