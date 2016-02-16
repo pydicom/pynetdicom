@@ -107,6 +107,7 @@ def _setup_argparser():
                           action="store_true")
                           
     # TLS Options
+    """
     tls_opts = parser.add_argument_group('Transport Layer Security (TLS) Options')
     tls_opts.add_argument("-dtls", "--disable-tls",
                           help="use normal TCP/IP connection (default)", 
@@ -171,7 +172,8 @@ def _setup_argparser():
     tls_opts.add_argument("-ic", "--ignore-peer-cert", 
                           help="don't verify peer certificate", 
                           action="store_true")
-
+    """
+    
     return parser.parse_args()
 
 args = _setup_argparser()
