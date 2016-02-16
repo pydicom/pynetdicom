@@ -539,8 +539,13 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             if status != 'Pending':
                 break
             
-            logger.warn("Find Response: (Pending)")
-            logger.warn('')
+            logger.info("Find Response: (Pending)")
+            logger.info('')
+            
+            logger.info('# DICOM Dataset')
+            for elem in d:
+                logger.info(elem)
+            logger.info('')
             
             yield status, d
 
@@ -593,48 +598,39 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
     OutOfResourcesNumberOfMatches = Status(
         'Failure',
         'Refused: Out of resources - Unable to calcultate number of matches',
-        range(0xA701, 0xA701 + 1)
-    )
+        range(0xA701, 0xA701 + 1)    )
     OutOfResourcesUnableToPerform = Status(
         'Failure',
         'Refused: Out of resources - Unable to perform sub-operations',
-        range(0xA702, 0xA702 + 1)
-    )
+        range(0xA702, 0xA702 + 1)    )
     MoveDestinationUnknown = Status(
         'Failure',
         'Refused: Move destination unknown',
-        range(0xA801, 0xA801 + 1)
-    )
+        range(0xA801, 0xA801 + 1)    )
     IdentifierDoesNotMatchSOPClass = Status(
         'Failure',
         'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)
-    )
+        range(0xA900, 0xA900 + 1)    )
     UnableToProcess = Status(
         'Failure',
         'Unable to process',
-        range(0xC000, 0xCFFF + 1)
-    )
+        range(0xC000, 0xCFFF + 1)    )
     Cancel = Status(
         'Cancel',
         'Sub-operations terminated due to Cancel indication',
-        range(0xFE00, 0xFE00 + 1)
-    )
+        range(0xFE00, 0xFE00 + 1)    )
     Warning = Status(
         'Warning',
         'Sub-operations Complete - One or more Failures or Warnings',
-        range(0xB000, 0xB000 + 1)
-    )
+        range(0xB000, 0xB000 + 1)    )
     Success = Status(
         'Success',
         'Sub-operations Complete - No Failure or Warnings',
-        range(0x0000, 0x0000 + 1)
-    )
+        range(0x0000, 0x0000 + 1)    )
     Pending = Status(
         'Pending',
         'Sub-operations are continuing',
-        range(0xFF00, 0xFF00 + 1)
-    )
+        range(0xFF00, 0xFF00 + 1)    )
 
     def SCU(self, ds, destaet, msgid):
         # build C-FIND primitive
@@ -736,88 +732,103 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
     OutOfResourcesNumberOfMatches = Status(
         'Failure',
         'Refused: Out of resources - Unable to calcultate number of matches',
-        range(0xA701, 0xA701 + 1)
-    )
-
+        range(0xA701, 0xA701 + 1)    )
     OutOfResourcesUnableToPerform = Status(
         'Failure',
         'Refused: Out of resources - Unable to perform sub-operations',
-        range(0xA702, 0xA702 + 1)
-    )
-
+        range(0xA702, 0xA702 + 1)    )
     IdentifierDoesNotMatchSOPClass = Status(
         'Failure',
         'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)
-    )
+        range(0xA900, 0xA900 + 1)    )
     UnableToProcess = Status(
         'Failure',
         'Unable to process',
-        range(0xC000, 0xCFFF + 1)
-    )
+        range(0xC000, 0xCFFF + 1)    )
     Cancel = Status(
         'Cancel',
         'Sub-operations terminated due to Cancel indication',
-        range(0xFE00, 0xFE00 + 1)
-    )
+        range(0xFE00, 0xFE00 + 1)    )
     Warning = Status(
         'Warning',
         'Sub-operations Complete - One or more Failures or Warnings',
-        range(0xB000, 0xB000 + 1)
-    )
+        range(0xB000, 0xB000 + 1)    )
     Success = Status(
         'Success',
         'Sub-operations Complete - No Failure or Warnings',
-        range(0x0000, 0x0000 + 1)
-    )
+        range(0x0000, 0x0000 + 1)    )
     Pending = Status(
         'Pending',
         'Sub-operations are continuing',
-        range(0xFF00, 0xFF00 + 1)
-    )
+        range(0xFF00, 0xFF00 + 1)    )
 
-    def SCU(self, ds, msgid):
+    def SCU(self, ds, msg_id, priority=2):
         # build C-GET primitive
         cget = C_GET_ServiceParameters()
-        cget.MessageID = msgid
+        cget.MessageID = msg_id
         cget.AffectedSOPClassUID = self.UID
         cget.Priority = 0x0002
         cget.Identifier = encode(ds,
-                                         self.transfersyntax.is_implicit_VR,
-                                         self.transfersyntax.is_little_endian)
+                                 self.transfersyntax.is_implicit_VR,
+                                 self.transfersyntax.is_little_endian)
         cget.Identifier = BytesIO(cget.Identifier)
         # send c-get primitive
         self.DIMSE.Send(cget, self.pcid, self.maxpdulength)
 
+        logger.info('Get SCU Request Identifiers:')
+        logger.info('')
+        logger.info('# DICOM Dataset')
+        for elem in ds:
+            logger.info(elem)
+        logger.info('')
+
         while 1:
-            # receive c-store
+            
             msg, id = self.DIMSE.Receive(Wait=True)
+            
+            # Received a C-GET response
             if msg.__class__ == C_GET_ServiceParameters:
-                if self.Code2Status(msg.Status.value).Type == 'Pending':
-                    # pending. intermediate C-GET response
+                
+                status = self.Code2Status(msg.Status.value).Type
+                
+                # If the Status is "Pending" then the processing of 
+                #   matches and suboperations is initiated or continuing
+                if status == 'Pending':
                     pass
+                    
+                # If the Status is "Success" then processing is complete
+                elif status == "Success":
+                    pass
+                
+                # All other possible responses
                 else:
-                    # last answer
+                    
                     break
+            
+            # Received a C-STORE response
             elif msg.__class__ == C_STORE_ServiceParameters:
-                # send c-store response
+                
                 rsp = C_STORE_ServiceParameters()
                 rsp.MessageIDBeingRespondedTo = msg.MessageID
                 rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
                 rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
                 status = None
-                try:
-                    d = decode(
-                        msg.DataSet, self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
-                except:
-                    # cannot understand
-                    status = CannotUnderstand
+                #try:
+                d = decode(msg.DataSet, 
+                               self.transfersyntax.is_implicit_VR,
+                               self.transfersyntax.is_little_endian)
+                #logger.debug('SCU', d)
+                #except:
+                #    # cannot understand
+                #    status = CannotUnderstand
 
                 SOPClass = UID2SOPClass(d.SOPClassUID)
-                status = self.AE.OnReceiveStore(SOPClass, d)
+                
+                # Callback
+                status = self.AE.on_c_store(SOPClass, d)
+                
+                # Send Store confirmation
                 rsp.Status = int(status)
-
                 self.DIMSE.Send(rsp, id, self.maxpdulength)
 
 class PatientRootGetSOPClass(PatientRootQueryRetrieveSOPClass,

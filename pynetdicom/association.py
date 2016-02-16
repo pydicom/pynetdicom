@@ -486,8 +486,39 @@ class Association(threading.Thread):
     def send_c_move(self, dataset):
         pass
         
-    def send_c_get(self, dataset):
-        pass
+    def send_c_get(self, dataset, query_model='W', msg_id=1, query_priority=2):
+        if query_model == 'W':
+            sop_class = ModalityWorklistInformationGetSOPClass()
+        elif query_model == "P":
+            sop_class = PatientRootGetSOPClass()
+        elif query_model == "S":
+            sop_class = StudyRootGetSOPClass()
+        elif query_model == "O":
+            sop_class = PatientStudyOnlyGetSOPClass()
+        else:
+            raise ValueError("Association::send_c_get() query_model must be "
+                "one of ['W'|'P'|'S'|'O']")
+
+        found_match = False
+        for scu_sop_class in self.SOPClassesAsSCU:
+            if scu_sop_class[1] == sop_class.__class__:
+                sop_class.pcid = scu_sop_class[0]
+                sop_class.sopclass = scu_sop_class[1]
+                sop_class.transfersyntax = scu_sop_class[2]
+                
+                found_match = True
+                
+        if not found_match:
+            raise ValueError("'%s' is not listed as one of the AE's "
+                    "supported SOP Classes" %sop_class.__class__.__name__)
+            
+        sop_class.maxpdulength = self.ACSE.MaxPDULength
+        sop_class.DIMSE = self.DIMSE
+        sop_class.AE = self.AE
+        sop_class.RemoteAE = self.AE
+        
+        # Send the query
+        return sop_class.SCU(dataset, msg_id, query_priority)
 
 
     # Association logging/debugging functions
