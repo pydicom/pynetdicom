@@ -1,6 +1,7 @@
 =======
 echoscu
 =======
+echoscu [options] peer port
 
 Description
 ===========
@@ -17,7 +18,7 @@ an SCP that supports the Verification SOP Class:
     user@host: 
 
 When attempting to send a C-ECHO to an SCP that doesn't support the 
-Verification SOP Class:
+*Verification SOP Class*:
 ::
     user@host: echoscu 192.168.2.1 11112 
     E: No Acceptable Presentation Contexts 
@@ -37,7 +38,7 @@ The supported SOP Classes are:
 ::
     
 
-Unless the --propose-ts option is used, the echoscu application will only 
+Unless the *--propose-ts* option is used, the echoscu application will only 
 propose the *Little Endian Implicit VR Transfer Syntax* (UID 1.2.840.10008.1.2).
 The supported Transfer Syntaxes are:
 ::
