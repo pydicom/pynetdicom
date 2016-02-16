@@ -215,23 +215,23 @@ if args.log_config:
     fileConfig(args.log_config)
 
 # Propose extra transfer syntaxes
-transfer_syntaxes = [ImplicitVRLittleEndian,
-                     ExplicitVRLittleEndian,
-                     ExplicitVRBigEndian]
-
 try:
     if 2 <= args.propose_ts:
+        transfer_syntaxes = [ImplicitVRLittleEndian,
+                             ExplicitVRLittleEndian,
+                             ExplicitVRBigEndian]
         transfer_syntaxes = [ts for ts in transfer_syntaxes[:args.propose_ts]]
     else:
         transfer_syntaxes = [ImplicitVRLittleEndian]
 except:
     transfer_syntaxes = [ImplicitVRLittleEndian]
 
-
 # Repeat presentation contexts
 try:
-    if 0 < args.propose_pc:
+    if 0 < args.propose_pc <= 128:
         scu_sop_classes = [VerificationSOPClass] * args.propose_pc
+    else:
+        scu_sop_classes = [VerificationSOPClass]
 except:
     scu_sop_classes = [VerificationSOPClass]
 
