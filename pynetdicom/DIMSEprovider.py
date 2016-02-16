@@ -125,6 +125,8 @@ class DIMSEServiceProvider(object):
                           C_ECHO_RSP_Message  : self.debug_send_c_echo_rsp,
                           C_FIND_RQ_Message   : self.debug_send_c_find_rq,
                           C_FIND_RSP_Message  : self.debug_send_c_find_rsp,
+                          C_GET_RQ_Message   : self.debug_send_c_get_rq,
+                          C_GET_RSP_Message  : self.debug_send_c_get_rsp,
                           C_STORE_RQ_Message  : self.debug_send_c_store_rq,
                           C_STORE_RSP_Message : self.debug_send_c_store_rsp}
         debug_callback[type(message)](message)
@@ -134,6 +136,8 @@ class DIMSEServiceProvider(object):
                        C_ECHO_RSP_Message  : ae.on_send_c_echo_rsp,
                        C_FIND_RQ_Message   : ae.on_send_c_find_rq,
                        C_FIND_RSP_Message  : ae.on_send_c_find_rsp,
+                       C_GET_RQ_Message   : ae.on_send_c_get_rq,
+                       C_GET_RSP_Message  : ae.on_send_c_get_rsp,
                        C_STORE_RQ_Message  : ae.on_send_c_store_rq,
                        C_STORE_RSP_Message : ae.on_send_c_store_rsp}
         ae_callback[type(message)](message)
@@ -154,6 +158,8 @@ class DIMSEServiceProvider(object):
                     C_ECHO_RSP_Message  : self.debug_receive_c_echo_rsp,
                     C_FIND_RQ_Message   : self.debug_receive_c_find_rq,
                     C_FIND_RSP_Message  : self.debug_receive_c_find_rsp,
+                    C_GET_RQ_Message   : self.debug_receive_c_get_rq,
+                    C_GET_RSP_Message  : self.debug_receive_c_get_rsp,
                     C_STORE_RQ_Message  : self.debug_receive_c_store_rq,
                     C_STORE_RSP_Message : self.debug_receive_c_store_rsp}
         callback[type(message)](message)
@@ -163,6 +169,8 @@ class DIMSEServiceProvider(object):
                        C_ECHO_RSP_Message  : ae.on_receive_c_echo_rsp,
                        C_FIND_RQ_Message   : ae.on_receive_c_find_rq,
                        C_FIND_RSP_Message  : ae.on_receive_c_find_rsp,
+                       C_GET_RQ_Message   : ae.on_receive_c_get_rq,
+                       C_GET_RSP_Message  : ae.on_receive_c_get_rsp,
                        C_STORE_RQ_Message  : ae.on_receive_c_store_rq,
                        C_STORE_RSP_Message : ae.on_receive_c_store_rsp}
         ae_callback[type(message)](message)
@@ -230,7 +238,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        store - pynetdicom.SOPclass.C_STORE_RQ 
+        dimse_msg - pynetdicom.SOPclass.C_STORE_RQ 
         """
         d = dimse_msg.CommandSet
 
@@ -270,6 +278,104 @@ class DIMSEServiceProvider(object):
     def debug_send_c_find_rsp(self, dimse_msg):
         pass
     
+    def debug_send_c_get_rq(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        dimse_msg - 
+            
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        """
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.SOPclass.C_STORE_RQ 
+        """
+        d = dimse_msg.CommandSet
+
+        priority_str = {2 : 'Low',
+                        0 : 'Medium',
+                        1 : 'High'}
+        priority = priority_str[d.Priority]
+
+        dataset = 'None'
+        if 'DataSet' in dimse_msg.__dict__.keys():
+            dataset = 'Present'
+        
+        logger.info("Sending Store Request: MsgID %s" %(d.MessageID))
+        
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-GET RQ')
+        s.append('Message ID                    : %s' %d.MessageID)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('Priority                      : %s' %priority)
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            logger.debug(line)
+        
+    def debug_send_c_get_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        dimse_msg - 
+            
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+        
+    def debug_send_c_move_rq(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        dimse_msg - 
+            
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+
     
     def debug_receive_c_echo_rq(self, dimse_msg):
         """
@@ -446,7 +552,30 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        attributes - pydicom.Dataset
+        dimse_msg - pydicom.Dataset
+            A Dataset containing the attributes to match against.
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+        
+    def debug_receive_c_get_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        dimse_msg - pydicom.Dataset
             A Dataset containing the attributes to match against.
             
         Returns

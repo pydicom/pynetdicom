@@ -685,6 +685,100 @@ class ApplicationEntity(threading.Thread):
         """
         pass
     
+    def on_send_c_get_rq(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+        
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+        
+    def on_send_c_get_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+        
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+        
+    def on_send_c_move_rq(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+
+    def on_send_c_move_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+
     
     def on_receive_c_echo_rq(self, dimse_msg):
         """
@@ -802,7 +896,54 @@ class ApplicationEntity(threading.Thread):
         """
         return None
         
+    def on_receive_c_get_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+        
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+        
     def on_receive_c_move_rq(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
+        
+        Parameters
+        ----------
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+
+    def on_receive_c_move_rsp(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
         on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match

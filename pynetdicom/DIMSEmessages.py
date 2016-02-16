@@ -531,27 +531,16 @@ class C_GET_RQ_Message(DIMSEMessage):
 
 class C_GET_RSP_Message(DIMSEMessage):
     CommandFields = [
-        ('Group Length',
-         (0x0000, 0x0000), 'UL', 1),
-        ('Affected SOP Class UID',
-         (0x0000, 0x0002), 'UI', 1),
-        ('Command Field',
-         (0x0000, 0x0100), 'US', 1),
-        ('Message ID Being Responded To',
-         (0x0000, 0x0120), 'US', 1),
-        ('Data Set Type',
-         (0x0000, 0x0800), 'US', 1),
-        ('Status',
-         (0x0000, 0x0900), 'US', 1),
-        ('Number of Remaining Sub-operations',
-         (0x0000, 0x1020), 'US', 1),
-        ('Number of Complete Sub-operations',
-         (0x0000, 0x1021), 'US', 1),
-        ('Number of Failed Sub-operations',      (0x0000, 0x1022), 'US', 1),
-        ('Number of Warning Sub-operations',
-         (0x0000, 0x1023), 'US', 1),
-
-    ]
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1), 
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Number of Remaining Sub-operations', (0x0000, 0x1020), 'US', 1),
+        ('Number of Complete Sub-operations', (0x0000, 0x1021), 'US', 1),
+        ('Number of Failed Sub-operations', (0x0000, 0x1022), 'US', 1),
+        ('Number of Warning Sub-operations', (0x0000, 0x1023), 'US', 1)]
     DataField = 'Identifier'
 
     def FromParams(self, params):
@@ -586,6 +575,38 @@ class C_GET_RSP_Message(DIMSEMessage):
         tmp.NumberOfWarningSubOperations = self.CommandSet[(0x0000, 0x1023)]
         tmp.Identifier = self.DataSet
         return tmp
+    
+    @property
+    def AffectedSOPClassUID(self):
+        return self.CommandSet.AffectedSOPClassUID
+        
+    @property
+    def RespondingMessageID(self):
+        return self.CommandSet.MessageIDBeingRespondedTo
+        
+    @property
+    def Status(self):
+        return self.CommandSet.Status
+    
+    @property
+    def RemainingOperations(self):
+        return self.CommandSet.NumberOfRemainingSubOperations
+        
+    @property
+    def CompletedOperations(self):
+        return self.CommandSet.NumberOfCompletedSubOperations
+        
+    @property
+    def FailedOperations(self):
+        return self.CommandSet.NumberOfFailedOperations
+        
+    @property
+    def WarningOperations(self):
+        return self.CommandSet.NumberOfWarningSubOperations
+        
+    @property
+    def Dataset(self):
+        return self.Identifier
 
 
 class C_MOVE_RQ_Message(DIMSEMessage):
