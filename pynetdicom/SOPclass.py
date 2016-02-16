@@ -80,7 +80,7 @@ class VerificationServiceClass(ServiceClass):
         rsp.Status = int(self.Success)
 
         try:
-            self.AE.OnReceiveEcho(self)
+            self.AE.on_c_echo(self)
         except:
             #logger.error("There was an exception on OnReceiveEcho callback")
             pass
@@ -170,7 +170,7 @@ class StorageServiceClass(ServiceClass):
         #   We expect a valid Status from on_store to send back to the peer AE
         if status is None:
             try:
-                status = self.AE.on_store(self, DS)
+                status = self.AE.on_c_store(self, DS)
             except Exception as e:
                 logger.exception("Failed to implement the "
                     "ApplicationEntity::on_store() callback function correctly")

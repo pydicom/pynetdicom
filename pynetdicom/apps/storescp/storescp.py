@@ -136,7 +136,7 @@ if args.prefer_big:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_store(sop_class, dataset):
+def on_c_store(sop_class, dataset):
     """
     Function replacing ApplicationEntity.on_store(). Called when a dataset is 
     received following a C-STORE. Write the received dataset to file 
@@ -183,7 +183,7 @@ ae = AE(args.aetitle,
         [VerificationSOPClass, CTImageStorageSOPClass],
         SupportedTransferSyntax=transfer_syntax)
 
-ae.on_store = on_store
+ae.on_c_store = on_c_store
 
 ae.start()
 ae.QuitOnKeyboardInterrupt()
