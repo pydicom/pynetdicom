@@ -73,9 +73,9 @@ def _setup_argparser():
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
     net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle', 
-                          help="set my AE title (default: ECHOSCP)", 
+                          help="set my AE title (default: STORESCP)", 
                           type=str, 
-                          default='ECHOSCP')
+                          default='STORESCP')
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')

@@ -78,7 +78,7 @@ def _setup_argparser():
     net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle', 
                           help="set my calling AE title (default: STORESCU)", 
                           type=str, 
-                          default='ECHOSCU')
+                          default='STORESCU')
     net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle', 
                           help="set called AE title of peer (default: ANY-SCP)", 
                           type=str, 
@@ -136,7 +136,7 @@ ae = AE(args.calling_aet,
 # Request association with remote
 assoc = ae.request_association(args.peer, args.port, args.called_aet)
 
-if assoc.established:
+if assoc.Established:
     logger.info('Sending file: %s' %args.dcmfile_in)
     
     # Correct ambiguous VRs for Implicit
@@ -154,26 +154,10 @@ if assoc.established:
                %(elem_name, elem_group, elem_element))
             elem.VR = 'OW'
     
-    status = None
-
-    #try:
-    # This seems like a inelegant way to do this as it makes it seem like
-    #   this would have to be done for each type of Storage SOP Class
-    #   when in reality any of the StorageServiceClass subclasses will work
-    status = assoc.CTImageStorageSOPClass.SCU(dataset, 1)
-    
-    # Instead we should be able to use the generic StorageServiceClass
-    #   however this doesn't work
-    #status = assoc.StorageServiceClass.SCU(dataset, 1)
-    
-    #except:
-    #    logger.info('Aborting Association')
-    #    assoc.Abort(0)
+    status = assoc.send_c_store(dataset)
     
     if status is not None:
-        # Release association
-        logger.info('Releasing Association')
-        assoc.Release(0)
+        assoc.Release()
 
 # Quit
 ae.Quit()

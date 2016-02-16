@@ -105,24 +105,6 @@ if args.debug:
 logger.debug('$echoscp.py v%s %s $' %('0.1.0', '2016-02-10'))
 logger.debug('')
 
-def OnAssociateRequest(association):
-    logger.info("Association Received")
-
-def OnAssociateResponse(answer):
-    if answer:
-        logger.info('Association Acknowledged (Max Send PDV: %s)' %'[FIXME]')
-    else:
-        logger.error('Association Request Failed: %s' %'[FIXME]')
-        #logger.error('0006:0317 Peer aborted Association (or never connected)')
-        #logger.error('0006:031c TCP Initialisation Error: Connection refused')
-        
-def OnAssociateRelease():
-    pass
-
-def OnReceiveEcho():
-    logger.info('Received Echo Request')
-    return True
-
 # Validate port
 if isinstance(args.port, int):
     test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -155,9 +137,6 @@ if args.prefer_big:
 # Create application entity
 ae = AE(args.aetitle, args.port, [], [VerificationSOPClass], 
         SupportedTransferSyntax=transfer_syntax)
-ae.OnAssociateRequest = OnAssociateRequest
-ae.OnAssociateResponse = OnAssociateResponse
-ae.OnReceiveEcho = OnReceiveEcho
 
 ae.start()
 ae.QuitOnKeyboardInterrupt()

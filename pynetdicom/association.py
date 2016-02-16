@@ -231,12 +231,6 @@ class Association(threading.Thread):
             if assoc is None:
                 self.Kill()
                 return
-
-            # Callbacks
-            #self.AE.OnAssociateRequest(self)
-            # Local debugging log
-            self.debug_association_accepted(assoc)
-            self.AE.on_association_accepted(assoc)
             
             # Build supported SOP Classes for the Association
             self.SOPClassesAsSCP = []
@@ -250,6 +244,10 @@ class Association(threading.Thread):
                 logger.info("No Acceptable Presentation Contexts")
                 self.Abort()
                 return
+                
+            # Callbacks/Logging
+            self.debug_association_accepted(assoc)
+            self.AE.on_association_accepted(assoc)
         
         # If the local AE initiated the Association
         elif self.mode == 'Requestor':
@@ -402,8 +400,30 @@ class Association(threading.Thread):
     
     # DIMSE services provided by the Association
     # Replaces the old assoc.SOPClass.SCU method
-    def send_c_store(self, dataset):
-        pass
+    def send_c_store(self, dataset, msg_id=1, priority=2):
+        # Select appropriate SOP Class for dataset
+        data_sop = dataset.SOPClassUID.__repr__()[1:-1]
+        sop_class = UID2SOPClass(data_sop)
+        found_match = False
+        for scu_sop_class in self.SOPClassesAsSCU:
+            if scu_sop_class[1] == sop_class:
+                sop_class.pcid = scu_sop_class[0]
+                sop_class.sopclass = scu_sop_class[1]
+                sop_class.transfersyntax = scu_sop_class[2]
+                
+                found_match = True
+                
+        if not found_match:
+            raise ValueError("'%s' is not listed as one of the AE's "
+                    "supported SOP Classes" %sop_class)
+            
+        sop_class.maxpdulength = self.ACSE.MaxPDULength
+        sop_class.DIMSE = self.DIMSE
+        sop_class.AE = self.AE
+        sop_class.RemoteAE = self.AE
+
+        # Send the query
+        return sop_class().SCU(dataset, msg_id, priority)
         
     def send_c_echo(self, msg_id=1):
         sop_class = VerificationSOPClass()
@@ -472,7 +492,8 @@ class Association(threading.Thread):
 
     # Association logging/debugging functions
     def debug_association_established(self):
-        logger.info('Association Established')
+        #logger.info('Association Established')
+        pass
     
     def debug_association_requested(self):
         pass
@@ -558,7 +579,7 @@ class Association(threading.Thread):
         for line in s:
             logger.debug(line)
         """
-        logger.info('Association Accepted')
+        pass
 
     def debug_association_rejected(self, associate_rj_pdu):
         """

@@ -133,7 +133,7 @@ ae = AE(args.calling_aet, 0, [VerificationSOPClass], [],
 # Request association with remote
 assoc = ae.request_association(args.peer, args.port, args.called_aet)
 
-if assoc.AssociationEstablished:
+if assoc.Established:
     status = assoc.send_c_echo()
     
     # Release association

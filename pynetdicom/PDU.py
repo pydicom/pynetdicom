@@ -151,15 +151,6 @@ class PDU:
         # After decoding, check that we have only added allowed items 
         self.validate_additional_items()
 
-    def validate_additional_items(self):
-        pass
-
-    def put_parameters(self, parameters):
-        pass
-        
-    def get_parameters(self):
-        pass
-
 
 class A_ASSOCIATE_RQ_PDU(PDU):
     '''This class represents the A-ASSOCIATE-RQ PDU
@@ -456,6 +447,8 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return ass
 
     def Encode(self):
+        logger.debug('Constructing Associate AC PDU')
+        
         tmp = b''
         tmp = tmp + pack('B',   self.PDUType)
         tmp = tmp + pack('B',   self.Reserved1)
@@ -1345,7 +1338,6 @@ class AbstractSyntaxSubItem(PDU):
          _,
          self.ItemLength) = unpack('> B B H', Stream.read(4))
         self.AbstractSyntaxName = Stream.read(self.ItemLength)
-        print(type(self.AbstractSyntaxName))
 
     def TotalLength(self):
         return 4 + self.ItemLength
