@@ -77,10 +77,10 @@ Miscellaneous DICOM
               timeout for DIMSE messages (default: unlimited) 
     ``-pdu  --max-pdu [n]umber of bytes (int)`` 
               set maximum receive PDU bytes to n bytes (default: 16384) 
-          ``--repeat [n]umber (int)`` 
-              repeat echo n times 
-          ``--abort`` 
-              abort association instead of releasing it 
+    ``--repeat [n]umber (int)`` 
+        repeat echo n times 
+    ``--abort`` 
+        abort association instead of releasing it 
 
 
 DICOM Conformance
