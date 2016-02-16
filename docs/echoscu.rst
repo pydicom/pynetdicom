@@ -33,7 +33,7 @@ When attempting to associate with a non-DICOM peer
     user@host: 
 
 Using the *--propose-pc [n]* option, the echoscu application can also 
-propose n Presentation Contexts[#]_ (all with an Abstract Syntax of 
+propose *n* Presentation Contexts [#]_ (all with an Abstract Syntax of 
 *Verification SOP Class*) in order to provide debugging assistance for 
 association negotiation.
 
