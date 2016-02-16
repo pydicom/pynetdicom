@@ -55,9 +55,9 @@ Logging
             
 Application Entity Titles
 -------------------------
-    ``-aet  --calling-aet [a]etitle`` 
+    ``-aet  --calling-aet [a]etitle (str)`` 
               set the local AE title (default: ECHOSCU) 
-    ``-aec  --called-aet [a]etitle`` 
+    ``-aec  --called-aet [a]etitle (str)`` 
               set the called AE title for the peer AE (default: ANY-SCP) 
               
 Association Negotiation Debugging
