@@ -12,14 +12,12 @@ connectivity.
 
 The following simple example shows what happens when it is succesfully run on 
 an SCP that supports the Verification SOP Class:
-
 ::
     user@host: echoscu 192.168.2.1 11112 
     user@host: 
 
 When attempting to send a C-ECHO to an SCP that doesn't support the 
 Verification SOP Class:
-
 ::
     user@host: echoscu 192.168.2.1 11112 
     E: No Acceptable Presentation Contexts 
@@ -36,7 +34,7 @@ When attempting to associate with a non-DICOM peer
 The echoscu application can also propose more than one Presentation Context in 
 order to provide debugging assistance for association negotiation.
 The supported SOP Classes are:
-    
+::
     
 
 Unless the --propose-ts option is used, the echoscu application will only 
