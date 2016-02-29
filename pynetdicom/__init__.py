@@ -9,6 +9,8 @@ __version_info__ = __version__.split('.')
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.' + \
                                         '.'.join(__version_info__) 
+                                        
+pynetdicom_version = 'PYNETDICOM_' + ''.join(__version_info__)
 
 # Set up logging system for the whole package.  In each module, set
 # logger=logging.getLogger('pynetdicom') and the same instance will be

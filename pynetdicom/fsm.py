@@ -11,7 +11,6 @@ from pynetdicom.PDU import *
 from pynetdicom.DIMSEmessages import wrap_list
 import pynetdicom.DULparameters
 
-
 logger = logging.getLogger('pynetdicom.sm')
 
 
@@ -19,15 +18,15 @@ class StateMachine:
     """
     Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
     9.2. 
-    
+
     Parameters
     ---------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
-    
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
+
     Attributes
     ----------
-    CurrentState - str
+    current_state - str
         The current state of the state machine, Sta1 to Sta13
     """
     def __init__(self, dul):
@@ -36,43 +35,40 @@ class StateMachine:
 
     def do_action(self, event):
         """ Execute the action triggered by `event`
-        
+
         Parameters
         ----------
         event - str
             The event to be processed, Evt1 to Evt19
-        c - DULServicedul
-            The DICOM Upper Layer Service dul instance for the local AE
         """
-        
         # Check (event + state) is valid
         if (event, self.current_state) not in transition_table.keys():
+            logger.error("DUL State Machine received an invalid event '%s' " 
+                "for the current state '%s'" %(event, self.current_state))
             raise KeyError("DUL State Machine received an invalid event "
                 "'%s' for the current state '%s'" %(event, self.current_state))
-        
+
         action_name = transition_table[(event, self.current_state)]
 
         # action is the (description, function, state) tuple
         #   associated with the action_name
         action = actions[action_name]
-        
+
         # Attempt to execute the action and move the state machine to its
         #   next state
         try:
-            # Execute the required action 
+            # Execute the required action
             next_state = action[1](self.dul)
-            
-            #print('SM: %s + %s -> %s -> %s' %(self.current_state, 
-            #                                  event, 
-            #                                  action_name, 
-            #                                  next_state))
-            
+
             # Move the state machine to the next state
             self.transition(next_state)    
 
-        except:
-            raise
+        except Exception as e:
+            logger.error("DUL State Machine received an exception attempting "
+                "to perform the action '%s' while in state '%s'" 
+                                %(action_name, self.current_state))
             self.dul.Kill()
+            raise e
 
     def transition(self, state):
         """
@@ -86,12 +82,13 @@ class StateMachine:
         Raises
         ------
         ValueError
-            If the state is not valid
+            If the state is not a valid state
         """
         # Validate that state is acceptable
         if state in states.keys():
             self.current_state = state
         else:
+            logger.error('Invalid state "%s" for State Machine' %state)
             raise ValueError('Invalid state "%s" for State Machine' %state)
 
 
@@ -112,8 +109,8 @@ def AE_1(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -152,8 +149,8 @@ def AE_2(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -186,8 +183,8 @@ def AE_3(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -213,8 +210,8 @@ def AE_4(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -244,8 +241,8 @@ def AE_5(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
     
     Returns
     -------
@@ -274,8 +271,8 @@ def AE_6(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -312,8 +309,8 @@ def AE_7(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -346,8 +343,8 @@ def AE_8(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -357,13 +354,6 @@ def AE_8(dul):
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     dul.pdu = A_ASSOCIATE_RJ_PDU()
     
-    # not sure about this ...
-    if dul.primitive.Diagnostic is not None:
-        dul.primitive.ResultSource = dul.primitive.Diagnostic.source
-    #else:
-    #    dul.primitive.Diagnostic = 1
-    #    dul.primitive.ResultSource = 2
-
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
@@ -388,8 +378,8 @@ def DT_1(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -423,8 +413,8 @@ def DT_2(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -450,8 +440,8 @@ def AR_1(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -484,8 +474,8 @@ def AR_2(dul):
 
     Parameters
     ----------
-    dul - DULServiceProvider
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -511,8 +501,8 @@ def AR_3(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -539,8 +529,8 @@ def AR_4(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -574,8 +564,8 @@ def AR_5(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -601,8 +591,8 @@ def AR_6(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -628,8 +618,8 @@ def AR_7(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -663,8 +653,8 @@ def AR_8(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -691,8 +681,8 @@ def AR_9(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -724,8 +714,8 @@ def AR_10(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -753,8 +743,8 @@ def AA_1(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -794,8 +784,8 @@ def AA_2(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -824,8 +814,8 @@ def AA_3(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -858,8 +848,8 @@ def AA_4(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -886,8 +876,8 @@ def AA_5(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -912,8 +902,8 @@ def AA_6(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -939,8 +929,8 @@ def AA_7(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
@@ -976,8 +966,8 @@ def AA_8(dul):
 
     Parameters
     ----------
-    dul - DULServicedul
-        The DICOM Upper Layer Service dul instance for the local AE
+    dul - pynetdicom.DULprovider.DULServiceProvider
+        The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
