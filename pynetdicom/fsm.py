@@ -781,7 +781,7 @@ def AA_1(dul):
     
     # The reason for the abort should really be roughly defined by the 
     #   current state of the State Machine
-    if dul.state_machine.current_state = 'Sta2':
+    if dul.state_machine.current_state == 'Sta2':
         # Unexpected PDU
         dul.pdu.ReasonDiag = 0x02
     else:
