@@ -1,6 +1,3 @@
-# DUL Service Parameters
-# 3.8 Section 7
-
 
 class ServiceParam:
     def __repr__(self):
@@ -14,43 +11,194 @@ class A_ASSOCIATE_ServiceParameters(ServiceParam):
     """ 
     A-ASSOCIATE Parameters
     
+    The establishment of an association between two AEs shall be performed 
+    through ACSE A-ASSOCIATE request, indication, response and confirmation
+    primitives.
+    
+    The initiator of the service is called the Requestor and the user that 
+    receives the request is the Acceptor.
+    
     See PS3.8 Section 7.1.1
     
-    I'd be happier if these values were created programatically...
+    The A-ASSOCIATE primitive is used by the DUL provider to send/receive
+    information about the association. It gets converted to A-ASSOCIATE-RQ, -AC,
+    -RJ PDUs that are sent to the peer DUL provider and gets deconverted from 
+    -RQ, -AC, -RJ PDUs received from the peer.
+    
+    It may be better to simply extend this with methods for containing the 
+    -rq, -ac, -rj possibilities rather than creating a new 
+    AssociationInformation class, but it would require maintaining the instance
+    across the request-accept/reject path
+    
+    -rq = no Result value
+    -ac = Result of 0x00
+    -rj = Result != 0x00
+    
+    Parameter           Request     Indication      Response        Confirmation
+    app context name    M           M(=)            M               M(=)
+    calling ae title    M           M(=)            M               M(=)
+    called ae title     M           M(=)            M               M(=)
+    user info           M           M(=)            M               M(=)
+    result                                          M               M(=)
+    source                                                          M
+    diagnostic                                      U               C(=)
+    calling pres add    M           M(=)
+    called pres add     M           M(=)
+    pres context list   M           M(=)
+    pres list result                                M               M(=)
+    
+    mode                UF          MF(=)
+    resp ae title                                   MF              MF(=)
+    resp pres add                                   MF              MF(=)
+    pres and sess req   UF          UF(=)           UF              UF(=)
+    
+    U   - User option
+    UF  - User option, fixed value
+    C   - Conditional (on user option)
+    M   - Mandatory
+    MF  - Mandatory, fixed value
+    (=) - shall have same value as request or response
+    
+    
+    The Requestor sends a request primitive to the local DICOM UL provider => 
+        peer UL => indication primitive to Acceptor.
+    
+    Acceptor sends response primitive to peer UL => local UL => confirmation
+        primitive to Requestor
+    
+    The DICOM UL providers communicate with UL users using service primitives
+    The DICOM UL providers communicate with each other using PDUs over TCP/IP
+    
+    Service Procedure
+    =================
+    1. An AE (DICOM UL service user) that desires the establish an association 
+        issues an A-ASSOCIATE request primitive to the DICOM UL service 
+        provider. The Requestor shall not issue any primitives except the
+        A-ABORT request primitive until it receives an A-ASSOCIATE confirmation
+        primitive.
+    2. The DICOM UL service provider issues an A-ASSOCIATE indication primitive
+        to the called AE
+    3. The called AE shall accept or reject the association by sending an 
+        A-ASSOCIATE response primitive with an appropriate Result parameter. The
+        DICOM UL service provider shall issue an A-ASSOCIATE confirmation 
+        primitive having the same Result parameter. The Result Source parameter
+        shall be assigned "UL service-user"
+    4. If the Acceptor accepts the association, it is established and is 
+        available for use. DIMSE messages can now be exchanged.
+    5. If the Acceptor rejects the association, it shall not be established and
+        is not available for use
+    6. If the DICOM UL service provider is not capable of supporting the 
+        requested association it shall return an A-ASSOCIATE confirmation 
+        primitive to the Requestor with an appropriate Result parameter 
+        (rejected). The Result Source parameter shall be assigned either
+        UL service provider (ACSE) or UL service provider (Presentation).
+        The indication primitive shall not be issued. The association shall not
+        be established.
+    7. Either Requestor or Acceptor may disrupt the Service Procedure by issuing
+        an A-ABORT request primitive. The remote AE receives an A-ABORT 
+        indication primitive. The association shall not be established
     """
     def __init__(self):
-        # 7.1.1.1 Mode (fixed value)
+        # 7.1.1.1 Mode (fixed)  [UF, MF(=), _, _]
         self.Mode = "normal"
-        # Strings
+        
+        # 7.1.1.2 Application Context Name [M, M(=), M, M(=)]
+        # The name proposed by the requestor. Acceptor returns either
+        #   the same or a different name. Returned name specifies the 
+        #   application context used for the association. See PS3.8 Annex A
         self.ApplicationContextName = None
+        
+        # 7.1.1.3 Calling AE Title [M, M(=), M, M(=)]
+        # Identifies the Requestor of the A-ASSOCIATE service
         self.CallingAETitle = None
+        
+        # 7.1.1.4 Calling AE Title [M, M(=), M, M(=)]
+        # Identifies the intended Acceptor of the A-ASSOCIATE service
         self.CalledAETitle = None
-        self.RespondingAETitle = None
-        # List of raw strings
+        
+        # 7.1.1.5 Responding AE Title (fixed) [_, _, MF, MF(=)]
+        # Identifies the AE that contains the actual acceptor of the 
+        #   A-ASSOCIATE service. Shall always contain the same value as the 
+        #   Called AE Title of the A-ASSOCIATE indication
+        self.RespondingAETitle = self.CalledAETitle
+        
+        # 7.1.1.6 User Information [M, M(=), M, M(=)]
+        # Used by Requestor and Acceptor to include AE user information. See
+        #   PS3.8 Annex D
+        # FIXME: See if the variable name can be changed back to UserInformation
         self.UserInformationItem = None
-        # a) accepted
-        # b) rejected (permanent)
-        # c) rejected (transient)
+        
+        # 7.1.1.7 Result [_, _, M, M(=)]
+        # Provided either by the Acceptor of the A-ASSOCIATE request, the UL
+        #   service provider (ACSE related) or the UL service provider 
+        #   (Presentation related). Indicates the result of the A-ASSOCIATE
+        #   service. Symbolic values are: accepted, rejected (permanent),
+        #   rejected (transient)
         self.Result = None
-        # a) UL service-user
-        # b) UL service-provider (ACSE related function)
-        # c) UL service-provider (Presentation related function)
+        
+        # 7.1.1.8 Result Source [_, _, _, M]
+        # Identifies the creating source of the Result and Diagnostic parameters
+        #   Symbolic values are: UL service-user, UL service-provider (ACSE 
+        #   related function) or UL service-provider (Presentation related 
+        #   function)
         self.ResultSource = None
-        # 7.1.1.9 Diagnostic - If association is rejected then this supplies
-        #   diagnostic information about the result
-        self.Diagnostic = None                              # Int
-        # TCP/IP Address
-        self.CallingPresentationAddress = None              # String
-        # TCP/IP Address
-        self.CalledPresentationAddress = None               # String
-        self.RespondingPresentationAddress = None           # String
-        # List of [ID, AbsName, [TrNames]]
+        
+        # 7.1.1.9 Diagnostic [_, _, U, C(=)]
+        # If the Result parameter is 'rejected (permanent)' or 'rejected 
+        #   (transient)' then this supplies diagnostic information about the 
+        #   result.
+        # If Result Source = 'UL service-user' then symbolic values are:
+        #       no reason given 
+        #       application context name not supported
+        #       calling AE title not recognised
+        #       called AE title not recognised
+        # If Result Source = 'UL service-provider (ACSE related function)' then:
+        #       no reason given
+        #       no common UL version
+        # If Result Source = 'UL service-provider (Presentation related 
+        #   function)' then:
+        #       no reason given
+        #       temporary congestion
+        #       local limit exceeded
+        #       called presentation address unknown
+        #       presentation protocol version not supported
+        #       no presentation service access point available
+        self.Diagnostic = None
+        
+        # 7.1.1.10 Calling Presentation Address [M, M(=), _, _]
+        #  TCP/IP address of the Requestor
+        self.CallingPresentationAddress = None
+        
+        # 7.1.1.11 Called Presentation Address [M, M(=), _, _]
+        #  TCP/IP address of the intended Accetpr
+        self.CalledPresentationAddress = None
+        
+        # 7.1.1.12 Responding Presentation Address (fixed) [_, _, MF, MF(=)]
+        #  Shall always contain the same value as the Called Presentation Address
+        self.RespondingPresentationAddress = self.CalledPresentationAddress
+        
+        # 7.1.1.13 Presentation Context Definition List [M, M(=), _, _]
+        # List of one or more presentation contexts, with each item containing
+        #   a presentation context ID, an Abstract Syntax and a list of one or
+        #   more Transfer Syntax Names
+        # Sent by the Requestor during request/indication
         self.PresentationContextDefinitionList = []
-        # List of [ID, Result, TrName]
+        
+        # 7.1.1.14 Presentation Context Definition Result List [_, _, M, M(=)]
+        # Used in response/confirmation to indicate acceptance or rejection of
+        #   each presentation context definition.
+        # List of result values, with a one-to-one correspondence between each
+        #   of the presentation contexts proposed in the Presentation Context
+        #   Definition List parameter. 
+        # The result values may be sent in any order and may be different than 
+        #   the order proposed.
+        # Only one Transfer Syntax per presentation context shall be agreed to
         self.PresentationContextDefinitionResultList = []
-        # 7.1.1.15 Presentation Requirements (fixed value)
+        
+        # 7.1.1.15 Presentation Requirements (fixed) [UF, UF(=), UF, UF(=)]
         self.PresentationRequirements = "Presentation Kernel"
-        # 7.1.1.16 Session Requirements (fixed value)
+        
+        # 7.1.1.16 Session Requirements (fixed) [UF, UF(=), UF, UF(=)]
         self.SessionRequirements = ""
 
 
@@ -186,7 +334,7 @@ class P_DATA_ServiceParameters:
 #
 # A-ASSOCIATE results
 #
-# This seems clunky
+# This is clunky as hell, will be replaced 
 # In any case, constants should be all caps
 A_ASSOCIATE_Result_Accepted = 0
 A_ASSOCIATE_Result_RejectedPermanent = 1

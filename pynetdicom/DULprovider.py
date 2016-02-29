@@ -255,7 +255,8 @@ class DULServiceProvider(Thread):
 
     def CheckIncomingPDU(self):
         """
-        
+        Converts an incoming PDU from the peer AE back into a primitive (ie one
+        of the following: A-ASSOCIATE, A-RELEASE, A-ABORT, P-DATA, A-P-ABORT)
         """
         bytestream = bytes()
         

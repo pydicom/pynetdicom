@@ -14,11 +14,15 @@ import time
 
 from pydicom.uid import UID
 
-from pynetdicom.__init__ import pynetdicom_uid_prefix
-from pynetdicom.__version__ import __version__
+from pynetdicom.__init__ import pynetdicom_uid_prefix, pynetdicom_version
 from pynetdicom.DULparameters import *
 from pynetdicom.exceptions import AssociationRefused, NoAcceptablePresentationContext
-from pynetdicom.PDU import MaximumLengthParameters
+from pynetdicom.PDU import MaximumLengthParameters, A_ASSOCIATE_RJ_PDU, \
+                            A_ASSOCIATE_AC_PDU, A_ABORT_PDU, \
+                            ImplementationClassUIDParameters, \
+                            ImplementationVersionNameParameters
+                            
+from pynetdicom.utils import PresentationContext
 
 
 logger = logging.getLogger('pynetdicom.acse')
@@ -26,110 +30,254 @@ logger = logging.getLogger('pynetdicom.acse')
 
 class ACSEServiceProvider(object):
     """ 
-    Association Control Service Provider
-    
+    Association Control Service Element service provider
+
+    The ACSE protocol handles association establishment, normal release of an
+    association and the abnormal release of an association.
+
+    As per PS3.7, Section 6.1-2, the ACSE is the part of the DICOM Upper Layer 
+    Service that handles Associations.
+
+    The ACSE provider sends Association related service primitives to the DICOM
+    UL provider
+     * sending to peer AE: DUL FSM converts primitive to PDU, encodes and sends
+     * received from peer AE: DUL receives data, decodes into a PDU then 
+        converts to primitive which is result of DUL.Receive()
+
     Parameters
     ----------
     DUL - pynetdicom.DULprovider.DULServiceProvider
-        The DICOM UL service provider instance
+        The DICOM UL service provider instance that will handle the transport of
+        the association primitives sent/received by the ACSE provider
+    acse_timeout - int
+        The maximum time (in seconds) to wait for A-ASSOCIATE PDUs from the peer
+        (default: 30)
+
+    References
+    ----------
+    DICOM Standard PS3.8
+    ISO/IEC 8649
     """
     def __init__(self, DUL, acse_timeout=30):
+        # The DICOM Upper Layer service provider, see PS3.8
         self.DUL = DUL
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
+        #   UID for the DICOM Application Context Name
         self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
+        # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
-
-    def Request(self, local_ae, peer_ae, mp, pcdl, 
-                       userspdu=None):
-        """
-        Requests an association with a remote AE and waits for association
-        response.
         
+        self.local_ae = None
+        self.peer_ae = None
+        self.local_max_pdu = None
+        self.peer_max_pdu = None
+
+    def Request(self, local_ae, peer_ae, max_pdu_size, pcdl, userspdu=None):
+        """
+        Issues an A-ASSOCIATE request primitive to the DICOM UL service provider
+        
+        Requests an association with a remote AE and waits for association
+        response (local AE is acting as an SCU)
+
         Parameters
         ----------
         local_ae - pynetdicom.applicationentity.ApplicationEntity
             The local AE instance
+            [FIXME] Change this back to a dict as the full instance isn't req'd
         peer_ae - dict
             A dict containing the peer AE's IP/TCP address, port and title
-        mp - int
-            Maximum PDV length in bytes
-        pcdl - ?
-            Presentation Context Definition List
-        userpdu - ?
-            ???
-        dimse_timeout - int
-            The maximum amount of time (in seconds) that the association can
-            be idle before it gets terminated
-            
+        max_pdu_size - int
+            Maximum PDU size in bytes
+        pcdl - list of pynetdicom.utils.PresentationContext
+            A list of the proposed Presentation Contexts for the association
+            If local_ae is ApplicationEntity then this is doubled up 
+            unnecessarily
+        userpdu - List of UserInformation objects
+            List of items to be added to the requests user information for use 
+            in extended negotiation. See PS3.7 Annex D.3.3
+        
         Returns
         -------
         bool
-            True if the Association was accepted, false otherwise
-        assoc_rsp - pynetdicom..A_ASSOCIATE_ServiceParameters
-            The Association response
+            True if the Association was accepted, False if rejected or aborted
         """
         self.LocalAE = local_ae
         self.RemoteAE = peer_ae
-        self.MaxPDULength = mp
+        
+        self.MaxPDULength = max_pdu_size
 
-        # Build association service parameters object
+        ## Build an A-ASSOCIATE request primitive
+        #
+        # The following parameters must be set for a request primitive
+        #   ApplicationContextName
+        #   CallingAETitle
+        #   CalledAETitle
+        #   UserInformation
+        #       Maximum PDV Length (required)
+        #       Implementation Identification - Class UID (required)
+        #   CallingPresentationAddress
+        #   CalledPresentationAddress
+        #   PresentationContextDefinitionList
         assoc_rq = A_ASSOCIATE_ServiceParameters()
         assoc_rq.ApplicationContextName = self.ApplicationContextName
         assoc_rq.CallingAETitle = self.LocalAE['AET']
         assoc_rq.CalledAETitle = self.RemoteAE['AET']
+
+        # Build User Information - PS3.7 Annex D.3.3
+        #
+        # Maximum Length Negotiation (required)
+        max_length = MaximumLengthParameters()
+        max_length.MaximumLengthReceived = max_pdu_size
+        assoc_rq.UserInformationItem = [max_length]
         
-        MaxPDULengthPar = MaximumLengthParameters()
-        MaxPDULengthPar.MaximumLengthReceived = mp
-        
+        # Implementation Identification Notification (required)
+        # Class UID (required)
+        implementation_class_uid = ImplementationClassUIDParameters()
+        implementation_class_uid.ImplementationClassUID = \
+                                        bytes(pynetdicom_uid_prefix, 'utf-8')
+        assoc_rq.UserInformationItem.append(implementation_class_uid)
+
+        # Version Name (optional)
+        implementation_version_name = ImplementationVersionNameParameters()
+        implementation_version_name.ImplementationVersionName = \
+                                        bytes(pynetdicom_version, 'utf-8')
+        assoc_rq.UserInformationItem.append(implementation_version_name)
+
+        # Add the extended negotiation information (optional)
         if userspdu is not None:
-            assoc_rq.UserInformationItem = [MaxPDULengthPar] + userspdu
-        else:
-            assoc_rq.UserInformationItem = [MaxPDULengthPar]
-        
+            assoc_rq.UserInformationItem += userspdu
+
         assoc_rq.CallingPresentationAddress = (self.LocalAE['Address'], 
                                                self.LocalAE['Port'])
         assoc_rq.CalledPresentationAddress = (self.RemoteAE['Address'], 
                                               self.RemoteAE['Port'])
         assoc_rq.PresentationContextDefinitionList = pcdl
-        #logger.debug(pcdl)
-        
+        #
+        ## A-ASSOCIATE request primitive is now complete
+
+
+        # Send the A-ASSOCIATE request primitive to the peer via the 
+        #   DICOM UL service
         logger.info("Requesting Association")
         self.DUL.Send(assoc_rq)
 
-        # Association response
+
+        ## Receive the response from the peer
+        #   This may be an A-ASSOCIATE confirmation primitive or an
+        #   A-ABORT or A-P-ABORT request primitive
+        #
         assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
         
-        if not assoc_rsp:
-            return False, assoc_rsp
-        
-        try:
-            if assoc_rsp.Result != 'Accepted':
+        # Association accepted or rejected
+        if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
+            # Accepted
+            if assoc_rsp.Result == 'Accepted':
+                # Get the association accept details from the PDU and construct
+                #   a pynetdicom.utils.AssociationInformation instance
+                # assoc_info = AssociationInformation(assoc_rq, assoc_rsp)
+                # accepted_presentation_contexts = assoc_info.AcceptedPresentationContexts
+                #
+                # return True, assoc_info
+                
+                # Get maximum pdu length from answer
+                self.MaxPDULength = \
+                        assoc_rsp.UserInformationItem[0].MaximumLengthReceived
+
+                # Get accepted presentation contexts
+                self.presentation_contexts_accepted = []
+                for context in assoc_rsp.PresentationContextDefinitionResultList:
+                    # If result is 'Accepted'
+                    if context.Result == 0:
+                        # The accepted transfer syntax
+                        transfer_syntax = context.TransferSyntax[0]
+                        
+                        # The accepted Abstract Syntax 
+                        #   (taken from presentation_contexsts_scu)
+                        abstract_syntax = None
+                        for scu_context in pcdl:
+                            if scu_context.ID == context.ID:
+                                abstract_syntax = scu_context.AbstractSyntax
+                    
+                        # Create PresentationContext item
+                        accepted_context = PresentationContext(
+                                                        context.ID,
+                                                        abstract_syntax,
+                                                        [transfer_syntax])
+                    
+                        # Add it to the list of accepted presentation contexts
+                        self.presentation_contexts_accepted.append(accepted_context)
+                
+                return True, assoc_rsp
+            
+            # Rejected
+            elif assoc_rsp.Result in [0x01, 0x02]:
+                # 0x01 is rejected (permanent)
+                # 0x02 is rejected (transient)
                 return False, assoc_rsp
-        except AttributeError:
+            
+            # Invalid Result value
+            else:
+                logger.error("ACSE received an invalid result value from "
+                    "the peer AE: '%s'" %assoc_rsp.Result)
+                raise ValueError("ACSE received an invalid result value from "
+                    "the peer AE: '%s'" %assoc_rsp.Result)
+
+        # Association aborted
+        elif isinstance(assoc_rsp, A_ABORT_ServiceParameters) or \
+             isinstance(assoc_rsp, A_P_ABORT_ServiceParameters):
             return False, assoc_rsp
-
-        # Get maximum pdu length from answer
-        try:
-            self.MaxPDULength = \
-                assoc_rsp.UserInformation[0].MaximumLengthReceived
-        except:
-            self.MaxPDULength = 16000
-
-        # Get accepted presentation contexts
-        self.AcceptedPresentationContexts = []
-        for cc in assoc_rsp.PresentationContextDefinitionResultList:
-            if cc[1] == 0:
-                transfer_syntax = UID(cc[2].decode('utf-8'))
-                uid = [x[1] for x in pcdl if x[0] == cc[0]][0]
-                self.AcceptedPresentationContexts.append((cc[0], 
-                                                          uid, 
-                                                          transfer_syntax))
         
-        return True, assoc_rsp
+        elif assoc_rsp is None:
+            return False, assoc_rsp
+        
+        else:
+            raise ValueError("Unexpected response by the peer AE to the "
+                                                "ACSE association request")
 
-    def Accept(self, client_socket=None, AcceptablePresentationContexts=None,
-               Wait=True, result=None, diag=None):
+    def Reject(self, assoc_primitive, result, source, diagnostic):
         """
+        Issues an A-ASSOCIATE response primitive to the DICOM UL service 
+        provider. The response will be that the association request is 
+        rejected
+        
+        Parameters
+        ----------
+        assoc_primtive - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameters
+            The Association request primitive to be rejected
+        result - int
+            The association rejection: 0x01 or 0x02
+        source - int
+            The source of the rejection: 0x01, 0x02, 0x03
+        diagnostic - int
+            The reason for the rejection: 0x01 to 0x10
+        """
+        # Check valid Result and Source values
+        if result not in [0x01, 0x02]:
+            raise ValueError("ACSE rejection: invalid Result value "
+                                                        "'%s'" %result)
+                                                        
+        if source not in [0x01, 0x02, 0x03]:
+            raise ValueError("ACSE rejection: invalid Source value "
+                                                        "'%s'" %source)
+
+        # Send the A-ASSOCIATE primitive, rejecting the association
+        assoc_primitive.PresentationContextDefinitionList = []
+        assoc_primitive.PresentationContextDefinitionResultList = []
+        assoc_primitive.Result = result
+        assoc_primitive.ResultSource = source
+        assoc_primitive.Diagnostic = diagnostic
+        assoc_primitive.UserInformationItem = []
+        
+        self.DUL.Send(assoc_primitive)
+            
+        return assoc_primitive
+
+    def Accept(self, assoc_primitive):
+        """
+        Issues an A-ASSOCIATE response primitive to the DICOM UL service 
+        provider. The response will be that the association request is
+        accepted
+        
         When an AE gets a connection on its listen socket it creates an
         Association instance which creates an ACSE instance and forwards
         the socket onwards (`client_socket`).
@@ -141,90 +289,27 @@ class ACSEServiceProvider(object):
         The acceptability of the proposed Transfer Syntax is checked in the 
         order of appearance in the local AE's SupportedTransferSyntax list
         """
-        
-        # If the DUL provider hasn't been created
-        # I don't think its even possible to get to this stage without
-        #   a DUL
-        if self.DUL is None:
-            self.DUL = DUL(Socket=client_socket)
-        
-        # 
-        assoc = self.DUL.Receive(Wait=True)
-        if assoc is None:
-            return None
-
-        self.MaxPDULength = assoc.UserInformationItem[0].MaximumLengthReceived
-
-        if result is not None and diag is not None:
-            # Association is rejected
-            res = assoc
-            res.PresentationContextDefinitionList = []
-            res.PresentationContextDefinitionResultList = []
-            res.Result = result
-            res.Diagnostic = diag
-            res.UserInformationItem = []
-            #res.UserInformation = ass.UserInformation
-            self.DUL.Send(res)
-            return None
-
-        # analyse proposed presentation contexts
-        rsp = []
-        self.AcceptedPresentationContexts = []
-        # [SOP Class UID, [Transfer Syntax UIDs]]
-        acceptable_sop_classes = [x[0] for x in AcceptablePresentationContexts]
-
-        # Our Transfer Syntax are ordered in terms of preference
-        for context_definition in assoc.PresentationContextDefinitionList:
-            # The proposed_ values come from the peer AE, the acceptable_
-            #   values from the local AE
-            
-            # Presentation Context ID
-            pcid = context_definition[0]
-            # SOP Class UID
-            proposed_sop = context_definition[1].decode('utf-8')
-            # Transfer Syntax list - preference ordered
-            proposed_ts = [x.decode('utf-8') for x in context_definition[2]]
-            
-            if proposed_sop in acceptable_sop_classes:
-                acceptable_ts = [x[1] for x in AcceptablePresentationContexts
-                                 if x[0] == proposed_sop][0]
-                
-                for transfer_syntax in acceptable_ts:
-                    ok = False
-  
-                    if transfer_syntax in proposed_ts:
-                        # accept sop class and ts
-                        rsp.append((context_definition[0], 0, transfer_syntax))
-                        self.AcceptedPresentationContexts.append(
-                            (context_definition[0], 
-                             proposed_sop, 
-                             UID(transfer_syntax)))
-                        
-                        ok = True
-                        break
-                
-                if not ok:
-                    # Refuse sop class because of TS not supported
-                    rsp.append((context_definition[0], 1, ''))
-            
-            else:
-                # Refuse sop class because of SOP class not supported
-                rsp.append((context_definition[0], 1, ''))
+        self.MaxPDULength = assoc_primitive.UserInformationItem[0].MaximumLengthReceived
 
         # Send response
-        res = assoc
-        res.PresentationContextDefinitionList = []
-        res.PresentationContextDefinitionResultList = rsp
-        res.Result = 0
-        res.UserInformationItem = assoc.UserInformationItem
-        self.DUL.Send(res)
-        return assoc
+        assoc_primitive.PresentationContextDefinitionList = []
+        assoc_primitive.PresentationContextDefinitionResultList = self.AcceptedPresentationContexts
+        assoc_primitive.Result = 0
+        
+        self.DUL.Send(assoc_primitive)
+        return assoc_primitive
 
     def Release(self):
         """
+        Issues an A-RELEASE request primitive to the DICOM UL service provider
+        
+        The graceful release of an association between two AEs shall be 
+        performed through ACSE A-RELEASE request, indication, response and
+        confirmation primitives.
+        
         Requests the release of the associations and waits for confirmation.
         A-RELEASE always gives a reason of 'normal' and a result of 
-        'affirmative'
+        'affirmative'.
         
         Returns
         -------
@@ -239,14 +324,18 @@ class ACSEServiceProvider(object):
 
         return response
 
-    def Abort(self, reason):
+    def Abort(self, source=0x02, reason=0x00):
         """
+        Issues an A-ABORT request primitive to the DICOM UL service provider
+        
         Sends an A-ABORT to the peer AE
         """
         abort = A_ABORT_ServiceParameters()
-        abort.AbortSource = 0
+        abort.AbortSource = source
+        abort.Reason = reason
         self.DUL.Send(abort)
         time.sleep(0.5)
+
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
@@ -293,8 +382,6 @@ class ACSEServiceProvider(object):
         a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance to be encoded and sent
         """
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-        
         # Shorthand
         assoc_rq = a_associate_rq
         
@@ -306,8 +393,10 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                 '=====')
         
-        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
-        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
+        s.append('Our Implementation Class UID:      %s' 
+                                        %user_info.ImplementationClassUID)
+        s.append('Our Implementation Version Name:   %s' 
+                                        %user_info.ImplementationVersionName)
         s.append('Application Context Name:    %s' %app_context)
         s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
         s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
@@ -363,8 +452,6 @@ class ACSEServiceProvider(object):
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-                
         # Shorthand
         assoc_ac = a_associate_ac
         
@@ -375,15 +462,14 @@ class ACSEServiceProvider(object):
         
         responding_ae = 'resp. AP Title'
         
-        our_class_uid = pynetdicom_uid_prefix
-        our_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-        
         s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
                 '=====')
         
-        s.append('Our Implementation Class UID:      %s' %our_class_uid)
-        s.append('Our Implementation Version Name:   %s' %our_version)
+        s.append('Our Implementation Class UID:      %s' 
+                                        %user_info.ImplementationClassUID)
+        s.append('Our Implementation Version Name:   %s' 
+                                        %user_info.ImplementationVersionName)
         s.append('Application Context Name:    %s' %app_context)
         s.append('Responding Application Name: %s' %responding_ae)
         s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
@@ -567,8 +653,6 @@ class ACSEServiceProvider(object):
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-                
         # Shorthand
         assoc_ac = a_associate_ac
         

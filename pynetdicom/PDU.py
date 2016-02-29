@@ -65,7 +65,7 @@ from struct import *
 from pydicom.uid import UID
 
 from pynetdicom.DULparameters import *
-from pynetdicom.utils import wrap_list
+from pynetdicom.utils import wrap_list, PresentationContext
 
 logger = logging.getLogger('pynetdicom.pdu')
 
@@ -157,9 +157,21 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
     The A-ASSOCIATE-RQ PDU is sent at the start of association negotiation when
     either the local or the peer AE wants to to request an association.
-    
-    This PDU is the first piece of data sent
 
+    An A_ASSOCIATE_RQ requires the following parameters (see PS3.8 Section 
+        9.3.2):
+            Protocol version (fixed)
+            Called AE title (supplied during association request)
+            Calling AE title (part of local AE)
+            Application Context (UID fixed by application)
+            Presentation Context(s) (one or more)
+                ID (one)
+                Abstract Syntax (one)
+                Transfer Syntax(es) (one or more)
+            User Information
+                Maximum Length Received (one)
+                Other User Data items
+    
     See PS3.8 Section 9.3.2 for the structure of the PDU, especially Table 9-11
     for a description of each field
     '''
@@ -169,7 +181,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         # Unsigned int
         self.PDULength = None
         # Unsigned short
-        self.ProtocolVersion = 1
+        self.ProtocolVersion = 0x0001
         # string of length 16
         self.bCalledAETitle = None
         # string of length 16
@@ -198,9 +210,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         self.VariableItems.append(tmp_app_cont)
 
         # Make presentation contexts
-        for ii in Params.PresentationContextDefinitionList:
+        for contexts in Params.PresentationContextDefinitionList:
             tmp_pres_cont = PresentationContextItemRQ()
-            tmp_pres_cont.FromParams(ii)
+            tmp_pres_cont.FromParams(contexts)
             self.VariableItems.append(tmp_pres_cont)
 
         # Make user information
@@ -219,9 +231,11 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         ass.CalledAETitle = self.bCalledAETitle
         ass.ApplicationContextName = self.VariableItems[
             0].ApplicationContextName
+        
         # Write presentation contexts
         for ii in self.VariableItems[1:-1]:
             ass.PresentationContextDefinitionList.append(ii.ToParams())
+        
         # Write user information
         ass.UserInformationItem = self.VariableItems[-1].ToParams()
         return ass
@@ -267,6 +281,11 @@ class A_ASSOCIATE_RQ_PDU(PDU):
          self.bCallingAETitle) = unpack('> B B I H H 16s 16s', s.read(42))
         s.read(32)
         
+        if self.ProtocolVersion != 0x0001:
+            logger.error("Receiving Association failed: DUL Unsupported peer "
+                "protocol 0x0000; expected 0x0001")
+            raise ValueError("Receiving Association failed: DUL Unsupported peer "
+                "protocol 0x0000; expected 0x0001")
         
         while 1:
             type = NextType(s)
@@ -369,6 +388,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         str
             The Requestor's AE Called AE Title
         """
+        if isinstance(self.bCalledAETitle, bytes):
+            return self.bCalledAETitle.decode('utf-8')
+        
         return self.bCalledAETitle
     
     @property
@@ -383,6 +405,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         str
             The Requestor's AE Calling AE Title
         """
+        if isinstance(self.bCallingAETitle, bytes):
+            return self.bCallingAETitle.decode('utf-8')
+        
         return self.bCallingAETitle
 
 
@@ -415,15 +440,18 @@ class A_ASSOCIATE_AC_PDU(PDU):
         tmp_app_cont = ApplicationContextItem()
         tmp_app_cont.FromParams(Params.ApplicationContextName)
         self.VariableItems.append(tmp_app_cont)
+        
         # Make presentation contexts
         for ii in Params.PresentationContextDefinitionResultList:
             tmp_pres_cont = PresentationContextItemAC()
             tmp_pres_cont.FromParams(ii)
             self.VariableItems.append(tmp_pres_cont)
+        
         # Make user information
         tmp_user_info = UserInformationItem()
         tmp_user_info.FromParams(Params.UserInformationItem)
         self.VariableItems.append(tmp_user_info)
+        
         # Compute PDU length
         self.PDULength = 68
         for ii in self.VariableItems:
@@ -1065,30 +1093,30 @@ class PresentationContextItemRQ(PDU):
         #   One or more TransferSyntaxSubItem
         self.AbstractTransferSyntaxSubItems = []
 
-    def FromParams(self, Params):
-        # Params is a list of the form [ID, AbstractSyntaxName,
-        # [TransferSyntaxNames]]
-        self.PresentationContextID = Params[0]
+    def FromParams(self, context):
+        # Params is a list of utils.PresentationContext items
+        self.PresentationContextID = context.ID
         tmp_abs_syn = AbstractSyntaxSubItem()
-        tmp_abs_syn.FromParams(Params[1])
+        tmp_abs_syn.FromParams(context.AbstractSyntax)
         self.AbstractTransferSyntaxSubItems.append(tmp_abs_syn)
-        for ii in Params[2]:
+        for syntax in context.TransferSyntax:
             tmp_tr_syn = TransferSyntaxSubItem()
-            tmp_tr_syn.FromParams(ii)
+            tmp_tr_syn.FromParams(syntax)
             self.AbstractTransferSyntaxSubItems.append(tmp_tr_syn)
         self.ItemLength = 4
         for ii in self.AbstractTransferSyntaxSubItems:
             self.ItemLength = self.ItemLength + ii.TotalLength()
 
     def ToParams(self):
-        # Returns a list of the form [ID, AbstractSyntaxName,
-        # [TransferSyntaxNames]]
-        tmp = [None, None, []]
-        tmp[0] = self.PresentationContextID
-        tmp[1] = self.AbstractTransferSyntaxSubItems[0].ToParams()
-        for ii in self.AbstractTransferSyntaxSubItems[1:]:
-            tmp[2].append(ii.ToParams())
-        return tmp
+        # Returns a list of PresentationContext items
+        context = PresentationContext(
+                        self.PresentationContextID,
+                        self.AbstractTransferSyntaxSubItems[0].ToParams())
+
+        for syntax in self.AbstractTransferSyntaxSubItems[1:]:
+            context.add_transfer_syntax(syntax.ToParams())
+        
+        return context
 
     def Encode(self):
         tmp = b''
@@ -1206,21 +1234,27 @@ class PresentationContextItemAC(PDU):
         self.SCP = None
         self.SCU = None
 
-    def FromParams(self, Params):
-        # Params is a list of the form [ID, Response, TransferSyntax].
-        self.PresentationContextID = Params[0]
-        self.ResultReason = Params[1]
+    def FromParams(self, context):
+        """
+        parameters
+        ----------
+        context - list of pynetdicom.utils.PresentationContext
+            A list of the processed presentation contexts
+        """
+        self.PresentationContextID = context.ID
+        self.ResultReason = context.Result
+        
         self.TransferSyntaxSubItem = TransferSyntaxSubItem()
-        self.TransferSyntaxSubItem.FromParams(Params[2])
+        self.TransferSyntaxSubItem.FromParams(context.TransferSyntax[0])
+        
         self.ItemLength = 4 + self.TransferSyntaxSubItem.TotalLength()
 
     def ToParams(self):
-        # Returns a list of the form [ID, Response, TransferSyntax].
-        tmp = [None, None, None]
-        tmp[0] = self.PresentationContextID
-        tmp[1] = self.ResultReason
-        tmp[2] = self.TransferSyntaxSubItem.ToParams()
-        return tmp
+        # Returns a list of PresentationContext items
+        context = PresentationContext(self.PresentationContextID)
+        context.Result = self.ResultReason
+        context.add_transfer_syntax(self.TransferSyntaxSubItem.ToParams())
+        return context
 
     def Encode(self):
         tmp = b''

@@ -28,8 +28,8 @@ from pynetdicom.DIMSEprovider import DIMSEServiceProvider
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.PDU import *
 from pynetdicom.SOPclass import *
+from pynetdicom.utils import PresentationContext
 
 
 logger = logging.getLogger('pynetdicom')
@@ -42,11 +42,20 @@ logger.addHandler(handler)
 
 class ApplicationEntity(threading.Thread):
     """Represents a DICOM application entity
+    
+    As per PS3.7, the DICOM Application Entity (AE) is specified by the 
+    following parts of the DICOM Standard:
+        * PS3.3 IODs: provides data models and attributes used for defining
+            SOP Instances.
+        * PS3.4 Service Classes: defines the set of operations that can be 
+            performed on SOP Instances.
+        * PS3.6 Data Dictionary: contains registry of Data Elements
+        
+    The AE uses the Association and Presentation data services provided by the
+    Upper Layer Service.
 
     Once instantiated, starts a new thread and enters an event loop,
-    where events are association requests from remote AEs. Events
-    trigger callback functions that perform user defined actions based
-    on received events.
+    where events are association requests from remote AEs.
     
     Parameters
     ----------
@@ -73,6 +82,16 @@ class ApplicationEntity(threading.Thread):
         The socket used for connections with remote hosts
     Associations - list of Association
         The associations between the local AE and peer AEs
+    scu_supported_sop - List of SOP Classes
+        The SOP Classes supported when acting as an SCU
+    scp_supported_sop - List of SOP Classes
+        The SOP Classes supported when acting as an SCP
+    transfer_syntaxes - List of pydicom.uid.UID
+        The supported transfer syntaxes
+    presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
+        The presentation context list when acting as an SCU
+    presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
+        The presentation context list when acting as an SCP
     """
     def __init__(self, 
                  AET, 
@@ -82,30 +101,27 @@ class ApplicationEntity(threading.Thread):
                  SupportedTransferSyntax=[ExplicitVRLittleEndian,
                                           ImplicitVRLittleEndian,
                                           ExplicitVRBigEndian],
-                 MaxPDULength=16000):
+                 MaxPDULength=16384):
 
-        self.LocalAE = {'Address': platform.node(), 
-                        'Port': port, 
-                        'AET': AET}
-        self.SupportedSOPClassesAsSCU = SOPSCU
-        self.SupportedSOPClassesAsSCP = SOPSCP
+        self.LocalAE = {'Address': platform.node(), 'Port': port, 'AET': AET}
+        self.scu_supported_sop = SOPSCU
+        self.scp_supported_sop = SOPSCP
     
         # Check and add transfer syntaxes
-        self.SupportedTransferSyntax = []
         if not isinstance(SupportedTransferSyntax, list):
             raise ValueError("SupportedTransferSyntax must be a list of "
                 "pydicom.uid.UID Transfer Syntaxes supported by the AE")
         
-        for transfer_syntax in SupportedTransferSyntax:
+        self.transfer_syntaxes = []
+        for syntax in SupportedTransferSyntax:
             # Check that the transfer_syntax is a pydicom.uid.UID
-            if isinstance(transfer_syntax, UID):
+            if isinstance(syntax, UID):
                 # Check that the UID is one of the valid transfer syntaxes
-                if transfer_syntax.is_transfer_syntax:
-                    self.SupportedTransferSyntax.append(transfer_syntax)
+                if syntax.is_transfer_syntax:
+                    self.transfer_syntaxes.append(syntax)
             else:
                 raise ValueError("Attempted to instantiate Application "
-                    "Entity using invalid transfer syntax pydicom.uid.UID "
-                    "instance: %s" %transfer_syntax)
+                    "Entity using invalid transfer syntax: %s" %syntax)
         
         self.MaxPDULength = MaxPDULength
         self.MaxNumberOfAssociations = 2
@@ -114,8 +130,8 @@ class ApplicationEntity(threading.Thread):
         # terminated
         self.MaxAssociationIdleSeconds = None
         
-        # All three get set in their respective service providers during
-        #   association
+        # All three timeouts are set in their respective service providers 
+        #   during association
         #
         # ACSE timeout: the maximum amount of time (in seconds) that the 
         #   association can be idle before it gets terminated
@@ -127,69 +143,55 @@ class ApplicationEntity(threading.Thread):
         #   DIMSE messages before the association gets released
         self.dimse_timeout = None
         
-        # Build presentation context definition list to be sent to remote AE
-        #   when requesting association.
+        # Build presentation context list to be:
+        #   * sent to remote AE when requesting association
+        #       (presentation_contexts_scu)
+        #   * used to decide whether to accept or reject when remote AE 
+        #       requests association (presentation_contexts_scp)
         #
-        # Each item in the PresentationContextDefinitionList is made up of
-        #   [n, pydicom.UID, [list of Transfer Syntax pydicom.UID]]
-        #   where n is the Presentation Context ID and shall be odd integers
-        #   between 1 and 255
-        # See PS3.8 Sections 7.1.1.13 and 9.3.2.2
-        self.PresentationContextDefinitionList = []
-        for ii, sop_class in enumerate(self.SupportedSOPClassesAsSCU +
-                                             self.SupportedSOPClassesAsSCP):
-            
-            # Must be an odd integer between 1 and 255
-            presentation_context_id = ii * 2 + 1
-            abstract_syntax = None
-            
-            # If supplied SOPClass is already a pydicom.UID class
-            if isinstance(sop_class, UID):
-                abstract_syntax = sop_class
-            
-            # If supplied SOP Class is a UID string, try and see if we can
-            #   create a pydicom UID class from it
-            elif isinstance(sop_class, str):
-                abstract_syntax = UID(sop_class)
-                
-            # If the supplied SOP class is one of the pynetdicom.SOPclass SOP 
-            #   class instances, convert it to pydicom UID 
-            else:
-                abstract_syntax = UID(sop_class.UID)
-            
-            # Add the Presentation Context Definition Item
-            # If we have too many Items, warn and skip the rest
-            if presentation_context_id < 255:
-                self.PresentationContextDefinitionList.append(
-                    [presentation_context_id,
-                     abstract_syntax,
-                     self.SupportedTransferSyntax[:]])
-            else:
-                raise UserWarning("More than 126 supported SOP Classes have "
-                    "been supplied to the Application Entity, but the "
-                    "Presentation Context Definition ID can only be an odd "
-                    "integer between 1 and 255. The remaining SOP Classes will "
-                    "not be included")
-                break
-                
-        # Build acceptable context definition list used to decide
-        #   whether an association from a remote AE will be accepted or
-        #   not. This is based on the SupportedSOPClassesAsSCP and
-        #   SupportedTransferSyntax values set for this AE.
-        self.AcceptablePresentationContexts = []
-        for sop_class in self.SupportedSOPClassesAsSCP:
-            
-            # If our sop_class has any subclasses then add those
-            if sop_class.__subclasses__():
-                for jj in sop_class.__subclasses__():
-                    self.AcceptablePresentationContexts.append(
-                        [jj.UID, 
-                         [x for x in self.SupportedTransferSyntax]])
-            else:
-                self.AcceptablePresentationContexts.append(
-                    [sop_class.UID, 
-                     [x for x in self.SupportedTransferSyntax]])
+        #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
+        self.presentation_contexts_scu = []
+        self.presentation_contexts_scp = []
         
+        for [pc_output, sop_input] in \
+                    [[self.presentation_contexts_scu, self.scu_supported_sop],
+                     [self.presentation_contexts_scp, self.scp_supported_sop]]:
+            
+            for ii, sop_class in enumerate(sop_input):
+                # Must be an odd integer between 1 and 255
+                presentation_context_id = ii * 2 + 1
+                abstract_syntax = None
+                
+                # If supplied SOPClass is already a pydicom.UID class
+                if isinstance(sop_class, UID):
+                    abstract_syntax = sop_class
+                
+                # If supplied SOP Class is a UID string, try and see if we can
+                #   create a pydicom UID class from it
+                elif isinstance(sop_class, str):
+                    abstract_syntax = UID(sop_class)
+                    
+                # If the supplied SOP class is one of the pynetdicom.SOPclass 
+                #   SOP class instances, convert it to pydicom UID 
+                else:
+                    abstract_syntax = UID(sop_class.UID)
+                
+                # Add the Presentation Context Definition Item
+                # If we have too many Items, warn and skip the rest
+                if presentation_context_id < 255:
+                    pc_item = PresentationContext(presentation_context_id,
+                                                  abstract_syntax,
+                                                  self.transfer_syntaxes[:])
+                                                  
+                    pc_output.append(pc_item)
+                else:
+                    raise UserWarning("More than 126 supported SOP Classes "
+                        "have been supplied to the Application Entity, but the "
+                        "Presentation Context Definition ID can only be an odd "
+                        "integer between 1 and 255. The remaining SOP Classes "
+                        "will not be included")
+                    break
+
         # Used to terminate AE
         self.__Quit = False
 
@@ -210,13 +212,13 @@ class ApplicationEntity(threading.Thread):
     def run(self):
         """
         The main threading.Thread loop, it listens for connection attempts
-        on self.local_socket and attempts to Associate with them. 
-        Successful associations get added to self.Associations
+        on `local_socket` and attempts to Associate with them. 
+        Successful associations get added to `Associations`
         """
         
         # If the SCP has no supported SOP Classes then there's no point 
         #   running as a server
-        if self.SupportedSOPClassesAsSCP == []:
+        if self.scp_supported_sop == []:
             logger.info("AE is running as an SCP but no supported SOP Classes "
                 "have been included")
             return
@@ -265,6 +267,7 @@ class ApplicationEntity(threading.Thread):
 
     def QuitOnKeyboardInterrupt(self):
         """
+        When the AE is running it can be killed through a keyboard interrupt
         """
         # must be called from the main thread in order to catch the
         # KeyboardInterrupt exception
@@ -280,7 +283,7 @@ class ApplicationEntity(threading.Thread):
                 # when we logoff.
                 continue
 
-    def request_association(self, ip_address, port, ae_title='ANYSCP'):
+    def request_association(self, ip_address, port, ae_title='ANY-SCP'):
         """Requests association to a remote application entity
         
         When requesting an association the local AE is acting as an SCU and
@@ -398,17 +401,15 @@ class ApplicationEntity(threading.Thread):
     def on_association_requested(self):
         pass
 
-    def on_association_accepted(self, assoc):
+    def on_association_accepted(self, associate_ac_pdu):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is accepted by either the local or peer AE
         
-        The default implementation is used for logging debugging information
-        
         Parameters
         ----------
-        assoc - pynetdicom.Association
-            The Association parameters negotiated between the local and peer AEs
+        associate_ac_pdu - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
+            The A-ASSOCIATE-AC PDU instance received from the peer AE
         """
         pass
 
@@ -416,8 +417,6 @@ class ApplicationEntity(threading.Thread):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is rejected by a peer AE
-        
-        The default implementation is used for logging debugging information
         
         Parameters
         ----------

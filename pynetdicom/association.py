@@ -66,6 +66,10 @@ class Association(threading.Thread):
         'Acceptor' (i.e. SCU or SCP)
     peer_ae - ApplicationEntity
         The peer ApplicationEntity instance
+    require_calling_ae - str
+        If not empty, the calling AE title must match `require_calling_ae`
+    require_called_ae - str
+        If not empty, the called AE title must match `required_called_ae`
     socket - socket.socket
         The socket to use for connections with the peer AE
     supported_sop_classes_scu
@@ -97,6 +101,9 @@ class Association(threading.Thread):
         
         self.ClientSocket = ClientSocket
         self.AE = LocalAE
+        
+        self.require_calling_aet = ''
+        self.require_called_aet = ''
         
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
@@ -214,114 +221,138 @@ class Association(threading.Thread):
         result = None
         diag  = None
         
-        # If the remote AE initiated the Association
+        # If the remote AE initiated the Association then either accept
+        #   or reject it
+        # Rejection reasons: 
+        #   a) DUL user
+        #       0x02 unsupported application context name
+        #   b) DUL ACSE related
+        #       0x01 no reason given
+        #       0x02 protocol version not supported
+        #   c) DUL Presentation related
+        #       0x01 temporary congestion
         if self.mode == 'Acceptor':
-            
-            # needed because of some thread-related problem. To investiguate.
+            # needed because of some thread-related problem. To investigate.
             time.sleep(0.1)
             
-            # If we are already at the limit of the number of associations
-            if len(self.AE.Associations) > self.AE.MaxNumberOfAssociations:
-                # Reject the Association and give the reason
-                result = A_ASSOCIATE_Result_RejectedTransient
-                diag = A_ASSOCIATE_Diag_LocalLimitExceeded
+            # Get A-ASSOCIATE request primitive from the DICOM UL
+            assoc_rq = self.DUL.Receive(Wait=True)
             
-            # Send the Association response via the ACSE
-            assoc = self.ACSE.Accept(self.ClientSocket,
-                                     self.AE.AcceptablePresentationContexts, 
-                                     result=result, 
-                                     diag=diag)
-            
-            if assoc is None:
+            if assoc_rq is None:
                 self.Kill()
                 return
             
-            # Build supported SOP Classes for the Association
-            self.SOPClassesAsSCP = []
-            for context in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCP.append((context[0],
-                                             UID2SOPClass(context[1]), 
-                                             context[2]))
+            ## DUL User Related Rejections
+            #
+            # Calling AE Title not recognised
+            if self.require_calling_aet != '':
+                peer_calling_aet = assoc_rq.CallingAETitle.decode('utf-8').strip()
+                if self.require_calling_aet != peer_calling_aet:
+                    assoc_rj = self.ACSE.Reject(assoc_rq, 0x01, 0x01, 0x03)
+                    self.debug_association_rejected(assoc_rj)
+                    self.AE.on_association_rejected(assoc_rj)
+                    self.Kill()
+                    return
             
-            # No acceptable presentation contexts so abort the association
-            if self.SOPClassesAsSCP == []:
-                logger.info("No Acceptable Presentation Contexts")
-                self.Abort()
+            # Called AE Title not recognised
+            if self.require_called_aet != '':
+                peer_called_aet = assoc_rq.CalledAETitle.decode('utf-8').strip()
+                if self.require_called_aet != peer_called_aet:
+                    assoc_rj = self.ACSE.Reject(assoc_rq, 0x01, 0x01, 0x07)
+                    self.debug_association_rejected(assoc_rj)
+                    self.AE.on_association_rejected(assoc_rj)
+                    self.Kill()
+                    return
+            
+            # DUL Presentation Related Rejections
+            #
+            # Maximum number of associations reached (local-limit-exceeded)
+            if len(self.AE.Associations) > self.AE.MaxNumberOfAssociations:
+                assoc_rj = self.ACSE.Reject(assoc_rq, 0x02, 0x03, 0x02)
+                self.debug_association_rejected(assoc_rj)
+                self.AE.on_association_rejected(assoc_rj)
+                self.Kill()
                 return
-                
-            # Callbacks/Logging
-            self.debug_association_accepted(assoc)
-            self.AE.on_association_accepted(assoc)
-        
-        # If the local AE initiated the Association
-        elif self.mode == 'Requestor':
             
-            # Build role extended negotiation
-            ext = []
-            for ii in self.AE.AcceptablePresentationContexts:
-                tmp = SCP_SCU_RoleSelectionParameters()
-                tmp.SOPClassUID = ii[0]
-                tmp.SCURole = 0
-                tmp.SCPRole = 1
-                ext.append(tmp)
-            
-            # Request an Association via the ACSE
-            ans, response = self.ACSE.Request(
-                                    self.AE.LocalAE, 
-                                    self.RemoteAE,
-                                    self.AE.MaxPDULength,
-                                    self.AE.PresentationContextDefinitionList,
-                                    userspdu=ext)
+            # Determine acceptable presentation contexts
+            # analyse proposed presentation contexts
+            rsp = []
+            self.ACSE.AcceptedPresentationContexts = []
+            # [SOP Class UID, [Transfer Syntax UIDs]]
+            acceptable_sop_classes = [x.AbstractSyntax for x in \
+                                        self.AE.presentation_contexts_scp]
 
-            # Reply from the remote AE
-            if ans:
-                # Callback trigger
-                if 'OnAssociateResponse' in self.AE.__dict__:
-                    self.AE.OnAssociateResponse(ans)
+            # For each presentation context in the association request
+            #   received from the peer AE
+            # Proposed values are from the peer, acceptable values from 
+            #   the local
+            for context in assoc_rq.PresentationContextDefinitionList:
+                if context.AbstractSyntax in acceptable_sop_classes:
+                    acceptable_ts = [x.TransferSyntax for x in \
+                                    self.AE.presentation_contexts_scp if \
+                                    x.ID == context.ID][0]
                     
-                # Callback trigger
-                if response.Result == 'Accepted':
-                    self.debug_association_accepted(response)
-                    self.AE.on_association_accepted(response)
-
-            else:
-                # Callback trigger
-                if response is not None:
-                    self.debug_association_rejected(response)
-                    self.AE.on_association_rejected(response)
-                self.AssociationRefused = True
-                self.DUL.Kill()
-                return
-            
-            # Build supported SOP Classes for the Association
-            self.SOPClassesAsSCU = []
-            for context in self.ACSE.AcceptedPresentationContexts:
-                self.SOPClassesAsSCU.append((context[0],
-                                             UID2SOPClass(context[1]), 
-                                             context[2]))
-            
-            # No acceptable presentation contexts so release the association
-            if self.SOPClassesAsSCU == []:
-                logger.error("No Acceptable Presentation Contexts")
-                self.Abort(0x00)
-                return
-            
-        # Assocation established OK
-        self.AssociationEstablished = True
-        
-        # AE callback trigger
-        self.debug_association_established()
-        self.AE.on_association_established()
-
-        # If acting as an SCP, listen for further messages on the Association
-        while not self._Kill:
-            time.sleep(0.001)
+                    # We accept the first matching transfer syntax
+                    for transfer_syntax in acceptable_ts:
+                        # the local transfer syntax is used in order to 
+                        #   enforce preference based on position
+                        matching_ts = False
+                        if transfer_syntax in context.TransferSyntax:
+                            rsp.append((context.ID, 0, transfer_syntax))
+                            temp_context = PresentationContext(
+                                                    context.ID, 
+                                                    context.AbstractSyntax, 
+                                                    [transfer_syntax])
+                            temp_context.Result = 0x00
+                            self.ACSE.AcceptedPresentationContexts.append(temp_context)
+                            
+                            matching_ts = True
+                            break
+                    
+                    if not matching_ts:
+                        # Refuse sop class because of TS not supported
+                        temp_context = PresentationContext(
+                                                    context.ID, 
+                                                    context.AbstractSyntax, 
+                                                    [transfer_syntax])
+                        temp_context.Result = 0x01
+                        self.ACSE.AcceptedPresentationContexts.append(temp_context)
                 
-            if self.mode == 'Acceptor':
-
+                else:
+                    # Refuse sop class because of SOP class not supported
+                    temp_context = PresentationContext(
+                                                    context.ID, 
+                                                    context.AbstractSyntax, 
+                                                    [transfer_syntax])
+                    temp_context.Result = 0x01
+                    self.ACSE.AcceptedPresentationContexts.append(temp_context)
+            
+            # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
+            assoc_ac = self.ACSE.Accept(assoc_rq)
+            
+            # Callbacks/Logging
+            self.debug_association_accepted(assoc_ac)
+            self.AE.on_association_accepted(assoc_ac)
+            
+            if assoc_ac is None:
+                self.Kill()
+                return
+            
+            if self.ACSE.AcceptedPresentationContexts == []:
+                # No valid presentation contexts, abort the association
+                self.ACSE.Abort(0x02, 0x00)
+                self.Kill()
+                return
+            
+            # Assocation established OK
+            self.AssociationEstablished = True
+            
+            while not self._Kill:
+                time.sleep(0.001)
+                
                 # Check with the DIMSE provider for incoming messages
-                msg, pcid = self.DIMSE.Receive(Wait=False, 
-                                               dimse_timeout=self.dimse_timeout)
+                msg, pcid = self.DIMSE.Receive(False, self.dimse_timeout)
+                
                 if msg:
                     # DIMSE message received
                     uid = msg.AffectedSOPClassUID
@@ -330,12 +361,11 @@ class Association(threading.Thread):
                     obj = UID2SOPClass(uid.value)()
                     
                     matching_sop = False
-                    for sop_class in self.SOPClassesAsSCP:
-                        # (pc id, SOPClass(), TransferSyntax)
-                        if sop_class[0] == pcid:
-                            obj.pcid = sop_class[0]
-                            obj.sopclass = sop_class[1]
-                            obj.transfersyntax = sop_class[2]
+                    for sop_class in self.ACSE.AcceptedPresentationContexts:
+                        if sop_class.ID == pcid:
+                            obj.pcid = sop_class.ID
+                            obj.sopclass = sop_class.AbstractSyntax
+                            obj.transfersyntax = sop_class.TransferSyntax
                             
                             matching_sop = True
                     
@@ -347,7 +377,7 @@ class Association(threading.Thread):
                     obj.DIMSE = self.DIMSE
                     obj.ACSE = self.ACSE
                     obj.AE = self.AE
-                    obj.assoc = assoc
+                    obj.assoc = assoc_ac
                     
                     # Run SOPClass in SCP mode
                     obj.SCP(msg)
@@ -365,7 +395,6 @@ class Association(threading.Thread):
                     self.debug_association_aborted()
                     self.AE.on_association_aborted()
                     self.Kill()
-                    return
 
                 # Check if the DULServiceProvider thread is still running
                 if not self.DUL.isAlive():
@@ -374,30 +403,118 @@ class Association(threading.Thread):
                 # Check if idle timer has expired
                 if self.DUL.idle_timer_expired():
                     self.Kill()
-                    
-            if self.mode == 'Requestor':
-                # Check for release request
-                if self.ACSE.CheckRelease():
-                    # Callback trigger
-                    self.debug_association_released()
-                    self.AE.on_association_released()
-                    self.Kill()
+        
+        # If the local AE initiated the Association
+        elif self.mode == 'Requestor':
+            
+            if self.AE.presentation_contexts_scu == []:
+                logger.error("No presentation contexts set for the SCU")
+                self.Kill()
+                return
+            
+            # Build role extended negotiation - needs updating
+            #
+            # SCP/SCU Role Negotiation (optional)
+            ext = []
+            for context in self.AE.presentation_contexts_scu:
+                tmp = SCP_SCU_RoleSelectionParameters()
+                tmp.SOPClassUID = context.AbstractSyntax
+                tmp.SCURole = 0
+                tmp.SCPRole = 1
+                
+                ext.append(tmp)
+            
+            # Request an Association via the ACSE
+            is_accepted, assoc_rsp = self.ACSE.Request(
+                                        self.AE.LocalAE, 
+                                        self.RemoteAE,
+                                        self.AE.MaxPDULength,
+                                        self.AE.presentation_contexts_scu,
+                                        userspdu=ext)
 
-                # Check for abort
-                if self.ACSE.CheckAbort():
-                    # Callback trigger
-                    self.debug_association_aborted()
-                    self.AE.on_association_aborted()
-                    self.Kill()
+            # Association was accepted or rejected
+            if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
+                # Association was accepted
+                if is_accepted:
+                    self.debug_association_accepted(assoc_rsp)
+                    self.AE.on_association_accepted(assoc_rsp)
+                    
+                    # Build supported SOP Classes for the Association
+                    self.SOPClassesAsSCU = []
+                    for context in self.ACSE.presentation_contexts_accepted:
+                        self.SOPClassesAsSCU.append(
+                                       (context.ID,
+                                        UID2SOPClass(context.AbstractSyntax), 
+                                        context.TransferSyntax[0]))
+                    
+                    if self.ACSE.presentation_contexts_accepted == []:
+                        self.ACSE.Abort(0x02, 0x00)
+                        self.Kill()
+                        return
+                        
+                    """
+                    # No acceptable presentation contexts so release the association
+                    # Is it even possible to get here without an accepted context?
+                    if self.SOPClassesAsSCU == []:
+                        logger.error("No Acceptable Presentation Contexts")
+                        self.Abort(0x00)
+                        return
+                    """
+                
+                    # Assocation established OK
+                    self.AssociationEstablished = True
+                    
+                    # This seems like it should be event driven rather than
+                    #   driven by a loop
+                    #
+                    # Listen for further messages from the peer
+                    while not self._Kill:
+                        time.sleep(0.001)
+                        
+                        # Check for release request
+                        if self.ACSE.CheckRelease():
+                            # Callback trigger
+                            self.debug_association_released()
+                            self.AE.on_association_released()
+                            self.Kill()
+                            return
+
+                        # Check for abort
+                        if self.ACSE.CheckAbort():
+                            # Callback trigger
+                            self.debug_association_aborted()
+                            self.AE.on_association_aborted()
+                            self.Kill()
+                            return
+                            
+                        # Check if the DULServiceProvider thread is still running
+                        if not self.DUL.isAlive():
+                            self.Kill()
+                            return
+
+                        # Check if idle timer has expired
+                        if self.DUL.idle_timer_expired():
+                            self.Kill()
+                            return
+                
+                # Association was rejected
+                else:
+                    self.debug_association_rejected(assoc_rsp)
+                    self.AE.on_association_rejected(assoc_rsp)
+                    
+                    self.AssociationRefused = True
+                    self.DUL.Kill()
                     return
-                    
-                # Check if the DULServiceProvider thread is still running
-                if not self.DUL.isAlive():
-                    self.Kill()
-
-                # Check if idle timer has expired
-                if self.DUL.idle_timer_expired():
-                    self.Kill()
+            
+            # Association was aborted
+            elif isinstance(assoc_rsp, A_ABORT_ServiceParameters) or \
+                  isinstance(assoc_rsp, A_P_ABORT_ServiceParameters):
+                self.debug_association_aborted(assoc_rsp)
+                self.AE.on_association_aborted(assoc_rsp)
+                
+                self.AssociationAborted = True
+                self.DUL.Kill()
+                return
 
     @property
     def Established(self):
@@ -420,8 +537,9 @@ class Association(threading.Thread):
                 found_match = True
                 
         if not found_match:
-            raise ValueError("'%s' is not listed as one of the AE's "
-                    "supported SOP Classes" %sop_class)
+            logger.error("'%s' is not one of the AE's supported SOP Classes" \
+                                                    %UID(sop_class.UID))
+            return None
             
         sop_class.maxpdulength = self.ACSE.MaxPDULength
         sop_class.DIMSE = self.DIMSE
@@ -528,10 +646,6 @@ class Association(threading.Thread):
 
 
     # Association logging/debugging functions
-    def debug_association_established(self):
-        #logger.info('Association Established')
-        pass
-    
     def debug_association_requested(self):
         pass
     
@@ -544,7 +658,7 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        assoc - pynetdicom.Association
+        assoc - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameter
             The Association parameters negotiated between the local and peer AEs
         
         #max_send_pdv = associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
@@ -618,7 +732,7 @@ class Association(threading.Thread):
         """
         pass
 
-    def debug_association_rejected(self, associate_rj_pdu):
+    def debug_association_rejected(self, assoc_primitive):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is rejected by a peer AE
@@ -627,15 +741,15 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+        assoc_primitive - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameter
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
         
         # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
         #   for information on the result and diagnostic information
-        source = associate_rj_pdu.ResultSource
-        result = associate_rj_pdu.Result
-        reason = associate_rj_pdu.Diagnostic
+        source = assoc_primitive.ResultSource
+        result = assoc_primitive.Result
+        reason = assoc_primitive.Diagnostic
         
         source_str = { 1 : 'Service User',
                        2 : 'Service Provider (ACSE)',

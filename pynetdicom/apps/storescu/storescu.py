@@ -14,8 +14,9 @@ import sys
 
 from pydicom import read_file
 
-from pynetdicom.applicationentity import AE
-from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass
+from pynetdicom.applicationentity import ApplicationEntity as AE
+from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass, \
+                                  MRImageStorageSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
@@ -126,10 +127,14 @@ transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
+#class TestStorageSOPClass(StorageServiceClass):
+#    UID = '1.2.840.10008.5.1.4.1.1.2.5'
+
 # Bind to port 0, OS will pick an available port
 ae = AE(args.calling_aet,
         0,
-        [CTImageStorageSOPClass], 
+        [CTImageStorageSOPClass],
+        #[TestStorageSOPClass, MRImageStorageSOPClass],
         [],
         SupportedTransferSyntax=transfer_syntax)
 
@@ -151,14 +156,18 @@ if assoc.Established:
             elem.VR = 'US'
             elem.value = int.from_bytes(elem.value, byteorder=byte_order)
         if elem.VR == 'OB or OW':
+            # (7fe0,0010) shall be OW
+            # (60xx,3000) shall be OW
+            # (5400,1010) shall be OW
+            # (0028,1201) (0028,1202) (0028,1203) (0028, 1204) shall be OW
             logger.debug("Setting undefined VR of %s (%04x, %04x) to 'OW'" 
                %(elem_name, elem_group, elem_element))
             elem.VR = 'OW'
     
     status = assoc.send_c_store(dataset)
     
-    if status is not None:
-        assoc.Release()
+    assoc.Release()
+
 
 # Quit
 ae.Quit()
