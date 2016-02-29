@@ -777,9 +777,16 @@ def AA_1(dul):
     # Send A-ABORT PDU (service-user source) and start (or restart
     # if already started) ARTIM timer.
     dul.pdu = A_ABORT_PDU()
-    # CHECK THIS ...
-    dul.pdu.AbortSource = 1
-    dul.pdu.ReasonDiag = 0
+    dul.pdu.AbortSource = 0x00
+    
+    # The reason for the abort should really be roughly defined by the 
+    #   current state of the State Machine
+    if dul.state_machine.current_state = 'Sta2':
+        # Unexpected PDU
+        dul.pdu.ReasonDiag = 0x02
+    else:
+        # Reason not specified
+        dul.pdu.ReasonDiag = 0x00
     
     dul.pdu.FromParams(dul.primitive)
     
