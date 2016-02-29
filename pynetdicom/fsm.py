@@ -353,7 +353,6 @@ def AE_8(dul):
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     dul.pdu = A_ASSOCIATE_RJ_PDU()
-    
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
@@ -361,6 +360,8 @@ def AE_8(dul):
     dul.association.ACSE.debug_send_associate_rj(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
+    
+    dul.artim_timer.start()
     
     return 'Sta13'
 
