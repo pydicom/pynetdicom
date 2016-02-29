@@ -280,13 +280,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
          self.bCalledAETitle,
          self.bCallingAETitle) = unpack('> B B I H H 16s 16s', s.read(42))
         s.read(32)
-        
-        if self.ProtocolVersion != 0x0001:
-            logger.error("Receiving Association failed: DUL Unsupported peer "
-                "protocol 0x0000; expected 0x0001")
-            raise ValueError("Receiving Association failed: DUL Unsupported peer "
-                "protocol 0x0000; expected 0x0001")
-        
+
         while 1:
             type = NextType(s)
             
@@ -2050,6 +2044,7 @@ class SCP_SCU_RoleSelectionSubItem:
          self.ItemLength, 
          self.UIDLength) = unpack('> B B H H', Stream.read(6))
         self.SOPClassUID = Stream.read(self.UIDLength)
+        print(type(self.SOPClassUID))
         (self.SCURole, self.SCPRole) = unpack('B B', Stream.read(2))
 
     def TotalLength(self):
@@ -2075,7 +2070,12 @@ class SCP_SCU_RoleSelectionSubItem:
         pydicom.uid.UID
             The SOP Class UID the Requestor AE is negotiating the role for
         """
-        return UID(self.SOPClassUID)
+        if isinstance(self.SOPClassUID, bytes):
+            return UID(self.SOPClassUID.decode('utf-8'))
+        elif isinstance(self.SOPClassUID, UID):
+            return self.SOPClassUID
+        else:
+            return UID(self.SOPClassUID)
         
     @property
     def SCU(self):

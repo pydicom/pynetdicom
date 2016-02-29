@@ -262,7 +262,13 @@ def AE_6(dul):
     """
     Association establishment action AE-6
 
-    On receiving an A-ASSOCIATE-RQ either accept or reject the association
+    On receiving an A-ASSOCIATE-RQ PDU from the peer then stop the ARTIM timer
+    and then either 
+        * issue an A-ASSOCIATE indication primitive if the -RQ is acceptable or 
+        * issue an A-ASSOCIATE-RJ PDU to the peer and start the ARTIM timer
+
+    This is a lower-level DUL Service Provider initiated rejection - for example
+        this could be where the protocol version is checked
 
     State-event triggers: Sta2 + Evt6
 
@@ -282,19 +288,35 @@ def AE_6(dul):
     # Stop ARTIM timer
     dul.artim_timer.stop()
 
-    # If A-ASSOCIATE-RQ acceptable by service dul
-    if True:
-        # Issue A-ASSOCIATE indication primitive and move to Sta3
-        dul.to_user_queue.put(dul.primitive)
-
-        return 'Sta3'
-    else:
-        # Issue A-ASSOCIATE-RJ PDU, start ARTIM timer and move to Sta13
-        raise NotImplementedError('State machine - AE-6 A-ASSOCIATE-RQ not '
-            'acceptable, but issuance of A-ASSOCIATE-RJ not implemented')
+    # If A-ASSOCIATE-RQ not acceptable by service dul provider
+    #   Then set reason and send -RJ PDU back to peer
+    if dul.pdu.ProtocolVersion != 0x0001:
+        logger.error("Receiving Association failed: Unsupported peer protocol "
+                "version '0x%04x' (0x0001 expected)" %dul.pdu.ProtocolVersion)
         
+        # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
+        dul.primitive.Result = 0x01
+        dul.primitive.ResultSource = 0x02
+        dul.primitive.Diagnostic = 0x02
+        
+        dul.pdu = A_ASSOCIATE_RJ_PDU()
+        dul.pdu.FromParams(dul.primitive)
+        
+        # Callback
+        dul.local_ae.on_send_associate_rj(dul.pdu)
+        dul.association.ACSE.debug_send_associate_rj(dul.pdu)
+
+        dul.scu_socket.send(dul.pdu.Encode())
+
         dul.artim_timer.start()
+
         return 'Sta13'
+
+    # If A-ASSOCIATE-RQ acceptable by service dul provider
+    #   issue A-ASSOCIATE indication primitive and move to Sta3
+    dul.to_user_queue.put(dul.primitive)
+
+    return 'Sta3'
 
 def AE_7(dul):
     """
