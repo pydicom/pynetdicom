@@ -153,13 +153,13 @@ class StorageServiceClass(ServiceClass):
     def SCP(self, msg):
         status = None
         
-        try:
-            DS = decode(msg.DataSet,
+        #try:
+        DS = decode(msg.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
-        except:
-            logger.error("StorageServiceClass failed to decode the dataset")
-            status = self.CannotUnderstand
+        #except:
+        #logger.error("StorageServiceClass failed to decode the dataset")
+        #status = self.CannotUnderstand
             
         
         # make response

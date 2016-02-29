@@ -167,8 +167,8 @@ class Association(threading.Thread):
                 found_match = True
                 
         if not found_match:
-            raise ValueError("'%s' is not listed as one of the AE's "
-                    "supported SOP Classes" %obj.__class__.__name__)
+            logger.error("'%s' is not one of the AE's supported SOP Classes" \
+                                                    %obj.__class__.__name__)
             
         
         #try:
@@ -365,7 +365,7 @@ class Association(threading.Thread):
                         if sop_class.ID == pcid:
                             obj.pcid = sop_class.ID
                             obj.sopclass = sop_class.AbstractSyntax
-                            obj.transfersyntax = sop_class.TransferSyntax
+                            obj.transfersyntax = sop_class.TransferSyntax[0]
                             
                             matching_sop = True
                     
@@ -527,8 +527,10 @@ class Association(threading.Thread):
         # Select appropriate SOP Class for dataset
         data_sop = dataset.SOPClassUID.__repr__()[1:-1]
         sop_class = UID2SOPClass(data_sop)
+        
         found_match = False
         for scu_sop_class in self.SOPClassesAsSCU:
+            print(scu_sop_class)
             if scu_sop_class[1] == sop_class:
                 sop_class.pcid = scu_sop_class[0]
                 sop_class.sopclass = scu_sop_class[1]
