@@ -323,7 +323,7 @@ class Association(threading.Thread):
                     temp_context = PresentationContext(
                                                     context.ID, 
                                                     context.AbstractSyntax, 
-                                                    [transfer_syntax])
+                                                    context.TransferSyntax)
                     temp_context.Result = 0x01
                     self.ACSE.AcceptedPresentationContexts.append(temp_context)
             
@@ -416,13 +416,13 @@ class Association(threading.Thread):
             #
             # SCP/SCU Role Negotiation (optional)
             ext = []
-            for context in self.AE.presentation_contexts_scu:
-                tmp = SCP_SCU_RoleSelectionParameters()
-                tmp.SOPClassUID = context.AbstractSyntax
-                tmp.SCURole = 0
-                tmp.SCPRole = 1
-                
-                ext.append(tmp)
+            #for context in self.AE.presentation_contexts_scu:
+            #    tmp = SCP_SCU_RoleSelectionParameters()
+            #    tmp.SOPClassUID = context.AbstractSyntax
+            #    tmp.SCURole = 0
+            #    tmp.SCPRole = 1
+            #    
+            #    ext.append(tmp)
             
             # Request an Association via the ACSE
             is_accepted, assoc_rsp = self.ACSE.Request(
@@ -786,6 +786,6 @@ class Association(threading.Thread):
     def debug_association_released(self):
         logger.info('Association Released')
         
-    def debug_association_aborted(self):
+    def debug_association_aborted(self, abort_primitive=None):
         logger.info('Association Aborted')
 
