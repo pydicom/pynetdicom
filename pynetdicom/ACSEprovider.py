@@ -167,7 +167,7 @@ class ACSEServiceProvider(object):
         #   A-ABORT or A-P-ABORT request primitive
         #
         assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
-        
+
         # Association accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
             # Accepted
@@ -216,6 +216,8 @@ class ACSEServiceProvider(object):
                 return False, assoc_rsp
             
             # Invalid Result value
+            elif assoc_rsp.Result is None:
+                return False, assoc_rsp
             else:
                 logger.error("ACSE received an invalid result value from "
                     "the peer AE: '%s'" %assoc_rsp.Result)

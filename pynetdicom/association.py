@@ -121,8 +121,6 @@ class Association(threading.Thread):
         self.AssociationEstablished = False
         self.AssociationRefused = None
         
-        self.established = False
-        
         self.dimse_timeout = dimse_timeout
         self.acse_timeout = acse_timeout
         
@@ -515,6 +513,12 @@ class Association(threading.Thread):
                 self.AssociationAborted = True
                 self.DUL.Kill()
                 return
+            
+            # Association failed for any other reason (No peer, etc)
+            else:
+                self.DUL.Kill()
+                return
+                
 
     @property
     def Established(self):
