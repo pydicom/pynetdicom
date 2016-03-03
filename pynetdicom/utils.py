@@ -76,6 +76,10 @@ class PresentationContext(object):
         
         
 class AssociationInformation(object):
+    """
+    An interface helper for storing the Association information, namely
+    the A-ASSOCIATE request and response primitives
+    """
     def __init__(self, a_assoc_rq, a_assoc_ac):
         self.request_pdu = a_assoc_rq
         self.accept_pdu = a_assoc_ac
@@ -87,7 +91,7 @@ class AssociationInformation(object):
         
     def _build_accepted_presentation_contexts(self):
         # Get accepted presentation contexts
-        self.presentation_contexts_accepted = []
+        self.accepted_presentation_contexts = []
         for context in assoc_rsp.PresentationContextDefinitionResultList:
             # If result is 'Accepted'
             if context.Result == 0:
@@ -107,97 +111,4 @@ class AssociationInformation(object):
                                                    transfer_syntax)
             
             # Add it to the list of accepted presentation contexts
-            self.presentation_contexts_accepted.append(accepted_context)
-    
-    
-    # A lot of these props are already set in the PDUs
-    @property
-    def ApplicationContext(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.2
-        
-        Returns
-        -------
-        pydicom.uid.UID
-            The Acceptor AE's Application Context Name
-        """
-        for ii in self.VariableItems:
-            if isinstance(ii, ApplicationContextItem):
-                return UID(ii.ApplicationContextName.decode('utf-8'))
-        
-    @property
-    def PresentationContext(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.13
-        
-        Returns
-        -------
-        list of pynetdicom.PDU.PresentationContextItemAC
-            The Acceptor AE's Presentation Context objects. Each of the 
-            Presentation Context items instances in the list has been extended
-            with two variables for tracking if SCP/SCU role negotiation has been 
-            accepted:
-                SCP: Defaults to None if not used, 0 or 1 if used
-                SCU: Defaults to None if not used, 0 or 1 if used
-        """
-        contexts = []
-        for ii in self.VariableItems[1:]:
-            if isinstance(ii, PresentationContextItemAC):
-                # We determine if there are any SCP/SCU Role Negotiations
-                #   for each Transfer Syntax in each Presentation Context
-                #   and if so we set the SCP and SCU attributes
-                if self.UserInformation.RoleSelection is not None:
-                    # Iterate through the role negotiations looking for a 
-                    #   SOP Class match to the Abstract Syntaxes
-                    for role in self.UserInformation.RoleSelection:
-                        pass
-                        # FIXME: Pretty sure -AC has no Abstract Syntax
-                        #   need to check against standard
-                        #for sop_class in ii.AbstractSyntax:
-                        #    if role.SOPClass == sop_class:
-                        #        ii.SCP = role.SCP
-                        #        ii.SCU = role.SCU
-                contexts.append(ii)
-        return contexts
-        
-    @property
-    def UserInformation(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.6
-        
-        Returns
-        -------
-        pynetdicom.PDU.UserInformationItem
-            The Acceptor AE's User Information object
-        """
-        for ii in self.VariableItems[1:]:
-            if isinstance(ii, UserInformationItem):
-                return ii
-        
-    @property
-    def CalledAETitle(self):
-        """
-        While the standard says this value should match the A-ASSOCIATE-RQ
-        value there is no guarantee and this should not be used as a check
-        value
-        
-        Returns
-        -------
-        str
-            The Requestor's AE Called AE Title
-        """
-        return self.Reserved3.decode('utf-8')
-    
-    @property
-    def CallingAETitle(self):
-        """
-        While the standard says this value should match the A-ASSOCIATE-RQ
-        value there is no guarantee and this should not be used as a check
-        value
-        
-        Returns
-        -------
-        str
-            The Requestor's AE Calling AE Title
-        """
-        return self.Reserved4.decode('utf-8')
+            self.accepted_presentation_contexts.append(accepted_context)

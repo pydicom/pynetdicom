@@ -126,8 +126,8 @@ class ApplicationEntity(threading.Thread):
         self.MaxPDULength = MaxPDULength
         self.MaxNumberOfAssociations = 2
         
-        # maximum amount of time this association can be idle before it gets
-        # terminated
+        # Maximum amount of time this association can be idle before it gets
+        #   terminated
         self.MaxAssociationIdleSeconds = None
         
         # All three timeouts are set in their respective service providers 
@@ -345,10 +345,6 @@ class ApplicationEntity(threading.Thread):
 
         return assoc
 
-    def RequestAssociation(self, remoteAE):
-        return self.request_association(remoteAE['Port'], 
-                                         remoteAE['Address'], 
-                                         remoteAE['AET'])
 
     # Timeout setters
     def set_network_timeout(self, timeout):
@@ -395,13 +391,10 @@ class ApplicationEntity(threading.Thread):
 
 
     # High-level Association related callbacks
-    def on_association_established(self):
+    def on_association_requested(self, associate_primitive):
         pass
 
-    def on_association_requested(self):
-        pass
-
-    def on_association_accepted(self, associate_ac_pdu):
+    def on_association_accepted(self, associate_primitive):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is accepted by either the local or peer AE
@@ -413,7 +406,7 @@ class ApplicationEntity(threading.Thread):
         """
         pass
 
-    def on_association_rejected(self, associate_rj_pdu):
+    def on_association_rejected(self, associate_primitive):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is rejected by a peer AE
@@ -428,7 +421,7 @@ class ApplicationEntity(threading.Thread):
     def on_association_released(self):
         pass
 
-    def on_association_aborted(self):
+    def on_association_aborted(self, abort_primitive):
         pass
 
 
@@ -436,7 +429,7 @@ class ApplicationEntity(threading.Thread):
     def on_send_associate_rq(self, a_associate_rq):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ASSOCIATE-RQ to 
+        immediately prior to encoding and sending an A-ASSOCIATE-RQ PDU to 
         a peer AE
         
         Called by fsm.StateMachine::do_action(AE_2)
@@ -451,7 +444,8 @@ class ApplicationEntity(threading.Thread):
     def on_send_associate_ac(self, a_associate_ac):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
+        immediately prior to encoding and sending an A-ASSOCIATE-AC PDU to a
+        peer AE
         
         Called by fsm.StateMachine::do_action(AE_7)
         
@@ -465,7 +459,8 @@ class ApplicationEntity(threading.Thread):
     def on_send_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
+        immediately prior to encoding and sending an A-ASSOCIATE-RJ PDU to a 
+        peer AE
         
         Called by fsm.StateMachine::do_action(AE_8)
         
@@ -479,7 +474,7 @@ class ApplicationEntity(threading.Thread):
     def on_send_data_tf(self, p_data_tf):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an P-DATA-TF to a peer AE
+        immediately prior to encoding and sending an P-DATA-TF PDU to a peer AE
         
         Called by fsm.StateMachine::do_action(DT_1 or AR_7)
         
@@ -493,7 +488,8 @@ class ApplicationEntity(threading.Thread):
     def on_send_release_rq(self, a_release_rq):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
+        immediately prior to encoding and sending an A-RELEASE-RQ  PDU to a 
+        peer AE
         
         Called by fsm.StateMachine::do_action(AR_1)
         
@@ -507,7 +503,8 @@ class ApplicationEntity(threading.Thread):
     def on_send_release_rp(self, a_release_rp):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-RELEASE-RP to a peer AE
+        immediately prior to encoding and sending an A-RELEASE-RP PDU to a 
+        peer AE
         
         Called by fsm.StateMachine::do_action(AR_4 or AR_9)
         
@@ -521,7 +518,7 @@ class ApplicationEntity(threading.Thread):
     def on_send_abort(self, a_abort):
         """
         Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ABORT to a peer AE
+        immediately prior to encoding and sending an A-ABORT PDU to a peer AE
         
         Called by fsm.StateMachine::do_action(AA_1 or AA_7 or AA_8)
         

@@ -1004,13 +1004,17 @@ def AA_8(dul):
     str
         Sta13, the next state of the state machine
     """
-    # Send A-ABORT PDU (service-dul source), issue and A-P-ABORT
+    # Send A-ABORT PDU (service-dul source), issue A-P-ABORT
     # indication, and start ARTIM timer.
     dul.pdu = A_ABORT_PDU()
-    dul.pdu.Source = 2
-    dul.pdu.ReasonDiag = 0
+    dul.pdu.AbortSource = 0x02
+    dul.pdu.ReasonDiag = 0x00
     
-    if dul.peer_socket:
+    dul.primitive.ResultSource = 0x02
+    dul.primitive.Result = 0x01
+    dul.primitive.Diagnostic = 0x01
+    
+    if dul.scu_socket:
         # Callback
         dul.local_ae.on_send_abort(dul.pdu)
         dul.association.ACSE.debug_send_abort(dul.pdu)
