@@ -66,10 +66,6 @@ class Association(threading.Thread):
         'Acceptor' (i.e. SCU or SCP)
     peer_ae - ApplicationEntity
         The peer ApplicationEntity instance
-    require_calling_ae - str
-        If not empty, the calling AE title must match `require_calling_ae`
-    require_called_ae - str
-        If not empty, the called AE title must match `required_called_ae`
     socket - socket.socket
         The socket to use for connections with the peer AE
     supported_sop_classes_scu
@@ -81,8 +77,15 @@ class Association(threading.Thread):
                        ClientSocket=None, 
                        RemoteAE=None, 
                        acse_timeout=30,
-                       dimse_timeout=None):
+                       dimse_timeout=None,
+                       max_pdu=16382,
+                       ext_neg=None):
         
+        # Why is the AE in charge of supplying the client socket?
+        #   Hmm, perhaps because we can have multiple connections on the same
+        #       listen port. Does that even work? Probably needs testing
+        #   As SCP: supply port number to listen on (listen_port !=None)
+        #   As SCU: supply addr/port to make connection on (peer_ae != None)
         if [ClientSocket, RemoteAE] == [None, None]:
             raise ValueError("Association can't be initialised with both "
                                         "ClientSocket and RemoteAE parameters")
@@ -101,17 +104,14 @@ class Association(threading.Thread):
         
         self.ClientSocket = ClientSocket
         self.AE = LocalAE
-        
-        self.require_calling_aet = ''
-        self.require_called_aet = ''
-        
+
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
         self.DUL = DULServiceProvider(ClientSocket,
-                            dul_timeout=self.AE.dul_timeout,
-                            acse_timeout=acse_timeout,
-                            local_ae=LocalAE,
-                            assoc=self)
+                                      dul_timeout=self.AE.network_timeout,
+                                      acse_timeout=acse_timeout,
+                                      local_ae=LocalAE,
+                                      assoc=self)
                             
         self.RemoteAE = RemoteAE
         
@@ -121,8 +121,28 @@ class Association(threading.Thread):
         self.AssociationEstablished = False
         self.AssociationRefused = None
         
+        # Association status values
+        #   accepted: Local or peer AE sent A-ASSOCIATE-AC PDU
+        #   rejected: Local or peer AE sent A-ASSOCIATE-RJ PDU
+        #   aborted: Local or peer AE sent A-ABORT or A-P-ABORT
+        #   released: Local or peer AE sent A-RELEASE
+        #   failed: Peer AE failed to respond to A-ASSOCIATE-RQ PDU for 
+        #       whatever reason
+        self.accepted = False
+        self.rejected = False
+        self.aborted = False
+        self.released = False
+        self.failed = False
+        
+        # Timeouts for the DIMSE and ACSE service providers
         self.dimse_timeout = dimse_timeout
         self.acse_timeout = acse_timeout
+        
+        # Maximum PDU sizes (in bytes)
+        self.local_max_pdu = max_pdu
+        self.peer_max_pdu = None
+        
+        self.ext_neg = ext_neg
         
         self._Kill = False
         
@@ -188,10 +208,14 @@ class Association(threading.Thread):
         self.AssociationEstablished = False
         while not self.DUL.Stop():
             time.sleep(0.001)
+            
 
     def Release(self):
         """
         Release the association
+        
+        There's a bug somewhat related to this, during ACSE.Release something
+        triggers self.Kill() before the Release is finished
         """
         self.ACSE.Release()
         self.Kill()
@@ -202,10 +226,10 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        reason - in
-            The reason to abort the association. Need to find a list of reasons
+        reason - int
+            The reason for aborting the association. Need to find a list of reasons
         """
-        self.ACSE.Abort(reason)
+        self.ACSE.Abort(source=0x02, reason=reason)
         self.Kill()
 
     def run(self):
@@ -243,9 +267,9 @@ class Association(threading.Thread):
             ## DUL User Related Rejections
             #
             # Calling AE Title not recognised
-            if self.require_calling_aet != '':
+            if self.AE.require_calling_aet != '':
                 peer_calling_aet = assoc_rq.CallingAETitle.decode('utf-8').strip()
-                if self.require_calling_aet != peer_calling_aet:
+                if self.AE.require_calling_aet != peer_calling_aet:
                     assoc_rj = self.ACSE.Reject(assoc_rq, 0x01, 0x01, 0x03)
                     self.debug_association_rejected(assoc_rj)
                     self.AE.on_association_rejected(assoc_rj)
@@ -253,9 +277,9 @@ class Association(threading.Thread):
                     return
             
             # Called AE Title not recognised
-            if self.require_called_aet != '':
+            if self.AE.require_called_aet != '':
                 peer_called_aet = assoc_rq.CalledAETitle.decode('utf-8').strip()
-                if self.require_called_aet != peer_called_aet:
+                if self.AE.require_called_aet != peer_called_aet:
                     assoc_rj = self.ACSE.Reject(assoc_rq, 0x01, 0x01, 0x07)
                     self.debug_association_rejected(assoc_rj)
                     self.AE.on_association_rejected(assoc_rj)
@@ -265,7 +289,7 @@ class Association(threading.Thread):
             # DUL Presentation Related Rejections
             #
             # Maximum number of associations reached (local-limit-exceeded)
-            if len(self.AE.Associations) > self.AE.MaxNumberOfAssociations:
+            if len(self.AE.active_associations) > self.AE.maximum_associations:
                 assoc_rj = self.ACSE.Reject(assoc_rq, 0x02, 0x03, 0x02)
                 self.debug_association_rejected(assoc_rj)
                 self.AE.on_association_rejected(assoc_rj)
@@ -395,7 +419,8 @@ class Association(threading.Thread):
                     self.Kill()
 
                 # Check if the DULServiceProvider thread is still running
-                if not self.DUL.isAlive():
+                #   DUL.is_alive() is inherited from threading.thread
+                if not self.DUL.is_alive():
                     self.Kill()
 
                 # Check if idle timer has expired
@@ -422,13 +447,17 @@ class Association(threading.Thread):
             #    
             #    ext.append(tmp)
             
+            local_ae = {'Address' : self.AE.address,
+                        'Port'    : self.AE.port,
+                        'AET'     : self.AE.ae_title}
+            
             # Request an Association via the ACSE
             is_accepted, assoc_rsp = self.ACSE.Request(
-                                        self.AE.LocalAE, 
+                                        local_ae, 
                                         self.RemoteAE,
-                                        self.AE.MaxPDULength,
+                                        self.local_max_pdu,
                                         self.AE.presentation_contexts_scu,
-                                        userspdu=ext)
+                                        userspdu=self.ext_neg)
 
             # Association was accepted or rejected
             if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
@@ -467,6 +496,10 @@ class Association(threading.Thread):
                     #
                     # Listen for further messages from the peer
                     while not self._Kill:
+                        # This sometimes runs while Release()
+                        #   is being processed which causes a hang because
+                        #   the DUL is killed but still waiting for the 
+                        #   response to the A-RELEASE rq primitive
                         time.sleep(0.001)
                         
                         # Check for release request
@@ -485,7 +518,9 @@ class Association(threading.Thread):
                             self.Kill()
                             return
                             
-                        # Check if the DULServiceProvider thread is still running
+                        # Check if the DULServiceProvider thread is 
+                        #   still running. DUL.is_alive() is inherited from 
+                        #   threading.thread
                         if not self.DUL.isAlive():
                             self.Kill()
                             return

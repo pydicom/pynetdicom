@@ -829,7 +829,7 @@ class A_RELEASE_RQ_PDU(PDU):
     def ToParams(self):
         tmp = A_RELEASE_ServiceParameters()
         #tmp.Reason = 'normal'
-        tmp.Result = 'affirmative'
+        #tmp.Result = 'affirmative'
         #return A_RELEASE_ServiceParameters()
         return tmp
         
