@@ -40,6 +40,17 @@ class Association(threading.Thread):
     AE is acting as an SCU, initialise the Association with the details of the 
     peer AE
     
+    When AE is acting as an SCP:
+        assoc = Association(self, client_socket, max_pdu=self.maximum_pdu_size)
+        
+    When AE is acting as an SCU:
+        assoc = Association(self, 
+                            RemoteAE=peer_ae, 
+                            acse_timeout=self.acse_timeout,
+                            dimse_timeout=self.dimse_timeout,
+                            max_pdu=max_pdu,
+                            ext_neg=ext_neg)
+    
     Parameters
     ----------
     local_ae - dict
@@ -128,6 +139,8 @@ class Association(threading.Thread):
         #   released: Local or peer AE sent A-RELEASE
         #   failed: Peer AE failed to respond to A-ASSOCIATE-RQ PDU for 
         #       whatever reason
+        # These are basically equivalent to a state machine, not sure of utility
+        self.requested = False
         self.accepted = False
         self.rejected = False
         self.aborted = False
@@ -151,71 +164,15 @@ class Association(threading.Thread):
 
         self.start()
 
-    def SCU(self, dataset, id):
-
-        obj = UID2SOPClass(ds.SOPClassUID)()
-        
-        try:
-            obj.pcid, obj.sopclass, obj.transfersyntax = \
-                [x for x in self.SOPClassesAsSCU if x[1] == obj.__class__][0]
-        except IndexError:
-            raise ValueError("'%s' is not listed as one of the AE's "
-                    "supported SCU SOP Classes" %obj.__class__.__name__)
-
-        obj.maxpdulength = self.ACSE.MaxPDULength
-        obj.DIMSE = self.DIMSE
-        obj.AE = self.AE
-        
-        return obj.SCU(dataset, id)
-
-    def __getattr__(self, attr):
-        """
-        
-        """
-        # Wow, eval? Really?
-        obj = eval(attr)()
-        
-        found_match = False
-        for sop_class in self.SOPClassesAsSCU:
-            if sop_class[1] == obj.__class__:
-                obj.pcid = sop_class[0]
-                obj.sopclass = sop_class[1]
-                obj.transfersyntax = sop_class[2]
-                
-                found_match = True
-                
-        if not found_match:
-            logger.error("'%s' is not one of the AE's supported SOP Classes" \
-                                                    %obj.__class__.__name__)
-            
-        
-        #try:
-        #    obj.pcid, obj.sopclass, obj.transfersyntax = \
-        #        [x for x in self.SOPClassesAsSCU if x[1] == obj.__class__][0]
-        #except IndexError:
-        #    raise ValueError("'%s' is not listed as one of the AE's "
-        #            "supported SOP Classes" %obj.__class__.__name__)
-
-        obj.maxpdulength = self.ACSE.MaxPDULength
-        obj.DIMSE = self.DIMSE
-        obj.AE = self.AE
-        obj.RemoteAE = self.AE
-        
-        return obj
-
     def Kill(self):
         self._Kill = True
         self.AssociationEstablished = False
         while not self.DUL.Stop():
             time.sleep(0.001)
-            
 
     def Release(self):
         """
         Release the association
-        
-        There's a bug somewhat related to this, during ACSE.Release something
-        triggers self.Kill() before the Release is finished
         """
         self.ACSE.Release()
         self.Kill()
@@ -496,10 +453,6 @@ class Association(threading.Thread):
                     #
                     # Listen for further messages from the peer
                     while not self._Kill:
-                        # This sometimes runs while Release()
-                        #   is being processed which causes a hang because
-                        #   the DUL is killed but still waiting for the 
-                        #   response to the A-RELEASE rq primitive
                         time.sleep(0.001)
                         
                         # Check for release request
@@ -553,15 +506,18 @@ class Association(threading.Thread):
             else:
                 self.DUL.Kill()
                 return
-                
+
 
     @property
     def Established(self):
         return self.AssociationEstablished
-    
-    
+
+    @property
+    def is_established(self):
+        return self.AssociationEstablished
+
+
     # DIMSE services provided by the Association
-    # Replaces the old assoc.SOPClass.SCU method
     def send_c_store(self, dataset, msg_id=1, priority=2):
         # Select appropriate SOP Class for dataset
         data_sop = dataset.SOPClassUID.__repr__()[1:-1]

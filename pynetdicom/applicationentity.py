@@ -306,7 +306,7 @@ class ApplicationEntity(object):
         self.stop()
 
     def associate(self, addr, port, ae_title='ANY-SCP', 
-                                     max_pdu=16382, ext_neg=None):
+                                max_pdu=16382, ext_neg=None):
         """Attempts to associate with a remote application entity
         
         When requesting an association the local AE is acting as an SCU
@@ -355,7 +355,7 @@ class ApplicationEntity(object):
 
         # Associate
         assoc = Association(self, 
-                            RemoteAE=peer_ae, 
+                            RemoteAE=peer_ae,
                             acse_timeout=self.acse_timeout,
                             dimse_timeout=self.dimse_timeout,
                             max_pdu=max_pdu,
