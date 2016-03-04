@@ -16,7 +16,7 @@ import sys
 import time
 
 from pynetdicom.applicationentity import ApplicationEntity as AE
-from pynetdicom.SOPclass import *
+from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                                 ExplicitVRBigEndian
 
@@ -78,10 +78,10 @@ def _setup_argparser():
                           type=str, 
                           default='ANY-SCP')
     net_opts.add_argument("-pts", "--propose-ts", metavar='[n]umber', 
-                          help="propose n transfer syntaxes (1..128)", 
+                          help="propose n transfer syntaxes (1 - 3)", 
                           type=int)
     net_opts.add_argument("-ppc", "--propose-pc", metavar='[n]umber', 
-                          help="propose n presentation contexts (1..128)", 
+                          help="propose n presentation contexts (1 - 128)", 
                           type=int)
     net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
                           help="timeout for connection requests", 
@@ -239,37 +239,34 @@ except:
 
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
-logger.debug('$echoscu.py v%s %s $' %('0.2.0', '2016-02-16'))
+logger.debug('$echoscu.py v%s %s $' %('0.5.0', '2016-03-04'))
 logger.debug('')
 
 
 # Create local AE
 # Binding to port 0, OS will pick an available port
-ae = AE(AET=args.calling_aet, 
+ae = AE(ae_title=args.calling_aet, 
         port=0, 
-        SOPSCU=scu_sop_classes, 
-        SOPSCP=[], 
-        SupportedTransferSyntax=transfer_syntaxes,
-        MaxPDULength=args.max_pdu)
+        scu_sop_class=scu_sop_classes, 
+        scp_sop_class=[], 
+        transfer_syntax=transfer_syntaxes)
+
+ae.maximum_pdu_size = args.max_pdu
 
 # Set timeouts
 if args.timeout:
-    if args.timeout <= 0:
-        args.timeout = None
-    ae.set_network_timeout(args.timeout)
+    ae.network_timeout = args.timeout
 
 if args.acse_timeout:
-    ae.set_acse_timeout(args.acse_timeout)
+    ae.acse_timeout = args.acse_timeout
 
 if args.dimse_timeout:
-    ae.set_dimse_timeout(args.dimse_timeout)
+    ae.dimse_timeout = args.dimse_timeout
 
 # Request association with remote AE
-assoc = ae.request_association(args.peer, 
-                               args.port, 
-                               args.called_aet)
+assoc = ae.associate(args.peer, args.port, args.called_aet)
 
-# If we successfully Associated then send n DIMSE C-ECHO's
+# If we successfully Associated then send N DIMSE C-ECHOs
 if assoc.Established:
     for ii in range(args.repeat):
         status = assoc.send_c_echo()
@@ -282,6 +279,6 @@ if assoc.Established:
         assoc.Release()
 
 # Quit
-ae.Quit()
+ae.quit()
 
 

@@ -139,7 +139,10 @@ ae = AE(args.aetitle,
         args.port, 
         [], 
         [VerificationSOPClass], 
-        SupportedTransferSyntax=transfer_syntax)
+        transfer_syntax)
+
+# Set the max PDU receive size (bytes)
+ae.maximum_pdu_size = 16382
 
 # Set timeouts
 #ae.set_network_timeout(None)
@@ -147,6 +150,3 @@ ae = AE(args.aetitle,
 #ae.set_dimse_timeout(5)
 
 ae.start()
-ae.QuitOnKeyboardInterrupt()
-
-

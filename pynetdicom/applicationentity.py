@@ -19,16 +19,8 @@ from weakref import proxy
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID
 
-from pynetdicom.__init__ import pynetdicom_uid_prefix
-from pynetdicom.__version__ import __version__
-from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.association import Association
-from pynetdicom.DIMSEmessages import *
-from pynetdicom.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom.DIMSEparameters import *
-from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.SOPclass import *
 from pynetdicom.utils import PresentationContext
 
 
@@ -40,7 +32,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-class ApplicationEntity(threading.Thread):
+class ApplicationEntity(object):
     """Represents a DICOM application entity
     
     As per PS3.7, the DICOM Application Entity (AE) is specified by the 
@@ -54,94 +46,133 @@ class ApplicationEntity(threading.Thread):
     The AE uses the Association and Presentation data services provided by the
     Upper Layer Service.
 
-    Once instantiated, starts a new thread and enters an event loop,
-    where events are association requests from remote AEs.
+    To use as an SCU (C-ECHO example):
+        from pynetdicom.applicationentity import ApplicationEntity as AE
+        from pynetdicom.SOPclasses import VerificationSOPClass
+        
+        # Specify which SOP Classes are supported as an SCU
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate(192.168.2.1, 104)
+        
+        if assoc.is_established:
+            status = assoc.send_c_echo()
+            
+            assoc.Release()
+            
+        ae.quit()
+        
+    To use as an SCP (C-STORE example):
+        from pynetdicom.applicationentity import ApplicationEntity as AE
+        from pynetdicom.SOPclasses import CTImageStorageSOPClass
     
+        # Specify the listen port and which SOP Classes are supported as an SCP
+        ae = AE(port=104, scp_sop_class=[CTImageStorageSOPClass])
+        
+        def on_c_store(sop_class, dataset):
+            # Insert your C-STORE handling code here
+            
+        ae.on_c_store = on_c_store
+        
+        ae.start()
+
     Parameters
     ----------
-    AET - str
-        The AE title of the AE, 16 characters max
-    port - int
-        The port number to listen for connections on when acting as an SCP
-    SOPSCU - list of DICOM SOP Classes
-        Supported SOP Classes when the AE is operating as an SCU
-    SOPSCP - list of DICOM SOP Classes
-        Supported SOP Classes when the AE is operating as an SCP
-    SupportedTransferSyntax - list of pydicom.uid.UID transfer syntaxes
-        Supported DICOM Transfer Syntaxes
-    MaxPDULength - int
-        The maximum supported size of the PDU
-        
+    ae_title - str, optional
+        The AE title of the Application Entity (default: PYNETDICOM)
+    port - int, optional
+        The port number to listen for connections on when acting as an SCP and
+        to use for making connections to the peer when acting as an SCU
+        (default: the first available port)
+    scu_sop_class - list of pydicom.uid.UID, optional
+        List of the supported SOP classes when the AE is operating as an SCU
+    scp_sop_class - list of pydicom.uid.UID, optional
+        List of the supported SOP classes when the AE is operating as an SCP
+    transfer_syntax - list of pydicom.uid.UID transfer syntaxes, optional
+        List of supported Transfer Syntax UIDs (default: Explicit VR Little 
+        Endian, Implicit VR Little Endian, Explicit VR Big Endian)
+
     Attributes
     ----------
-    LocalAE - dict
-        Stores the AE's address, port and title
-    MaxNumberOfAssociations - int
-        The maximum number of simultaneous associations
-    LocalServerSocket - socket.socket
-        The socket used for connections with remote hosts
-    Associations - list of Association
-        The associations between the local AE and peer AEs
-    scu_supported_sop - List of SOP Classes
-        The SOP Classes supported when acting as an SCU
-    scp_supported_sop - List of SOP Classes
-        The SOP Classes supported when acting as an SCP
-    transfer_syntaxes - List of pydicom.uid.UID
-        The supported transfer syntaxes
+    acse_timeout - int
+        The maximum amount of time (in seconds) to wait for association related
+        messages. A value of 0 means no timeout.
+    active_associations - list of Association objects
+        The currently active associations between the local and peer AEs
+    address - str
+        The local AE's TCP/IP address
+    client_socket - socket.socket
+        The socket used for connections with peer AEs
+    dimse_timeout - int
+        The maximum amount of time (in seconds) to wait for DIMSE related
+        messages. A value of 0 means no timeout.
+    network_timeout - int
+        The maximum amount of time (in seconds) to wait for network messages. 
+        A value of 0 means no timeout.
+    maximum_associations - int
+        The maximum number of simultaneous associations (default: 2)
+    maximum_pdu_size - int
+        The maximum PDU receive size in bytes when acting as an SCP. A value of 
+        0 means there is no maximum size (default: 16382)
+    port - int
+        The local AE's listen port number when acting as an SCP
     presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCU
     presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCP
+    require_calling_aet - str
+        If not empty str, the calling AE title must match `require_calling_aet`
+    require_called_aet - str
+        If not empty str the called AE title must match `required_called_aet`
+    scu_supported_sop - List of SOP Classes
+        The SOP Classes supported when acting as an SCU
+    scp_supported_sop - List of SOP Classes
+        The SOP Classes supported when acting as an SCP
+    title - str
+        The local AE's title
+    transfer_syntaxes - List of pydicom.uid.UID
+        The supported transfer syntaxes
     """
     def __init__(self, 
-                 AET, 
-                 port, 
-                 SOPSCU, 
-                 SOPSCP,
-                 SupportedTransferSyntax=[ExplicitVRLittleEndian,
-                                          ImplicitVRLittleEndian,
-                                          ExplicitVRBigEndian],
-                 MaxPDULength=16384):
+                 ae_title='PYNETDICOM',
+                 port=0, 
+                 scu_sop_class=[], 
+                 scp_sop_class=[],
+                 transfer_syntax=[ExplicitVRLittleEndian,
+                                  ImplicitVRLittleEndian,
+                                  ExplicitVRBigEndian]):
 
-        self.LocalAE = {'Address': platform.node(), 'Port': port, 'AET': AET}
-        self.scu_supported_sop = SOPSCU
-        self.scp_supported_sop = SOPSCP
-    
-        # Check and add transfer syntaxes
-        if not isinstance(SupportedTransferSyntax, list):
-            raise ValueError("SupportedTransferSyntax must be a list of "
-                "pydicom.uid.UID Transfer Syntaxes supported by the AE")
+        self.address = platform.node()
+        self.port = port
+        self.ae_title = ae_title
+
+        if scu_sop_class == [] and scp_sop_class == []:
+            raise ValueError("No supported SOP Class UIDs supplied during "
+                "ApplicationEntity instantiation")
+
+        self.scu_supported_sop = scu_sop_class
+        self.scp_supported_sop = scp_sop_class
         
-        self.transfer_syntaxes = []
-        for syntax in SupportedTransferSyntax:
-            # Check that the transfer_syntax is a pydicom.uid.UID
-            if isinstance(syntax, UID):
-                # Check that the UID is one of the valid transfer syntaxes
-                if syntax.is_transfer_syntax:
-                    self.transfer_syntaxes.append(syntax)
-            else:
-                raise ValueError("Attempted to instantiate Application "
-                    "Entity using invalid transfer syntax: %s" %syntax)
+        # The transfer syntax(es) available to the AE
+        #   At a minimum this must be ... FIXME
+        self.transfer_syntaxes = transfer_syntax
         
-        self.MaxPDULength = MaxPDULength
-        self.MaxNumberOfAssociations = 2
+        # Default maximum simultaneous associations
+        self.maximum_associations = 2
         
-        # Maximum amount of time this association can be idle before it gets
-        #   terminated
-        self.MaxAssociationIdleSeconds = None
+        # Default maximum PDU receive size (in bytes)
+        self.maximum_pdu_size = 16382
         
-        # All three timeouts are set in their respective service providers 
-        #   during association
-        #
-        # ACSE timeout: the maximum amount of time (in seconds) that the 
-        #   association can be idle before it gets terminated
-        self.acse_timeout = None
-        # DUL timeout: the maximum amount of time (in seconds) to wait for
-        #   connection requests
-        self.dul_timeout = None
-        # DIMSE timeout: the maximum amount of time (in seconds) to wait for
-        #   DIMSE messages before the association gets released
-        self.dimse_timeout = None
+        # Default timeouts
+        self.acse_timeout = 0
+        self.network_timeout = 60
+        self.dimse_timeout = 0
+        
+        # Require Calling/Called AE titles to match if value is non-empty str
+        self.require_calling_aet = ''
+        self.require_called_aet = ''
+        
+        # List of active association objects
+        self.active_associations = []
         
         # Build presentation context list to be:
         #   * sent to remote AE when requesting association
@@ -150,9 +181,11 @@ class ApplicationEntity(threading.Thread):
         #       requests association (presentation_contexts_scp)
         #
         #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
+        #
+        # This should maybe be given its own property setter/getter
+        #   for when the user changes scu_supported_sop and/or scp_supported_sop
         self.presentation_contexts_scu = []
         self.presentation_contexts_scp = []
-        
         for [pc_output, sop_input] in \
                     [[self.presentation_contexts_scu, self.scu_supported_sop],
                      [self.presentation_contexts_scp, self.scp_supported_sop]]:
@@ -185,37 +218,27 @@ class ApplicationEntity(threading.Thread):
                                                   
                     pc_output.append(pc_item)
                 else:
-                    raise UserWarning("More than 126 supported SOP Classes "
+                    logger.warning("More than 126 supported SOP Classes "
                         "have been supplied to the Application Entity, but the "
                         "Presentation Context Definition ID can only be an odd "
                         "integer between 1 and 255. The remaining SOP Classes "
                         "will not be included")
                     break
 
-        # Used to terminate AE
+        self.local_socket = None
+
+        # Used to terminate AE when running as an SCP
         self.__Quit = False
 
-        # List of active association objects
-        self.Associations = []
+    def start(self):
+        """
+        When running the AE as an SCP this needs to be called to start the main 
+        loop, it listens for connection attempts on `local_socket` and attempts 
+        to Associate with them. 
         
-        threading.Thread.__init__(self, name=self.LocalAE['AET'])
-        
-        self.daemon = True
-        
-        # The socket to listen for connections on, port is always specified
-        #   When acting as an SCU this isn't really necessary?
-        self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.local_socket.bind(('', port))
-        self.local_socket.listen(1)
+        Successful associations get added to `active_associations`
+        """
 
-    def run(self):
-        """
-        The main threading.Thread loop, it listens for connection attempts
-        on `local_socket` and attempts to Associate with them. 
-        Successful associations get added to `Associations`
-        """
-        
         # If the SCP has no supported SOP Classes then there's no point 
         #   running as a server
         if self.scp_supported_sop == []:
@@ -223,90 +246,93 @@ class ApplicationEntity(threading.Thread):
                 "have been included")
             return
 
+        # The socket to listen for connections on, port is always specified
+        self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.local_socket.bind(('', self.port))
+        self.local_socket.listen(1)
+
         no_loops = 0
         while True:
-            time.sleep(0.1)
-            
-            if self.__Quit:
-                break
-            
-            # Monitor the local socket to see if anyone tries to connect
-            read_list, _, _ = select.select([self.local_socket], [], [], 0)
-            
-            # If theres a connection
-            if read_list:
-                client_socket, remote_address = self.local_socket.accept()
-                client_socket.setsockopt(socket.SOL_SOCKET, 
-                                         socket.SO_RCVTIMEO, 
-                                         struct.pack('ll', 10, 0))
+            try:
+                time.sleep(0.1)
                 
-                # Create a new Association
-                # Association(local_ae, local_socket=None, peer_ae=None)
-                assoc = Association(self, client_socket)
-                self.Associations.append(assoc)
-
-            # Delete dead associations
-            self.Associations[:] = [active_assoc for active_assoc in 
-                self.Associations if active_assoc.isAlive()]
+                if self.__Quit:
+                    break
                 
-            # Every 50 loops run the garbage collection
-            if no_loops % 51 == 0:
-                gc.collect()
-                no_loops = 0
-            
-            no_loops += 1
+                # Monitor the local socket to see if anyone tries to connect
+                read_list, _, _ = select.select([self.local_socket], [], [], 0)
+                
+                # If theres a connection
+                if read_list:
+                    client_socket, remote_address = self.local_socket.accept()
+                    client_socket.setsockopt(socket.SOL_SOCKET, 
+                                             socket.SO_RCVTIMEO, 
+                                             struct.pack('ll', 10, 0))
+                    
+                    # Create a new Association
+                    # Association(local_ae, local_socket=None, peer_ae=None)
+                    assoc = Association(self, 
+                                        client_socket, 
+                                        max_pdu=self.maximum_pdu_size)
+                    self.active_associations.append(assoc)
 
-    def Quit(self):
-        """
-        """
-        for aa in self.Associations:
+                # Delete dead associations
+                #   assoc.is_alive() is inherited from threading.thread
+                self.active_associations[:] = [assoc for assoc in 
+                    self.active_associations if assoc.is_alive()]
+                    
+                # Every 50 loops run the garbage collection
+                if no_loops % 51 == 0:
+                    gc.collect()
+                    no_loops = 0
+                
+                no_loops += 1
+            
+            except KeyboardInterrupt:
+                self.stop()
+
+    def stop(self):
+        for aa in self.active_associations:
             aa.Kill()
             if self.local_socket:
                 self.local_socket.close()
         self.__Quit = True
-
-    def QuitOnKeyboardInterrupt(self):
-        """
-        When the AE is running it can be killed through a keyboard interrupt
-        """
-        # must be called from the main thread in order to catch the
-        # KeyboardInterrupt exception
-        while 1:
-            try:
-                time.sleep(1)
-            except KeyboardInterrupt:
-                self.Quit()
-                sys.exit(0)
-            except IOError:
-                # Catch this exception otherwise when we run an app,
-                # using this module as a service this exception is raised
-                # when we logoff.
-                continue
-
-    def request_association(self, ip_address, port, ae_title='ANY-SCP'):
-        """Requests association to a remote application entity
         
-        When requesting an association the local AE is acting as an SCU and
-        hence passes the remote AE's dict to Association
+        while True:
+            sys.exit(0)
+
+    def quit(self):
+        self.stop()
+
+    def associate(self, addr, port, ae_title='ANY-SCP', 
+                                     max_pdu=16382, ext_neg=None):
+        """Attempts to associate with a remote application entity
+        
+        When requesting an association the local AE is acting as an SCU
         
         Parameters
         ----------
-        ip_address - str
+        addr - str
             The peer AE's IP/TCP address (IPv4)
         port - int
             The peer AE's listen port number
         ae_title - str, optional
             The peer AE's title, must conform to AE title requirements as per
             PS (16 char max, not allowed to be all spaces)
+        max_pdu - int, optional
+            The maximum PDV size in bytes to be used when transferring data
+            between two Associated AEs
+        ext_neg - List of UserInformation objects, optional
+            Used if extended association negotiation is required
             
         Returns
         -------
-        assoc
-            The Association if it was successfully established
-        None
-            If the association failed or was rejected
+        assoc : pynetdicom.association.Association or None
+            The Association if it was successfully established, None if failed
+            or was rejected or aborted
         """
-        if not isinstance(ip_address, str):
+        if not isinstance(addr, str):
             raise ValueError("ip_address must be a valid IPv4 string")
 
         if not isinstance(port, int):
@@ -324,14 +350,16 @@ class ApplicationEntity(threading.Thread):
                 "and will be truncated")
 
         peer_ae = {'AET' : ae_title[:16], 
-                   'Address' : ip_address, 
+                   'Address' : addr, 
                    'Port' : port}
 
         # Associate
         assoc = Association(self, 
                             RemoteAE=peer_ae, 
                             acse_timeout=self.acse_timeout,
-                            dimse_timeout=self.dimse_timeout)
+                            dimse_timeout=self.dimse_timeout,
+                            max_pdu=max_pdu,
+                            ext_neg=ext_neg)
 
         # Endlessly loops while the Association negotiation is taking place
         while not assoc.AssociationEstablished \
@@ -340,49 +368,228 @@ class ApplicationEntity(threading.Thread):
 
         # If the Association was established
         if assoc.AssociationEstablished:
-            self.Associations.append(assoc)
+            self.active_associations.append(assoc)
             return assoc
 
         return assoc
 
 
-    # Timeout setters
-    def set_network_timeout(self, timeout):
-        """ 
-        The maximum amount of time that the DUL provider should wait before 
-        terminating the connection
+    @property
+    def acse_timeout(self):
+        return self.__acse_timeout
         
-        Parameters
-        ----------
-        timeout - float
-            The maximum amount of time (in seconds) to wait
-        """
-        self.dul_timeout = timeout
-        self.MaxAssociationIdleSeconds = timeout
+    @acse_timeout.setter
+    def acse_timeout(self, value):
+        try:
+            if 0 <= value:
+                self.__acse_timeout = value
+            else:
+                self.__acse_timeout = 0
+                
+            return
+        except:
+            logger.warning("ACSE timeout must be a numeric "
+                "value greater than or equal to 0. Defaulting to 0 (no "
+                "timeout)")
         
-    def set_acse_timeout(self, timeout):
-        """ 
-        The maximum amount of time that the ACSE provider should wait for 
-        messages before aborting the association
+        self.__acse_timeout = 0
+
+    @property
+    def ae_title(self):
+        return self.__ae_title
+
+    @ae_title.setter
+    def ae_title(self, value):
+        # Bounds and type checking for the AE title
+        #   * Must be no more than 16 characters long, leading and trailing
+        #       spaces are ignored
+        #   * Cannot be entirely spaces
+        try:
+            if 0 < len(value.strip()) <= 16:
+                self.__ae_title = value.strip()
+            elif len(value.strip()) > 16:
+                self.__ae_title = value.strip()[:16]
+                logger.warning("ApplicationEntity tried to set title with more "
+                        "than 16 characters; title will be truncated "
+                        "to '%s'" %value)
+            else:
+                self.__ae_title = 'PYNETDICOM'
+
+            return
+        except:
+            logger.error("ApplicationEntity failed to set title '%s', "
+                        "defaulting to 'PYNETDICOM'" %value)
+
+        self.__ae_title = 'PYNETDICOM'
+
+    @property
+    def dimse_timeout(self):
+        return self.__dimse_timeout
         
-        Parameters
-        ----------
-        timeout - float
-            The maximum amount of time (in seconds) to wait
-        """
-        self.acse_timeout = timeout
+    @dimse_timeout.setter
+    def dimse_timeout(self, value):
+        try:
+            if 0 <= value:
+                self.__dimse_timeout = value
+            else:
+                self.__dimse_timeout = 0
+                
+            return
+        except:
+            logger.warning("ApplicationEntity DIMSE timeout must be a numeric "
+                "value greater than or equal to 0. Defaulting to 0 (no "
+                "timeout)")
         
-    def set_dimse_timeout(self, timeout):
-        """ 
-        The maximum amount of time that the DIMSE provider should wait for 
-        messages before aborting the association
+        self.__dimse_timeout = 0
         
-        Parameters
-        ----------
-        timeout - float
-            The maximum amount of time (in seconds) to wait
-        """
-        self.dimse_timeout = timeout
+    @property
+    def network_timeout(self):
+        return self.__network_timeout
+        
+    @network_timeout.setter
+    def network_timeout(self, value):
+        try:
+            if 0 <= value:
+                self.__network_timeout = value
+            else:
+                self.__network_timeout = 0
+                
+            return
+        except:
+            logger.warning("ApplicationEntity network timeout must be a "
+                "numeric value greater than or equal to 0. Defaulting to 0 (no "
+                "timeout)")
+        
+        self.__network_timeout = 0
+    
+    @property
+    def maximum_associations(self):
+        return self.__maximum_associations
+        
+    @maximum_associations.setter
+    def maximum_associations(self, value):
+        try:
+            if 1 <= value:
+                self.__maximum_associations = value
+            else:
+                logger.warning("AE maximum associations must be greater than "
+                    "or equal to 1")
+                self.__maximum_associations = 1
+        except:
+            logger.warning("AE maximum associations must be a numerical value "
+                "greater than or equal to 1. Defaulting to 1")
+                
+        self.__maximum_associations = 1
+
+    @property
+    def maximum_pdu_size(self):
+        return self.__maximum_pdu_size
+
+    @maximum_pdu_size.setter
+    def maximum_pdu_size(self, value):
+        # Bounds and type checking of the received maximum length of the 
+        #   variable field of P-DATA-TF PDUs (in bytes)
+        #   * Must be numerical, greater than or equal to 0 (0 indicates
+        #       no maximum length (PS3.8 Annex D.1.1)
+        try:
+            if 0 <= value:
+                self.__maximum_pdu_size = value
+                return
+        except:
+            logger.error("ApplicationEntity failed to set maximum PDU size of "
+                                "'%s', defaulting to 16832 bytes" %value)
+        
+        self.__maximum_pdu_size = 16382
+
+    @property
+    def port(self):
+        return self.__port
+        
+    @port.setter
+    def port(self, value):
+        try:
+            if 0 <= value:
+                self.__port = value
+                return
+        except:
+            logger.warning("ApplicationEntity port number must be a "
+                "numeric value greater than or equal to 0. Defaulting to 0")
+        
+        self.__port = 0
+
+    @property
+    def require_calling_aet(self):
+        return self.__require_calling_aet
+        
+    @require_calling_aet.setter
+    def require_calling_aet(self, value):
+        try:
+            if 0 < len(value.strip()) <= 16:
+                self.__require_calling_aet = value.strip()
+            elif len(value.strip()) > 16:
+                self.__require_calling_aet = value.strip()[:16]
+                logger.warning("ApplicationEntity tried to set required "
+                    "calling AE title with more than 16 characters; title will "
+                    "be truncated to '%s'" %value)
+            else:
+                self.__require_calling_aet = ''
+            return
+        except:
+            logger.warning("ApplicationEntity failed to set required calling "
+                "AE title, defaulting to empty string (i.e. calling AE title "
+                "not required to match)")
+
+        self.__require_calling_aet = ''
+        
+    @property
+    def require_called_aet(self):
+        return self.__require_called_aet
+        
+    @require_calling_aet.setter
+    def require_called_aet(self, value):
+        try:
+            if 0 < len(value.strip()) <= 16:
+                self.__require_called_aet = value.strip()
+            elif len(value.strip()) > 16:
+                self.__require_called_aet = value.strip()[:16]
+                logger.warning("ApplicationEntity tried to set required "
+                    "called AE title with more than 16 characters; title will "
+                    "be truncated to '%s'" %value)
+            else:
+                self.__require_called_aet = ''
+            return
+        except:
+            logger.warning("ApplicationEntity failed to set required called AE "
+                "title, defaulting to empty string (i.e. called AE title not "
+                "required to match)")
+
+        self.__require_called_aet = ''
+
+    @property
+    def transfer_syntaxes(self):
+        return self.__transfer_syntaxes
+        
+    @transfer_syntaxes.setter
+    def transfer_syntaxes(self, transfer_syntaxes):
+
+        if not isinstance(transfer_syntaxes, list):
+            logger.error("transfer_syntax must be a list of "
+                "pydicom.uid.UID Transfer Syntaxes supported by the AE")
+            
+            return
+        
+        # Reset currently available transfer syntaxes
+        self.__transfer_syntaxes = []
+        
+        for syntax in transfer_syntaxes:
+            # Check that the transfer_syntax is a pydicom.uid.UID
+            if isinstance(syntax, UID):
+                # Check that the UID is one of the valid transfer syntaxes
+                if syntax.is_transfer_syntax:
+                    self.__transfer_syntaxes.append(syntax)
+            else:
+                logger.error("ApplicationEntity attempted to ttempted to instantiate Application "
+                    "Entity using invalid transfer syntax: %s" %syntax)
 
 
     # Communication related callback
@@ -425,7 +632,7 @@ class ApplicationEntity(threading.Thread):
         pass
 
 
-    # Low-level Association ACSE related callbacks
+    # Association PDU send/receive related callbacks
     def on_send_associate_rq(self, a_associate_rq):
         """
         Placeholder for a function callback. Function will be called 
@@ -662,7 +869,7 @@ class ApplicationEntity(threading.Thread):
         pass
 
 
-    # Mid-level DIMSE related callbacks
+    # DIMSE PDU send/receive related callbacks
     def on_send_c_echo_rq(self, dimse_msg):
         """
         

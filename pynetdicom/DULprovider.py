@@ -434,8 +434,9 @@ class DULServiceProvider(Thread):
             #
             #try:
             #print(self.scu_socket)
+
             read_list, _, _ = select.select([self.scu_socket], [], [], 0)
-            
+        
             if read_list:
                 self.CheckIncomingPDU()
                 return True

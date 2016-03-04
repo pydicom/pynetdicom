@@ -344,6 +344,10 @@ class ACSEServiceProvider(object):
         the request a confirmation is sent"""
         rel = self.DUL.Peek()
         if rel.__class__ == A_RELEASE_ServiceParameters:
+            # Make sure this is a A-RELEASE request primitive
+            if rel.Result == 'affirmative':
+                return False
+                
             self.DUL.Receive(Wait=False)
             relrsp = A_RELEASE_ServiceParameters()
             relrsp.Result = 0
@@ -355,6 +359,8 @@ class ACSEServiceProvider(object):
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
         rel = self.DUL.Peek()
+        # Abort is a non-confirmed service no so need to worry if its a request
+        #   primitive
         if rel.__class__ in (A_ABORT_ServiceParameters,
                              A_P_ABORT_ServiceParameters):
             self.DUL.Receive(Wait=False)
