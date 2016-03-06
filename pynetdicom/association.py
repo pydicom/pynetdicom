@@ -785,37 +785,3 @@ class Association(threading.Thread):
         
     def debug_association_aborted(self, abort_primitive=None):
         logger.info('Association Aborted')
-
-class AssociationSocket(object):
-    def __init__(self, task_num, addr):
-        self.task_num = task_num
-        self.address = addr
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(addr)
-        self.sock.setblocking(0)
-        
-        # Twisted reactor needs to monitor this socket
-        from twisted.internet import reactor
-        reactor.addReader(self)
-        
-    def fileno(self):
-        try:
-            return self.sock.fileno()
-        except socket.error:
-            return -1
-            
-    def connectionLost(self, reason):
-        self.sock.close()
-        
-        # Stop monitoring this socket
-        from twisted.internet import reactor
-        reactor.removeReader(self)
-        
-        for reader in reactor.getReaders():
-            if isinstance(reader, AssociationSocket):
-                return
-                
-        reactor.stop()
-        
-    def doRead(self):
-        
