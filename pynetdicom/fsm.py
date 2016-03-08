@@ -160,11 +160,11 @@ def AE_2(dul):
     # Send A-ASSOCIATE-RQ PDU
     dul.pdu = A_ASSOCIATE_RQ_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.local_ae.on_send_associate_rq(dul.pdu)
     dul.association.ACSE.debug_send_associate_rq(dul.pdu)
-    
+
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
     

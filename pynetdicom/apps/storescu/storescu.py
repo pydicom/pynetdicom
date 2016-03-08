@@ -13,12 +13,14 @@ import socket
 import sys
 
 from pydicom import read_file
-
-from pynetdicom.applicationentity import ApplicationEntity as AE
-from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass, \
-                                  MRImageStorageSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
+
+
+from pynetdicom.ae import AE
+from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass, \
+                                  MRImageStorageSOPClass
+
 
 logger = logging.Logger('storescu')
 stream_logger = logging.StreamHandler()
@@ -131,15 +133,14 @@ transfer_syntax = [ImplicitVRLittleEndian,
 #    UID = '1.2.840.10008.5.1.4.1.1.2.5'
 
 # Bind to port 0, OS will pick an available port
-ae = AE(args.calling_aet,
-        0,
-        [CTImageStorageSOPClass],
-        #[TestStorageSOPClass, MRImageStorageSOPClass],
-        [],
-        SupportedTransferSyntax=transfer_syntax)
+ae = AE(ae_title=args.calling_aet,
+        port=0,
+        scu_sop_class=[CTImageStorageSOPClass],
+        scp_sop_class=[],
+        transfer_syntax=transfer_syntax)
 
 # Request association with remote
-assoc = ae.request_association(args.peer, args.port, args.called_aet)
+assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 if assoc.Established:
     logger.info('Sending file: %s' %args.dcmfile_in)
@@ -152,7 +153,7 @@ if assoc.Established:
         elem_element = elem.tag.elem
         if elem.VR == 'US or SS':
             logger.debug("Setting undefined VR of %s (%04x, %04x) to 'US'" 
-                %(elem_name, elem_group, elem_element))
+                                %(elem_name, elem_group, elem_element))
             elem.VR = 'US'
             elem.value = int.from_bytes(elem.value, byteorder=byte_order)
         if elem.VR == 'OB or OW':
@@ -161,7 +162,7 @@ if assoc.Established:
             # (5400,1010) shall be OW
             # (0028,1201) (0028,1202) (0028,1203) (0028, 1204) shall be OW
             logger.debug("Setting undefined VR of %s (%04x, %04x) to 'OW'" 
-               %(elem_name, elem_group, elem_element))
+                                %(elem_name, elem_group, elem_element))
             elem.VR = 'OW'
     
     status = assoc.send_c_store(dataset)
@@ -170,6 +171,6 @@ if assoc.Established:
 
 
 # Quit
-ae.Quit()
+ae.quit()
 
 

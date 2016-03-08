@@ -166,7 +166,10 @@ class ACSEServiceProvider(object):
         #   This may be an A-ASSOCIATE confirmation primitive or an
         #   A-ABORT or A-P-ABORT request primitive
         #
-        assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
+        if self.acse_timeout == 0:
+            assoc_rsp = self.DUL.Receive(True, None)
+        else:
+            assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
 
         # Association accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):

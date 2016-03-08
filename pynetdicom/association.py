@@ -525,7 +525,6 @@ class Association(threading.Thread):
         
         found_match = False
         for scu_sop_class in self.SOPClassesAsSCU:
-            print(scu_sop_class)
             if scu_sop_class[1] == sop_class:
                 sop_class.pcid = scu_sop_class[0]
                 sop_class.sopclass = scu_sop_class[1]
