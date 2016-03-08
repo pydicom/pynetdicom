@@ -177,7 +177,6 @@ class DIMSEServiceProvider(object):
         ae_callback[type(message)](message)
 
 
-
     # Mid-level DIMSE related logging/debugging
     def debug_send_c_echo_rq(self, dimse_msg):
         """

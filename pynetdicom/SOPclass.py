@@ -89,6 +89,7 @@ class VerificationServiceClass(ServiceClass):
         # Send response via DIMSE provider
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
+
 class VerificationSOPClass(VerificationServiceClass):
     UID = '1.2.840.10008.1.1'
 

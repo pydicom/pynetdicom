@@ -14,15 +14,15 @@ import struct
 import sys
 import threading
 import time
+import warnings
 from weakref import proxy
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian, UID
+    ExplicitVRBigEndian, UID, InvalidUID
 
 from pynetdicom.association import Association
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.utils import PresentationContext
-
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
@@ -68,11 +68,13 @@ class ApplicationEntity(object):
         # Specify the listen port and which SOP Classes are supported as an SCP
         ae = AE(port=104, scp_sop_class=[CTImageStorageSOPClass])
         
+        # Define your callbacks
         def on_c_store(sop_class, dataset):
             # Insert your C-STORE handling code here
             
         ae.on_c_store = on_c_store
         
+        # Start the SCP server
         ae.start()
 
     Parameters
@@ -87,7 +89,7 @@ class ApplicationEntity(object):
         List of the supported SOP classes when the AE is operating as an SCU
     scp_sop_class - list of pydicom.uid.UID, optional
         List of the supported SOP classes when the AE is operating as an SCP
-    transfer_syntax - list of pydicom.uid.UID transfer syntaxes, optional
+    transfer_syntax - list of pydicom.uid.UID, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
         Endian, Implicit VR Little Endian, Explicit VR Big Endian)
 
@@ -111,22 +113,25 @@ class ApplicationEntity(object):
     maximum_associations - int
         The maximum number of simultaneous associations (default: 2)
     maximum_pdu_size - int
-        The maximum PDU receive size in bytes when acting as an SCP. A value of 
-        0 means there is no maximum size (default: 16382)
+        The maximum PDU receive size in bytes. A value of 0 means there is no 
+        maximum size (default: 16382)
     port - int
-        The local AE's listen port number when acting as an SCP
+        The local AE's listen port number when acting as an SCP or connection
+        port when acting as an SCU
     presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
-        The presentation context list when acting as an SCU
+        The presentation context list when acting as an SCU (SCU only)
     presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
-        The presentation context list when acting as an SCP
+        The presentation context list when acting as an SCP (SCP only)
     require_calling_aet - str
         If not empty str, the calling AE title must match `require_calling_aet`
+        (SCP only)
     require_called_aet - str
         If not empty str the called AE title must match `required_called_aet`
+        (SCP only)
     scu_supported_sop - List of SOP Classes
-        The SOP Classes supported when acting as an SCU
+        The SOP Classes supported when acting as an SCU (SCU only)
     scp_supported_sop - List of SOP Classes
-        The SOP Classes supported when acting as an SCP
+        The SOP Classes supported when acting as an SCP (SCP only)
     title - str
         The local AE's title
     transfer_syntaxes - List of pydicom.uid.UID
@@ -146,12 +151,12 @@ class ApplicationEntity(object):
         self.ae_title = ae_title
 
         if scu_sop_class == [] and scp_sop_class == []:
-            raise ValueError("No supported SOP Class UIDs supplied during "
+            raise ValueError("No supported SOP Classes supplied during "
                 "ApplicationEntity instantiation")
 
         self.scu_supported_sop = scu_sop_class
         self.scp_supported_sop = scp_sop_class
-        
+
         # The transfer syntax(es) available to the AE
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
@@ -179,6 +184,8 @@ class ApplicationEntity(object):
         #       (presentation_contexts_scu)
         #   * used to decide whether to accept or reject when remote AE 
         #       requests association (presentation_contexts_scp)
+        #       although I think they should be accepted and then aborted
+        #       due to no acceptable presentation contexts rather than rejected
         #
         #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
         #
@@ -195,7 +202,7 @@ class ApplicationEntity(object):
                 presentation_context_id = ii * 2 + 1
                 abstract_syntax = None
                 
-                # If supplied SOPClass is already a pydicom.UID class
+                # If supplied SOP Class is already a pydicom.UID class
                 if isinstance(sop_class, UID):
                     abstract_syntax = sop_class
                 
@@ -245,7 +252,9 @@ class ApplicationEntity(object):
             logger.info("AE is running as an SCP but no supported SOP Classes "
                 "have been included")
             return
-
+        
+        # This would be replaced by a called to a twisted protocol.Factory
+        
         # The socket to listen for connections on, port is always specified
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -405,22 +414,21 @@ class ApplicationEntity(object):
         #       spaces are ignored
         #   * Cannot be entirely spaces
         try:
+            # AE title OK
             if 0 < len(value.strip()) <= 16:
                 self.__ae_title = value.strip()
+            # AE title too long
             elif len(value.strip()) > 16:
                 self.__ae_title = value.strip()[:16]
-                logger.warning("ApplicationEntity tried to set title with more "
-                        "than 16 characters; title will be truncated "
-                        "to '%s'" %value)
+            # AE title empty str
             else:
-                self.__ae_title = 'PYNETDICOM'
+                raise ValueError("Invalid value for ae_title; must be a "
+                        "non-empty string")
 
             return
         except:
-            logger.error("ApplicationEntity failed to set title '%s', "
-                        "defaulting to 'PYNETDICOM'" %value)
-
-        self.__ae_title = 'PYNETDICOM'
+            raise ValueError("Invalid value for ae_title; must be a "
+                    "non-empty string")
 
     @property
     def dimse_timeout(self):
@@ -452,15 +460,15 @@ class ApplicationEntity(object):
             if 0 <= value:
                 self.__network_timeout = value
             else:
-                self.__network_timeout = 0
+                self.__network_timeout = 60
                 
             return
         except:
             logger.warning("ApplicationEntity network timeout must be a "
-                "numeric value greater than or equal to 0. Defaulting to 0 (no "
-                "timeout)")
+                "numeric value greater than or equal to 0. Defaulting to 60 "
+                "seconds")
         
-        self.__network_timeout = 0
+        self.__network_timeout = 60
     
     @property
     def maximum_associations(self):
@@ -471,6 +479,7 @@ class ApplicationEntity(object):
         try:
             if 1 <= value:
                 self.__maximum_associations = value
+                return
             else:
                 logger.warning("AE maximum associations must be greater than "
                     "or equal to 1")
@@ -496,8 +505,8 @@ class ApplicationEntity(object):
                 self.__maximum_pdu_size = value
                 return
         except:
-            logger.error("ApplicationEntity failed to set maximum PDU size of "
-                                "'%s', defaulting to 16832 bytes" %value)
+            logger.warning("ApplicationEntity failed to set maximum PDU size "
+                    "of '%s', defaulting to 16832 bytes" %value)
         
         self.__maximum_pdu_size = 16382
 
@@ -508,14 +517,21 @@ class ApplicationEntity(object):
     @port.setter
     def port(self, value):
         try:
-            if 0 <= value:
-                self.__port = value
+            if isinstance(value, int):
+                if 0 <= value:
+                    self.__port = value
+                    return
+                else:
+                    raise ValueError("AE port number must be greater than or "
+                            "equal to 0")
+                    return
+            else:
+                raise TypeError("AE port number must be an integer greater "
+                        "than or equal to 0")
                 return
-        except:
-            logger.warning("ApplicationEntity port number must be a "
-                "numeric value greater than or equal to 0. Defaulting to 0")
-        
-        self.__port = 0
+                            
+        except Exception as e:
+            raise e
 
     @property
     def require_calling_aet(self):
@@ -534,6 +550,7 @@ class ApplicationEntity(object):
             else:
                 self.__require_calling_aet = ''
             return
+        
         except:
             logger.warning("ApplicationEntity failed to set required calling "
                 "AE title, defaulting to empty string (i.e. calling AE title "
@@ -545,7 +562,7 @@ class ApplicationEntity(object):
     def require_called_aet(self):
         return self.__require_called_aet
         
-    @require_calling_aet.setter
+    @require_called_aet.setter
     def require_called_aet(self, value):
         try:
             if 0 < len(value.strip()) <= 16:
@@ -566,30 +583,134 @@ class ApplicationEntity(object):
         self.__require_called_aet = ''
 
     @property
+    def scu_supported_sop(self):
+        return self.__scu_supported_sop
+    
+    @scu_supported_sop.setter
+    def scu_supported_sop(self, sop_list):
+        """
+        A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
+        valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an 
+        exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
+        attribute(ie VerificationSOPClass)
+        """
+        self.__scu_supported_sop = []
+        
+        try:
+            for sop_class in sop_list:
+                try:
+                    if isinstance(sop_class, str):
+                        sop_uid = UID(sop_class)
+                        sop_uid.is_valid()
+                    elif isinstance(sop_class, UID):
+                        sop_uid = sop_class
+                        sop_uid.is_valid()
+                    elif 'UID' in sop_class.__dict__.keys():
+                        sop_uid = UID(sop_class.UID)
+                        sop_uid.is_valid()
+                    else:
+                        raise ValueError("SCU SOP class must be a UID str, "
+                                "UID or ServiceClass subclass")
+                                
+                    self.__scu_supported_sop.append(sop_uid)
+                
+                except InvalidUID:
+                    raise ValueError("SCU SOP classes contained an invalid "
+                            "UID string")
+                except Exception as e:
+                    logger.warning("Invalid SCU SOP class '%s'" %sop_class)
+
+            if sop_list != [] and self.__scu_supported_sop == []:
+                raise ValueError("No valid SCU SOP classes were supplied")
+        except TypeError:
+            raise ValueError("scu_sop_class must be a list")
+        except:
+            raise ValueError("scu_sop_class must be a list of SOP Classes")
+
+    @property
+    def scp_supported_sop(self):
+        return self.__scp_supported_sop
+    
+    @scp_supported_sop.setter
+    def scp_supported_sop(self, sop_list):
+        """
+        A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
+        valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an 
+        exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
+        attribute(ie VerificationSOPClass)
+        """
+        self.__scp_supported_sop = []
+
+        try:
+            for sop_class in sop_list:
+                try:
+                    if isinstance(sop_class, str):
+                        sop_uid = UID(sop_class)
+                        sop_uid.is_valid()
+                    elif isinstance(sop_class, UID):
+                        sop_uid = sop_class
+                        sop_uid.is_valid()
+                    elif 'UID' in sop_class.__dict__.keys():
+                        sop_uid = UID(sop_class.UID)
+                        sop_uid.is_valid()
+                    else:
+                        raise ValueError("SCU SOP class must be a UID str, "
+                                "UID or ServiceClass subclass")
+
+                    self.__scp_supported_sop.append(sop_uid)
+
+                except InvalidUID:
+                    raise ValueError("scp_sop_class must be a list of "
+                            "SOP Classes")
+                except Exception as e:
+                    logger.warning("Invalid SCP SOP class '%s'" %sop_class)
+
+            if sop_list != [] and self.__scp_supported_sop == []:
+                raise ValueError("No valid SCP SOP classes were supplied")
+        except TypeError:
+            raise ValueError("scp_sop_class must be a list")
+        except:
+            raise ValueError("scp_sop_class must be a list of SOP Classes")
+
+    @property
     def transfer_syntaxes(self):
         return self.__transfer_syntaxes
         
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
-
-        if not isinstance(transfer_syntaxes, list):
-            logger.error("transfer_syntax must be a list of "
-                "pydicom.uid.UID Transfer Syntaxes supported by the AE")
-            
-            return
         
-        # Reset currently available transfer syntaxes
         self.__transfer_syntaxes = []
         
-        for syntax in transfer_syntaxes:
-            # Check that the transfer_syntax is a pydicom.uid.UID
-            if isinstance(syntax, UID):
-                # Check that the UID is one of the valid transfer syntaxes
-                if syntax.is_transfer_syntax:
-                    self.__transfer_syntaxes.append(syntax)
-            else:
-                logger.error("ApplicationEntity attempted to ttempted to instantiate Application "
-                    "Entity using invalid transfer syntax: %s" %syntax)
+        try:
+            for syntax in transfer_syntaxes:
+                try:
+                    if isinstance(syntax, str):
+                        sop_uid = UID(syntax)
+                        sop_uid.is_valid()
+                    elif isinstance(syntax, UID):
+                        sop_uid = syntax
+                        sop_uid.is_valid()
+                    elif 'UID' in sop_class.__dict__.keys():
+                        sop_uid = UID(syntax.UID)
+                        sop_uid.is_valid()
+                    else:
+                        raise ValueError("Transfer syntax SOP class must be "
+                                    "a UID str, UID or ServiceClass subclass")
+                    
+                    if sop_uid.is_transfer_syntax:
+                        self.__transfer_syntaxes.append(sop_uid)
+                    else:
+                        logger.warning("Attempted to add a non-transfer syntax "
+                            "UID '%s'" %syntax)
+                
+                except InvalidUID:
+                    raise ValueError("Transfer syntax contained an invalid "
+                            "UID string")
+            if self.__transfer_syntaxes == []:
+                raise ValueError("Transfer syntax must be a list of SOP Classes")
+        except:
+            raise ValueError("Transfer syntax SOP class must be a "
+                                "UID str, UID or ServiceClass subclass")
 
 
     # Communication related callback
