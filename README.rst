@@ -33,8 +33,7 @@ Installation
 
 Examples
 --------
-- Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address `addr`, 
-listen port number `port`): 
+- Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address `addr`, listen port number `port`): 
 
 .. code-block:: python 
 
@@ -57,8 +56,7 @@ listen port number `port`):
         ae = AE(port=11112, scp_sop_class=['1.2.840.10008.1.1'])
         ae.start()
 
-- Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address 
-`addr`, listen port number `port`): 
+- Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address `addr`, listen port number `port`): 
 
 .. code-block:: python 
 
