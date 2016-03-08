@@ -10,12 +10,9 @@ import os
 import platform
 import select
 import socket
-import struct
 import sys
-import threading
 import time
 import warnings
-from weakref import proxy
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID, InvalidUID
@@ -697,10 +694,10 @@ class ApplicationEntity(object):
 
 
     # High-level Association related callbacks
-    def on_association_requested(self, associate_primitive):
+    def on_association_requested(self, primitive):
         pass
 
-    def on_association_accepted(self, associate_primitive):
+    def on_association_accepted(self, primitive):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is accepted by either the local or peer AE
@@ -712,7 +709,7 @@ class ApplicationEntity(object):
         """
         pass
 
-    def on_association_rejected(self, associate_primitive):
+    def on_association_rejected(self, primitive):
         """
         Placeholder for a function callback. Function will be called 
         when an association attempt is rejected by a peer AE
@@ -727,7 +724,7 @@ class ApplicationEntity(object):
     def on_association_released(self):
         pass
 
-    def on_association_aborted(self, abort_primitive):
+    def on_association_aborted(self, primitive):
         pass
 
 
@@ -774,20 +771,6 @@ class ApplicationEntity(object):
         ----------
         a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
             The A-ASSOCIATE-RJ PDU instance
-        """
-        pass
-
-    def on_send_data_tf(self, p_data_tf):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an P-DATA-TF PDU to a peer AE
-        
-        Called by fsm.StateMachine::do_action(DT_1 or AR_7)
-        
-        Parameters
-        ----------
-        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
-            The P-DATA-TF PDU instance
         """
         pass
 
@@ -878,20 +861,6 @@ class ApplicationEntity(object):
         """
         pass
 
-    def on_receive_data_tf(self, p_data_tf):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an P-DATA-TF
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
-            The P-DATA-TF PDU instance
-        """
-        pass
-
     def on_receive_release_rq(self, a_release_rq):
         """
         Placeholder for a function callback. Function will be called 
@@ -935,6 +904,36 @@ class ApplicationEntity(object):
         pass
 
 
+    # Data PDU send/receive callbacks
+    def on_send_data_tf(self, p_data_tf):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately prior to encoding and sending an P-DATA-TF PDU to a peer AE
+        
+        Called by fsm.StateMachine::do_action(DT_1 or AR_7)
+        
+        Parameters
+        ----------
+        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
+            The P-DATA-TF PDU instance
+        """
+        pass
+
+    def on_receive_data_tf(self, p_data_tf):
+        """
+        Placeholder for a function callback. Function will be called 
+        immediately after receiving and decoding an P-DATA-TF
+        
+        Called by DULprovider.DULServiceProvider::Socket2PDU()
+        
+        Parameters
+        ----------
+        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
+            The P-DATA-TF PDU instance
+        """
+        pass
+
+
     # High-level DIMSE related callbacks
     def on_c_echo(self):
         pass
@@ -968,7 +967,7 @@ class ApplicationEntity(object):
         pass
 
 
-    # DIMSE PDU send/receive related callbacks
+    # DIMSE message send/receive related callbacks
     def on_send_c_echo_rq(self, dimse_msg):
         """
         
