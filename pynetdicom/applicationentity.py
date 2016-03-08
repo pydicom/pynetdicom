@@ -326,15 +326,14 @@ class ApplicationEntity(object):
         Parameters
         ----------
         addr - str
-            The peer AE's IP/TCP address (IPv4)
+            The peer AE's TCP/IP address (IPv4)
         port - int
             The peer AE's listen port number
         ae_title - str, optional
-            The peer AE's title, must conform to AE title requirements as per
-            PS (16 char max, not allowed to be all spaces)
+            The peer AE's title
         max_pdu - int, optional
-            The maximum PDV size in bytes to be used when transferring data
-            between two Associated AEs
+            The maximum PDV receive size in bytes to use when negotiating the 
+            association
         ext_neg - List of UserInformation objects, optional
             Used if extended association negotiation is required
             
