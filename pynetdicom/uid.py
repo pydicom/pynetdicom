@@ -1,0 +1,1 @@
+from pynetdicom.SOPclass import VerificationSOPClass
