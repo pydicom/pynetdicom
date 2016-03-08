@@ -1,7 +1,7 @@
 pynetdicom
 ==========
 
-Implementation of the `DICOM <http://dicom.nema.org>` networking protocol.
+Implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol.
 
 Description
 -----------
@@ -25,7 +25,8 @@ Installation
 -----------
 - From github:
 
-.. code-block:: sh
+.. code-block:: sh 
+
         $ git clone https://github.com/scaramallion/pynetdicom.git
         $ cd pynetdicom
         $ python setup.py install
@@ -33,9 +34,10 @@ Installation
 Examples
 --------
 - Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address `addr`, 
-listen port number `port`)
+listen port number `port`): 
 
-.. code-block:: python
+.. code-block:: python 
+
         from pynetdicom.ae import AE
         
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
@@ -45,9 +47,10 @@ listen port number `port`)
         assoc.send_c_echo()
         assoc.Release()
         
-- Create a DICOM C-ECHO listen SCP on port 11112
+- Create a DICOM C-ECHO listen SCP on port 11112: 
 
-.. code-block:: python
+.. code-block:: python 
+
         from pynetdicom.ae import AE
 
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
@@ -55,9 +58,10 @@ listen port number `port`)
         ae.start()
 
 - Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address 
-`addr`, listen port number `port`)
+`addr`, listen port number `port`): 
 
-.. code-block:: python
+.. code-block:: python 
+
         from pydicom import read_file
         from pynetdicom.ae import AE
         
@@ -73,4 +77,4 @@ listen port number `port`)
 
 Dependencies
 ------------
-`pydicom <https://github.com/darcymason/pydicom>` >= 1.0.0
+`pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0
