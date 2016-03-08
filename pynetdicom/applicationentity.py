@@ -10,6 +10,7 @@ import os
 import platform
 import select
 import socket
+from struct import pack
 import sys
 import time
 import warnings
@@ -280,7 +281,7 @@ class ApplicationEntity(object):
                     client_socket, remote_address = self.local_socket.accept()
                     client_socket.setsockopt(socket.SOL_SOCKET, 
                                              socket.SO_RCVTIMEO, 
-                                             struct.pack('ll', 10, 0))
+                                             pack('ll', 10, 0))
                     
                     # Create a new Association
                     # Association(local_ae, local_socket=None, peer_ae=None)
