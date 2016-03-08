@@ -1,7 +1,67 @@
 
 from io import BytesIO
+import unicodedata
 
 from pydicom.uid import UID
+
+def validate_ae_title(ae_title):
+    """
+    Checks the supplied `ae_title` to see if its valid. An AE title must:
+    *   be no more than 16 characters
+    *   leading and trailing spaces are not significant
+    *   the characters should belong to the Default Character Repertoire
+            excluding 5CH (backslash "\") and all control characters
+    
+    If the supplied `ae_title` is greater than 16 characters once 
+        non-significant spaces have been removed then the returned AE title
+        will be truncated to remove the excess characters.
+        
+    Parameters
+    ----------
+    ae_title - str
+        The AE title to check
+        
+    Returns
+    -------
+    str
+        A valid AE title string, truncated to 16 characters if necessary
+    
+    Raises
+    ------
+    ValueError
+        If `ae_title` is an empty string, contains only spaces or contains
+        control characters or backslash
+    TypeError
+        If `ae_title` is not a string
+    """
+    try:
+        # Remove leading and trailing spaces
+        significant_characters = ae_title.strip()
+        
+        # Check for backslash or control characters
+        for char in significant_characters:
+            if unicodedata.category(char)[0] == "C" or char == "\\":
+                raise ValueError("Invalid value for an AE title; must not "
+                        "contain backslash or control characters")
+        
+        # AE title OK
+        if 0 < len(significant_characters) <= 16:
+            return significant_characters
+        
+        # AE title too long - truncate
+        elif len(significant_characters.strip()) > 16:
+            return significant_characters[:16]
+        
+        # AE title empty str
+        else:
+            raise ValueError("Invalid value for an AE title; must be a "
+                    "non-empty string")
+
+    except ValueError:
+        raise
+    except:
+        raise TypeError("Invalid value for an AE title; must be a "
+                "non-empty string")
 
 def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16, max_size=None):
     lines = []

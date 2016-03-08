@@ -22,7 +22,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom.association import Association
 from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.utils import PresentationContext
+from pynetdicom.utils import PresentationContext, validate_ae_title
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
@@ -86,9 +86,11 @@ class ApplicationEntity(object):
         to use for making connections to the peer when acting as an SCU
         (default: the first available port)
     scu_sop_class - list of pydicom.uid.UID, optional
-        List of the supported SOP classes when the AE is operating as an SCU
+        List of the supported SOP classes when the AE is operating as an SCU. 
+        Either scu_sop_class or scp_sop_class must have values
     scp_sop_class - list of pydicom.uid.UID, optional
         List of the supported SOP classes when the AE is operating as an SCP
+        Either scu_sop_class or scp_sop_class must have values
     transfer_syntax - list of pydicom.uid.UID, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
         Endian, Implicit VR Little Endian, Explicit VR Big Endian)
@@ -102,6 +104,8 @@ class ApplicationEntity(object):
         The currently active associations between the local and peer AEs
     address - str
         The local AE's TCP/IP address
+    ae_title - str
+        The local AE's title
     client_socket - socket.socket
         The socket used for connections with peer AEs
     dimse_timeout - int
@@ -117,7 +121,8 @@ class ApplicationEntity(object):
         maximum size (default: 16382)
     port - int
         The local AE's listen port number when acting as an SCP or connection
-        port when acting as an SCU
+        port when acting as an SCU. A value of 0 indicates that the operating
+        system should choose the port.
     presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCU (SCU only)
     presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
@@ -128,12 +133,10 @@ class ApplicationEntity(object):
     require_called_aet - str
         If not empty str the called AE title must match `required_called_aet`
         (SCP only)
-    scu_supported_sop - List of SOP Classes
+    scu_supported_sop - List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCU (SCU only)
-    scp_supported_sop - List of SOP Classes
+    scp_supported_sop - List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCP (SCP only)
-    title - str
-        The local AE's title
     transfer_syntaxes - List of pydicom.uid.UID
         The supported transfer syntaxes
     """
@@ -151,7 +154,7 @@ class ApplicationEntity(object):
         self.ae_title = ae_title
 
         if scu_sop_class == [] and scp_sop_class == []:
-            raise ValueError("No supported SOP Classes supplied during "
+            raise ValueError("No supported SOP Class UIDs supplied during "
                 "ApplicationEntity instantiation")
 
         self.scu_supported_sop = scu_sop_class
@@ -249,12 +252,12 @@ class ApplicationEntity(object):
         # If the SCP has no supported SOP Classes then there's no point 
         #   running as a server
         if self.scp_supported_sop == []:
-            logger.info("AE is running as an SCP but no supported SOP Classes "
-                "have been included")
+            logger.error("AE is running as an SCP but no supported SOP classes "
+                "for use with the SCP have been included during"
+                "ApplicationEntity() initialisation or by setting the "
+                "scp_supported_sop attribute")
             return
-        
-        # This would be replaced by a called to a twisted protocol.Factory
-        
+
         # The socket to listen for connections on, port is always specified
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -347,18 +350,7 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise ValueError("port must be a valid port number")
 
-        if not isinstance(ae_title, str):
-            raise ValueError("ae_title must be a valid AE title string")
-
-        # Check AE title is OK
-        if ae_title.strip() == '':
-            raise ValueError("ae_title must not be all spaces")
-
-        if len(ae_title) > 16:
-            logger.info("Supplied local AE title is greater than 16 characters "
-                "and will be truncated")
-
-        peer_ae = {'AET' : ae_title[:16], 
+        peer_ae = {'AET' : validate_ae_title(ae_title), 
                    'Address' : addr, 
                    'Port' : port}
 
@@ -409,26 +401,10 @@ class ApplicationEntity(object):
 
     @ae_title.setter
     def ae_title(self, value):
-        # Bounds and type checking for the AE title
-        #   * Must be no more than 16 characters long, leading and trailing
-        #       spaces are ignored
-        #   * Cannot be entirely spaces
         try:
-            # AE title OK
-            if 0 < len(value.strip()) <= 16:
-                self.__ae_title = value.strip()
-            # AE title too long
-            elif len(value.strip()) > 16:
-                self.__ae_title = value.strip()[:16]
-            # AE title empty str
-            else:
-                raise ValueError("Invalid value for ae_title; must be a "
-                        "non-empty string")
-
-            return
+            self.__ae_title = validate_ae_title(value)
         except:
-            raise ValueError("Invalid value for ae_title; must be a "
-                    "non-empty string")
+            raise
 
     @property
     def dimse_timeout(self):

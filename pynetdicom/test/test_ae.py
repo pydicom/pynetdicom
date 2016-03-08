@@ -204,8 +204,14 @@ class AEBadInitialisation(unittest.TestCase):
 
     def test_ae_title_not_string(self):
         """ AE should fail if ae_title is not a str """
-        self.assertRaises(ValueError, AE, 55, 0, [VerificationSOPClass])
-        pass
+        self.assertRaises(TypeError, AE, 55, 0, [VerificationSOPClass])
+
+    def test_ae_title_invalid_chars(self):
+        """ AE should fail if ae_title is not a str """
+        self.assertRaises(ValueError, AE, 'TEST\ME', 0, [VerificationSOPClass])
+        self.assertRaises(ValueError, AE, 'TEST\nME', 0, [VerificationSOPClass])
+        self.assertRaises(ValueError, AE, 'TEST\rME', 0, [VerificationSOPClass])
+        self.assertRaises(ValueError, AE, 'TEST\tME', 0, [VerificationSOPClass])
 
     def test_port_not_numeric(self):
         """ AE should fail if port is not numeric """
