@@ -47,8 +47,8 @@ class ApplicationEntity(object):
     Upper Layer Service.
 
     To use as an SCU (C-ECHO example):
-        from pynetdicom.applicationentity import ApplicationEntity as AE
-        from pynetdicom.SOPclasses import VerificationSOPClass
+        from pynetdicom.ae import AE
+        from pynetdicom.uid import VerificationSOPClass
         
         # Specify which SOP Classes are supported as an SCU
         ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -62,7 +62,7 @@ class ApplicationEntity(object):
         ae.quit()
         
     To use as an SCP (C-STORE example):
-        from pynetdicom.applicationentity import ApplicationEntity as AE
+        from pynetdicom.ae import AE
         from pynetdicom.SOPclasses import CTImageStorageSOPClass
     
         # Specify the listen port and which SOP Classes are supported as an SCP
@@ -85,13 +85,16 @@ class ApplicationEntity(object):
         The port number to listen for connections on when acting as an SCP and
         to use for making connections to the peer when acting as an SCU
         (default: the first available port)
-    scu_sop_class - list of pydicom.uid.UID, optional
+    scu_sop_class - list of pydicom.uid.UID or list of str or list of 
+    pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of the supported SOP classes when the AE is operating as an SCU. 
         Either scu_sop_class or scp_sop_class must have values
-    scp_sop_class - list of pydicom.uid.UID, optional
+    scp_sop_class - list of pydicom.uid.UID or list of UID strings or list of 
+    pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of the supported SOP classes when the AE is operating as an SCP
         Either scu_sop_class or scp_sop_class must have values
-    transfer_syntax - list of pydicom.uid.UID, optional
+    transfer_syntax - list of pydicom.uid.UID or list of str or list of 
+    pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
         Endian, Implicit VR Little Endian, Explicit VR Big Endian)
 
@@ -100,7 +103,7 @@ class ApplicationEntity(object):
     acse_timeout - int
         The maximum amount of time (in seconds) to wait for association related
         messages. A value of 0 means no timeout.
-    active_associations - list of Association objects
+    active_associations - list of pynetdicom.association.Association
         The currently active associations between the local and peer AEs
     address - str
         The local AE's TCP/IP address
