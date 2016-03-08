@@ -373,7 +373,53 @@ class ApplicationEntity(object):
             return assoc
 
         return assoc
+    
+    def __str__(self):
+        """ Prints out the attribute values and status for the AE """
+        s = "\n"
+        s += "Application Entity '%s' on %s:%s\n" %(self.ae_title, self.address, self.port)
 
+        s += "\n"
+        s += "  Available Transfer Syntax(es):\n"
+        for syntax in self.transfer_syntaxes:
+            s += "\t%s\n" %syntax
+        
+        s += "\n"
+        s += "  Supported SOP Classes (SCU):\n"
+        if len(self.scu_supported_sop) == 0:
+            s += "\tNone\n"
+        for sop_class in self.scu_supported_sop:
+            s += "\t%s\n" %sop_class
+        
+        s += "\n"
+        s += "  Supported SOP Classes (SCP):\n"
+        if len(self.scp_supported_sop) == 0:
+            s += "\tNone\n"
+        for sop_class in self.scp_supported_sop:
+            s += "\t%s\n" %sop_class
+        
+        s += "\n"
+        s += "  ACSE timeout: %s s\n" %self.acse_timeout
+        s += "  DIMSE timeout: %s s\n" %self.dimse_timeout
+        s += "  Network timeout: %s s\n" %self.network_timeout
+        
+        if self.require_called_aet != '' or self.require_calling_aet != '':
+            s += "\n"
+        if self.require_calling_aet != '':
+            s += "  Required calling AE title: %s\n" %self.require_calling_aet
+        if self.require_called_aet != '':
+            s += "  Required called AE title: %s\n" %self.require_called_aet
+        
+        s += "\n"
+        
+        # Association information
+        current_status = None
+        s += '  Association(s): %s/%s\n' %(len(self.active_associations), self.maximum_associations)
+        
+        for assoc in self.active_associations:
+            s += '\tPeer: %s on %s:%s\n' %(assoc.RemoteAE['AET'], assoc.RemoteAE['Address'], assoc.RemoteAE['Port'])
+        
+        return s
 
     @property
     def acse_timeout(self):

@@ -14,12 +14,12 @@ import sys
 
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
-
-from pynetdicom.applicationentity import ApplicationEntity as AE
-from pynetdicom.SOPclass import VerificationSOPClass, CTImageStorageSOPClass, \
-    Status
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
+
+from pynetdicom.ae import AE
+from pynetdicom.SOPclass import VerificationSOPClass, CTImageStorageSOPClass, \
+    Status
 
 logger = logging.Logger('')
 stream_logger = logging.StreamHandler()
@@ -177,15 +177,12 @@ def on_c_store(sop_class, dataset):
     return sop_class.Success
 
 # Create application entity
-ae = AE(args.aetitle,
-        args.port,
-        [], 
-        [CTImageStorageSOPClass, VerificationSOPClass],
-        SupportedTransferSyntax=transfer_syntax)
+ae = AE(ae_title=args.aetitle,
+        port=args.port,
+        scu_sop_class=[], 
+        scp_sop_class=[CTImageStorageSOPClass, VerificationSOPClass],
+        transfer_syntax=transfer_syntax)
 
 ae.on_c_store = on_c_store
 
 ae.start()
-ae.QuitOnKeyboardInterrupt()
-
-
