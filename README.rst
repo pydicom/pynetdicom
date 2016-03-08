@@ -6,12 +6,12 @@ Implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol.
 Description
 -----------
 
-`DICOM <http://dicom.nema.org>` is the international standard for medical images 
+`DICOM <http://dicom.nema.org>`_ is the international standard for medical images 
 and related information. It defines the formats and communication protocols for 
 media exchange in radiology, cardiology, radiotherapy and other medical domains.
 
-`pynetdicom` is a pure Python (3+) program that implements the DICOM networking
-protocol. Working with `pydicom`, it allows the easy creation of DICOM clients 
+*pynetdicom* is a pure Python (3+) program that implements the DICOM networking
+protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it allows the easy creation of DICOM clients 
 (SCUs) and servers (SCPs).  
       
 The main user class is ApplicationEntity, which represents a DICOM application 
@@ -33,7 +33,7 @@ Installation
 
 Examples
 --------
-- Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address `addr`, listen port number `port`): 
+- Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address *addr*, listen port number *port*): 
 
 .. code-block:: python 
 
@@ -56,7 +56,7 @@ Examples
         ae = AE(port=11112, scp_sop_class=['1.2.840.10008.1.1'])
         ae.start()
 
-- Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address `addr`, listen port number `port`): 
+- Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address *addr*, listen port number *port*): 
 
 .. code-block:: python 
 
