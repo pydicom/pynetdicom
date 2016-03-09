@@ -174,14 +174,14 @@ class Association(threading.Thread):
         while not self.dul.Stop():
             time.sleep(0.001)
 
-    def Release(self):
+    def release(self):
         """
         Release the association
         """
         self.acse.Release()
         self.Kill()
 
-    def Abort(self, reason):
+    def abort(self, reason):
         """
         Abort the Association
         
@@ -437,20 +437,13 @@ class Association(threading.Thread):
                                         UID2SOPClass(context.AbstractSyntax), 
                                         context.TransferSyntax[0]))
                     
+                    # No acceptable presentation contexts
                     if self.acse.presentation_contexts_accepted == []:
+                        logger.error("No Acceptable Presentation Contexts")
                         self.acse.Abort(0x02, 0x00)
                         self.Kill()
                         return
-                        
-                    """
-                    # No acceptable presentation contexts so release the association
-                    # Is it even possible to get here without an accepted context?
-                    if self.SOPClassesAsSCU == []:
-                        logger.error("No Acceptable Presentation Contexts")
-                        self.Abort(0x00)
-                        return
-                    """
-                
+
                     # Assocation established OK
                     self.is_established = True
                     
@@ -515,12 +508,12 @@ class Association(threading.Thread):
 
 
     @property
-    def release(self):
-        self.Release()
+    def Release(self):
+        self.release()
 
     @property
-    def abort(self, reason):
-        self.Abort(reason)
+    def Abort(self, reason):
+        self.abort(reason)
 
     @property
     def Established(self):
