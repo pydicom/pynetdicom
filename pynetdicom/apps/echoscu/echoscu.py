@@ -267,7 +267,7 @@ if args.dimse_timeout:
 assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 # If we successfully Associated then send N DIMSE C-ECHOs
-if assoc.Established:
+if assoc.is_established:
     for ii in range(args.repeat):
         status = assoc.send_c_echo()
     

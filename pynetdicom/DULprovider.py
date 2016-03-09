@@ -556,7 +556,7 @@ def Socket2PDU(data, dul):
     """
     pdutype = unpack('B', data[0:1])[0]
     ae = dul.local_ae
-    acse = dul.association.ACSE
+    acse = dul.association.acse
     
     if pdutype == 0x01:
         pdu = A_ASSOCIATE_RQ_PDU()

@@ -163,7 +163,7 @@ def AE_2(dul):
 
     # Callback
     dul.local_ae.on_send_associate_rq(dul.pdu)
-    dul.association.ACSE.debug_send_associate_rq(dul.pdu)
+    dul.association.acse.debug_send_associate_rq(dul.pdu)
 
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -345,7 +345,7 @@ def AE_7(dul):
     
     # Callback
     dul.local_ae.on_send_associate_ac(dul.pdu)
-    dul.association.ACSE.debug_send_associate_ac(dul.pdu)
+    dul.association.acse.debug_send_associate_ac(dul.pdu)
     
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -379,7 +379,7 @@ def AE_8(dul):
     
     # Callback
     dul.local_ae.on_send_associate_rj(dul.pdu)
-    dul.association.ACSE.debug_send_associate_rj(dul.pdu)
+    dul.association.acse.debug_send_associate_rj(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
     
@@ -416,7 +416,7 @@ def DT_1(dul):
     
     # Callback
     dul.local_ae.on_send_data_tf(dul.pdu)
-    dul.association.ACSE.debug_send_data_tf(dul.pdu)
+    dul.association.acse.debug_send_data_tf(dul.pdu)
     
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -477,7 +477,7 @@ def AR_1(dul):
 
     # Callback
     dul.local_ae.on_send_release_rq(dul.pdu)
-    dul.association.ACSE.debug_send_release_rq(dul.pdu)
+    dul.association.acse.debug_send_release_rq(dul.pdu)
 
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -566,7 +566,7 @@ def AR_4(dul):
     
     # Callback
     dul.local_ae.on_send_release_rp(dul.pdu)
-    dul.association.ACSE.debug_send_release_rp(dul.pdu)
+    dul.association.acse.debug_send_release_rp(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
     dul.artim_timer.start()
@@ -655,7 +655,7 @@ def AR_7(dul):
     
     # Callback
     dul.local_ae.on_send_data_tf(dul.pdu)
-    dul.association.ACSE.debug_send_data_tf(dul.pdu)
+    dul.association.acse.debug_send_data_tf(dul.pdu)
     
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
@@ -718,7 +718,7 @@ def AR_9(dul):
     
     # Callback
     dul.local_ae.on_send_release_rp(dul.pdu)
-    dul.association.ACSE.debug_send_release_rp(dul.pdu)
+    dul.association.acse.debug_send_release_rp(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
     
@@ -792,7 +792,7 @@ def AA_1(dul):
     
     # Callback
     dul.local_ae.on_send_abort(dul.pdu)
-    dul.association.ACSE.debug_send_abort(dul.pdu)
+    dul.association.acse.debug_send_abort(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
     
@@ -973,7 +973,7 @@ def AA_7(dul):
     
     # Callback
     dul.local_ae.on_send_abort(dul.pdu)
-    dul.association.ACSE.debug_send_abort(dul.pdu)
+    dul.association.acse.debug_send_abort(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
     
@@ -1017,7 +1017,7 @@ def AA_8(dul):
     if dul.scu_socket:
         # Callback
         dul.local_ae.on_send_abort(dul.pdu)
-        dul.association.ACSE.debug_send_abort(dul.pdu)
+        dul.association.acse.debug_send_abort(dul.pdu)
         
         # Encode and send
         dul.scu_socket.send(dul.pdu.Encode())

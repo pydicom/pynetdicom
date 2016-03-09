@@ -1,4 +1,6 @@
 
+from pynetdicom.utils import validate_ae_title
+
 class ServiceParam:
     def __repr__(self):
         tmp = ''
@@ -201,6 +203,44 @@ class A_ASSOCIATE_ServiceParameters(ServiceParam):
         # 7.1.1.16 Session Requirements (fixed) [UF, UF(=), UF, UF(=)]
         self.SessionRequirements = ""
 
+    @property
+    def calling_ae_title(self):
+        return self.__calling_ae_title.decode('utf-8').strip()
+
+    @property
+    def CallingAETitle(self):
+        """ Returns a bytes string """
+        return self.__calling_ae_title
+        
+    @CallingAETitle.setter
+    def CallingAETitle(self, value):
+        if value is not None:
+            self.__calling_ae_title = validate_ae_title(value)
+        else:
+            self.__calling_ae_title = None
+    
+    @property
+    def called_ae_title(self):
+        return self.__called_ae_title.decode('utf-8').strip()
+        
+    @property
+    def CalledAETitle(self):
+        return self.__called_ae_title
+        
+    @CalledAETitle.setter
+    def CalledAETitle(self, value):
+        if value is not None:
+            self.__called_ae_title = validate_ae_title(value)
+        else:
+            self.__called_ae_title = None
+
+    @property
+    def PresentationRequirements(self):
+        return self.__presentation_requirements
+
+    @PresentationRequirements.setter
+    def PresentationRequirements(self, value):
+        self.__presentation_requirements = "Presentation Kernel"
 
 class A_RELEASE_ServiceParameters:
     """ 

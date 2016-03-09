@@ -18,13 +18,14 @@ def validate_ae_title(ae_title):
         
     Parameters
     ----------
-    ae_title - str
+    ae_title - str or bytes
         The AE title to check
         
     Returns
     -------
-    str
-        A valid AE title string, truncated to 16 characters if necessary
+    str or bytes
+        A valid AE title (with the same type as the supplied `ae_title`), 
+        truncated to 16 characters if necessary.
     
     Raises
     ------
@@ -32,11 +33,20 @@ def validate_ae_title(ae_title):
         If `ae_title` is an empty string, contains only spaces or contains
         control characters or backslash
     TypeError
-        If `ae_title` is not a string
+        If `ae_title` is not a string or bytes
     """
     try:
+        is_bytes = False
+        if isinstance(ae_title, bytes):
+            is_bytes = True
+            ae_title = ae_title.decode('utf-8')
+        
         # Remove leading and trailing spaces
         significant_characters = ae_title.strip()
+        
+        # Remove trailing nulls (required as AE titles may be padded by nulls)
+        #   and common control chars (optional, for convenience)
+        significant_characters = significant_characters.rstrip('\0\r\t\n')
         
         # Check for backslash or control characters
         for char in significant_characters:
@@ -46,11 +56,17 @@ def validate_ae_title(ae_title):
         
         # AE title OK
         if 0 < len(significant_characters) <= 16:
-            return significant_characters
+            if is_bytes:
+                return bytes(significant_characters, 'utf-8')
+            else:
+                return significant_characters
         
         # AE title too long - truncate
         elif len(significant_characters.strip()) > 16:
-            return significant_characters[:16]
+            if is_bytes:
+                return bytes(significant_characters[:16], 'utf-8')
+            else:
+                return significant_characters[:16]
         
         # AE title empty str
         else:
