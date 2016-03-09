@@ -16,10 +16,11 @@ import time
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 
-from pynetdicom.applicationentity import AE
+from pynetdicom.ae import AE
 from pynetdicom.SOPclass import PatientRootGetSOPClass, CTImageStorageSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
+from pynetdicom.PDU import SCP_SCU_RoleSelectionParameters
 
 logger = logging.Logger('getscu')
 stream_logger = logging.StreamHandler()
@@ -123,14 +124,25 @@ logger.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(args.calling_aet, 
-        0, 
-        [PatientRootGetSOPClass, CTImageStorageSOPClass], 
-        [CTImageStorageSOPClass], 
-        SupportedTransferSyntax=[ExplicitVRLittleEndian])
+ae = AE(ae_title=args.calling_aet, 
+        port=0, 
+        scu_sop_class=[PatientRootGetSOPClass, CTImageStorageSOPClass], 
+        scp_sop_class=[], 
+        transfer_syntax=[ExplicitVRLittleEndian])
+
+# Set the extended negotiation SCP/SCU role selection to allow us to receive
+#   C-STORE requests for the supported SOP classes
+ext_neg = []
+for context in ae.presentation_contexts_scu:
+    tmp = SCP_SCU_RoleSelectionParameters()
+    tmp.SOPClassUID = context.AbstractSyntax
+    tmp.SCURole = 0
+    tmp.SCPRole = 1
+    
+    ext_neg.append(tmp)
 
 # Request association with remote
-assoc = ae.request_association(args.peer, args.port, args.called_aet)
+assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
 
 # Create query dataset
 d = Dataset()
@@ -189,6 +201,7 @@ def on_c_store(sop_class, dataset):
     return sop_class.Success
 
 ae.on_c_store = on_c_store
+
 # Send query
 if assoc.AssociationEstablished:
     response = assoc.send_c_get(d, query_model)
@@ -196,9 +209,9 @@ if assoc.AssociationEstablished:
     time.sleep(1)
     if response is not None:
         for value in response:
-            pass
+            print(value)
     
     assoc.Release()
 
 # done
-ae.Quit()
+ae.quit()

@@ -15,7 +15,7 @@ import time
 
 from pydicom.dataset import Dataset
 
-from pynetdicom.applicationentity import AE
+from pynetdicom.ae import AE
 from pynetdicom.SOPclass import PatientRootFindSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
@@ -122,11 +122,14 @@ logger.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(args.calling_aet, 0, [PatientRootFindSOPClass], [], 
-        SupportedTransferSyntax=[ExplicitVRLittleEndian])
+ae = AE(ae_title=args.calling_aet, 
+        port=0, 
+        scu_sop_class=[PatientRootFindSOPClass], 
+        scp_sop_class=[], 
+        transfer_syntax=[ExplicitVRLittleEndian])
 
 # Request association with remote
-assoc = ae.request_association(args.peer, args.port, args.called_aet)
+assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 # Create query dataset
 d = Dataset()
@@ -145,7 +148,7 @@ else:
     query_model = 'W'
 
 # Send query
-if assoc.AssociationEstablished:
+if assoc.Established:
     response = assoc.send_c_find(d, query_model)
     
     time.sleep(1)
@@ -154,5 +157,4 @@ if assoc.AssociationEstablished:
     
     assoc.Release()
 
-# done
-ae.Quit()
+ae.quit()

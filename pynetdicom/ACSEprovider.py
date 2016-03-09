@@ -167,6 +167,7 @@ class ACSEServiceProvider(object):
         #   A-ABORT or A-P-ABORT request primitive
         #
         if self.acse_timeout == 0:
+            # No timeout
             assoc_rsp = self.DUL.Receive(True, None)
         else:
             assoc_rsp = self.DUL.Receive(True, self.acse_timeout)

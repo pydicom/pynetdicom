@@ -413,7 +413,6 @@ class ApplicationEntity(object):
         s += "\n"
         
         # Association information
-        current_status = None
         s += '  Association(s): %s/%s\n' %(len(self.active_associations), self.maximum_associations)
         
         for assoc in self.active_associations:
