@@ -5,8 +5,7 @@ import unittest
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom.ae import AE, Association, ACSE, DIMSE
-from pynetdicom.ul import DUL
+from pynetdicom.ae import AE
 from pynetdicom.uid import VerificationSOPClass
 
 logger = logging.getLogger('pynetdicom')
@@ -14,15 +13,21 @@ handler = logging.StreamHandler()
 logger.setLevel(logging.ERROR)
 
 """
-ApplicationEntity(
-                  ae_title='PYNETDICOM',
-                  port=0, 
-                  scu_sop_class=[], 
-                  scp_sop_class=[],
-                  transfer_syntax=[ExplicitVRLittleEndian,
-                                   ImplicitVRLittleEndian,
-                                   ExplicitVRBigEndian]
-                 )
+AE(
+   ae_title='PYNETDICOM',
+   port=0, 
+   scu_sop_class=[], 
+   scp_sop_class=[],
+   transfer_syntax=[ExplicitVRLittleEndian,
+                   ImplicitVRLittleEndian,
+                   ExplicitVRBigEndian]
+  )
+
+Not sure how to test start() as it loops
+AE.start()
+AE.stop()
+AE.quit()
+
 """
 class AEGoodTimeoutSetters(unittest.TestCase):
     def test_acse_timeout(self):

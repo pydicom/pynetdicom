@@ -573,7 +573,7 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        logger.info("Aborting Association")
+        #logger.info("Aborting Association")
         
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
@@ -583,7 +583,9 @@ class ACSEServiceProvider(object):
         s.append('=========================== END A-ABORT ====================='
                 '====')
         for line in s:
-            logger.debug(line)
+            #logger.debug(line)
+            pass
+
 
     # Local AE receiving PDU from peer AE
     def debug_receive_associate_rq(self, a_associate_rq):

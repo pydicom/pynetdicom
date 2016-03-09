@@ -259,11 +259,8 @@ class ApplicationEntity(object):
                 "scp_supported_sop attribute")
             return
 
-        # The socket to listen for connections on, port is always specified
-        self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.local_socket.bind(('', self.port))
-        self.local_socket.listen(1)
+        # Bind the local_socket to the specified listen port
+        self.__run_bind_socket()
 
         no_loops = 0
         while True:
@@ -273,28 +270,13 @@ class ApplicationEntity(object):
                 if self.__Quit:
                     break
                 
-                # Monitor the local socket to see if anyone tries to connect
-                read_list, _, _ = select.select([self.local_socket], [], [], 0)
+                # Monitor client_socket for association requests and
+                #   appends any associations to self.active_associations
+                self.__run_monitor_socket()
                 
-                # If theres a connection
-                if read_list:
-                    client_socket, remote_address = self.local_socket.accept()
-                    client_socket.setsockopt(socket.SOL_SOCKET, 
-                                             socket.SO_RCVTIMEO, 
-                                             pack('ll', 10, 0))
-                    
-                    # Create a new Association
-                    # Association(local_ae, local_socket=None, peer_ae=None)
-                    assoc = Association(self, 
-                                        client_socket, 
-                                        max_pdu=self.maximum_pdu_size)
-                    self.active_associations.append(assoc)
-
                 # Delete dead associations
-                #   assoc.is_alive() is inherited from threading.thread
-                self.active_associations[:] = [assoc for assoc in 
-                    self.active_associations if assoc.is_alive()]
-                    
+                self.__run_cleanup_associations()
+
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
                     gc.collect()
@@ -305,9 +287,49 @@ class ApplicationEntity(object):
             except KeyboardInterrupt:
                 self.stop()
 
+    def __run_bind_socket(self):
+        """ 
+        Set up and bind the socket
+        """
+        # The socket to listen for connections on, port is always specified
+        self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.local_socket.bind(('', self.port))
+        self.local_socket.listen(1)
+
+    def __run_monitor_socket(self):
+        """ 
+        Monitors the local socket to see if anyone tries to connect and if so, 
+        creates a new association
+        """
+        read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        
+        # If theres a connection
+        if read_list:
+            client_socket, remote_address = self.local_socket.accept()
+            client_socket.setsockopt(socket.SOL_SOCKET, 
+                                     socket.SO_RCVTIMEO, 
+                                     pack('ll', 10, 0))
+            
+            # Create a new Association
+            # Association(local_ae, local_socket=None, peer_ae=None)
+            assoc = Association(self, 
+                                client_socket, 
+                                max_pdu=self.maximum_pdu_size)
+            self.active_associations.append(assoc)
+    
+    def __run_cleanup_associations(self):
+        """ 
+        Removes any dead associations from self.active_associations by checking
+        to see if the association thread is still alive
+        """
+        #   assoc.is_alive() is inherited from threading.thread
+        self.active_associations = [assoc for assoc in 
+                    self.active_associations if assoc.is_alive()]
+
     def stop(self):
         for aa in self.active_associations:
-            aa.Kill()
+            aa.kill()
             if self.local_socket:
                 self.local_socket.close()
         self.__Quit = True
@@ -374,6 +396,7 @@ class ApplicationEntity(object):
 
         return assoc
 
+
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         s = "\n"
@@ -422,6 +445,7 @@ class ApplicationEntity(object):
                                            assoc.peer_ae['Port'])
         
         return s
+
 
     @property
     def acse_timeout(self):
