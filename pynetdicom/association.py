@@ -393,16 +393,18 @@ class Association(threading.Thread):
                 return
             
             # Build role extended negotiation - needs updating
+            #   in particular, when running a C-GET user the role selection
+            #   needs to be set prior to association
             #
             # SCP/SCU Role Negotiation (optional)
-            ext = []
+            #self.ext_neg = []
             #for context in self.AE.presentation_contexts_scu:
             #    tmp = SCP_SCU_RoleSelectionParameters()
             #    tmp.SOPClassUID = context.AbstractSyntax
             #    tmp.SCURole = 0
             #    tmp.SCPRole = 1
             #    
-            #    ext.append(tmp)
+            #    self.ext_neg.append(tmp)
             
             local_ae = {'Address' : self.AE.address,
                         'Port'    : self.AE.port,
