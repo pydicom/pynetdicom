@@ -321,9 +321,9 @@ class ApplicationEntity(object):
     def associate(self, addr, port, ae_title='ANY-SCP', 
                                 max_pdu=16382, ext_neg=None):
         """Attempts to associate with a remote application entity
-        
+
         When requesting an association the local AE is acting as an SCU
-        
+
         Parameters
         ----------
         addr - str
@@ -331,13 +331,13 @@ class ApplicationEntity(object):
         port - int
             The peer AE's listen port number
         ae_title - str, optional
-            The peer AE's title
+            The peer AE's title, must meet AE title requirements
         max_pdu - int, optional
             The maximum PDV receive size in bytes to use when negotiating the 
             association
         ext_neg - List of UserInformation objects, optional
             Used if extended association negotiation is required
-            
+
         Returns
         -------
         assoc : pynetdicom.association.Association or None
@@ -355,25 +355,25 @@ class ApplicationEntity(object):
                    'Port' : port}
 
         # Associate
-        assoc = Association(self, 
-                            RemoteAE=peer_ae,
+        assoc = Association(local_ae=self,
+                            peer_ae=peer_ae,
                             acse_timeout=self.acse_timeout,
                             dimse_timeout=self.dimse_timeout,
                             max_pdu=max_pdu,
                             ext_neg=ext_neg)
 
         # Endlessly loops while the Association negotiation is taking place
-        while not assoc.AssociationEstablished \
-                and not assoc.AssociationRefused and not assoc.DUL.kill:
+        while (not assoc.is_established and not assoc.is_refused \
+                                        and not assoc.dul.kill):
             time.sleep(0.1)
 
         # If the Association was established
-        if assoc.AssociationEstablished:
+        if assoc.is_established:
             self.active_associations.append(assoc)
             return assoc
 
         return assoc
-    
+
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         s = "\n"
@@ -413,17 +413,20 @@ class ApplicationEntity(object):
         s += "\n"
         
         # Association information
-        s += '  Association(s): %s/%s\n' %(len(self.active_associations), self.maximum_associations)
+        s += '  Association(s): %s/%s\n' %(len(self.active_associations), 
+                                           self.maximum_associations)
         
         for assoc in self.active_associations:
-            s += '\tPeer: %s on %s:%s\n' %(assoc.RemoteAE['AET'], assoc.RemoteAE['Address'], assoc.RemoteAE['Port'])
+            s += '\tPeer: %s on %s:%s\n' %(assoc.peer_ae['AET'], 
+                                           assoc.peer_ae['Address'], 
+                                           assoc.peer_ae['Port'])
         
         return s
 
     @property
     def acse_timeout(self):
         return self.__acse_timeout
-        
+
     @acse_timeout.setter
     def acse_timeout(self, value):
         try:

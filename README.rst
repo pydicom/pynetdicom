@@ -10,16 +10,19 @@ Description
 and related information. It defines the formats and communication protocols for 
 media exchange in radiology, cardiology, radiotherapy and other medical domains.
 
-*pynetdicom* is a pure Python (3+) program that implements the DICOM networking
-protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it allows the easy creation of DICOM clients 
-(SCUs) and servers (SCPs).  
-      
-The main user class is ApplicationEntity, which represents a DICOM application 
-entity. The user will typically create an ApplicationEntity object then either
-start the application as an SCP using ApplicationEntity.start() or use the 
-application as an SCU by attempting to associate with a peer SCP via the 
-ApplicationEntity.associate() method and then using the association to send or 
-receive DICOM data.
+*pynetdicom* is a pure Python (3+) program that implements the DICOM networking 
+protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it 
+allows the easy creation of DICOM clients (SCUs) and servers (SCPs). 
+
+The main user class is ApplicationEntity, which represents a DICOM Application 
+Entity (AE). The user will typically create an ApplicationEntity object then either: 
+- Start the application as an SCP using `start()` and wait for incoming 
+association requests
+- Request an association with a peer SCP using the `associate(addr, port)` 
+method.
+
+Once the AE is associated with a peer DICOM data can be sent between them in the
+form of the DIMSE-C and DIMSE-N services.
 
 Installation
 -----------
@@ -44,7 +47,7 @@ Examples
         
         assoc = ae.associate(addr, port)
         assoc.send_c_echo()
-        assoc.Release()
+        assoc.release()
         
 - Create a DICOM C-ECHO listen SCP on port 11112: 
 
@@ -71,7 +74,7 @@ Examples
             dataset = read_file('test_file.dcm')
             assoc.send_c_store(dataset)
         
-        assoc.Release()
+        assoc.release()
 
 Dependencies
 ------------
