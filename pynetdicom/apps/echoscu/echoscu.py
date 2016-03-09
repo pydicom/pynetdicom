@@ -85,7 +85,8 @@ def _setup_argparser():
                           type=int)
     net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
                           help="timeout for connection requests", 
-                          type=int)
+                          type=int,
+                          default=0)
     net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds', 
                           help="timeout for ACSE messages", 
                           type=int,
@@ -93,7 +94,7 @@ def _setup_argparser():
     net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds', 
                           help="timeout for DIMSE messages", 
                           type=int,
-                          default=-1)
+                          default=0)
     net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
                           help="set max receive pdu to n bytes (4096..131072)", 
                           type=int,
@@ -254,14 +255,9 @@ ae = AE(ae_title=args.calling_aet,
 ae.maximum_pdu_size = args.max_pdu
 
 # Set timeouts
-if args.timeout:
-    ae.network_timeout = args.timeout
-
-if args.acse_timeout:
-    ae.acse_timeout = args.acse_timeout
-
-if args.dimse_timeout:
-    ae.dimse_timeout = args.dimse_timeout
+ae.network_timeout = args.timeout
+ae.acse_timeout = args.acse_timeout
+ae.dimse_timeout = args.dimse_timeout
 
 # Request association with remote AE
 assoc = ae.associate(args.peer, args.port, args.called_aet)
@@ -274,9 +270,10 @@ if assoc.is_established:
     # Abort or release association
     if args.abort:
         # 0x00 - Reason not specified (PS3.8 Table 9.26)
-        assoc.Abort(0x00)
+        assoc.abort(0x00)
     else:
-        assoc.Release()
+        assoc.release()
+
 
 # Quit
 ae.quit()

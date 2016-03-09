@@ -68,7 +68,8 @@ class Association(threading.Thread):
         The maximum amount of time to wait for a reply during DIMSE, in
         seconds. A value of 0 means no timeout (default: 0)
     max_pdu - int, optional
-        The maximum PDU receive size in bytes for the association
+        The maximum PDU receive size in bytes for the association. A value of 0
+        means no maximum size.
     ext_neg - list of extended negotiation parameters objects, optional
         If the association requires an extended negotiation then `ext_neg` is
         a list containing the negotiation objects
@@ -168,7 +169,7 @@ class Association(threading.Thread):
 
         self.start()
 
-    def Kill(self):
+    def kill(self):
         self._Kill = True
         self.is_established = False
         while not self.dul.Stop():
@@ -179,7 +180,7 @@ class Association(threading.Thread):
         Release the association
         """
         self.acse.Release()
-        self.Kill()
+        self.kill()
 
     def abort(self, reason):
         """
@@ -191,7 +192,7 @@ class Association(threading.Thread):
             The reason for aborting the association. Need to find a list of reasons
         """
         self.acse.Abort(source=0x02, reason=reason)
-        self.Kill()
+        self.kill()
 
     def run(self):
         """
@@ -200,9 +201,6 @@ class Association(threading.Thread):
         # Set new ACSE and DIMSE providers
         self.acse = ACSEServiceProvider(self.dul, self.acse_timeout)
         self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
-        
-        result = None
-        diag  = None
         
         # If the remote AE initiated the Association then either accept
         #   or reject it
@@ -222,7 +220,7 @@ class Association(threading.Thread):
             assoc_rq = self.dul.Receive(Wait=True)
             
             if assoc_rq is None:
-                self.Kill()
+                self.kill()
                 return
             
             ## DUL User Related Rejections
@@ -234,7 +232,7 @@ class Association(threading.Thread):
                     assoc_rj = self.acse.Reject(assoc_rq, 0x01, 0x01, 0x03)
                     self.debug_association_rejected(assoc_rj)
                     self.ae.on_association_rejected(assoc_rj)
-                    self.Kill()
+                    self.kill()
                     return
             
             # Called AE Title not recognised
@@ -244,7 +242,7 @@ class Association(threading.Thread):
                     assoc_rj = self.acse.Reject(assoc_rq, 0x01, 0x01, 0x07)
                     self.debug_association_rejected(assoc_rj)
                     self.ae.on_association_rejected(assoc_rj)
-                    self.Kill()
+                    self.kill()
                     return
             
             # DUL Presentation Related Rejections
@@ -254,7 +252,7 @@ class Association(threading.Thread):
                 assoc_rj = self.acse.Reject(assoc_rq, 0x02, 0x03, 0x02)
                 self.debug_association_rejected(assoc_rj)
                 self.ae.on_association_rejected(assoc_rj)
-                self.Kill()
+                self.kill()
                 return
             
             # Determine acceptable presentation contexts
@@ -318,13 +316,13 @@ class Association(threading.Thread):
             self.ae.on_association_accepted(assoc_ac)
             
             if assoc_ac is None:
-                self.Kill()
+                self.kill()
                 return
             
             if self.acse.AcceptedPresentationContexts == []:
                 # No valid presentation contexts, abort the association
                 self.acse.Abort(0x02, 0x00)
-                self.Kill()
+                self.kill()
                 return
             
             # Assocation established OK
@@ -370,30 +368,30 @@ class Association(threading.Thread):
                     # Callback trigger
                     self.debug_association_released()
                     self.ae.on_association_released()
-                    self.Kill()
+                    self.kill()
 
                 # Check for abort
                 if self.acse.CheckAbort():
                     # Callback trigger
                     self.debug_association_aborted()
                     self.ae.on_association_aborted()
-                    self.Kill()
+                    self.kill()
 
                 # Check if the DULServiceProvider thread is still running
                 #   DUL.is_alive() is inherited from threading.thread
                 if not self.dul.is_alive():
-                    self.Kill()
+                    self.kill()
 
                 # Check if idle timer has expired
                 if self.dul.idle_timer_expired():
-                    self.Kill()
+                    self.kill()
         
         # If the local AE initiated the Association
         elif self.mode == 'Requestor':
             
             if self.ae.presentation_contexts_scu == []:
                 logger.error("No presentation contexts set for the SCU")
-                self.Kill()
+                self.kill()
                 return
             
             # Build role extended negotiation - needs updating
@@ -441,7 +439,7 @@ class Association(threading.Thread):
                     if self.acse.presentation_contexts_accepted == []:
                         logger.error("No Acceptable Presentation Contexts")
                         self.acse.Abort(0x02, 0x00)
-                        self.Kill()
+                        self.kill()
                         return
 
                     # Assocation established OK
@@ -459,7 +457,7 @@ class Association(threading.Thread):
                             # Callback trigger
                             self.debug_association_released()
                             self.ae.on_association_released()
-                            self.Kill()
+                            self.kill()
                             return
 
                         # Check for abort
@@ -467,19 +465,19 @@ class Association(threading.Thread):
                             # Callback trigger
                             self.debug_association_aborted()
                             self.ae.on_association_aborted()
-                            self.Kill()
+                            self.kill()
                             return
                             
                         # Check if the DULServiceProvider thread is 
                         #   still running. DUL.is_alive() is inherited from 
                         #   threading.thread
                         if not self.dul.isAlive():
-                            self.Kill()
+                            self.kill()
                             return
 
                         # Check if idle timer has expired
                         if self.dul.idle_timer_expired():
-                            self.Kill()
+                            self.kill()
                             return
                 
                 # Association was rejected
@@ -491,12 +489,17 @@ class Association(threading.Thread):
                     self.dul.Kill()
                     return
             
-            # Association was aborted
-            elif isinstance(assoc_rsp, A_ABORT_ServiceParameters) or \
-                  isinstance(assoc_rsp, A_P_ABORT_ServiceParameters):
+            # Association was aborted by peer
+            elif isinstance(assoc_rsp, A_ABORT_ServiceParameters):
                 self.debug_association_aborted(assoc_rsp)
                 self.ae.on_association_aborted(assoc_rsp)
                 
+                self.is_aborted = True
+                self.dul.Kill()
+                return
+            
+            # Association was aborted by DUL provider
+            elif isinstance(assoc_rsp, A_P_ABORT_ServiceParameters):
                 self.is_aborted = True
                 self.dul.Kill()
                 return
@@ -505,23 +508,6 @@ class Association(threading.Thread):
             else:
                 self.dul.Kill()
                 return
-
-
-    @property
-    def Release(self):
-        self.release()
-
-    @property
-    def Abort(self, reason):
-        self.abort(reason)
-
-    @property
-    def Established(self):
-        return self.is_established
-
-    @property
-    def AssociationEstablished(self):
-        return self.is_established
 
 
     # DIMSE services provided by the Association
@@ -791,3 +777,18 @@ class Association(threading.Thread):
         
     def debug_association_aborted(self, abort_primitive=None):
         logger.info('Association Aborted')
+
+
+    # Deprecated functions
+    def Release(self):
+        self.release()
+
+    def Abort(self, reason):
+        self.abort(reason)
+
+    def Kill(self):
+        self.kill()
+    
+    @property
+    def AssociationEstablished(self):
+        return self.is_established

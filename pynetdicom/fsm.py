@@ -59,7 +59,9 @@ class StateMachine:
         try:
             # Execute the required action
             next_state = action[1](self.dul)
-
+            
+            #print(action_name, self.current_state, event, next_state)
+            
             # Move the state machine to the next state
             self.transition(next_state)    
 
@@ -1010,6 +1012,7 @@ def AA_8(dul):
     dul.pdu.AbortSource = 0x02
     dul.pdu.ReasonDiag = 0x00
     
+    dul.primitive = dul.pdu.ToParams()
     dul.primitive.ResultSource = 0x02
     dul.primitive.Result = 0x01
     dul.primitive.Diagnostic = 0x01
@@ -1021,6 +1024,7 @@ def AA_8(dul):
         
         # Encode and send
         dul.scu_socket.send(dul.pdu.Encode())
+        # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
         dul.artim_timer.start()
         

@@ -268,6 +268,7 @@ class DULServiceProvider(Thread):
             self.event_queue.put('Evt17')
             self.scu_socket.close()
             self.scu_socket = None
+            logger.error('DUL: Error reading data from the socket')
             return
 
         # Remote port has been closed
@@ -275,7 +276,9 @@ class DULServiceProvider(Thread):
             self.event_queue.put('Evt17')
             self.scu_socket.close()
             self.scu_socket = None
+            logger.error('Peer has closed transport connection')
             return
+
         # Incoming data is OK
         else:
             # First byte is always PDU type
@@ -290,6 +293,12 @@ class DULServiceProvider(Thread):
             # We do all this just to get the length of the PDU
             # Byte 1 is PDU type
             pdu_type = unpack('B', bytestream)
+            
+            # Unrecognised PDU type - Evt19 in the State Machine
+            if pdu_type not in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
+                logger.error("Unrecognised PDU type: 0x%s" %pdu_type)
+                self.event_queue.put('Evt19')
+                return
             
             # Byte 2 is Reserved
             result = recvn(self.scu_socket, 1)
