@@ -1022,7 +1022,7 @@ def AA_8(dul):
         dul.local_ae.on_send_abort(dul.pdu)
         dul.association.acse.debug_send_abort(dul.pdu)
         
-        # Encode and send
+        # Encode and send A-ABORT to peer
         dul.scu_socket.send(dul.pdu.Encode())
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
