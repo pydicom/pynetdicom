@@ -292,10 +292,11 @@ class DULServiceProvider(Thread):
             
             # We do all this just to get the length of the PDU
             # Byte 1 is PDU type
+            #   (value, )
             pdu_type = unpack('B', bytestream)
             
             # Unrecognised PDU type - Evt19 in the State Machine
-            if pdu_type not in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
+            if pdu_type[0] not in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
                 logger.error("Unrecognised PDU type: 0x%s" %pdu_type)
                 self.event_queue.put('Evt19')
                 return
