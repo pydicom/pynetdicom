@@ -514,13 +514,12 @@ class Association(threading.Thread):
         #   accepted presentation contexts
         found_match = False
         for context in self.acse.context_manager.accepted:
-            pass
-        #    if sop_class.UID == context.AbstractSyntax:
-        sop_class.pcid = context.ID
-        sop_class.sopclass = context.AbstractSyntax
-        sop_class.transfersyntax = context.TransferSyntax[0]
+            if sop_class.UID == context.AbstractSyntax:
+                sop_class.pcid = context.ID
+                sop_class.sopclass = context.AbstractSyntax
+                sop_class.transfersyntax = context.TransferSyntax[0]
     
-        found_match = True
+                found_match = True
 
         if not found_match:
             logger.error("No Presentation Context for: '%s'"
