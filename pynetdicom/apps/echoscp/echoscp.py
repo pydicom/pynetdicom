@@ -135,11 +135,11 @@ if args.prefer_big:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 # Create application entity
-ae = AE(args.aetitle, 
-        args.port, 
-        [], 
-        [VerificationSOPClass], 
-        transfer_syntax)
+ae = AE(ae_title=args.aetitle, 
+        port=args.port, 
+        scu_sop_class=[], 
+        scp_sop_class=[VerificationSOPClass], 
+        transfer_syntax=transfer_syntax)
 
 # Set the max PDU receive size (bytes)
 ae.maximum_pdu_size = 16382

@@ -521,7 +521,7 @@ class ApplicationEntity(object):
     @property
     def maximum_associations(self):
         return self.__maximum_associations
-        
+
     @maximum_associations.setter
     def maximum_associations(self, value):
         try:
@@ -561,7 +561,7 @@ class ApplicationEntity(object):
     @property
     def port(self):
         return self.__port
-        
+
     @port.setter
     def port(self, value):
         try:
@@ -584,7 +584,7 @@ class ApplicationEntity(object):
     @property
     def require_calling_aet(self):
         return self.__require_calling_aet
-        
+
     @require_calling_aet.setter
     def require_calling_aet(self, value):
         try:
@@ -605,11 +605,11 @@ class ApplicationEntity(object):
                 "not required to match)")
 
         self.__require_calling_aet = ''
-        
+
     @property
     def require_called_aet(self):
         return self.__require_called_aet
-        
+
     @require_called_aet.setter
     def require_called_aet(self, value):
         try:
@@ -723,7 +723,7 @@ class ApplicationEntity(object):
     @property
     def transfer_syntaxes(self):
         return self.__transfer_syntaxes
-        
+
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
         

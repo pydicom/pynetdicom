@@ -15,13 +15,15 @@ protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it
 allows the easy creation of DICOM clients (SCUs) and servers (SCPs). 
 
 The main user class is ApplicationEntity, which represents a DICOM Application 
-Entity (AE). The user will typically create an ApplicationEntity object then either: 
+Entity (AE). The user will typically create an ApplicationEntity object then either:
+
 - Start the application as an SCP using `start()` and wait for incoming 
 association requests
+
 - Request an association with a peer SCP using the `associate(addr, port)` 
 method.
 
-Once the AE is associated with a peer DICOM data can be sent between them in the
+Once the AE is associated with a peer, DICOM data can be sent between them in the
 form of the DIMSE-C and DIMSE-N services.
 
 Installation
@@ -45,9 +47,15 @@ Examples
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         
+        # Associate with a peer DICOM AE
         assoc = ae.associate(addr, port)
-        assoc.send_c_echo()
-        assoc.release()
+        
+        if assoc.is_established:
+            # Send a DIMSE C-ECHO request to the peer
+            assoc.send_c_echo()
+        
+            # Release the association
+            assoc.release()
         
 - Create a DICOM C-ECHO listen SCP on port 11112: 
 
@@ -57,6 +65,8 @@ Examples
 
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
         ae = AE(port=11112, scp_sop_class=['1.2.840.10008.1.1'])
+        
+        # Start the SCP
         ae.start()
 
 - Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address *addr*, listen port number *port*): 

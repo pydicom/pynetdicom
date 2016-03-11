@@ -108,16 +108,56 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16, max_size=None
 
 
 class PresentationContext(object):
+    """
+    Provides a nice interface for the A-ASSOCIATE Presentation Context item.
+    
+    PS3.8 7.1.1
+    An A-ASSOCIATE request primitive will contain a Presentation Context 
+    Definition List, which consists or one or more presentation contexts. Each
+    item contains an ID, an Abstract Syntax and a list of one or more Transfer
+    Syntaxes.
+    
+    An A-ASSOCIATE response primitive will contain a Presentation Context 
+    Definition Result List, which takes the form of a list of result values, 
+    with a one-to-one correspondence with the Presentation Context Definition
+    List.
+    
+    Parameters
+    ----------
+    ID - int
+        An odd integer between 1 and 255 inclusive
+    abstract_syntax - pydicom.uid.UID, optional
+        The context's abstract syntax
+    transfer_syntaxes - list of pydicom.uid.UID, optional
+        The context's transfer syntax(es)
+        
+    Attributes
+    ----------
+    ID - int
+        The presentation context ID
+    AbstractSyntax - pydicom.uid.UID
+        The abstract syntax
+    TransferSyntax - list of pydicom.uid.UID
+        The transfer syntax(es)
+    SCU - bool
+        True if...
+    SCP - bool
+        True if...
+    Result - int or None
+        If part of the A-ASSOCIATE request then None.
+        If part of the A-ASSOCIATE resposne then one of:
+            0x00, 0x01, 0x02, 0x03, 0x04
+    status - str
+        The string representation of the Result:
+            0x00 : 'acceptance', 
+            0x01 : 'user rejection',
+            0x02 : 'provider rejection'
+            0x03 : 'abstract syntax not supported'
+            0x04 : 'transfer syntaxes not supported'
+    """
     def __init__(self, ID, abstract_syntax=None, transfer_syntaxes=[]):
-        if 1 <= ID <= 255:
-            if ID % 2 == 0:
-                raise ValueError("Presentation Context ID must be an odd "
-                                "integer between 1 and 255 inclusive")
+        
         self.ID = ID
-        
-        if isinstance(abstract_syntax, bytes):
-            abstract_syntax = UID(abstract_syntax.decode('utf-8'))
-        
         self.AbstractSyntax = abstract_syntax
         self.TransferSyntax = transfer_syntaxes
         self.SCU = None
@@ -149,8 +189,225 @@ class PresentationContext(object):
             s += '\t=%s\n' %syntax
             
         return s
+    
+    @property
+    def ID(self):
+        return self.__id
         
+    @ID.setter
+    def ID(self, value):
+        if 1 <= value <= 255:
+            if value % 2 == 0:
+                raise ValueError("Presentation Context ID must be an odd "
+                                "integer between 1 and 255 inclusive")
+            else:
+                self.__id = value
+    
+    @property
+    def AbstractSyntax(self):
+        return self.__abstract_syntax
         
+    @AbstractSyntax.setter
+    def AbstractSyntax(self, value):
+        """ The supplied value must be a pydicom.uid.UID"""
+        if isinstance(value, bytes):
+            value = value.decode('utf-8')
+        self.__abstract_syntax = value
+    
+    @property
+    def status(self):
+        if self.Result is None:
+            status = 'pending'
+        elif self.Result == 0x00:
+            status = 'accepted'
+        elif self.Result == 0x01:
+            status = 'user rejected'
+        elif self.Result == 0x02:
+            status = 'provider rejected'
+        elif self.Result == 0x03:
+            status = 'abstract syntax not supported'
+        elif self.Result == 0x04:
+            status = 'transfer syntaxes not supported'
+        else:
+            status = 'Unknown'
+            
+        return status
+
+class PresentationContextManager(object):
+    """
+    Manages the presentation contexts supplied by the association requestor and
+    acceptor 
+    """
+    def __init__(self, request_contexts=[], response_contexts=[]):
+        # The list of PresentationContext objects sent by the requestor
+        self.__requestor_contexts = []
+        # The list of PresentationContext objects sent by the acceptor
+        self.__acceptor_contexts = []
+        
+        self.accepted = []
+        self.rejected = []
+    
+    def reset(self):
+        self.acceptor_contexts = []
+        self.requestor_contexts = []
+        self.accepted = []
+        self.rejected = []
+    
+    def negotiate_scp_scu_role(self, request_context, result_context):
+        """ Negotiates the SCP/SCU role """
+        result_context.SCU = request_context.SCU
+        result_context.SCP = request_context.SCP
+        return result_context
+    
+    @property
+    def requestor_contexts(self):
+        return self.__requestor_contexts
+        
+    @requestor_contexts.setter
+    def requestor_contexts(self, contexts):
+        # Must be a list of pynetdicom.utils.PresentationContext
+        #
+        # When the local AE is making the request this is a list of the SCU
+        #   supported SOP classes combined with the supported Transfer 
+        #   Syntax(es)
+        # When the peer AE is making the request this is the contents of the 
+        #   A-ASSOCIATE PresentationContextDefinitionList parameter
+        self.__requestor_contexts = []
+        try:
+            for ii in contexts:
+                if isinstance(ii, PresentationContext):
+                    self.__requestor_contexts.append(ii)
+        except:
+            raise ValueError("requestor_contexts must be a list of "
+                    "PresentationContext items")
+    
+    @property
+    def acceptor_contexts(self):
+        return self.__acceptor_contexts
+        
+    @acceptor_contexts.setter
+    def acceptor_contexts(self, contexts):
+        # Must be a list of pynetdicom.utils.PresentationContext
+        # There are two possible situations
+        #   1. The local AE issues the request and receives the response
+        #   2. The peer AE issues the request and the local must determine
+        #       the response
+        # The first situation means that the acceptor has already decided on 
+        #   a Result and (if accepted) which Transfer Syntax to use
+        # The second situation means that we must determine whether to accept
+        #   or reject presentation context and which Transfer Syntax to use
+        #
+        # requestor_contexts cannot be an empty list
+        #
+        # When the local AE is making the request, this is just the contents of
+        #   the A-ASSOCIATE PresentationContextDefinitionResultList parameter
+        #   (Result value will not be None)
+        # When the peer AE is making the request this will be the list of the 
+        #   SCP supported SOP classes combined with the supported Transfer 
+        #   Syntax(es) (Result value will be None)
+        if self.requestor_contexts == []:
+            raise ValueError("You can only set the Acceptor's presentation "
+                    "contexts after the Requestor's")
+        
+        # Validate the supplied contexts
+        self.__acceptor_contexts = []
+        try:
+            for ii in contexts:
+                if isinstance(ii, PresentationContext):
+                    self.__acceptor_contexts.append(ii)
+        except:
+            raise ValueError("acceptor_contexts must be a list of "
+                    "PresentationContext items")
+                    
+        # Generate accepted_contexts and rejected_contexts
+        self.accepted = []
+        self.rejected = []
+        if self.__acceptor_contexts != [] and self.__requestor_contexts != []:
+            # For each of the contexts available to the acceptor
+            for ii_req in self.__requestor_contexts:
+                
+                # Get the acceptor context with the same AbstractSyntax as 
+                #   the requestor context
+                acc_context = None
+                for ii_acc in self.__acceptor_contexts:
+                    # The acceptor context will only have an abstract syntax
+                    #   if we are the Acceptor, otherwise we have to match
+                    #   using the IDs
+                    
+                    # If we are the Requestor then the Acceptor context's
+                    #   will have no AbstractSyntax
+                    if ii_acc.AbstractSyntax != None:
+                        if ii_acc.AbstractSyntax == ii_req.AbstractSyntax:
+                            acc_context = ii_acc
+                    else:
+                        if ii_acc.ID == ii_req.ID:
+                            acc_context = ii_acc
+                
+                # Create a new PresentationContext item that will store the 
+                #   results from the negotiation
+                result = PresentationContext(ii_req.ID, ii_req.AbstractSyntax)
+                
+                # If no matching AbstractSyntax then we are the Acceptor and we
+                #   reject the current context (0x03 - abstract syntax not 
+                #   supported)
+                if acc_context is None:
+                    result.Result = 0x03
+                
+                # If there is a matching AbstractSyntax then check to see if the
+                #   Result attribute is None (indicates we are the Acceptor) or
+                #   has a value set (indicates we are the Requestor)
+                else:
+                    # We are the Acceptor and must decide to accept or reject
+                    #   the context
+                    if acc_context.Result is None:
+                        
+                        # Check the Transfer Syntaxes
+                        #   We accept the first matching transfer syntax
+                        for transfer_syntax in acc_context.TransferSyntax:
+                            # The local transfer syntax is used in order to 
+                            #   enforce preference based on position
+                            matching_ts = False
+                            if transfer_syntax in ii_req.TransferSyntax:
+                                result.TransferSyntax = [transfer_syntax]
+                                result.Result = 0x00
+                                result = self.negotiate_scp_scu_role(ii_req, 
+                                                                     result)
+                                self.accepted.append(result)
+                                
+                                matching_ts = True
+                                break
+                        
+                        # Refuse sop class because TS not supported
+                        if not matching_ts:
+                            result.TransferSyntax = [transfer_syntax]
+                            result.Result = 0x04
+                            result = self.negotiate_scp_scu_role(ii_req, 
+                                                                 result)
+                            self.rejected.append(result)
+                        
+                    # We are the Requestor and the Acceptor has accepted this
+                    #   context
+                    elif acc_context.Result == 0x00:
+                        # The accepted transfer syntax (there is only 1)
+                        result.TransferSyntax = [acc_context.TransferSyntax[0]]
+                        
+                        # Add it to the list of accepted presentation contexts
+                        self.accepted.append(result)
+                    
+                    # We are the Requestor and the Acceptor has rejected this
+                    #   context
+                    elif acc_context.Result in [0x01, 0x02, 0x03, 0x04]:
+                        # The rejected transfer syntax(es)
+                        result.TransferSyntax = acc_context.TransferSyntax
+                    
+                        # Add it to the list of accepted presentation contexts
+                        self.rejected.append(result)
+                    
+                    else:
+                        raise ValueError("Invalid 'Result' parameter in the "
+                                    "Acceptor's Presentation Context list")
+   
+
 class AssociationInformation(object):
     """
     An interface helper for storing the Association information, namely
