@@ -133,7 +133,10 @@ class Association(threading.Thread):
         if peer_ae:
             self.mode = 'Requestor'
         
+        # The socket.socket used for connections
         self.client_socket = client_socket
+        
+        # The parent AE object
         self.ae = local_ae
 
         # Why do we instantiate the DUL provider with a socket when acting
@@ -143,12 +146,16 @@ class Association(threading.Thread):
                                       acse_timeout=acse_timeout,
                                       local_ae=local_ae,
                                       assoc=self)
-                            
+        
+        # Dict containing the peer AE title, address and port
         self.peer_ae = peer_ae
         
+        # Lists of pynetdicom.utils.PresentationContext items that the local
+        #   AE supports when acting as an SCU and SCP
         self.scp_supported_sop = []
         self.scu_supported_sop = []
         
+        # Status attributes
         self.is_established = False
         self.is_refused = False
         self.is_aborted = False
@@ -157,20 +164,27 @@ class Association(threading.Thread):
         self.dimse_timeout = dimse_timeout
         self.acse_timeout = acse_timeout
         
-        # Maximum PDU sizes (in bytes)
+        # Maximum PDU sizes (in bytes) for the local and peer AE
         self.local_max_pdu = max_pdu
         self.peer_max_pdu = None
         
+        # A list of extended negotiation objects
         self.ext_neg = ext_neg
         
+        # Kills the thread loop in run()
         self._Kill = False
         
+        # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
 
+        # Start the thread
         self.start()
 
     def kill(self):
+        """
+        Kill the main thread loop, first checking that the DUL has been stopped
+        """
         self._Kill = True
         self.is_established = False
         while not self.dul.Stop():
@@ -183,16 +197,14 @@ class Association(threading.Thread):
         self.acse.Release()
         self.kill()
 
-    def abort(self, reason):
+    def abort(self):
         """
-        Abort the Association
+        DUL service user association abort. Always gives the source as the 
+        DUL service user and sets the abort reason to 0x00 (not significant)
         
-        Parameters
-        ----------
-        reason - int
-            The reason for aborting the association. Need to find a list of reasons
+        See PS3.8, 7.3-4 and 9.3.8.
         """
-        self.acse.Abort(source=0x02, reason=reason)
+        self.acse.Abort(source=0x00, reason=0x00)
         self.kill()
 
     def run(self):

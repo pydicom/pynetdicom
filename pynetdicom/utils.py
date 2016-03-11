@@ -187,6 +187,11 @@ class PresentationContext(object):
         s += 'Transfer Syntax(es):\n'
         for syntax in self.TransferSyntax:
             s += '\t=%s\n' %syntax
+        
+        #s += 'SCP/SCU: %s/%s'
+            
+        if self.Result is not None:
+            s += 'Result: %s\n' %self.status
             
         return s
     
@@ -209,10 +214,44 @@ class PresentationContext(object):
         
     @AbstractSyntax.setter
     def AbstractSyntax(self, value):
-        """ The supplied value must be a pydicom.uid.UID"""
+        """ 
+        `value` must be a pydicom.uid.UID, a string UID or a byte string UID
+        """
         if isinstance(value, bytes):
-            value = value.decode('utf-8')
+            value = UID(value.decode('utf-8'))
+        elif isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif value is None:
+            pass
+        else:
+            raise ValueError("PresentationContext(): Invalid abstract syntax")
+
         self.__abstract_syntax = value
+        
+    @property
+    def TransferSyntax(self):
+        return self.__transfer_syntax
+        
+    @TransferSyntax.setter
+    def TransferSyntax(self, value):
+        """
+        `value` must be a list of pydicom.uid.UIDs, string UIDs or byte string
+        UIDs
+        """
+        self.__transfer_syntax = []
+        for ii in value:
+            if isinstance(value, bytes):
+                ii = UID(ii.decode('utf-8'))
+            elif isinstance(ii, UID):
+                pass
+            elif isinstance(ii, str):
+                ii = UID(ii)
+            else:
+                raise ValueError("PresentationContext(): Invalid transfer "
+                    "syntax item")
+            self.__transfer_syntax.append(ii)
     
     @property
     def status(self):
@@ -236,7 +275,13 @@ class PresentationContext(object):
 class PresentationContextManager(object):
     """
     Manages the presentation contexts supplied by the association requestor and
-    acceptor 
+    acceptor
+    
+    To use you should first set the `requestor_contexts` attributes using a list
+    of PresentationContext items, then set the `acceptor_contexts` attribute
+    using another list of PresentationContext items. The accepted contexts are
+    then available in the `accepted` attribute while the rejected ones are in
+    the `rejected` attribute.
     """
     def __init__(self, request_contexts=[], response_contexts=[]):
         # The list of PresentationContext objects sent by the requestor
@@ -342,6 +387,8 @@ class PresentationContextManager(object):
                     else:
                         if ii_acc.ID == ii_req.ID:
                             acc_context = ii_acc
+                            # Set AbstractSyntax (for convenience)
+                            ii_acc.AbstractSyntax = ii_req.AbstractSyntax
                 
                 # Create a new PresentationContext item that will store the 
                 #   results from the negotiation
@@ -381,8 +428,7 @@ class PresentationContextManager(object):
                         if not matching_ts:
                             result.TransferSyntax = [transfer_syntax]
                             result.Result = 0x04
-                            result = self.negotiate_scp_scu_role(ii_req, 
-                                                                 result)
+                            result = self.negotiate_scp_scu_role(ii_req, result)
                             self.rejected.append(result)
                         
                     # We are the Requestor and the Acceptor has accepted this
@@ -406,42 +452,3 @@ class PresentationContextManager(object):
                     else:
                         raise ValueError("Invalid 'Result' parameter in the "
                                     "Acceptor's Presentation Context list")
-   
-
-class AssociationInformation(object):
-    """
-    An interface helper for storing the Association information, namely
-    the A-ASSOCIATE request and response primitives
-    """
-    def __init__(self, a_assoc_rq, a_assoc_ac):
-        self.request_pdu = a_assoc_rq
-        self.accept_pdu = a_assoc_ac
-        self.max_pdu_local = None
-        self.max_pdu_peer = None
-        self.application_context_local = None
-        self.accepted_presentation_contexts = []
-        
-        
-    def _build_accepted_presentation_contexts(self):
-        # Get accepted presentation contexts
-        self.accepted_presentation_contexts = []
-        for context in assoc_rsp.PresentationContextDefinitionResultList:
-            # If result is 'Accepted'
-            if context.Result == 0:
-                # The accepted transfer syntax
-                transfer_syntax = context.TransferSyntax[0]
-                # The accepted Abstract Syntax 
-                #   (taken from presentation_contexsts_scu)
-                
-                abstract_syntax = None
-                for scu_context in pcdl:
-                    if scu_context.ID == context.ID:
-                        abstract_syntax = scu_context.AbstractSyntax
-            
-            # Create PresentationContext item
-            accepted_context = PresentationContext(context.ID,
-                                                   abstract_syntax,
-                                                   transfer_syntax)
-            
-            # Add it to the list of accepted presentation contexts
-            self.accepted_presentation_contexts.append(accepted_context)

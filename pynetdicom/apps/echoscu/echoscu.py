@@ -270,7 +270,7 @@ if assoc.is_established:
     # Abort or release association
     if args.abort:
         # 0x00 - Reason not specified (PS3.8 Table 9.26)
-        assoc.abort(0x00)
+        assoc.abort()
     else:
         assoc.release()
 

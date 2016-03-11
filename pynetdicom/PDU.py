@@ -1224,7 +1224,7 @@ class PresentationContextItemAC(PDU):
         self.ResultReason = None                # Unsigned byte
         self.TransferSyntaxSubItem = None   # TransferSyntaxSubItem object
 
-        # Use for tracking SCP/SCU Role Negotiation
+        # Used for tracking SCP/SCU Role Negotiation
         self.SCP = None
         self.SCU = None
 
