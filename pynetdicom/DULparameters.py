@@ -1,15 +1,8 @@
 
 from pynetdicom.utils import validate_ae_title
 
-class ServiceParam:
-    def __repr__(self):
-        tmp = ''
-        for ii in self.__dict__.keys():
-            tmp += str(ii) + ' ' + str(self.__dict__[ii]) + ' ' + '\n'
-        return tmp
 
-
-class A_ASSOCIATE_ServiceParameters(ServiceParam):
+class A_ASSOCIATE_ServiceParameters():
     """ 
     A-ASSOCIATE Parameters
     
@@ -204,6 +197,14 @@ class A_ASSOCIATE_ServiceParameters(ServiceParam):
         self.SessionRequirements = ""
 
     @property
+    def Mode(self):
+        return self.__mode
+
+    @Mode.setter
+    def Mode(self, value):
+        self.__mode = "normal"
+
+    @property
     def calling_ae_title(self):
         return self.__calling_ae_title.decode('utf-8').strip()
 
@@ -242,7 +243,17 @@ class A_ASSOCIATE_ServiceParameters(ServiceParam):
     def PresentationRequirements(self, value):
         self.__presentation_requirements = "Presentation Kernel"
 
-class A_RELEASE_ServiceParameters:
+    @property
+    def SessionRequirements(self):
+        return self.__session_requirements
+
+    @SessionRequirements.setter
+    def SessionRequirements(self, value):
+        self.__session_requirements = ""
+
+    # Add MaximumLength property
+
+class A_RELEASE_ServiceParameters():
     """ 
     A-RELEASE Parameters
     
@@ -299,8 +310,16 @@ class A_RELEASE_ServiceParameters:
         #self.Result = "affirmative"
         self.Result = None
 
+    @property
+    def Reason(self):
+        return self.__reason
 
-class A_ABORT_ServiceParameters:
+    @Reason.setter
+    def Reason(self, value):
+        self.__reason = "normal"
+
+
+class A_ABORT_ServiceParameters():
     """ 
     A-ABORT Parameters
     
@@ -314,7 +333,7 @@ class A_ABORT_ServiceParameters:
         self.UserInformation = None
 
 
-class A_P_ABORT_ServiceParameters:
+class A_P_ABORT_ServiceParameters():
     """ 
     A-P-ABORT Parameters
     
@@ -325,7 +344,7 @@ class A_P_ABORT_ServiceParameters:
         self.ProviderReason = None
 
 
-class P_DATA_ServiceParameters:
+class P_DATA_ServiceParameters():
     """ 
     P-DATA Parameters
     

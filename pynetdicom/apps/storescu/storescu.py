@@ -142,7 +142,7 @@ ae = AE(ae_title=args.calling_aet,
 # Request association with remote
 assoc = ae.associate(args.peer, args.port, args.called_aet)
 
-if assoc.Established:
+if assoc.is_established:
     logger.info('Sending file: %s' %args.dcmfile_in)
     
     # Correct ambiguous VRs for Implicit

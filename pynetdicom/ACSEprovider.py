@@ -16,13 +16,10 @@ from pydicom.uid import UID
 
 from pynetdicom.__init__ import pynetdicom_uid_prefix, pynetdicom_version
 from pynetdicom.DULparameters import *
-from pynetdicom.exceptions import AssociationRefused, NoAcceptablePresentationContext
-from pynetdicom.PDU import MaximumLengthParameters, A_ASSOCIATE_RJ_PDU, \
-                            A_ASSOCIATE_AC_PDU, A_ABORT_PDU, \
+from pynetdicom.PDU import MaximumLengthParameters, \
                             ImplementationClassUIDParameters, \
                             ImplementationVersionNameParameters
-                            
-from pynetdicom.utils import PresentationContext
+from pynetdicom.utils import PresentationContext, PresentationContextManager
 
 
 logger = logging.getLogger('pynetdicom.acse')
@@ -71,6 +68,8 @@ class ACSEServiceProvider(object):
         self.peer_ae = None
         self.local_max_pdu = None
         self.peer_max_pdu = None
+        
+        self.context_manager = PresentationContextManager()
 
     def Request(self, local_ae, peer_ae, max_pdu_size, pcdl, userspdu=None):
         """
@@ -187,29 +186,17 @@ class ACSEServiceProvider(object):
                 self.MaxPDULength = \
                         assoc_rsp.UserInformationItem[0].MaximumLengthReceived
 
-                # Get accepted presentation contexts
-                self.presentation_contexts_accepted = []
-                for context in assoc_rsp.PresentationContextDefinitionResultList:
-                    # If result is 'Accepted'
-                    if context.Result == 0:
-                        # The accepted transfer syntax
-                        transfer_syntax = context.TransferSyntax[0]
-                        
-                        # The accepted Abstract Syntax 
-                        #   (taken from presentation_contexsts_scu)
-                        abstract_syntax = None
-                        for scu_context in pcdl:
-                            if scu_context.ID == context.ID:
-                                abstract_syntax = scu_context.AbstractSyntax
-                    
-                        # Create PresentationContext item
-                        accepted_context = PresentationContext(
-                                                        context.ID,
-                                                        abstract_syntax,
-                                                        [transfer_syntax])
-                    
-                        # Add it to the list of accepted presentation contexts
-                        self.presentation_contexts_accepted.append(accepted_context)
+                # Get accepted presentation contexts using the manager
+                self.context_manager.requestor_contexts = pcdl
+                self.context_manager.acceptor_contexts = \
+                            assoc_rsp.PresentationContextDefinitionResultList
+                
+                # Once the context manager gets both sets of contexts it 
+                #   automatically determines which are accepted and refused
+                self.presentation_contexts_accepted = \
+                                                self.context_manager.accepted
+                self.presentation_contexts_rejected = \
+                                                self.context_manager.rejected
                 
                 return True, assoc_rsp
             
@@ -218,7 +205,6 @@ class ACSEServiceProvider(object):
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
                 return False, assoc_rsp
-            
             # Invalid Result value
             elif assoc_rsp.Result is None:
                 return False, assoc_rsp
@@ -573,7 +559,7 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        #logger.info("Aborting Association")
+        logger.info("Aborting Association")
         
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='

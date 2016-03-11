@@ -24,6 +24,7 @@ from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
+from pynetdicom.utils import PresentationContextManager
 
 
 logger = logging.getLogger('pynetdicom.assoc')
@@ -255,58 +256,11 @@ class Association(threading.Thread):
                 self.kill()
                 return
             
-            # Determine acceptable presentation contexts
-            # analyse proposed presentation contexts
-            rsp = []
-            self.acse.AcceptedPresentationContexts = []
-            # [SOP Class UID, [Transfer Syntax UIDs]]
-            acceptable_sop_classes = [x.AbstractSyntax for x in \
-                                        self.ae.presentation_contexts_scp]
-
-            # For each presentation context in the association request
-            #   received from the peer AE
-            # Proposed values are from the peer, acceptable values from 
-            #   the local
-            for context in assoc_rq.PresentationContextDefinitionList:
-                if context.AbstractSyntax in acceptable_sop_classes:
-                    acceptable_ts = [x.TransferSyntax for x in \
-                                    self.ae.presentation_contexts_scp if \
-                                    x.ID == context.ID][0]
-                    
-                    # We accept the first matching transfer syntax
-                    for transfer_syntax in acceptable_ts:
-                        # the local transfer syntax is used in order to 
-                        #   enforce preference based on position
-                        matching_ts = False
-                        if transfer_syntax in context.TransferSyntax:
-                            rsp.append((context.ID, 0, transfer_syntax))
-                            temp_context = PresentationContext(
-                                                    context.ID, 
-                                                    context.AbstractSyntax, 
-                                                    [transfer_syntax])
-                            temp_context.Result = 0x00
-                            self.acse.AcceptedPresentationContexts.append(temp_context)
-                            
-                            matching_ts = True
-                            break
-                    
-                    if not matching_ts:
-                        # Refuse sop class because of TS not supported
-                        temp_context = PresentationContext(
-                                                    context.ID, 
-                                                    context.AbstractSyntax, 
-                                                    [transfer_syntax])
-                        temp_context.Result = 0x01
-                        self.acse.AcceptedPresentationContexts.append(temp_context)
-                
-                else:
-                    # Refuse sop class because of SOP class not supported
-                    temp_context = PresentationContext(
-                                                    context.ID, 
-                                                    context.AbstractSyntax, 
-                                                    context.TransferSyntax)
-                    temp_context.Result = 0x01
-                    self.acse.AcceptedPresentationContexts.append(temp_context)
+            context_manager = PresentationContextManager()
+            context_manager.requestor_contexts = assoc_rq.PresentationContextDefinitionList
+            context_manager.acceptor_contexts = self.ae.presentation_contexts_scp
+            
+            self.acse.AcceptedPresentationContexts = context_manager.accepted
             
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
             assoc_ac = self.acse.Accept(assoc_rq)
@@ -374,7 +328,7 @@ class Association(threading.Thread):
                 if self.acse.CheckAbort():
                     # Callback trigger
                     self.debug_association_aborted()
-                    self.ae.on_association_aborted()
+                    self.ae.on_association_aborted(None)
                     self.kill()
 
                 # Check if the DULServiceProvider thread is still running
@@ -427,6 +381,13 @@ class Association(threading.Thread):
                     self.debug_association_accepted(assoc_rsp)
                     self.ae.on_association_accepted(assoc_rsp)
                     
+                    # No acceptable presentation contexts
+                    if self.acse.presentation_contexts_accepted == []:
+                        logger.error("No Acceptable Presentation Contexts")
+                        self.acse.Abort(0x02, 0x00)
+                        self.kill()
+                        return
+                    
                     # Build supported SOP Classes for the Association
                     self.scu_supported_sop = []
                     for context in self.acse.presentation_contexts_accepted:
@@ -434,13 +395,6 @@ class Association(threading.Thread):
                                        (context.ID,
                                         UID2SOPClass(context.AbstractSyntax), 
                                         context.TransferSyntax[0]))
-                    
-                    # No acceptable presentation contexts
-                    if self.acse.presentation_contexts_accepted == []:
-                        logger.error("No Acceptable Presentation Contexts")
-                        self.acse.Abort(0x02, 0x00)
-                        self.kill()
-                        return
 
                     # Assocation established OK
                     self.is_established = True
