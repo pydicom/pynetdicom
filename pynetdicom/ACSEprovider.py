@@ -320,16 +320,48 @@ class ACSEServiceProvider(object):
 
     def Abort(self, source=0x02, reason=0x00):
         """
-        Issues an A-ABORT request primitive to the DICOM UL service provider
+        ACSE issued A-ABORT request primitive to the DICOM UL service provider.
+        The source may be either the DUL service user or provider. 
         
-        Sends an A-ABORT to the peer AE
+        See PS3.8 7.3-4 and 9.3.8
+        
+        Parameters
+        ----------
+        source - int, optional
+            The source of the abort request (default: 0x02 DUL provider)
+                0x00 - the DUL service user
+                0x01 - reserved
+                0x02 - the DUL service provider
+        reason - int, optional
+            The reason for aborting the association (default: 0x00 reason not 
+            specified). 
+            If source 0x00 (DUL user):
+                0x00 - reason field not significant
+            If source 0x02 (DUL provider):
+                0x00 - reason not specified
+                0x01 - unrecognised PDU
+                0x02 - unexpected PDU
+                0x03 - reserved
+                0x04 - unrecognised PDU parameter
+                0x05 - unexpected PDU parameter
+                0x06 - invalid PDU parameter value
         """
         abort = A_ABORT_ServiceParameters()
-        abort.AbortSource = source
-        abort.Reason = reason
+
+        if source in [0x00, 0x02]:
+            abort.AbortSource = source
+            if source == 0x00:
+                abort.Reason = 0x00
+            elif reason in [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06]:
+                abort.Reason = reason
+            else:
+                raise ValueError("ACSE.Abort() invalid reason '%s'" %reason)
+                
+        else:
+            raise ValueError("ACSE.Abort() invalid source '%s'" %source)
+
         self.DUL.Send(abort)
         time.sleep(0.5)
-
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
@@ -658,12 +690,10 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_ac = a_associate_ac
         
-        # Needs some cleanup
         app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
         pres_contexts = assoc_ac.PresentationContext
         user_info     = assoc_ac.UserInformation
         
-        responding_ae = 'resp. AP Title'
         their_class_uid = 'unknown'
         their_version = 'unknown'
         
@@ -686,7 +716,6 @@ class ACSEServiceProvider(object):
         
         for item in pres_contexts:
             s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
-            s.append('    Abstract Syntax: =%s' %'FIXME')
 
             if item.ResultReason == 0:
                 if item.SCP is None and item.SCU is None:
