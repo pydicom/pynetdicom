@@ -260,7 +260,7 @@ class Association(threading.Thread):
             context_manager.requestor_contexts = assoc_rq.PresentationContextDefinitionList
             context_manager.acceptor_contexts = self.ae.presentation_contexts_scp
             
-            self.acse.AcceptedPresentationContexts = context_manager.accepted
+            self.acse.presentation_contexts_accepted = context_manager.accepted
             
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
             assoc_ac = self.acse.Accept(assoc_rq)
@@ -273,7 +273,7 @@ class Association(threading.Thread):
                 self.kill()
                 return
             
-            if self.acse.AcceptedPresentationContexts == []:
+            if self.acse.presentation_contexts_accepted == []:
                 # No valid presentation contexts, abort the association
                 self.acse.Abort(0x02, 0x00)
                 self.kill()
@@ -296,7 +296,7 @@ class Association(threading.Thread):
                     obj = UID2SOPClass(uid.value)()
                     
                     matching_sop = False
-                    for sop_class in self.acse.AcceptedPresentationContexts:
+                    for sop_class in self.acse.presentation_contexts_accepted:
                         if sop_class.ID == pcid:
                             obj.pcid = sop_class.ID
                             obj.sopclass = sop_class.AbstractSyntax

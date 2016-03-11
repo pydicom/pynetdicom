@@ -281,11 +281,13 @@ class ACSEServiceProvider(object):
         The acceptability of the proposed Transfer Syntax is checked in the 
         order of appearance in the local AE's SupportedTransferSyntax list
         """
-        self.MaxPDULength = assoc_primitive.UserInformationItem[0].MaximumLengthReceived
+        self.MaxPDULength = \
+                assoc_primitive.UserInformationItem[0].MaximumLengthReceived
 
         # Send response
         assoc_primitive.PresentationContextDefinitionList = []
-        assoc_primitive.PresentationContextDefinitionResultList = self.AcceptedPresentationContexts
+        assoc_primitive.PresentationContextDefinitionResultList = \
+                                        self.presentation_contexts_accepted
         assoc_primitive.Result = 0
         
         self.DUL.Send(assoc_primitive)

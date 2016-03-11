@@ -17,11 +17,9 @@ allows the easy creation of DICOM clients (SCUs) and servers (SCPs).
 The main user class is ApplicationEntity, which represents a DICOM Application 
 Entity (AE). The user will typically create an ApplicationEntity object then either:
 
-- Start the application as an SCP using `start()` and wait for incoming 
-association requests
+- Start the application as an SCP using ``start()`` and wait for incoming association requests
 
-- Request an association with a peer SCP using the `associate(addr, port)` 
-method.
+- Request an association with a peer SCP using the ``associate(addr, port)`` method.
 
 Once the AE is associated with a peer, DICOM data can be sent between them in the
 form of the DIMSE-C and DIMSE-N services.
