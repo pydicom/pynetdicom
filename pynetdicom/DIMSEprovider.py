@@ -456,9 +456,22 @@ class DIMSEServiceProvider(object):
             if dimse_msg.DataSet.getvalue() != b'':
                 dataset = 'Present'
         
+        # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
         status = '0x%04x' %d.Status
         if status == '0x0000':
             status += ': Success'
+        elif '0xb000' in status:
+            status += ': Warning - Coercion of data elements'
+        elif '0xb007' in status:
+            status += ': Warning - Dataset does not match SOP Class'
+        elif '0xb006' in status:
+            status += ': Warning - Elements discarded'
+        elif '0xa7' in status:
+            status += ': Failure - Out of resources'
+        elif '0xa9' in status:
+            status += ': Failure - Dataset does not match SOP Class'
+        elif '0xc' in status or status == '0x0001':
+            status += ': Failure - Cannot understand'
         else:
             pass
         

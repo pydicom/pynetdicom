@@ -19,7 +19,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom.ae import AE
 from pynetdicom.SOPclass import VerificationSOPClass, CTImageStorageSOPClass, \
-    Status
+    Status, MRImageStorageSOPClass
 
 logger = logging.Logger('')
 stream_logger = logging.StreamHandler()

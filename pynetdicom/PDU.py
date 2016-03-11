@@ -1310,8 +1310,8 @@ class PresentationContextItemAC(PDU):
         result_options = {0 : 'Accepted', 
                           1 : 'User Rejection', 
                           2 : 'Provider Rejection',
-                          3 : 'Provider Rejection',
-                          4 : 'Provider Rejection'} 
+                          3 : 'Abstract Syntax Not Supported',
+                          4 : 'Transfer Syntax Not Supported'} 
         return result_options[self.ResultReason]
 
     @property

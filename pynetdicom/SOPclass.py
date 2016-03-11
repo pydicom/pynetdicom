@@ -152,33 +152,36 @@ class StorageServiceClass(ServiceClass):
         return self.Code2Status(ans.Status.value)
 
     def SCP(self, msg):
-        status = None
-        
-        #try:
-        DS = decode(msg.DataSet,
+        try:
+            DS = decode(msg.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
-        #except:
-        #logger.error("StorageServiceClass failed to decode the dataset")
-        #status = self.CannotUnderstand
-            
-        
-        # make response
+        except:
+            status = self.CannotUnderstand
+            logger.error("StorageServiceClass failed to decode the dataset")
+
+        # Create C-STORE response primitive
         rsp = C_STORE_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         
-        # Callback
-        #   We expect a valid Status from on_store to send back to the peer AE
-        if status is None:
-            try:
-                status = self.AE.on_c_store(self, DS)
-            except Exception as e:
-                logger.exception("Failed to implement the "
-                    "ApplicationEntity::on_store() callback function correctly")
-                status = self.CannotUnderstand
-                
+        # ApplicationEntity's on_c_store callback 
+        try:
+            self.AE.on_c_store(self, DS)
+            status = self.Success
+        except Exception as e:
+            logger.exception("Exception in the ApplicationEntity.on_c_store() "
+                                                                "callback")
+            status = self.CannotUnderstand
+
+        # Check that the supplied dataset UID matches the presentation context
+        #   ID
+        if self.UID != self.sopclass:
+            status = self.DataSetDoesNotMatchSOPClassFailure
+            logger.info("Store request's dataset UID does not match the "
+                                                        "presentation context")
+
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 

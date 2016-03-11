@@ -256,17 +256,17 @@ class PresentationContext(object):
     @property
     def status(self):
         if self.Result is None:
-            status = 'pending'
+            status = 'Pending'
         elif self.Result == 0x00:
-            status = 'accepted'
+            status = 'Accepted'
         elif self.Result == 0x01:
-            status = 'user rejected'
+            status = 'User Rejected'
         elif self.Result == 0x02:
-            status = 'provider rejected'
+            status = 'Provider Rejected'
         elif self.Result == 0x03:
-            status = 'abstract syntax not supported'
+            status = 'Abstract Syntax Not Supported'
         elif self.Result == 0x04:
-            status = 'transfer syntaxes not supported'
+            status = 'Transfer Syntax(es) Not Supported'
         else:
             status = 'Unknown'
             

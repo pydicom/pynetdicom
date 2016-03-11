@@ -276,7 +276,6 @@ class C_ECHO_RQ_Message(DIMSEMessage):
         tmp = C_ECHO_ServiceParameters()
         tmp.MessageID = self.CommandSet[(0x0000, 0x0110)]
         tmp.AffectedSOPClassUID = self.CommandSet[(0x0000, 0x0002)]
-        #print('C-ECHO-RQ', tmp)
         return tmp
 
 

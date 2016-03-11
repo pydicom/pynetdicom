@@ -183,7 +183,8 @@ class Association(threading.Thread):
 
     def kill(self):
         """
-        Kill the main thread loop, first checking that the DUL has been stopped
+        Kill the main association thread loop, first checking that the DUL has 
+        been stopped
         """
         self._Kill = True
         self.is_established = False
@@ -192,13 +193,17 @@ class Association(threading.Thread):
 
     def release(self):
         """
-        Release the association
+        Direct the ACSE to issue an A-RELEASE request primitive to the DUL 
+        provider
         """
         self.acse.Release()
         self.kill()
 
     def abort(self):
         """
+        Direct the ACSE to issue an A-ABORT request primitive to the DUL
+        provider
+        
         DUL service user association abort. Always gives the source as the 
         DUL service user and sets the abort reason to 0x00 (not significant)
         
@@ -215,16 +220,7 @@ class Association(threading.Thread):
         self.acse = ACSEServiceProvider(self.dul, self.acse_timeout)
         self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
         
-        # If the remote AE initiated the Association then either accept
-        #   or reject it
-        # Rejection reasons: 
-        #   a) DUL user
-        #       0x02 unsupported application context name
-        #   b) DUL ACSE related
-        #       0x01 no reason given
-        #       0x02 protocol version not supported
-        #   c) DUL Presentation related
-        #       0x01 temporary congestion
+        # When the AE is acting as an SCP (Association Acceptor)
         if self.mode == 'Acceptor':
             # needed because of some thread-related problem. To investigate.
             time.sleep(0.1)
@@ -236,43 +232,52 @@ class Association(threading.Thread):
                 self.kill()
                 return
             
+            # If the remote AE initiated the Association then reject it if:
+            # Rejection reasons: 
+            #   a) DUL user
+            #       0x02 unsupported application context name
+            #   b) DUL ACSE related
+            #       0x01 no reason given
+            #       0x02 protocol version not supported
+            #   c) DUL Presentation related
+            #       0x01 temporary congestion
+            
             ## DUL User Related Rejections
             #
+            # [result, source, diagnostic]
+            reject_assoc_rsd = []
+            
             # Calling AE Title not recognised
             if self.ae.require_calling_aet != '':
-                peer_calling_aet = assoc_rq.CallingAETitle
-                if self.ae.require_calling_aet != peer_calling_aet:
-                    assoc_rj = self.acse.Reject(assoc_rq, 0x01, 0x01, 0x03)
-                    self.debug_association_rejected(assoc_rj)
-                    self.ae.on_association_rejected(assoc_rj)
-                    self.kill()
-                    return
-            
+                if self.ae.require_calling_aet != assoc_rq.CallingAETitle:
+                    reject_assoc_rsd = [0x01, 0x01, 0x03]
+
             # Called AE Title not recognised
             if self.ae.require_called_aet != '':
-                peer_called_aet = assoc_rq.CalledAETitle
-                if self.AE.require_called_aet != peer_called_aet:
-                    assoc_rj = self.acse.Reject(assoc_rq, 0x01, 0x01, 0x07)
-                    self.debug_association_rejected(assoc_rj)
-                    self.ae.on_association_rejected(assoc_rj)
-                    self.kill()
-                    return
-            
+                if self.AE.require_called_aet != assoc_rq.CalledAETitle:
+                    reject_assoc_rsd = [0x01, 0x01, 0x07]
+
             # DUL Presentation Related Rejections
             #
             # Maximum number of associations reached (local-limit-exceeded)
             if len(self.ae.active_associations) > self.ae.maximum_associations:
-                assoc_rj = self.acse.Reject(assoc_rq, 0x02, 0x03, 0x02)
+                reject_assoc_rsd = [0x02, 0x03, 0x02]
+
+            for [result, src, diag] in reject_assoc_rsd:
+                assoc_rj = self.acse.Reject(assoc_rq, result, src, diag)
                 self.debug_association_rejected(assoc_rj)
                 self.ae.on_association_rejected(assoc_rj)
                 self.kill()
                 return
             
-            context_manager = PresentationContextManager()
-            context_manager.requestor_contexts = assoc_rq.PresentationContextDefinitionList
-            context_manager.acceptor_contexts = self.ae.presentation_contexts_scp
+            self.acse.context_manager = PresentationContextManager()
+            self.acse.context_manager.requestor_contexts = \
+                                    assoc_rq.PresentationContextDefinitionList
+            self.acse.context_manager.acceptor_contexts = \
+                                    self.ae.presentation_contexts_scp
             
-            self.acse.presentation_contexts_accepted = context_manager.accepted
+            self.acse.presentation_contexts_accepted = \
+                                    self.acse.context_manager.accepted
             
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
             assoc_ac = self.acse.Accept(assoc_rq)
@@ -285,8 +290,8 @@ class Association(threading.Thread):
                 self.kill()
                 return
             
+            # No valid presentation contexts, abort the association
             if self.acse.presentation_contexts_accepted == []:
-                # No valid presentation contexts, abort the association
                 self.acse.Abort(0x02, 0x00)
                 self.kill()
                 return
@@ -294,40 +299,63 @@ class Association(threading.Thread):
             # Assocation established OK
             self.is_established = True
             
+            # Main SCP run loop 
+            #   1. Checks for incoming DIMSE messages
+            #       If DIMSE message then run corresponding service class' SCP
+            #       method
+            #   2. Checks for peer A-RELEASE request primitive
+            #       If present then kill thread
+            #   3. Checks for peer A-ABORT request primitive
+            #       If present then kill thread
+            #   4. Checks DUL provider still running
+            #       If not then kill thread
+            #   5. Checks DUL idle timeout
+            #       If timed out then kill thread
             while not self._Kill:
                 time.sleep(0.001)
                 
                 # Check with the DIMSE provider for incoming messages
-                msg, pcid = self.dimse.Receive(False, self.dimse_timeout)
+                #   all messages should be a DIMSEMessage subclass
+                msg, msg_context_id = self.dimse.Receive(False, 
+                                                         self.dimse_timeout)
                 
+                # DIMSE message received
                 if msg:
-                    # DIMSE message received
+                    # Convert the message's affected SOP class to a UID
                     uid = msg.AffectedSOPClassUID
 
-                    # New SOPClass instance
-                    obj = UID2SOPClass(uid.value)()
+                    # Use the UID to create a new SOP Class instance of the
+                    #   corresponding value
+                    sop_class = UID2SOPClass(uid.value)()
                     
-                    matching_sop = False
-                    for sop_class in self.acse.presentation_contexts_accepted:
-                        if sop_class.ID == pcid:
-                            obj.pcid = sop_class.ID
-                            obj.sopclass = sop_class.AbstractSyntax
-                            obj.transfersyntax = sop_class.TransferSyntax[0]
-                            
-                            matching_sop = True
+                    # Check that the SOP Class is supported by the AE
+                    matching_context = False
+                    for context in self.acse.presentation_contexts_accepted:
+                        if context.ID == msg_context_id:
+                            sop_class.pcid = context.ID
+                            sop_class.sopclass = context.AbstractSyntax
+                            sop_class.transfersyntax = context.TransferSyntax[0]
+
+                            matching_context = True
+
+                    if matching_context:
+                        # Most of these shouldn't be necessary
+                        sop_class.maxpdulength = self.acse.MaxPDULength
+                        sop_class.DIMSE = self.dimse
+                        sop_class.ACSE = self.acse
+                        sop_class.AE = self.ae
+                        sop_class.assoc = assoc_ac
+                        
+                        # Run SOPClass in SCP mode
+                        sop_class.SCP(msg)
                     
-                    # If we don't have any matching SOP classes then ???
-                    if not matching_sop:
-                        pass
+                    # If the peer tries to do something that we don't have 
+                    #   a matching SOP class for
+                    else:
+                        logger.error("Peer attempted to send a DIMSE message "
+                                "with an affected SOP Class that is not "
+                                "supported by the SCP")
                     
-                    obj.maxpdulength = self.acse.MaxPDULength
-                    obj.DIMSE = self.dimse
-                    obj.ACSE = self.acse
-                    obj.AE = self.ae
-                    obj.assoc = assoc_ac
-                    
-                    # Run SOPClass in SCP mode
-                    obj.SCP(msg)
 
                 # Check for release request
                 if self.acse.CheckRelease():
@@ -482,18 +510,22 @@ class Association(threading.Thread):
         data_sop = dataset.SOPClassUID.__repr__()[1:-1]
         sop_class = UID2SOPClass(data_sop)
         
+        # Check that the dataset's SOP Class belongs to one of the ACSE's 
+        #   accepted presentation contexts
         found_match = False
-        for scu_sop_class in self.scu_supported_sop:
-            if scu_sop_class[1] == sop_class:
-                sop_class.pcid = scu_sop_class[0]
-                sop_class.sopclass = scu_sop_class[1]
-                sop_class.transfersyntax = scu_sop_class[2]
-                
-                found_match = True
-                
+        for context in self.acse.context_manager.accepted:
+            pass
+        #    if sop_class.UID == context.AbstractSyntax:
+        sop_class.pcid = context.ID
+        sop_class.sopclass = context.AbstractSyntax
+        sop_class.transfersyntax = context.TransferSyntax[0]
+    
+        found_match = True
+
         if not found_match:
-            logger.error("'%s' is not one of the AE's supported SOP Classes" \
-                                                    %UID(sop_class.UID))
+            logger.error("No Presentation Context for: '%s'"
+                                                       %UID(sop_class.UID))
+            logger.error("Store SCU Failed: DIMSE No valid presentation context ID")
             return None
             
         sop_class.maxpdulength = self.acse.MaxPDULength
