@@ -21,8 +21,8 @@ user will typically create an ApplicationEntity object then either:
 
 - Start the application as an SCP using ``AE.start()`` and wait for incoming 
   association requests
-- Request an association with a peer SCP using the ``AE.associate(addr, port)`` 
-  method.
+- Use the application as an SCU by requesting an association with a peer SCP 
+  via the ``AE.associate(addr, port)`` method.
 
 Once the AE is associated with a peer, DICOM data can be sent between them by 
 utilising the DIMSE-C and DIMSE-N services (see DICOM Standard PS3.7, Sections 

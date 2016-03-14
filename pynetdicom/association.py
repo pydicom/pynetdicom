@@ -250,20 +250,20 @@ class Association(threading.Thread):
             # Calling AE Title not recognised
             if self.ae.require_calling_aet != '':
                 if self.ae.require_calling_aet != assoc_rq.CallingAETitle:
-                    reject_assoc_rsd = [0x01, 0x01, 0x03]
+                    reject_assoc_rsd = [(0x01, 0x01, 0x03)]
 
             # Called AE Title not recognised
             if self.ae.require_called_aet != '':
                 if self.AE.require_called_aet != assoc_rq.CalledAETitle:
-                    reject_assoc_rsd = [0x01, 0x01, 0x07]
+                    reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
             # DUL Presentation Related Rejections
             #
             # Maximum number of associations reached (local-limit-exceeded)
             if len(self.ae.active_associations) > self.ae.maximum_associations:
-                reject_assoc_rsd = [0x02, 0x03, 0x02]
+                reject_assoc_rsd = [(0x02, 0x03, 0x02)]
 
-            for [result, src, diag] in reject_assoc_rsd:
+            for (result, src, diag) in reject_assoc_rsd:
                 assoc_rj = self.acse.Reject(assoc_rq, result, src, diag)
                 self.debug_association_rejected(assoc_rj)
                 self.ae.on_association_rejected(assoc_rj)
@@ -331,7 +331,9 @@ class Association(threading.Thread):
                     # Check that the SOP Class is supported by the AE
                     matching_context = False
                     for context in self.acse.presentation_contexts_accepted:
-                        if context.ID == msg_context_id:
+                        # FIXME: msg_id should not be used to check against 
+                        #   context.ID
+                        if context.ID == msg_id:
                             # New method - what is this even used for?
                             sop_class.presentation_context = context
                             
@@ -500,7 +502,67 @@ class Association(threading.Thread):
 
 
     # DIMSE-C services provided by the Association
+    def send_c_echo(self, msg_id=1):
+        """
+        Send a C-ECHO message to the peer AE
+
+        Parameters
+        ----------
+        msg_id - int
+            The message ID
+
+        Returns
+        -------
+        status : pynetdicom.SOPclass.Status
+            Will always be Success (0x0000)
+        """
+        if self.is_established:
+            sop_class = VerificationSOPClass()
+            
+            found_match = False
+            for scu_sop_class in self.scu_supported_sop:
+                if scu_sop_class[1] == sop_class.__class__:
+                    sop_class.pcid = scu_sop_class[0]
+                    sop_class.sopclass = scu_sop_class[1]
+                    sop_class.transfersyntax = scu_sop_class[2]
+                    
+                    found_match = True
+                    
+            if not found_match:
+                raise ValueError("'%s' is not listed as one of the AE's "
+                        "supported SOP Classes" %sop_class.__class__.__name__)
+                
+            sop_class.maxpdulength = self.acse.MaxPDULength
+            sop_class.DIMSE = self.dimse
+            sop_class.AE = self.ae
+            sop_class.RemoteAE = self.peer_ae
+            
+            return sop_class.SCU(msg_id)
+        else:
+            raise RuntimeError("The association with a peer SCP must be "
+                "established before sending a C-ECHO request")
+
     def send_c_store(self, dataset, msg_id=1, priority=2):
+        """
+        Send a C-STORE request message to the peer AE
+
+        Parameters
+        ----------
+        dataset - pydicom.Dataset
+            The DICOM dataset to send to the peer
+        msg_id - int
+            The message ID
+        priority - int
+            The message priority, one of:
+                2 - Low
+                1 - High
+                0 - Medium
+
+        Returns
+        -------
+        status : pynetdicom.SOPclass.Status
+            The status of the C-STORE operation
+        """
         if self.is_established:
             # Select appropriate SOP Class for dataset
             data_sop = dataset.SOPClassUID.__repr__()[1:-1]
@@ -534,34 +596,34 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-STORE request")
 
-    def send_c_echo(self, msg_id=1):
-        if self.is_established:
-            sop_class = VerificationSOPClass()
-            
-            found_match = False
-            for scu_sop_class in self.scu_supported_sop:
-                if scu_sop_class[1] == sop_class.__class__:
-                    sop_class.pcid = scu_sop_class[0]
-                    sop_class.sopclass = scu_sop_class[1]
-                    sop_class.transfersyntax = scu_sop_class[2]
-                    
-                    found_match = True
-                    
-            if not found_match:
-                raise ValueError("'%s' is not listed as one of the AE's "
-                        "supported SOP Classes" %sop_class.__class__.__name__)
-                
-            sop_class.maxpdulength = self.acse.MaxPDULength
-            sop_class.DIMSE = self.dimse
-            sop_class.AE = self.ae
-            sop_class.RemoteAE = self.peer_ae
-            
-            status = sop_class.SCU(msg_id)
-        else:
-            raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-ECHO request")
+    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
+        """
+        Send a C-FIND request message to the peer AE
 
-    def send_c_find(self, dataset, query_model='W', msg_id=1, query_priority=2):
+        Parameters
+        ----------
+        dataset - pydicom.Dataset
+            The DICOM dataset to containing the attributes the peer AE should 
+            match against
+        msg_id - int, optional
+            The message ID
+        priority - int, optional
+            The message priority, one of:
+                2 - Low (default)
+                1 - High
+                0 - Medium
+        query_model - str, optional
+            One of the following:
+                'W' - Modality Worklist Information Find
+                'P' - Patient Root Find
+                'S' - Study Root Find
+                'O' - Patient Study Only Find
+
+        Returns
+        -------
+        dataset, status : generator of pydicom.Dataset, pynetdicom.SOPclass.Status
+            The result dataset(s) and the status(es) of the C-FIND operation
+        """
         if self.is_established:
             if query_model == 'W':
                 sop_class = ModalityWorklistInformationFindSOPClass()
@@ -572,8 +634,8 @@ class Association(threading.Thread):
             elif query_model == "O":
                 sop_class = PatientStudyOnlyFindSOPClass()
             else:
-                raise ValueError("Association::send_c_find() query_model must be "
-                    "one of ['W'|'P'|'S'|'O']")
+                raise ValueError("Association::send_c_find() query_model "
+                    "must be one of ['W'|'P'|'S'|'O']")
 
             found_match = False
             for scu_sop_class in self.scu_supported_sop:
@@ -599,14 +661,14 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
 
-    def send_c_move(self, dataset):
+    def send_c_move(self, dataset, msg_id=1, priority=2, query_model='W'):
         if self.is_established:
             pass
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
 
-    def send_c_get(self, dataset, query_model='W', msg_id=1, query_priority=2):
+    def send_c_get(self, dataset, msg_id=1, priority=2, query_model='W'):
         if self.is_established:
             if query_model == 'W':
                 sop_class = ModalityWorklistInformationGetSOPClass()
