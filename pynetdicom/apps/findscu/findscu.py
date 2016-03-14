@@ -146,15 +146,15 @@ elif args.psonly:
     query_model = 'O'
 else:
     query_model = 'W'
-
+    
 # Send query
-if assoc.Established:
-    response = assoc.send_c_find(d, query_model)
+if assoc.is_established:
+    response = assoc.send_c_find(d, query_model=query_model)
     
     time.sleep(1)
     for value in response:
         pass
     
-    assoc.Release()
+    assoc.release()
 
 ae.quit()
