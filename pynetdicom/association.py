@@ -573,9 +573,10 @@ class Association(threading.Thread):
             found_match = False
             for context in self.acse.context_manager.accepted:
                 if sop_class.UID == context.AbstractSyntax:
-                    sop_class.pcid = context.ID
-                    sop_class.sopclass = context.AbstractSyntax
-                    sop_class.transfersyntax = context.TransferSyntax[0]
+                    sop_class.presentation_context = context
+                    #sop_class.pcid = context.ID
+                    #sop_class.sopclass = context.AbstractSyntax
+                    #sop_class.transfersyntax = context.TransferSyntax[0]
         
                     found_match = True
 
@@ -584,7 +585,8 @@ class Association(threading.Thread):
                                                            %UID(sop_class.UID))
                 logger.error("Store SCU Failed: DIMSE No valid presentation context ID")
                 return None
-                
+            
+            sop_class.MessageID = msg_id
             sop_class.maxpdulength = self.acse.MaxPDULength
             sop_class.DIMSE = self.dimse
             sop_class.AE = self.ae

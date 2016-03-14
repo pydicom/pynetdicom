@@ -55,8 +55,9 @@ Supported SCP Services
 ~~~~~~~~~~~~~~~~~~~~~~
 
 When the AE is acting as an SCP the following DIMSE-C services are available to 
-the peer once an association has been established. The user is expected to 
-define their own responses via the following ``AE`` callbacks:
+the peer once an association has been established. With the exception of 
+``on_c_echo()``, the user is expected to handle the required operations by 
+implementing the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo()``
 - C-STORE: ``AE.on_c_store(sop_class, dataset)``

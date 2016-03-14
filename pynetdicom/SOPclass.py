@@ -81,10 +81,11 @@ class VerificationServiceClass(ServiceClass):
         rsp.Status = int(self.Success)
 
         try:
-            self.AE.on_c_echo(self)
-        except:
-            #logger.error("There was an exception on OnReceiveEcho callback")
+            self.AE.on_c_echo()
+        except NotImplementedError:
             pass
+        except:
+            logger.exception("Exception raised by the AE.on_c_echo() callback")
         
         # Send response via DIMSE provider
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
