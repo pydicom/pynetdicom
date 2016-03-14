@@ -15,7 +15,7 @@ import time
 
 from pydicom.dataset import Dataset
 
-from pynetdicom.ae import AE
+from pynetdicom import AE
 from pynetdicom.SOPclass import PatientRootFindSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian

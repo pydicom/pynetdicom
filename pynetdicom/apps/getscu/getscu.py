@@ -16,7 +16,7 @@ import time
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 
-from pynetdicom.ae import AE
+from pynetdicom import AE
 from pynetdicom.SOPclass import PatientRootGetSOPClass, CTImageStorageSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian

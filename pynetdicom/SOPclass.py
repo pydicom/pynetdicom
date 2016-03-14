@@ -124,31 +124,61 @@ class StorageServiceClass(ServiceClass):
     def __init__(self):
         ServiceClass.__init__(self)
 
-    def SCU(self, dataset, msg_id, priority=2):
+    def SCU(self, dataset, msg_id, priority=0x0000):
         """
+        I think perhaps we should rewrite the .SCU and .SCP methods so
+        they return the DIMSE message that should be sent to the peer
         
+        Parameters
+        ----------
+        dataset - pydicom.dataset
+            The DICOM dataset to send
+        msg_id - int
+            The DIMSE message ID value to use
+        priority - int, optional
+            The message priority, must be one of the following:
+                0x0002 Low
+                0x0001 High
+                0x0000 Medium
+                
+        Returns
+        -------
         """
-        # build C-STORE primitive
-        csto = C_STORE_ServiceParameters()
-        csto.MessageID = msg_id
-        csto.AffectedSOPClassUID = dataset.SOPClassUID
-        csto.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-        csto.Priority = 0x0002
-        csto.DataSet = encode(dataset,
-                              self.transfersyntax.is_implicit_VR,
-                              self.transfersyntax.is_little_endian)
-        csto.DataSet = BytesIO(csto.DataSet)
+        # Build C-STORE request primitive
+        c_store_primitive = C_STORE_ServiceParameters()
+        c_store_primitive.MessageID = msg_id
+        c_store_primitive.AffectedSOPClassUID = dataset.SOPClassUID
+        c_store_primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+        
+        # Message priority
+        if priority in [0x0000, 0x0001, 0x0002]:
+            c_store_primitive.Priority = priority
+        else:
+            logger.warning("StorageServiceClass.SCU(): Invalid priority value "
+                                                            "'%s'" %priority)
+            c_store_primitive.Priorty = 0x0000
+        
+        # Encode the dataset using the agreed transfer syntax
+        transfer_syntax = self.presentation_context.TransferSyntax[0]
+        c_store_primitive.DataSet = encode(dataset,
+                                           transfer_syntax.is_implicit_VR,
+                                           transfer_syntax.is_little_endian)
+
+        c_store_primitive.DataSet = BytesIO(c_store_primitive.DataSet)
         
         # If we failed to encode our dataset, abort the association and return
-        if csto.DataSet is None:
+        if c_store_primitive.DataSet is None:
             return None
 
-        # send cstore request
-        self.DIMSE.Send(csto, self.pcid, self.maxpdulength)
+        # Send C-STORE request primitive to DIMSE
+        self.DIMSE.Send(c_store_primitive, 
+                        self.MessageID, 
+                        self.maxpdulength)
 
-        # wait for c-store response
+        # Wait for C-STORE response primitive
         ans, _ = self.DIMSE.Receive(Wait=True, 
                                     dimse_timeout=self.DIMSE.dimse_timeout)
+
         return self.Code2Status(ans.Status.value)
 
     def SCP(self, msg):
@@ -864,6 +894,58 @@ class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
 
 
 d = dir()
+
+def modify_pydicom_uid_dict(class_name, parent_class):
+    """
+    SOP Class class Factory
+    Modifies the pydicom _uid_dict.UID_dictionary to add a ServiceClass
+    something something
+    
+    Example usage - UID present in pydicom's UID_dictionary:
+    class = class_factory('1.2.840.10008.5.1.4.1.1.2', StorageServiceClass)
+    class.UID  # '1.2.840.10008.5.1.4.1.1.2'
+    class.Name # 'CT Image Storage'
+    class.Type # 'Storage SOP Class'
+    class.Info # ''
+    class.is_retired # ''
+    
+    #status = class.SCU('ct_dataset.dcm')
+    
+    # The Presentation Context the SOP Class is operating under
+    class.presentation_context = context 
+
+    # This should really be a DIMSE attribute rather than a primitive attribute
+    #sop_class.maxpdulength = self.acse.MaxPDULength
+    
+    # Used by SCU/SCP to Send/Receive self
+    sop_class.DIMSE = self.dimse
+    
+    # Not sure why we need the ACSE -> presentation context checking?
+    #sop_class.ACSE = self.acse
+    
+    # Better
+    class.scu_callback = None
+    class.scp_callback = self.self.ae.on_c_store
+    
+    # Run SOPClass in SCP mode
+    class.SCP(dimse_msg)
+    
+    Example usage - UID not present in pydicom's UID_dictionary:
+    
+    
+    Parameters
+    ----------
+    class_name - str
+        The variable name for the class
+    parent_class - pynetdicom.SOPclass.ServiceClass subclass
+        One of the implemented Service Classes:
+            VerificationServiceClass
+            StorageServiceClass
+            QueryRetrieveFindSOPClass
+            QueryRetrieveMoveSOPClass
+            QueryRetrieveGetSOPClass
+            ModalityWorklistServiceSOPClass
+    """
 
 def UID2SOPClass(UID):
     """

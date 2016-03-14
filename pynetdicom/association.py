@@ -316,7 +316,7 @@ class Association(threading.Thread):
                 
                 # Check with the DIMSE provider for incoming messages
                 #   all messages should be a DIMSEMessage subclass
-                msg, msg_context_id = self.dimse.Receive(False, 
+                msg, msg_id = self.dimse.Receive(False, 
                                                          self.dimse_timeout)
                 
                 # DIMSE message received
@@ -332,6 +332,10 @@ class Association(threading.Thread):
                     matching_context = False
                     for context in self.acse.presentation_contexts_accepted:
                         if context.ID == msg_context_id:
+                            # New method - what is this even used for?
+                            sop_class.presentation_context = context
+                            
+                            # Old method
                             sop_class.pcid = context.ID
                             sop_class.sopclass = context.AbstractSyntax
                             sop_class.transfersyntax = context.TransferSyntax[0]
@@ -344,19 +348,10 @@ class Association(threading.Thread):
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
                         sop_class.AE = self.ae
-                        sop_class.assoc = assoc_ac
                         
                         # Run SOPClass in SCP mode
                         sop_class.SCP(msg)
                     
-                    # If the peer tries to do something that we don't have 
-                    #   a matching SOP class for
-                    else:
-                        logger.error("Peer attempted to send a DIMSE message "
-                                "with an affected SOP Class that is not "
-                                "supported by the SCP")
-                    
-
                 # Check for release request
                 if self.acse.CheckRelease():
                     # Callback trigger

@@ -17,7 +17,7 @@ from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-from pynetdicom.ae import AE
+from pynetdicom import AE
 from pynetdicom.SOPclass import VerificationSOPClass, CTImageStorageSOPClass, \
     Status, MRImageStorageSOPClass
 

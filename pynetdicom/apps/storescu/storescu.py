@@ -17,7 +17,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
 
-from pynetdicom.ae import AE
+from pynetdicom import AE
 from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass, \
                                   MRImageStorageSOPClass
 
