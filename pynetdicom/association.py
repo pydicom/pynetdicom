@@ -499,137 +499,173 @@ class Association(threading.Thread):
                 return
 
 
-    # DIMSE services provided by the Association
+    # DIMSE-C services provided by the Association
     def send_c_store(self, dataset, msg_id=1, priority=2):
-        # Select appropriate SOP Class for dataset
-        data_sop = dataset.SOPClassUID.__repr__()[1:-1]
-        sop_class = UID2SOPClass(data_sop)
-        
-        # Check that the dataset's SOP Class belongs to one of the ACSE's 
-        #   accepted presentation contexts
-        found_match = False
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                sop_class.pcid = context.ID
-                sop_class.sopclass = context.AbstractSyntax
-                sop_class.transfersyntax = context.TransferSyntax[0]
-    
-                found_match = True
-
-        if not found_match:
-            logger.error("No Presentation Context for: '%s'"
-                                                       %UID(sop_class.UID))
-            logger.error("Store SCU Failed: DIMSE No valid presentation context ID")
-            return None
+        if self.is_established:
+            # Select appropriate SOP Class for dataset
+            data_sop = dataset.SOPClassUID.__repr__()[1:-1]
+            sop_class = UID2SOPClass(data_sop)
             
-        sop_class.maxpdulength = self.acse.MaxPDULength
-        sop_class.DIMSE = self.dimse
-        sop_class.AE = self.ae
-        sop_class.RemoteAE = self.peer_ae
-
-        # Send the query
-        return sop_class().SCU(dataset, msg_id, priority)
+            # Check that the dataset's SOP Class belongs to one of the ACSE's 
+            #   accepted presentation contexts
+            found_match = False
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    sop_class.pcid = context.ID
+                    sop_class.sopclass = context.AbstractSyntax
+                    sop_class.transfersyntax = context.TransferSyntax[0]
         
+                    found_match = True
+
+            if not found_match:
+                logger.error("No Presentation Context for: '%s'"
+                                                           %UID(sop_class.UID))
+                logger.error("Store SCU Failed: DIMSE No valid presentation context ID")
+                return None
+                
+            sop_class.maxpdulength = self.acse.MaxPDULength
+            sop_class.DIMSE = self.dimse
+            sop_class.AE = self.ae
+            sop_class.RemoteAE = self.peer_ae
+
+            # Send the query
+            return sop_class().SCU(dataset, msg_id, priority)
+        else:
+            raise RuntimeError("The association with a peer SCP must be "
+                "established before sending a C-STORE request")
+
     def send_c_echo(self, msg_id=1):
-        sop_class = VerificationSOPClass()
-        
-        found_match = False
-        for scu_sop_class in self.scu_supported_sop:
-            if scu_sop_class[1] == sop_class.__class__:
-                sop_class.pcid = scu_sop_class[0]
-                sop_class.sopclass = scu_sop_class[1]
-                sop_class.transfersyntax = scu_sop_class[2]
-                
-                found_match = True
-                
-        if not found_match:
-            raise ValueError("'%s' is not listed as one of the AE's "
-                    "supported SOP Classes" %sop_class.__class__.__name__)
+        if self.is_established:
+            sop_class = VerificationSOPClass()
             
-        sop_class.maxpdulength = self.acse.MaxPDULength
-        sop_class.DIMSE = self.dimse
-        sop_class.AE = self.ae
-        sop_class.RemoteAE = self.peer_ae
-        
-        status = sop_class.SCU(msg_id)
-        
+            found_match = False
+            for scu_sop_class in self.scu_supported_sop:
+                if scu_sop_class[1] == sop_class.__class__:
+                    sop_class.pcid = scu_sop_class[0]
+                    sop_class.sopclass = scu_sop_class[1]
+                    sop_class.transfersyntax = scu_sop_class[2]
+                    
+                    found_match = True
+                    
+            if not found_match:
+                raise ValueError("'%s' is not listed as one of the AE's "
+                        "supported SOP Classes" %sop_class.__class__.__name__)
+                
+            sop_class.maxpdulength = self.acse.MaxPDULength
+            sop_class.DIMSE = self.dimse
+            sop_class.AE = self.ae
+            sop_class.RemoteAE = self.peer_ae
+            
+            status = sop_class.SCU(msg_id)
+        else:
+            raise RuntimeError("The association with a peer SCP must be "
+                "established before sending a C-ECHO request")
+
     def send_c_find(self, dataset, query_model='W', msg_id=1, query_priority=2):
+        if self.is_established:
+            if query_model == 'W':
+                sop_class = ModalityWorklistInformationFindSOPClass()
+            elif query_model == "P":
+                sop_class = PatientRootFindSOPClass()
+            elif query_model == "S":
+                sop_class = StudyRootFindSOPClass()
+            elif query_model == "O":
+                sop_class = PatientStudyOnlyFindSOPClass()
+            else:
+                raise ValueError("Association::send_c_find() query_model must be "
+                    "one of ['W'|'P'|'S'|'O']")
 
-        if query_model == 'W':
-            sop_class = ModalityWorklistInformationFindSOPClass()
-        elif query_model == "P":
-            sop_class = PatientRootFindSOPClass()
-        elif query_model == "S":
-            sop_class = StudyRootFindSOPClass()
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyFindSOPClass()
-        else:
-            raise ValueError("Association::send_c_find() query_model must be "
-                "one of ['W'|'P'|'S'|'O']")
-
-        found_match = False
-        for scu_sop_class in self.scu_supported_sop:
-            if scu_sop_class[1] == sop_class.__class__:
-                sop_class.pcid = scu_sop_class[0]
-                sop_class.sopclass = scu_sop_class[1]
-                sop_class.transfersyntax = scu_sop_class[2]
+            found_match = False
+            for scu_sop_class in self.scu_supported_sop:
+                if scu_sop_class[1] == sop_class.__class__:
+                    sop_class.pcid = scu_sop_class[0]
+                    sop_class.sopclass = scu_sop_class[1]
+                    sop_class.transfersyntax = scu_sop_class[2]
+                    
+                    found_match = True
+                    
+            if not found_match:
+                raise ValueError("'%s' is not listed as one of the AE's "
+                        "supported SOP Classes" %sop_class.__class__.__name__)
                 
-                found_match = True
-                
-        if not found_match:
-            raise ValueError("'%s' is not listed as one of the AE's "
-                    "supported SOP Classes" %sop_class.__class__.__name__)
+            sop_class.maxpdulength = self.acse.MaxPDULength
+            sop_class.DIMSE = self.dimse
+            sop_class.AE = self.ae
+            sop_class.RemoteAE = self.peer_ae
             
-        sop_class.maxpdulength = self.acse.MaxPDULength
-        sop_class.DIMSE = self.dimse
-        sop_class.AE = self.ae
-        sop_class.RemoteAE = self.peer_ae
-        
-        # Send the query
-        return sop_class.SCU(dataset, msg_id, query_priority)
-        
+            # Send the query
+            return sop_class.SCU(dataset, msg_id, query_priority)
+        else:
+            raise RuntimeError("The association with a peer SCP must be "
+                "established before sending a C-FIND request")
+
     def send_c_move(self, dataset):
-        pass
-        
-    def send_c_get(self, dataset, query_model='W', msg_id=1, query_priority=2):
-        if query_model == 'W':
-            sop_class = ModalityWorklistInformationGetSOPClass()
-        elif query_model == "P":
-            sop_class = PatientRootGetSOPClass()
-        elif query_model == "S":
-            sop_class = StudyRootGetSOPClass()
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyGetSOPClass()
+        if self.is_established:
+            pass
         else:
-            raise ValueError("Association::send_c_get() query_model must be "
-                "one of ['W'|'P'|'S'|'O']")
+            raise RuntimeError("The association with a peer SCP must be "
+                "established before sending a C-MOVE request")
 
-        found_match = False
-        for scu_sop_class in self.scu_supported_sop:
-            if scu_sop_class[1] == sop_class.__class__:
-                sop_class.pcid = scu_sop_class[0]
-                sop_class.sopclass = scu_sop_class[1]
-                sop_class.transfersyntax = scu_sop_class[2]
+    def send_c_get(self, dataset, query_model='W', msg_id=1, query_priority=2):
+        if self.is_established:
+            if query_model == 'W':
+                sop_class = ModalityWorklistInformationGetSOPClass()
+            elif query_model == "P":
+                sop_class = PatientRootGetSOPClass()
+            elif query_model == "S":
+                sop_class = StudyRootGetSOPClass()
+            elif query_model == "O":
+                sop_class = PatientStudyOnlyGetSOPClass()
+            else:
+                raise ValueError("Association::send_c_get() query_model must be "
+                    "one of ['W'|'P'|'S'|'O']")
+
+            found_match = False
+            for scu_sop_class in self.scu_supported_sop:
+                if scu_sop_class[1] == sop_class.__class__:
+                    sop_class.pcid = scu_sop_class[0]
+                    sop_class.sopclass = scu_sop_class[1]
+                    sop_class.transfersyntax = scu_sop_class[2]
+                    
+                    found_match = True
+                    
+            if not found_match:
+                raise ValueError("'%s' is not listed as one of the AE's "
+                        "supported SOP Classes" %sop_class.__class__.__name__)
                 
-                found_match = True
-                
-        if not found_match:
-            raise ValueError("'%s' is not listed as one of the AE's "
-                    "supported SOP Classes" %sop_class.__class__.__name__)
+            sop_class.maxpdulength = self.acse.MaxPDULength
+            sop_class.DIMSE = self.dimse
+            sop_class.AE = self.ae
+            sop_class.RemoteAE = self.peer_ae
             
-        sop_class.maxpdulength = self.acse.MaxPDULength
-        sop_class.DIMSE = self.dimse
-        sop_class.AE = self.ae
-        sop_class.RemoteAE = self.peer_ae
-        
-        # Send the query
-        return sop_class.SCU(dataset, msg_id, query_priority)
+            # Send the query
+            return sop_class.SCU(dataset, msg_id, query_priority)
+        else:
+            raise RuntimeError("The association with a peer SCP must be "
+                "established before sending a C-MOVE request")
+
+
+    # DIMSE-N services provided by the Association
+    def send_n_get(self):
+        raise NotImplementedError
+
+    def send_n_set(self):
+        raise NotImplementedError
+
+    def send_n_action(self):
+        raise NotImplementedError
+
+    def send_n_create(self):
+        raise NotImplementedError
+
+    def send_n_delete(self):
+        raise NotImplementedError
 
 
     # Association logging/debugging functions
     def debug_association_requested(self):
         pass
-    
+
     def debug_association_accepted(self, assoc):
         """
         Placeholder for a function callback. Function will be called 
@@ -763,10 +799,10 @@ class Association(threading.Thread):
         logger.error('Association Rejected:')
         logger.error('Result: %s, Source: %s' %(result_str[result], source_str[source]))
         logger.error('Reason: %s' %reason_str[source - 1][reason])
-        
+
     def debug_association_released(self):
         logger.info('Association Released')
-        
+
     def debug_association_aborted(self, abort_primitive=None):
         logger.info('Association Aborted')
 
