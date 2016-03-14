@@ -1009,7 +1009,7 @@ class ApplicationEntity(object):
 
     # High-level DIMSE related callbacks
     def on_c_echo(self):
-        pass
+        raise NotImplementedError("")
 
     def on_c_store(self, sop_class, dataset):
         """
@@ -1028,16 +1028,16 @@ class ApplicationEntity(object):
             A valid return status, see the StorageServiceClass for the 
             available statuses
         """
-        return sop_class.Success
+        raise NotImplementedError("")
 
     def on_c_find(self, dataset):
-        pass
+        raise NotImplementedError("")
 
     def on_c_get(self, dataset):
-        pass
+        raise NotImplementedError("")
 
     def on_c_move(self, dataset):
-        pass
+        raise NotImplementedError("")
 
 
     # DIMSE message send/receive related callbacks

@@ -1,16 +1,18 @@
-# adapted from pydicom source code
 
-from pynetdicom.__version__ import __version__
-__version_info__ = __version__.split('.')
-
-# some imports
-#from pynetdicom.applicationentity import AE
+# Version Number
+__version__ = ['0', '9', '0']
+pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__)
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.' + \
-                                        '.'.join(__version_info__) 
-                                        
-pynetdicom_version = 'PYNETDICOM_' + ''.join(__version_info__)
+                                        '.'.join(__version__) 
+
+from pynetdicom.applicationentity import ApplicationEntity as AE
+from pynetdicom.association import Association
+from pynetdicom.ACSEprovider import ACSEServiceProvider as ACSE
+from pynetdicom.DIMSEprovider import DIMSEServiceProvider as DIMSE
+from pynetdicom.DULprovider import DULServiceProvider as DUL
+
 
 # Set up logging system for the whole package.  In each module, set
 # logger=logging.getLogger('pynetdicom') and the same instance will be
@@ -28,8 +30,6 @@ import logging
 
 # helper functions to configure the logger. This should be
 # called by the client code.
-
-
 def logger_setup():
     logger = logging.getLogger('pynetdicom')
     handler = logging.StreamHandler()

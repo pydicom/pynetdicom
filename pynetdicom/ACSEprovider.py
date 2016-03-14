@@ -5,7 +5,6 @@
 #    available at http://pynetdicom.googlecode.com
 #
 
-
 # This module provides association services
 
 import logging
@@ -14,13 +13,11 @@ import time
 
 from pydicom.uid import UID
 
-from pynetdicom.__init__ import pynetdicom_uid_prefix, pynetdicom_version
 from pynetdicom.DULparameters import *
 from pynetdicom.PDU import MaximumLengthParameters, \
                             ImplementationClassUIDParameters, \
                             ImplementationVersionNameParameters
 from pynetdicom.utils import PresentationContext, PresentationContextManager
-
 
 logger = logging.getLogger('pynetdicom.acse')
 
@@ -131,12 +128,14 @@ class ACSEServiceProvider(object):
         
         # Implementation Identification Notification (required)
         # Class UID (required)
+        from pynetdicom.__init__ import pynetdicom_uid_prefix
         implementation_class_uid = ImplementationClassUIDParameters()
         implementation_class_uid.ImplementationClassUID = \
                                         bytes(pynetdicom_uid_prefix, 'utf-8')
         assoc_rq.UserInformationItem.append(implementation_class_uid)
 
         # Version Name (optional)
+        from pynetdicom.__init__ import pynetdicom_version
         implementation_version_name = ImplementationVersionNameParameters()
         implementation_version_name.ImplementationVersionName = \
                                         bytes(pynetdicom_version, 'utf-8')
@@ -185,6 +184,7 @@ class ACSEServiceProvider(object):
                 # Get maximum pdu length from answer
                 self.MaxPDULength = \
                         assoc_rsp.UserInformationItem[0].MaximumLengthReceived
+                self.peer_max_pdu = self.MaxPDULength
 
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl

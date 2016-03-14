@@ -13,7 +13,7 @@ import os
 import socket
 import sys
 
-from pynetdicom.applicationentity import ApplicationEntity as AE
+from pynetdicom import ApplicationEntity as AE
 from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian

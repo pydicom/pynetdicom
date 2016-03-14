@@ -7,8 +7,6 @@
 import logging
 import time
 
-from pynetdicom.__init__ import pynetdicom_uid_prefix
-from pynetdicom.__version__ import __version__
 from pynetdicom.DIMSEmessages import *
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import P_DATA_ServiceParameters
@@ -23,40 +21,59 @@ class DIMSEServiceProvider(object):
         self.message = None
         self.dimse_timeout = None
 
-    def Send(self, primitive, id, maxpdulength):
+    def Send(self, primitive, msg_id, maxpdulength):
+        """
+        Send a DIMSE message to the DUL provider
+        
+        Parameters
+        ----------
+        primitive - pynetdicom.SOPclass.ServiceClass subclass
+            The SOP Class primitive to send
+        msg_id - int
+            The DIMSE Message ID (0000,0110)
+        maxpdulength - int
+            The maximum send PDV size acceptable by the peer AE
+        """
         # take a DIMSE primitive, convert it to one or more DUL primitive and
-        # send it
+        #   send it
         if primitive.__class__ == C_ECHO_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_ECHO_RQ_Message()
             else:
                 dimse_msg = C_ECHO_RSP_Message()
-        if primitive.__class__ == C_STORE_ServiceParameters:
+        
+        elif primitive.__class__ == C_STORE_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_STORE_RQ_Message()
             else:
                 dimse_msg = C_STORE_RSP_Message()
-        if primitive.__class__ == C_FIND_ServiceParameters:
+        
+        elif primitive.__class__ == C_FIND_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_FIND_RQ_Message()
             else:
                 dimse_msg = C_FIND_RSP_Message()
-        if primitive.__class__ == C_GET_ServiceParameters:
+        
+        elif primitive.__class__ == C_GET_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_GET_RQ_Message()
             else:
                 dimse_msg = C_GET_RSP_Message()
-        if primitive.__class__ == C_MOVE_ServiceParameters:
+        
+        elif primitive.__class__ == C_MOVE_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_MOVE_RQ_Message()
             else:
                 dimse_msg = C_MOVE_RSP_Message()
         
+        # Convert to DIMSE Message
         dimse_msg.FromParams(primitive)
+        
+        # Callbacks
         self.DUL.local_ae.on_send_dimse_message(dimse_msg)
         self.on_send_dimse_message(dimse_msg)
-
-        pdatas = dimse_msg.Encode(id, maxpdulength)
+        
+        pdatas = dimse_msg.Encode(msg_id, maxpdulength)
         for ii, pp in enumerate(pdatas):
             self.DUL.Send(pp)
 

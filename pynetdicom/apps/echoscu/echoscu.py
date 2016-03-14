@@ -15,7 +15,7 @@ import socket
 import sys
 import time
 
-from pynetdicom.ae import AE
+from pynetdicom import AE
 from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                                 ExplicitVRBigEndian

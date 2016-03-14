@@ -99,13 +99,13 @@ class DIMSEMessage:
             for ii in self.CommandFields:
                 self.CommandSet.add_new(ii[1], ii[2], '')
 
-    def Encode(self, id, max_pdu_length):
+    def Encode(self, msg_id, max_pdu_length):
         """Returns the encoded message as a series of P-DATA service
         parameter objects
         
         Parameters
         ----------
-        id - int
+        msg_id - int
             The message ID
         max_pdu_length - int
             The maximum PDU length in bytes
@@ -115,11 +115,12 @@ class DIMSEMessage:
         pdatas - BytesIO 
             The message encoded as a byte stream
         """
-        self.ID = id
+        self.ID = msg_id
         pdatas = []
         encoded_command_set = encode(self.CommandSet, 
                                      self.ts.is_implicit_VR, 
                                      self.ts.is_little_endian)
+        
         #print("DIMSEMessage::Encode()\n", self.CommandSet)
         #print('DIMSEMessage::Encode()\n' + wrap_list(encoded_command_set))
         
@@ -492,6 +493,7 @@ class C_FIND_RSP_Message(DIMSEMessage):
         status_str = '0x%04X (%s)' %(self.CommandSet.Status, 
                                      status[self.CommandSet.Status])
         return status_str
+
 
 class C_GET_RQ_Message(DIMSEMessage):
     CommandFields = [
