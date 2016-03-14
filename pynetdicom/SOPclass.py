@@ -895,16 +895,59 @@ class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
 
 d = dir()
 
-def modify_pydicom_uid_dict(class_name, parent_class):
+from pydicom._uid_dict import UID_dictionary
+from pydicom.uid import UID
+
+def sop_class_factory(class_uid, parent_class, sop_name='Unknown SOP Class'):
     """
     SOP Class class Factory
     Modifies the pydicom _uid_dict.UID_dictionary to add a ServiceClass
     something something
     
-    Example usage - UID present in pydicom's UID_dictionary:
+    A list of the supported Standard SOP Classes for each service class is
+    available in PS3.4. * indicates those Service Classes supported by pynetdicom
+        A. *Verification Service Class
+        B. *Storage Service Class
+        C. *Query/Retrieve Service Class
+        F. Procedure Strep SOP Classes
+        H. Print Management Service Class
+        I. Media Storage Service Class
+        J. Storage Commitment Service Class
+        K. Basic Worklist Management Service
+        N. Softcopy Presentation State Storage SOP Classes
+        O. Structured Reporting Storage SOP Classes
+        P. Application Event Logging Service Class
+        Q. Relevant Patient Information Query Service Class
+        R. Instance Availability Notification Service Class
+        S. Media Creation Management Service Class
+        T. Hanging Protocol Storage Service Class
+        U. Ganging Protocol Query/Retrieve Service Class
+        V. Substance Administration Query Service Class
+        W. Color Palette Storage Service Class
+        X. Color Palette Query/Retrieve Service Class
+        Y. Instance and Frame Level Retrieve SOP Classes
+        Z. Composite Instance Retrieve Without Bulk Data SOP Classes
+        AA. Opthalmic Refractive Measurements Storage SOP Classes
+        BB. Implant Template Query/Retrieve Service Classes
+        CC. Unified Procedure Step Service and SOP Classes
+        DD. RT Machine Verification Service Classes
+        EE. Display System Management Service Class
+    
+    # Example usage - UID present in pydicom's UID dictionary
     class = class_factory('1.2.840.10008.5.1.4.1.1.2', StorageServiceClass)
-    class.UID  # '1.2.840.10008.5.1.4.1.1.2'
-    class.Name # 'CT Image Storage'
+    
+    # Should return these values...
+    class.UID  # '1.2.840.10008.5.1.4.1.1.2' pydicom.uid.UID
+    class.Name # 'CT Image Storage' str
+    class.Type # 'Storage SOP Class' str
+    class.Info # '' str
+    class.is_retired # '' str
+    
+    # Example Usage - UID not present in pydicom's UID dictionary
+    class = class_factory(1.2.840.10008.5.1.4.1.1.2.2', StorageServiceClass, name='Unknown SOP Class')
+    # Should return these values...
+    class.UID  # '1.2.840.10008.5.1.4.1.1.2.2'
+    class.Name # 'Unknown SOP Class'
     class.Type # 'Storage SOP Class'
     class.Info # ''
     class.is_retired # ''
@@ -917,7 +960,7 @@ def modify_pydicom_uid_dict(class_name, parent_class):
     # This should really be a DIMSE attribute rather than a primitive attribute
     #sop_class.maxpdulength = self.acse.MaxPDULength
     
-    # Used by SCU/SCP to Send/Receive self
+    # Used by SCU/SCP to Send/Receive self but seems inelegant
     sop_class.DIMSE = self.dimse
     
     # Not sure why we need the ACSE -> presentation context checking?
@@ -925,10 +968,13 @@ def modify_pydicom_uid_dict(class_name, parent_class):
     
     # Better
     class.scu_callback = None
-    class.scp_callback = self.self.ae.on_c_store
+    class.scp_callback = self.ae.on_c_store
     
     # Run SOPClass in SCP mode
     class.SCP(dimse_msg)
+    
+    # Run SOPClass in SCU mode
+    class.SCU(*args)
     
     Example usage - UID not present in pydicom's UID_dictionary:
     
@@ -939,13 +985,148 @@ def modify_pydicom_uid_dict(class_name, parent_class):
         The variable name for the class
     parent_class - pynetdicom.SOPclass.ServiceClass subclass
         One of the implemented Service Classes:
-            VerificationServiceClass
-            StorageServiceClass
-            QueryRetrieveFindSOPClass
-            QueryRetrieveMoveSOPClass
-            QueryRetrieveGetSOPClass
-            ModalityWorklistServiceSOPClass
+            VerificationServiceClass - Only 1.2.840.10008.1.1
+            StorageServiceClass - Tables B.5-1 and B.6-1 in PS3.4
+            QueryRetrieveFindSOPClass - Annex C.4.1 in PS3.4
+            QueryRetrieveMoveSOPClass - Annex C.4.2 in PS3.4
+            QueryRetrieveGetSOPClass - Annex C.4.3 in PS3.4
+            ModalityWorklistServiceSOPClass - Annex K in PS3.4
     """
+    if parent_class in [VerificationServiceClass, 
+                         StorageServiceClass,
+                         QueryRetrieveFindSOPClass,
+                         QueryRetrieveMoveSOPClass,
+                         QueryRetrieveGetSOPClass,
+                         ModalityWorklistServiceSOPClass]:
+
+        cls = parent_class()
+        cls.UID = UID(class_uid)
+        
+        try:
+            cls.UID.is_valid()
+        except:
+            pass
+            
+        if cls.UID.is_transfer_syntax:
+            raise ValueError("Supplied UID belongs to a Transfer Syntax")
+        
+        # Check with pydicom to see if its a known SOP Class
+        if cls.UID in UID_dictionary.keys():
+            cls.name = UID.name
+            cls.type = UID.type
+            cls.info = UID.info
+            cls.is_retired = UID.is_retired
+            cls.presentation_context = None
+            
+        else:
+            cls.name = sop_name
+            cls.type = None
+            cls.info = None
+            cls.is_retired = None
+            cls.presentation_context = None
+
+"""
+class StorageServiceClass(ServiceClass):
+    OutOfResources = Status('Failure',
+                            'Refused: Out of resources',
+                            range(0xA700, 0xA7FF + 1)) 
+    DataSetDoesNotMatchSOPClassFailure = Status(
+                            'Failure',
+                            'Error: Data Set does not match SOP Class',
+                            range(0xA900, 0xA9FF + 1))
+    CannotUnderstand = Status(
+                            'Failure',
+                            'Error: Cannot understand',
+                            range(0xC000, 0xCFFF + 1))
+    CoercionOfDataElements = Status(
+                            'Warning',
+                            'Coercion of Data Elements',
+                            range(0xB000, 0xB000 + 1))
+    DataSetDoesNotMatchSOPClassWarning = Status(
+                            'Warning',
+                            'Data Set does not match SOP Class',
+                            range(0xB007, 0xB007 + 1))
+    ElementDisgarded = Status(
+                            'Warning',
+                            'Element Discarted',
+                            range(0xB006, 0xB006 + 1))
+    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
+    
+    def __init__(self):
+        ServiceClass.__init__(self)
+
+    def SCU(self, dataset, msg_id, priority=0x0000):
+        # Build C-STORE request primitive
+        c_store_primitive = C_STORE_ServiceParameters()
+        c_store_primitive.MessageID = msg_id
+        c_store_primitive.AffectedSOPClassUID = dataset.SOPClassUID
+        c_store_primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+        
+        # Message priority
+        if priority in [0x0000, 0x0001, 0x0002]:
+            c_store_primitive.Priority = priority
+        else:
+            logger.warning("StorageServiceClass.SCU(): Invalid priority value "
+                                                            "'%s'" %priority)
+            c_store_primitive.Priorty = 0x0000
+        
+        # Encode the dataset using the agreed transfer syntax
+        transfer_syntax = self.presentation_context.TransferSyntax[0]
+        c_store_primitive.DataSet = encode(dataset,
+                                           transfer_syntax.is_implicit_VR,
+                                           transfer_syntax.is_little_endian)
+
+        c_store_primitive.DataSet = BytesIO(c_store_primitive.DataSet)
+        
+        # If we failed to encode our dataset, abort the association and return
+        if c_store_primitive.DataSet is None:
+            return None
+
+        # Send C-STORE request primitive to DIMSE
+        self.DIMSE.Send(c_store_primitive, 
+                        self.MessageID, 
+                        self.maxpdulength)
+
+        # Wait for C-STORE response primitive
+        ans, _ = self.DIMSE.Receive(Wait=True, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
+
+        return self.Code2Status(ans.Status.value)
+
+    def SCP(self, msg):
+        try:
+            DS = decode(msg.DataSet,
+                        self.transfersyntax.is_implicit_VR,
+                        self.transfersyntax.is_little_endian)
+        except:
+            status = self.CannotUnderstand
+            logger.error("StorageServiceClass failed to decode the dataset")
+
+        # Create C-STORE response primitive
+        rsp = C_STORE_ServiceParameters()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        
+        # ApplicationEntity's on_c_store callback 
+        try:
+            self.AE.on_c_store(self, DS)
+            status = self.Success
+        except Exception as e:
+            logger.exception("Exception in the ApplicationEntity.on_c_store() "
+                                                                "callback")
+            status = self.CannotUnderstand
+
+        # Check that the supplied dataset UID matches the presentation context
+        #   ID
+        if self.UID != self.sopclass:
+            status = self.DataSetDoesNotMatchSOPClassFailure
+            logger.info("Store request's dataset UID does not match the "
+                                                        "presentation context")
+
+        rsp.Status = int(status)
+        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+"""
 
 def UID2SOPClass(UID):
     """

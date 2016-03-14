@@ -241,6 +241,7 @@ class ApplicationEntity(object):
         # Used to terminate AE when running as an SCP
         self.__Quit = False
 
+
     def start(self):
         """
         When running the AE as an SCP this needs to be called to start the main 
@@ -260,7 +261,7 @@ class ApplicationEntity(object):
             return
 
         # Bind the local_socket to the specified listen port
-        self.__run_bind_socket()
+        self.__start_bind_socket()
 
         no_loops = 0
         while True:
@@ -272,10 +273,10 @@ class ApplicationEntity(object):
                 
                 # Monitor client_socket for association requests and
                 #   appends any associations to self.active_associations
-                self.__run_monitor_socket()
+                self.__start_monitor_socket()
                 
                 # Delete dead associations
-                self.__run_cleanup_associations()
+                self.__start_cleanup_associations()
 
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
@@ -287,9 +288,10 @@ class ApplicationEntity(object):
             except KeyboardInterrupt:
                 self.stop()
 
-    def __run_bind_socket(self):
+    def __start_bind_socket(self):
         """ 
-        Set up and bind the socket
+        AE.start(): Set up and bind the socket. Separated out from start() to 
+        enable better unit testing
         """
         # The socket to listen for connections on, port is always specified
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -297,31 +299,34 @@ class ApplicationEntity(object):
         self.local_socket.bind(('', self.port))
         self.local_socket.listen(1)
 
-    def __run_monitor_socket(self):
+    def __start_monitor_socket(self):
         """ 
-        Monitors the local socket to see if anyone tries to connect and if so, 
-        creates a new association
+        AE.start(): Monitors the local socket to see if anyone tries to connect 
+        and if so, creates a new association. Separated out from start() to 
+        enable better unit testing
         """
         read_list, _, _ = select.select([self.local_socket], [], [], 0)
-        
+
         # If theres a connection
         if read_list:
             client_socket, remote_address = self.local_socket.accept()
             client_socket.setsockopt(socket.SOL_SOCKET, 
                                      socket.SO_RCVTIMEO, 
                                      pack('ll', 10, 0))
-            
+
             # Create a new Association
-            # Association(local_ae, local_socket=None, peer_ae=None)
+            # Association(local_ae, local_socket=None, max_pdu=16382)
             assoc = Association(self, 
                                 client_socket, 
                                 max_pdu=self.maximum_pdu_size)
+
             self.active_associations.append(assoc)
-    
-    def __run_cleanup_associations(self):
+
+    def __start_cleanup_associations(self):
         """ 
-        Removes any dead associations from self.active_associations by checking
-        to see if the association thread is still alive
+        AE.start(): Removes any dead associations from self.active_associations 
+        by checking to see if the association thread is still alive. Separated 
+        out from start() to enable better unit testing
         """
         #   assoc.is_alive() is inherited from threading.thread
         self.active_associations = [assoc for assoc in 
@@ -330,8 +335,10 @@ class ApplicationEntity(object):
     def stop(self):
         for aa in self.active_associations:
             aa.kill()
-            if self.local_socket:
-                self.local_socket.close()
+        
+        if self.local_socket:
+            self.local_socket.close()
+        
         self.__Quit = True
         
         while True:
@@ -396,6 +403,25 @@ class ApplicationEntity(object):
 
         return assoc
 
+    def release_association(self, assoc_no):
+        """ Release the association given by `assoc_no` """
+        if assoc_no >= len(self.active_associations):
+            self.active_associations[assoc_no].Release()
+
+    def release_all(self):
+        """ Release all the associations """
+        for assoc in self.active_associations:
+            assoc.Release()
+
+    def abort_association(self, assoc_no):
+        """ Abort the association given by `assoc_no` """
+        if assoc_no >= len(self.active_associations):
+            self.active_associations[assoc_no].Abort()
+
+    def abort_all(self):
+        """ Abort all the associations """
+        for assoc in self.active_associations:
+            assoc.Abort()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
@@ -481,7 +507,7 @@ class ApplicationEntity(object):
     @property
     def dimse_timeout(self):
         return self.__dimse_timeout
-        
+
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         try:
@@ -497,11 +523,11 @@ class ApplicationEntity(object):
                 "timeout)")
         
         self.__dimse_timeout = 0
-        
+
     @property
     def network_timeout(self):
         return self.__network_timeout
-        
+
     @network_timeout.setter
     def network_timeout(self, value):
         try:
@@ -517,7 +543,7 @@ class ApplicationEntity(object):
                 "seconds")
         
         self.__network_timeout = 60
-    
+
     @property
     def maximum_associations(self):
         return self.__maximum_associations
@@ -633,7 +659,7 @@ class ApplicationEntity(object):
     @property
     def scu_supported_sop(self):
         return self.__scu_supported_sop
-    
+
     @scu_supported_sop.setter
     def scu_supported_sop(self, sop_list):
         """
@@ -678,7 +704,7 @@ class ApplicationEntity(object):
     @property
     def scp_supported_sop(self):
         return self.__scp_supported_sop
-    
+
     @scp_supported_sop.setter
     def scp_supported_sop(self, sop_list):
         """
@@ -761,6 +787,248 @@ class ApplicationEntity(object):
                                 "UID str, UID or ServiceClass subclass")
 
 
+    # High-level DIMSE-C callbacks - user should replace these as required
+    def on_c_echo(self):
+        """
+        Function callback for when a C-ECHO request is received. Must be 
+        defined by the user prior to calling AE.start()
+        
+        Example
+        -------
+        def on_c_echo():
+            print('Received C-ECHO')
+            
+        ae = AE()
+        ae.on_c_echo = on_c_echo
+        
+        ae.start()
+        """
+        raise NotImplementedError("User must define their own AE.on_c_echo "
+                    "function prior to calling AE.start()")
+
+    def on_c_store(self, sop_class, dataset):
+        """
+        Function callback for when a dataset is received following a C-STORE.
+        Must be defined by the user prior to calling AE.start() and must return
+        a valid pynetdicom.SOPclass.Status object
+        
+        Example
+        -------
+        def on_c_store(sop_class, dataset):
+            print(type(sop_class))
+            
+        ae = AE()
+        ae.on_c_store = on_c_store
+        
+        ae.start()
+        
+        Parameters
+        ----------
+        sop_class - pydicom.SOPclass.StorageServiceClass
+            The StorageServiceClass subclass instance representing the dataset
+        dataset - pydicom.Dataset
+            The DICOM dataset sent via the C-STORE
+            
+        Returns
+        -------
+        status : pynetdicom.SOPclass.Status
+            A valid return status for the C-STORE operation (see PS3.4 Annex 
+            B.2.3), must be one of:
+                Success status
+                    sop_class.Success
+                        Success - 0000
+                    
+                Failure statuses
+                    sop_class.OutOfResources
+                        Refused: Out of Resources - A7xx
+                    sop_class.DataSetDoesNotMatchingSOPClassFailure
+                        Error: Data Set does not match SOP Class - A9xx
+                    sop_class.CannotUnderstand
+                        Error: Cannot understand - Cxxx
+                
+                Warning statuses
+                    sop_class.CoercionOfDataElements
+                        Coercion of Data Elements - B000
+                    sop_class.DataSetDoesNotMatchSOPClassWarning
+                        Data Set does not matching SOP Class - B007
+                    sop_class.ElementsDiscarded
+                        Elements Discarded - B006
+        """
+        raise NotImplementedError("User must define their own AE.on_c_store "
+                    "function prior to calling AE.start()")
+
+    def on_c_find(self, sop_class, dataset):
+        """
+        Function callback for when a dataset is received following a C-FIND.
+        Must be defined by the user prior to calling AE.start() and must return
+        a valid pynetdicom.SOPclass.Status object. In addition,the 
+        AE.on_c_find_cancel() callback must also be defined
+        
+        Parameters
+        ----------
+        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
+            The QueryRetrieveServiceClass subclass instance representing the 
+            dataset
+        dataset - pydicom.Dataset
+            The DICOM dataset sent via the C-FIND
+            
+        Returns
+        -------
+        status : pynetdicom.SOPclass.Status
+            A valid return status for the C-FIND operation (see PS3.4 Annex 
+            C.4.1.1.4), must be one of:
+                Success status
+                    sop_class.Success
+                        Matching is complete - No final Identifier is 
+                        supplied - 0000
+                    
+                Failure statuses
+                    sop_class.OutOfResources
+                        Refused: Out of Resources - A700
+                    sop_class.IdentifierDoesNotMatchSOPClass
+                        Identifier does not match SOP Class - A900
+                    sop_class.UnableToProcess
+                        Unable to process - Cxxx
+                
+                Cancel status
+                    sop_class.MatchingTerminatedDueToCancelRequest
+                        Matching terminated due to Cancel request - FE00
+                    
+                Pending statuses
+                    sop_class.Pending
+                        Matches are continuing - Current Match is supplied and 
+                        any Optional Keys were supported in the same manner as 
+                        Required Keys - FF00
+                    sop_class.PendingWarning
+                        Matches are continuing - Warning that one or more 
+                        Optional Keys were not supported for existence and/or
+                        matching for this Identifier - FF01
+
+        """
+        raise NotImplementedError("User must define their own AE.on_c_find "
+                    "function prior to calling AE.start()")
+
+    def on_c_find_cancel(self):
+        raise NotImplementedError("User must define their own "
+                    "AE.on_c_find_cancel function prior to calling AE.start()")
+
+    def on_c_get(self, sop_class, dataset):
+        """
+        Function callback for when a dataset is received following a C-STORE.
+        Must be defined by the user prior to calling AE.start() and must return
+        a valid pynetdicom.SOPclass.Status object. In addition,the 
+        AE.on_c_get_cancel() callback must also be defined
+        
+        Parameters
+        ----------
+        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
+            The QueryRetrieveServiceClass subclass instance representing 
+            the dataset
+        dataset - pydicom.Dataset
+            The DICOM dataset sent via the C-STORE
+            
+        Returns
+        -------
+        status : pynetdicom.SOPclass.Status
+            A valid return status for the C-GET operation (see PS3.4 Annex 
+            C.4.3.1.4), must be one of:
+                Success status
+                    sop_class.Success
+                        Sub-operations complete - no failures or warnings - 0000
+                    
+                Failure statuses
+                    sop_class.OutOfResourcesNumberOfMatches
+                        Refused: Out of Resources - Unable to calculate number
+                        of matches - A701
+                    sop_class.OutOfResourcesUnableToPerform
+                        Refused: Out of Resources - Unable to perform 
+                        sub-operations - A702
+                    sop_class.IdentifierDoesNotMatchSOPClass
+                        Identifier does not match SOP Class - A900
+                    sop_class.UnableToProcess
+                        Unable to process - Cxxx
+                
+                Cancel status
+                    sop_class.Cancel
+                        Sub-operations terminated due to Cancel indication 
+                        - FE00
+                
+                Warning statuses
+                    sop_class.Warning
+                        Sub-operations complete - one or more failures or 
+                        warnings - B000
+                        
+                Pending status
+                    sop_class.Pending
+                        Sub-operations are continuing - FF00
+        """
+        raise NotImplementedError("User must define their own AE.on_c_get "
+                    "function prior to calling AE.start()")
+    
+    def on_c_get_cancel(self):
+        raise NotImplementedError("User must define their own "
+                    "AE.on_c_get_cancel function prior to calling AE.start()")
+
+    def on_c_move(self, sop_class, dataset):
+        """
+        Function callback for when a dataset is received following a C-STORE.
+        Must be defined by the user prior to calling AE.start() and must return
+        a valid pynetdicom.SOPclass.Status object. In addition,the 
+        AE.on_c_move_cancel() callback must also be defined
+        
+        Parameters
+        ----------
+        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
+            The QueryRetrieveServiceClass subclass instance representing the 
+            dataset
+        dataset - pydicom.Dataset
+            The DICOM dataset sent via the C-MOVE
+            
+        Returns
+        -------
+        status : pynetdicom.SOPclass.Status
+            A valid return status for the C-MOVE operation (see PS3.4 Annex 
+            C.4.2.1.5), must be one of:
+                Success status
+                    sop_class.Success
+                        Sub-operations complete - no failures - 0000
+                    
+                Failure statuses
+                    sop_class.OutOfResourcesNumberOfMatches
+                        Refused: Out of Resources - Unable to calculate number
+                        of matches - A701
+                    sop_class.OutOfResourcesUnableToPerform
+                        Refused: Out of Resources - Unable to perform 
+                        sub-operations - A702
+                    sop_class.MoveDestinationUnknown
+                        Refused: Move destination unknown - A801
+                    sop_class.IdentifierDoesNotMatchSOPClass
+                        Identifier does not match SOP Class - A900
+                    sop_class.UnableToProcess
+                        Unable to process - Cxxx
+                
+                Cancel status
+                    sop_class.Cancel
+                        Sub-operations terminated due to Cancel indication 
+                        - FE00
+                
+                Warning statuses
+                    sop_class.Warning
+                        Sub-operations complete - one or more failures or 
+                        warnings - B000
+                        
+                Pending status
+                    sop_class.Pending
+                        Sub-operations are continuing - FF00
+        """
+        raise NotImplementedError("User must define their own AE.on_c_move "
+                    "function prior to calling AE.start()")
+
+    def on_c_move_cancel(self):
+        raise NotImplementedError("User must define their own "
+                    "AE.on_c_move_cancel function prior to calling AE.start()")
+
+
     # Communication related callback
     def on_receive_connection(self):
         pass
@@ -797,7 +1065,8 @@ class ApplicationEntity(object):
     def on_association_released(self):
         pass
 
-    def on_association_aborted(self, primitive):
+    def on_association_aborted(self, primitive=None):
+        # FIXME: Need to standardise callback parameters for A-ABORT
         pass
 
 
@@ -1007,40 +1276,7 @@ class ApplicationEntity(object):
         pass
 
 
-    # High-level DIMSE related callbacks
-    def on_c_echo(self):
-        raise NotImplementedError("")
-
-    def on_c_store(self, sop_class, dataset):
-        """
-        Function callback called when a dataset is received following a C-STORE.
-        
-        Parameters
-        ----------
-        sop_class - pydicom.SOPclass.StorageServiceClass
-            The StorageServiceClass representing the object
-        dataset - pydicom.Dataset
-            The DICOM dataset sent via the C-STORE
-            
-        Returns
-        -------
-        status
-            A valid return status, see the StorageServiceClass for the 
-            available statuses
-        """
-        raise NotImplementedError("")
-
-    def on_c_find(self, dataset):
-        raise NotImplementedError("")
-
-    def on_c_get(self, dataset):
-        raise NotImplementedError("")
-
-    def on_c_move(self, dataset):
-        raise NotImplementedError("")
-
-
-    # DIMSE message send/receive related callbacks
+    # DIMSE-C message send callbacks
     def on_send_c_echo_rq(self, dimse_msg):
         """
         
@@ -1106,6 +1342,17 @@ class ApplicationEntity(object):
         """
         pass
 
+    def on_send_c_cancel_find_rq(self, dimse_msg):
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_CANCEL_FIND_RQ
+        """
+        pass
+
     def on_send_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1154,6 +1401,17 @@ class ApplicationEntity(object):
         """
         return None
 
+    def on_send_c_cancel_get_rq(self, dimse_msg):
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_CANCEL_GET_RQ
+        """
+        pass
+
     def on_send_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1200,7 +1458,19 @@ class ApplicationEntity(object):
         """
         return None
 
+    def on_send_c_cancel_move_rq(self, dimse_msg):
+        """
+        
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        store - pynetdicom.SOPclass.C_CANCEL_MOVE_RQ
+        """
+        pass
 
+
+    # DIMSE-C message receive callbacks
     def on_receive_c_echo_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1293,6 +1563,16 @@ class ApplicationEntity(object):
         """
         return None
 
+    def on_receive_c_cancel_find_rq(self, dimse_msg):
+        """
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.DIMSEmessages.C_CANCEL_FIND_RQ
+        """
+        pass
+
     def on_receive_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1341,6 +1621,16 @@ class ApplicationEntity(object):
         """
         return None
 
+    def on_receive_c_cancel_get_rq(self, dimse_msg):
+        """
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.DIMSEmessages.C_CANCEL_GET_RQ
+        """
+        pass
+
     def on_receive_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -1387,7 +1677,18 @@ class ApplicationEntity(object):
         """
         return None
 
+    def on_receive_c_cancel_move_rq(self, dimse_msg):
+        """
+        Called by DIMSEprovider.DIMSEServiceProvider.Send()
+        
+        Parameters
+        ----------
+        dimse_msg - pynetdicom.DIMSEmessages.C_CANCEL_MOVE_RQ
+        """
+        pass
 
+
+    # DIMSE-N message receive callbacks
     def on_receive_n_event_report_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 

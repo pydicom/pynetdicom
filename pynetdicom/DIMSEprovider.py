@@ -11,7 +11,6 @@ from pynetdicom.DIMSEmessages import *
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.DULparameters import P_DATA_ServiceParameters
 
-
 logger = logging.getLogger('pynetdicom.dimse')
 
 
@@ -129,6 +128,7 @@ class DIMSEServiceProvider(object):
                 return None, None
 
 
+    # Debugging and AE callbacks
     def on_send_dimse_message(self, message):
         """
         Placeholder for a function callback. Function will be called 
@@ -143,8 +143,13 @@ class DIMSEServiceProvider(object):
                           C_ECHO_RSP_Message  : self.debug_send_c_echo_rsp,
                           C_FIND_RQ_Message   : self.debug_send_c_find_rq,
                           C_FIND_RSP_Message  : self.debug_send_c_find_rsp,
+                          C_CANCEL_FIND_RQ_Message  : self.debug_send_c_cancel_find_rq,
                           C_GET_RQ_Message   : self.debug_send_c_get_rq,
                           C_GET_RSP_Message  : self.debug_send_c_get_rsp,
+                          C_CANCEL_GET_RQ_Message  : self.debug_send_c_cancel_get_rq,
+                          C_MOVE_RQ_Message   : self.debug_send_c_move_rq,
+                          C_MOVE_RSP_Message  : self.debug_send_c_move_rsp,
+                          C_CANCEL_MOVE_RQ_Message  : self.debug_send_c_cancel_move_rq,
                           C_STORE_RQ_Message  : self.debug_send_c_store_rq,
                           C_STORE_RSP_Message : self.debug_send_c_store_rsp}
         debug_callback[type(message)](message)
@@ -154,8 +159,13 @@ class DIMSEServiceProvider(object):
                        C_ECHO_RSP_Message  : ae.on_send_c_echo_rsp,
                        C_FIND_RQ_Message   : ae.on_send_c_find_rq,
                        C_FIND_RSP_Message  : ae.on_send_c_find_rsp,
+                       C_CANCEL_FIND_RQ_Message  : ae.on_send_c_cancel_find_rq,
                        C_GET_RQ_Message   : ae.on_send_c_get_rq,
                        C_GET_RSP_Message  : ae.on_send_c_get_rsp,
+                       C_CANCEL_GET_RQ_Message  : ae.on_send_c_cancel_get_rq,
+                       C_MOVE_RQ_Message   : ae.on_send_c_move_rq,
+                       C_MOVE_RSP_Message  : ae.on_send_c_move_rsp,
+                       C_CANCEL_MOVE_RQ_Message  : ae.on_send_c_cancel_move_rq,
                        C_STORE_RQ_Message  : ae.on_send_c_store_rq,
                        C_STORE_RSP_Message : ae.on_send_c_store_rsp}
         ae_callback[type(message)](message)
@@ -295,6 +305,9 @@ class DIMSEServiceProvider(object):
     def debug_send_c_find_rsp(self, dimse_msg):
         pass
     
+    def debug_send_c_cancel_find_rq(self, dimse_msg):
+        pass
+    
     def debug_send_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -369,7 +382,10 @@ class DIMSEServiceProvider(object):
             None.
         """
         return None
-        
+    
+    def debug_send_c_cancel_get_rq(self, dimse_msg):
+        pass
+    
     def debug_send_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -393,6 +409,32 @@ class DIMSEServiceProvider(object):
         """
         return None
 
+    def debug_send_c_move_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        dimse_msg - 
+            
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+    
+    def debug_send_c_cancel_move_rq(self, dimse_msg):
+        pass
+    
     
     def debug_receive_c_echo_rq(self, dimse_msg):
         """
@@ -402,7 +444,9 @@ class DIMSEServiceProvider(object):
         """
         d = dimse_msg.CommandSet
         
-        s = ['Received Echo Request']
+        logger.info('Received Echo Request')
+        
+        s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : %s' %'C-ECHO RQ')
@@ -571,6 +615,9 @@ class DIMSEServiceProvider(object):
             for line in s:
                 logger.debug(line)
 
+    def debug_receive_c_cancel_find_rq(self, dimse_msg):
+        pass
+
     def debug_receive_c_get_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -616,7 +663,10 @@ class DIMSEServiceProvider(object):
             None.
         """
         return None
-        
+    
+    def debug_receive_c_cancel_get_rq(self, dimse_msg):
+        pass
+    
     def debug_receive_c_move_rq(self, dimse_msg):
         """
         Placeholder for a function callback. Function will be called 
@@ -639,6 +689,32 @@ class DIMSEServiceProvider(object):
             None.
         """
         return None
+    
+    def debug_receive_c_move_rsp(self, dimse_msg):
+        """
+        Placeholder for a function callback. Function will be called 
+        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
+        a set of Attributes against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user, and retrieve all composite
+        SOP Instances that match. It triggers one or more C-STORE 
+        sub-operations on the same Association.
+        
+        Parameters
+        ----------
+        attributes - pydicom.Dataset
+            A Dataset containing the attributes to match against.
+            
+        Returns
+        -------
+        matching_sop_instances - list of pydicom.Dataset
+            The matching SOP Instances to be sent via C-STORE sub-operations. If
+            no matching SOP Instances are found then return the empty list or
+            None.
+        """
+        return None
+    
+    def debug_receive_c_cancel_move_rq(self, dimse_msg):
+        pass
 
 
     def debug_receive_n_event_report_rq(self, dimse_msg):
