@@ -5,8 +5,8 @@ import unittest
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom.ae import AE
-from pynetdicom.uid import VerificationSOPClass
+from pynetdicom import AE
+from pynetdicom.SOPclass import VerificationSOPClass
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()

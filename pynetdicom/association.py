@@ -658,7 +658,7 @@ class Association(threading.Thread):
             sop_class.RemoteAE = self.peer_ae
             
             # Send the query
-            return sop_class.SCU(dataset, msg_id, query_priority)
+            return sop_class.SCU(dataset, msg_id, priority)
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
@@ -703,7 +703,7 @@ class Association(threading.Thread):
             sop_class.RemoteAE = self.peer_ae
             
             # Send the query
-            return sop_class.SCU(dataset, msg_id, query_priority)
+            return sop_class.SCU(dataset, msg_id, priority)
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")

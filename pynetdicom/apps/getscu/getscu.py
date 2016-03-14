@@ -203,15 +203,15 @@ def on_c_store(sop_class, dataset):
 ae.on_c_store = on_c_store
 
 # Send query
-if assoc.AssociationEstablished:
-    response = assoc.send_c_get(d, query_model)
+if assoc.is_established:
+    response = assoc.send_c_get(d, query_model=query_model)
     
     time.sleep(1)
     if response is not None:
         for value in response:
             print(value)
     
-    assoc.Release()
+    assoc.release()
 
 # done
 ae.quit()
