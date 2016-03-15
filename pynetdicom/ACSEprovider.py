@@ -40,6 +40,8 @@ class ACSEServiceProvider(object):
 
     Parameters
     ----------
+    assoc - pynetdicom.association.Association
+        The parent Association that instantiated the ACSE provider
     DUL - pynetdicom.DULprovider.DULServiceProvider
         The DICOM UL service provider instance that will handle the transport of
         the association primitives sent/received by the ACSE provider
@@ -52,7 +54,7 @@ class ACSEServiceProvider(object):
     DICOM Standard PS3.8
     ISO/IEC 8649
     """
-    def __init__(self, DUL, acse_timeout=30):
+    def __init__(self, assoc, DUL, acse_timeout=30):
         # The DICOM Upper Layer service provider, see PS3.8
         self.DUL = DUL
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
@@ -60,6 +62,8 @@ class ACSEServiceProvider(object):
         self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
+        
+        self.parent = assoc
         
         self.local_ae = None
         self.peer_ae = None
@@ -484,6 +488,8 @@ class ACSEServiceProvider(object):
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
+        logger.info("Association Acknowledged")
+        
         # Shorthand
         assoc_ac = a_associate_ac
         
@@ -618,6 +624,8 @@ class ACSEServiceProvider(object):
         a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance
         """
+        logger.info("Association Received")
+        
         # Shorthand
         assoc_rq = a_associate_rq
         

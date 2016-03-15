@@ -217,7 +217,7 @@ class Association(threading.Thread):
         The main Association thread
         """
         # Set new ACSE and DIMSE providers
-        self.acse = ACSEServiceProvider(self.dul, self.acse_timeout)
+        self.acse = ACSEServiceProvider(self, self.dul, self.acse_timeout)
         self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
         
         # When the AE is acting as an SCP (Association Acceptor)
@@ -446,16 +446,16 @@ class Association(threading.Thread):
                         # Check for release request
                         if self.acse.CheckRelease():
                             # Callback trigger
-                            self.debug_association_released()
                             self.ae.on_association_released()
+                            self.debug_association_released()
                             self.kill()
                             return
 
                         # Check for abort
                         if self.acse.CheckAbort():
                             # Callback trigger
-                            self.debug_association_aborted()
                             self.ae.on_association_aborted()
+                            self.debug_association_aborted()
                             self.kill()
                             return
                             
@@ -473,17 +473,17 @@ class Association(threading.Thread):
                 
                 # Association was rejected
                 else:
-                    self.debug_association_rejected(assoc_rsp)
                     self.ae.on_association_rejected(assoc_rsp)
-                    
+                    self.debug_association_rejected(assoc_rsp)
+
                     self.is_refused = True
                     self.dul.Kill()
                     return
             
             # Association was aborted by peer
             elif isinstance(assoc_rsp, A_ABORT_ServiceParameters):
-                self.debug_association_aborted(assoc_rsp)
                 self.ae.on_association_aborted(assoc_rsp)
+                self.debug_association_aborted(assoc_rsp)
                 
                 self.is_aborted = True
                 self.dul.Kill()
@@ -536,7 +536,7 @@ class Association(threading.Thread):
             sop_class.DIMSE = self.dimse
             sop_class.AE = self.ae
             sop_class.RemoteAE = self.peer_ae
-            
+
             return sop_class.SCU(msg_id)
         else:
             raise RuntimeError("The association with a peer SCP must be "

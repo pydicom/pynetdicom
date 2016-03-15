@@ -281,6 +281,9 @@ class DULServiceProvider(Thread):
 
         # Incoming data is OK
         else:
+            # Callback
+            self.local_ae.on_receive_pdu()
+            
             # First byte is always PDU type
             #   0x01 - A-ASSOCIATE-RQ   1, 2, 3-6
             #   0x02 - A-ASSOCIATE-AC   1, 2, 3-6
@@ -504,6 +507,12 @@ class DULServiceProvider(Thread):
         # down early? See dul_thread_bug.note
         logger.debug('DICOM UL service "%s" stopped' %self.name)
 
+    def on_receive_pdu(self):
+        """ 
+        Callback function that is called after the first byte of an incoming
+        PDU is read
+        """
+        pass
 
 def primitive2event(primitive):
     """
@@ -602,7 +611,7 @@ def Socket2PDU(data, dul):
 
     pdu.Decode(data)
     
-    # Callback
+    # Callback - AE must always be first
     ae_callback(pdu)
     acse_callback(pdu)
 

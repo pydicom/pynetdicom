@@ -82,8 +82,6 @@ class DIMSEServiceProvider(object):
 
         if Wait:
             # loop until complete DIMSE message is received
-            #logger.debug('DIMSE: Entering loop for receiving DIMSE message')
-            
             while 1:
                 time.sleep(0.001)
                 nxt = self.DUL.Peek()
@@ -96,7 +94,7 @@ class DIMSEServiceProvider(object):
                 dul_obj = self.DUL.Receive(Wait, dimse_timeout)
 
                 if self.message.Decode(dul_obj):
-                    # Callbacks
+                    # Callbacks - AE callback must always run first
                     self.DUL.local_ae.on_receive_dimse_message(self.message)
                     self.on_receive_dimse_message(self.message)
                     
@@ -106,6 +104,8 @@ class DIMSEServiceProvider(object):
                     tmp = tmp.ToParams()
                     
                     return tmp, ID
+                else:
+                    return None, None
         else:
             cls = self.DUL.Peek().__class__
             if cls not in (type(None), P_DATA_ServiceParameters):
@@ -114,7 +114,7 @@ class DIMSEServiceProvider(object):
             dul_obj = self.DUL.Receive(Wait, dimse_timeout)
 
             if self.message.Decode(dul_obj):
-                # Callbacks
+                # Callbacks - AE callback must always run first
                 self.DUL.local_ae.on_receive_dimse_message(self.message)
                 self.on_receive_dimse_message(self.message)
                 
@@ -182,16 +182,6 @@ class DIMSEServiceProvider(object):
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
         """
-        callback = {C_ECHO_RQ_Message   : self.debug_receive_c_echo_rq,
-                    C_ECHO_RSP_Message  : self.debug_receive_c_echo_rsp,
-                    C_FIND_RQ_Message   : self.debug_receive_c_find_rq,
-                    C_FIND_RSP_Message  : self.debug_receive_c_find_rsp,
-                    C_GET_RQ_Message   : self.debug_receive_c_get_rq,
-                    C_GET_RSP_Message  : self.debug_receive_c_get_rsp,
-                    C_STORE_RQ_Message  : self.debug_receive_c_store_rq,
-                    C_STORE_RSP_Message : self.debug_receive_c_store_rsp}
-        callback[type(message)](message)
-        
         ae = self.DUL.local_ae
         ae_callback = {C_ECHO_RQ_Message   : ae.on_receive_c_echo_rq,
                        C_ECHO_RSP_Message  : ae.on_receive_c_echo_rsp,
@@ -202,6 +192,16 @@ class DIMSEServiceProvider(object):
                        C_STORE_RQ_Message  : ae.on_receive_c_store_rq,
                        C_STORE_RSP_Message : ae.on_receive_c_store_rsp}
         ae_callback[type(message)](message)
+
+        callback = {C_ECHO_RQ_Message   : self.debug_receive_c_echo_rq,
+                    C_ECHO_RSP_Message  : self.debug_receive_c_echo_rsp,
+                    C_FIND_RQ_Message   : self.debug_receive_c_find_rq,
+                    C_FIND_RSP_Message  : self.debug_receive_c_find_rsp,
+                    C_GET_RQ_Message   : self.debug_receive_c_get_rq,
+                    C_GET_RSP_Message  : self.debug_receive_c_get_rsp,
+                    C_STORE_RQ_Message  : self.debug_receive_c_store_rq,
+                    C_STORE_RSP_Message : self.debug_receive_c_store_rsp}
+        callback[type(message)](message)
 
 
     # Mid-level DIMSE related logging/debugging
@@ -444,7 +444,7 @@ class DIMSEServiceProvider(object):
         """
         d = dimse_msg.CommandSet
         
-        logger.info('Received Echo Request')
+        logger.info('Received Echo Request (MsgID %s)' %d.MessageID)
         
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'

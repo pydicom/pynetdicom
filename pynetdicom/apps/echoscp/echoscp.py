@@ -13,7 +13,7 @@ import os
 import socket
 import sys
 
-from pynetdicom import ApplicationEntity as AE
+from pynetdicom import AE
 from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
@@ -74,6 +74,22 @@ def _setup_argparser():
                           help="set my AE title (default: ECHOSCP)", 
                           type=str, 
                           default='ECHOSCP')
+    net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
+                          help="timeout for connection requests", 
+                          type=int,
+                          default=0)
+    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds', 
+                          help="timeout for ACSE messages", 
+                          type=int,
+                          default=30)
+    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds', 
+                          help="timeout for DIMSE messages", 
+                          type=int,
+                          default=0)
+    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
+                          help="set max receive pdu to n bytes (4096..131072)", 
+                          type=int,
+                          default=16384)
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
@@ -89,20 +105,62 @@ def _setup_argparser():
     ts_opts.add_argument("-xi", "--implicit",
                          help="accept implicit VR little endian TS only",
                          action="store_true")
+
+    # Association Options
+    assoc_opts = parser.add_argument_group('Association Options')
+    assoc_opts.add_argument("--refuse",
+                            help="refuse all associations",
+                            action="store_true")
+    assoc_opts.add_argument("--abort-after",
+                            help="abort association after receiving a "
+                                "C-ECHO-RQ (but before sending response)",
+                            action="store_true")
+    assoc_opts.add_argument("--abort-during",
+                            help="abort association during receipt of a "
+                                "C-ECHO-RQ",
+                            action="store_true")
     
     return parser.parse_args()
 
 args = _setup_argparser()
 
+# Logging/Output
+if args.quiet:
+    for h in logger.handlers:
+        logger.removeHandler(h)
+        
+    logger.addHandler(logging.NullHandler())
+    
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    for h in pynetdicom_logger.handlers:
+        pynetdicom_logger.removeHandler(h)
+        
+    pynetdicom_logger.addHandler(logging.NullHandler())
+
 if args.verbose:
     logger.setLevel(logging.INFO)
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger.setLevel(logging.INFO)
     
 if args.debug:
     logger.setLevel(logging.DEBUG)
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$echoscp.py v%s %s $' %('0.1.0', '2016-02-10'))
+if args.log_level:
+    levels = {'critical' : logging.CRITICAL,
+              'error'    : logging.ERROR, 
+              'warn'     : logging.WARNING,
+              'info'     : logging.INFO,
+              'debug'    : logging.DEBUG}
+    logger.setLevel(levels[args.log_level])
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger.setLevel(levels[args.log_level])
+
+if args.log_config:
+    fileConfig(args.log_config)
+
+logger.debug('$echoscp.py v%s %s $' %('0.2.0', '2016-03-15'))
 logger.debug('')
 
 # Validate port
@@ -141,12 +199,33 @@ ae = AE(ae_title=args.aetitle,
         scp_sop_class=[VerificationSOPClass], 
         transfer_syntax=transfer_syntax)
 
-# Set the max PDU receive size (bytes)
-ae.maximum_pdu_size = 16382
+if args.abort_after:
+    # Use the on_c_echo callback to send an A-ABORT
+    def on_c_echo(dimse_msg):
+        # Issue A-ABORT request primitive for the association that received
+        #   the C-ECHO-RQ
+        assoc = dimse_msg.ACSE.parent
+        assoc.abort()
+
+    ae.on_c_echo = on_c_echo
+
+if args.abort_during:
+    
+    def on_receive_pdu(self):
+        # Clear event queue and issue A-ABORT request primitive
+        pass
+    
+if args.refuse:
+    
+    def on_receive_associate_rq(self, a_associate_rq):
+        # Issue A-ASSOCIATE refusal primitive
+        pass
+
+ae.maximum_pdu_size = args.max_pdu
 
 # Set timeouts
-#ae.set_network_timeout(None)
-#ae.set_acse_timeout(5)
-#ae.set_dimse_timeout(5)
+ae.network_timeout = args.timeout
+ae.acse_timeout = args.acse_timeout
+ae.dimse_timeout = args.dimse_timeout
 
 ae.start()
