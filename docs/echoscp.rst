@@ -84,12 +84,12 @@ Miscellaneous DICOM
               timeout for DIMSE messages (default: unlimited) 
     ``-pdu  --max-pdu [n]umber of bytes (int)`` 
               set maximum receive PDU bytes to n bytes (default: 16384) 
-    ``      --refuse``
+    ``--refuse``
               refuse association
-    ``      --abort-after``
+    ``--abort-after``
               abort association after receiving a C-ECHO-RQ (but before sending
               a response)
-    ``      --abort-during``
+    ``--abort-during``
               abort association during receipt of a C-ECHO-RQ
 
 
