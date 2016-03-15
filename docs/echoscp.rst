@@ -35,6 +35,7 @@ When a peer AE attempts to send non C-ECHO message:
     
 Much more information is available when a connection is received while
 running with the ``-d`` option:
+::
     user@host: echoscp 11112 -d
     D: $echosco.py v0.2.0 2016-03-15 $
     D:
