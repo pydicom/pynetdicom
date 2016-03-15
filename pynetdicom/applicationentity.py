@@ -788,10 +788,13 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-C callbacks - user should replace these as required
-    def on_c_echo(self):
+    def on_c_echo(self, dimse_msg):
         """
         Function callback for when a C-ECHO request is received. Must be 
         defined by the user prior to calling AE.start()
+        
+        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP prior
+        to sending a response
         
         Example
         -------
@@ -1247,6 +1250,9 @@ class ApplicationEntity(object):
 
 
     # Data PDU send/receive callbacks
+    def on_send_pdu(self):
+        pass
+
     def on_send_data_tf(self, p_data_tf):
         """
         Placeholder for a function callback. Function will be called 
@@ -1259,6 +1265,9 @@ class ApplicationEntity(object):
         a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
             The P-DATA-TF PDU instance
         """
+        pass
+
+    def on_receive_pdu(self):
         pass
 
     def on_receive_data_tf(self, p_data_tf):

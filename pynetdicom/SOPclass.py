@@ -59,8 +59,13 @@ class VerificationServiceClass(ServiceClass):
 
         self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
 
+        # If Association is Aborted before we receive the response
+        #   then we hang here
         msg, _ = self.DIMSE.Receive(Wait=True, 
                                     dimse_timeout=self.DIMSE.dimse_timeout)
+        
+        if msg is None:
+            return None
         
         return self.Code2Status(msg.Status)
 
@@ -81,7 +86,7 @@ class VerificationServiceClass(ServiceClass):
         rsp.Status = int(self.Success)
 
         try:
-            self.AE.on_c_echo()
+            self.AE.on_c_echo(self)
         except NotImplementedError:
             pass
         except:

@@ -267,13 +267,13 @@ if assoc.is_established:
     for ii in range(args.repeat):
         status = assoc.send_c_echo()
     
-    # Abort or release association
-    if args.abort:
-        # 0x00 - Reason not specified (PS3.8 Table 9.26)
-        assoc.abort()
-    else:
-        assoc.release()
-
+    if status is not None:
+        # Abort or release association
+        if args.abort:
+            # 0x00 - Reason not specified (PS3.8 Table 9.26)
+            assoc.abort()
+        else:
+            assoc.release()
 
 # Quit
 ae.quit()
