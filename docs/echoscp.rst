@@ -99,8 +99,6 @@ The ``echoscp`` application supports the following SOP Class as an SCP:
 ::
     Verification SOP Class          1.2.840.10008.1.1
 
-Unless the ``--propose-ts`` option is used, the echoscu application will only 
-propose the *Little Endian Implicit VR Transfer Syntax* (UID 1.2.840.10008.1.2).
 The supported Transfer Syntaxes [#]_ are:
 ::
     Little Endian Implicit VR       1.2.840.10008.1.2 
