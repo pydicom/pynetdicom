@@ -663,9 +663,38 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
 
-    def send_c_move(self, dataset, msg_id=1, priority=2, query_model='W'):
+    def send_c_move(self, dataset, move_aet, msg_id=1, priority=2, query_model='W'):
         if self.is_established:
-            pass
+            if query_model == "P":
+                sop_class = PatientRootMoveSOPClass()
+            elif query_model == "S":
+                sop_class = StudyRootMoveSOPClass()
+            elif query_model == "O":
+                sop_class = PatientStudyOnlyMoveSOPClass()
+            else:
+                raise ValueError("Association::send_c_get() query_model must be "
+                    "one of ['P'|'S'|'O']")
+
+            found_match = False
+            for scu_sop_class in self.scu_supported_sop:
+                if scu_sop_class[1] == sop_class.__class__:
+                    sop_class.pcid = scu_sop_class[0]
+                    sop_class.sopclass = scu_sop_class[1]
+                    sop_class.transfersyntax = scu_sop_class[2]
+                    
+                    found_match = True
+                    
+            if not found_match:
+                raise ValueError("'%s' is not listed as one of the AE's "
+                        "supported SOP Classes" %sop_class.__class__.__name__)
+                
+            sop_class.maxpdulength = self.acse.MaxPDULength
+            sop_class.DIMSE = self.dimse
+            sop_class.AE = self.ae
+            sop_class.RemoteAE = self.peer_ae
+            
+            # Send the query
+            return sop_class.SCU(dataset, move_aet, msg_id, priority)
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")

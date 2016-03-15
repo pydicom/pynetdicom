@@ -676,32 +676,85 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
         'Sub-operations are continuing',
         range(0xFF00, 0xFF00 + 1)    )
 
-    def SCU(self, ds, destaet, msgid):
-        # build C-FIND primitive
-        cmove = C_MOVE_ServiceParameters()
-        cmove.MessageID = msgid
-        cmove.AffectedSOPClassUID = self.UID
-        cmove.MoveDestination = destaet
-        cmove.Priority = 0x0002
-        cmove.Identifier = encode(
-            ds, self.transfersyntax.is_implicit_VR,
-            self.transfersyntax.is_little_endian)
-        cmove.Identifier = BytesIO(cmove.Identifier)
+    def SCU(self, dataset, destination_aet, msg_id, priority=0x0002):
+        # Build C-MOVE primitive
+        c_move = C_MOVE_ServiceParameters()
+        c_move.MessageID = msg_id
+        c_move.AffectedSOPClassUID = self.UID
+        c_move.MoveDestination = destination_aet
+        c_move.Priority = priority
+        c_move.Identifier = encode(dataset, 
+                                  self.transfersyntax.is_implicit_VR,
+                                  self.transfersyntax.is_little_endian)
+        c_move.Identifier = BytesIO(c_move.Identifier)
 
         # send c-find request
-        self.DIMSE.Send(cmove, self.pcid, self.maxpdulength)
+        self.DIMSE.Send(c_move, self.pcid, self.maxpdulength)
+
+        logger.info('Get SCU Request Identifiers:')
+        logger.info('')
+        logger.info('# DICOM Dataset')
+        for elem in dataset:
+            logger.info(elem)
+        logger.info('')
 
         while 1:
-            # wait for c-move responses
+            # Wait for C-MOVE responses
             time.sleep(0.001)
-            ans, id = self.DIMSE.Receive(Wait=False, 
+            msg, reply_id = self.DIMSE.Receive(Wait=False, 
                                     dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
+            if not msg:
                 continue
-            status = self.Code2Status(ans.Status.value).Type
+                
+            status = self.Code2Status(msg.Status.value).Type
             if status != 'Pending':
                 break
+            
             yield status
+            
+            # Received a C-GET response
+            if msg.__class__ == C_MOVE_ServiceParameters:
+                
+                status = self.Code2Status(msg.Status.value).Type
+                
+                # If the Status is "Pending" then the processing of 
+                #   matches and suboperations is initiated or continuing
+                if status == 'Pending':
+                    pass
+                    
+                # If the Status is "Success" then processing is complete
+                elif status == "Success":
+                    pass
+                
+                # All other possible responses
+                else:
+                    break
+            
+            # Received a C-STORE response
+            elif msg.__class__ == C_STORE_ServiceParameters:
+                
+                rsp = C_STORE_ServiceParameters()
+                rsp.MessageIDBeingRespondedTo = msg.MessageID
+                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
+                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+                status = None
+                #try:
+                d = decode(msg.DataSet, 
+                               self.transfersyntax.is_implicit_VR,
+                               self.transfersyntax.is_little_endian)
+                #logger.debug('SCU', d)
+                #except:
+                #    # cannot understand
+                #    status = CannotUnderstand
+
+                SOPClass = UID2SOPClass(d.SOPClassUID)
+                
+                # Callback
+                status = self.AE.on_c_store(SOPClass, d)
+                
+                # Send Store confirmation
+                rsp.Status = int(status)
+                self.DIMSE.Send(rsp, id, self.maxpdulength)
 
     def SCP(self, msg):
         ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
