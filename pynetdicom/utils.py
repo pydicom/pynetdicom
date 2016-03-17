@@ -15,6 +15,10 @@ def validate_ae_title(ae_title):
     If the supplied `ae_title` is greater than 16 characters once 
         non-significant spaces have been removed then the returned AE title
         will be truncated to remove the excess characters.
+    If the supplied `ae_title` is less than 16 characters once non-significant
+        spaces have been removed, the spare trailing characters will be
+        set to space (0x20)
+        
         
     Parameters
     ----------
@@ -56,6 +60,9 @@ def validate_ae_title(ae_title):
         
         # AE title OK
         if 0 < len(significant_characters) <= 16:
+            while len(significant_characters) < 16:
+                significant_characters += ' '
+            
             if is_bytes:
                 return bytes(significant_characters, 'utf-8')
             else:
@@ -79,7 +86,7 @@ def validate_ae_title(ae_title):
         raise TypeError("Invalid value for an AE title; must be a "
                 "non-empty string")
 
-def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16, max_size=None):
+def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16, max_size=512):
     lines = []
     if isinstance(lst, BytesIO):
         lst = lst.getvalue()

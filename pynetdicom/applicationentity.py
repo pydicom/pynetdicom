@@ -836,7 +836,7 @@ class ApplicationEntity(object):
         -------
         status : pynetdicom.SOPclass.Status
             A valid return status for the C-STORE operation (see PS3.4 Annex 
-            B.2.3), must be one of:
+            B.2.3), must be one of the following statuses:
                 Success status
                     sop_class.Success
                         Success - 0000

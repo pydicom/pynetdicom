@@ -45,9 +45,10 @@ SCP (provided that the peer supports the corresponding Service Classes):
 - C-GET: ``Association.send_c_get(dataset)`` requests the peer search its set 
   of managed SOP Instances for those that match the attributes given in 
   *dataset* then return those matching Instances to the SCU.
-- C-MOVE: ``Association.send_c_move(dataset)`` requests the peer search its set 
-  of managed SOP Instances for those that match the attributes given in 
-  *dataset* and then move those matching Instances to another AE.
+- C-MOVE: ``Association.send_c_move(dataset, move_aet)`` requests the peer 
+  search its set of managed SOP Instances for those that match the attributes 
+  given in *dataset* and then move those matching Instances to the AE with title
+  *move_aet*
 
 See the SCU Examples and the Association documentation for more information.
 

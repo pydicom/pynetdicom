@@ -12,7 +12,7 @@ from pynetdicom.association import Association
 from pynetdicom.ACSEprovider import ACSEServiceProvider as ACSE
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider as DIMSE
 from pynetdicom.DULprovider import DULServiceProvider as DUL
-
+from pynetdicom.SOPclass import STORAGE_SOP_CLASSES as StorageSOPClassList
 
 # Set up logging system for the whole package.  In each module, set
 # logger=logging.getLogger('pynetdicom') and the same instance will be

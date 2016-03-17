@@ -16,11 +16,8 @@ from pydicom import read_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-
 from pynetdicom import AE
-from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass, \
-                                  MRImageStorageSOPClass
-
+from pynetdicom import StorageSOPClassList
 
 logger = logging.Logger('storescu')
 stream_logger = logging.StreamHandler()
@@ -123,19 +120,15 @@ if dataset.file_meta.TransferSyntaxUID in ['1.2.840.10008.1.2',
 else:
     byte_order = 'big'
     
-# Create application entity
 # Set Transfer Syntax options
 transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
-#class TestStorageSOPClass(StorageServiceClass):
-#    UID = '1.2.840.10008.5.1.4.1.1.2.5'
-
 # Bind to port 0, OS will pick an available port
 ae = AE(ae_title=args.calling_aet,
         port=0,
-        scu_sop_class=[CTImageStorageSOPClass],
+        scu_sop_class=StorageSOPClassList,
         scp_sop_class=[],
         transfer_syntax=transfer_syntax)
 
