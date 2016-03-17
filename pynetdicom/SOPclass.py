@@ -17,6 +17,40 @@ import pynetdicom.ACSEprovider
 logger = logging.getLogger('pynetdicom.SOPclass')
 
 
+def class_factory(name, uid, BaseClass):
+    """
+    Generates a SOP Class subclass of `BaseClass` called `name`
+    
+    Parameters
+    ----------
+    name - str
+        The name of the SOP class
+    uid - str
+        The UID of the SOP class
+    BaseClass - pynetdicom.SOPclass.ServiceClass subclass
+        One of the following Service classes:
+            VerificationServiceClass
+            StorageServiceClass
+            
+    Returns
+    -------
+    subclass of BaseClass
+        The new class
+    """
+    def __init__(self):
+        BaseClass.__init__(self)
+        
+    new_class = type(name, (BaseClass,), {"__init__": __init__})
+    new_class.UID = uid
+    
+    return new_class
+
+def _generate_service_classes(class_list, service_class):
+    for name in class_list.keys():
+        cls = class_factory(name, class_list[name], service_class)
+        globals()[cls.__name__] = cls
+
+
 class Status(object):
     def __init__(self, Type, Description, CodeRange):
         self.Type = Type
@@ -30,6 +64,7 @@ class Status(object):
         return self.Type + ' ' + self.Description
 
 
+# DICOM SERVICE CLASS BASE
 class ServiceClass(object):
     def __init__(self):
         pass
@@ -45,7 +80,6 @@ class ServiceClass(object):
         return None
 
 
-# VERIFICATION SOP CLASSES
 class VerificationServiceClass(ServiceClass):
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
@@ -96,11 +130,6 @@ class VerificationServiceClass(ServiceClass):
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
-class VerificationSOPClass(VerificationServiceClass):
-    UID = '1.2.840.10008.1.1'
-
-
-# STORAGE SOP CLASSES
 class StorageServiceClass(ServiceClass):
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
@@ -225,454 +254,12 @@ class StorageServiceClass(ServiceClass):
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
-class StorageSOPClass(StorageServiceClass): pass
-
-# SEE PS3.4 Annex B.5 for Storage Service Class' Standard SOP Classes
-class ComputedRadiographyImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1'
-
-class DigitalXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.1'
-
-class DigitalXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.1.1'
-
-class DigitalMammographyXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.2'
-
-class DigitalMammographyXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.2.1'
-
-class DigitalIntraOralXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.3'
-
-class DigitalIntraOralXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.3.1'
-
-class CTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.2'
-
-class EnhancedCTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.2.1'
-
-class LegacyConvertedEnhancedCTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.2.2'
-
-class UltrasoundMultiframeImageStorageSOPClass(StorageSOPClass): # Retired
-    UID = '1.2.840.10008.5.1.4.1.1.3.1'
-
-class MRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4'
-
-class EnhancedMRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.1'
-
-class MRSpectroscopyStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.2'
-
-class EnhancedMRColorImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.3'
-
-class LegacyConvertedEnhancedMRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.4'
-
-class UltrasoundImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.6.1'
-
-class EnhancedUSVolumeStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.6.2'
-
-class SecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7'
-
-class MultiframeSingleBitSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.1'
-
-class MultiframeGrayscaleByteSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.2'
-
-class MultiframeGrayscaleWordSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.3'
-
-class MultiframeTrueColorSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.4'
-
-class TwelveLeadECGWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.1.1'
-
-class GeneralECGWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.1.2'
-
-class AmbulatoryECGWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.1.3'
-
-class HemodynamicWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.2.1'
-
-class CardiacElectrophysiologyWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.3.1'
-
-class BasicVoiceAudioWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.4.1'
-
-class GeneralAudioWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.4.2'
-
-class ArterialPulseWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.5.1'
-
-class RespiratoryWaveformStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.9.6.1'
-
-class GrayscaleSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.1'
-    
-class ColorSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.2'
-
-class PseudocolorSoftcopyPresentationStageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.3'
-
-class BlendingSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.4'
-
-class XAXRFGrayscaleSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.5'
-
-class XRayAngiographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.1'
-
-class EnhancedXAImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.1.1'
-
-class XRayRadiofluoroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.2'
-
-class EnhancedXRFImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.2.1'
-
-class XRay3DAngiographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.13.1.1'
-
-class XRay3DCraniofacialImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.13.1.2'
-
-class BreastTomosynthesisImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.13.1.3'
-
-class BreastProjectionXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.13.1.4'
-
-class BreastProjectionXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.13.1.5'
-
-class IntravascularOpticalCoherenceTomographyImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.14.1'
-
-class IntravascularOpticalCoherenceTomographyImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.14.2'
-
-class NuclearMedicineImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.20'
-
-class ParametricMapStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.30'
-
-class RawDataStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66'
-
-class SpatialRegistrationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.1'
-
-class SpatialFiducialsStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.2'
-
-class DeformableSpatialRegistrationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.3'
-
-class SegmentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.4'
-
-class SurfaceSegmentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.5'
-
-class RealWorldValueMappingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.67'
-
-class SurfaceScanMeshStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.68.1'
-
-class SurfaceScanPointCloudStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.68.2'
-
-
-
-
-
-class PositronEmissionTomographyImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.128'
-
-class EncapsulatedPDFStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.104.1'
-    
-
-
-
-
-class RTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.1'
-
-class RTDoseStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.2'
-
-class RTStructureSetStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.3'
-
-class RTPlanStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.5'
-
-class VLEndoscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.1'
-
-class VideoEndoscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.1.1'
-
-class VLMicroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.2'
-
-class VideoMicroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.2.1'
-
-class VLSlideCoordinatesMicroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.3'
-
-class VLPhotographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.4'
-
-class VideoPhotographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.4.1'
-
-class OphthalmicPhotography8BitImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.5.1'
-
-class OphthalmicPhotography16BitImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.5.2'
-
-class StereometricRelationshipStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.5.3'
-
-
-STORAGE_SOP_CLASSES = [ComputedRadiographyImageStorageSOPClass,
-                       DigitalXRayImagePresentationStorageSOPClass,
-                       DigitalXRayImageProcessingStorageSOPClass,
-                       DigitalMammographyXRayImagePresentationStorageSOPClass,
-                       DigitalMammographyXRayImageProcessingStorageSOPClass,
-                       DigitalIntraOralXRayImagePresentationStorageSOPClass,
-                       DigitalIntraOralXRayImageProcessingStorageSOPClass,
-                       CTImageStorageSOPClass,
-                       EnhancedCTImageStorageSOPClass,
-                       LegacyConvertedEnhancedCTImageStorageSOPClass,
-                       UltrasoundMultiframeImageStorageSOPClass,
-                       MRImageStorageSOPClass,
-                       EnhancedMRImageStorageSOPClass,
-                       MRSpectroscopyStorageSOPClass,
-                       EnhancedMRColorImageStorageSOPClass,
-                       LegacyConvertedEnhancedMRImageStorageSOPClass,
-                       NuclearMedicineImageStorageSOPClass,
-                       UltrasoundImageStorageSOPClass,
-                       EnhancedUSVolumeStorageSOPClass,
-                       SecondaryCaptureImageStorageSOPClass,
-                       MultiframeSingleBitSecondaryCaptureImageStorageSOPClass,
-                       MultiframeGrayscaleByteSecondaryCaptureImageStorageSOPClass,
-                       MultiframeGrayscaleWordSecondaryCaptureImageStorageSOPClass,
-                       MultiframeTrueColorSecondaryCaptureImageStorageSOPClass,
-                       TwelveLeadECGWaveformStorageSOPClass,
-                       GeneralECGWaveformStorageSOPClass,
-                       AmbulatoryECGWaveformStorageSOPClass,
-                       HemodynamicWaveformStorageSOPClass,
-                       CardiacElectrophysiologyWaveformStorageSOPClass,
-                       BasicVoiceAudioWaveformStorageSOPClass,
-                       GeneralAudioWaveformStorageSOPClass,
-                       ArterialPulseWaveformStorageSOPClass,
-                       RespiratoryWaveformStorageSOPClass,
-                       GrayscaleSoftcopyPresentationStateStorageSOPClass,
-                       ColorSoftcopyPresentationStateStorageSOPClass,
-                       PseudocolorSoftcopyPresentationStageStorageSOPClass,
-                       BlendingSoftcopyPresentationStateStorageSOPClass,
-                       XAXRFGrayscaleSoftcopyPresentationStateStorageSOPClass,
-                       XRayAngiographicImageStorageSOPClass,
-                       EnhancedXAImageStorageSOPClass,
-                       XRayRadiofluoroscopicImageStorageSOPClass,
-                       EnhancedXRFImageStorageSOPClass,
-                       XRay3DAngiographicImageStorageSOPClass,
-                       XRay3DCraniofacialImageStorageSOPClass,
-                       BreastTomosynthesisImageStorageSOPClass,
-                       BreastProjectionXRayImagePresentationStorageSOPClass,
-                       BreastProjectionXRayImageProcessingStorageSOPClass,
-                       IntravascularOpticalCoherenceTomographyImagePresentationStorageSOPClass,
-                       IntravascularOpticalCoherenceTomographyImageProcessingStorageSOPClass,
-                       NuclearMedicineImageStorageSOPClass,
-                       ParametricMapStorageSOPClass,
-                       RawDataStorageSOPClass,
-                       SpatialRegistrationStorageSOPClass,
-                       SpatialFiducialsStorageSOPClass,
-                       DeformableSpatialRegistrationStorageSOPClass,
-                       SegmentationStorageSOPClass,
-                       SurfaceSegmentationStorageSOPClass,
-                       RealWorldValueMappingStorageSOPClass,
-                       SurfaceScanMeshStorageSOPClass,
-                       SurfaceScanPointCloudStorageSOPClass,
-                       VLEndoscopicImageStorageSOPClass,
-                       VideoEndoscopicImageStorageSOPClass,
-                       VLMicroscopicImageStorageSOPClass,
-                       VideoMicroscopicImageStorageSOPClass,
-                       VLSlideCoordinatesMicroscopicImageStorageSOPClass,
-                       VLPhotographicImageStorageSOPClass,
-                       VideoPhotographicImageStorageSOPClass,
-                       OphthalmicPhotography8BitImageStorageSOPClass,
-                       OphthalmicPhotography16BitImageStorageSOPClass,
-                       StereometricRelationshipStorageSOPClass,
-                       
-                       
-                       PositronEmissionTomographyImageStorageSOPClass,
-                       EncapsulatedPDFStorageSOPClass,
-                       
-                       
-                       
-                       
-                       RTImageStorageSOPClass,
-                       RTDoseStorageSOPClass,
-                       RTStructureSetStorageSOPClass,
-                       RTPlanStorageSOPClass]
-
-
-class XRayRadiationDoseStructuredReportSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.88.67'
-
-class EnhancedStructuredReportSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.88.22'
-
-
 
 # QUERY RETRIEVE SOP Classes
 class QueryRetrieveServiceClass(ServiceClass): pass
 
-class QueryRetrieveSOPClass(QueryRetrieveServiceClass): pass
-
-class BasicWorklistServiceClass (ServiceClass): pass
-
-class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
-    OutOfResources = Status(
-        'Failure',
-        'Refused: Out of resources',
-        range(0xA700, 0xA700 + 1)
-    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)
-    )
-    UnableToProcess = Status(
-        'Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)
-    )
-    MatchingTerminatedDueToCancelRequest = Status(
-        'Cancel',
-        'Matching terminated due to Cancel request',
-        range(0xFE00, 0xFE00 + 1)
-    )
-    Success = Status(
-        'Success',
-        'Matching is complete - No final Identifier is supplied',
-        range(0x0000, 0x0000 + 1)
-    )
-    Pending = Status(
-        'Pending',
-        'Matches are continuing - Current Match is supplied'
-        'and any Optional Keys were supported in the same manner as'
-        'Required Keys',
-        range(0xFF00, 0xFF00 + 1)
-    )
-    PendingWarning = Status(
-        'Pending',
-        'Matches are continuing - Warning that one or more Optional'
-        'Keys were not supported for existence and/or matching for'
-        'this identifier',
-        range(0xFF01, 0xFF01 + 1)
-    )
-
-    def SCU(self, msgid):
-        # build C-FIND primitive
-        cfind = C_FIND_ServiceParameters()
-        cfind.MessageID = msgid
-        cfind.AffectedSOPClassUID = self.UID
-        cfind.Priority = 0x0002
-        cfind.Identifier = encode(ds,
-                                          self.transfersyntax.is_implicit_VR,
-                                          self.transfersyntax.is_little_endian)
-        cfind.Identifier = BytesIO(cfind.Identifier)
-        
-        # send c-find request
-        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
-        while 1:
-            time.sleep(0.001)
-            # wait for c-find responses
-            ans, id = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
-                continue
-            d = decode(
-                ans.Identifier, self.transfersyntax.is_implicit_VR,
-                self.transfersyntax.is_little_endian)
-            try:
-                status = self.Code2Status(ans.Status.value).Type
-            except:
-                status = None
-            if status != 'Pending':
-                break
-            yield status, d
-        yield status, d
-
-    def SCP(self, msg):
-        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
-
-        # make response
-        rsp = C_FIND_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-
-        gen = self.AE.OnReceiveFind(self, ds)
-        try:
-            while 1:
-                time.sleep(0.001)
-                IdentifierDS, status = gen.next()
-                rsp.Status = int(status)
-                rsp.Identifier = encode(
-                    IdentifierDS,
-                    self.transfersyntax.is_implicit_VR,
-                    self.transfersyntax.is_little_endian)
-                # send response
-                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-        except StopIteration:
-            # send final response
-            rsp = C_FIND_ServiceParameters()
-            rsp.MessageIDBeingRespondedTo = msg.MessageID
-            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-            rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-
 
 # QR Information Models
-class PatientRootQueryRetrieveSOPClass(QueryRetrieveSOPClass): pass
-
-class StudyRootQueryRetrieveSOPClass(QueryRetrieveSOPClass): pass
-
-class PatientStudyOnlyQueryRetrieveSOPClass(QueryRetrieveSOPClass): pass
-
-
-# C-FIND SOP Classes for QR
 class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
@@ -798,20 +385,6 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
-class PatientRootFindSOPClass(PatientRootQueryRetrieveSOPClass,
-                                  QueryRetrieveFindSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.1.1'
-
-class StudyRootFindSOPClass(StudyRootQueryRetrieveSOPClass,
-                            QueryRetrieveFindSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.2.1'
-
-class PatientStudyOnlyFindSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
-                                   QueryRetrieveFindSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.3.1'
-
-
-# C-MOVE SOP Classes for QR
 class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
     OutOfResourcesNumberOfMatches = Status(
         'Failure',
@@ -986,20 +559,6 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
             ass.Release(0)
 
-class PatientRootMoveSOPClass(PatientRootQueryRetrieveSOPClass,
-                              QueryRetrieveMoveSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.1.2'
-
-class StudyRootMoveSOPClass(StudyRootQueryRetrieveSOPClass,
-                            QueryRetrieveMoveSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.2.2'
-
-class PatientStudyOnlyMoveSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
-                                   QueryRetrieveMoveSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.3.2'
-
-
-# C-GET SOP Classes for QR
 class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
     OutOfResourcesNumberOfMatches = Status(
         'Failure',
@@ -1104,262 +663,267 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
                 rsp.Status = int(status)
                 self.DIMSE.Send(rsp, id, self.maxpdulength)
 
-class PatientRootGetSOPClass(PatientRootQueryRetrieveSOPClass,
-                             QueryRetrieveGetSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.1.3'
-
-class StudyRootGetSOPClass(StudyRootQueryRetrieveSOPClass,
-                           QueryRetrieveGetSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.2.3'
-
-class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
-                                  QueryRetrieveGetSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.3.3'
-
 
 # BASIC WORKLIST SOP Classes
-class BasicWorklistSOPClass(BasicWorklistServiceClass):
-    pass
+class BasicWorklistServiceClass (ServiceClass): pass
 
-class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
-                                              ModalityWorklistServiceSOPClass):
+class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
+    OutOfResources = Status(
+        'Failure',
+        'Refused: Out of resources',
+        range(0xA700, 0xA700 + 1)
+    )
+    IdentifierDoesNotMatchSOPClass = Status(
+        'Failure',
+        'Identifier does not match SOP Class',
+        range(0xA900, 0xA900 + 1)
+    )
+    UnableToProcess = Status(
+        'Failure',
+        'Unable to process',
+        range(0xC000, 0xCFFF + 1)
+    )
+    MatchingTerminatedDueToCancelRequest = Status(
+        'Cancel',
+        'Matching terminated due to Cancel request',
+        range(0xFE00, 0xFE00 + 1)
+    )
+    Success = Status(
+        'Success',
+        'Matching is complete - No final Identifier is supplied',
+        range(0x0000, 0x0000 + 1)
+    )
+    Pending = Status(
+        'Pending',
+        'Matches are continuing - Current Match is supplied'
+        'and any Optional Keys were supported in the same manner as'
+        'Required Keys',
+        range(0xFF00, 0xFF00 + 1)
+    )
+    PendingWarning = Status(
+        'Pending',
+        'Matches are continuing - Warning that one or more Optional'
+        'Keys were not supported for existence and/or matching for'
+        'this identifier',
+        range(0xFF01, 0xFF01 + 1)
+    )
+
+    def SCU(self, msgid):
+        # build C-FIND primitive
+        cfind = C_FIND_ServiceParameters()
+        cfind.MessageID = msgid
+        cfind.AffectedSOPClassUID = self.UID
+        cfind.Priority = 0x0002
+        cfind.Identifier = encode(ds,
+                                          self.transfersyntax.is_implicit_VR,
+                                          self.transfersyntax.is_little_endian)
+        cfind.Identifier = BytesIO(cfind.Identifier)
+        
+        # send c-find request
+        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
+        while 1:
+            time.sleep(0.001)
+            # wait for c-find responses
+            ans, id = self.DIMSE.Receive(Wait=False, 
+                                    dimse_timeout=self.DIMSE.dimse_timeout)
+            if not ans:
+                continue
+            d = decode(
+                ans.Identifier, self.transfersyntax.is_implicit_VR,
+                self.transfersyntax.is_little_endian)
+            try:
+                status = self.Code2Status(ans.Status.value).Type
+            except:
+                status = None
+            if status != 'Pending':
+                break
+            yield status, d
+        yield status, d
+
+    def SCP(self, msg):
+        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
+                            self.transfersyntax.is_little_endian)
+
+        # make response
+        rsp = C_FIND_ServiceParameters()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+
+        gen = self.AE.OnReceiveFind(self, ds)
+        try:
+            while 1:
+                time.sleep(0.001)
+                IdentifierDS, status = gen.next()
+                rsp.Status = int(status)
+                rsp.Identifier = encode(
+                    IdentifierDS,
+                    self.transfersyntax.is_implicit_VR,
+                    self.transfersyntax.is_little_endian)
+                # send response
+                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+        except StopIteration:
+            # send final response
+            rsp = C_FIND_ServiceParameters()
+            rsp.MessageIDBeingRespondedTo = msg.MessageID
+            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+            rsp.Status = int(self.Success)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+
+class ModalityWorklistInformationFindSOPClass(ModalityWorklistServiceSOPClass):
     UID = '1.2.840.10008.5.1.4.31'
 
 
+# Generate the various SOP classes
+GEN_VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}
+
+GEN_STORAGE_CLASSES = {'ComputedRadiographyImageStorage' : '1.2.840.10008.5.1.4.1.1.1',
+                   'DigitalXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.1',
+                   'DigitalXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.1.1.1',
+                   'DigitalMammographyXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.2',
+                   'DigitalMammographyXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.2.1',
+                   'DigitalIntraOralXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.3',
+                   'DigitalIntraOralXRayImageProcessingStorage' : '1.2.840.10008.5.1.1.4.1.1.3.1',
+                   'CTImageStorage' : '1.2.840.10008.5.1.4.1.1.2',
+                   'EnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.1',
+                   'LegacyConvertedEnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.2',
+                   'UltrasoundMultiframeImageStorage' : '1.2.840.10008.5.1.4.1.1.3.1',
+                   'MRImageStorage' : '1.2.840.10008.5.1.4.1.1.4',
+                   'EnhancedMRImageStorage' : '1.2.840.10008.5.1.4.1.1.4.1',
+                   'MRSpectroscopyStorage' : '1.2.840.10008.5.1.4.1.1.4.2',
+                   'EnhancedMRColorImageStorage' : '1.2.840.10008.5.1.4.1.1.4.3',
+                   'LegacyConvertedEnhancedMRImageStorage' : '1.2.840.10008.5.1.4.1.1.4.4',
+                   'UltrasoundImageStorage' : '1.2.840.10008.5.1.4.1.1.6.1',
+                   'EnhancedUSVolumeStorage' : '1.2.840.10008.5.1.4.1.1.6.2',
+                   'SecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7',
+                   'MultiframeSingleBitSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.1',
+                   'MultiframeGrayscaleByteSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.2',
+                   'MultiframeGrayscaleWordSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.3',
+                   'MultiframeTrueColorSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.4',
+                   'TwelveLeadECGWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.1.1',
+                   'GeneralECGWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.1.2',
+                   'AmbulatoryECGWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.1.3',
+                   'HemodynamicWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.2.1',
+                   'CardiacElectrophysiologyWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.3.1',
+                   'BasicVoiceAudioWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.4.1',
+                   'GeneralAudioWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.4.2',
+                   'ArterialPulseWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.5.1',
+                   'RespiratoryWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.6.1',
+                   'GrayscaleSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.1',
+                   'ColorSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.2',
+                   'PseudocolorSoftcopyPresentationStageStorage' : '1.2.840.10008.5.1.4.1.1.11.3',
+                   'BlendingSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.4',
+                   'XAXRFGrayscaleSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.5',
+                   'XRayAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1',
+                   'EnhancedXAImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1.1',
+                   'XRayRadiofluoroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2',
+                   'EnhancedXRFImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2.1',
+                   'XRay3DAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.1',
+                   'XRay3DCraniofacialImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.2',
+                   'BreastTomosynthesisImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.3',
+                   'BreastProjectionXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.13.1.4',
+                   'BreastProjectionXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.13.1.5',
+                   'IntravascularOpticalCoherenceTomographyImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.14.1',
+                   'IntravascularOpticalCoherenceTomographyImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.14.2',
+                   'NuclearMedicineImageStorage' : '1.2.840.10008.5.1.4.1.1.20',
+                   'ParametricMapStorage' : '1.2.840.10008.5.1.4.1.1.30',
+                   'RawDataStorage' : '1.2.840.10008.5.1.4.1.1.66',
+                   'SpatialRegistrationStorage' : '1.2.840.10008.5.1.4.1.1.66.1',
+                   'SpatialFiducialsStorage' : '1.2.840.10008.5.1.4.1.1.66.2',
+                   'DeformableSpatialRegistrationStorage' : '1.2.840.10008.5.1.4.1.1.66.3',
+                   'SegmentationStorage' : '1.2.840.10008.5.1.4.1.1.66.4',
+                   'SurfaceSegmentationStorage' : '1.2.840.10008.5.1.4.1.1.66.5',
+                   'RealWorldValueMappingStorage' : '1.2.840.10008.5.1.4.1.1.67',
+                   'SurfaceScanMeshStorage' : '1.2.840.10008.5.1.4.1.1.68.1',
+                   'SurfaceScanPointCloudStorage' : '1.2.840.10008.5.1.4.1.1.68.2',
+                   'VLEndoscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.1',
+                   'VideoEndoscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.1.1',
+                   'VLMicroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.2',
+                   'VideoMicroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.2.1',
+                   'VLSlideCoordinatesMicroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.3',
+                   'VLPhotographicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.4',
+                   'VideoPhotographicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.4.1',
+                   'OphthalmicPhotography8BitImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.1',
+                   'OphthalmicPhotography16BitImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.2',
+                   'StereometricRelationshipStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.3',
+                   'OpthalmicTomographyImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.4',
+                   'WideFieldOpthalmicPhotographyStereographicProjectionImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.5',
+                   'WideFieldOpthalmicPhotography3DCoordinatesImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.6',
+                   'VLWholeSlideMicroscopyImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.6',
+                   'LensometryMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.1',
+                   'AutorefractionMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.2',
+                   'KeratometryMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.3',
+                   'SubjectiveRefractionMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.4',
+                   'VisualAcuityMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.5',
+                   'SpectaclePrescriptionReportStorage' : '1.2.840.10008.5.1.4.1.1.78.6',
+                   'OpthalmicAxialMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.7',
+                   'IntraocularLensCalculationsStorage' : '1.2.840.10008.5.1.4.1.1.78.8',
+                   'MacularGridThicknessAndVolumeReport' : '1.2.840.10008.5.1.4.1.1.79.1',
+                   'OpthalmicVisualFieldStaticPerimetryMeasurementsStorag' : '1.2.840.10008.5.1.4.1.1.80.1',
+                   'OpthalmicThicknessMapStorage' : '1.2.840.10008.5.1.4.1.1.81.1',
+                   'CornealTopographyMapStorage' : '1.2.840.10008.5.1.4.1.1.82.1',
+                   'BasicTextSRStorage' : '1.2.840.10008.5.1.4.1.1.88.11',
+                   'EnhancedSRStorage' : '1.2.840.10008.5.1.4.1.1.88.22',
+                   'ComprehensiveSRStorage' : '1.2.840.10008.5.1.4.1.1.88.33',
+                   'Comprehenseice3DSRStorage' : '1.2.840.10008.5.1.4.1.1.88.34',
+                   'ExtensibleSRStorage' : '1.2.840.10008.5.1.4.1.1.88.35',
+                   'ProcedureSRStorage' : '1.2.840.10008.5.1.4.1.1.88.40',
+                   'MammographyCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.50',
+                   'KeyObjectSelectionStorage' : '1.2.840.10008.5.1.4.1.1.88.59',
+                   'ChestCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.65',
+                   'XRayRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.67',
+                   'RadiopharmaceuticalRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.68',
+                   'ColonCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.69',
+                   'ImplantationPlanSRDocumentStorage' : '1.2.840.10008.5.1.4.1.1.88.70',
+                   'EncapsulatedPDFStorage' : '1.2.840.10008.5.1.4.1.1.104.1',
+                   'EncapsulatedCDAStorage' : '1.2.840.10008.5.1.4.1.1.104.2',
+                   'PositronEmissionTomographyImageStorage' : '1.2.840.10008.5.1.4.1.1.128',
+                   'EnhancedPETImageStorage' : '1.2.840.10008.5.1.4.1.1.130',
+                   'LegacyConvertedEnhancedPETImageStorage' : '1.2.840.10008.5.1.4.1.1.128.1',
+                   'BasicStructuredDisplayStorage' : '1.2.840.10008.5.1.4.1.1.131',
+                   'RTImageStorage' : '1.2.840.10008.5.1.4.1.1.481.1',
+                   'RTDoseStorage' : '1.2.840.10008.5.1.4.1.1.481.2',
+                   'RTStructureSetStorage' : '1.2.840.10008.5.1.4.1.1.481.3',
+                   'RTBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.4',
+                   'RTPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.5',
+                   'RTBrachyTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.6',
+                   'RTTreatmentSummaryRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.7',
+                   'RTIonPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.8',
+                   'RTIonBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.9',
+                   'RTBeamsDeliveryInstructionStorage' : '1.2.840.10008.5.1.4.34.7',
+                   'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
+                   'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
+                   'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1'
+                   }
+
+GEN_QR_FIND_CLASSES = {'PatientRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.1.1',
+                       'StudyRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.2.1',
+                       'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1'}
+
+GEN_QR_MOVE_CLASSES = {'PatientRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.1.2',
+                       'StudyRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.2.2',
+                       'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2'}
+
+GEN_QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.1.3',
+                       'StudyRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.2.3',
+                       'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
+
+_generate_service_classes(GEN_VERIFICATION_CLASSES, VerificationServiceClass)
+_generate_service_classes(GEN_STORAGE_CLASSES, StorageServiceClass)
+_generate_service_classes(GEN_QR_FIND_CLASSES, QueryRetrieveFindSOPClass)
+_generate_service_classes(GEN_QR_MOVE_CLASSES, QueryRetrieveMoveSOPClass)
+_generate_service_classes(GEN_QR_GET_CLASSES, QueryRetrieveGetSOPClass)
+
+STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
+QR_FIND_CLASS_LIST = QueryRetrieveFindSOPClass.__subclasses__()
+QR_MOVE_CLASS_LIST = QueryRetrieveMoveSOPClass.__subclasses__()
+QR_GET_CLASS_LIST = QueryRetrieveGetSOPClass.__subclasses__()
+
+QR_CLASS_LIST = []
+for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
+    QR_CLASS_LIST.extend(class_list)
+
+
 d = dir()
-
-from pydicom._uid_dict import UID_dictionary
-from pydicom.uid import UID
-
-def sop_class_factory(class_uid, parent_class, sop_name='Unknown SOP Class'):
-    """
-    SOP Class class Factory
-    Modifies the pydicom _uid_dict.UID_dictionary to add a ServiceClass
-    something something
-    
-    A list of the supported Standard SOP Classes for each service class is
-    available in PS3.4. * indicates those Service Classes supported by pynetdicom
-        A. *Verification Service Class
-        B. *Storage Service Class
-        C. *Query/Retrieve Service Class
-        F. Procedure Strep SOP Classes
-        H. Print Management Service Class
-        I. Media Storage Service Class
-        J. Storage Commitment Service Class
-        K. Basic Worklist Management Service
-        N. Softcopy Presentation State Storage SOP Classes
-        O. Structured Reporting Storage SOP Classes
-        P. Application Event Logging Service Class
-        Q. Relevant Patient Information Query Service Class
-        R. Instance Availability Notification Service Class
-        S. Media Creation Management Service Class
-        T. Hanging Protocol Storage Service Class
-        U. Ganging Protocol Query/Retrieve Service Class
-        V. Substance Administration Query Service Class
-        W. Color Palette Storage Service Class
-        X. Color Palette Query/Retrieve Service Class
-        Y. Instance and Frame Level Retrieve SOP Classes
-        Z. Composite Instance Retrieve Without Bulk Data SOP Classes
-        AA. Opthalmic Refractive Measurements Storage SOP Classes
-        BB. Implant Template Query/Retrieve Service Classes
-        CC. Unified Procedure Step Service and SOP Classes
-        DD. RT Machine Verification Service Classes
-        EE. Display System Management Service Class
-    
-    # Example usage - UID present in pydicom's UID dictionary
-    class = class_factory('1.2.840.10008.5.1.4.1.1.2', StorageServiceClass)
-    
-    # Should return these values...
-    class.UID  # '1.2.840.10008.5.1.4.1.1.2' pydicom.uid.UID
-    class.Name # 'CT Image Storage' str
-    class.Type # 'Storage SOP Class' str
-    class.Info # '' str
-    class.is_retired # '' str
-    
-    # Example Usage - UID not present in pydicom's UID dictionary
-    class = class_factory(1.2.840.10008.5.1.4.1.1.2.2', StorageServiceClass, name='Unknown SOP Class')
-    # Should return these values...
-    class.UID  # '1.2.840.10008.5.1.4.1.1.2.2'
-    class.Name # 'Unknown SOP Class'
-    class.Type # 'Storage SOP Class'
-    class.Info # ''
-    class.is_retired # ''
-    
-    #status = class.SCU('ct_dataset.dcm')
-    
-    # The Presentation Context the SOP Class is operating under
-    class.presentation_context = context 
-
-    # This should really be a DIMSE attribute rather than a primitive attribute
-    #sop_class.maxpdulength = self.acse.MaxPDULength
-    
-    # Used by SCU/SCP to Send/Receive self but seems inelegant
-    sop_class.DIMSE = self.dimse
-    
-    # Not sure why we need the ACSE -> presentation context checking?
-    #sop_class.ACSE = self.acse
-    
-    # Better
-    class.scu_callback = None
-    class.scp_callback = self.ae.on_c_store
-    
-    # Run SOPClass in SCP mode
-    class.SCP(dimse_msg)
-    
-    # Run SOPClass in SCU mode
-    class.SCU(*args)
-    
-    Example usage - UID not present in pydicom's UID_dictionary:
-    
-    
-    Parameters
-    ----------
-    class_name - str
-        The variable name for the class
-    parent_class - pynetdicom.SOPclass.ServiceClass subclass
-        One of the implemented Service Classes:
-            VerificationServiceClass - Only 1.2.840.10008.1.1
-            StorageServiceClass - Tables B.5-1 and B.6-1 in PS3.4
-            QueryRetrieveFindSOPClass - Annex C.4.1 in PS3.4
-            QueryRetrieveMoveSOPClass - Annex C.4.2 in PS3.4
-            QueryRetrieveGetSOPClass - Annex C.4.3 in PS3.4
-            ModalityWorklistServiceSOPClass - Annex K in PS3.4
-    """
-    if parent_class in [VerificationServiceClass, 
-                         StorageServiceClass,
-                         QueryRetrieveFindSOPClass,
-                         QueryRetrieveMoveSOPClass,
-                         QueryRetrieveGetSOPClass,
-                         ModalityWorklistServiceSOPClass]:
-
-        cls = parent_class()
-        cls.UID = UID(class_uid)
-        
-        try:
-            cls.UID.is_valid()
-        except:
-            pass
-            
-        if cls.UID.is_transfer_syntax:
-            raise ValueError("Supplied UID belongs to a Transfer Syntax")
-        
-        # Check with pydicom to see if its a known SOP Class
-        if cls.UID in UID_dictionary.keys():
-            cls.name = UID.name
-            cls.type = UID.type
-            cls.info = UID.info
-            cls.is_retired = UID.is_retired
-            cls.presentation_context = None
-            
-        else:
-            cls.name = sop_name
-            cls.type = None
-            cls.info = None
-            cls.is_retired = None
-            cls.presentation_context = None
-
-"""
-class StorageServiceClass(ServiceClass):
-    OutOfResources = Status('Failure',
-                            'Refused: Out of resources',
-                            range(0xA700, 0xA7FF + 1)) 
-    DataSetDoesNotMatchSOPClassFailure = Status(
-                            'Failure',
-                            'Error: Data Set does not match SOP Class',
-                            range(0xA900, 0xA9FF + 1))
-    CannotUnderstand = Status(
-                            'Failure',
-                            'Error: Cannot understand',
-                            range(0xC000, 0xCFFF + 1))
-    CoercionOfDataElements = Status(
-                            'Warning',
-                            'Coercion of Data Elements',
-                            range(0xB000, 0xB000 + 1))
-    DataSetDoesNotMatchSOPClassWarning = Status(
-                            'Warning',
-                            'Data Set does not match SOP Class',
-                            range(0xB007, 0xB007 + 1))
-    ElementDisgarded = Status(
-                            'Warning',
-                            'Element Discarted',
-                            range(0xB006, 0xB006 + 1))
-    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-    
-    def __init__(self):
-        ServiceClass.__init__(self)
-
-    def SCU(self, dataset, msg_id, priority=0x0000):
-        # Build C-STORE request primitive
-        c_store_primitive = C_STORE_ServiceParameters()
-        c_store_primitive.MessageID = msg_id
-        c_store_primitive.AffectedSOPClassUID = dataset.SOPClassUID
-        c_store_primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-        
-        # Message priority
-        if priority in [0x0000, 0x0001, 0x0002]:
-            c_store_primitive.Priority = priority
-        else:
-            logger.warning("StorageServiceClass.SCU(): Invalid priority value "
-                                                            "'%s'" %priority)
-            c_store_primitive.Priorty = 0x0000
-        
-        # Encode the dataset using the agreed transfer syntax
-        transfer_syntax = self.presentation_context.TransferSyntax[0]
-        c_store_primitive.DataSet = encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian)
-
-        c_store_primitive.DataSet = BytesIO(c_store_primitive.DataSet)
-        
-        # If we failed to encode our dataset, abort the association and return
-        if c_store_primitive.DataSet is None:
-            return None
-
-        # Send C-STORE request primitive to DIMSE
-        self.DIMSE.Send(c_store_primitive, 
-                        self.MessageID, 
-                        self.maxpdulength)
-
-        # Wait for C-STORE response primitive
-        ans, _ = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-
-        return self.Code2Status(ans.Status.value)
-
-    def SCP(self, msg):
-        try:
-            DS = decode(msg.DataSet,
-                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
-        except:
-            status = self.CannotUnderstand
-            logger.error("StorageServiceClass failed to decode the dataset")
-
-        # Create C-STORE response primitive
-        rsp = C_STORE_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        
-        # ApplicationEntity's on_c_store callback 
-        try:
-            self.AE.on_c_store(self, DS)
-            status = self.Success
-        except Exception as e:
-            logger.exception("Exception in the ApplicationEntity.on_c_store() "
-                                                                "callback")
-            status = self.CannotUnderstand
-
-        # Check that the supplied dataset UID matches the presentation context
-        #   ID
-        if self.UID != self.sopclass:
-            status = self.DataSetDoesNotMatchSOPClassFailure
-            logger.info("Store request's dataset UID does not match the "
-                                                        "presentation context")
-
-        rsp.Status = int(status)
-        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-"""
 
 def UID2SOPClass(UID):
     """

@@ -751,7 +751,9 @@ class ACSEServiceProvider(object):
         
         for line in s:
             logger.debug(line)
-        
+
+        logger.info('Association Accepted')
+
     def debug_receive_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 
