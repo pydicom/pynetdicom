@@ -16,24 +16,25 @@ protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it
 allows the easy creation of DICOM clients (*Service Class Users* or SCUs) and 
 servers (*Service Class Providers* or SCPs). 
 
-The main user class is AE, which represents a DICOM Application Entity. The 
-user will typically create an ApplicationEntity object then either:
+The main user class is ``AE``, which is used to represent a DICOM Application 
+Entity. Once the ```AE`` has been created then you would typically either:
 
 - Start the application as an SCP using ``AE.start()`` and wait for incoming 
   association requests
 - Use the application as an SCU by requesting an association with a peer SCP 
-  via the ``AE.associate(addr, port)`` method.
+  via the ``AE.associate(addr, port)`` method, which returns an ``Association``
+  object if successful.
 
-Once the AE is associated with a peer, DICOM data can be sent between them by 
-utilising the DIMSE-C and DIMSE-N services (see DICOM Standard PS3.7, Sections 
-7.5, 9 and 10).
+Once the application is associated with a peer, DICOM data can be sent between 
+them by utilising the DIMSE-C and DIMSE-N services (see DICOM Standard PS3.7, 
+Sections 7.5, 9 and 10).
 
 Supported SCU Services
 ~~~~~~~~~~~~~~~~~~~~~~
 
-When the AE is acting as an SCU the following DIMSE-C services are available to 
-the ``Association`` class once an association has been established with a peer 
-SCP (provided that the peer supports the corresponding Service Classes):
+When the AE is acting as an SCU and an association has been established with a 
+peer SCP, the following DIMSE-C services are available (provided the peer 
+supports the corresponding Service Classes):
 
 - C-ECHO: ``Association.send_c_echo()`` used to verify end-to-end 
   communications with the peer.
@@ -47,7 +48,7 @@ SCP (provided that the peer supports the corresponding Service Classes):
   *dataset* then return those matching Instances to the SCU.
 - C-MOVE: ``Association.send_c_move(dataset, move_aet)`` requests the peer 
   search its set of managed SOP Instances for those that match the attributes 
-  given in *dataset* and then move those matching Instances to the AE with title
+  given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet*
 
 See the SCU Examples and the Association documentation for more information.
