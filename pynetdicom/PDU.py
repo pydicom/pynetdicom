@@ -243,7 +243,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def Encode(self):
         
         logger.debug('Constructing Associate RQ PDU')
-        
+
         # Python3 must implicitly define string as bytes
         tmp = b''
         tmp = tmp + pack('B',   self.PDUType)
@@ -258,6 +258,10 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         # variable item elements
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
+        
+        # For debugging the outgoing RQ PDU
+        #for line in wrap_list(tmp, max_size=512):
+        #    logger.debug('  ' + line)
         
         return tmp
 
@@ -492,7 +496,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         logger.debug('PDU Type: Associate Accept, PDU Length: %s + %s bytes '
                         'PDU header' %(len(s.getvalue()), 6))
         
-        for line in wrap_list(s):
+        for line in wrap_list(s, max_size=512):
             logger.debug('  ' + line)
         
         logger.debug('Parsing an A-ASSOCIATE PDU')

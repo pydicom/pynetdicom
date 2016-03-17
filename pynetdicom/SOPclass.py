@@ -185,7 +185,11 @@ class StorageServiceClass(ServiceClass):
         ans, _ = self.DIMSE.Receive(Wait=True, 
                                     dimse_timeout=self.DIMSE.dimse_timeout)
 
-        return self.Code2Status(ans.Status.value)
+        status = None
+        if ans is not None:
+            status = self.Code2Status(ans.Status.value)
+
+        return status
 
     def SCP(self, msg):
         try:
@@ -223,22 +227,8 @@ class StorageServiceClass(ServiceClass):
 
 class StorageSOPClass(StorageServiceClass): pass
 
-class MRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4'
-
-class EnhancedMRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.1'
-
-class MRSpectroscopyStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.2'
-
-class CTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.2'
-
-class PositronEmissionTomographyImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.128'
-
-class CRImageStorageSOPClass(StorageSOPClass):
+# SEE PS3.4 Annex B.5 for Storage Service Class' Standard SOP Classes
+class ComputedRadiographyImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.1'
 
 class DigitalXRayImagePresentationStorageSOPClass(StorageSOPClass):
@@ -259,43 +249,40 @@ class DigitalIntraOralXRayImagePresentationStorageSOPClass(StorageSOPClass):
 class DigitalIntraOralXRayImageProcessingStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.1.3.1'
 
-class EncapsulatedPDFStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.104.1'
-    
-class GrayscaleSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.1'
-    
-class ColorSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.2'
-
-class PseudocolorSoftcopyPresentationStageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.3'
-
-class BlendingSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.4'
-
-class XRayAngiographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.1'
-
-class EnhancedXAImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.1.1'
-
-class XRayRadiofluoroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.2'
-
-class EnhancedXRFImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.2.1'
+class CTImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.2'
 
 class EnhancedCTImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.2.1'
 
-class NMImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.20'
+class LegacyConvertedEnhancedCTImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.2.2'
 
-class UltrasoundMultiframeImageStorageSOPClass(StorageSOPClass):
+class UltrasoundMultiframeImageStorageSOPClass(StorageSOPClass): # Retired
     UID = '1.2.840.10008.5.1.4.1.1.3.1'
 
-class SCImageStorageSOPClass(StorageSOPClass):
+class MRImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.4'
+
+class EnhancedMRImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.4.1'
+
+class MRSpectroscopyStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.4.2'
+
+class EnhancedMRColorImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.4.3'
+
+class LegacyConvertedEnhancedMRImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.4.4'
+
+class UltrasoundImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.6.1'
+
+class EnhancedUSVolumeStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.6.2'
+
+class SecondaryCaptureImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.7'
 
 class MultiframeSingleBitSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
@@ -309,6 +296,128 @@ class MultiframeGrayscaleWordSecondaryCaptureImageStorageSOPClass(StorageSOPClas
 
 class MultiframeTrueColorSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.7.4'
+
+class TwelveLeadECGWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.1.1'
+
+class GeneralECGWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.1.2'
+
+class AmbulatoryECGWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.1.3'
+
+class HemodynamicWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.2.1'
+
+class CardiacElectrophysiologyWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.3.1'
+
+class BasicVoiceAudioWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.4.1'
+
+class GeneralAudioWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.4.2'
+
+class ArterialPulseWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.5.1'
+
+class RespiratoryWaveformStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.9.6.1'
+
+class GrayscaleSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.11.1'
+    
+class ColorSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.11.2'
+
+class PseudocolorSoftcopyPresentationStageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.11.3'
+
+class BlendingSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.11.4'
+
+class XAXRFGrayscaleSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.11.5'
+
+class XRayAngiographicImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.1'
+
+class EnhancedXAImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.1.1'
+
+class XRayRadiofluoroscopicImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.2'
+
+class EnhancedXRFImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.12.2.1'
+
+class XRay3DAngiographicImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.13.1.1'
+
+class XRay3DCraniofacialImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.13.1.2'
+
+class BreastTomosynthesisImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.13.1.3'
+
+class BreastProjectionXRayImagePresentationStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.13.1.4'
+
+class BreastProjectionXRayImageProcessingStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.13.1.5'
+
+class IntravascularOpticalCoherenceTomographyImagePresentationStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.14.1'
+
+class IntravascularOpticalCoherenceTomographyImageProcessingStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.14.2'
+
+class NuclearMedicineImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.20'
+
+class ParametricMapStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.30'
+
+class RawDataStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66'
+
+class SpatialRegistrationStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66.1'
+
+class SpatialFiducialsStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66.2'
+
+class DeformableSpatialRegistrationStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66.3'
+
+class SegmentationStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66.4'
+
+class SurfaceSegmentationStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.66.5'
+
+class RealWorldValueMappingStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.67'
+
+class SurfaceScanMeshStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.68.1'
+
+class SurfaceScanPointCloudStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.68.2'
+
+
+
+
+
+class PositronEmissionTomographyImageStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.128'
+
+class EncapsulatedPDFStorageSOPClass(StorageSOPClass):
+    UID = '1.2.840.10008.5.1.4.1.1.104.1'
+    
+
+
+
 
 class RTImageStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.481.1'
@@ -352,32 +461,97 @@ class OphthalmicPhotography16BitImageStorageSOPClass(StorageSOPClass):
 class StereometricRelationshipStorageSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.77.1.5.3'
 
-class UltrasoundImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.6.1'
 
-class RawDataStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66'
+STORAGE_SOP_CLASSES = [ComputedRadiographyImageStorageSOPClass,
+                       DigitalXRayImagePresentationStorageSOPClass,
+                       DigitalXRayImageProcessingStorageSOPClass,
+                       DigitalMammographyXRayImagePresentationStorageSOPClass,
+                       DigitalMammographyXRayImageProcessingStorageSOPClass,
+                       DigitalIntraOralXRayImagePresentationStorageSOPClass,
+                       DigitalIntraOralXRayImageProcessingStorageSOPClass,
+                       CTImageStorageSOPClass,
+                       EnhancedCTImageStorageSOPClass,
+                       LegacyConvertedEnhancedCTImageStorageSOPClass,
+                       UltrasoundMultiframeImageStorageSOPClass,
+                       MRImageStorageSOPClass,
+                       EnhancedMRImageStorageSOPClass,
+                       MRSpectroscopyStorageSOPClass,
+                       EnhancedMRColorImageStorageSOPClass,
+                       LegacyConvertedEnhancedMRImageStorageSOPClass,
+                       NuclearMedicineImageStorageSOPClass,
+                       UltrasoundImageStorageSOPClass,
+                       EnhancedUSVolumeStorageSOPClass,
+                       SecondaryCaptureImageStorageSOPClass,
+                       MultiframeSingleBitSecondaryCaptureImageStorageSOPClass,
+                       MultiframeGrayscaleByteSecondaryCaptureImageStorageSOPClass,
+                       MultiframeGrayscaleWordSecondaryCaptureImageStorageSOPClass,
+                       MultiframeTrueColorSecondaryCaptureImageStorageSOPClass,
+                       TwelveLeadECGWaveformStorageSOPClass,
+                       GeneralECGWaveformStorageSOPClass,
+                       AmbulatoryECGWaveformStorageSOPClass,
+                       HemodynamicWaveformStorageSOPClass,
+                       CardiacElectrophysiologyWaveformStorageSOPClass,
+                       BasicVoiceAudioWaveformStorageSOPClass,
+                       GeneralAudioWaveformStorageSOPClass,
+                       ArterialPulseWaveformStorageSOPClass,
+                       RespiratoryWaveformStorageSOPClass,
+                       GrayscaleSoftcopyPresentationStateStorageSOPClass,
+                       ColorSoftcopyPresentationStateStorageSOPClass,
+                       PseudocolorSoftcopyPresentationStageStorageSOPClass,
+                       BlendingSoftcopyPresentationStateStorageSOPClass,
+                       XAXRFGrayscaleSoftcopyPresentationStateStorageSOPClass,
+                       XRayAngiographicImageStorageSOPClass,
+                       EnhancedXAImageStorageSOPClass,
+                       XRayRadiofluoroscopicImageStorageSOPClass,
+                       EnhancedXRFImageStorageSOPClass,
+                       XRay3DAngiographicImageStorageSOPClass,
+                       XRay3DCraniofacialImageStorageSOPClass,
+                       BreastTomosynthesisImageStorageSOPClass,
+                       BreastProjectionXRayImagePresentationStorageSOPClass,
+                       BreastProjectionXRayImageProcessingStorageSOPClass,
+                       IntravascularOpticalCoherenceTomographyImagePresentationStorageSOPClass,
+                       IntravascularOpticalCoherenceTomographyImageProcessingStorageSOPClass,
+                       NuclearMedicineImageStorageSOPClass,
+                       ParametricMapStorageSOPClass,
+                       RawDataStorageSOPClass,
+                       SpatialRegistrationStorageSOPClass,
+                       SpatialFiducialsStorageSOPClass,
+                       DeformableSpatialRegistrationStorageSOPClass,
+                       SegmentationStorageSOPClass,
+                       SurfaceSegmentationStorageSOPClass,
+                       RealWorldValueMappingStorageSOPClass,
+                       SurfaceScanMeshStorageSOPClass,
+                       SurfaceScanPointCloudStorageSOPClass,
+                       VLEndoscopicImageStorageSOPClass,
+                       VideoEndoscopicImageStorageSOPClass,
+                       VLMicroscopicImageStorageSOPClass,
+                       VideoMicroscopicImageStorageSOPClass,
+                       VLSlideCoordinatesMicroscopicImageStorageSOPClass,
+                       VLPhotographicImageStorageSOPClass,
+                       VideoPhotographicImageStorageSOPClass,
+                       OphthalmicPhotography8BitImageStorageSOPClass,
+                       OphthalmicPhotography16BitImageStorageSOPClass,
+                       StereometricRelationshipStorageSOPClass,
+                       
+                       
+                       PositronEmissionTomographyImageStorageSOPClass,
+                       EncapsulatedPDFStorageSOPClass,
+                       
+                       
+                       
+                       
+                       RTImageStorageSOPClass,
+                       RTDoseStorageSOPClass,
+                       RTStructureSetStorageSOPClass,
+                       RTPlanStorageSOPClass]
 
-class SpatialRegistrationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.1'
-
-class SpatialFiducialsStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.2'
-
-class DeformableSpatialRegistrationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.3'
-
-class SegmentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.4'
-
-class RealWorldValueMappingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.67'
 
 class XRayRadiationDoseStructuredReportSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.88.67'
 
 class EnhancedStructuredReportSOPClass(StorageSOPClass):
     UID = '1.2.840.10008.5.1.4.1.1.88.22'
+
 
 
 # QUERY RETRIEVE SOP Classes
@@ -1204,3 +1378,4 @@ def UID2SOPClass(UID):
             if tmpuid == UID:
                 return eval(ss)
     return None
+

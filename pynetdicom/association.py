@@ -508,8 +508,8 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        msg_id - int
-            The message ID
+        msg_id - int, optional
+            The message ID to use (default: 1)
 
         Returns
         -------
@@ -550,18 +550,38 @@ class Association(threading.Thread):
         ----------
         dataset - pydicom.Dataset
             The DICOM dataset to send to the peer
-        msg_id - int
-            The message ID
-        priority - int
-            The message priority, one of:
-                2 - Low
-                1 - High
-                0 - Medium
+        msg_id - int, optional
+            The message ID (default: 1)
+        priority - int, optional
+            The message priority, one of (0, 1, 2) where 0 is medium priority, 
+            1 is high priority and 2 is low priority (default)
 
         Returns
         -------
-        status : pynetdicom.SOPclass.Status
-            The status of the C-STORE operation
+        status : pynetdicom.SOPclass.Status or None
+            The status for the requested C-STORE operation (see PS3.4 Annex 
+            B.2.3), should be one of the following Status objects:
+                Success status
+                    sop_class.Success
+                        Success - 0000
+                    
+                Failure statuses
+                    sop_class.OutOfResources
+                        Refused: Out of Resources - A7xx
+                    sop_class.DataSetDoesNotMatchingSOPClassFailure
+                        Error: Data Set does not match SOP Class - A9xx
+                    sop_class.CannotUnderstand
+                        Error: Cannot understand - Cxxx
+                
+                Warning statuses
+                    sop_class.CoercionOfDataElements
+                        Coercion of Data Elements - B000
+                    sop_class.DataSetDoesNotMatchSOPClassWarning
+                        Data Set does not matching SOP Class - B007
+                    sop_class.ElementsDiscarded
+                        Elements Discarded - B006
+            
+            Returns None if the C-STORE request was not sent
         """
         if self.is_established:
             # Select appropriate SOP Class for dataset
@@ -574,16 +594,14 @@ class Association(threading.Thread):
             for context in self.acse.context_manager.accepted:
                 if sop_class.UID == context.AbstractSyntax:
                     sop_class.presentation_context = context
-                    #sop_class.pcid = context.ID
-                    #sop_class.sopclass = context.AbstractSyntax
-                    #sop_class.transfersyntax = context.TransferSyntax[0]
-        
+
                     found_match = True
 
             if not found_match:
                 logger.error("No Presentation Context for: '%s'"
-                                                           %UID(sop_class.UID))
-                logger.error("Store SCU Failed: DIMSE No valid presentation context ID")
+                                                            %UID(sop_class.UID))
+                logger.error("Store SCU Failed: DIMSE No valid presentation "
+                                                            "context ID")
                 return None
             
             sop_class.MessageID = msg_id
@@ -663,7 +681,8 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
 
-    def send_c_move(self, dataset, move_aet, msg_id=1, priority=2, query_model='W'):
+    def send_c_move(self, dataset, move_aet, msg_id=1, 
+                                            priority=2, query_model='P'):
         if self.is_established:
             if query_model == "P":
                 sop_class = PatientRootMoveSOPClass()
@@ -672,8 +691,8 @@ class Association(threading.Thread):
             elif query_model == "O":
                 sop_class = PatientStudyOnlyMoveSOPClass()
             else:
-                raise ValueError("Association::send_c_get() query_model must be "
-                    "one of ['P'|'S'|'O']")
+                raise ValueError("Association::send_c_get() query_model must "
+                    "be one of ['P'|'S'|'O']")
 
             found_match = False
             for scu_sop_class in self.scu_supported_sop:
