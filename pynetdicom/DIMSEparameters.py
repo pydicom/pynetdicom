@@ -34,7 +34,43 @@ class C_STORE_ServiceParameters:
         return classprinter(self)
 
 class C_FIND_ServiceParameters:
-
+    """
+    PS3.4 Annex C.4.1.1
+    
+    SOP Class UID
+    ~~~~~~~~~~~~~
+    Identifies the QR Information Model against which the C-FIND is to be 
+    performed. Support for the SOP Class UID is implied by the Abstract Syntax
+    UID of the Presentation Context used by this C-FIND operation.
+    
+    Priority
+    ~~~~~~~~
+    The requested priority of the C-FIND operation with respect to other DIMSE
+    operations being performed by the same SCP. Processing of priority requests
+    is not required of SCPs. Whether or not an SCP supports priority processing
+    and the meaning of different priority levels shall be stated in the 
+    Conformance Statement of the SCP.
+    
+    Identifier
+    ~~~~~~~~~~
+    Encoded as a Data Set
+    
+    Request Identifier Structure
+    * Key Attribute values to be matched against the values of storage SOP 
+    Instances managed by the SCP
+    * QR Level (0008,0052)
+    * Conditionally, (0008,0053)
+    * Conditionally, (0008,0005)
+    * Conditionally, (0008,0201)
+    
+    Response Identifier Structure
+    * Key Attribute with values corresponding to Key Attributes contained in the
+    Identifier of the request
+    * QR Level (0008, 0053)
+    * Conditionally, (0008,0005)
+    * Conditionally, (0008,0201)
+    
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None

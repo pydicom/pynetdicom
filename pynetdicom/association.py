@@ -619,6 +619,11 @@ class Association(threading.Thread):
     def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """
         Send a C-FIND request message to the peer AE
+        
+        PS3.4 Annex C - Query/Retrieve Service Class
+        
+        Attributes Key Type Conventions
+        U = Unique Key, R = Required Key, O = Optional Key
 
         Parameters
         ----------

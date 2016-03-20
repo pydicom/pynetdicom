@@ -17,13 +17,13 @@ allows the easy creation of DICOM clients (*Service Class Users* or SCUs) and
 servers (*Service Class Providers* or SCPs). 
 
 The main user class is ``AE``, which is used to represent a DICOM Application 
-Entity. Once the ```AE`` has been created then you would typically either:
+Entity. Once the ``AE`` has been created then you would typically either:
 
 - Start the application as an SCP using ``AE.start()`` and wait for incoming 
   association requests
 - Use the application as an SCU by requesting an association with a peer SCP 
   via the ``AE.associate(addr, port)`` method, which returns an ``Association``
-  object if successful.
+  thread.
 
 Once the application is associated with a peer, DICOM data can be sent between 
 them by utilising the DIMSE-C and DIMSE-N services (see DICOM Standard PS3.7, 
@@ -127,7 +127,7 @@ Examples
         
         assoc = ae.associate(addr, port)
         if assoc.is_established:
-            dataset = read_file('test_file.dcm')
+            dataset = read_file('dcm_file')
             assoc.send_c_store(dataset)
         
         assoc.release()

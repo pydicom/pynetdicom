@@ -399,7 +399,6 @@ class ApplicationEntity(object):
         # If the Association was established
         if assoc.is_established:
             self.active_associations.append(assoc)
-            return assoc
 
         return assoc
 
@@ -867,6 +866,8 @@ class ApplicationEntity(object):
         a valid pynetdicom.SOPclass.Status object. In addition,the 
         AE.on_c_find_cancel() callback must also be defined
         
+        Called by QueryRetrieveFindSOPClass subclasses in SCP()
+        
         Parameters
         ----------
         sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
@@ -877,6 +878,8 @@ class ApplicationEntity(object):
             
         Returns
         -------
+        generator : A generator object? Not sure
+        
         status : pynetdicom.SOPclass.Status
             A valid return status for the C-FIND operation (see PS3.4 Annex 
             C.4.1.1.4), must be one of:

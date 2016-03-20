@@ -132,9 +132,9 @@ ae = AE(ae_title=args.calling_aet,
 assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 # Create query dataset
-d = Dataset()
-d.PatientsName = '*'
-d.QueryRetrieveLevel = "PATIENT"
+dataset = Dataset()
+dataset.PatientsName = '*'
+dataset.QueryRetrieveLevel = "PATIENT"
 
 if args.worklist:
     query_model = 'W'
@@ -149,7 +149,7 @@ else:
 
 # Send query
 if assoc.is_established:
-    response = assoc.send_c_find(d, query_model=query_model)
+    response = assoc.send_c_find(dataset, query_model=query_model)
     
     time.sleep(1)
     for value in response:
