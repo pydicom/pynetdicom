@@ -514,31 +514,44 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom.SOPclass.Status
-            Will always be Success (0x0000)
+        status : pynetdicom.SOPclass.Status or None
+            Returns None if no valid presentation context or no response
+            from the peer, Success (0x0000) otherwise.
         """
         if self.is_established:
-            sop_class = VerificationSOPClass()
+            # Service Class - used to determine Status
+            service_class = VerificationServiceClass()
             
-            found_match = False
-            for scu_sop_class in self.scu_supported_sop:
-                if scu_sop_class[1] == sop_class.__class__:
-                    sop_class.pcid = scu_sop_class[0]
-                    sop_class.sopclass = scu_sop_class[1]
-                    sop_class.transfersyntax = scu_sop_class[2]
+            uid = UID('1.2.840.10008.1.1')
+            
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if uid == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
                     
-                    found_match = True
-                    
-            if not found_match:
-                raise ValueError("'%s' is not listed as one of the AE's "
-                        "supported SOP Classes" %sop_class.__class__.__name__)
-                
-            sop_class.maxpdulength = self.acse.MaxPDULength
-            sop_class.DIMSE = self.dimse
-            sop_class.AE = self.ae
-            sop_class.RemoteAE = self.peer_ae
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" %uid)
+                return None
+            
+            # Build C-STORE request primitive
+            primitive = C_ECHO_ServiceParameters()
+            primitive.MessageID = msg_id
+            primitive.AffectedSOPClassUID = uid
 
-            return sop_class.SCU(msg_id)
+            self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
+
+            # If Association is Aborted before we receive the response
+            #   then we hang here
+            rsp, _ = self.dimse.Receive(Wait=True, 
+                                        dimse_timeout=self.dimse_timeout)
+            
+            if rsp is None:
+                return None
+            
+            return service_class.Code2Status(rsp.Status)
+
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-ECHO request")
@@ -695,12 +708,13 @@ class Association(threading.Thread):
             self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
 
             # Wait for C-STORE response primitive
-            ans, _ = self.dimse.Receive(Wait=True, 
+            #   returns a C_STORE_ServiceParameters primitive
+            rsp, _ = self.dimse.Receive(Wait=True, 
                                         dimse_timeout=self.dimse_timeout)
-
+            
             status = None
-            if ans is not None:
-                status = service_class.Code2Status(ans.Status.value)
+            if rsp is not None:
+                status = service_class.Code2Status(rsp.Status.value)
 
             return status
 
