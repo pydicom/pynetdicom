@@ -165,6 +165,9 @@ class ApplicationEntity(object):
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
         
+        # The user may require the use of Extended Negotiation items
+        self.extended_negotiation = []
+        
         # Default maximum simultaneous associations
         self.maximum_associations = 2
         

@@ -52,6 +52,23 @@ def decode(b, is_implicit_VR, is_little_endian):
     return read_dataset(b, is_implicit_VR, is_little_endian)
 
 def encode(ds, is_implicit_VR, is_little_endian):
+    """
+    Given a pydicom Dataset, encode it to a byte stream
+    
+    Parameters
+    ----------
+    ds - pydicom.dataset.Dataset
+        The dataset to encode
+    is_implicit_VR - bool
+        Transfer syntax implicit/explicit VR
+    is_little_endian - bool
+        Transfer syntax byte ordering
+    
+    Returns
+    -------
+    DicomBytesIO or None
+        The encoded dataset (if successful), None if encoding failed.
+    """
     f = DicomBytesIO()
     f.is_implicit_VR = is_implicit_VR
     f.is_little_endian = is_little_endian
@@ -60,7 +77,8 @@ def encode(ds, is_implicit_VR, is_little_endian):
     except Exception as e:
         logger.error("pydicom.write_dataset() failed:")
         logger.error(e)
-        raise
+        f.close()
+        return None
     
     rawstr = f.parent.getvalue()
     f.close()

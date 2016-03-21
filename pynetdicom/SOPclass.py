@@ -159,67 +159,6 @@ class StorageServiceClass(ServiceClass):
     def __init__(self):
         ServiceClass.__init__(self)
 
-    def SCU(self, dataset, msg_id, priority=0x0000):
-        """
-        I think perhaps we should rewrite the .SCU and .SCP methods so
-        they return the DIMSE message that should be sent to the peer
-        
-        Parameters
-        ----------
-        dataset - pydicom.dataset
-            The DICOM dataset to send
-        msg_id - int
-            The DIMSE message ID value to use
-        priority - int, optional
-            The message priority, must be one of the following:
-                0x0002 Low
-                0x0001 High
-                0x0000 Medium
-                
-        Returns
-        -------
-        """
-        # Build C-STORE request primitive
-        c_store_primitive = C_STORE_ServiceParameters()
-        c_store_primitive.MessageID = msg_id
-        c_store_primitive.AffectedSOPClassUID = dataset.SOPClassUID
-        c_store_primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-        
-        # Message priority
-        if priority in [0x0000, 0x0001, 0x0002]:
-            c_store_primitive.Priority = priority
-        else:
-            logger.warning("StorageServiceClass.SCU(): Invalid priority value "
-                                                            "'%s'" %priority)
-            c_store_primitive.Priorty = 0x0000
-        
-        # Encode the dataset using the agreed transfer syntax
-        transfer_syntax = self.presentation_context.TransferSyntax[0]
-        c_store_primitive.DataSet = encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian)
-
-        c_store_primitive.DataSet = BytesIO(c_store_primitive.DataSet)
-        
-        # If we failed to encode our dataset, abort the association and return
-        if c_store_primitive.DataSet is None:
-            return None
-
-        # Send C-STORE request primitive to DIMSE
-        self.DIMSE.Send(c_store_primitive, 
-                        self.MessageID, 
-                        self.maxpdulength)
-
-        # Wait for C-STORE response primitive
-        ans, _ = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-
-        status = None
-        if ans is not None:
-            status = self.Code2Status(ans.Status.value)
-
-        return status
-
     def SCP(self, msg):
         try:
             DS = decode(msg.DataSet,
