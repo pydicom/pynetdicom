@@ -7,15 +7,6 @@
 
 import struct
 
-
-def classprinter(klass):
-    tmp = ''
-    for ii in klass.__dict__.keys():
-        tmp += ii + ": " + str(klass.__dict__[ii]) + '\n'
-
-    return tmp
-
-
 # DIMSE-C Services
 class C_STORE_ServiceParameters:
     """
@@ -77,22 +68,38 @@ class C_FIND_ServiceParameters:
     Request Identifier Structure
     * Key Attribute values to be matched against the values of storage SOP 
     Instances managed by the SCP
-    * QR Level (0008,0052)
-    * Conditionally, (0008,0053)
-    * Conditionally, (0008,0005)
-    * Conditionally, (0008,0201)
+    * QR Level (0008,0052) Query/Retrieve Level
+    * Conditionally, (0008,0053) if enhanced multi frame image conversion
+        accepted during Extended Negotiation
+    * Conditionally, (0008,0005) if expanded or replacement character sets
+        may be used in the request Identifier attributes
+    * Conditionally, (0008,0201) if Key Attributes of time are to be 
+        interpreted explicitly in the designated local time zone
     
     Response Identifier Structure
     * Key Attribute with values corresponding to Key Attributes contained in the
     Identifier of the request
     * QR Level (0008, 0053)
-    * Conditionally, (0008,0005)
-    * Conditionally, (0008,0201)
+    * Conditionally, (0008,0005) if expanded or replacement character sets
+        may be used in the response Identifier attributes
+    * Conditionally, (0008,0201) if Key Attributes of time are to be 
+        interpreted explicitly in the designated local time zone
     
+    The C-FIND SCP is required to support either/both the 'Retrieve AE Title'
+    (0008,0054) or the 'Storage Media File-Set ID'/'Storage Media File Set UID'
+    (0088,0130)/(0088,0140) data elements.
+    
+    Retrieve AE Title
+    ~~~~~~~~~~~~~~~~~
+    A list of AE title(s) that identify the location from which the Instance
+    may be retrieved on the network. Must be present if Storage Media File Set
+    ID/UID not present. The named AE shall support either C-GET or C-MOVE
+    SOP Class of the QR Service Class.
     """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
+        # The SOP Class of the Information Model for the query
         self.AffectedSOPClassUID = None
         self.Priority = None
         self.Identifier = None
@@ -235,12 +242,3 @@ class N_DELETE_ServiceParamters:
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.Status = None
-
-# Why are these here?
-#class C_STORE_RQ_Message:
-#    def __init__(self):
-#        pass
-
-#class C_STORE_Service:
-#    def __init__(self):
-#        self.Parameters = C_STORE_ServiceParameters()

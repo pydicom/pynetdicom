@@ -20,12 +20,12 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom.DIMSEparameters import C_STORE_ServiceParameters
+from pynetdicom.DIMSEparameters import *
 from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
-from pynetdicom.utils import PresentationContextManager
+from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr
 
 
 logger = logging.getLogger('pynetdicom.assoc')
@@ -505,8 +505,8 @@ class Association(threading.Thread):
     # DIMSE-C services provided by the Association
     def send_c_echo(self, msg_id=1):
         """
-        Send a C-ECHO message to the peer AE
-
+        Send a C-ECHO message to the peer AE to verify end-to-end communication
+        
         Parameters
         ----------
         msg_id - int, optional
@@ -678,6 +678,9 @@ class Association(threading.Thread):
                         "presentation context for the current dataset")
                 return service_class.CannotUnderstand
             
+            # Set the correct VR for ambiguous elements
+            dataset = correct_ambiguous_vr(dataset, transfer_syntax)
+            
             # Build C-STORE request primitive
             primitive = C_STORE_ServiceParameters()
             primitive.MessageID = msg_id
@@ -722,7 +725,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                     "established before sending a C-STORE request")
 
-    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
+    def send_c_find(self, dataset, msg_id=1, priority=0x0002, query_model='W'):
         """
         Send a C-FIND request message to the peer AE
         
@@ -745,10 +748,10 @@ class Association(threading.Thread):
                 0 - Medium
         query_model - str, optional
             One of the following:
-                'W' - Modality Worklist Information Find
-                'P' - Patient Root Find
-                'S' - Study Root Find
-                'O' - Patient Study Only Find
+                'W' - Modality Worklist Information Find (default)
+                'P' - Patient Root Information Model
+                'S' - Study Root Information Model
+                'O' - Patient Study Only Information Model
 
         Returns
         -------
@@ -759,11 +762,14 @@ class Association(threading.Thread):
             if query_model == 'W':
                 sop_class = ModalityWorklistInformationFindSOPClass()
             elif query_model == "P":
-                sop_class = PatientRootFindSOPClass()
+                sop_class = PatientRootQueryRetrieveInformationModelFind()
+                # Four level hierarchy, patient, study, series, composite object
             elif query_model == "S":
-                sop_class = StudyRootFindSOPClass()
+                sop_class = StudyRootQueryRetrieveInformationModelFind()
+                # Three (?) level hierarchy, study, series, composite object
             elif query_model == "O":
-                sop_class = PatientStudyOnlyFindSOPClass()
+                # Retired
+                sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
             else:
                 raise ValueError("Association::send_c_find() query_model "
                     "must be one of ['W'|'P'|'S'|'O']")
