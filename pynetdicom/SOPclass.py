@@ -279,7 +279,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
     
     
     """
-
+    # PS3.4 Annex C.4.1.1.4
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA700 + 1))
@@ -307,70 +307,6 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
                             "Optional Keys were not supported for existence "
                             "and/or matching for this identifier",
                             range(0xFF01, 0xFF01 + 1))
-    
-    def SCU(self, ds, msg_id, msg_priority=2):
-        """
-        Parameters
-        ----------
-        ds - pydicom.dataset.Dataset
-            The query
-        msg_id - int
-            The message ID
-        msg_priority - int
-            The message priority level (2: Normal)
-        """
-        # build C-FIND primitive
-        cfind = C_FIND_ServiceParameters()
-        cfind.MessageID = msg_id
-        cfind.AffectedSOPClassUID = self.UID
-        cfind.Priority = 0x0002
-        cfind.Identifier = encode(ds,
-                                  self.transfersyntax.is_implicit_VR,
-                                  self.transfersyntax.is_little_endian)
-        cfind.Identifier = BytesIO(cfind.Identifier)
-
-        # send c-find request
-        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
-        
-        logger.info('Find SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
-        for elem in ds:
-            logger.info(elem)
-        logger.info('')
-        
-        while 1:
-            time.sleep(0.001)
-            
-            # wait for c-find responses
-            ans, _ = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
-                continue
-            
-            d = decode(ans.Identifier, 
-                       self.transfersyntax.is_implicit_VR,
-                       self.transfersyntax.is_little_endian)
-
-            try:
-                status = self.Code2Status(ans.Status.value).Type
-            except:
-                status = None
-            
-            if status != 'Pending':
-                break
-            
-            logger.info("Find Response: (Pending)")
-            logger.info('')
-            
-            logger.info('# DICOM Dataset')
-            for elem in d:
-                logger.info(elem)
-            logger.info('')
-            
-            yield status, d
-
-        yield status, d
 
     def SCP(self, dimse_msg):
         """

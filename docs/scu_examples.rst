@@ -11,6 +11,7 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
 *Verification SOP Class*
 
 .. code-block:: python 
+
         from pynetdicom import AE
         
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
@@ -39,6 +40,7 @@ A common use of a DICOM SCU is to use a DICOM C-STORE message to send DICOM
 datasets to peer AEs. 
 
 .. code-block:: python 
+
         from pydicom import read_file
         from pynetdicom import AE
         from pynetdicom import StorageSOPClassList
@@ -58,8 +60,6 @@ datasets to peer AEs.
             # Read the DICOM dataset from file 'dcmfile'
             dataset = read_file('dcmfile')
             
-            # If the dataset contains ambiguous VRs then they will need to
-            #   be set to be set prior to sending
             # Send a DIMSE C-STORE request to the peer
             status = assoc.send_c_echo(dataset)
             print('C-STORE status: %s' %status)
@@ -74,6 +74,7 @@ Query the peer AE to see if it contains any Instances with attributes matching
 those specified by the user-created *dataset*.
 
 .. code-block:: python 
+
         from pydicom.dataset import Dataset
 
         from pynetdicom import AE

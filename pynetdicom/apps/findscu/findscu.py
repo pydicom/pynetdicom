@@ -13,6 +13,7 @@ import socket
 import sys
 import time
 
+from pydicom import read_file
 from pydicom.dataset import Dataset
 
 from pynetdicom import AE, QueryRetrieveSOPClassList
@@ -87,10 +88,10 @@ def _setup_argparser():
     
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
+    qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument('-k', '--key', metavar='[k]ey: gggg,eeee="str", path or dictionary name="str"',
                           help="override matching key",
                           type=str)
-    qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument("-W", "--worklist",
                           help="use modality worklist information model",
                           action="store_true")
@@ -185,6 +186,7 @@ if assoc.is_established:
     time.sleep(1)
     for value in response:
         pass
+        #print(value)
     
     assoc.release()
 
