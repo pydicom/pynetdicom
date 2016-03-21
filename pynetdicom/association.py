@@ -20,6 +20,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
+from pynetdicom.DIMSEparameters import C_STORE_ServiceParameters
 from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
@@ -542,9 +543,71 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-ECHO request")
 
-    def send_c_store(self, dataset, msg_id=1, priority=2):
+    def send_c_store(self, dataset, msg_id=1, priority=0x0002):
         """
-        Send a C-STORE request message to the peer AE
+        Send a C-STORE request message to the peer AE Storage SCP
+        
+        PS3.4 Annex B
+    
+        Service Definition
+        ==================
+        Two peer DICOM AEs implement a SOP Class of the Storage Service Class
+        with one serving in the SCU role and one service in the SCP role.
+        SOP Classes are implemented using the C-STORE DIMSE service. A 
+        successful completion of the C-STORE has the following semantics:
+        - Both the SCU and SCP support the type of information to be stored
+        - The information is stored in some medium
+        - For some time frame, the information may be accessed
+        
+        (For JPIP Referenced Pixel Data transfer syntaxes, transfer may result
+        in storage of incomplete information in that the pixel data may be
+        partially or completely transferred by some other mechanism at the
+        discretion of the SCP)
+
+        Extended Negotiation
+        ====================
+        Extended negotiation is optional, however SCUs requesting association 
+        may include:
+        - one SOP Class Extended Negotiation Sub-Item for each supported SOP
+        Class of the Storage Service Class, as described in PS3.7 Annex D.3.3.5.
+        - one SOP Class Common Extended Negotiation Sub-Item for each supported
+        SOP Class of the Storage Service Class, as described in PS3.7 Annex 
+        D.3.3.6
+        
+        The SCP accepting association shall optionally support:
+        - one SOP Class Extended Negotiation Sub-Item for each supported SOP
+        Class of the Storage Service Class, as described in PS3.7 Annex D.3.3.5.
+        
+        Use of Extended Negotiation is left up to the end user to implement via
+        the ``AE.extended_negotiation`` attribute.
+        
+        
+        SOP Class Extended Negotiation
+        ------------------------------
+        Service Class Application Information (A-ASSOCIATE-RQ)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        PS3.4 Table B.3-1 shows the format of the SOP Class Extended Negotiation 
+        Sub-Item's service-class-application-information field when requesting
+        association.
+        
+        Service Class Application Information (A-ASSOCIATE-AC)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        PS3.4 Table B.3-2 shows the format of the SOP Class Extended Negotiation 
+        Sub-Item's service-class-application-information field when accepting
+        association.
+        
+        SOP Class Common Extended Negotiation
+        -------------------------------------
+        Service Class UID
+        ~~~~~~~~~~~~~~~~~
+        The SOP-class-uid field of the SOP Class Common Extended Negotiation 
+        Sub-Item shall be 1.2.840.10008.4.2
+        
+        Related General SOP Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        PS3.4 Table B.3-3 identifies the Standard SOP Classes that participate
+        in this mechanism. If a Standard SOP Class is not listed, then Related
+        General SOP Classes shall not be included.
 
         Parameters
         ----------
@@ -568,7 +631,7 @@ class Association(threading.Thread):
                 Failure statuses
                     sop_class.OutOfResources
                         Refused: Out of Resources - A7xx
-                    sop_class.DataSetDoesNotMatchingSOPClassFailure
+                    sop_class.DataSetDoesNotMatchSOPClassFailure
                         Error: Data Set does not match SOP Class - A9xx
                     sop_class.CannotUnderstand
                         Error: Cannot understand - Cxxx
@@ -581,40 +644,69 @@ class Association(threading.Thread):
                     sop_class.ElementsDiscarded
                         Elements Discarded - B006
             
-            Returns None if the C-STORE request was not sent
+            Returns None if the DIMSE service timed out before receiving a 
+            response
         """
         if self.is_established:
-            # Select appropriate SOP Class for dataset
-            data_sop = dataset.SOPClassUID.__repr__()[1:-1]
-            sop_class = UID2SOPClass(data_sop)
+            # Service Class - used to determine Status
+            service_class = StorageServiceClass()
             
-            # Check that the dataset's SOP Class belongs to one of the ACSE's 
-            #   accepted presentation contexts
-            found_match = False
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
             for context in self.acse.context_manager.accepted:
-                if sop_class.UID == context.AbstractSyntax:
-                    sop_class.presentation_context = context
-
-                    found_match = True
-
-            if not found_match:
-                logger.error("No Presentation Context for: '%s'"
-                                                            %UID(sop_class.UID))
-                logger.error("Store SCU Failed: DIMSE No valid presentation "
-                                                            "context ID")
-                return None
+                if dataset.SOPClassUID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %dataset.SOPClassUID)
+                logger.error("Store SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.CannotUnderstand
             
-            sop_class.MessageID = msg_id
-            sop_class.maxpdulength = self.acse.MaxPDULength
-            sop_class.DIMSE = self.dimse
-            sop_class.AE = self.ae
-            sop_class.RemoteAE = self.peer_ae
+            # Build C-STORE request primitive
+            primitive = C_STORE_ServiceParameters()
+            primitive.MessageID = msg_id
+            primitive.AffectedSOPClassUID = dataset.SOPClassUID
+            primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+            
+            # Message priority
+            if priority in [0x0000, 0x0001, 0x0002]:
+                primitive.Priority = priority
+            else:
+                logger.warning("C-STORE SCU: Invalid priority value "
+                                                            "'%s'" %priority)
+                primitive.Priorty = 0x0000
+            
+            # Encode the dataset using the agreed transfer syntax
+            primitive.DataSet = encode(dataset,
+                                       transfer_syntax.is_implicit_VR,
+                                       transfer_syntax.is_little_endian)
+            
+            if primitive.DataSet is not None:
+                primitive.DataSet = BytesIO(primitive.DataSet)
+            
+            # If we failed to encode our dataset
+            else:
+                return service_class.CannotUnderstand
 
-            # Send the query
-            return sop_class().SCU(dataset, msg_id, priority)
+            # Send C-STORE request primitive to DIMSE
+            self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
+
+            # Wait for C-STORE response primitive
+            ans, _ = self.dimse.Receive(Wait=True, 
+                                        dimse_timeout=self.dimse_timeout)
+
+            status = None
+            if ans is not None:
+                status = service_class.Code2Status(ans.Status.value)
+
+            return status
+
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-STORE request")
+                    "established before sending a C-STORE request")
 
     def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """

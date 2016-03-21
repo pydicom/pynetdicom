@@ -18,7 +18,12 @@ def classprinter(klass):
 
 # DIMSE-C Services
 class C_STORE_ServiceParameters:
-
+    """
+    PS3.4 Annex B
+    
+    Service Definition
+    ==================
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
