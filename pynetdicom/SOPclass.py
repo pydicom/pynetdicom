@@ -82,7 +82,6 @@ class ServiceClass(object):
 
 class VerificationServiceClass(ServiceClass):
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-    #SOPClassNotSupported('Refused: SOP Class not supported', '', )
 
     def __init__(self):
         ServiceClass.__init__(self)
@@ -220,9 +219,67 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
     - The SCU may cancel the C-FIND service by issuing a C-FIND-CANCEL 
       request at any time during the processing of the C-FIND service.
       The SCP will interrupt all matching and return a status of Canceled.
+      
+    Patient Root QR Information Model
+    =================================
+    PS3.4 Table C.6-1, C.6-2
+    
+    Patient Level 
+    -------------
+    Required Key 
+    - Patient's Name (0010,0010)
+    Unique Key 
+    - Patient ID (0010,0020)
+    
+    Study Level
+    -----------
+    Required Keys 
+    - Study Date (0008,0020)
+    - Study Time (0008,0030)
+    - Accession Number (0008,0050)
+    - Study ID (0020,0010)
+    Unique Key
+    - Study Instance UID (0020,000D)
+    
+    Series Level
+    ------------
+    Required Keys
+    - Modality (0008,0060)
+    - Series Number (0020,0011)
+    Unique Key
+    - Series Instance UID (0020,000E)
+    
+    Composite Object Instance Level
+    -------------------------------
+    Required Key
+    - Instance Number (0020,0013)
+    Unique Key
+    - SOP Instance UID (0008,0018)
+    
+    
+    Study Root QR Information Model
+    ===============================
+    PS3.4 C.6.2.1
+    
+    Study Level
+    -----------
+    Required Keys 
+    - Study Date (0008,0020)
+    - Study Time (0008,0030)
+    - Accession Number (0008,0050)
+    - Patient's Name (0010,0010)
+    - Patient ID (0010,0020)
+    - Study ID (0020,0010)
+    Unique Key
+    - Study Instance UID (0020,000D)
+    
+    Series Level/Composite Object Instance Level
+    --------------------------------------------
+    As for Patient Root QR Information Model
+    
+    
     """
-    
-    
+
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA700 + 1))
