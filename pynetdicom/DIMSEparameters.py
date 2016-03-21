@@ -19,10 +19,24 @@ def classprinter(klass):
 # DIMSE-C Services
 class C_STORE_ServiceParameters:
     """
-    PS3.4 Annex B
+    The C-STORE service is used by a DIMSE user to store a composite SOP
+    Instance on a peer DISMSE user. It is a confirmed service.
     
-    Service Definition
-    ==================
+    C-STORE Service Procedure
+    =========================
+    1. The invoking DIMSE user requests that the performing DIMSE user store a
+       composite SOP Instance by issuing a C-STORE request primitive to the
+       DIMSE provider
+    2. The DIMSE provider issues a C-STORE indication primitive to the
+       performing DIMSE user
+    3. The performing DIMSE user reports acceptance or rejection of the C-STORE
+       request primitive by issuing a C-STORE response primitive to the DIMSE
+       provider
+    4. The DIMSE provider issues a C-STORE confirmation primitive to the 
+       invoking DIMSE user, completing the C-STORE operation.
+    
+    PS3.4 Annex B
+    PS3.7 9.1
     """
     def __init__(self):
         self.MessageID = None
@@ -124,7 +138,8 @@ class C_MOVE_ServiceParameters:
 
 class C_ECHO_ServiceParameters:
     """
-    C-ECHO Service Procedures
+    C-ECHO Service Procedure
+    ========================
     1. The invoking DIMSE user requests verification of communication to the
         performing DIMSE user by issuing a C-ECHO request primitive to the 
         DIMSE provider.

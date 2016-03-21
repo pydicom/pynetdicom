@@ -82,26 +82,10 @@ class ServiceClass(object):
 
 class VerificationServiceClass(ServiceClass):
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
+    #SOPClassNotSupported('Refused: SOP Class not supported', '', )
 
     def __init__(self):
         ServiceClass.__init__(self)
-
-    def SCU(self, msg_id):
-        cecho = C_ECHO_ServiceParameters()
-        cecho.MessageID = msg_id
-        cecho.AffectedSOPClassUID = self.UID
-
-        self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
-
-        # If Association is Aborted before we receive the response
-        #   then we hang here
-        msg, _ = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-        
-        if msg is None:
-            return None
-        
-        return self.Code2Status(msg.Status)
 
     def SCP(self, msg):
         """
@@ -131,31 +115,43 @@ class VerificationServiceClass(ServiceClass):
 
 
 class StorageServiceClass(ServiceClass):
+    # Storage Service specific status code values - PS3.4 Annex B.2.3
+    # General status code values - PS3.7 9.1.1.1.9 - not used?
+    #
+    # Note that the response/confirmation primitives do NOT contain a dataset
+    #   and hence only the Status parameter of the primitive is of interest
+    
+    # The peer DIMSE user was unable to store the composite SOP Instance because
+    #   it was out of resources. 
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA7FF + 1)) 
-    DataSetDoesNotMatchSOPClassFailure = Status(
-                            'Failure',
-                            'Error: Data Set does not match SOP Class',
-                            range(0xA900, 0xA9FF + 1))
-    CannotUnderstand = Status(
-                            'Failure',
-                            'Error: Cannot understand',
-                            range(0xC000, 0xCFFF + 1))
-    CoercionOfDataElements = Status(
-                            'Warning',
-                            'Coercion of Data Elements',
-                            range(0xB000, 0xB000 + 1))
-    DataSetDoesNotMatchSOPClassWarning = Status(
-                            'Warning',
-                            'Data Set does not match SOP Class',
-                            range(0xB007, 0xB007 + 1))
-    ElementDisgarded = Status(
-                            'Warning',
-                            'Element Discarted',
-                            range(0xB006, 0xB006 + 1))
-    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
     
+    # The peer DIMSE user was unable to store the SOP Instance
+    #   because the dataset does not match the SOP Class.
+    DataSetDoesNotMatchSOPClassFailure = Status('Failure',
+                                    'Error: Data Set does not match SOP Class',
+                                    range(0xA900, 0xA9FF + 1))
+    
+    # The peer DIMSE user cannot understand certain Data Elements
+    CannotUnderstand = Status('Failure',
+                              'Error: Cannot understand',
+                              range(0xC000, 0xCFFF + 1))
+
+    CoercionOfDataElements = Status('Warning',
+                                    'Coercion of Data Elements',
+                                    range(0xB000, 0xB000 + 1))
+    
+    DataSetDoesNotMatchSOPClassWarning = Status('Warning',
+                                            'Data Set does not match SOP Class',
+                                            range(0xB007, 0xB007 + 1))
+
+    ElementDisgarded = Status('Warning',
+                              'Element Discarted',
+                              range(0xB006, 0xB006 + 1))
+    
+    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
+
     def __init__(self):
         ServiceClass.__init__(self)
 
