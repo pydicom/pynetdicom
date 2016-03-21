@@ -729,71 +729,136 @@ class Association(threading.Thread):
         """
         Send a C-FIND request message to the peer AE
         
-        PS3.4 Annex C - Query/Retrieve Service Class
-        
-        Attributes Key Type Conventions
-        U = Unique Key, R = Required Key, O = Optional Key
+        See PS3.4 Annex C - Query/Retrieve Service Class
 
         Parameters
         ----------
-        dataset - pydicom.Dataset
-            The DICOM dataset to containing the attributes the peer AE should 
-            match against
-        msg_id - int, optional
+        dataset : pydicom.Dataset
+            The DICOM dataset to containing the Key Attributes the peer AE 
+            should perform the match against
+        msg_id : int, optional
             The message ID
-        priority - int, optional
+        priority : int, optional
             The message priority, one of:
                 2 - Low (default)
                 1 - High
                 0 - Medium
-        query_model - str, optional
-            One of the following:
-                'W' - Modality Worklist Information Find (default)
-                'P' - Patient Root Information Model
-                'S' - Study Root Information Model
-                'O' - Patient Study Only Information Model
+        query_model : str, optional
+            The Query/Retrieve Information Model to use, one of the following:
+                'W' - Modality Worklist Information - FIND (default)
+                    1.2.840.10008.5.1.4.31
+                'P' - Patient Root Information Model - FIND
+                    1.2.840.10008.5.1.4.1.2.1.1
+                'S' - Study Root Information Model - FIND
+                    1.2.840.10008.5.1.4.1.2.2.1
+                'O' - Patient Study Only Information Model - FIND
+                    1.2.840.10008.5.1.4.1.2.3.1
 
-        Returns
-        -------
-        dataset, status : generator of pydicom.Dataset, pynetdicom.SOPclass.Status
-            The result dataset(s) and the status(es) of the C-FIND operation
+        Yields
+        ------
+        status : pynetdicom.SOPclass.Status
+            The resulting status(es) from the C-FIND operation
+        dataset : pydicom.dataset.Dataset
+            The resulting dataset(s) from the C-FIND operation
         """
         if self.is_established:
             if query_model == 'W':
-                sop_class = ModalityWorklistInformationFindSOPClass()
+                sop_class = ModalityWorklistInformationFind()
+                service_class = QueryRetrieveFindSOPClass()
             elif query_model == "P":
-                sop_class = PatientRootQueryRetrieveInformationModelFind()
                 # Four level hierarchy, patient, study, series, composite object
+                sop_class = PatientRootQueryRetrieveInformationModelFind()
+                service_class = QueryRetrieveFindSOPClass()
             elif query_model == "S":
+                # Three level hierarchy, study, series, composite object
                 sop_class = StudyRootQueryRetrieveInformationModelFind()
-                # Three (?) level hierarchy, study, series, composite object
+                service_class = QueryRetrieveFindSOPClass()
             elif query_model == "O":
                 # Retired
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
+                service_class = QueryRetrieveFindSOPClass()
             else:
                 raise ValueError("Association::send_c_find() query_model "
                     "must be one of ['W'|'P'|'S'|'O']")
-
-            found_match = False
-            for scu_sop_class in self.scu_supported_sop:
-                if scu_sop_class[1] == sop_class.__class__:
-                    sop_class.pcid = scu_sop_class[0]
-                    sop_class.sopclass = scu_sop_class[1]
-                    sop_class.transfersyntax = scu_sop_class[2]
-                    
-                    found_match = True
-                    
-            if not found_match:
-                raise ValueError("'%s' is not listed as one of the AE's "
-                        "supported SOP Classes" %sop_class.__class__.__name__)
-                
-            sop_class.maxpdulength = self.acse.MaxPDULength
-            sop_class.DIMSE = self.dimse
-            sop_class.AE = self.ae
-            sop_class.RemoteAE = self.peer_ae
             
-            # Send the query
-            return sop_class.SCU(dataset, msg_id, priority)
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Store SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+            
+            # Build C-FIND primitive
+            primitive = C_FIND_ServiceParameters()
+            primitive.MessageID = msg_id
+            primitive.AffectedSOPClassUID = sop_class.UID
+            primitive.Priority = priority
+            primitive.Identifier = encode(dataset,
+                                          transfer_syntax.is_implicit_VR,
+                                          transfer_syntax.is_little_endian)
+            primitive.Identifier = BytesIO(primitive.Identifier)
+            
+            logger.info('Find SCU Request Identifiers:')
+            logger.info('')
+            logger.info('# DICOM Dataset')
+            for elem in dataset:
+                logger.info(elem)
+            logger.info('')
+            
+            # send c-find request
+            self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
+            
+            # Get the responses from the peer
+            ii = 1
+            while True:
+                time.sleep(0.001)
+                
+                # Wait for c-find responses
+                rsp, _ = self.dimse.Receive(Wait=False, 
+                                        dimse_timeout=self.dimse.dimse_timeout)
+                
+                if not rsp:
+                    continue
+                
+                # Decode the dataset
+                d = decode(rsp.Identifier, 
+                           transfer_syntax.is_implicit_VR,
+                           transfer_syntax.is_little_endian)
+                
+                # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
+                try:
+                    status = service_class.Code2Status(rsp.Status.value).Type
+                except:
+                    status = None
+                
+                if status != 'Pending':
+                    # We want to exit the wait loop if we receive
+                    #   failure, cancel or success
+                    break
+                
+                # Pending Response
+                logger.info("Find Response: %s (Pending)" %ii)
+                logger.info('')
+                
+                logger.info('# DICOM Dataset')
+                for elem in d:
+                    logger.info(elem)
+                logger.info('')
+                
+                ii += 1
+                
+                yield status, d
+
+            yield status, d
+            
+            
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
