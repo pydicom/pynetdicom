@@ -106,7 +106,7 @@ class DIMSEMessage:
         Parameters
         ----------
         msg_id - int
-            The message ID
+            The ID of the presentation context
         max_pdu_length - int
             The maximum PDU length in bytes
             

@@ -29,7 +29,7 @@ class DIMSEServiceProvider(object):
         primitive - pynetdicom.SOPclass.ServiceClass subclass
             The SOP Class primitive to send
         msg_id - int
-            The DIMSE Message ID (0000,0110)
+            The ID of the presentation context to be sent under
         maxpdulength - int
             The maximum send PDV size acceptable by the peer AE
         """

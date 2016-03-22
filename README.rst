@@ -62,10 +62,10 @@ the peer once an association has been established. With the exception of
 implementing the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo()``
-- C-STORE: ``AE.on_c_store(sop_class, dataset)``
-- C-FIND: ``AE.on_c_find(sop_class, dataset)``
-- C-GET: ``AE.on_c_get(sop_class, dataset)``
-- C-MOVE: ``AE.on_c_move(sop_class, dataset)``
+- C-STORE: ``AE.on_c_store(dataset)``
+- C-FIND: ``AE.on_c_find(dataset)``
+- C-GET: ``AE.on_c_get(dataset)``
+- C-MOVE: ``AE.on_c_move(dataset)``
  
 See the SCP Examples and the AE documentation for more information.
 

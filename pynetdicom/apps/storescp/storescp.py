@@ -17,9 +17,8 @@ from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-from pynetdicom import AE
-from pynetdicom.SOPclass import VerificationSOPClass, CTImageStorageSOPClass, \
-    Status, MRImageStorageSOPClass
+from pynetdicom import AE, StorageSOPClassList, VerificationSOPClass
+from pynetdicom import pynetdicom_uid_prefix
 
 logger = logging.Logger('')
 stream_logger = logging.StreamHandler()
@@ -136,51 +135,51 @@ if args.prefer_big:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_store(sop_class, dataset):
+def on_c_store(dataset):
     """
     Function replacing ApplicationEntity.on_store(). Called when a dataset is 
     received following a C-STORE. Write the received dataset to file 
     
     Parameters
     ----------
-    sop_class - pydicom.SOPclass.StorageServiceClass
-        The StorageServiceClass representing the object
     dataset - pydicom.Dataset
         The DICOM dataset sent via the C-STORE
             
     Returns
     -------
     status
-        A valid return status, see the StorageServiceClass for the 
-        available statuses
+        A valid return status code, see PS3.4 Annex B.2.3 or the 
+        StorageServiceClass implementation for the available statuses
     """
-    filename = 'CT.%s' %dataset.SOPInstanceUID
+    mode_prefix = 'CT'
+    filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
     logger.info('Storing DICOM file: %s' %filename)
     
     if os.path.exists(filename):
         logger.warning('DICOM file already exists, overwriting')
     
-    #logger.debug("pydicom::Dataset()")
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
-    meta.MediaStorageSOPInstanceUID = '1.2.3'
-    meta.ImplementationClassUID = '1.2.3.4'
+    meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
+    meta.ImplementationClassUID = pynetdicom_uid_prefix
     
-    #logger.debug("pydicom::FileDataset()")
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
+    # Should this be set like this?
     ds.is_little_endian = True
     ds.is_implicit_VR = True
-    #logger.debug("pydicom::save_as()")
     ds.save_as(filename)
         
-    return sop_class.Success
+    return 0x0000 # Success
+
+scp_classes = [x for x in StorageSOPClassList]
+scp_classes.append(VerificationSOPClass)
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
         scu_sop_class=[], 
-        scp_sop_class=[CTImageStorageSOPClass, VerificationSOPClass],
+        scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
 
 ae.on_c_store = on_c_store
