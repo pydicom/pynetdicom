@@ -39,9 +39,7 @@ class C_STORE_ServiceParameters:
         self.MoveOriginatorMessageID = None
         self.DataSet = None
         self.Status = None
-
-    def __repr__(self):
-        return classprinter(self)
+        
 
 class C_FIND_ServiceParameters:
     """
@@ -105,8 +103,6 @@ class C_FIND_ServiceParameters:
         self.Identifier = None
         self.Status = None
 
-    def __repr__(self):
-        return classprinter(self)
 
 class C_GET_ServiceParameters:
 
@@ -122,8 +118,6 @@ class C_GET_ServiceParameters:
         self.NumberOfFailedSubOperations = None
         self.NumberOfWarningSubOperations = None
 
-    def __repr__(self):
-        return classprinter(self)
 
 class C_MOVE_ServiceParameters:
 
@@ -140,8 +134,6 @@ class C_MOVE_ServiceParameters:
         self.NumberOfFailedSubOperations = None
         self.NumberOfWarningSubOperations = None
 
-    def __repr__(self):
-        return classprinter(self)
 
 class C_ECHO_ServiceParameters:
     """
@@ -167,9 +159,6 @@ class C_ECHO_ServiceParameters:
         self.MessageIDBeingRespondedTo = None
         self.AffectedSOPClassUID = None
         self.Status = None
-
-    def __repr__(self):
-        return classprinter(self)
 
 
 # DIMSE-N services

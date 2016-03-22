@@ -137,8 +137,7 @@ if args.prefer_big:
 
 def on_c_store(dataset):
     """
-    Function replacing ApplicationEntity.on_store(). Called when a dataset is 
-    received following a C-STORE. Write the received dataset to file 
+    Write `dataset` to file as little endian implicit VR
     
     Parameters
     ----------
@@ -151,7 +150,30 @@ def on_c_store(dataset):
         A valid return status code, see PS3.4 Annex B.2.3 or the 
         StorageServiceClass implementation for the available statuses
     """
-    mode_prefix = 'CT'
+    mode_prefix = 'UN'
+    mode_prefixes = {'CT Image Storage' : 'CT',
+                     'Enhanced CT Image Storage' : 'CTE',
+                     'MR Image Storage' : 'MR',
+                     'Enhanced MR Image Storage' : 'MRE',
+                     'Positron Emission Tomography Image Storage' : 'PT',
+                     'Enhanced PET Image Storage' : 'PTE',
+                     'RT Image Storage' : 'RI',
+                     'RT Dose Storage' : 'RD',
+                     'RT Plan Storage' : 'RP',
+                     'RT Structure Set Storage' : 'RS',
+                     'Computed Radiography Image Storage' : 'CR',
+                     'Ultrasound Image Storage' : 'US',
+                     'Enhanced Ultrasound Image Storage' : 'USE',
+                     'X-Ray Angiographic Image Storage' : 'XA',
+                     'Enhanced XA Image Storage' : 'XAE',
+                     'Nuclear Medicine Image Storage' : 'NM',
+                     'Secondary Capture Image Storage' : 'SC'}
+
+    try:
+        mode_prefix = mode_prefixes[dataset.SOPClassUID.__str__()]
+    except:
+        pass
+    
     filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
     logger.info('Storing DICOM file: %s' %filename)
     
@@ -165,7 +187,7 @@ def on_c_store(dataset):
     
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
-    # Should this be set like this?
+
     ds.is_little_endian = True
     ds.is_implicit_VR = True
     ds.save_as(filename)
