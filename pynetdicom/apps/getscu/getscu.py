@@ -173,7 +173,7 @@ def on_c_store(dataset):
             
     Returns
     -------
-    status
+    status : pynetdicom.SOPclass.Status or int
         A valid return status code, see PS3.4 Annex B.2.3 or the 
         StorageServiceClass implementation for the available statuses
     """
@@ -184,18 +184,15 @@ def on_c_store(dataset):
     if os.path.exists(filename):
         logger.warning('DICOM file already exists, overwriting')
     
-    #logger.debug("pydicom::Dataset()")
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
     meta.ImplementationClassUID = pynetdicom_uid_prefix
     
-    #logger.debug("pydicom::FileDataset()")
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
     ds.is_little_endian = True
     ds.is_implicit_VR = True
-    #logger.debug("pydicom::save_as()")
     ds.save_as(filename)
         
     return 0x0000 # Success
@@ -209,7 +206,8 @@ if assoc.is_established:
     time.sleep(1)
     if response is not None:
         for value in response:
-            print(value)
+            #print(value)
+            pass
     
     assoc.release()
 
