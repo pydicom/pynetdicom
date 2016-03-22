@@ -14,7 +14,7 @@ import time
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+    ExplicitVRBigEndian, UID
     
 from pynetdicom import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom import pynetdicom_uid_prefix
@@ -177,7 +177,30 @@ def on_c_store(dataset):
         A valid return status code, see PS3.4 Annex B.2.3 or the 
         StorageServiceClass implementation for the available statuses
     """
-    mode_prefix = 'CT'
+    mode_prefix = 'UN'
+    mode_prefixes = {'CT Image Storage' : 'CT',
+                     'Enhanced CT Image Storage' : 'CTE',
+                     'MR Image Storage' : 'MR',
+                     'Enhanced MR Image Storage' : 'MRE',
+                     'Positron Emission Tomography Image Storage' : 'PT',
+                     'Enhanced PET Image Storage' : 'PTE',
+                     'RT Image Storage' : 'RI',
+                     'RT Dose Storage' : 'RD',
+                     'RT Plan Storage' : 'RP',
+                     'RT Structure Set Storage' : 'RS',
+                     'Computed Radiography Image Storage' : 'CR',
+                     'Ultrasound Image Storage' : 'US',
+                     'Enhanced Ultrasound Image Storage' : 'USE',
+                     'X-Ray Angiographic Image Storage' : 'XA',
+                     'Enhanced XA Image Storage' : 'XAE',
+                     'Nuclear Medicine Image Storage' : 'NM',
+                     'Secondary Capture Image Storage' : 'SC'}
+
+    try:
+        mode_prefix = mode_prefixes[dataset.SOPClassUID.__str__()]
+    except:
+        pass
+
     filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
     logger.info('Storing DICOM file: %s' %filename)
     

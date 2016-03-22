@@ -2048,7 +2048,6 @@ class SCP_SCU_RoleSelectionSubItem:
          self.ItemLength, 
          self.UIDLength) = unpack('> B B H H', Stream.read(6))
         self.SOPClassUID = Stream.read(self.UIDLength)
-        print(type(self.SOPClassUID))
         (self.SCURole, self.SCPRole) = unpack('B B', Stream.read(2))
 
     def TotalLength(self):
