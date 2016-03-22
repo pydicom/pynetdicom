@@ -51,7 +51,8 @@ supports the corresponding Service Classes):
   given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet*
 
-See the SCU Examples and the Association documentation for more information.
+See the `SCU Examples<docs/scu_examples.rst>`_ and the Association documentation 
+for more information.
 
 Supported SCP Services
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -63,9 +64,9 @@ implementing the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo()``
 - C-STORE: ``AE.on_c_store(dataset)``
-- C-FIND: ``AE.on_c_find(dataset)``
-- C-GET: ``AE.on_c_get(dataset)``
-- C-MOVE: ``AE.on_c_move(dataset)``
+- C-FIND: ``AE.on_c_find(dataset)`` and ``AE.on_c_find_cancel()``
+- C-GET: ``AE.on_c_get(dataset)`` and ``AE.on_c_get_cancel()``
+- C-MOVE: ``AE.on_c_move(dataset)`` and ``AE.on_c_move_cancel()``
  
 See the SCP Examples and the AE documentation for more information.
 

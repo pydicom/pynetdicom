@@ -61,22 +61,38 @@ class Status(object):
         return self.CodeRange[0]
 
     def __repr__(self):
+        return self.Type
+        
+    def __str__(self):
         return self.Type + ' ' + self.Description
 
 
 # DICOM SERVICE CLASS BASE
 class ServiceClass(object):
-    def __init__(self):
-        pass
-
+    """
+    
+    """
     def Code2Status(self, code):
+        """
+        Parameters
+        ----------
+        code : int
+            The status code value from the (0000,0900) dataset element
+            
+        Returns
+        -------
+        obj : pynetdicom.SOPclass.Status
+            The Status object for the `code`
+        """
         for dd in dir(self):
             getattr(self, dd).__class__
             obj = getattr(self, dd)
+            
             if obj.__class__ == Status:
                 if code in obj.CodeRange:
                     return obj
-        # unknown status ...
+        
+        # Unknown status
         return None
 
 
@@ -492,7 +508,6 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
-
 class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
     OutOfResourcesNumberOfMatches = Status(
         'Failure',
@@ -668,38 +683,34 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
             ass.Release(0)
 
 class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
-    OutOfResourcesNumberOfMatches = Status(
-        'Failure',
-        'Refused: Out of resources - Unable to calcultate number of matches',
-        range(0xA701, 0xA701 + 1)    )
-    OutOfResourcesUnableToPerform = Status(
-        'Failure',
-        'Refused: Out of resources - Unable to perform sub-operations',
-        range(0xA702, 0xA702 + 1)    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)    )
-    UnableToProcess = Status(
-        'Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)    )
-    Cancel = Status(
-        'Cancel',
-        'Sub-operations terminated due to Cancel indication',
-        range(0xFE00, 0xFE00 + 1)    )
-    Warning = Status(
-        'Warning',
-        'Sub-operations Complete - One or more Failures or Warnings',
-        range(0xB000, 0xB000 + 1)    )
-    Success = Status(
-        'Success',
-        'Sub-operations Complete - No Failure or Warnings',
-        range(0x0000, 0x0000 + 1)    )
-    Pending = Status(
-        'Pending',
-        'Sub-operations are continuing',
-        range(0xFF00, 0xFF00 + 1)    )
+    OutOfResourcesNumberOfMatches = Status('Failure',
+                                           'Refused: Out of resources - Unable '
+                                           'to calcultate number of matches',
+                                           range(0xA701, 0xA701 + 1)    )
+    OutOfResourcesUnableToPerform = Status('Failure',
+                                           'Refused: Out of resources - Unable '
+                                           'to perform sub-operations',
+                                           range(0xA702, 0xA702 + 1)    )
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
+                                            'Identifier does not match SOP '
+                                            'Class',
+                                            range(0xA900, 0xA900 + 1))
+    UnableToProcess = Status('Failure',
+                             'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    Cancel = Status('Cancel',
+                    'Sub-operations terminated due to Cancel indication',
+                    range(0xFE00, 0xFE00 + 1))
+    Warning = Status('Warning',
+                      'Sub-operations Complete - One or more Failures or '
+                      'Warnings',
+                      range(0xB000, 0xB000 + 1))
+    Success = Status('Success',
+                     'Sub-operations Complete - No Failure or Warnings',
+                     range(0x0000, 0x0000 + 1))
+    Pending = Status('Pending', 
+                     'Sub-operations are continuing', 
+                     range(0xFF00, 0xFF00 + 1))
 
     def SCU(self, ds, msg_id, priority=2):
         # build C-GET primitive
@@ -838,7 +849,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
             d = decode(ans.Identifier, 
                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
+                       self.transfersyntax.is_little_endian)
             try:
                 status = self.Code2Status(ans.Status.value).Type
             except:

@@ -988,7 +988,8 @@ class Association(threading.Thread):
             for elem in dataset:
                 logger.info(elem)
             logger.info('')
-
+            
+            ii = 1
             while True:
                 rsp, msg_id = self.dimse.Receive(Wait=True, 
                                         dimse_timeout=self.dimse.dimse_timeout)
@@ -996,19 +997,60 @@ class Association(threading.Thread):
                 # Received a C-GET response
                 if rsp.__class__ == C_GET_ServiceParameters:
                     
-                    status = service_class.Code2Status(rsp.Status)
+                    status = service_class.Code2Status(rsp.Status.value)
+                    dataset = decode(rsp.Identifier,
+                                     transfer_syntax.is_implicit_VR,
+                                     transfer_syntax.is_little_endian)
                     
                     # If the Status is "Pending" then the processing of 
                     #   matches and suboperations is initiated or continuing
-                    if status == 'Pending':
-                        pass
+                    if status.Type == 'Pending':
+                        remain = rsp.NumberOfRemainingSubOperations
+                        complete = rsp.NumberOfCompletedSubOperations
+                        failed = rsp.NumberOfFailedSubOperations
+                        warning = rsp.NumberOfWarningSubOperations
+                        
+                        # Pending Response
+                        logger.debug('')
+                        logger.info("Find Response: %s (Pending)" %ii)
+                        logger.info("    Sub-Operations Remaining: %s, "
+                                "Completed: %s, Failed: %s, Warning: %s" %(
+                                                            remain.value, 
+                                                            complete.value, 
+                                                            failed.value, 
+                                                            warning.value))
+                        ii += 1
+                        yield status, dataset
                         
                     # If the Status is "Success" then processing is complete
-                    elif status == "Success":
-                        pass
+                    elif status.Type == "Success":
+                        break
                     
                     # All other possible responses
-                    else:
+                    elif status.Type == "Failure":
+                        logger.debug('')
+                        logger.error('Find Response: %s (Failure)' %ii)
+                        logger.error('    %s' %status.Description)
+                        
+                        # Print out the status information
+                        for elem in dataset:
+                            logger.error('%s: %s' %(elem.name, elem.value))
+                    
+                        break
+                    elif status.Type == "Cancel":
+                        logger.debug('')
+                        logger.info('Find Response: %s (Cancel)' %ii)
+                        logger.info('    %s' %status.Description)
+                        break
+                    elif status.Type == "Warning":
+                        logger.debug('')
+                        logger.warning('Find Response: %s (Warning)' %ii)
+                        logger.warning('    %s' %status.Description)
+                        
+                        # Print out the status information
+                        for elem in dataset:
+                            logger.warning('%s: %s' %(elem.name, elem.value))
+                            
                         break
                 
                 # Received a C-STORE request in response to the C-GET
@@ -1032,6 +1074,9 @@ class Association(threading.Thread):
                     self.dimse.Send(c_store_rsp, 
                                     context_id, 
                                     self.acse.MaxPDULength)
+            
+            yield status, dataset
+            
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
