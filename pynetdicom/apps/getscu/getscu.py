@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 """
-    A dcmtk style findscu application. 
-    
-    Used for 
+    A getscu application. 
 """
 
 import argparse
@@ -15,11 +13,11 @@ import time
 
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
-
-from pynetdicom import AE
-from pynetdicom.SOPclass import PatientRootGetSOPClass, CTImageStorageSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
+    
+from pynetdicom import AE, StorageSOPClassList, QueryRetrieveSOPClassList
+from pynetdicom import pynetdicom_uid_prefix
 from pynetdicom.PDU import SCP_SCU_RoleSelectionParameters
 
 logger = logging.Logger('getscu')
@@ -118,15 +116,18 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$findscu.py v%s %s $' %('0.1.0', '2016-02-15'))
+logger.debug('$getscu.py v%s %s $' %('0.1.0', '2016-02-15'))
 logger.debug('')
 
+
+scu_classes = [x for x in QueryRetrieveSOPClassList]
+scu_classes.extend(StorageSOPClassList)
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
 ae = AE(ae_title=args.calling_aet, 
         port=0, 
-        scu_sop_class=[PatientRootGetSOPClass, CTImageStorageSOPClass], 
+        scu_sop_class=scu_classes, 
         scp_sop_class=[], 
         transfer_syntax=[ExplicitVRLittleEndian])
 
@@ -160,25 +161,24 @@ elif args.psonly:
 else:
     query_model = 'W'
 
-def on_c_store(sop_class, dataset):
+def on_c_store(dataset):
     """
     Function replacing ApplicationEntity.on_store(). Called when a dataset is 
     received following a C-STORE. Write the received dataset to file 
     
     Parameters
     ----------
-    sop_class - pydicom.SOPclass.StorageServiceClass
-        The StorageServiceClass representing the object
     dataset - pydicom.Dataset
         The DICOM dataset sent via the C-STORE
             
     Returns
     -------
     status
-        A valid return status, see the StorageServiceClass for the 
-        available statuses
+        A valid return status code, see PS3.4 Annex B.2.3 or the 
+        StorageServiceClass implementation for the available statuses
     """
-    filename = 'CT.%s' %dataset.SOPInstanceUID
+    mode_prefix = 'CT'
+    filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
     logger.info('Storing DICOM file: %s' %filename)
     
     if os.path.exists(filename):
@@ -187,8 +187,8 @@ def on_c_store(sop_class, dataset):
     #logger.debug("pydicom::Dataset()")
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
-    meta.MediaStorageSOPInstanceUID = '1.2.3'
-    meta.ImplementationClassUID = '1.2.3.4'
+    meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
+    meta.ImplementationClassUID = pynetdicom_uid_prefix
     
     #logger.debug("pydicom::FileDataset()")
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
@@ -198,7 +198,7 @@ def on_c_store(sop_class, dataset):
     #logger.debug("pydicom::save_as()")
     ds.save_as(filename)
         
-    return sop_class.Success
+    return 0x0000 # Success
 
 ae.on_c_store = on_c_store
 

@@ -171,7 +171,8 @@ class StorageServiceClass(ServiceClass):
         
         # ApplicationEntity's on_c_store callback 
         try:
-            self.AE.on_c_store(self, DS)
+            self.AE.on_c_store(DS)
+            
             status = self.Success
         except Exception as e:
             logger.exception("Exception in the ApplicationEntity.on_c_store() "
@@ -741,7 +742,6 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
                 
                 # All other possible responses
                 else:
-                    
                     break
             
             # Received a C-STORE response
@@ -822,8 +822,8 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         cfind.AffectedSOPClassUID = self.UID
         cfind.Priority = 0x0002
         cfind.Identifier = encode(ds,
-                                          self.transfersyntax.is_implicit_VR,
-                                          self.transfersyntax.is_little_endian)
+                                  self.transfersyntax.is_implicit_VR,
+                                  self.transfersyntax.is_little_endian)
         cfind.Identifier = BytesIO(cfind.Identifier)
         
         # send c-find request
@@ -835,16 +835,20 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                                     dimse_timeout=self.DIMSE.dimse_timeout)
             if not ans:
                 continue
-            d = decode(
-                ans.Identifier, self.transfersyntax.is_implicit_VR,
-                self.transfersyntax.is_little_endian)
+
+            d = decode(ans.Identifier, 
+                       self.transfersyntax.is_implicit_VR,
+                        self.transfersyntax.is_little_endian)
             try:
                 status = self.Code2Status(ans.Status.value).Type
             except:
                 status = None
+            
             if status != 'Pending':
                 break
+            
             yield status, d
+        
         yield status, d
 
     def SCP(self, msg):

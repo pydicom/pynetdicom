@@ -101,12 +101,24 @@ those specified by the user-created *dataset*.
             dataset.QueryRetrieveLevel = "PATIENT"
             
             # Send a DIMSE C-FIND request to the peer
-            responses = assoc.send_c_find(dataset)
+            #   query_model is the Query/Retrieve Information Model to use
+            #   and is one of 'W', 'P', 'S', 'O'
+            #       'W' - Modality Worklist (1.2.840.10008.5.1.4.31)
+            #       'P' - Patient Root (1.2.840.10008.5.1.4.1.2.1.1)
+            #       'S' - Study Root (1.2.840.10008.5.1.4.1.2.2.1)
+            #       'O' - Patient/Study Only (1.2.840.10008.5.1.4.1.2.3.1)
+            responses = assoc.send_c_find(dataset, query_model='P')
             
-            for rsp in responses:
-                # Waiting for more detailed QR.SCU status implementation 
-                #   Issue #18
-                pass
+            for (status, dataset) in responses:
+                # While status is pending we should get the matching datasets
+                if status == 'Pending':
+                    print(dataset)
+                elif status == 'Success':
+                    print('C-FIND finished, releasing the association')
+                elif status == 'Cancel':
+                    print('C-FIND cancelled, releasing the association')
+                elif status == 'Failure':
+                    print('C-FIND failed, releasing the association')
             
             # Release the association
             assoc.release()

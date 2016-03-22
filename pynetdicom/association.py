@@ -530,6 +530,7 @@ class Association(threading.Thread):
             for context in self.acse.context_manager.accepted:
                 if uid == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
                     
             if transfer_syntax is None:
                 logger.error("No Presentation Context for: '%s'" %uid)
@@ -540,7 +541,7 @@ class Association(threading.Thread):
             primitive.MessageID = msg_id
             primitive.AffectedSOPClassUID = uid
 
-            self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
             # If Association is Aborted before we receive the response
             #   then we hang here
@@ -670,6 +671,7 @@ class Association(threading.Thread):
             for context in self.acse.context_manager.accepted:
                 if dataset.SOPClassUID == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
                     
             if transfer_syntax is None:
                 logger.error("No Presentation Context for: '%s'" 
@@ -708,7 +710,7 @@ class Association(threading.Thread):
                 return service_class.CannotUnderstand
 
             # Send C-STORE request primitive to DIMSE
-            self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
             # Wait for C-STORE response primitive
             #   returns a C_STORE_ServiceParameters primitive
@@ -787,11 +789,12 @@ class Association(threading.Thread):
             for context in self.acse.context_manager.accepted:
                 if sop_class.UID == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
                     
             if transfer_syntax is None:
                 logger.error("No Presentation Context for: '%s'" 
                                                     %sop_class.UID)
-                logger.error("Store SCU failed due to there being no valid "
+                logger.error("Find SCU failed due to there being no valid "
                         "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
             
@@ -813,7 +816,7 @@ class Association(threading.Thread):
             logger.info('')
             
             # send c-find request
-            self.dimse.Send(primitive, msg_id, self.acse.MaxPDULength)
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
             
             # Get the responses from the peer
             ii = 1
@@ -834,7 +837,7 @@ class Association(threading.Thread):
                 
                 # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
                 try:
-                    status = service_class.Code2Status(rsp.Status.value).Type
+                    status = service_class.Code2Status(rsp.Status)
                 except:
                     status = None
                 
@@ -900,40 +903,135 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
 
-    def send_c_get(self, dataset, msg_id=1, priority=2, query_model='W'):
-        if self.is_established:
-            if query_model == 'W':
-                sop_class = ModalityWorklistInformationGetSOPClass()
-            elif query_model == "P":
-                sop_class = PatientRootGetSOPClass()
-            elif query_model == "S":
-                sop_class = StudyRootGetSOPClass()
-            elif query_model == "O":
-                sop_class = PatientStudyOnlyGetSOPClass()
-            else:
-                raise ValueError("Association::send_c_get() query_model must be "
-                    "one of ['W'|'P'|'S'|'O']")
+    def send_c_get(self, dataset, msg_id=1, priority=0x0002, query_model='P'):
+        """
+        Send a C-GET request message to the peer AE
+        
+        See PS3.4 Annex C - Query/Retrieve Service Class
 
-            found_match = False
-            for scu_sop_class in self.scu_supported_sop:
-                if scu_sop_class[1] == sop_class.__class__:
-                    sop_class.pcid = scu_sop_class[0]
-                    sop_class.sopclass = scu_sop_class[1]
-                    sop_class.transfersyntax = scu_sop_class[2]
-                    
-                    found_match = True
-                    
-            if not found_match:
-                raise ValueError("'%s' is not listed as one of the AE's "
-                        "supported SOP Classes" %sop_class.__class__.__name__)
-                
-            sop_class.maxpdulength = self.acse.MaxPDULength
-            sop_class.DIMSE = self.dimse
-            sop_class.AE = self.ae
-            sop_class.RemoteAE = self.peer_ae
+        Parameters
+        ----------
+        dataset : pydicom.Dataset
+            The DICOM dataset to containing the Key Attributes the peer AE 
+            should perform the match against
+        msg_id : int, optional
+            The message ID
+        priority : int, optional
+            The message priority, one of:
+                2 - Low (default)
+                1 - High
+                0 - Medium
+        query_model : str, optional
+            The Query/Retrieve Information Model to use, one of the following:
+                'P' - Patient Root Information Model - GET
+                    1.2.840.10008.5.1.4.1.2.1.3
+                'S' - Study Root Information Model - GET
+                    1.2.840.10008.5.1.4.1.2.2.3
+                'O' - Patient Study Only Information Model - GET
+                    1.2.840.10008.5.1.4.1.2.3.3
+
+        Yields
+        ------
+        status : pynetdicom.SOPclass.Status
+            The resulting status(es) from the C-GET operation
+        dataset : pydicom.dataset.Dataset
+            The resulting dataset(s) from the C-GET operation
+        """
+        if self.is_established:
+            if query_model == "P":
+                # Four level hierarchy, patient, study, series, composite object
+                sop_class = PatientRootQueryRetrieveInformationModelGet()
+            elif query_model == "S":
+                # Three level hierarchy, study, series, composite object
+                sop_class = StudyRootQueryRetrieveInformationModelGet()
+            elif query_model == "O":
+                # Retired
+                sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
+            else:
+                raise ValueError("Association::send_c_get() query_model "
+                    "must be one of ['P'|'S'|'O']")
             
-            # Send the query
-            return sop_class.SCU(dataset, msg_id, priority)
+            service_class = QueryRetrieveGetSOPClass()
+            
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Get SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+            
+
+            # Build C-GET primitive
+            primitive = C_GET_ServiceParameters()
+            primitive.MessageID = msg_id
+            primitive.AffectedSOPClassUID = sop_class.UID
+            primitive.Priority = priority
+            primitive.Identifier = encode(dataset,
+                                          transfer_syntax.is_implicit_VR,
+                                          transfer_syntax.is_little_endian)
+            primitive.Identifier = BytesIO(primitive.Identifier)
+            
+            # Send primitive to peer
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+
+            logger.info('Get SCU Request Identifiers:')
+            logger.info('')
+            logger.info('# DICOM Dataset')
+            for elem in dataset:
+                logger.info(elem)
+            logger.info('')
+
+            while True:
+                rsp, msg_id = self.dimse.Receive(Wait=True, 
+                                        dimse_timeout=self.dimse.dimse_timeout)
+                
+                # Received a C-GET response
+                if rsp.__class__ == C_GET_ServiceParameters:
+                    
+                    status = service_class.Code2Status(rsp.Status)
+                    
+                    # If the Status is "Pending" then the processing of 
+                    #   matches and suboperations is initiated or continuing
+                    if status == 'Pending':
+                        pass
+                        
+                    # If the Status is "Success" then processing is complete
+                    elif status == "Success":
+                        pass
+                    
+                    # All other possible responses
+                    else:
+                        break
+                
+                # Received a C-STORE request in response to the C-GET
+                elif rsp.__class__ == C_STORE_ServiceParameters:
+                    
+                    c_store_rsp = C_STORE_ServiceParameters()
+                    c_store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
+                    c_store_rsp.AffectedSOPInstanceUID = \
+                                                    rsp.AffectedSOPInstanceUID
+                    c_store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
+
+                    d = decode(rsp.DataSet, 
+                               transfer_syntax.is_implicit_VR,
+                               transfer_syntax.is_little_endian)
+
+                    #  Callback for C-STORE SCP (user implemented)
+                    status = self.ae.on_c_store(d)
+                    
+                    # Send C-STORE confirmation back to peer
+                    c_store_rsp.Status = int(status)
+                    self.dimse.Send(c_store_rsp, 
+                                    context_id, 
+                                    self.acse.MaxPDULength)
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")

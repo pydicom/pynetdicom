@@ -244,7 +244,6 @@ class ApplicationEntity(object):
         # Used to terminate AE when running as an SCP
         self.__Quit = False
 
-
     def start(self):
         """
         When running the AE as an SCP this needs to be called to start the main 
@@ -789,7 +788,7 @@ class ApplicationEntity(object):
                                 "UID str, UID or ServiceClass subclass")
 
 
-    # High-level DIMSE-C callbacks - user should replace these as required
+    # High-level DIMSE-C callbacks - user should implement these as required
     def on_c_echo(self, dimse_msg):
         """
         Function callback for when a C-ECHO request is received. Must be 
@@ -808,10 +807,10 @@ class ApplicationEntity(object):
         
         ae.start()
         """
-        raise NotImplementedError("User must define their own AE.on_c_echo "
+        raise NotImplementedError("User must implement the AE.on_c_echo "
                     "function prior to calling AE.start()")
 
-    def on_c_store(self, sop_class, dataset):
+    def on_c_store(self, dataset):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
@@ -819,8 +818,10 @@ class ApplicationEntity(object):
         
         Example
         -------
-        def on_c_store(sop_class, dataset):
-            print(type(sop_class))
+        def on_c_store(dataset):
+            print(dataset.PatientID)
+            
+            return 0x0000
             
         ae = AE()
         ae.on_c_store = on_c_store
@@ -829,40 +830,39 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.StorageServiceClass
-            The StorageServiceClass subclass instance representing the dataset
-        dataset - pydicom.Dataset
+        dataset : pydicom.Dataset
             The DICOM dataset sent via the C-STORE
             
         Returns
         -------
-        status : pynetdicom.SOPclass.Status
+        status : pynetdicom.SOPclass.Status or int
             A valid return status for the C-STORE operation (see PS3.4 Annex 
-            B.2.3), must be one of the following statuses:
+            B.2.3), must be one of the following Status objects or the 
+            corresponding integer value:
                 Success status
-                    sop_class.Success
-                        Success - 0000
+                    StorageServiceClass.Success
+                        Success - 0x0000
                     
                 Failure statuses
-                    sop_class.OutOfResources
-                        Refused: Out of Resources - A7xx
-                    sop_class.DataSetDoesNotMatchingSOPClassFailure
-                        Error: Data Set does not match SOP Class - A9xx
-                    sop_class.CannotUnderstand
-                        Error: Cannot understand - Cxxx
+                    StorageServiceClass.OutOfResources
+                        Refused: Out of Resources - 0xA7xx
+                    StorageServiceClass.DataSetDoesNotMatchingSOPClassFailure
+                        Error: Data Set does not match SOP Class - 0xA9xx
+                    StorageServiceClass.CannotUnderstand
+                        Error: Cannot understand - 0xCxxx
                 
                 Warning statuses
-                    sop_class.CoercionOfDataElements
-                        Coercion of Data Elements - B000
-                    sop_class.DataSetDoesNotMatchSOPClassWarning
-                        Data Set does not matching SOP Class - B007
-                    sop_class.ElementsDiscarded
-                        Elements Discarded - B006
+                    StorageServiceClass.CoercionOfDataElements
+                        Coercion of Data Elements - 0xB000
+                    StorageServiceClass.DataSetDoesNotMatchSOPClassWarning
+                        Data Set does not matching SOP Class - 0xB007
+                    StorageServiceClass.ElementsDiscarded
+                        Elements Discarded - 0xB006
         """
-        raise NotImplementedError("User must define their own AE.on_c_store "
+        raise NotImplementedError("User must implement the AE.on_c_store "
                     "function prior to calling AE.start()")
 
-    def on_c_find(self, sop_class, dataset):
+    def on_c_find(self, dataset):
         """
         Function callback for when a dataset is received following a C-FIND.
         Must be defined by the user prior to calling AE.start() and must return
@@ -873,55 +873,52 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
-            The QueryRetrieveServiceClass subclass instance representing the 
-            dataset
         dataset - pydicom.Dataset
             The DICOM dataset sent via the C-FIND
             
-        Returns
-        -------
-        generator : A generator object? Not sure
-        
-        status : pynetdicom.SOPclass.Status
+        Yields
+        ------
+        status : pynetdicom.SOPclass.Status or int
             A valid return status for the C-FIND operation (see PS3.4 Annex 
-            C.4.1.1.4), must be one of:
+            C.4.1.1.4), must be one of the following Status objects or the 
+            corresponding integer value:
                 Success status
-                    sop_class.Success
+                    QueryRetrieveFindSOPClass.Success
                         Matching is complete - No final Identifier is 
-                        supplied - 0000
+                        supplied - 0x0000
                     
                 Failure statuses
-                    sop_class.OutOfResources
-                        Refused: Out of Resources - A700
-                    sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - A900
-                    sop_class.UnableToProcess
-                        Unable to process - Cxxx
+                    QueryRetrieveFindSOPClass.OutOfResources
+                        Refused: Out of Resources - 0xA700
+                    QueryRetrieveFindSOPClass.IdentifierDoesNotMatchSOPClass
+                        Identifier does not match SOP Class - 0xA900
+                    QueryRetrieveFindSOPClass.UnableToProcess
+                        Unable to process - 0xCxxx
                 
                 Cancel status
-                    sop_class.MatchingTerminatedDueToCancelRequest
-                        Matching terminated due to Cancel request - FE00
+                    QueryRetrieveFindSOPClass.MatchingTerminatedDueToCancelRequest
+                        Matching terminated due to Cancel request - 0xFE00
                     
                 Pending statuses
-                    sop_class.Pending
+                    QueryRetrieveFindSOPClass.Pending
                         Matches are continuing - Current Match is supplied and 
                         any Optional Keys were supported in the same manner as 
-                        Required Keys - FF00
-                    sop_class.PendingWarning
+                        Required Keys - 0xFF00
+                    QueryRetrieveFindSOPClass.PendingWarning
                         Matches are continuing - Warning that one or more 
                         Optional Keys were not supported for existence and/or
-                        matching for this Identifier - FF01
-
+                        matching for this Identifier - 0xFF01
+        dataset : pydicom.dataset.Dataset or None
+            A matching dataset if the status is Pending, None otherwise
         """
-        raise NotImplementedError("User must define their own AE.on_c_find "
+        raise NotImplementedError("User must implement the AE.on_c_find "
                     "function prior to calling AE.start()")
 
     def on_c_find_cancel(self):
-        raise NotImplementedError("User must define their own "
+        raise NotImplementedError("User must implement the "
                     "AE.on_c_find_cancel function prior to calling AE.start()")
 
-    def on_c_get(self, sop_class, dataset):
+    def on_c_get(self, dataset):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
@@ -930,111 +927,107 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
-            The QueryRetrieveServiceClass subclass instance representing 
-            the dataset
         dataset - pydicom.Dataset
             The DICOM dataset sent via the C-STORE
             
         Returns
         -------
-        status : pynetdicom.SOPclass.Status
+        status : pynetdicom.SOPclass.Status or int
             A valid return status for the C-GET operation (see PS3.4 Annex 
-            C.4.3.1.4), must be one of:
+            C.4.3.1.4), must be one of the following Status objects or the
+            corresponding integer value:
                 Success status
-                    sop_class.Success
-                        Sub-operations complete - no failures or warnings - 0000
+                    QueryRetrieveGetSOPClass.Success
+                        Sub-operations complete - 0x0000
                     
                 Failure statuses
-                    sop_class.OutOfResourcesNumberOfMatches
+                    QueryRetrieveGetSOPClass.OutOfResourcesNumberOfMatches
                         Refused: Out of Resources - Unable to calculate number
-                        of matches - A701
-                    sop_class.OutOfResourcesUnableToPerform
+                        of matches - 0xA701
+                    QueryRetrieveGetSOPClass.OutOfResourcesUnableToPerform
                         Refused: Out of Resources - Unable to perform 
-                        sub-operations - A702
-                    sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - A900
-                    sop_class.UnableToProcess
-                        Unable to process - Cxxx
+                        sub-operations - 0xA702
+                    QueryRetrieveGetSOPClass.IdentifierDoesNotMatchSOPClass
+                        Identifier does not match SOP Class - 0xA900
+                    QueryRetrieveGetSOPClass.UnableToProcess
+                        Unable to process - 0xCxxx
                 
                 Cancel status
-                    sop_class.Cancel
+                    QueryRetrieveGetSOPClass.Cancel
                         Sub-operations terminated due to Cancel indication 
-                        - FE00
+                        - 0xFE00
                 
                 Warning statuses
-                    sop_class.Warning
+                    QueryRetrieveGetSOPClass.Warning
                         Sub-operations complete - one or more failures or 
-                        warnings - B000
+                        warnings - 0xB000
                         
                 Pending status
-                    sop_class.Pending
-                        Sub-operations are continuing - FF00
+                    QueryRetrieveGetSOPClass.Pending
+                        Sub-operations are continuing - 0xFF00
         """
-        raise NotImplementedError("User must define their own AE.on_c_get "
+        raise NotImplementedError("User must implement the AE.on_c_get "
                     "function prior to calling AE.start()")
     
     def on_c_get_cancel(self):
-        raise NotImplementedError("User must define their own "
+        raise NotImplementedError("User must implement the "
                     "AE.on_c_get_cancel function prior to calling AE.start()")
 
-    def on_c_move(self, sop_class, dataset):
+    def on_c_move(self, dataset):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom.SOPclass.Status object. In addition,the 
-        AE.on_c_move_cancel() callback must also be defined
-        
+        a valid status. In addition,the AE.on_c_move_cancel() callback must 
+        also be defined
+
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
-            The QueryRetrieveServiceClass subclass instance representing the 
-            dataset
         dataset - pydicom.Dataset
             The DICOM dataset sent via the C-MOVE
-            
+
         Returns
         -------
-        status : pynetdicom.SOPclass.Status
+        status : pynetdicom.SOPclass.Status or int
             A valid return status for the C-MOVE operation (see PS3.4 Annex 
-            C.4.2.1.5), must be one of:
+            C.4.2.1.5), must be one of the following Status objects or the
+            corresponding integer value:
                 Success status
                     sop_class.Success
-                        Sub-operations complete - no failures - 0000
-                    
+                        Sub-operations complete - no failures - 0x0000
+
                 Failure statuses
                     sop_class.OutOfResourcesNumberOfMatches
                         Refused: Out of Resources - Unable to calculate number
-                        of matches - A701
+                        of matches - 0xA701
                     sop_class.OutOfResourcesUnableToPerform
                         Refused: Out of Resources - Unable to perform 
-                        sub-operations - A702
+                        sub-operations - 0xA702
                     sop_class.MoveDestinationUnknown
-                        Refused: Move destination unknown - A801
+                        Refused: Move destination unknown - 0xA801
                     sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - A900
+                        Identifier does not match SOP Class - 0xA900
                     sop_class.UnableToProcess
-                        Unable to process - Cxxx
-                
+                        Unable to process - 0xCxxx
+
                 Cancel status
                     sop_class.Cancel
                         Sub-operations terminated due to Cancel indication 
-                        - FE00
-                
+                        - 0xFE00
+
                 Warning statuses
                     sop_class.Warning
                         Sub-operations complete - one or more failures or 
-                        warnings - B000
-                        
+                        warnings - 0xB000
+
                 Pending status
                     sop_class.Pending
-                        Sub-operations are continuing - FF00
+                        Sub-operations are continuing - 0xFF00
         """
-        raise NotImplementedError("User must define their own AE.on_c_move "
+        raise NotImplementedError("User must implement the AE.on_c_move "
                     "function prior to calling AE.start()")
 
     def on_c_move_cancel(self):
-        raise NotImplementedError("User must define their own "
+        raise NotImplementedError("User must implement the "
                     "AE.on_c_move_cancel function prior to calling AE.start()")
 
 
