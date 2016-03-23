@@ -187,9 +187,7 @@ class StorageServiceClass(ServiceClass):
         
         # ApplicationEntity's on_c_store callback 
         try:
-            self.AE.on_c_store(DS)
-            
-            status = self.Success
+            status = self.AE.on_c_store(DS)
         except Exception as e:
             logger.exception("Exception in the ApplicationEntity.on_c_store() "
                                                                 "callback")
@@ -201,7 +199,7 @@ class StorageServiceClass(ServiceClass):
             status = self.DataSetDoesNotMatchSOPClassFailure
             logger.info("Store request's dataset UID does not match the "
                                                         "presentation context")
-
+        
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
