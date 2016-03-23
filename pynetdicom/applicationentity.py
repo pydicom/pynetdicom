@@ -278,7 +278,7 @@ class ApplicationEntity(object):
                 self.__start_monitor_socket()
                 
                 # Delete dead associations
-                self.__start_cleanup_associations()
+                self.__cleanup_associations()
 
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
@@ -326,7 +326,7 @@ class ApplicationEntity(object):
 
             self.active_associations.append(assoc)
 
-    def __start_cleanup_associations(self):
+    def __cleanup_associations(self):
         """ 
         AE.start(): Removes any dead associations from self.active_associations 
         by checking to see if the association thread is still alive. Separated 
@@ -405,26 +405,6 @@ class ApplicationEntity(object):
             self.active_associations.append(assoc)
 
         return assoc
-
-    def release_association(self, assoc_no):
-        """ Release the association given by `assoc_no` """
-        if assoc_no >= len(self.active_associations):
-            self.active_associations[assoc_no].Release()
-
-    def release_all(self):
-        """ Release all the associations """
-        for assoc in self.active_associations:
-            assoc.Release()
-
-    def abort_association(self, assoc_no):
-        """ Abort the association given by `assoc_no` """
-        if assoc_no >= len(self.active_associations):
-            self.active_associations[assoc_no].Abort()
-
-    def abort_all(self):
-        """ Abort all the associations """
-        for assoc in self.active_associations:
-            assoc.Abort()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
