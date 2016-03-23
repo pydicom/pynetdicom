@@ -357,7 +357,7 @@ class Association(threading.Thread):
 
                     if matching_context:
                         # Most of these shouldn't be necessary
-                        sop_class.maxpdulength = self.acse.peer_max_pdu
+                        sop_class.maxpdulength = self.peer_max_pdu
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
                         sop_class.AE = self.ae

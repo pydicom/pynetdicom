@@ -119,14 +119,14 @@ class VerificationServiceClass(ServiceClass):
         rsp.Status = int(self.Success)
 
         try:
-            self.AE.on_c_echo(self)
+            self.AE.on_c_echo()
         except NotImplementedError:
             pass
         except:
             logger.exception("Exception raised by the AE.on_c_echo() callback")
         
         # Send response via DIMSE provider
-        self.DIMSE.Send(rsp, self.pcid, self.ACSE.peer_max_pdu)
+        self.DIMSE.Send(rsp, self.pcid, self.maxpdulength)
 
 
 class StorageServiceClass(ServiceClass):

@@ -3,37 +3,85 @@
 import logging
 import threading
 import unittest
+from unittest.mock import patch
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom import AE
-from pynetdicom import VerificationSOPClass
+from pynetdicom import VerificationSOPClass, StorageSOPClassList
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
 logger.setLevel(logging.ERROR)
 
 """
-AE(
-   ae_title='PYNETDICOM',
-   port=0, 
-   scu_sop_class=[], 
-   scp_sop_class=[],
-   transfer_syntax=[ExplicitVRLittleEndian,
-                   ImplicitVRLittleEndian,
-                   ExplicitVRBigEndian]
-  )
+    Initialisation
+    --------------
+    AE(
+       ae_title='PYNETDICOM',
+       port=0, 
+       scu_sop_class=[], 
+       scp_sop_class=[],
+       transfer_syntax=[ExplicitVRLittleEndian,
+                       ImplicitVRLittleEndian,
+                       ExplicitVRBigEndian]
+      )
 
-Not sure how to test start() as it loops
-AE.start()
-AE.stop()
-AE.quit()
-AE.release_association(assoc_no)
-AE.release_all()
-AE.abort_association(assoc_no)
-AE.abort_all()
+    Functions
+    ---------
+    AE.start()
+    AE.stop()
+    AE.quit()
+    AE.associate(addr, port)
+
+    Attributes
+    ----------
+    acse_timeout - int
+    active_associations - list of pynetdicom.association.Association
+    address - str
+    ae_title - str
+    client_socket - socket.socket
+    dimse_timeout - int
+    network_timeout - int
+    maximum_associations - int
+    maximum_pdu_size - int
+    port - int
+    presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
+    require_calling_aet - str
+    require_called_aet - str
+    scu_supported_sop - List of pydicom.uid.UID
+    scp_supported_sop - List of pydicom.uid.UID
+    transfer_syntaxes - List of pydicom.uid.UID
+    
+    Callbacks
+    ---------
+    on_c_echo()
+    on_c_store(dataset)
+    on_c_find(dataset)
+    on_c_find_cancel()
+    on_c_get(dataset)
+    on_c_get_cancel()
+    on_c_move(dataset)
+    on_c_move_cancel()
+    
+    on_n_event_report()
+    on_n_get()
+    on_n_set()
+    on_n_action()
+    on_n_create()
+    on_n_delete()
+
+    on_receive_connection()
+    
+    on_association_requested(primitive)
+    on_association_accepted(primitive)
+    on_association_rejected(primitive)
+    on_association_released(primitive)
+    on_association_aborted(primitive)
 """
-class AESCP(threading.Thread):
+
+class AEVerificationSCP(threading.Thread):
     def __init__(self):
         self.ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
         threading.Thread.__init__(self)
@@ -46,11 +94,53 @@ class AESCP(threading.Thread):
     def stop(self):
         self.ae.stop()
 
+class AEStorageSCP(threading.Thread):
+    def __init__(self):
+        self.ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.start()
+        
+    def run(self):
+        self.ae.start()
+        
+    def stop(self):
+
+class AEGoodCallbacks(unittest.TestCase):
+    def test_on_c_echo_called(self):
+        """ Check that SCP AE.on_c_echo() was called """
+        scp = AEVerificationSCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        with patch.object(scp.ae, 'on_c_echo') as mock:
+            assoc.send_c_echo()
+            
+        mock.assert_called_with()
+        
+        assoc.release()
+        
+        self.assertRaises(SystemExit, scp.stop)
+    
+    def test_on_c_store_called(self):
+        """ Check that SCP AE.on_c_store(dataset) was called """
+        scp = AESCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        with patch.object(scp.ae, 'on_c_store') as mock:
+            assoc.send_c_store(dataset)
+            
+        mock.assert_called_with()
+        
+        assoc.release()
+        
+        self.assertRaises(SystemExit, scp.stop)
 
 class AEGoodAssociation(unittest.TestCase):
     def test_associate_establish_release(self):
         """ Check SCU Association with SCP """
-        scp = AESCP()
+        scp = AEVerificationSCP()
         
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -63,7 +153,7 @@ class AEGoodAssociation(unittest.TestCase):
     
     def test_associate_max_pdu(self):
         """ Check Association has correct max PDUs on either end """
-        scp = AESCP()
+        scp = AEVerificationSCP()
         scp.ae.maximum_pdu_size = 54321
         
         ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -86,7 +176,7 @@ class AEGoodAssociation(unittest.TestCase):
         
     def test_association_acse_timeout(self):
         """ Check that the Association timeouts are being set correctly """
-        scp = AESCP()
+        scp = AEVerificationSCP()
         scp.ae.acse_timeout = 0
         scp.ae.dimse_timeout = 0
         
