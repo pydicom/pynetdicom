@@ -142,6 +142,8 @@ class Association(threading.Thread):
 
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
+        # Q. Why do we need to feed the DUL an ACSE timeout? 
+        # A. ARTIM timer
         self.dul = DULServiceProvider(client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       acse_timeout=acse_timeout,
@@ -280,6 +282,13 @@ class Association(threading.Thread):
             self.acse.presentation_contexts_accepted = \
                                     self.acse.context_manager.accepted
             
+            # Set maximum PDU send length
+            self.peer_max_pdu = assoc_rq.UserInformationItem[0].MaximumLengthReceived
+            
+            # Set maximum PDU receive length
+            assoc_rq.UserInformationItem[0].MaximumLengthReceived = \
+                                                        self.local_max_pdu
+            
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
             assoc_ac = self.acse.Accept(assoc_rq)
             
@@ -347,7 +356,7 @@ class Association(threading.Thread):
 
                     if matching_context:
                         # Most of these shouldn't be necessary
-                        sop_class.maxpdulength = self.acse.MaxPDULength
+                        sop_class.maxpdulength = self.acse.peer_max_pdu
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
                         sop_class.AE = self.ae

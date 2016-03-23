@@ -189,6 +189,7 @@ class ACSEServiceProvider(object):
                 self.MaxPDULength = \
                         assoc_rsp.UserInformationItem[0].MaximumLengthReceived
                 self.peer_max_pdu = self.MaxPDULength
+                self.parent.peer_max_pdu = self.MaxPDULength
 
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl
@@ -287,6 +288,8 @@ class ACSEServiceProvider(object):
         """
         self.MaxPDULength = \
                 assoc_primitive.UserInformationItem[0].MaximumLengthReceived
+        self.local_max_pdu = self.MaxPDULength
+        self.parent.local_max_pdu = self.MaxPDULength
 
         # Send response
         assoc_primitive.PresentationContextDefinitionList = []

@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import logging
+import threading
 import unittest
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom import AE
-from pynetdicom.SOPclass import VerificationSOPClass
+from pynetdicom import VerificationSOPClass
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
@@ -29,6 +30,86 @@ AE.stop()
 AE.quit()
 
 """
+class AESCP(threading.Thread):
+    def __init__(self):
+        self.ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.start()
+        
+    def run(self):
+        self.ae.start()
+        
+    def stop(self):
+        self.ae.stop()
+
+
+class AEGoodAssociation(unittest.TestCase):
+    def test_associate_establish_release(self):
+        """ Check SCU Association with SCP """
+        scp = AESCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established == True)
+        
+        assoc.release()
+        self.assertTrue(assoc.is_established == False)
+        
+        self.assertRaises(SystemExit, scp.stop)
+    
+    def test_associate_max_pdu(self):
+        """ Check Association has correct max PDUs on either end """
+        scp = AESCP()
+        scp.ae.maximum_pdu_size = 54321
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112, max_pdu=12345)
+        
+        self.assertTrue(scp.ae.active_associations[0].local_max_pdu == 54321)
+        self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 12345)
+        self.assertTrue(assoc.local_max_pdu == 12345)
+        self.assertTrue(assoc.peer_max_pdu == 54321)
+        
+        assoc.release()
+        
+        # Check 0 max pdu value
+        assoc = ae.associate('localhost', 11112, max_pdu=0)
+        self.assertTrue(assoc.local_max_pdu == 0)
+        self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 0)
+        
+        assoc.release()
+        self.assertRaises(SystemExit, scp.stop)
+        
+    def test_association_acse_timeout(self):
+        """ Check that the Association timeouts are being set correctly """
+        scp = AESCP()
+        scp.ae.acse_timeout = 0
+        scp.ae.dimse_timeout = 0
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 0
+        ae.dimse_timeout = 0
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(scp.ae.active_associations[0].acse_timeout == 0)
+        self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 0)
+        self.assertTrue(assoc.acse_timeout == 0)
+        self.assertTrue(assoc.dimse_timeout == 0)
+        assoc.release()
+        
+        scp.ae.acse_timeout = 21
+        scp.ae.dimse_timeout = 22
+        ae.acse_timeout = 31
+        ae.dimse_timeout = 32
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(scp.ae.active_associations[0].acse_timeout == 21)
+        self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 22)
+        self.assertTrue(assoc.acse_timeout == 31)
+        self.assertTrue(assoc.dimse_timeout == 32)
+        assoc.release()
+        
+
+
 class AEGoodTimeoutSetters(unittest.TestCase):
     def test_acse_timeout(self):
         """ Check AE ACSE timeout change produces good value """
@@ -44,7 +125,7 @@ class AEGoodTimeoutSetters(unittest.TestCase):
         ae.acse_timeout = 30
         self.assertTrue(ae.acse_timeout == 30)
         
-    def test_acse_timeout(self):
+    def test_dimse_timeout(self):
         """ Check AE DIMSE timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.dimse_timeout = None
@@ -78,13 +159,15 @@ class AEGoodMiscSetters(unittest.TestCase):
         """ Check AE title change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.ae_title = '     TEST     '
-        self.assertTrue(ae.ae_title == 'TEST')
+        self.assertTrue(ae.ae_title == 'TEST            ')
         ae.ae_title = '            TEST'
-        self.assertTrue(ae.ae_title == 'TEST')
+        self.assertTrue(ae.ae_title == 'TEST            ')
         ae.ae_title = '                 TEST'
-        self.assertTrue(ae.ae_title == 'TEST')
+        self.assertTrue(ae.ae_title == 'TEST            ')
         ae.ae_title = 'a            TEST'
         self.assertTrue(ae.ae_title == 'a            TES')
+        ae.ae_title = 'a        TEST'
+        self.assertTrue(ae.ae_title == 'a        TEST   ')
     
     def test_max_assoc_good(self):
         """ Check AE maximum association change produces good value """
