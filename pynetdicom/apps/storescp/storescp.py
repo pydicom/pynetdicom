@@ -75,6 +75,22 @@ def _setup_argparser():
                           help="set my AE title (default: STORESCP)", 
                           type=str, 
                           default='STORESCP')
+    net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
+                          help="timeout for connection requests", 
+                          type=int,
+                          default=0)
+    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds', 
+                          help="timeout for ACSE messages", 
+                          type=int,
+                          default=30)
+    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds', 
+                          help="timeout for DIMSE messages", 
+                          type=int,
+                          default=0)
+    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
+                          help="set max receive pdu to n bytes (4096..131072)", 
+                          type=int,
+                          default=16384)
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
@@ -91,6 +107,41 @@ def _setup_argparser():
                          help="accept implicit VR little endian TS only",
                          action="store_true")
     
+    # Output Options
+    out_opts = parser.add_argument_group('Output Options')
+    out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
+                          help="write received objects to existing directory d",
+                          type=str)
+    """
+    out_opts.add_argument('-su', "--sort-on-study-uid",
+                          help="sort studies into subdirectories using "
+                                "Study Instance UID",
+                          action="store_true")
+    out_opts.add_argument('-su', "--sort-on-patient-id",
+                          help="sort studies into subdirectories using "
+                                "Patient ID and a timestamp",
+                          action="store_true")
+    out_opts.add_argument('-uf', "--default-filenames",
+                          help="generate filenames from instance UID",
+                          action="store_true",
+                          default=True)
+    """
+    """
+    # Event Options
+    event_opts = parser.add_argument_group('Event Options')
+    event_opts.add_argument('-xcr', "--exec-on-reception", 
+                            metavar="[c]ommand",
+                            help="execute command c after receiving and "
+                                "processing one C-STORE-RQ message",
+                            type=str)
+    """
+
+    # Miscellaneous
+    misc_opts = parser.add_argument_group('Miscellaneous')
+    misc_opts.add_argument('--ignore', 
+                           help="receive data but don't store it",
+                           action="store_true")
+    
     return parser.parse_args()
 
 args = _setup_argparser()
@@ -103,7 +154,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$storescp.py v%s %s $' %('0.1.0', '2016-02-10'))
+logger.debug('$storescp.py v%s %s $' %('0.2.0', '2016-03-23'))
 logger.debug('')
 
 # Validate port
@@ -190,9 +241,31 @@ def on_c_store(dataset):
 
     ds.is_little_endian = True
     ds.is_implicit_VR = True
-    ds.save_as(filename)
+    
+    if not args.ignore:
+        # Try to save to output-directory
+        if args.output_directory is not None:
+            try:
+                ds.save_as(os.path.join(args.output_directory, filename))
+            except IOError:
+                logger.error('Could not write file to specified directory:')
+                logger.error("    %s" %args.output_directory)
+                logger.error('Directory may not exist or you may not have write '
+                        'permission')
+                return 0xA700 # Failed - Out of Resources
+            except:
+                logger.error('Could not write file to specified directory:')
+                logger.error("    %s" %args.output_directory)
+                return 0xA700 # Failed - Out of Resources
         
     return 0x0000 # Success
+
+# Test output-directory
+if args.output_directory is not None:
+    if not os.access(args.output_directory, os.W_OK|os.X_OK):
+        logger.error("No write permissions or the output directory may not exist:")
+        logger.error("    %s" %args.output_directory)
+        sys.exit()
 
 scp_classes = [x for x in StorageSOPClassList]
 scp_classes.append(VerificationSOPClass)
@@ -203,6 +276,13 @@ ae = AE(ae_title=args.aetitle,
         scu_sop_class=[], 
         scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
+
+ae.maximum_pdu_size = args.max_pdu
+
+# Set timeouts
+ae.network_timeout = args.timeout
+ae.acse_timeout = args.acse_timeout
+ae.dimse_timeout = args.dimse_timeout
 
 ae.on_c_store = on_c_store
 
