@@ -199,7 +199,8 @@ class Association(threading.Thread):
         Direct the ACSE to issue an A-RELEASE request primitive to the DUL 
         provider
         """
-        self.acse.Release()
+        # A-RELEASE response primitive
+        response = self.acse.Release()
         self.kill()
 
     def abort(self):

@@ -28,7 +28,10 @@ Not sure how to test start() as it loops
 AE.start()
 AE.stop()
 AE.quit()
-
+AE.release_association(assoc_no)
+AE.release_all()
+AE.abort_association(assoc_no)
+AE.abort_all()
 """
 class AESCP(threading.Thread):
     def __init__(self):
@@ -108,6 +111,7 @@ class AEGoodAssociation(unittest.TestCase):
         self.assertTrue(assoc.dimse_timeout == 32)
         assoc.release()
         
+        self.assertRaises(SystemExit, scp.stop)
 
 
 class AEGoodTimeoutSetters(unittest.TestCase):
