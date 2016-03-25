@@ -23,8 +23,8 @@ logger.setLevel(logging.ERROR)
        scu_sop_class=[], 
        scp_sop_class=[],
        transfer_syntax=[ExplicitVRLittleEndian,
-                       ImplicitVRLittleEndian,
-                       ExplicitVRBigEndian]
+                        ImplicitVRLittleEndian,
+                        ExplicitVRBigEndian]
       )
 
     Functions
@@ -73,6 +73,7 @@ logger.setLevel(logging.ERROR)
     on_n_delete()
 
     on_receive_connection()
+    on_make_connection()
     
     on_association_requested(primitive)
     on_association_accepted(primitive)
@@ -138,6 +139,23 @@ class AEGoodCallbacks(unittest.TestCase):
         assoc.release()
         
         #self.assertRaises(SystemExit, scp.stop)
+
+    def test_on_c_find_called(self): pass
+    def test_on_c_get_called(self): pass
+    def test_on_c_move_called(self): pass
+    def test_on_n_event_report_called(self): pass
+    def test_on_n_get_called(self): pass
+    def test_on_n_set_called(self): pass
+    def test_on_n_action_called(self): pass
+    def test_on_n_create_called(self): pass
+    def test_on_n_delete_called(self): pass
+    def test_on_receive_connection_called(self): pass
+    def test_on_make_connection_called(self): pass
+    def test_on_association_req_called(self): pass
+    def test_on_association_acc_called(self): pass
+    def test_on_association_rej_called(self): pass
+    def test_on_association_rel_called(self): pass
+    def test_on_association_abort_called(self): pass
 
 
 class AEGoodAssociation(unittest.TestCase):

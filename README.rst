@@ -51,7 +51,7 @@ supports the corresponding Service Classes):
   given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet*
 
-See the `SCU Examples<docs/scu_examples.rst>`_ and the Association documentation 
+See the `SCU Examples <docs/scu_examples.rst>`_ and the Association documentation 
 for more information.
 
 Supported SCP Services
