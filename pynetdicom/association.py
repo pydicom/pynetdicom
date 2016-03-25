@@ -24,7 +24,6 @@ from pynetdicom.DIMSEparameters import *
 from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.SOPclass import *
 from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr
 
 

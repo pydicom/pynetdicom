@@ -98,77 +98,76 @@ class ApplicationEntity(object):
 
     Parameters
     ----------
-    ae_title - str, optional
+    ae_title : str, optional
         The AE title of the Application Entity (default: PYNETDICOM)
-    port - int, optional
+    port : int, optional
         The port number to listen for connections on when acting as an SCP
         (default: the first available port)
-    scu_sop_class - list of pydicom.uid.UID or list of str or list of 
+    scu_sop_class : list of pydicom.uid.UID or list of str or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of the supported SOP Class UIDs when running as an SCU. 
         Either `scu_sop_class` or `scp_sop_class` must have values
-    scp_sop_class - list of pydicom.uid.UID or list of UID strings or list of 
+    scp_sop_class : list of pydicom.uid.UID or list of UID strings or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of the supported SOP Class UIDs when running as an SCP.
         Either scu_`sop_class` or `scp_sop_class` must have values
-    transfer_syntax - list of pydicom.uid.UID or list of str or list of 
+    transfer_syntax : list of pydicom.uid.UID or list of str or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
         Endian, Implicit VR Little Endian, Explicit VR Big Endian)
 
     Attributes
     ----------
-    acse_timeout - int
+    acse_timeout : int
         The maximum amount of time (in seconds) to wait for association related
         messages. A value of 0 means no timeout. (default: 0)
-    active_associations - list of pynetdicom.association.Association
+    active_associations : list of pynetdicom.association.Association
         The currently active associations between the local and peer AEs
-    address - str
+    address : str
         The local AE's TCP/IP address
-    ae_title - str
+    ae_title : str
         The local AE's title
-    client_socket - socket.socket
+    client_socket : socket.socket
         The socket used for connections with peer AEs
-    dimse_timeout - int
+    dimse_timeout : int
         The maximum amount of time (in seconds) to wait for DIMSE related
         messages. A value of 0 means no timeout. (default: 0)
-    network_timeout - int
+    network_timeout : int
         The maximum amount of time (in seconds) to wait for network messages. 
         A value of 0 means no timeout. (default: 60)
-    maximum_associations - int
+    maximum_associations : int
         The maximum number of simultaneous associations (default: 2)
-    maximum_pdu_size - int
+    maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no 
         maximum size (default: 16382)
-    port - int
+    port : int
         The local AE's listen port number when acting as an SCP or connection
         port when acting as an SCU. A value of 0 indicates that the operating
         system should choose the port.
-    presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scu : List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCU (SCU only)
-    presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scp : List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCP (SCP only)
-    require_calling_aet - str
+    require_calling_aet : str
         If not empty str, the calling AE title must match `require_calling_aet`
         (SCP only)
-    require_called_aet - str
+    require_called_aet : str
         If not empty str the called AE title must match `required_called_aet`
         (SCP only)
-    scu_supported_sop - List of pydicom.uid.UID
+    scu_supported_sop : List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCU (SCU only)
-    scp_supported_sop - List of pydicom.uid.UID
+    scp_supported_sop : List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCP (SCP only)
-    transfer_syntaxes - List of pydicom.uid.UID
+    transfer_syntaxes : List of pydicom.uid.UID
         The supported transfer syntaxes
     """
-    def __init__(self, 
-                 ae_title='PYNETDICOM',
-                 port=0, 
-                 scu_sop_class=[], 
-                 scp_sop_class=[],
-                 transfer_syntax=[ExplicitVRLittleEndian,
-                                  ImplicitVRLittleEndian,
-                                  ExplicitVRBigEndian]):
+    def __init__(self, ae_title='PYNETDICOM',
+                       port=0, 
+                       scu_sop_class=[], 
+                       scp_sop_class=[],
+                       transfer_syntax=[ExplicitVRLittleEndian,
+                                        ImplicitVRLittleEndian,
+                                        ExplicitVRBigEndian]):
 
         self.address = platform.node()
         self.port = port
@@ -212,8 +211,6 @@ class ApplicationEntity(object):
         #       (presentation_contexts_scu)
         #   * used to decide whether to accept or reject when remote AE 
         #       requests association (presentation_contexts_scp)
-        #       although I think they should be accepted and then aborted
-        #       due to no acceptable presentation contexts rather than rejected
         #
         #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
         self.presentation_contexts_scu = []
@@ -381,16 +378,16 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        addr - str
+        addr : str
             The peer AE's TCP/IP address (IPv4)
-        port - int
+        port : int
             The peer AE's listen port number
-        ae_title - str, optional
+        ae_title : str, optional
             The peer AE's title
-        max_pdu - int, optional
+        max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the 
             association
-        ext_neg - List of UserInformation objects, optional
+        ext_neg : List of UserInformation objects, optional
             Used if extended association negotiation is required
 
         Returns
@@ -799,7 +796,7 @@ class ApplicationEntity(object):
         Function callback for when a C-ECHO request is received. Must be 
         defined by the user prior to calling AE.start()
         
-        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP prior
+        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP() prior
         to sending a response
         
         Example
@@ -817,26 +814,29 @@ class ApplicationEntity(object):
 
     def on_c_store(self, dataset):
         """
-        Function callback for when a dataset is received following a C-STORE.
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom.SOPclass.Status object
+        Function callback for when a dataset is received following a C-STORE 
+        request from a peer AE. Must be defined by the user prior to calling 
+        AE.start() and must return a valid C-STORE status value or the 
+        corresponding pynetdicom.SOPclass.Status object.
         
         Example
         -------
+        from pynetdicom import AE, StorageSOPClassList
+        
         def on_c_store(dataset):
             print(dataset.PatientID)
             
             return 0x0000
             
-        ae = AE()
+        ae = AE(11112, scp_sop_class=StorageSOPClassList)
         ae.on_c_store = on_c_store
         
         ae.start()
         
         Parameters
         ----------
-        dataset : pydicom.Dataset
-            The DICOM dataset sent via the C-STORE
+        dataset : pydicom.dataset.Dataset
+            The DICOM dataset sent in the C-STORE request
             
         Returns
         -------
@@ -878,7 +878,7 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        dataset - pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-FIND
             
         Yields
@@ -932,7 +932,7 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        dataset - pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-STORE
             
         Returns
@@ -987,7 +987,7 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        dataset - pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-MOVE
 
         Returns
@@ -1081,7 +1081,7 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        associate_ac_pdu - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
+        primitive - pynetdicom
             The A-ASSOCIATE-AC PDU instance received from the peer AE
         """
         pass
