@@ -40,14 +40,14 @@ class ACSEServiceProvider(object):
 
     Parameters
     ----------
-    assoc - pynetdicom.association.Association
-        The parent Association that instantiated the ACSE provider
-    DUL - pynetdicom.DULprovider.DULServiceProvider
+    assoc : pynetdicom.association.Association
+        The parent Association that owns the ACSE provider
+    DUL : pynetdicom.DULprovider.DULServiceProvider
         The DICOM UL service provider instance that will handle the transport of
         the association primitives sent/received by the ACSE provider
-    acse_timeout - int
-        The maximum time (in seconds) to wait for A-ASSOCIATE PDUs from the peer
-        (default: 30)
+    acse_timeout : int, optional
+        The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs from 
+        the peer (default: 30)
 
     References
     ----------

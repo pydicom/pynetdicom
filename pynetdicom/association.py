@@ -24,6 +24,9 @@ from pynetdicom.DIMSEparameters import *
 from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
+from pynetdicom.SOPclass import UID2SOPClass, VerificationServiceClass, \
+    StorageServiceClass, QueryRetrieveFindSOPClass, QueryRetrieveGetSOPClass, \
+    QueryRetrieveMoveSOPClass
 from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr
 
 
@@ -773,21 +776,20 @@ class Association(threading.Thread):
             The resulting dataset(s) from the C-FIND operation
         """
         if self.is_established:
+            service_class = QueryRetrieveFindSOPClass()
+            
             if query_model == 'W':
                 sop_class = ModalityWorklistInformationFind()
                 service_class = QueryRetrieveFindSOPClass()
             elif query_model == "P":
                 # Four level hierarchy, patient, study, series, composite object
                 sop_class = PatientRootQueryRetrieveInformationModelFind()
-                service_class = QueryRetrieveFindSOPClass()
             elif query_model == "S":
                 # Three level hierarchy, study, series, composite object
                 sop_class = StudyRootQueryRetrieveInformationModelFind()
-                service_class = QueryRetrieveFindSOPClass()
             elif query_model == "O":
                 # Retired
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
-                service_class = QueryRetrieveFindSOPClass()
             else:
                 raise ValueError("Association::send_c_find() query_model "
                     "must be one of ['W'|'P'|'S'|'O']")
@@ -1092,6 +1094,9 @@ class Association(threading.Thread):
 
 
     # DIMSE-N services provided by the Association
+    def send_n_event_report(self):
+        raise NotImplementedError
+    
     def send_n_get(self):
         raise NotImplementedError
 
@@ -1109,15 +1114,22 @@ class Association(threading.Thread):
 
 
     # Association logging/debugging functions
-    def debug_association_requested(self):
+    def debug_association_requested(self, primitive):
+        """
+        Called when an association is reuested by a peer AE, used for 
+        logging/debugging information
+        
+        Parameters
+        ----------
+        assoc_primitive - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameter
+            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        """
         pass
 
     def debug_association_accepted(self, assoc):
         """
-        Placeholder for a function callback. Function will be called 
-        when an association attempt is accepted by either the local or peer AE
-        
-        The default implementation is used for logging debugging information
+        Called when an association attempt is accepted by a peer AE, used for 
+        logging/debugging information
         
         Parameters
         ----------
@@ -1197,10 +1209,8 @@ class Association(threading.Thread):
 
     def debug_association_rejected(self, assoc_primitive):
         """
-        Placeholder for a function callback. Function will be called 
-        when an association attempt is rejected by a peer AE
-        
-        The default implementation is used for logging debugging information
+        Called when an association attempt is rejected by a peer AE, used for 
+        logging/debugging information
         
         Parameters
         ----------
@@ -1251,18 +1261,3 @@ class Association(threading.Thread):
 
     def debug_association_aborted(self, abort_primitive=None):
         logger.info('Association Aborted')
-
-
-    # Deprecated functions
-    def Release(self):
-        self.release()
-
-    def Abort(self, reason):
-        self.abort(reason)
-
-    def Kill(self):
-        self.kill()
-    
-    @property
-    def AssociationEstablished(self):
-        return self.is_established
