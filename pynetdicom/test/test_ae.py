@@ -126,7 +126,7 @@ class AEGoodCallbacks(unittest.TestCase):
     
     def test_on_c_store_called(self):
         """ Check that SCP AE.on_c_store(dataset) was called """
-        scp = AEVerificationSCP()
+        scp = AEStorageSCP()
         
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)

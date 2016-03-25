@@ -1013,6 +1013,32 @@ class ApplicationEntity(object):
                     "AE.on_c_move_cancel function prior to calling AE.start()")
 
 
+    # High-level DIMSE-N callbacks - user should implement these as required
+    def on_n_event_report(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_event_report function prior to calling AE.start()")
+
+    def on_n_get(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_get function prior to calling AE.start()")
+
+    def on_n_set(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_set function prior to calling AE.start()")
+
+    def on_n_action(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_action function prior to calling AE.start()")
+
+    def on_n_create(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_create function prior to calling AE.start()")
+
+    def on_n_delete(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_delete function prior to calling AE.start()")
+
+
     # Communication related callback
     def on_receive_connection(self):
         pass
