@@ -848,9 +848,6 @@ class Association(threading.Thread):
                 if status != 'Pending':
                     # We want to exit the wait loop if we receive
                     #   failure, cancel or success
-                    
-                    # Send a C-CANCEL-FIND
-                    self.send_c_cancel_find(msg_id, query_model)
                     break
                 
                 # Pending Response
@@ -873,7 +870,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
 
-    def send_c_cancel_find(self, msg_id, query_model='W'):
+    def send_c_cancel_find(self, msg_id, query_model):
         """
         See PS3.7 9.3.2.3
         
@@ -1045,7 +1042,9 @@ class Association(threading.Thread):
             
             # Send primitive to peer
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
-
+            # Send a C-CANCEL-GET
+            self.send_c_cancel_get(msg_id, query_model)
+            
             logger.info('Get SCU Request Identifiers:')
             logger.info('')
             logger.info('# DICOM Dataset')
@@ -1084,6 +1083,7 @@ class Association(threading.Thread):
                                                             failed.value, 
                                                             warning.value))
                         ii += 1
+                        
                         yield status, dataset
                         
                     # If the Status is "Success" then processing is complete
@@ -1145,8 +1145,57 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
 
-    def send_c_cancel_get(self):
-        pass
+    def send_c_cancel_get(self, msg_id, query_model):
+        """
+        See PS3.7 9.3.2.3
+        
+        Parameters
+        ----------
+        msg_id : int
+            The message ID of the C-FIND operation we want to cancel
+        """
+        if self.is_established:
+            service_class = QueryRetrieveGetServiceClass()
+            
+            # Build C-FIND primitive
+            primitive = C_GET_ServiceParameters()
+            primitive.CommandField = 0x0fff
+            primitive.MessageIDBeingRespondedTo = msg_id
+            primitive.CommandDataSetType = 0x0101
+            
+            # We need the Context ID unfortunately...
+            if query_model == "P":
+                # Four level hierarchy, patient, study, series, composite object
+                sop_class = PatientRootQueryRetrieveInformationModelGet()
+            elif query_model == "S":
+                # Three level hierarchy, study, series, composite object
+                sop_class = StudyRootQueryRetrieveInformationModelGet()
+            elif query_model == "O":
+                # Retired
+                sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
+            else:
+                raise ValueError("Association::send_c_cancel_get() query_model "
+                    "must be one of ['P'|'S'|'O']")
+            
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Find SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+            
+            logger.info('Sending C-CANCEL-GET')
+            
+            # send c-find request
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
 
     # DIMSE-N services provided by the Association

@@ -633,6 +633,30 @@ class C_GET_RSP_Message(DIMSEMessage):
         return self.Identifier
 
 
+class C_CANCEL_GET_RQ_Message(DIMSEMessage):
+    CommandFields = [
+            ('Group Length', (0x0000, 0x0000), 'UL', 1),
+            ('Command Field', (0x0000, 0x0100), 'US', 1),
+            ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+            ('Data Set Type', (0x0000, 0x0800), 'US', 1)]
+
+    def FromParams(self, primitive):
+        # Convert from a DIMSE C-GET primitive to a C-CANCEL-GET-RQ message
+        self.CommandSet[(0x0000, 0x0100)].value = 0x0fff
+        self.CommandSet[(0x0000, 0x0120)].value = \
+                                    primitive.MessageIDBeingRespondedTo.value
+        self.CommandSet[(0x0000, 0x0800)].value = 0x0101
+        self.SetLength()
+
+    def ToParams(self):
+        # Convert a C-CANCEL-GET-RQ message to a C-GET primitive
+        primitive = C_FIND_ServiceParameters()
+        primitive.MessageIDBeingRespondedTo = self.CommandSet[(0x0000, 0x0120)]
+
+        return primitive
+
+
+
 class C_MOVE_RQ_Message(DIMSEMessage):
     CommandFields = [
         ('Group Length',
