@@ -8,7 +8,8 @@ from unittest.mock import patch
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom import AE
-from pynetdicom import VerificationSOPClass, StorageSOPClassList
+from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
+    QueryRetrieveSOPClassList
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
@@ -109,7 +110,7 @@ class AEStorageSCP(threading.Thread):
         self.ae.stop()
 
 
-class AEGoodCallbacks(unittest.TestCase):
+class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_c_echo_called(self):
         """ Check that SCP AE.on_c_echo() was called """
         scp = AEVerificationSCP()
@@ -129,7 +130,7 @@ class AEGoodCallbacks(unittest.TestCase):
         """ Check that SCP AE.on_c_store(dataset) was called """
         scp = AEStorageSCP()
         
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE(scu_sop_class=StorageSOPClassList)
         assoc = ae.associate('localhost', 11112)
         #with patch.object(scp.ae, 'on_c_store') as mock:
         #    assoc.send_c_store(dataset)
@@ -158,7 +159,7 @@ class AEGoodCallbacks(unittest.TestCase):
     def test_on_association_abort_called(self): pass
 
 
-class AEGoodAssociation(unittest.TestCase):
+class TestAEGoodAssociation(unittest.TestCase):
     def test_associate_establish_release(self):
         """ Check SCU Association with SCP """
         scp = AEVerificationSCP()
@@ -225,7 +226,7 @@ class AEGoodAssociation(unittest.TestCase):
         self.assertRaises(SystemExit, scp.stop)
 
 
-class AEGoodTimeoutSetters(unittest.TestCase):
+class TestAEGoodTimeoutSetters(unittest.TestCase):
     def test_acse_timeout(self):
         """ Check AE ACSE timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
@@ -269,7 +270,7 @@ class AEGoodTimeoutSetters(unittest.TestCase):
         self.assertTrue(ae.network_timeout == 30)
 
 
-class AEGoodMiscSetters(unittest.TestCase):
+class TestAEGoodMiscSetters(unittest.TestCase):
     def test_ae_title_good(self):
         """ Check AE title change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
@@ -349,7 +350,7 @@ class AEGoodMiscSetters(unittest.TestCase):
         self.assertTrue(ae.require_called_aet == 'a            TES')
 
 
-class AEGoodInitialisation(unittest.TestCase):
+class TestAEGoodInitialisation(unittest.TestCase):
     def test_sop_classes_good_uid(self):
         """ Check AE initialisation produces valid supported SOP classes """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1', '1.2.840.10008.1.1.1'])
@@ -396,7 +397,7 @@ class AEGoodInitialisation(unittest.TestCase):
         self.assertTrue(ae.transfer_syntaxes == [UID('1.2.840.10008.1.2')])
 
 
-class AEBadInitialisation(unittest.TestCase):
+class TestAEBadInitialisation(unittest.TestCase):
     def test_ae_title_all_spaces(self):
         """ AE should fail if ae_title is all spaces """
         self.assertRaises(ValueError, AE, '                ', 0, [VerificationSOPClass])

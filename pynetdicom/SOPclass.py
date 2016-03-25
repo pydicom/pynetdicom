@@ -23,14 +23,17 @@ def class_factory(name, uid, BaseClass):
     
     Parameters
     ----------
-    name - str
+    name : str
         The name of the SOP class
-    uid - str
+    uid : str
         The UID of the SOP class
-    BaseClass - pynetdicom.SOPclass.ServiceClass subclass
+    BaseClass : pynetdicom.SOPclass.ServiceClass subclass
         One of the following Service classes:
             VerificationServiceClass
             StorageServiceClass
+            QueryRetrieveFindServiceClass
+            QueryRetrieveGetServiceClass
+            QueryRetrieveMoveServiceClass
             
     Returns
     -------
@@ -45,7 +48,7 @@ def class_factory(name, uid, BaseClass):
     
     return new_class
 
-def _generate_service_classes(class_list, service_class):
+def _generate_service_sop_classes(class_list, service_class):
     for name in class_list.keys():
         cls = class_factory(name, class_list[name], service_class)
         globals()[cls.__name__] = cls
@@ -204,12 +207,7 @@ class StorageServiceClass(ServiceClass):
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
-# QUERY RETRIEVE SOP Classes
-class QueryRetrieveServiceClass(ServiceClass): pass
-
-
-# QR Information Models
-class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
+class QueryRetrieveFindServiceClass(ServiceClass):
     """
     PS3.4 C.1.4 C-FIND Service Definition
     -------------------------------------
@@ -506,7 +504,7 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
-class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
+class QueryRetrieveMoveServiceClass(ServiceClass):
     OutOfResourcesNumberOfMatches = Status(
         'Failure',
         'Refused: Out of resources - Unable to calcultate number of matches',
@@ -680,7 +678,7 @@ class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
             ass.Release(0)
 
-class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
+class QueryRetrieveGetServiceClass(ServiceClass):
     OutOfResourcesNumberOfMatches = Status('Failure',
                                            'Refused: Out of resources - Unable '
                                            'to calcultate number of matches',
@@ -780,7 +778,7 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
                 self.DIMSE.Send(rsp, id, self.maxpdulength)
 
 
-# BASIC WORKLIST SOP Classes
+# WORKLIST SOP Classes
 class BasicWorklistServiceClass (ServiceClass): pass
 
 class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
@@ -840,9 +838,6 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-
-class ModalityWorklistInformationFindSOPClass(ModalityWorklistServiceSOPClass):
-    UID = '1.2.840.10008.5.1.4.31'
 
 
 # Generate the various SOP classes
@@ -979,16 +974,16 @@ _QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840
                    'StudyRootQueryRetrieveInformationModelGet'        : '1.2.840.10008.5.1.4.1.2.2.3',
                    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
 
-_generate_service_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
-_generate_service_classes(_STORAGE_CLASSES, StorageServiceClass)
-_generate_service_classes(_QR_FIND_CLASSES, QueryRetrieveFindSOPClass)
-_generate_service_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveSOPClass)
-_generate_service_classes(_QR_GET_CLASSES, QueryRetrieveGetSOPClass)
+_generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
+_generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
+_generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
+_generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
+_generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
 
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
-QR_FIND_CLASS_LIST = QueryRetrieveFindSOPClass.__subclasses__()
-QR_MOVE_CLASS_LIST = QueryRetrieveMoveSOPClass.__subclasses__()
-QR_GET_CLASS_LIST = QueryRetrieveGetSOPClass.__subclasses__()
+QR_FIND_CLASS_LIST = QueryRetrieveFindServiceClass.__subclasses__()
+QR_MOVE_CLASS_LIST = QueryRetrieveMoveServiceClass.__subclasses__()
+QR_GET_CLASS_LIST = QueryRetrieveGetServiceClass.__subclasses__()
 
 QR_CLASS_LIST = []
 for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:

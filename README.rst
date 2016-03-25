@@ -91,6 +91,7 @@ Examples
         from pynetdicom import AE
         
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
+        #   we can use the UID string directly
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         
         # Associate with a peer DICOM AE
@@ -107,30 +108,34 @@ Examples
 
 .. code-block:: python 
 
-        from pynetdicom import AE
+        from pynetdicom import AE, VerificationSOPClass
 
-        # The Verification SOP Class has a UID of 1.2.840.10008.1.1
-        ae = AE(port=11112, scp_sop_class=['1.2.840.10008.1.1'])
+        # Or we can use the inbuilt Verification SOP Class
+        ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
         
         # Start the SCP
         ae.start()
 
-- Send a DICOM CTImageStorage file to a peer Storage SCP (at TCP/IP address 
-  *addr*, listen port number *port*): 
+- Send the DICOM CTImageStorage dataset in *dcm_file* to a peer Storage SCP 
+  (at TCP/IP address *addr*, listen port number *port*): 
 
 .. code-block:: python 
 
         from pydicom import read_file
+        from pydicom.uid import UID
+        
         from pynetdicom import AE
-        
-        # The CT Image Storage SOP Class has a UID of 1.2.840.10008.5.1.4.1.1.2
-        ae = AE(scu_sop_class=['1.2.840.10008.5.1.4.1.1.2'])
-        
+
+        # Or we can use a pydicom.uid.UID
+        #   CTImageStorage has a UID of 1.2.840.10008.5.1.4.1.1.2
+        ct_storage_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        ae = AE(scu_sop_class=[ct_storage_uid])
+
         assoc = ae.associate(addr, port)
         if assoc.is_established:
             dataset = read_file('dcm_file')
             assoc.send_c_store(dataset)
-        
+
         assoc.release()
 
 Dependencies

@@ -61,45 +61,46 @@ def recvn(sock, n):
 
 class DULServiceProvider(Thread):
     """
-    Three ways to call DULServiceProvider. If a port number is given,
-    the DUL will wait for incoming connections on this port. If a socket
-    is given, the DUL will use this socket as the client socket. If none
-    is given, the DUL will not be able to accept connections (but will
-    be able to initiate them.)
+    Three ways to call DULServiceProvider:
+    - If a port number is given, the DUL will wait for incoming connections on 
+      this port. 
+    - If a socket is given, the DUL will use this socket as the client socket. 
+    - If neither is given, the DUL will not be able to accept connections (but 
+      will be able to initiate them.)
     
     Parameters
-    ---------
-    Socket - socket.socket, optional
+    ----------
+    Socket : socket.socket, optional
         The local AE's listen socket
-    Port - int, optional
+    Port : int, optional
         The port number on which to wait for incoming connections
-    Name - str, optional
+    Name : str, optional
         Used help identify the DUL service provider
-    dul_timeout - float, optional
+    dul_timeout : float, optional
         The maximum amount of time to wait for connection responses (in seconds)
-    local_ae - pynetdicom.applicationentity.ApplicationEntity
+    local_ae : pynetdicom.applicationentity.ApplicationEntity
         The local AE instance
-    assoc - pynetdicom.association.Association
+    assoc : pynetdicom.association.Association
         The DUL's current Association
         
     Attributes
     ----------
-    artim_timer - pynetdicom.timer.Timer
+    artim_timer : pynetdicom.timer.Timer
         The ARTIM timer
-    dul_from_user_queue - queue.Queue
+    dul_from_user_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
         provider
-    dul_to_user_queue - queue.Queue
+    dul_to_user_queue : queue.Queue
         Queue of primitives from the DUL service to be processed by the DUL user
-    event_queue - queue.Queue
+    event_queue : queue.Queue
         List of queued events to be processed by the state machine
-    scp_socket - socket.socket()
+    scp_socket : socket.socket()
         If the local AE is acting as an SCP, this is the connection from the
         peer AE to the SCP
-    scu_socket - socket.socket()
+    scu_socket : socket.socket()
         If the local AE is acting as an SCU, this is the connection from the
         local AE to the peer AE SCP
-    state_machine - pynetdicom.fsm.StateMachine
+    state_machine : pynetdicom.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
     def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None, 

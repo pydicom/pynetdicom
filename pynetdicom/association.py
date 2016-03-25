@@ -1,8 +1,3 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
 
 import logging
 import os
@@ -24,9 +19,7 @@ from pynetdicom.DIMSEparameters import *
 from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.SOPclass import UID2SOPClass, VerificationServiceClass, \
-    StorageServiceClass, QueryRetrieveFindSOPClass, QueryRetrieveGetSOPClass, \
-    QueryRetrieveMoveSOPClass
+from pynetdicom.SOPclass import *
 from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr
 
 
@@ -776,7 +769,7 @@ class Association(threading.Thread):
             The resulting dataset(s) from the C-FIND operation
         """
         if self.is_established:
-            service_class = QueryRetrieveFindSOPClass()
+            service_class = QueryRetrieveFindServiceClass()
             
             if query_model == 'W':
                 sop_class = ModalityWorklistInformationFind()
@@ -855,6 +848,9 @@ class Association(threading.Thread):
                 if status != 'Pending':
                     # We want to exit the wait loop if we receive
                     #   failure, cancel or success
+                    
+                    # Send a C-CANCEL-FIND
+                    self.send_c_cancel_find(msg_id, query_model)
                     break
                 
                 # Pending Response
@@ -876,6 +872,60 @@ class Association(threading.Thread):
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
+
+    def send_c_cancel_find(self, msg_id, query_model='W'):
+        """
+        See PS3.7 9.3.2.3
+        
+        Parameters
+        ----------
+        msg_id : int
+            The message ID of the C-FIND operation we want to cancel
+        """
+        if self.is_established:
+            service_class = QueryRetrieveFindServiceClass()
+            
+            # Build C-FIND primitive
+            primitive = C_FIND_ServiceParameters()
+            primitive.CommandField = 0x0fff
+            primitive.MessageIDBeingRespondedTo = msg_id
+            primitive.CommandDataSetType = 0x0101
+            
+            # We need the Context ID unfortunately...
+            if query_model == 'W':
+                sop_class = ModalityWorklistInformationFind()
+            elif query_model == "P":
+                # Four level hierarchy, patient, study, series, composite object
+                sop_class = PatientRootQueryRetrieveInformationModelFind()
+            elif query_model == "S":
+                # Three level hierarchy, study, series, composite object
+                sop_class = StudyRootQueryRetrieveInformationModelFind()
+            elif query_model == "O":
+                # Retired
+                sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
+            else:
+                raise ValueError("Association::send_c_cancel_find() "
+                    "query_model must be one of ['W'|'P'|'S'|'O']")
+            
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Find SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+            
+            logger.info('Sending C-CANCEL-FIND')
+            
+            # send c-find request
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_move(self, dataset, move_aet, msg_id=1, 
                                             priority=2, query_model='P'):
@@ -913,6 +963,9 @@ class Association(threading.Thread):
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
+
+    def send_c_cancel_move(self):
+        pass
 
     def send_c_get(self, dataset, msg_id=1, priority=0x0002, query_model='P'):
         """
@@ -962,7 +1015,7 @@ class Association(threading.Thread):
                 raise ValueError("Association::send_c_get() query_model "
                     "must be one of ['P'|'S'|'O']")
             
-            service_class = QueryRetrieveGetSOPClass()
+            service_class = QueryRetrieveGetServiceClass()
             
             # Determine the Presentation Context we are operating under
             #   and hence the transfer syntax to use for encoding `dataset`
@@ -1091,6 +1144,9 @@ class Association(threading.Thread):
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
+
+    def send_c_cancel_get(self):
+        pass
 
 
     # DIMSE-N services provided by the Association

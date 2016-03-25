@@ -50,8 +50,10 @@ class DIMSEServiceProvider(object):
         elif primitive.__class__ == C_FIND_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_FIND_RQ_Message()
-            else:
+            elif primitive.CommandField != 0x0fff:
                 dimse_msg = C_FIND_RSP_Message()
+            else:
+                dimse_msg = C_CANCEL_FIND_RQ_Message()
         
         elif primitive.__class__ == C_GET_ServiceParameters:
             if primitive.MessageID is not None:
