@@ -66,8 +66,10 @@ class DIMSEServiceProvider(object):
         elif primitive.__class__ == C_MOVE_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_MOVE_RQ_Message()
-            else:
+            elif primitive.CommandField != 0x0fff:
                 dimse_msg = C_MOVE_RSP_Message()
+            else:
+                dimse_msg = C_CANCEL_MOVE_RQ_Message
         
         # Convert to DIMSE Message
         dimse_msg.FromParams(primitive)
