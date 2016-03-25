@@ -961,8 +961,56 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
 
-    def send_c_cancel_move(self):
-        pass
+    def send_c_cancel_move(self, msg_id, query_model):
+        """
+        See PS3.7 9.3.2.3
+        
+        Parameters
+        ----------
+        msg_id : int
+            The message ID of the C-FIND operation we want to cancel
+        query_model : str
+            The query model SOP class to use (needed to identify context ID)
+        """
+        if self.is_established:
+            service_class = QueryRetrieveMoveServiceClass()
+            
+            # Build C-FIND primitive
+            primitive = C_MOVE_ServiceParameters()
+            primitive.CommandField = 0x0fff
+            primitive.MessageIDBeingRespondedTo = msg_id
+            primitive.CommandDataSetType = 0x0101
+            
+            # We need the Context ID unfortunately...
+            if query_model == "P":
+                sop_class = PatientRootQueryRetrieveInformationModelMove()
+            elif query_model == "S":
+                sop_class = StudyRootQueryRetrieveInformationModelMove()
+            elif query_model == "O":
+                sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
+            else:
+                raise ValueError("Association::send_c_cancel_move() query_model "
+                    "must be one of ['P'|'S'|'O']")
+            
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Find SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+            
+            logger.info('Sending C-CANCEL-MOVE')
+            
+            # send c-find request
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_get(self, dataset, msg_id=1, priority=0x0002, query_model='P'):
         """
@@ -1042,8 +1090,6 @@ class Association(threading.Thread):
             
             # Send primitive to peer
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
-            # Send a C-CANCEL-GET
-            self.send_c_cancel_get(msg_id, query_model)
             
             logger.info('Get SCU Request Identifiers:')
             logger.info('')
