@@ -780,7 +780,7 @@ class Association(threading.Thread):
             
             if query_model == 'W':
                 sop_class = ModalityWorklistInformationFind()
-                service_class = QueryRetrieveFindSOPClass()
+                service_class = ModalityWorklistServiceSOPClass()
             elif query_model == "P":
                 # Four level hierarchy, patient, study, series, composite object
                 sop_class = PatientRootQueryRetrieveInformationModelFind()

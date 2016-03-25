@@ -784,81 +784,33 @@ class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
 class BasicWorklistServiceClass (ServiceClass): pass
 
 class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
-    OutOfResources = Status(
-        'Failure',
-        'Refused: Out of resources',
-        range(0xA700, 0xA700 + 1)
-    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)
-    )
-    UnableToProcess = Status(
-        'Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)
-    )
-    MatchingTerminatedDueToCancelRequest = Status(
-        'Cancel',
-        'Matching terminated due to Cancel request',
-        range(0xFE00, 0xFE00 + 1)
-    )
-    Success = Status(
-        'Success',
-        'Matching is complete - No final Identifier is supplied',
-        range(0x0000, 0x0000 + 1)
-    )
-    Pending = Status(
-        'Pending',
-        'Matches are continuing - Current Match is supplied'
-        'and any Optional Keys were supported in the same manner as'
-        'Required Keys',
-        range(0xFF00, 0xFF00 + 1)
-    )
-    PendingWarning = Status(
-        'Pending',
-        'Matches are continuing - Warning that one or more Optional'
-        'Keys were not supported for existence and/or matching for'
-        'this identifier',
-        range(0xFF01, 0xFF01 + 1)
-    )
-
-    def SCU(self, msgid):
-        # build C-FIND primitive
-        cfind = C_FIND_ServiceParameters()
-        cfind.MessageID = msgid
-        cfind.AffectedSOPClassUID = self.UID
-        cfind.Priority = 0x0002
-        cfind.Identifier = encode(ds,
-                                  self.transfersyntax.is_implicit_VR,
-                                  self.transfersyntax.is_little_endian)
-        cfind.Identifier = BytesIO(cfind.Identifier)
-        
-        # send c-find request
-        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
-        while 1:
-            time.sleep(0.001)
-            # wait for c-find responses
-            ans, id = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
-                continue
-
-            d = decode(ans.Identifier, 
-                       self.transfersyntax.is_implicit_VR,
-                       self.transfersyntax.is_little_endian)
-            try:
-                status = self.Code2Status(ans.Status.value).Type
-            except:
-                status = None
-            
-            if status != 'Pending':
-                break
-            
-            yield status, d
-        
-        yield status, d
+    OutOfResources = Status('Failure',
+                            'Refused: Out of resources',
+                            range(0xA700, 0xA700 + 1))
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
+                                            'Identifier does not match SOP '
+                                            'Class',
+                                            range(0xA900, 0xA900 + 1))
+    UnableToProcess = Status('Failure',
+                             'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    MatchingTerminatedDueToCancelRequest = Status('Cancel',
+                                                  'Matching terminated due to '
+                                                  'Cancel request',
+                                                  range(0xFE00, 0xFE00 + 1))
+    Success = Status('Success',
+                     'Matching is complete - No final Identifier is supplied',
+                     range(0x0000, 0x0000 + 1))
+    Pending = Status('Pending',
+                     'Matches are continuing - Current Match is supplied'
+                     'and any Optional Keys were supported in the same manner '
+                     'as Required Keys',
+                     range(0xFF00, 0xFF00 + 1))
+    PendingWarning = Status('Pending',
+                            'Matches are continuing - Warning that one or more '
+                            'Optional Keys were not supported for existence '
+                            'and/or matching for this identifier',
+                            range(0xFF01, 0xFF01 + 1))
 
     def SCP(self, msg):
         ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
