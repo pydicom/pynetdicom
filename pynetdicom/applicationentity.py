@@ -31,66 +31,86 @@ logger.addHandler(handler)
 
 
 class ApplicationEntity(object):
-    """Represents a DICOM application entity
+    """
+    Represents a DICOM Application Entity (AE)
     
-    As per PS3.7, the DICOM Application Entity (AE) is specified by the 
-    following parts of the DICOM Standard:
-        * PS3.3 IODs: provides data models and attributes used for defining
-            SOP Instances.
-        * PS3.4 Service Classes: defines the set of operations that can be 
-            performed on SOP Instances.
-        * PS3.6 Data Dictionary: contains registry of Data Elements
-        
-    The AE uses the Association and Presentation data services provided by the
-    Upper Layer Service.
+    An AE may be either a server (Service Class Provider or SCP) or a client
+    (Service Class User or SCU).
+    
+    SCP 
+    ---
+    To use an AE as an SCP, you need to specify the listen `port` number that 
+    peer AE SCUs can use to request Associations over, as well as the SOP 
+    Classes that the SCP supports (`scp_sop_class`). If the SCP is being used
+    for anything other than the C-ECHO DIMSE service you also need to implement
+    the required callbacks.
+    
+    The SCP can then be started using `ApplicationEntity.start()`
+    
+    C-STORE SCP Example
+    ~~~~~~~~~~~~~~~~~~~
+    .. code-block:: python 
 
-    To use as an SCU (C-ECHO example):
-        from pynetdicom.ae import AE
-        from pynetdicom.uid import VerificationSOPClass
-        
-        # Specify which SOP Classes are supported as an SCU
-        ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate(192.168.2.1, 104)
-        
-        if assoc.is_established:
-            status = assoc.send_c_echo()
-            
-            assoc.Release()
-            
-        ae.quit()
-        
-    To use as an SCP (C-STORE example):
-        from pynetdicom.ae import AE
-        from pynetdicom.SOPclasses import CTImageStorageSOPClass
+            from pynetdicom import AE, StorageSOPClassList
     
-        # Specify the listen port and which SOP Classes are supported as an SCP
-        ae = AE(port=104, scp_sop_class=[CTImageStorageSOPClass])
+            # Specify the listen port and which SOP Classes are supported
+            ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
+
+            # Define the callback for receiving a C-STORE request
+            def on_c_store(dataset):
+                # Insert your C-STORE handling code here
+
+                # Must return a valid C-STORE status - 0x0000 is Success
+                return 0x0000
+
+            ae.on_c_store = on_c_store
+
+            # Start the SCP
+            ae.start()
         
-        # Define your callbacks
-        def on_c_store(sop_class, dataset):
-            # Insert your C-STORE handling code here
+    SCU
+    ---
+    To use an AE as an SCU you only need to specify the SOP Classes that the SCU
+    supports (`scu_sop_class`) and then call `ApplicationEntity.associate(addr, 
+    port)` where *addr* and *port* are the TCP/IP address and the listen port
+    number of the peer SCP, respectively. 
+    
+    Once the Association is established you can then request any of the DIMSE-C 
+    or DIMSE-N services.
+    
+    C-ECHO SCU Example
+    ~~~~~~~~~~~~~~~~~~
+    .. code-block:: python
+
+            from pynetdicom import AE, VerificationSOPClass
+
+            # Specify which SOP Classes are supported as an SCU
+            ae = AE(scu_sop_class=[VerificationSOPClass])
             
-        ae.on_c_store = on_c_store
-        
-        # Start the SCP server
-        ae.start()
+            # Request an association with a peer SCP
+            assoc = ae.associate(addr=192.168.2.1, port=104)
+
+            if assoc.is_established:
+                status = assoc.send_c_echo()
+
+                # Release the association
+                assoc.Release()
 
     Parameters
     ----------
     ae_title - str, optional
         The AE title of the Application Entity (default: PYNETDICOM)
     port - int, optional
-        The port number to listen for connections on when acting as an SCP and
-        to use for making connections to the peer when acting as an SCU
+        The port number to listen for connections on when acting as an SCP
         (default: the first available port)
     scu_sop_class - list of pydicom.uid.UID or list of str or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
-        List of the supported SOP classes when the AE is operating as an SCU. 
-        Either scu_sop_class or scp_sop_class must have values
+        List of the supported SOP Class UIDs when running as an SCU. 
+        Either `scu_sop_class` or `scp_sop_class` must have values
     scp_sop_class - list of pydicom.uid.UID or list of UID strings or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
-        List of the supported SOP classes when the AE is operating as an SCP
-        Either scu_sop_class or scp_sop_class must have values
+        List of the supported SOP Class UIDs when running as an SCP.
+        Either scu_`sop_class` or `scp_sop_class` must have values
     transfer_syntax - list of pydicom.uid.UID or list of str or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
@@ -100,7 +120,7 @@ class ApplicationEntity(object):
     ----------
     acse_timeout - int
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of 0 means no timeout.
+        messages. A value of 0 means no timeout. (default: 0)
     active_associations - list of pynetdicom.association.Association
         The currently active associations between the local and peer AEs
     address - str
@@ -111,10 +131,10 @@ class ApplicationEntity(object):
         The socket used for connections with peer AEs
     dimse_timeout - int
         The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of 0 means no timeout.
+        messages. A value of 0 means no timeout. (default: 0)
     network_timeout - int
         The maximum amount of time (in seconds) to wait for network messages. 
-        A value of 0 means no timeout.
+        A value of 0 means no timeout. (default: 60)
     maximum_associations - int
         The maximum number of simultaneous associations (default: 2)
     maximum_pdu_size - int
@@ -154,6 +174,7 @@ class ApplicationEntity(object):
         self.port = port
         self.ae_title = ae_title
 
+        # Make sure that one of scu_sop_class/scp_sop_class is not empty
         if scu_sop_class == [] and scp_sop_class == []:
             raise ValueError("No supported SOP Class UIDs supplied during "
                 "ApplicationEntity instantiation")
@@ -174,7 +195,7 @@ class ApplicationEntity(object):
         # Default maximum PDU receive size (in bytes)
         self.maximum_pdu_size = 16382
         
-        # Default timeouts
+        # Default timeouts - 0 means no timeout
         self.acse_timeout = 0
         self.network_timeout = 60
         self.dimse_timeout = 0
@@ -195,9 +216,6 @@ class ApplicationEntity(object):
         #       due to no acceptable presentation contexts rather than rejected
         #
         #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
-        #
-        # This should maybe be given its own property setter/getter
-        #   for when the user changes scu_supported_sop and/or scp_supported_sop
         self.presentation_contexts_scu = []
         self.presentation_contexts_scp = []
         for [pc_output, sop_input] in \
@@ -242,13 +260,13 @@ class ApplicationEntity(object):
         self.local_socket = None
 
         # Used to terminate AE when running as an SCP
-        self.__Quit = False
+        self.__quit = False
 
     def start(self):
         """
         When running the AE as an SCP this needs to be called to start the main 
-        loop, it listens for connection attempts on `local_socket` and attempts 
-        to Associate with them. 
+        loop, it listens for connections on `local_socket` and if they request
+        association starts a new Association thread
         
         Successful associations get added to `active_associations`
         """
@@ -270,7 +288,7 @@ class ApplicationEntity(object):
             try:
                 time.sleep(0.1)
                 
-                if self.__Quit:
+                if self.__quit:
                     break
                 
                 # Monitor client_socket for association requests and
@@ -337,13 +355,17 @@ class ApplicationEntity(object):
                     self.active_associations if assoc.is_alive()]
 
     def stop(self):
+        """
+        When running as an SCP, calling stop() will kill all associations,
+        close the listen socket and quit
+        """
         for aa in self.active_associations:
             aa.kill()
         
         if self.local_socket:
             self.local_socket.close()
         
-        self.__Quit = True
+        self.__quit = True
         
         while True:
             sys.exit(0)
@@ -364,7 +386,7 @@ class ApplicationEntity(object):
         port - int
             The peer AE's listen port number
         ae_title - str, optional
-            The peer AE's title, must meet AE title requirements
+            The peer AE's title
         max_pdu - int, optional
             The maximum PDV receive size in bytes to use when negotiating the 
             association
@@ -373,9 +395,8 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        assoc : pynetdicom.association.Association or None
-            The Association if it was successfully established, None if failed
-            or was rejected or aborted
+        assoc : pynetdicom.association.Association
+            The Association thread
         """
         if not isinstance(addr, str):
             raise ValueError("ip_address must be a valid IPv4 string")
@@ -396,8 +417,10 @@ class ApplicationEntity(object):
                             ext_neg=ext_neg)
 
         # Endlessly loops while the Association negotiation is taking place
-        while (not assoc.is_established and not assoc.is_refused \
-                                        and not assoc.dul.kill):
+        while (not assoc.is_established and 
+                not assoc.is_refused and 
+                not assoc.is_aborted and
+                not assoc.dul.kill):
             time.sleep(0.1)
 
         # If the Association was established
@@ -1039,9 +1062,12 @@ class ApplicationEntity(object):
                     "AE.on_n_delete function prior to calling AE.start()")
 
 
-    # Communication related callback
+    # Communication related callbacks
     def on_receive_connection(self):
-        pass
+        raise NotImplementedError()
+    
+    def on_make_connection(self):
+        raise NotImplementedError()
 
 
     # High-level Association related callbacks
