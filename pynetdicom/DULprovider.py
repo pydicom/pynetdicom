@@ -281,9 +281,6 @@ class DULServiceProvider(Thread):
 
         # Incoming data is OK
         else:
-            # Callback
-            self.local_ae.on_receive_pdu()
-            
             # First byte is always PDU type
             #   0x01 - A-ASSOCIATE-RQ   1, 2, 3-6
             #   0x02 - A-ASSOCIATE-AC   1, 2, 3-6
@@ -574,36 +571,28 @@ def Socket2PDU(data, dul):
         The decoded data as a PDU object
     """
     pdutype = unpack('B', data[0:1])[0]
-    ae = dul.local_ae
     acse = dul.association.acse
     
     if pdutype == 0x01:
         pdu = A_ASSOCIATE_RQ_PDU()
-        ae_callback = ae.on_receive_associate_rq
         acse_callback = acse.debug_receive_associate_rq
     elif pdutype == 0x02:
         pdu = A_ASSOCIATE_AC_PDU()
-        ae_callback = ae.on_receive_associate_ac
         acse_callback = acse.debug_receive_associate_ac
     elif pdutype == 0x03:
         pdu = A_ASSOCIATE_RJ_PDU()
-        ae_callback = ae.on_receive_associate_rj
         acse_callback = acse.debug_receive_associate_rj
     elif pdutype == 0x04:
         pdu = P_DATA_TF_PDU()
-        ae_callback = ae.on_receive_data_tf
         acse_callback = acse.debug_receive_data_tf
     elif pdutype == 0x05:
         pdu = A_RELEASE_RQ_PDU()
-        ae_callback = ae.on_receive_release_rq
         acse_callback = acse.debug_receive_release_rq
     elif pdutype == 0x06:
         pdu = A_RELEASE_RP_PDU()
-        ae_callback = ae.on_receive_release_rp
         acse_callback = acse.debug_receive_release_rp
     elif pdutype == 0x07:
         pdu = A_ABORT_PDU()
-        ae_callback = ae.on_receive_abort
         acse_callback = acse.debug_receive_abort
     else:
         #"Unrecognized or invalid PDU"
@@ -612,7 +601,6 @@ def Socket2PDU(data, dul):
     pdu.Decode(data)
     
     # Callback - AE must always be first
-    ae_callback(pdu)
     acse_callback(pdu)
 
     return pdu

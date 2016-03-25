@@ -69,7 +69,6 @@ class DIMSEServiceProvider(object):
         dimse_msg.FromParams(primitive)
         
         # Callbacks
-        self.DUL.local_ae.on_send_dimse_message(dimse_msg)
         self.on_send_dimse_message(dimse_msg)
         
         pdatas = dimse_msg.Encode(msg_id, maxpdulength)
@@ -95,7 +94,6 @@ class DIMSEServiceProvider(object):
 
                 if self.message.Decode(dul_obj):
                     # Callbacks - AE callback must always run first
-                    self.DUL.local_ae.on_receive_dimse_message(self.message)
                     self.on_receive_dimse_message(self.message)
                     
                     tmp = self.message
@@ -115,7 +113,6 @@ class DIMSEServiceProvider(object):
 
             if self.message.Decode(dul_obj):
                 # Callbacks - AE callback must always run first
-                self.DUL.local_ae.on_receive_dimse_message(self.message)
                 self.on_receive_dimse_message(self.message)
                 
                 tmp = self.message
@@ -154,22 +151,6 @@ class DIMSEServiceProvider(object):
                           C_STORE_RSP_Message : self.debug_send_c_store_rsp}
         debug_callback[type(message)](message)
         
-        ae = self.DUL.local_ae
-        ae_callback = {C_ECHO_RQ_Message   : ae.on_send_c_echo_rq,
-                       C_ECHO_RSP_Message  : ae.on_send_c_echo_rsp,
-                       C_FIND_RQ_Message   : ae.on_send_c_find_rq,
-                       C_FIND_RSP_Message  : ae.on_send_c_find_rsp,
-                       C_CANCEL_FIND_RQ_Message : ae.on_send_c_cancel_find_rq,
-                       C_GET_RQ_Message   : ae.on_send_c_get_rq,
-                       C_GET_RSP_Message  : ae.on_send_c_get_rsp,
-                       C_CANCEL_GET_RQ_Message : ae.on_send_c_cancel_get_rq,
-                       C_MOVE_RQ_Message   : ae.on_send_c_move_rq,
-                       C_MOVE_RSP_Message  : ae.on_send_c_move_rsp,
-                       C_CANCEL_MOVE_RQ_Message : ae.on_send_c_cancel_move_rq,
-                       C_STORE_RQ_Message  : ae.on_send_c_store_rq,
-                       C_STORE_RSP_Message : ae.on_send_c_store_rsp}
-        ae_callback[type(message)](message)
-        
     def on_receive_dimse_message(self, message):
         """
         Placeholder for a function callback. Function will be called 
@@ -182,22 +163,6 @@ class DIMSEServiceProvider(object):
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
         """
-        ae = self.DUL.local_ae
-        ae_callback = {C_ECHO_RQ_Message   : ae.on_receive_c_echo_rq,
-                       C_ECHO_RSP_Message  : ae.on_receive_c_echo_rsp,
-                       C_FIND_RQ_Message   : ae.on_receive_c_find_rq,
-                       C_FIND_RSP_Message  : ae.on_receive_c_find_rsp,
-                       C_CANCEL_FIND_RQ_Message : ae.on_receive_c_cancel_find_rq,
-                       C_GET_RQ_Message   : ae.on_receive_c_get_rq,
-                       C_GET_RSP_Message  : ae.on_receive_c_get_rsp,
-                       C_CANCEL_GET_RQ_Message : ae.on_receive_c_cancel_get_rq,
-                       C_MOVE_RQ_Message   : ae.on_receive_c_move_rq,
-                       C_MOVE_RSP_Message  : ae.on_receive_c_move_rsp,
-                       C_CANCEL_MOVE_RQ_Message : ae.on_receive_c_cancel_move_rq,
-                       C_STORE_RQ_Message  : ae.on_receive_c_store_rq,
-                       C_STORE_RSP_Message : ae.on_receive_c_store_rsp}
-        ae_callback[type(message)](message)
-
         callback = {C_ECHO_RQ_Message   : self.debug_receive_c_echo_rq,
                     C_ECHO_RSP_Message  : self.debug_receive_c_echo_rsp,
                     C_FIND_RQ_Message   : self.debug_receive_c_find_rq,
