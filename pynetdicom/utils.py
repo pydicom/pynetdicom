@@ -7,6 +7,30 @@ from pydicom.uid import UID
 
 logger = logging.getLogger('pynetdicom.utils')
 
+def fragment(max_pdu, str):
+    """
+    Convert the given str into fragments, each of maximum size `max_pdu`
+    
+    Returns
+    -------
+    fragments : list of str
+        The fragmented string
+    """
+    if isinstance(str, BytesIO):
+        str = str.getvalue()
+    s = str
+    fragments = []
+    maxsize = max_pdu - 6
+    
+    while 1:
+        fragments.append(s[:maxsize])
+        s = s[maxsize:]
+        if len(s) <= maxsize:
+            if len(s) > 0:
+                fragments.append(s)
+                
+            return fragments
+
 def correct_ambiguous_vr(dataset, transfer_syntax):
     
     # Correct ambiguous VRs

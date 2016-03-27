@@ -16,148 +16,127 @@ from pydicom.uid import ImplicitVRLittleEndian
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.dsutils import encode_element, encode, decode
 from pynetdicom.DULparameters import *
-
+from pynetdicom.utils import fragment
 
 logger = logging.getLogger('pynetdicom.dimse')
 
 
-"""
-    All DIMSE Message classes implement the following methods:
-
-      FromParams(DIMSEServiceParameter)    :  Builds a DIMSE message from a
-                                              DULServiceParameter
-                                              object. Used when receiving
-                                              primitives from the
-                                              DIMSEServiceUser.
-      ToParams()                           :  Convert the Message into a
-                                              DIMSEServiceParameter object.
-                                              Used for sending primitives to
-                                              the DIMSEServiceUser.
-      Encode()                             :  Returns the encoded message in
-                                              one or several P-DATA parameters
-                                              structure.
-      Decode(pdata)                        :  Construct the message from one
-                                              or several P-DATA primitives
-
-                          FromParams               Encode
-  |----------------------| ------->  |----------| -------> |---------------|
-  | Service parameters   |           |   DIMSE  |          |     P-DATA    |
-  |      object          |           |  message |          |  primitive(s) |
-  |______________________| <-------  |__________| <------- |_______________|
-                           ToParams                Decode
-"""
-
-DEBUG = False
-
-def fragment(maxpdulength, str):
-    
-    if isinstance(str, BytesIO):
-        str = str.getvalue()
-    s = str
-    fragments = []
-    maxsize = maxpdulength - 6
-    
-    while 1:
-        fragments.append(s[:maxsize])
-        s = s[maxsize:]
-        if len(s) <= maxsize:
-            if len(s) > 0:
-                fragments.append(s)
-            return fragments
-
-def wrap_list(lst, items_per_line=16):
-    lines = []
-    for i in range(0, len(lst), items_per_line):
-        chunk = lst[i:i + items_per_line]
-        line = 'D:   ' + '  '.join(format(x, '02x') for x in chunk)
-        lines.append(line)
-    return "\n".join(lines)
-
-
 class DIMSEMessage:
     """
-    
+    All DIMSE Message classes implement the following methods:
+
+    FromParams(DIMSEServiceParameter) :  Builds a DIMSE message from a
+                                         DULServiceParameter
+                                         object. Used when receiving
+                                         primitives from the
+                                         DIMSEServiceUser.
+    ToParams()                        :  Convert the Message into a
+                                         DIMSEServiceParameter object.
+                                         Used for sending primitives to
+                                         the DIMSEServiceUser.
+    Encode()                          :  Returns the encoded message in
+                                         one or several P-DATA parameters
+                                         structure.
+    Decode(pdata)                     :  Construct the message from one
+                                         or several P-DATA primitives
+
+                             FromParams              Encode
+    .----------------------.  ----->   .----------.  ----->  .---------------.
+    |   DIMSE parameters   |           |   DIMSE  |          |     P-DATA    |
+    |        object        |           |  message |          |  primitive(s) |
+    .----------------------.  <-----   .----------.  <-----  .---------------.
+                              ToParams               Decode
+
     Attributes
     ----------
-    CommandSet - pydicom.Dataset
-        
-    EncodedDataSet
-    
-    DataSet
+    CommandSet - pydicom.dataset.Dataset
+        The message Command Information (PS3.7 6.3)
+    DataSet : pydicom.dataset.Dataset
+        The message Data Set (PS3.7 6.3)
+    ID : int
+        The presentation context ID
     """
     def __init__(self):
         self.CommandSet = None
-        self.EncodedDataSet = None
         self.DataSet = BytesIO()
+        self.ID = None
+        
+        self.EncodedDataSet = None
         self.encoded_command_set = BytesIO()
-        self.ID = id
 
         self.ts = ImplicitVRLittleEndian  # imposed by standard
+
         
         if self.__class__ != DIMSEMessage:
             self.CommandSet = Dataset()
             for ii in self.CommandFields:
                 self.CommandSet.add_new(ii[1], ii[2], '')
 
-    def Encode(self, msg_id, max_pdu_length):
-        """Returns the encoded message as a series of P-DATA service
-        parameter objects
+    def Encode(self, context_id, max_pdu):
+        """
+        Encode the DIMSE primitive as one or more P-DATA-TF Presentation Data 
+        Value Items
+        
+        PS3.7 6.3.1
+        The encoding of the Command Set shall be Little Endian Implicit VR
         
         Parameters
         ----------
-        msg_id - int
-            The ID of the presentation context
+        context_id - int
+            The ID of the presentation context agreed to under which we are
+            sending the data
         max_pdu_length - int
             The maximum PDU length in bytes
             
         Returns
         -------
-        pdatas - BytesIO 
-            The message encoded as a byte stream
+        p_data_list - list of BytesIO 
+            A list of one or more P-DATA-TF Presentation Data Value Items
         """
-        self.ID = msg_id
-        pdatas = []
+        self.ID = context_id
+        p_data_list = []
+        
         encoded_command_set = encode(self.CommandSet, 
                                      self.ts.is_implicit_VR, 
                                      self.ts.is_little_endian)
-        
-        #print("DIMSEMessage::Encode()\n", self.CommandSet)
-        #print('DIMSEMessage::Encode()\n' + wrap_list(encoded_command_set))
-        
-        # fragment command set
-        pdvs = fragment(max_pdu_length, encoded_command_set)
 
+        ## COMMAND SET
+        # Split the command set into framents with maximum size max_pdu
+        pdvs = fragment(max_pdu, encoded_command_set)
+        
+        # First to (n - 1)th command data fragment - b XXXXXX01
         for ii in pdvs[:-1]:
-            # send only one pdv per pdata primitive
             pdata = P_DATA_ServiceParameters()
-            # not last command fragment
             pdata.PresentationDataValueList = [[self.ID, pack('b', 1) + ii]]
-            pdatas.append(pdata)
+            
+            p_data_list.append(pdata)
         
-        # last command fragment
+        # Nth command data fragment - b XXXXXX11
         pdata = P_DATA_ServiceParameters()
-        
-        # last command fragment
         pdata.PresentationDataValueList = [[self.ID, pack('b', 3) + pdvs[-1]]]
-        pdatas.append(pdata)
+       
+        p_data_list.append(pdata)
 
-        # Split out dataset up into fragment with maximum size = max_pdu_length
+
+        ## DATASET (if available)
+        # Split out dataset up into fragment with maximum size of max_pdu
         if 'DataSet' in self.__dict__ and self.DataSet.getvalue() != b'':
-                pdvs = fragment(max_pdu_length, self.DataSet)
+            pdvs = fragment(max_pdu, self.DataSet)
 
-                for ii in pdvs[:-1]:
-                    pdata = P_DATA_ServiceParameters()
-                    # not last data fragment
-                    pdata.PresentationDataValueList = [[self.ID, pack('b', 0) + ii]]
-                    pdatas.append(pdata)
+            # First to (n - 1)th dataset fragment - b XXXXXX00
+            for ii in pdvs[:-1]:
                 pdata = P_DATA_ServiceParameters()
+                pdata.PresentationDataValueList = [[self.ID, pack('b', 0) + ii]]
+                p_data_list.append(pdata)
+            
+            # Nth dataset fragment - b XXXXXX10
+            pdata = P_DATA_ServiceParameters()
+            pdata.PresentationDataValueList = \
+                                        [[self.ID, pack('b', 2) + pdvs[-1]]]
+            
+            p_data_list.append(pdata)
 
-                # Last data fragment
-                pdata.PresentationDataValueList = \
-                                            [[self.ID, pack('b', 2) + pdvs[-1]]]
-                pdatas.append(pdata)
-
-        return pdatas
+        return p_data_list
 
     def Decode(self, pdata):
         """Constructs itself receiving a series of P-DATA primitives.
@@ -169,7 +148,7 @@ class DIMSEMessage:
         
         Parameters
         ----------
-        pdata - 
+        pdata : pynetdicom. 
         
         Returns
         -------
@@ -179,33 +158,30 @@ class DIMSEMessage:
         # Make sure this is a P-DATA
         if pdata.__class__ != P_DATA_ServiceParameters or pdata is None:
             return False
-        
+
         for pdv_item in pdata.PresentationDataValueList:
-            # must be able to read P-DATA with several PDVs
+            # Presentation Context ID
             self.ID = pdv_item[0]
-            
-            control_header_byte = pdv_item[1][0]
-            
-            #print("P-DATA Message Control Header Byte: {:08b}".format(control_header_byte))
-            
+
             # The first byte of the P-DATA is the Message Control Header
             # See PS3.8 Annex E.2
-            # 0x00 (00000000) - Message Dataset information, 
-            #   not the last fragment
-            # 0x01 (00000001) - Command information, not the last fragment
-            # 0x02 (00000010) - Message Dataset information, the last fragment
-            # 0x03 (00000011) - Command information, the last fragment
-            
-            # P-DATA fragment contains Command information (0x01, 0x03)
+            # xxxxxx00 - Message Dataset information, not the last fragment
+            # xxxxxx01 - Command information, not the last fragment
+            # xxxxxx10 - Message Dataset information, the last fragment
+            # xxxxxx11 - Command information, the last fragment
+            control_header_byte = pdv_item[1][0]
+
+            ## COMMAND SET
+            # P-DATA fragment contains Command information (xxxxxx01, xxxxxx11)
             if control_header_byte & 1:
                 self.encoded_command_set.write(pdv_item[1][1:])
-                
-                # The P-DATA fragment is the last one (0x03)
+
+                # The P-DATA fragment is the last one (xxxxxx11)
                 if control_header_byte & 2:
                     self.CommandSet = decode(self.encoded_command_set, 
                                              self.ts.is_implicit_VR,
                                              self.ts.is_little_endian)
-                                             
+
                     # Determine which class to use
                     self.__class__ = MessageType[
                         self.CommandSet[(0x0000, 0x0100)].value]
@@ -214,36 +190,32 @@ class DIMSEMessage:
                     #   if value is 0101H no dataset present
                     #   otherwise a dataset is included in the Message
                     if self.CommandSet[(0x0000, 0x0800)].value == 0x0101:
-                        # response: no dataset
                         return True
 
-            # P-DATA fragment contains Message Dataset information (0x00, 0x02)
+            ## DATA SET
+            # P-DATA fragment contains Message Dataset information (xxxxxx00, xxxxxx10)
             else:
                 self.DataSet.write(pdv_item[1][1:])
 
-                # The P-DATA fragment is the last one (0x02)
+                # The P-DATA fragment is the last one (xxxxxx10)
                 if control_header_byte & 2 != 0:
-                    #logger.debug("  last data fragment %s", self.ID)
                     return True
 
         return False
 
     def SetLength(self):
-        # compute length
-        l = 0
-        #print(self.CommandSet.values())
+        # Compute length
+        length = 0
+        
         for ii in list(self.CommandSet.values())[1:]:
-            l += len(encode_element(ii,
-                                    self.ts.is_implicit_VR,
-                                    self.ts.is_little_endian))
-        # if self.DataSet<>None:
-        #    l += len(self.DataSet)
-        self.CommandSet[(0x0000, 0x0000)].value = l
-
-    def __repr__(self):
-        return str(self.CommandSet) + '\n'
+            length += len(encode_element(ii,
+                                         self.ts.is_implicit_VR,
+                                         self.ts.is_little_endian))
+        
+        self.CommandSet[(0x0000, 0x0000)].value = length
 
 
+# DIMSE-C
 class C_ECHO_RQ_Message(DIMSEMessage):
     """ 
     PS3.7 Section 9.3.5.1 and Table 9.3-12
@@ -652,27 +624,16 @@ class C_MOVE_RQ_Message(DIMSEMessage):
 
 class C_MOVE_RSP_Message(DIMSEMessage):
     CommandFields = [
-        ('Group Length',
-         (0x0000, 0x0000), 'UL', 1),
-        ('Affected SOP Class UID',
-         (0x0000, 0x0002), 'UI', 1),
-        ('Command Field',
-         (0x0000, 0x0100), 'US', 1),
-        ('Message ID Being Responded To',
-         (0x0000, 0x0120), 'US', 1),
-        ('Data Set Type',
-         (0x0000, 0x0800), 'US', 1),
-        ('Status',
-         (0x0000, 0x0900), 'US', 1),
-        ('Number of Remaining Sub-operations',
-         (0x0000, 0x1020), 'US', 1),
-        ('Number of Complete Sub-operations',
-         (0x0000, 0x1021), 'US', 1),
-        ('Number of Failed Sub-operations',      (0x0000, 0x1022), 'US', 1),
-        ('Number of Warning Sub-operations',
-         (0x0000, 0x1023), 'US', 1),
-
-    ]
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Number of Remaining Sub-operations', (0x0000, 0x1020), 'US', 1),
+        ('Number of Complete Sub-operations', (0x0000, 0x1021), 'US', 1),
+        ('Number of Failed Sub-operations', (0x0000, 0x1022), 'US', 1),
+        ('Number of Warning Sub-operations', (0x0000, 0x1023), 'US', 1)]
     DataField = 'Identifier'
 
     def FromParams(self, params):
@@ -754,16 +715,167 @@ class C_CANCEL_MOVE_RQ_Message(C_CANCEL_RQ_Message):
         return tmp
 
 
-MessageType = {
-    0x0001: C_STORE_RQ_Message,
-    0x8001: C_STORE_RSP_Message,
-    0x0020: C_FIND_RQ_Message,
-    0x8020: C_FIND_RSP_Message,
-    0x0FFF: C_CANCEL_RQ_Message,
-    0x0010: C_GET_RQ_Message,
-    0x8010: C_GET_RSP_Message,
-    0x0021: C_MOVE_RQ_Message,
-    0x8021: C_MOVE_RSP_Message,
-    0x0030: C_ECHO_RQ_Message,
-    0x8030: C_ECHO_RSP_Message
-}
+# DIMSE-N
+class N_EVENT_REPORT_RQ_Message(DIMSEMessage): 
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1),
+        ('Event Type ID', (0x0000, 0x1002), 'US', 1)]
+    DataField = 'Event Information'
+
+
+class N_EVENT_REPORT_RSP_Message(DIMSEMessage): 
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1),
+        ('Event Type ID', (0x0000, 0x1002), 'US', 1)]
+    DataField = 'Event Information'
+
+
+class N_GET_RQ_Message(DIMSEMessage): 
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Requested SOP Class UID', (0x0000, 0x0003), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Requested SOP Instance UID', (0x0000, 0x1001), 'UI', 1)]
+    DataField = 'Attribute Identifier List'
+
+
+class N_GET_RSP_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1)]
+    DataField = 'Attribute List'
+
+
+class N_SET_RQ_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Requested SOP Class UID', (0x0000, 0x0003), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Requested SOP Instance UID', (0x0000, 0x1001), 'UI', 1)]
+    DataField = 'Modification List'
+
+
+class N_SET_RSP_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1)]
+    DataField = 'Attribute List'
+
+
+class N_ACTION_RQ_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Requested SOP Class UID', (0x0000, 0x0003), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Requested SOP Instance UID', (0x0000, 0x1001), 'UI', 1),
+        ('Action Type ID', (0x0000, 0x1008), 'US', 1)]
+    DataField = 'Action Information'
+
+
+class N_ACTION_RSP_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1),
+        ('Action Type ID', (0x0000, 0x1000), 'UI', 1)]
+    DataField = 'Action Reply'
+
+
+class N_CREATE_RQ_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1)]
+    DataField = 'Attribute List'
+
+
+class N_CREATE_RSP_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1)]
+    DataField = 'Attribute List'
+
+
+class N_DELETE_RQ_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Requested SOP Class UID', (0x0000, 0x0003), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID', (0x0000, 0x0110), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Requested SOP Instance UID', (0x0000, 0x1001), 'UI', 1)]
+
+
+class N_DELETE_RSP_Message(DIMSEMessage):
+    CommandFields = [
+        ('Group Length', (0x0000, 0x0000), 'UL', 1),
+        ('Affected SOP Class UID', (0x0000, 0x0002), 'UI', 1),
+        ('Command Field', (0x0000, 0x0100), 'US', 1),
+        ('Message ID Being Responded To', (0x0000, 0x0120), 'US', 1),
+        ('Data Set Type', (0x0000, 0x0800), 'US', 1),
+        ('Status', (0x0000, 0x0900), 'US', 1),
+        ('Affected SOP Instance UID', (0x0000, 0x1000), 'UI', 1)]
+
+
+MessageType = {0x0001 : C_STORE_RQ_Message,
+               0x8001 : C_STORE_RSP_Message,
+               0x0020 : C_FIND_RQ_Message,
+               0x8020 : C_FIND_RSP_Message,
+               0x0FFF : C_CANCEL_RQ_Message,
+               0x0010 : C_GET_RQ_Message,
+               0x8010 : C_GET_RSP_Message,
+               0x0021 : C_MOVE_RQ_Message,
+               0x8021 : C_MOVE_RSP_Message,
+               0x0030 : C_ECHO_RQ_Message,
+               0x8030 : C_ECHO_RSP_Message,
+               0x0100 : N_EVENT_REPORT_RQ_Message,
+               0x8100 : N_EVENT_REPORT_RSP_Message,
+               0x0110 : N_GET_RQ_Message,
+               0x8110 : N_GET_RSP_Message,
+               0x0120 : N_SET_RQ_Message,
+               0x8120 : N_SET_RSP_Message,
+               0x0130 : N_ACTION_RQ_Message,
+               0x8130 : N_ACTION_RSP_Message,
+               0x0140 : N_CREATE_RQ_Message,
+               0x8140 : N_CREATE_RSP_Message,
+               0x0150 : N_DELETE_RQ_Message,
+               0x8150 : N_DELETE_RSP_Message}
