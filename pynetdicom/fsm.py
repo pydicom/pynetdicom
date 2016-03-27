@@ -7,9 +7,9 @@
 import logging
 import socket
 
-from pynetdicom.PDU import *
-from pynetdicom.DIMSEmessages import wrap_list
 import pynetdicom.DULparameters
+from pynetdicom.PDU import *
+from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom.sm')
 

@@ -20,21 +20,21 @@ class DIMSEServiceProvider(object):
         self.message = None
         self.dimse_timeout = None
 
-    def Send(self, primitive, msg_id, maxpdulength):
+    def Send(self, primitive, msg_id, max_pdu):
         """
         Send a DIMSE message to the DUL provider
         
         Parameters
         ----------
-        primitive - pynetdicom.SOPclass.ServiceClass subclass
+        primitive - pynetdicom.DIMSEparameters DIMSE primitive
             The SOP Class primitive to send
         msg_id - int
             The ID of the presentation context to be sent under
-        maxpdulength - int
+        max_pdu - int
             The maximum send PDV size acceptable by the peer AE
         """
-        # take a DIMSE primitive, convert it to one or more DUL primitive and
-        #   send it
+        # take a DIMSE primitive, convert it to one or more DIMSE messages and
+        #   send it using the DUL
         if primitive.__class__ == C_ECHO_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_ECHO_RQ_Message()
@@ -69,7 +69,7 @@ class DIMSEServiceProvider(object):
             elif primitive.CommandField != 0x0fff:
                 dimse_msg = C_MOVE_RSP_Message()
             else:
-                dimse_msg = C_CANCEL_MOVE_RQ_Message
+                dimse_msg = C_CANCEL_MOVE_RQ_Message98cp
         
         # Convert to DIMSE Message
         dimse_msg.FromParams(primitive)
@@ -77,8 +77,9 @@ class DIMSEServiceProvider(object):
         # Callbacks
         self.on_send_dimse_message(dimse_msg)
         
-        pdatas = dimse_msg.Encode(msg_id, maxpdulength)
-        for ii, pp in enumerate(pdatas):
+        # Split the full messages into chunks, each below the max_pdu size
+        pdvs = dimse_msg.Encode(msg_id, max_pdu)
+        for pp in pdvs:
             self.DUL.Send(pp)
 
     def Receive(self, Wait=False, dimse_timeout=None):
