@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
-#
 
 import logging
 import time
@@ -13,9 +7,7 @@ from pynetdicom.DIMSEparameters import *
 import pynetdicom.DIMSEprovider
 import pynetdicom.ACSEprovider
 
-
 logger = logging.getLogger('pynetdicom.SOPclass')
-
 
 def class_factory(name, uid, BaseClass):
     """
@@ -116,9 +108,11 @@ class VerificationServiceClass(ServiceClass):
         msg - pydicom.Dataset
             The dataset containing the C-ECHO-RQ
         """
+        self.message_id = msg.MessageID
+        
         rsp = C_ECHO_ServiceParameters()
-        self.message_id = msg.MessageID.value
-        rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+        rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.Status = int(self.Success)
 
         try:
@@ -567,12 +561,11 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         while 1:
             # Wait for C-MOVE responses
             time.sleep(0.001)
-            msg, reply_id = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
+            msg, reply_id = self.DIMSE.Receive(False, self.DIMSE.dimse_timeout)
             if not msg:
                 continue
                 
-            status = self.Code2Status(msg.Status.value).Type
+            status = self.Code2Status(msg.Status).Type
             if status != 'Pending':
                 break
             
@@ -581,7 +574,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             # Received a C-GET response
             if msg.__class__ == C_MOVE_ServiceParameters:
                 
-                status = self.Code2Status(msg.Status.value).Type
+                status = self.Code2Status(msg.Status).Type
                 
                 # If the Status is "Pending" then the processing of 
                 #   matches and suboperations is initiated or continuing
@@ -600,7 +593,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             elif msg.__class__ == C_STORE_ServiceParameters:
                 
                 rsp = C_STORE_ServiceParameters()
-                rsp.MessageIDBeingRespondedTo = msg.MessageID
+                rsp.MessageIDBeingRespondedTo = msg.MessageID.value
                 rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
                 rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
                 status = None
@@ -755,9 +748,9 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             elif msg.__class__ == C_STORE_ServiceParameters:
                 
                 rsp = C_STORE_ServiceParameters()
-                rsp.MessageIDBeingRespondedTo = msg.MessageID
-                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+                rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID.value
+                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
                 status = None
                 #try:
                 d = decode(msg.DataSet, 
@@ -834,8 +827,8 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         except StopIteration:
             # send final response
             rsp = C_FIND_ServiceParameters()
-            rsp.MessageIDBeingRespondedTo = msg.MessageID
-            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+            rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 

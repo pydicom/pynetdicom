@@ -245,19 +245,21 @@ def on_c_store(dataset):
     if not args.ignore:
         # Try to save to output-directory
         if args.output_directory is not None:
-            try:
-                ds.save_as(os.path.join(args.output_directory, filename))
-            except IOError:
-                logger.error('Could not write file to specified directory:')
-                logger.error("    %s" %args.output_directory)
-                logger.error('Directory may not exist or you may not have write '
-                        'permission')
-                return 0xA700 # Failed - Out of Resources
-            except:
-                logger.error('Could not write file to specified directory:')
-                logger.error("    %s" %args.output_directory)
-                return 0xA700 # Failed - Out of Resources
+            filename = os.path.join(args.output_directory, filename)
         
+        try:
+            ds.save_as(filename)
+        except IOError:
+            logger.error('Could not write file to specified directory:')
+            logger.error("    %s" %os.path.dirname(filename))
+            logger.error('Directory may not exist or you may not have write '
+                    'permission')
+            return 0xA700 # Failed - Out of Resources
+        except:
+            logger.error('Could not write file to specified directory:')
+            logger.error("    %s" %os.path.dirname(filename))
+            return 0xA700 # Failed - Out of Resources
+
     return 0x0000 # Success
 
 # Test output-directory
