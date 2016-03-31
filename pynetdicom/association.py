@@ -817,10 +817,7 @@ class Association(threading.Thread):
             
             # send c-find request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
-            
-            # TEST: send c_cancel_find
-            self.send_c_cancel_find(msg_id, query_model)
-            
+
             # Get the responses from the peer
             ii = 1
             while True:
