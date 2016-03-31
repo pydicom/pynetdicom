@@ -28,9 +28,8 @@ logger = logging.getLogger('pynetdicom.assoc')
 
 class Association(threading.Thread):
     """
-    A higher level class that handles incoming and outgoing Associations. The
-    actual low level work done for Associations is performed by 
-    pynetdicom.ACSEprovider.ACSEServiceProvider
+    Manages Associations with peer AEs. The actual low level work done for 
+    Associations is performed by pynetdicom.ACSEprovider.ACSEServiceProvider
     
     When the local AE is acting as an SCP, initialise the Association using 
     the socket to listen on for incoming Association requests. When the local 
@@ -38,15 +37,15 @@ class Association(threading.Thread):
     peer AE
     
     When AE is acting as an SCP:
-        assoc = Association(self, client_socket, max_pdu=self.maximum_pdu_size)
+        assoc = Association(self, client_socket, max_pdu)
         
     When AE is acting as an SCU:
         assoc = Association(self, 
-                            RemoteAE=peer_ae, 
-                            acse_timeout=self.acse_timeout,
-                            dimse_timeout=self.dimse_timeout,
-                            max_pdu=max_pdu,
-                            ext_neg=ext_neg)
+                            peer_ae, 
+                            acse_timeout,
+                            dimse_timeout,
+                            max_pdu,
+                            ext_neg)
     
     Parameters
     ----------
@@ -66,11 +65,10 @@ class Association(threading.Thread):
         seconds. A value of 0 means no timeout (default: 0)
     max_pdu - int, optional
         The maximum PDU receive size in bytes for the association. A value of 0
-        means no maximum size.
+        means no maximum size (default: 16382 bytes). 
     ext_neg - list of extended negotiation parameters objects, optional
         If the association requires an extended negotiation then `ext_neg` is
-        a list containing the negotiation objects
-    
+        a list containing the negotiation objects (default: None)
 
     Attributes
     ----------
@@ -92,7 +90,7 @@ class Association(threading.Thread):
         Whether the local AE is acting as the Association 'Requestor' or 
         'Acceptor' (i.e. SCU or SCP)
     peer_ae - dict
-        The peer ApplicationEntity details (Port, Address, Title)
+        The peer Application Entity details (Port, Address, Title)
     client_socket - socket.socket
         The socket to use for connections with the peer AE
     scu_supported_sop
@@ -322,8 +320,7 @@ class Association(threading.Thread):
                 
                 # Check with the DIMSE provider for incoming messages
                 #   all messages should be a DIMSEMessage subclass
-                msg, msg_id = self.dimse.Receive(False, 
-                                                         self.dimse_timeout)
+                msg, msg_context_id = self.dimse.Receive(False, self.dimse_timeout)
                 
                 # DIMSE message received
                 if msg:
@@ -332,14 +329,15 @@ class Association(threading.Thread):
 
                     # Use the UID to create a new SOP Class instance of the
                     #   corresponding value
-                    sop_class = UID2SOPClass(uid.value)()
+                    try:
+                        sop_class = UID2SOPClass(uid.value)()
+                    except:
+                        sop_class = UID2SOPClass(uid)()
                     
                     # Check that the SOP Class is supported by the AE
                     matching_context = False
                     for context in self.acse.presentation_contexts_accepted:
-                        # FIXME: msg_id should not be used to check against 
-                        #   context.ID
-                        if context.ID == msg_id:
+                        if context.ID == msg_context_id:
                             # New method - what is this even used for?
                             sop_class.presentation_context = context
                             
@@ -550,8 +548,7 @@ class Association(threading.Thread):
 
             # If Association is Aborted before we receive the response
             #   then we hang here
-            rsp, _ = self.dimse.Receive(Wait=True, 
-                                        dimse_timeout=self.dimse_timeout)
+            rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
             
             if rsp is None:
                 return None
@@ -719,12 +716,11 @@ class Association(threading.Thread):
 
             # Wait for C-STORE response primitive
             #   returns a C_STORE_ServiceParameters primitive
-            rsp, _ = self.dimse.Receive(Wait=True, 
-                                        dimse_timeout=self.dimse_timeout)
+            rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
             
             status = None
             if rsp is not None:
-                status = service_class.Code2Status(rsp.Status.value)
+                status = service_class.Code2Status(rsp.Status)
 
             return status
 
@@ -828,8 +824,7 @@ class Association(threading.Thread):
                 time.sleep(0.001)
                 
                 # Wait for c-find responses
-                rsp, _ = self.dimse.Receive(Wait=False, 
-                                        dimse_timeout=self.dimse.dimse_timeout)
+                rsp, _ = self.dimse.Receive(False, self.dimse.dimse_timeout)
                 
                 if not rsp:
                     continue
@@ -968,14 +963,14 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int
-            The message ID of the C-FIND operation we want to cancel
+            The message ID of the C-MOVE operation we want to cancel
         query_model : str
             The query model SOP class to use (needed to identify context ID)
         """
         if self.is_established:
             service_class = QueryRetrieveMoveServiceClass()
             
-            # Build C-FIND primitive
+            # Build C-MOVE primitive
             primitive = C_MOVE_ServiceParameters()
             primitive.CommandField = 0x0fff
             primitive.MessageIDBeingRespondedTo = msg_id
@@ -1009,7 +1004,7 @@ class Association(threading.Thread):
             
             logger.info('Sending C-CANCEL-MOVE')
             
-            # send c-find request
+            # send c-cancel-move request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_get(self, dataset, msg_id=1, priority=0x0002, query_model='P'):
@@ -1100,13 +1095,12 @@ class Association(threading.Thread):
             
             ii = 1
             while True:
-                rsp, msg_id = self.dimse.Receive(Wait=True, 
-                                        dimse_timeout=self.dimse.dimse_timeout)
+                rsp, msg_id = self.dimse.Receive(True, self.dimse.dimse_timeout)
                 
                 # Received a C-GET response
                 if rsp.__class__ == C_GET_ServiceParameters:
                     
-                    status = service_class.Code2Status(rsp.Status.value)
+                    status = service_class.Code2Status(rsp.Status)
                     dataset = decode(rsp.Identifier,
                                      transfer_syntax.is_implicit_VR,
                                      transfer_syntax.is_little_endian)
@@ -1114,20 +1108,20 @@ class Association(threading.Thread):
                     # If the Status is "Pending" then the processing of 
                     #   matches and suboperations is initiated or continuing
                     if status.Type == 'Pending':
-                        remain = rsp.NumberOfRemainingSubOperations
-                        complete = rsp.NumberOfCompletedSubOperations
-                        failed = rsp.NumberOfFailedSubOperations
-                        warning = rsp.NumberOfWarningSubOperations
+                        remain = rsp.NumberOfRemainingSuboperations
+                        complete = rsp.NumberOfCompletedSuboperations
+                        failed = rsp.NumberOfFailedSuboperations
+                        warning = rsp.NumberOfWarningSuboperations
                         
                         # Pending Response
                         logger.debug('')
                         logger.info("Find Response: %s (Pending)" %ii)
                         logger.info("    Sub-Operations Remaining: %s, "
                                 "Completed: %s, Failed: %s, Warning: %s" %(
-                                                            remain.value, 
-                                                            complete.value, 
-                                                            failed.value, 
-                                                            warning.value))
+                                                            remain, 
+                                                            complete, 
+                                                            failed, 
+                                                            warning))
                         ii += 1
                         
                         yield status, dataset
@@ -1198,12 +1192,12 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int
-            The message ID of the C-FIND operation we want to cancel
+            The message ID of the C-GET operation we want to cancel
         """
         if self.is_established:
             service_class = QueryRetrieveGetServiceClass()
             
-            # Build C-FIND primitive
+            # Build C-GET primitive
             primitive = C_GET_ServiceParameters()
             primitive.CommandField = 0x0fff
             primitive.MessageIDBeingRespondedTo = msg_id
@@ -1240,7 +1234,7 @@ class Association(threading.Thread):
             
             logger.info('Sending C-CANCEL-GET')
             
-            # send c-find request
+            # Send c-cancel-get request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
 

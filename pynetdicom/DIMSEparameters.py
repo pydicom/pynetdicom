@@ -1,15 +1,9 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
-#
-
-import struct
 
 # DIMSE-C Services
 class C_STORE_ServiceParameters:
     """
+    Represents a C-STORE primitive
+    
     The C-STORE service is used by a DIMSE user to store a composite SOP
     Instance on a peer DISMSE user. It is a confirmed service.
     
@@ -39,7 +33,6 @@ class C_STORE_ServiceParameters:
         self.MoveOriginatorMessageID = None
         self.DataSet = None
         self.Status = None
-        
 
 class C_FIND_ServiceParameters:
     """
@@ -97,15 +90,12 @@ class C_FIND_ServiceParameters:
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
-        # The SOP Class of the Information Model for the query
         self.AffectedSOPClassUID = None
         self.Priority = None
         self.Identifier = None
         self.Status = None
 
-
 class C_GET_ServiceParameters:
-
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -113,14 +103,12 @@ class C_GET_ServiceParameters:
         self.Priority = None
         self.Identifier = None
         self.Status = None
-        self.NumberOfRemainingSubOperations = None
-        self.NumberOfCompleteSubOperations = None
-        self.NumberOfFailedSubOperations = None
-        self.NumberOfWarningSubOperations = None
-
+        self.NumberOfRemainingSuboperations = None
+        self.NumberOfCompletedSuboperations = None
+        self.NumberOfFailedSuboperations = None
+        self.NumberOfWarningSuboperations = None
 
 class C_MOVE_ServiceParameters:
-
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -129,11 +117,10 @@ class C_MOVE_ServiceParameters:
         self.MoveDestination = None
         self.Identifier = None
         self.Status = None
-        self.NumberOfRemainingSubOperations = None
-        self.NumberOfCompleteSubOperations = None
-        self.NumberOfFailedSubOperations = None
-        self.NumberOfWarningSubOperations = None
-
+        self.NumberOfRemainingSuboperations = None
+        self.NumberOfCompletedSuboperations = None
+        self.NumberOfFailedSuboperations = None
+        self.NumberOfWarningSuboperations = None
 
 class C_ECHO_ServiceParameters:
     """
@@ -162,8 +149,8 @@ class C_ECHO_ServiceParameters:
 
 
 # DIMSE-N services
-class N_EVENT_REPORT_ServiceParamters:
-
+class N_EVENT_REPORT_ServiceParameters:
+    """ PS3.7 10.1.1.1 """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -174,8 +161,8 @@ class N_EVENT_REPORT_ServiceParamters:
         self.EventReply = None
         self.Status = None
 
-class N_GET_ServiceParamters:
-
+class N_GET_ServiceParameters:
+    """ PS3.7 10.1.2.1 """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -187,8 +174,8 @@ class N_GET_ServiceParamters:
         self.AttributeList = None
         self.Status = None
 
-class N_SET_ServiceParamters:
-
+class N_SET_ServiceParameters:
+    """ PS3.7 10.1.3.1 """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -200,7 +187,8 @@ class N_SET_ServiceParamters:
         self.AffectedSOPInstanceUID = None
         self.Status = None
 
-class N_ACTION_ServiceParamters:
+class N_ACTION_ServiceParameters:
+    """ PS3.7 10.1.4.1 """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -213,7 +201,8 @@ class N_ACTION_ServiceParamters:
         self.ActionReply = None
         self.Status = None
 
-class N_CREATE_ServiceParamters:
+class N_CREATE_ServiceParameters:
+    """ PS3.7 10.1.5.1 """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -222,7 +211,8 @@ class N_CREATE_ServiceParamters:
         self.AttributeList = None
         self.Status = None
 
-class N_DELETE_ServiceParamters:
+class N_DELETE_ServiceParameters:
+    """ PS3.7 10.1.6.1 """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None

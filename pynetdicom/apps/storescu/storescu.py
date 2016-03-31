@@ -134,7 +134,7 @@ if assoc.is_established:
     
     status = assoc.send_c_store(dataset)
     
-    assoc.Release()
+    assoc.release()
 
 
 # Quit
