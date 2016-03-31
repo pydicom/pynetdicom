@@ -982,7 +982,6 @@ QR_CLASS_LIST = []
 for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
     QR_CLASS_LIST.extend(class_list)
 
-
 d = dir()
 
 def UID2SOPClass(UID):

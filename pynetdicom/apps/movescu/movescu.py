@@ -218,5 +218,3 @@ if assoc.is_established:
         pass
     
     assoc.release()
-
-ae.quit()
