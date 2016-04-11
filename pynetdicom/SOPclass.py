@@ -94,9 +94,6 @@ class ServiceClass(object):
 class VerificationServiceClass(ServiceClass):
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
-    def __init__(self):
-        ServiceClass.__init__(self)
-
     def SCP(self, msg):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
@@ -163,9 +160,6 @@ class StorageServiceClass(ServiceClass):
                               range(0xB006, 0xB006 + 1))
     
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-
-    def __init__(self):
-        ServiceClass.__init__(self)
 
     def SCP(self, msg):
         try:
@@ -536,85 +530,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         'Sub-operations are continuing',
         range(0xFF00, 0xFF00 + 1)    )
 
-    def SCU(self, dataset, destination_aet, msg_id, priority=0x0002):
-        # Build C-MOVE primitive
-        c_move = C_MOVE_ServiceParameters()
-        c_move.MessageID = msg_id
-        c_move.AffectedSOPClassUID = self.UID
-        c_move.MoveDestination = destination_aet
-        c_move.Priority = priority
-        c_move.Identifier = encode(dataset, 
-                                  self.transfersyntax.is_implicit_VR,
-                                  self.transfersyntax.is_little_endian)
-        c_move.Identifier = BytesIO(c_move.Identifier)
-
-        # send c-find request
-        self.DIMSE.Send(c_move, self.pcid, self.maxpdulength)
-
-        logger.info('Get SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
-        for elem in dataset:
-            logger.info(elem)
-        logger.info('')
-
-        while 1:
-            # Wait for C-MOVE responses
-            time.sleep(0.001)
-            msg, reply_id = self.DIMSE.Receive(False, self.DIMSE.dimse_timeout)
-            if not msg:
-                continue
-                
-            status = self.Code2Status(msg.Status).Type
-            if status != 'Pending':
-                break
-            
-            yield status
-            
-            # Received a C-GET response
-            if msg.__class__ == C_MOVE_ServiceParameters:
-                
-                status = self.Code2Status(msg.Status).Type
-                
-                # If the Status is "Pending" then the processing of 
-                #   matches and suboperations is initiated or continuing
-                if status == 'Pending':
-                    pass
-                    
-                # If the Status is "Success" then processing is complete
-                elif status == "Success":
-                    pass
-                
-                # All other possible responses
-                else:
-                    break
-            
-            # Received a C-STORE response
-            elif msg.__class__ == C_STORE_ServiceParameters:
-                
-                rsp = C_STORE_ServiceParameters()
-                rsp.MessageIDBeingRespondedTo = msg.MessageID.value
-                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-                status = None
-                #try:
-                d = decode(msg.DataSet, 
-                               self.transfersyntax.is_implicit_VR,
-                               self.transfersyntax.is_little_endian)
-                #logger.debug('SCU', d)
-                #except:
-                #    # cannot understand
-                #    status = CannotUnderstand
-
-                SOPClass = UID2SOPClass(d.SOPClassUID)
-                
-                # Callback
-                status = self.AE.on_c_store(SOPClass, d)
-                
-                # Send Store confirmation
-                rsp.Status = int(status)
-                self.DIMSE.Send(rsp, id, self.maxpdulength)
-
     def SCP(self, msg):
         ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
@@ -832,6 +747,34 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
+
+class MachineVerificationServiceClass(ServiceClass):
+    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE/N-SET/N-GET/N-ACTION
+    #   Slight differences in description text
+    Success = Status('Success',
+                     'Machine Verification successfully created',
+                     range(0x0000, 0x0000 + 1)) 
+    
+    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE
+    status_fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
+    status_fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
+    status_fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
+    status_fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
+    
+    # N-SET
+    status_fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
+    status_fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
+    status_fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
+    
+    # N-GET
+    status_fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
+    
+    # N-ACTION
+    status_fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
+
+    def SCP(self, msg):
+        print('MachineVerification SCP', msg)
+        pass
 
 # Generate the various SOP classes
 _VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}

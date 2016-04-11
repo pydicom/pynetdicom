@@ -859,8 +859,7 @@ class Association(threading.Thread):
                 yield status, d
 
             yield status, d
-            
-            
+
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-FIND request")
@@ -923,35 +922,140 @@ class Association(threading.Thread):
                                             priority=2, query_model='P'):
         if self.is_established:
             if query_model == "P":
-                sop_class = PatientRootMoveSOPClass()
+                sop_class = PatientRootQueryRetrieveInformationModelMove()
             elif query_model == "S":
-                sop_class = StudyRootMoveSOPClass()
+                sop_class = StudyRootQueryRetrieveInformationModelMove()
             elif query_model == "O":
-                sop_class = PatientStudyOnlyMoveSOPClass()
+                sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
             else:
-                raise ValueError("Association::send_c_get() query_model must "
+                raise ValueError("Association::send_c_move() query_model must "
                     "be one of ['P'|'S'|'O']")
 
-            found_match = False
-            for scu_sop_class in self.scu_supported_sop:
-                if scu_sop_class[1] == sop_class.__class__:
-                    sop_class.pcid = scu_sop_class[0]
-                    sop_class.sopclass = scu_sop_class[1]
-                    sop_class.transfersyntax = scu_sop_class[2]
+            service_class = QueryRetrieveMoveServiceClass()
+
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
                     
-                    found_match = True
-                    
-            if not found_match:
-                raise ValueError("'%s' is not listed as one of the AE's "
-                        "supported SOP Classes" %sop_class.__class__.__name__)
-                
-            sop_class.maxpdulength = self.acse.MaxPDULength
-            sop_class.DIMSE = self.dimse
-            sop_class.AE = self.ae
-            sop_class.RemoteAE = self.peer_ae
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Move SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+
+            # Build C-MOVE primitive
+            primitive = C_MOVE_ServiceParameters()
+            primitive.MessageID = msg_id
+            primitive.AffectedSOPClassUID = sop_class.UID
+            primitive.MoveDestination = move_aet
+            primitive.Priority = priority
+            primitive.Identifier = encode(dataset, 
+                                          transfer_syntax.is_implicit_VR,
+                                          transfer_syntax.is_little_endian)
+            primitive.Identifier = BytesIO(primitive.Identifier)
+
+            logger.info('Move SCU Request Identifiers:')
+            logger.info('')
+            logger.info('# DICOM Dataset')
+            for elem in dataset:
+                logger.info(elem)
+            logger.info('')
             
-            # Send the query
-            return sop_class.SCU(dataset, move_aet, msg_id, priority)
+            # Send C-MOVE request to peer
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+            
+            # Get the responses from peer
+            ii = 1
+            while True:
+                time.sleep(0.001)
+                
+                rsp, context_id = self.dimse.Receive(False, self.dimse.dimse_timeout)
+                
+                if rsp.__class__ == C_MOVE_ServiceParameters:
+                    status = service_class.Code2Status(rsp.Status)
+                    dataset = decode(rsp.Identifier,
+                                     transfer_syntax.is_implicit_VR,
+                                     transfer_syntax.is_little_endian)
+                    
+                    # If the Status is "Pending" then the processing of 
+                    #   matches and suboperations is initiated or continuing
+                    if status.Type == 'Pending':
+                        remain = rsp.NumberOfRemainingSuboperations
+                        complete = rsp.NumberOfCompletedSuboperations
+                        failed = rsp.NumberOfFailedSuboperations
+                        warning = rsp.NumberOfWarningSuboperations
+                        
+                        # Pending Response
+                        logger.debug('')
+                        logger.info("Move Response: %s (Pending)" %ii)
+                        logger.info("    Sub-Operations Remaining: %s, "
+                                "Completed: %s, Failed: %s, Warning: %s" %(
+                                                            remain, 
+                                                            complete, 
+                                                            failed, 
+                                                            warning))
+                        ii += 1
+                        
+                        yield status, dataset
+                        
+                    # If the Status is "Success" then processing is complete
+                    elif status.Type == "Success":
+                        break
+                    
+                    # All other possible responses
+                    elif status.Type == "Failure":
+                        logger.debug('')
+                        logger.error('Move Response: %s (Failure)' %ii)
+                        logger.error('    %s' %status.Description)
+                        
+                        for elem in dataset:
+                            logger.error('%s: %s' %(elem.name, elem.value))
+                    
+                        break
+                    elif status.Type == "Cancel":
+                        logger.debug('')
+                        logger.info('Move Response: %s (Cancel)' %ii)
+                        logger.info('    %s' %status.Description)
+                        break
+                    elif status.Type == "Warning":
+                        logger.debug('')
+                        logger.warning('Move Response: %s (Warning)' %ii)
+                        logger.warning('    %s' %status.Description)
+                        
+                        for elem in dataset:
+                            logger.warning('%s: %s' %(elem.name, elem.value))
+                            
+                        break
+
+                # Received a C-STORE request in response to the C-GET
+                elif rsp.__class__ == C_STORE_ServiceParameters:
+                    
+                    c_store_rsp = C_STORE_ServiceParameters()
+                    c_store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
+                    c_store_rsp.AffectedSOPInstanceUID = \
+                                                    rsp.AffectedSOPInstanceUID
+                    c_store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
+
+                    d = decode(rsp.DataSet, 
+                               transfer_syntax.is_implicit_VR,
+                               transfer_syntax.is_little_endian)
+
+                    #  Callback for C-STORE SCP (user implemented)
+                    status = self.ae.on_c_store(d)
+                    
+                    # Send C-STORE confirmation back to peer
+                    c_store_rsp.Status = int(status)
+                    self.dimse.Send(c_store_rsp, 
+                                    context_id, 
+                                    self.acse.MaxPDULength)
+            
+            yield status, dataset
+            
         else:
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-MOVE request")
@@ -998,13 +1102,13 @@ class Association(threading.Thread):
             if transfer_syntax is None:
                 logger.error("No Presentation Context for: '%s'" 
                                                     %sop_class.UID)
-                logger.error("Find SCU failed due to there being no valid "
+                logger.error("Move SCU failed due to there being no valid "
                         "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
             
             logger.info('Sending C-CANCEL-MOVE')
             
-            # send c-cancel-move request
+            # Send c-cancel-move request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_get(self, dataset, msg_id=1, priority=0x0002, query_model='P'):
@@ -1071,7 +1175,7 @@ class Association(threading.Thread):
                 logger.error("Get SCU failed due to there being no valid "
                         "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
-            
+
 
             # Build C-GET primitive
             primitive = C_GET_ServiceParameters()
@@ -1095,7 +1199,7 @@ class Association(threading.Thread):
             
             ii = 1
             while True:
-                rsp, msg_id = self.dimse.Receive(True, self.dimse.dimse_timeout)
+                rsp, context_id = self.dimse.Receive(True, self.dimse.dimse_timeout)
                 
                 # Received a C-GET response
                 if rsp.__class__ == C_GET_ServiceParameters:
@@ -1183,7 +1287,7 @@ class Association(threading.Thread):
             
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-MOVE request")
+                "established before sending a C-GET request")
 
     def send_c_cancel_get(self, msg_id, query_model):
         """

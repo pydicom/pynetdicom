@@ -14,11 +14,10 @@ import sys
 import time
 
 from pydicom.dataset import Dataset
-
-from pynetdicom import AE
-from pynetdicom.SOPclass import PatientRootMoveSOPClass, CTImageStorageSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
+
+from pynetdicom import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom.PDU import SCP_SCU_RoleSelectionParameters
 
 logger = logging.Logger('movescu')
@@ -84,9 +83,9 @@ def _setup_argparser():
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
     net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle', 
-                          help="set my calling AE title (default: FINDSCU)", 
+                          help="set my calling AE title (default: MOVESCU)", 
                           type=str, 
-                          default='FINDSCU')
+                          default='MOVESCU')
     net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle', 
                           help="set called AE title of peer (default: ANY-SCP)", 
                           type=str, 
@@ -132,8 +131,8 @@ logger.debug('')
 # Binding to port 0 lets the OS pick an available port
 ae = AE(ae_title=args.calling_aet, 
         port=0, 
-        scu_sop_class=[PatientRootMoveSOPClass], 
-        scp_sop_class=[CTImageStorageSOPClass], 
+        scu_sop_class=QueryRetrieveSOPClassList, 
+        scp_sop_class=StorageSOPClassList, 
         transfer_syntax=[ExplicitVRLittleEndian])
 
 # Set the extended negotiation SCP/SCU role selection to allow us to receive
