@@ -252,7 +252,7 @@ class ApplicationEntity(object):
         self.local_socket = None
 
         # Used to terminate AE when running as an SCP
-        self.__quit = False
+        self._quit = False
 
     def start(self):
         """
@@ -273,22 +273,22 @@ class ApplicationEntity(object):
             return
 
         # Bind the local_socket to the specified listen port
-        self.__bind_socket()
+        self._bind_socket()
 
         no_loops = 0
         while True:
             try:
                 time.sleep(0.1)
                 
-                if self.__quit:
+                if self._quit:
                     break
                 
                 # Monitor client_socket for association requests and
                 #   appends any associations to self.active_associations
-                self.__monitor_socket()
+                self._monitor_socket()
                 
                 # Delete dead associations
-                self.__cleanup_associations()
+                self._cleanup_associations()
 
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
@@ -300,7 +300,7 @@ class ApplicationEntity(object):
             except KeyboardInterrupt:
                 self.stop()
 
-    def __bind_socket(self):
+    def _bind_socket(self):
         """ 
         AE.start(): Set up and bind the socket. Separated out from start() to 
         enable better unit testing
@@ -311,7 +311,7 @@ class ApplicationEntity(object):
         self.local_socket.bind(('', self.port))
         self.local_socket.listen(1)
 
-    def __monitor_socket(self):
+    def _monitor_socket(self):
         """ 
         AE.start(): Monitors the local socket to see if anyone tries to connect 
         and if so, creates a new association. Separated out from start() to 
@@ -336,7 +336,7 @@ class ApplicationEntity(object):
 
             self.active_associations.append(assoc)
 
-    def __cleanup_associations(self):
+    def _cleanup_associations(self):
         """ 
         AE.start(): Removes any dead associations from self.active_associations 
         by checking to see if the association thread is still alive. Separated 
@@ -357,7 +357,7 @@ class ApplicationEntity(object):
         if self.local_socket:
             self.local_socket.close()
         
-        self.__quit = True
+        self._quit = True
         
         while True:
             sys.exit(0)

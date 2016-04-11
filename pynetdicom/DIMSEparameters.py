@@ -1,5 +1,8 @@
 
 # DIMSE-C Services
+# PS3.4 6.1.1 Composite IOD
+# A composite IOD is an IOD that represents parts of several entities in the 
+#   DICOM model of the real world
 class C_STORE_ServiceParameters:
     """
     Represents a C-STORE primitive
