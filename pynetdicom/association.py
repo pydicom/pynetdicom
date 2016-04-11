@@ -559,7 +559,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                 "established before sending a C-ECHO request")
 
-    def send_c_store(self, dataset, msg_id=1, priority=0x0002):
+    def send_c_store(self, dataset, msg_id=1, priority=2):
         """
         Send a C-STORE request message to the peer AE Storage SCP
         
@@ -631,9 +631,11 @@ class Association(threading.Thread):
             The DICOM dataset to send to the peer
         msg_id - int, optional
             The message ID (default: 1)
-        priority - int, optional
-            The message priority, one of (0, 1, 2) where 0 is medium priority, 
-            1 is high priority and 2 is low priority (default)
+        priority : int, optional
+            The C-STORE operation priority (if supported by the peer), one of:
+                2 - Low (default)
+                1 - High
+                0 - Medium
 
         Returns
         -------
@@ -728,7 +730,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                     "established before sending a C-STORE request")
 
-    def send_c_find(self, dataset, msg_id=1, priority=0x0002, query_model='W'):
+    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """
         Send a C-FIND request message to the peer AE
         
@@ -742,7 +744,7 @@ class Association(threading.Thread):
         msg_id : int, optional
             The message ID
         priority : int, optional
-            The message priority, one of:
+            The C-FIND operation priority (if supported by the peer), one of:
                 2 - Low (default)
                 1 - High
                 0 - Medium
@@ -918,8 +920,50 @@ class Association(threading.Thread):
             # send c-find request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
-    def send_c_move(self, dataset, move_aet, msg_id=1, 
-                                            priority=2, query_model='P'):
+    def send_c_move(self, dataset, move_aet, msg_id=1, priority=2, query_model='P'):
+        """
+        C-MOVE Service Procedure
+        ------------------------
+        PS3.7 9.1.4.2
+        
+        Invoker
+        ~~~~~~~
+        The invoking DIMSE user requests a performing DIMSE user match an 
+        Identifier against the Attributes of all SOP Instances known to the
+        performing user and generate a C-STORE sub-operation for each match.
+        
+        Performer
+        ~~~~~~~~~
+        For each matching composite SOP Instance, the C-MOVE performing user
+        initiates a C-STORE sub-operation on a different Association than the
+        C-MOVE. In this sub-operation the C-MOVE performer becomes the C-STORE
+        invoker. The C-STORE performing DIMSE user may or may not be the C-MOVE
+        invoking DIMSE user.
+        
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset
+            The dataset containing the Attributes to match against
+        move_aet : str
+            The AE title for the destination of the C-STORE operations performed
+            by the C-MOVE performing DIMSE user
+        msg_id : int, optional
+            The Message ID to use for the C-MOVE service
+        priority : int, optional
+            The C-MOVE operation priority (if supported by the peer), one of:
+                2 - Low (default)
+                1 - High
+                0 - Medium
+        query_model : str, optional
+            The Query/Retrieve Information Model to use, one of the following:
+                'P' - Patient Root Information Model - MOVE (default)
+                    1.2.840.10008.5.1.4.1.2.1.2
+                'S' - Study Root Information Model - MOVE
+                    1.2.840.10008.5.1.4.1.2.2.2
+                'O' - Patient Study Only Information Model - MOVE
+                    1.2.840.10008.5.1.4.1.2.3.2
+        """
+        
         if self.is_established:
             if query_model == "P":
                 sop_class = PatientRootQueryRetrieveInformationModelMove()
@@ -1002,11 +1046,9 @@ class Association(threading.Thread):
                         ii += 1
                         
                         yield status, dataset
-                        
                     # If the Status is "Success" then processing is complete
                     elif status.Type == "Success":
                         break
-                    
                     # All other possible responses
                     elif status.Type == "Failure":
                         logger.debug('')
@@ -1032,28 +1074,6 @@ class Association(threading.Thread):
                             
                         break
 
-                # Received a C-STORE request in response to the C-GET
-                elif rsp.__class__ == C_STORE_ServiceParameters:
-                    
-                    c_store_rsp = C_STORE_ServiceParameters()
-                    c_store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
-                    c_store_rsp.AffectedSOPInstanceUID = \
-                                                    rsp.AffectedSOPInstanceUID
-                    c_store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
-
-                    d = decode(rsp.DataSet, 
-                               transfer_syntax.is_implicit_VR,
-                               transfer_syntax.is_little_endian)
-
-                    #  Callback for C-STORE SCP (user implemented)
-                    status = self.ae.on_c_store(d)
-                    
-                    # Send C-STORE confirmation back to peer
-                    c_store_rsp.Status = int(status)
-                    self.dimse.Send(c_store_rsp, 
-                                    context_id, 
-                                    self.acse.MaxPDULength)
-            
             yield status, dataset
             
         else:
@@ -1111,7 +1131,7 @@ class Association(threading.Thread):
             # Send c-cancel-move request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
-    def send_c_get(self, dataset, msg_id=1, priority=0x0002, query_model='P'):
+    def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """
         Send a C-GET request message to the peer AE
         
@@ -1125,7 +1145,7 @@ class Association(threading.Thread):
         msg_id : int, optional
             The message ID
         priority : int, optional
-            The message priority, one of:
+            The C-GET operation priority (if supported by the peer), one of:
                 2 - Low (default)
                 1 - High
                 0 - Medium
