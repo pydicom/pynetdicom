@@ -168,7 +168,9 @@ class DIMSEMessage(object):
         ## DATASET (if available)
         # Split out dataset up into fragment with maximum size of max_pdu
         #   Check that the Data Set is not empty
-        if self.data_set.getvalue() != b'':
+        if self.data_set is None:
+            pass
+        elif self.data_set.getvalue() != b'':
             # Technically these are APDUs, not PDVs
             pdvs = fragment(max_pdu, self.data_set)
 
@@ -361,7 +363,7 @@ class DIMSEMessage(object):
             self.command_set.CommandDataSetType = 0x0001
         elif cls_type_name in ['C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 
                                 'C_STORE_RSP', 'C_CANCEL_RQ',
-                                'N_DELETE_RSP']:
+                                'N_DELETE_RSP', 'C_FIND_RSP']:
             pass
         else:
             logger.error("DIMSE - Can't convert primitive to message for "
