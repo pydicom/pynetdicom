@@ -5,7 +5,7 @@ import sys
 setup(name="pynetdicom",
       packages = find_packages(),
       include_package_data = True,
-      version=['0', '9', '0'],
+      version='0.9.0',
       zip_safe = False,
       description="Implementation of the DICOM network protocol",
       author="Patrice Munger",
@@ -26,6 +26,5 @@ setup(name="pynetdicom",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Software Development :: Libraries",
         ],
-      long_description = open('README.txt').read(),
       install_requires=["pydicom >= 1.0.0"]
      )
