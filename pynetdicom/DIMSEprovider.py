@@ -136,7 +136,7 @@ class DIMSEServiceProvider(object):
         elif primitive.__class__ == C_FIND_ServiceParameters:
             if primitive.MessageID is not None:
                 dimse_msg = C_FIND_RQ()
-            elif primitive.CommandField != 0x0fff:
+            elif primitive.Status is not None:
                 dimse_msg = C_FIND_RSP()
             else:
                 dimse_msg = C_CANCEL_RQ()
@@ -256,7 +256,6 @@ class DIMSEServiceProvider(object):
                     return None, None
         else:
             cls = self.DUL.Peek().__class__
-
             if cls not in (type(None), P_DATA_ServiceParameters):
                 return None, None
 
@@ -444,13 +443,14 @@ class DIMSEServiceProvider(object):
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : %s' %'C-FIND RQ')
+        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
         s.append('Message ID                    : %s' %d.MessageID)
-        #s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
-        #s.append('Affected SOP Instance UID     : %s' %d.AffectedSOPInstanceUID)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
         s.append('Data Set                      : %s' %dataset)
         s.append('Priority                      : %s' %priority)
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
+        
         for line in s:
             logger.debug(line)
     
@@ -458,10 +458,29 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_FIND_RSP
-            The C-FIND-RSP DIMSE Message to be sent
+        dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RSP
+            The sent C-FIND-RSP DIMSE Message
         """
-        pass
+        d = dimse_msg.command_set
+        
+        dataset = 'None'
+        if dimse_msg.data_set.getvalue() != b'':
+            dataset = 'Present'
+        
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-FIND RSP')
+        s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
+        s.append('Affected SOP Class UID        : none')
+        s.append('Data Set                      : %s' %dataset)
+        s.append('DIMSE Status                  : 0x%04x' %d.Status)
+        
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+
+        for line in s:
+            logger.debug(line)
     
     def debug_send_c_cancel_rq(self, dimse_msg):
         """
@@ -683,30 +702,57 @@ class DIMSEServiceProvider(object):
 
     def debug_receive_c_find_rq(self, dimse_msg):
         """
+        Called on receiving a C-FIND-RQ from the peer AE. 
+        The C-FIND service is used by a DIMSE to match a set of Attributes 
+        against the Attributes of a set of composite SOP
+        Instances maintained by a peer DIMSE user.
+        
         Parameters
         ----------
         dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RQ
             The received C-FIND-RQ DIMSE Message
         """
-        pass
+        d = dimse_msg.command_set
+        
+        priority_str = {2 : 'Low',
+                        0 : 'Medium',
+                        1 : 'High'}
+        priority = priority_str[d.Priority]
+        
+        dataset = 'None'
+        if dimse_msg.data_set.getvalue() != b'':
+            dataset = 'Present'
+        
+        s = []
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-FIND RQ')
+        s.append('Message ID                    : %s' %d.MessageID)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('Priority                      : %s' %priority)
+        
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+
+        for line in s:
+            logger.info(line)
         
     def debug_receive_c_find_rsp(self, dimse_msg):
         """
-        Called on receiving a C-FIND-RQ from the peer AE. 
+        Called on receiving a C-FIND-RSP from the peer AE. 
         The C-FIND service is used by a DIMSE to match a set of Attributes 
         against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
+        Instances maintained by a peer DIMSE user.
         
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RSP_Message
+        dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RSP
             The received C-FIND-RSP DIMSE Message
         """
-        logger.info("Received Find Response")
-        
         d = dimse_msg.command_set
+        if d.Status != 0x0000:
+            return
         
         dataset = 'None'
         if dimse_msg.data_set.getvalue() != b'':
@@ -719,13 +765,13 @@ class DIMSEServiceProvider(object):
         s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
         s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
         s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%x' %d.Status)
+        s.append('DIMSE Status                  : 0x%04x' %d.Status)
         
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
-        
+
         for line in s:
-            logger.debug(line)
+            logger.info(line)
 
     def debug_receive_c_cancel_rq(self, dimse_msg):
         """

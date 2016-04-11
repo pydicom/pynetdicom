@@ -830,31 +830,29 @@ class Association(threading.Thread):
                 
                 if not rsp:
                     continue
-                
+
                 # Decode the dataset
                 d = decode(rsp.Identifier, 
                            transfer_syntax.is_implicit_VR,
                            transfer_syntax.is_little_endian)
                 
                 # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-                try:
-                    status = service_class.Code2Status(rsp.Status)
-                except:
-                    status = None
+                status = service_class.Code2Status(rsp.Status)
                 
-                if status != 'Pending':
+                if status.Type == 'Success':
                     # We want to exit the wait loop if we receive
                     #   failure, cancel or success
                     break
+                elif status.Type != 'Pending':
+                    break
                 
-                # Pending Response
-                logger.info("Find Response: %s (Pending)" %ii)
-                logger.info('')
-                
-                logger.info('# DICOM Dataset')
+                logger.debug('-' * 65)
+                logger.debug('Find Response: %s (%s)' %(ii, status.Type))
+                logger.debug('')
+                logger.debug('# DICOM Dataset')
                 for elem in d:
-                    logger.info(elem)
-                logger.info('')
+                    logger.debug(elem)
+                logger.debug('')
                 
                 ii += 1
                 
@@ -1128,7 +1126,7 @@ class Association(threading.Thread):
             
             logger.info('Sending C-CANCEL-MOVE')
             
-            # Send c-cancel-move request
+            # Send C-CANCEL-MOVE request
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):

@@ -97,29 +97,27 @@ class VerificationServiceClass(ServiceClass):
     def SCP(self, msg):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
-        and a C-ECHO-RQ is received then create a C-ECHO-RSP and send it
-        to the peer AE via the DIMSE provider
+        and a C-ECHO request is received then create a C-ECHO response 
+        primitive and send it to the peer AE via the DIMSE provider
         
         Parameters
         ----------
-        msg - pydicom.Dataset
-            The dataset containing the C-ECHO-RQ
+        msg : pynetdicom.DIMSEparameters.C_ECHO_ServiceParameters
+            The C-ECHO request primitive sent by the peer
         """
-        self.message_id = msg.MessageID
-        
+        # Create C-ECHO response primitive
         rsp = C_ECHO_ServiceParameters()
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.Status = int(self.Success)
 
+        # Try and run the user on_c_echo callback
         try:
             self.AE.on_c_echo()
-        except NotImplementedError:
-            pass
         except:
-            logger.exception("Exception raised by the AE.on_c_echo() callback")
-        
-        # Send response via DIMSE provider
+            logger.exception("Exception in the AE.on_c_echo() callback")
+
+        # Send primitive
         self.DIMSE.Send(rsp, self.pcid, self.maxpdulength)
 
 
@@ -129,43 +127,31 @@ class StorageServiceClass(ServiceClass):
     #
     # Note that the response/confirmation primitives do NOT contain a dataset
     #   and hence only the Status parameter of the primitive is of interest
-    
-    # The peer DIMSE user was unable to store the composite SOP Instance because
-    #   it was out of resources. 
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA7FF + 1)) 
-    
-    # The peer DIMSE user was unable to store the SOP Instance
-    #   because the dataset does not match the SOP Class.
     DataSetDoesNotMatchSOPClassFailure = Status('Failure',
                                     'Error: Data Set does not match SOP Class',
                                     range(0xA900, 0xA9FF + 1))
-    
-    # The peer DIMSE user cannot understand certain Data Elements
     CannotUnderstand = Status('Failure',
                               'Error: Cannot understand',
                               range(0xC000, 0xCFFF + 1))
-
     CoercionOfDataElements = Status('Warning',
                                     'Coercion of Data Elements',
                                     range(0xB000, 0xB000 + 1))
-    
     DataSetDoesNotMatchSOPClassWarning = Status('Warning',
                                             'Data Set does not match SOP Class',
                                             range(0xB007, 0xB007 + 1))
-
     ElementDisgarded = Status('Warning',
                               'Element Discarted',
                               range(0xB006, 0xB006 + 1))
-    
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
     def SCP(self, msg):
         try:
-            DS = decode(msg.DataSet,
-                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
+            dataset = decode(msg.DataSet,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
         except:
             status = self.CannotUnderstand
             logger.error("StorageServiceClass failed to decode the dataset")
@@ -178,7 +164,7 @@ class StorageServiceClass(ServiceClass):
         
         # ApplicationEntity's on_c_store callback 
         try:
-            status = self.AE.on_c_store(DS)
+            status = self.AE.on_c_store(dataset)
         except Exception as e:
             logger.exception("Exception in the ApplicationEntity.on_c_store() "
                                                                 "callback")
@@ -309,7 +295,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                             "and/or matching for this identifier",
                             range(0xFF01, 0xFF01 + 1))
 
-    def SCP(self, dimse_msg):
+    def SCP(self, msg):
         """
         This is probably not going to work at the moment
         
@@ -450,47 +436,56 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         Patient/Study Root
         ------------------
         Retired (PS3.4-2004)
-        
-        
-        
         """
-        dataset = decode(dimse_msg.Identifier, 
+        dataset = decode(msg.Identifier, 
                          self.transfersyntax.is_implicit_VR,
                          self.transfersyntax.is_little_endian)
 
-        # Build response
-        rsp = C_FIND_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = dimse_msg.MessageID
-        rsp.AffectedSOPClassUID = dimse_msg.AffectedSOPClassUID
-
+        # Build C-FIND response primitive
+        c_find_rsp = C_FIND_ServiceParameters()
+        c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
+        c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        
+        logger.info('Find SCP Request Identifiers:')
+        logger.info('')
+        logger.debug('# DICOM Data Set')
+        for elem in dataset:
+            logger.info(elem)
+        logger.info('')
+        
         # Callback
-        gen = self.AE.on_c_find(self, dataset)
-        
-        # Send Pending response
-        
-        # This should really be event driven -> AE sends events or
-        #   if receive C-CANCEL-FIND rq
-        
-        # If we receive a C-CANCEL-FIND then send Canceled response
-        
         try:
-            while 1:
-                time.sleep(0.001)
-                IdentifierDS, status = gen.next()
-                rsp.Status = int(status)
-                rsp.Identifier = encode(IdentifierDS,
-                                        self.transfersyntax.is_implicit_VR,
-                                        self.transfersyntax.is_little_endian)
-                # send response
-                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            matches = self.AE.on_c_find(dataset)
+        except:
+            logger.exception('Exception in on_c_find()')
+            matches = []
         
-        except StopIteration:
-            # send final response
-            rsp = C_FIND_ServiceParameters()
-            rsp.MessageIDBeingRespondedTo = dimse_msg.MessageID
-            rsp.AffectedSOPClassUID = dimse_msg.AffectedSOPClassUID
-            rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+        for ii, instance in enumerate(matches):
+            c_find_rsp.Identifier = encode(instance,
+                                           self.transfersyntax.is_implicit_VR,
+                                           self.transfersyntax.is_little_endian)
+            c_find_rsp.Identifier = BytesIO(c_find_rsp.Identifier)
+            
+            # Send response
+            c_find_rsp.Status = int(self.Pending)
+            
+            logger.info('Find SCP Response: %s (Pending)' %(ii + 1))
+            
+            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            
+            logger.debug('Find SCP Response Identifiers:')
+            logger.debug('')
+            logger.debug('# DICOM Data Set')
+            for elem in instance:
+                logger.debug(elem)
+            logger.debug('')
+            
+        # Send final response
+        c_find_rsp.Status = int(self.Success)
+        
+        logger.info('Find SCP Response: %s (Success)' %(ii + 2))
+        
+        self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
 class QueryRetrieveMoveServiceClass(ServiceClass):
     OutOfResourcesNumberOfMatches = Status(
@@ -616,74 +611,80 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                      'Sub-operations are continuing', 
                      range(0xFF00, 0xFF00 + 1))
 
-    def SCU(self, ds, msg_id, priority=2):
-        # build C-GET primitive
-        cget = C_GET_ServiceParameters()
-        cget.MessageID = msg_id
-        cget.AffectedSOPClassUID = self.UID
-        cget.Priority = 0x0002
-        cget.Identifier = encode(ds,
-                                 self.transfersyntax.is_implicit_VR,
-                                 self.transfersyntax.is_little_endian)
-        cget.Identifier = BytesIO(cget.Identifier)
-        # send c-get primitive
-        self.DIMSE.Send(cget, self.pcid, self.maxpdulength)
-
-        logger.info('Get SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
-        for elem in ds:
-            logger.info(elem)
-        logger.info('')
-
-        while 1:
+    def SCP(self, msg, priority=2):
+        """
+        PS3.7 9.1.3.2
+        
+        Service Procedure
+        -----------------
+        Performing DIMSE User
+        ~~~~~~~~~~~~~~~~~~~~~
+        - When the performer receives a C-GET indication it matches the 
+          Identifier against the Attributes of known composite SOP Instances
+          and generates a C-STORE sub-operation for each match
+        - For each match, the performing user initiates a C-STORE sub-operation
+          on the same Association as the C-GET.
+        - During the processing of the C-GET operation, the performing user may
+          issue C-GET response primitives with a status of Pending
+        - When the C-GET operation completes (either in success or failure) the
+          performing DIMSE user issues a C-GET response with status set to 
+          either refused, failed or success
+        """
+        dataset = decode(msg.Identifier,
+                         self.transfersyntax.is_implicit_VR,
+                         self.transfersyntax.is_little_endian)
+        
+        # Build C-GET response primitive
+        c_get_rsp = C_GET_ServiceParameters()
+        c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
+        c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        
+        # The user is responsible for returning the matching Instances
+        try:
+            matches = self.AE.on_c_get(dataset)
+        except:
+            matches = []
+        
+        c_get_rsp.NumberOfRemainingSuboperations = len(matches)
+        c_get_rsp.NumberOfCompletedSuboperations = 0
+        c_get_rsp.NumberOfFailedSuboperations = 0
+        c_get_rsp.NumberOfWarningSuboperations = 0
+        
+        ii = 1
+        for instance in matches:
+            c_store = C_STORE_ServiceParameters()
+            c_store.MessageID = ii
+            c_store.AffectedSOPClassUID = instance.SOPClassUID
+            c_store.AffectedSOPInstanceUID = instance.SOPInstanceUID
+            c_store.Priority = priority
+            c_store.DataSet = encode(instance,
+                                     self.transfersyntax.is_implicit_VR,
+                                     self.transfersyntax.is_little_endian)
             
-            msg, id = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
+            # Send C-STORE request to peer
+            self.DIMSE.Send(c_store, self.pcid, self.maxpdulength)
             
-            # Received a C-GET response
-            if msg.__class__ == C_GET_ServiceParameters:
-                
-                status = self.Code2Status(msg.Status.value).Type
-                
-                # If the Status is "Pending" then the processing of 
-                #   matches and suboperations is initiated or continuing
-                if status == 'Pending':
-                    pass
-                    
-                # If the Status is "Success" then processing is complete
-                elif status == "Success":
-                    pass
-                
-                # All other possible responses
-                else:
-                    break
+            c_store_rsp, context_id = self.DIMSE.Receive(Wait=True)
             
-            # Received a C-STORE response
-            elif msg.__class__ == C_STORE_ServiceParameters:
+            store_status = self.Code2Status(c_store_response.Status).Type
+            if store_status == 'Failure':
+                c_get_rsp.NumberOfFailedSuboperations += 1
+            elif store_status == 'Warning':
+                c_get_rsp.NumberOfWarningSuboperations += 1
+            elif store_status == 'Success':
+                c_get_rsp.NumberOfCompletedSuboperations += 1
+            
+            c_get_rsp.NumberOfRemainingSuboperations -= 1
+            
+            ii += 1
+            
+            # Send pending response if not finished
+            if ii < len(matches):
+                rsp.Status = int(self.Pending)
+                self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
                 
-                rsp = C_STORE_ServiceParameters()
-                rsp.MessageIDBeingRespondedTo = msg.MessageID.value
-                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID.value
-                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
-                status = None
-                #try:
-                d = decode(msg.DataSet, 
-                               self.transfersyntax.is_implicit_VR,
-                               self.transfersyntax.is_little_endian)
-                #logger.debug('SCU', d)
-                #except:
-                #    # cannot understand
-                #    status = CannotUnderstand
-
-                SOPClass = UID2SOPClass(d.SOPClassUID)
-                
-                # Callback
-                status = self.AE.on_c_store(SOPClass, d)
-                
-                # Send Store confirmation
-                rsp.Status = int(status)
-                self.DIMSE.Send(rsp, id, self.maxpdulength)
+        c_get_rsp.Status = int(self.Success)
+        self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
 
 
 # WORKLIST SOP Classes
@@ -775,6 +776,7 @@ class MachineVerificationServiceClass(ServiceClass):
     def SCP(self, msg):
         print('MachineVerification SCP', msg)
         pass
+
 
 # Generate the various SOP classes
 _VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}

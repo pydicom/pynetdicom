@@ -473,15 +473,15 @@ class ApplicationEntity(object):
 
     @property
     def acse_timeout(self):
-        return self.__acse_timeout
+        return self._acse_timeout
 
     @acse_timeout.setter
     def acse_timeout(self, value):
         try:
             if 0 <= value:
-                self.__acse_timeout = value
+                self._acse_timeout = value
             else:
-                self.__acse_timeout = 0
+                self._acse_timeout = 0
                 
             return
         except:
@@ -489,30 +489,30 @@ class ApplicationEntity(object):
                 "value greater than or equal to 0. Defaulting to 0 (no "
                 "timeout)")
         
-        self.__acse_timeout = 0
+        self._acse_timeout = 0
 
     @property
     def ae_title(self):
-        return self.__ae_title
+        return self._ae_title
 
     @ae_title.setter
     def ae_title(self, value):
         try:
-            self.__ae_title = validate_ae_title(value)
+            self._ae_title = validate_ae_title(value)
         except:
             raise
 
     @property
     def dimse_timeout(self):
-        return self.__dimse_timeout
+        return self._dimse_timeout
 
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         try:
             if 0 <= value:
-                self.__dimse_timeout = value
+                self._dimse_timeout = value
             else:
-                self.__dimse_timeout = 0
+                self._dimse_timeout = 0
                 
             return
         except:
@@ -520,19 +520,19 @@ class ApplicationEntity(object):
                 "value greater than or equal to 0. Defaulting to 0 (no "
                 "timeout)")
         
-        self.__dimse_timeout = 0
+        self._dimse_timeout = 0
 
     @property
     def network_timeout(self):
-        return self.__network_timeout
+        return self._network_timeout
 
     @network_timeout.setter
     def network_timeout(self, value):
         try:
             if 0 <= value:
-                self.__network_timeout = value
+                self._network_timeout = value
             else:
-                self.__network_timeout = 60
+                self._network_timeout = 60
                 
             return
         except:
@@ -540,31 +540,31 @@ class ApplicationEntity(object):
                 "numeric value greater than or equal to 0. Defaulting to 60 "
                 "seconds")
         
-        self.__network_timeout = 60
+        self._network_timeout = 60
 
     @property
     def maximum_associations(self):
-        return self.__maximum_associations
+        return self._maximum_associations
 
     @maximum_associations.setter
     def maximum_associations(self, value):
         try:
             if 1 <= value:
-                self.__maximum_associations = value
+                self._maximum_associations = value
                 return
             else:
                 logger.warning("AE maximum associations must be greater than "
                     "or equal to 1")
-                self.__maximum_associations = 1
+                self._maximum_associations = 1
         except:
             logger.warning("AE maximum associations must be a numerical value "
                 "greater than or equal to 1. Defaulting to 1")
                 
-        self.__maximum_associations = 1
+        self._maximum_associations = 1
 
     @property
     def maximum_pdu_size(self):
-        return self.__maximum_pdu_size
+        return self._maximum_pdu_size
 
     @maximum_pdu_size.setter
     def maximum_pdu_size(self, value):
@@ -574,24 +574,24 @@ class ApplicationEntity(object):
         #       no maximum length (PS3.8 Annex D.1.1)
         try:
             if 0 <= value:
-                self.__maximum_pdu_size = value
+                self._maximum_pdu_size = value
                 return
         except:
             logger.warning("ApplicationEntity failed to set maximum PDU size "
                     "of '%s', defaulting to 16832 bytes" %value)
         
-        self.__maximum_pdu_size = 16382
+        self._maximum_pdu_size = 16382
 
     @property
     def port(self):
-        return self.__port
+        return self._port
 
     @port.setter
     def port(self, value):
         try:
             if isinstance(value, int):
                 if 0 <= value:
-                    self.__port = value
+                    self._port = value
                     return
                 else:
                     raise ValueError("AE port number must be greater than or "
@@ -607,20 +607,20 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        return self.__require_calling_aet
+        return self._require_calling_aet
 
     @require_calling_aet.setter
     def require_calling_aet(self, value):
         try:
             if 0 < len(value.strip()) <= 16:
-                self.__require_calling_aet = value.strip()
+                self._require_calling_aet = value.strip()
             elif len(value.strip()) > 16:
-                self.__require_calling_aet = value.strip()[:16]
+                self._require_calling_aet = value.strip()[:16]
                 logger.warning("ApplicationEntity tried to set required "
                     "calling AE title with more than 16 characters; title will "
                     "be truncated to '%s'" %value)
             else:
-                self.__require_calling_aet = ''
+                self._require_calling_aet = ''
             return
         
         except:
@@ -628,35 +628,35 @@ class ApplicationEntity(object):
                 "AE title, defaulting to empty string (i.e. calling AE title "
                 "not required to match)")
 
-        self.__require_calling_aet = ''
+        self._require_calling_aet = ''
 
     @property
     def require_called_aet(self):
-        return self.__require_called_aet
+        return self._require_called_aet
 
     @require_called_aet.setter
     def require_called_aet(self, value):
         try:
             if 0 < len(value.strip()) <= 16:
-                self.__require_called_aet = value.strip()
+                self._require_called_aet = value.strip()
             elif len(value.strip()) > 16:
-                self.__require_called_aet = value.strip()[:16]
+                self._require_called_aet = value.strip()[:16]
                 logger.warning("ApplicationEntity tried to set required "
                     "called AE title with more than 16 characters; title will "
                     "be truncated to '%s'" %value)
             else:
-                self.__require_called_aet = ''
+                self._require_called_aet = ''
             return
         except:
             logger.warning("ApplicationEntity failed to set required called AE "
                 "title, defaulting to empty string (i.e. called AE title not "
                 "required to match)")
 
-        self.__require_called_aet = ''
+        self._require_called_aet = ''
 
     @property
     def scu_supported_sop(self):
-        return self.__scu_supported_sop
+        return self._scu_supported_sop
 
     @scu_supported_sop.setter
     def scu_supported_sop(self, sop_list):
@@ -666,7 +666,7 @@ class ApplicationEntity(object):
         exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
         attribute(ie VerificationSOPClass)
         """
-        self.__scu_supported_sop = []
+        self._scu_supported_sop = []
         
         try:
             for sop_class in sop_list:
@@ -684,7 +684,7 @@ class ApplicationEntity(object):
                         raise ValueError("SCU SOP class must be a UID str, "
                                 "UID or ServiceClass subclass")
                                 
-                    self.__scu_supported_sop.append(sop_uid)
+                    self._scu_supported_sop.append(sop_uid)
                 
                 except InvalidUID:
                     raise ValueError("SCU SOP classes contained an invalid "
@@ -692,7 +692,7 @@ class ApplicationEntity(object):
                 except Exception as e:
                     logger.warning("Invalid SCU SOP class '%s'" %sop_class)
 
-            if sop_list != [] and self.__scu_supported_sop == []:
+            if sop_list != [] and self._scu_supported_sop == []:
                 raise ValueError("No valid SCU SOP classes were supplied")
         except TypeError:
             raise ValueError("scu_sop_class must be a list")
@@ -701,7 +701,7 @@ class ApplicationEntity(object):
 
     @property
     def scp_supported_sop(self):
-        return self.__scp_supported_sop
+        return self._scp_supported_sop
 
     @scp_supported_sop.setter
     def scp_supported_sop(self, sop_list):
@@ -711,7 +711,7 @@ class ApplicationEntity(object):
         exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
         attribute(ie VerificationSOPClass)
         """
-        self.__scp_supported_sop = []
+        self._scp_supported_sop = []
 
         try:
             for sop_class in sop_list:
@@ -729,7 +729,7 @@ class ApplicationEntity(object):
                         raise ValueError("SCU SOP class must be a UID str, "
                                 "UID or ServiceClass subclass")
 
-                    self.__scp_supported_sop.append(sop_uid)
+                    self._scp_supported_sop.append(sop_uid)
 
                 except InvalidUID:
                     raise ValueError("scp_sop_class must be a list of "
@@ -737,7 +737,7 @@ class ApplicationEntity(object):
                 except Exception as e:
                     logger.warning("Invalid SCP SOP class '%s'" %sop_class)
 
-            if sop_list != [] and self.__scp_supported_sop == []:
+            if sop_list != [] and self._scp_supported_sop == []:
                 raise ValueError("No valid SCP SOP classes were supplied")
         except TypeError:
             raise ValueError("scp_sop_class must be a list")
@@ -746,12 +746,12 @@ class ApplicationEntity(object):
 
     @property
     def transfer_syntaxes(self):
-        return self.__transfer_syntaxes
+        return self._transfer_syntaxes
 
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
         
-        self.__transfer_syntaxes = []
+        self._transfer_syntaxes = []
         
         try:
             for syntax in transfer_syntaxes:
@@ -770,7 +770,7 @@ class ApplicationEntity(object):
                                     "a UID str, UID or ServiceClass subclass")
                     
                     if sop_uid.is_transfer_syntax:
-                        self.__transfer_syntaxes.append(sop_uid)
+                        self._transfer_syntaxes.append(sop_uid)
                     else:
                         logger.warning("Attempted to add a non-transfer syntax "
                             "UID '%s'" %syntax)
@@ -778,7 +778,7 @@ class ApplicationEntity(object):
                 except InvalidUID:
                     raise ValueError("Transfer syntax contained an invalid "
                             "UID string")
-            if self.__transfer_syntaxes == []:
+            if self._transfer_syntaxes == []:
                 raise ValueError("Transfer syntax must be a list of SOP Classes")
         except:
             raise ValueError("Transfer syntax SOP class must be a "
@@ -788,30 +788,37 @@ class ApplicationEntity(object):
     # High-level DIMSE-C callbacks - user should implement these as required
     def on_c_echo(self):
         """
-        Function callback for when a C-ECHO request is received. Must be 
-        defined by the user prior to calling AE.start()
-        
-        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP() prior
-        to sending a response
-        
+        Function callback for when a C-ECHO request is received. User 
+        implementation is not required for the C-ECHO service, but if you intend
+        to do so it should be defined prior to calling AE.start()
+
+        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP() after
+        receiving a C-ECHO request and immediately prior to sending the 
+        response. As the status for a C-ECHO response is always Success no 
+        return value is required.
+
         Example
         -------
-        def on_c_echo():
-            print('Received C-ECHO')
-            
-        ae = AE()
-        ae.on_c_echo = on_c_echo
-        
-        ae.start()
+        .. code-block:: python 
+
+                from pynetdicom import AE, VerificationSOPClass
+                
+                def on_c_echo():
+                    print('Received C-ECHO from peer')
+                
+                ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
+                ae.on_c_echo = on_c_echo
+                
+                ae.start()
         """
-        raise NotImplementedError("User must implement the AE.on_c_echo "
-                    "function prior to calling AE.start()")
+        # User implementatino of on_c_echo is optional
+        pass
 
     def on_c_store(self, dataset):
         """
         Function callback for when a dataset is received following a C-STORE 
         request from a peer AE. Must be defined by the user prior to calling 
-        AE.start() and must return a valid C-STORE status value or the 
+        AE.start() and must return a valid C-STORE status integer value or the 
         corresponding pynetdicom.SOPclass.Status object.
         
         Example
@@ -819,20 +826,19 @@ class ApplicationEntity(object):
         from pynetdicom import AE, StorageSOPClassList
         
         def on_c_store(dataset):
-            print(dataset.PatientID)
-            
+            print(dataset.SOPInstanceUID)
             return 0x0000
             
         ae = AE(11112, scp_sop_class=StorageSOPClassList)
         ae.on_c_store = on_c_store
         
         ae.start()
-        
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent in the C-STORE request
-            
+
         Returns
         -------
         status : pynetdicom.SOPclass.Status or int
@@ -842,7 +848,7 @@ class ApplicationEntity(object):
                 Success status
                     StorageServiceClass.Success
                         Success - 0x0000
-                    
+
                 Failure statuses
                     StorageServiceClass.OutOfResources
                         Refused: Out of Resources - 0xA7xx
@@ -850,7 +856,7 @@ class ApplicationEntity(object):
                         Error: Data Set does not match SOP Class - 0xA9xx
                     StorageServiceClass.CannotUnderstand
                         Error: Cannot understand - 0xCxxx
-                
+
                 Warning statuses
                     StorageServiceClass.CoercionOfDataElements
                         Coercion of Data Elements - 0xB000
@@ -858,6 +864,11 @@ class ApplicationEntity(object):
                         Data Set does not matching SOP Class - 0xB007
                     StorageServiceClass.ElementsDiscarded
                         Elements Discarded - 0xB006
+
+        Raises
+        ------
+        NotImplementedError
+            If the callback has not been implemented by the user
         """
         raise NotImplementedError("User must implement the AE.on_c_store "
                     "function prior to calling AE.start()")
