@@ -167,7 +167,7 @@ class DIMSEMessage(object):
 
         ## DATASET (if available)
         # Split out dataset up into fragment with maximum size of max_pdu
-        #   Check that we the Data Set is not empty
+        #   Check that the Data Set is not empty
         if self.data_set.getvalue() != b'':
             # Technically these are APDUs, not PDVs
             pdvs = fragment(max_pdu, self.data_set)
