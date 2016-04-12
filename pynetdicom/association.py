@@ -1052,10 +1052,7 @@ class Association(threading.Thread):
                         logger.debug('')
                         logger.error('Move Response: %s (Failure)' %ii)
                         logger.error('    %s' %status.Description)
-                        
-                        for elem in dataset:
-                            logger.error('%s: %s' %(elem.name, elem.value))
-                    
+
                         break
                     elif status.Type == "Cancel":
                         logger.debug('')

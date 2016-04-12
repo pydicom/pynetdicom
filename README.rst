@@ -49,10 +49,11 @@ supports the corresponding Service Classes):
 - C-MOVE: ``Association.send_c_move(dataset, move_aet)`` requests the peer 
   search its set of managed SOP Instances for those that match the attributes 
   given in *dataset* and then copy those matching Instances to the AE with title
-  *move_aet*
+  *move_aet* over a new association.
 
-See the `SCU Examples <docs/scu_examples.rst>`_ and the Association documentation 
-for more information.
+Where *dataset* is a pydicom Dataset object. See the `SCU Examples 
+<docs/scu_examples.rst>`_ and the Association documentation for more 
+information.
 
 Supported SCP Services
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -66,9 +67,10 @@ implementing the following ``AE`` callbacks:
 - C-STORE: ``AE.on_c_store(dataset)``
 - C-FIND: ``AE.on_c_find(dataset)`` and ``AE.on_c_find_cancel()``
 - C-GET: ``AE.on_c_get(dataset)`` and ``AE.on_c_get_cancel()``
-- C-MOVE: ``AE.on_c_move(dataset)`` and ``AE.on_c_move_cancel()``
+- C-MOVE: ``AE.on_c_move(dataset, move_aet)`` and ``AE.on_c_move_cancel()``
  
-See the SCP Examples and the AE documentation for more information.
+Where *dataset* is a pydicom Dataset object. See the SCP Examples and the AE 
+documentation for more information.
 
 
 Installation

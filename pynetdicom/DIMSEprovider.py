@@ -595,7 +595,26 @@ class DIMSEServiceProvider(object):
         dimse_msg : pydicom.DIMSEmessages.C_MOVE_RSP
             The C-MOVE-RSP DIMSE Message to be sent
         """
-        pass
+        d = dimse_msg.command_set
+        
+        dataset = 'None'
+        if dimse_msg.data_set.getvalue() != b'':
+            dataset = 'Present'
+        
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-MOVE RSP')
+        s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
+        s.append('Affected SOP Class UID        : none')
+        s.append('Data Set                      : %s' %dataset)
+        s.append('DIMSE Status                  : 0x%04x' %d.Status)
+        
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+
+        for line in s:
+            logger.debug(line)
 
 
     def debug_receive_c_echo_rq(self, dimse_msg):
@@ -890,8 +909,35 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom.DIMSEmessage.C_MOVE_RSP
             The received C-MOVE-RSP DIMSE Message
         """
-        pass
+        d = dimse_msg.command_set
+        
+        dataset = 'None'
+        if dimse_msg.data_set.getvalue() != b'':
+            dataset = 'Present'
+        
+        if 'NumberOfRemainingSuboperations' in d:
+            no_remain = d.NumberOfRemainingSuboperations
+        else:
+            no_remain = 0
+        
+        s = []
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : %s' %'C-MOVE RSP')
+        s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
+        s.append('Remaining Sub-operations      : %s' %no_remain)
+        s.append('Completed Sub-operations      : %s' %d.NumberOfCompletedSuboperations)
+        s.append('Failed Sub-operations         : %s' %d.NumberOfFailedSuboperations)
+        s.append('Warning Sub-operations        : %s' %d.NumberOfWarningSuboperations)
+        s.append('Data Set                      : %s' %dataset)
+        s.append('DIMSE Status                  : 0x%04x' %d.Status)
+        
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
 
+        for line in s:
+            logger.debug(line)
 
     def debug_send_n_event_report_rq(self, dimse_msg):
         """
