@@ -488,101 +488,116 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
 class QueryRetrieveMoveServiceClass(ServiceClass):
-    OutOfResourcesNumberOfMatches = Status(
-        'Failure',
+    OutOfResourcesNumberOfMatches = Status('Failure',
         'Refused: Out of resources - Unable to calcultate number of matches',
         range(0xA701, 0xA701 + 1)    )
-    OutOfResourcesUnableToPerform = Status(
-        'Failure',
+    OutOfResourcesUnableToPerform = Status('Failure',
         'Refused: Out of resources - Unable to perform sub-operations',
         range(0xA702, 0xA702 + 1)    )
-    MoveDestinationUnknown = Status(
-        'Failure',
-        'Refused: Move destination unknown',
-        range(0xA801, 0xA801 + 1)    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
+    MoveDestinationUnknown = Status('Failure',
+                                    'Refused: Move destination unknown',
+                                    range(0xA801, 0xA801 + 1)    )
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
         'Identifier does not match SOP Class',
         range(0xA900, 0xA900 + 1)    )
-    UnableToProcess = Status(
-        'Failure',
+    UnableToProcess = Status('Failure',
         'Unable to process',
         range(0xC000, 0xCFFF + 1)    )
-    Cancel = Status(
-        'Cancel',
+    Cancel = Status('Cancel',
         'Sub-operations terminated due to Cancel indication',
         range(0xFE00, 0xFE00 + 1)    )
-    Warning = Status(
-        'Warning',
+    Warning = Status('Warning',
         'Sub-operations Complete - One or more Failures or Warnings',
         range(0xB000, 0xB000 + 1)    )
-    Success = Status(
-        'Success',
+    Success = Status('Success',
         'Sub-operations Complete - No Failure or Warnings',
         range(0x0000, 0x0000 + 1)    )
-    Pending = Status(
-        'Pending',
+    Pending = Status('Pending',
         'Sub-operations are continuing',
         range(0xFF00, 0xFF00 + 1)    )
 
     def SCP(self, msg):
-        ds = decode(msg.Identifier, 
-                    self.transfersyntax.is_implicit_VR,
-                    self.transfersyntax.is_little_endian)
+        attributes = decode(msg.Identifier, 
+                            self.transfersyntax.is_implicit_VR,
+                            self.transfersyntax.is_little_endian)
 
-        # make response
-        rsp = C_MOVE_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID.value
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
+        # Build C-MOVE response primitive
+        c_move_rsp = C_MOVE_ServiceParameters()
+        c_move_rsp.MessageIDBeingRespondedTo = msg.MessageID
+        c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        c_move_rsp.Identifier = msg.Identifier
         
-        # FIXME
-        gen = self.AE.OnReceiveMove(self, ds, msg.MoveDestination.value)
-
-        # first value returned by callback must be the complete remote AE specs
-        remoteAE = gen.next()
-
-        # request association to move destination
-        ass = self.AE.RequestAssociation(remoteAE)
-        nop = gen.next()
+        logger.info('Move SCP Request Identifiers:')
+        logger.info('')
+        logger.info('# DICOM Data Set')
+        for elem in attributes:
+            logger.info(elem)
+        logger.info('')
+        
+        # The user is responsible for returning the matching Instances
         try:
-            ncomp = 0
-            nfailed = 0
-            nwarning = 0
-            ncompleted = 0
-            while 1:
-                DataSet = gen.next()
-                # request an association with destination
-                # send C-STORE
-                s = str(UID2SOPClass(DataSet.SOPClassUID))
-                ind = len(s) - s[::-1].find('.')
-                obj = getattr(ass, s[ind:-2])
-                status = obj.SCU(DataSet, ncompleted)
-                if status.Type == 'Failed':
-                    nfailed += 1
-                if status.Type == 'Warning':
-                    nwarning += 1
-                rsp.Status = int(self.Pending)
-                rsp.NumberOfRemainingSubOperations = nop - ncompleted
-                rsp.NumberOfCompletedSubOperations = ncompleted
-                rsp.NumberOfFailedSubOperations = nfailed
-                rsp.NumberOfWarningSubOperations = nwarning
-                ncompleted += 1
+            matches = self.AE.on_c_move(attributes, msg.MoveDestination)
+        except:
+            logger.error('Exception in on_c_move')
+            c_get_rsp.Status = int(self.UnableToProcess)
+            logger.info('Move SCP Response %s (Failure)' %ii)
+            self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            return
 
-                # send response
-                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+        # First value is the number of matches
+        c_move_rsp.NumberOfRemainingSuboperations = next(matches)
+        c_move_rsp.NumberOfCompletedSuboperations = 0
+        c_move_rsp.NumberOfFailedSuboperations = 0
+        c_move_rsp.NumberOfWarningSuboperations = 0
+        
+        # Second value is the addr and port for the move destination if known
+        #   None, None if not known
+        addr, port = next(matches)
+        
+        if None in [addr, port]:
+            logger.error('Unknown move destination: %s' %msg.MoveDestination)
+            c_move_rsp.Status = int(self.MoveDestinationUnknown)
+            logger.info('Move SCP Response (Failure)')
+            self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            return
 
-        except StopIteration:
-            # send final response
-            rsp = C_MOVE_ServiceParameters()
-            rsp.MessageIDBeingRespondedTo = msg.MessageID.value
-            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
-            rsp.NumberOfRemainingSubOperations = nop - ncompleted
-            rsp.NumberOfCompletedSubOperations = ncompleted
-            rsp.NumberOfFailedSubOperations = nfailed
-            rsp.NumberOfWarningSubOperations = nwarning
-            rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-            ass.Release(0)
+        # Request new association with move destination
+        #   need (addr, port, aet)
+        assoc = self.AE.associate(addr, port, msg.MoveDestination)
+        
+        if assoc.is_established:
+            ii = 1
+            for dataset in matches:
+                # Send dataset via C-STORE over new association
+                status = assoc.send_c_store(dataset)
+                store_status = status.Type
+                
+                logger.info('Move SCU: Received Store SCU RSP (%s)' %store_status)
+                
+                if store_status == 'Failure':
+                    c_move_rsp.NumberOfFailedSuboperations += 1
+                elif store_status == 'Warning':
+                    c_move_rsp.NumberOfWarningSuboperations += 1
+                elif store_status == 'Success':
+                    c_move_rsp.NumberOfCompletedSuboperations += 1
+                
+                c_move_rsp.NumberOfRemainingSuboperations -= 1
+                
+                c_move_rsp.Status = int(self.Pending)
+                
+                logger.info('Move SCP Response %s (Pending)' %ii)
+                
+                self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            
+                ii += 1
+            
+            assoc.release()
+        
+        # Send Success C-GET-RSP to peer
+        c_move_rsp.Status = int(self.Success)
+        logger.info('Move SCP Response %s (Success)' %ii)
+        self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+
 
 class QueryRetrieveGetServiceClass(ServiceClass):
     OutOfResourcesNumberOfMatches = Status('Failure',

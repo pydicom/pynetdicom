@@ -1,14 +1,6 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
-#
 
 from io import StringIO, BytesIO
 import logging
-
-import pydicom
 
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset

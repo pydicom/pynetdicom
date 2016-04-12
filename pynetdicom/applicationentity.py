@@ -941,41 +941,12 @@ class ApplicationEntity(object):
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-STORE
             
-        Returns
-        -------
-        status : pynetdicom.SOPclass.Status or int
-            A valid return status for the C-GET operation (see PS3.4 Annex 
-            C.4.3.1.4), must be one of the following Status objects or the
-            corresponding integer value:
-                Success status
-                    QueryRetrieveGetSOPClass.Success
-                        Sub-operations complete - 0x0000
-                    
-                Failure statuses
-                    QueryRetrieveGetSOPClass.OutOfResourcesNumberOfMatches
-                        Refused: Out of Resources - Unable to calculate number
-                        of matches - 0xA701
-                    QueryRetrieveGetSOPClass.OutOfResourcesUnableToPerform
-                        Refused: Out of Resources - Unable to perform 
-                        sub-operations - 0xA702
-                    QueryRetrieveGetSOPClass.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - 0xA900
-                    QueryRetrieveGetSOPClass.UnableToProcess
-                        Unable to process - 0xCxxx
-                
-                Cancel status
-                    QueryRetrieveGetSOPClass.Cancel
-                        Sub-operations terminated due to Cancel indication 
-                        - 0xFE00
-                
-                Warning statuses
-                    QueryRetrieveGetSOPClass.Warning
-                        Sub-operations complete - one or more failures or 
-                        warnings - 0xB000
-                        
-                Pending status
-                    QueryRetrieveGetSOPClass.Pending
-                        Sub-operations are continuing - 0xFF00
+        Yields
+        ------
+        int, pydicom.dataset.Dataset
+            The first yielded value should be the number of matching Instances
+            that will be returned, all subsequent yielded values should be the
+            matching Dataset(s)
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                     "function prior to calling AE.start()")
@@ -984,55 +955,38 @@ class ApplicationEntity(object):
         raise NotImplementedError("User must implement the "
                     "AE.on_c_get_cancel function prior to calling AE.start()")
 
-    def on_c_move(self, dataset):
+    def on_c_move(self, dataset, move_aet):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
         a valid status. In addition,the AE.on_c_move_cancel() callback must 
-        also be defined
+        also be defined.
+        
+        Matching Instances will be sent to the known peer AE with AE title 
+        `move_aet` over a new association. If `move_aet` is unknown then the
+        C-MOVE will fail due to 'Move Destination Unknown'.
+        
+        A successful match should return a generator with the first value
+        the number of matching Instances, the second value the (addr, port) of
+        the move destination and the remaining values the matching Instance
+        datasets.
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-MOVE
+        move_aet : str
+            The destination AE title that matching Instances will be sent to
 
-        Returns
-        -------
-        status : pynetdicom.SOPclass.Status or int
-            A valid return status for the C-MOVE operation (see PS3.4 Annex 
-            C.4.2.1.5), must be one of the following Status objects or the
-            corresponding integer value:
-                Success status
-                    sop_class.Success
-                        Sub-operations complete - no failures - 0x0000
-
-                Failure statuses
-                    sop_class.OutOfResourcesNumberOfMatches
-                        Refused: Out of Resources - Unable to calculate number
-                        of matches - 0xA701
-                    sop_class.OutOfResourcesUnableToPerform
-                        Refused: Out of Resources - Unable to perform 
-                        sub-operations - 0xA702
-                    sop_class.MoveDestinationUnknown
-                        Refused: Move destination unknown - 0xA801
-                    sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - 0xA900
-                    sop_class.UnableToProcess
-                        Unable to process - 0xCxxx
-
-                Cancel status
-                    sop_class.Cancel
-                        Sub-operations terminated due to Cancel indication 
-                        - 0xFE00
-
-                Warning statuses
-                    sop_class.Warning
-                        Sub-operations complete - one or more failures or 
-                        warnings - 0xB000
-
-                Pending status
-                    sop_class.Pending
-                        Sub-operations are continuing - 0xFF00
+        Yields
+        ------
+        number_matches : int
+            The number of matching Instances
+        addr, port : str, int
+            The TCP/IP address and port number of the destination AE (if known)
+            None, None if unknown
+        match : pydicom.dataset.Dataset
+            The matching Instance dataset
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                     "function prior to calling AE.start()")
