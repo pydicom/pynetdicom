@@ -811,7 +811,7 @@ class ApplicationEntity(object):
                 
                 ae.start()
         """
-        # User implementatino of on_c_echo is optional
+        # User implementation of on_c_echo is optional
         pass
 
     def on_c_store(self, dataset):

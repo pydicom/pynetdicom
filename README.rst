@@ -73,8 +73,12 @@ See the SCP Examples and the AE documentation for more information.
 
 Installation
 -----------
-- From github:
+Dependencies
+~~~~~~~~~~~~
+`pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0
 
+Installing From github
+~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh 
 
         $ git clone https://github.com/scaramallion/pynetdicom.git
@@ -137,7 +141,3 @@ Examples
             assoc.send_c_store(dataset)
 
         assoc.release()
-
-Dependencies
-------------
-`pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0

@@ -229,7 +229,6 @@ if assoc.is_established:
     time.sleep(1)
     if response is not None:
         for value in response:
-            #print(value)
             pass
     
     assoc.release()

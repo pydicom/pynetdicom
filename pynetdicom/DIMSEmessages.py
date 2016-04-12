@@ -8,6 +8,8 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
 from pydicom.uid import ImplicitVRLittleEndian
+# Temporary fix while waiting for pydicom upstream
+from pydicom.datadict import dictionary_has_tag, dictionary_keyword
 
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.dsutils import encode_element, encode, decode
@@ -304,7 +306,18 @@ class DIMSEMessage(object):
         for elem in self.command_set:
             # Use the short version of the element names as these should
             #   match the parameter names in the primitive
-            elem_name = elem.name.replace(' ', '')
+            #
+            # Nope, there's no guarantee that this will be the case
+            #   I think I'll add a keyword parameter to the pydicom Element
+            #   class and push upstream
+            # elem_name = elem.keyword
+            #   
+            # In the meantime we can add a workaround
+            if dictionary_has_tag(elem.tag):
+                elem_name = dictionary_keyword(elem.tag)
+            else:
+                elem_name = elem.name.replace(' ', '')
+
             if elem_name in primitive.__dict__.keys():
                 # If value hasn't been set for a parameter then delete
                 #   the corresponding element
