@@ -243,7 +243,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def Encode(self):
         
         logger.debug('Constructing Associate RQ PDU')
-        
+
         # Python3 must implicitly define string as bytes
         tmp = b''
         tmp = tmp + pack('B',   self.PDUType)
@@ -258,6 +258,10 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         # variable item elements
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
+        
+        # For debugging the outgoing RQ PDU
+        #for line in wrap_list(tmp, max_size=512):
+        #    logger.debug('  ' + line)
         
         return tmp
 
@@ -492,7 +496,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         logger.debug('PDU Type: Associate Accept, PDU Length: %s + %s bytes '
                         'PDU header' %(len(s.getvalue()), 6))
         
-        for line in wrap_list(s):
+        for line in wrap_list(s, max_size=512):
             logger.debug('  ' + line)
         
         logger.debug('Parsing an A-ASSOCIATE PDU')
@@ -1344,7 +1348,7 @@ class AbstractSyntaxSubItem(PDU):
         """
         Parameters
         ----------
-        syntax_name - pydicom.uid.UID
+        syntax_name : pydicom.uid.UID
             The abstract syntax name as a UID
         """
         self.AbstractSyntaxName = syntax_name
@@ -2034,7 +2038,7 @@ class SCP_SCU_RoleSelectionSubItem:
         tmp += pack('B', self.Reserved)
         tmp += pack('>H', self.ItemLength)
         tmp += pack('>H', self.UIDLength)
-        tmp += bytes(self.SOPClassUID, 'utf-8')
+        tmp += bytes(self.SOPClass, 'utf-8')
         tmp += pack('B B', self.SCURole, self.SCPRole)
         return tmp
 
@@ -2044,7 +2048,6 @@ class SCP_SCU_RoleSelectionSubItem:
          self.ItemLength, 
          self.UIDLength) = unpack('> B B H H', Stream.read(6))
         self.SOPClassUID = Stream.read(self.UIDLength)
-        print(type(self.SOPClassUID))
         (self.SCURole, self.SCPRole) = unpack('B B', Stream.read(2))
 
     def TotalLength(self):

@@ -1,11 +1,11 @@
 =======
 echoscu
 =======
-    echoscu [options] peer port
+    ``echoscu [options] peer port``
 
 Description
 ===========
-The echoscu application implements a Service Class User (SCU) for the 
+The ``echoscu`` application implements a Service Class User (SCU) for the 
 *Verification SOP Class* (UID 1.2.840.10008.1.1) [#]_. It establishes an Association 
 with a peer Application Entity (AE) which it then sends a DICOM C-ECHO-RQ 
 message [#]_ and waits for a response. The application can be used to verify 
@@ -32,7 +32,7 @@ When attempting to associate with a non-DICOM peer
     E: TCP Initialisation Error: (Connection refused) 
     user@host: 
 
-Using the *--propose-pc [n]* option, the echoscu application can also 
+Using the ``--propose-pc [n]`` option, the echoscu application can also 
 propose *n* Presentation Contexts [#]_ (all with an Abstract Syntax of 
 *Verification SOP Class*) in order to provide debugging assistance for 
 association negotiation
@@ -89,7 +89,7 @@ The echoscu application supports the following SOP Class as an SCU:
 ::
     Verification SOP Class          1.2.840.10008.1.1
 
-Unless the *--propose-ts* option is used, the echoscu application will only 
+Unless the ``--propose-ts`` option is used, the echoscu application will only 
 propose the *Little Endian Implicit VR Transfer Syntax* (UID 1.2.840.10008.1.2).
 The supported Transfer Syntaxes [#]_ are:
 ::

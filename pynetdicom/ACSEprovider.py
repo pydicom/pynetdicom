@@ -40,19 +40,21 @@ class ACSEServiceProvider(object):
 
     Parameters
     ----------
-    DUL - pynetdicom.DULprovider.DULServiceProvider
+    assoc : pynetdicom.association.Association
+        The parent Association that owns the ACSE provider
+    DUL : pynetdicom.DULprovider.DULServiceProvider
         The DICOM UL service provider instance that will handle the transport of
         the association primitives sent/received by the ACSE provider
-    acse_timeout - int
-        The maximum time (in seconds) to wait for A-ASSOCIATE PDUs from the peer
-        (default: 30)
+    acse_timeout : int, optional
+        The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs from 
+        the peer (default: 30)
 
     References
     ----------
     DICOM Standard PS3.8
     ISO/IEC 8649
     """
-    def __init__(self, DUL, acse_timeout=30):
+    def __init__(self, assoc, DUL, acse_timeout=30):
         # The DICOM Upper Layer service provider, see PS3.8
         self.DUL = DUL
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
@@ -60,6 +62,8 @@ class ACSEServiceProvider(object):
         self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
+        
+        self.parent = assoc
         
         self.local_ae = None
         self.peer_ae = None
@@ -185,6 +189,7 @@ class ACSEServiceProvider(object):
                 self.MaxPDULength = \
                         assoc_rsp.UserInformationItem[0].MaximumLengthReceived
                 self.peer_max_pdu = self.MaxPDULength
+                self.parent.peer_max_pdu = self.MaxPDULength
 
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl
@@ -283,6 +288,8 @@ class ACSEServiceProvider(object):
         """
         self.MaxPDULength = \
                 assoc_primitive.UserInformationItem[0].MaximumLengthReceived
+        self.local_max_pdu = self.MaxPDULength
+        self.parent.local_max_pdu = self.MaxPDULength
 
         # Send response
         assoc_primitive.PresentationContextDefinitionList = []
@@ -484,6 +491,8 @@ class ACSEServiceProvider(object):
         a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
+        logger.info("Association Acknowledged")
+        
         # Shorthand
         assoc_ac = a_associate_ac
         
@@ -618,6 +627,8 @@ class ACSEServiceProvider(object):
         a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance
         """
+        logger.info("Association Received")
+        
         # Shorthand
         assoc_rq = a_associate_rq
         
@@ -743,7 +754,9 @@ class ACSEServiceProvider(object):
         
         for line in s:
             logger.debug(line)
-        
+
+        logger.info('Association Accepted')
+
     def debug_receive_associate_rj(self, a_associate_rj):
         """
         Placeholder for a function callback. Function will be called 

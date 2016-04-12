@@ -16,11 +16,8 @@ from pydicom import read_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-
 from pynetdicom import AE
-from pynetdicom.SOPclass import CTImageStorageSOPClass, StorageServiceClass, \
-                                  MRImageStorageSOPClass
-
+from pynetdicom import StorageSOPClassList
 
 logger = logging.Logger('storescu')
 stream_logger = logging.StreamHandler()
@@ -117,25 +114,15 @@ except:
     logger.error('File may not be DICOM %s' %args.dcmfile_in)
     sys.exit()
 
-if dataset.file_meta.TransferSyntaxUID in ['1.2.840.10008.1.2', 
-                                            '1.2.840.10008.1.2.1']:
-    byte_order = 'little'
-else:
-    byte_order = 'big'
-    
-# Create application entity
 # Set Transfer Syntax options
 transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
-#class TestStorageSOPClass(StorageServiceClass):
-#    UID = '1.2.840.10008.5.1.4.1.1.2.5'
-
 # Bind to port 0, OS will pick an available port
 ae = AE(ae_title=args.calling_aet,
         port=0,
-        scu_sop_class=[CTImageStorageSOPClass],
+        scu_sop_class=StorageSOPClassList,
         scp_sop_class=[],
         transfer_syntax=transfer_syntax)
 
@@ -145,29 +132,9 @@ assoc = ae.associate(args.peer, args.port, args.called_aet)
 if assoc.is_established:
     logger.info('Sending file: %s' %args.dcmfile_in)
     
-    # Correct ambiguous VRs for Implicit
-    # See PS3.5 Annex A
-    for elem in dataset:
-        elem_name = ''.join(elem.description().split(' '))
-        elem_group = elem.tag.group
-        elem_element = elem.tag.elem
-        if elem.VR == 'US or SS':
-            logger.debug("Setting undefined VR of %s (%04x, %04x) to 'US'" 
-                                %(elem_name, elem_group, elem_element))
-            elem.VR = 'US'
-            elem.value = int.from_bytes(elem.value, byteorder=byte_order)
-        if elem.VR == 'OB or OW':
-            # (7fe0,0010) shall be OW
-            # (60xx,3000) shall be OW
-            # (5400,1010) shall be OW
-            # (0028,1201) (0028,1202) (0028,1203) (0028, 1204) shall be OW
-            logger.debug("Setting undefined VR of %s (%04x, %04x) to 'OW'" 
-                                %(elem_name, elem_group, elem_element))
-            elem.VR = 'OW'
-    
     status = assoc.send_c_store(dataset)
     
-    assoc.Release()
+    assoc.release()
 
 
 # Quit

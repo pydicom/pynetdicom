@@ -7,9 +7,9 @@
 import logging
 import socket
 
-from pynetdicom.PDU import *
-from pynetdicom.DIMSEmessages import wrap_list
 import pynetdicom.DULparameters
+from pynetdicom.PDU import *
+from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom.sm')
 
@@ -164,7 +164,6 @@ def AE_2(dul):
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
-    dul.local_ae.on_send_associate_rq(dul.pdu)
     dul.association.acse.debug_send_associate_rq(dul.pdu)
 
     bytestream = dul.pdu.Encode()
@@ -305,7 +304,6 @@ def AE_6(dul):
         dul.pdu.FromParams(dul.primitive)
         
         # Callback
-        dul.local_ae.on_send_associate_rj(dul.pdu)
         dul.association.ACSE.debug_send_associate_rj(dul.pdu)
 
         dul.scu_socket.send(dul.pdu.Encode())
@@ -346,7 +344,6 @@ def AE_7(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_associate_ac(dul.pdu)
     dul.association.acse.debug_send_associate_ac(dul.pdu)
     
     bytestream = dul.pdu.Encode()
@@ -380,7 +377,6 @@ def AE_8(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_associate_rj(dul.pdu)
     dul.association.acse.debug_send_associate_rj(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
@@ -417,7 +413,6 @@ def DT_1(dul):
     dul.primitive = None # Why this?
     
     # Callback
-    dul.local_ae.on_send_data_tf(dul.pdu)
     dul.association.acse.debug_send_data_tf(dul.pdu)
     
     bytestream = dul.pdu.Encode()
@@ -478,7 +473,6 @@ def AR_1(dul):
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
-    dul.local_ae.on_send_release_rq(dul.pdu)
     dul.association.acse.debug_send_release_rq(dul.pdu)
 
     bytestream = dul.pdu.Encode()
@@ -567,7 +561,6 @@ def AR_4(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_release_rp(dul.pdu)
     dul.association.acse.debug_send_release_rp(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
@@ -656,7 +649,6 @@ def AR_7(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_data_tf(dul.pdu)
     dul.association.acse.debug_send_data_tf(dul.pdu)
     
     bytestream = dul.pdu.Encode()
@@ -719,7 +711,6 @@ def AR_9(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_release_rp(dul.pdu)
     dul.association.acse.debug_send_release_rp(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
@@ -793,7 +784,6 @@ def AA_1(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_abort(dul.pdu)
     dul.association.acse.debug_send_abort(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
@@ -974,7 +964,6 @@ def AA_7(dul):
     dul.pdu.FromParams(dul.primitive)
     
     # Callback
-    dul.local_ae.on_send_abort(dul.pdu)
     dul.association.acse.debug_send_abort(dul.pdu)
     
     dul.scu_socket.send(dul.pdu.Encode())
@@ -1019,7 +1008,6 @@ def AA_8(dul):
     
     if dul.scu_socket:
         # Callback
-        dul.local_ae.on_send_abort(dul.pdu)
         dul.association.acse.debug_send_abort(dul.pdu)
         
         # Encode and send A-ABORT to peer

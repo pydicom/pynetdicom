@@ -1,35 +1,232 @@
 #!/usr/bin/env python
 
 import logging
+import threading
 import unittest
+from unittest.mock import patch
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom import AE
-from pynetdicom.SOPclass import VerificationSOPClass
+from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
+    QueryRetrieveSOPClassList
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
 logger.setLevel(logging.ERROR)
 
 """
-AE(
-   ae_title='PYNETDICOM',
-   port=0, 
-   scu_sop_class=[], 
-   scp_sop_class=[],
-   transfer_syntax=[ExplicitVRLittleEndian,
-                   ImplicitVRLittleEndian,
-                   ExplicitVRBigEndian]
-  )
+    Initialisation
+    --------------
+    AE(
+       ae_title='PYNETDICOM',
+       port=0, 
+       scu_sop_class=[], 
+       scp_sop_class=[],
+       transfer_syntax=[ExplicitVRLittleEndian,
+                        ImplicitVRLittleEndian,
+                        ExplicitVRBigEndian]
+      )
 
-Not sure how to test start() as it loops
-AE.start()
-AE.stop()
-AE.quit()
+    Functions
+    ---------
+    AE.start()
+    AE.stop()
+    AE.quit()
+    AE.associate(addr, port)
 
+    Attributes
+    ----------
+    acse_timeout - int
+    active_associations - list of pynetdicom.association.Association
+    address - str
+    ae_title - str
+    client_socket - socket.socket
+    dimse_timeout - int
+    network_timeout - int
+    maximum_associations - int
+    maximum_pdu_size - int
+    port - int
+    presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
+    require_calling_aet - str
+    require_called_aet - str
+    scu_supported_sop - List of pydicom.uid.UID
+    scp_supported_sop - List of pydicom.uid.UID
+    transfer_syntaxes - List of pydicom.uid.UID
+    
+    Callbacks
+    ---------
+    on_c_echo()
+    on_c_store(dataset)
+    on_c_find(dataset)
+    on_c_find_cancel()
+    on_c_get(dataset)
+    on_c_get_cancel()
+    on_c_move(dataset)
+    on_c_move_cancel()
+    
+    on_n_event_report()
+    on_n_get()
+    on_n_set()
+    on_n_action()
+    on_n_create()
+    on_n_delete()
+
+    on_receive_connection()
+    on_make_connection()
+    
+    on_association_requested(primitive)
+    on_association_accepted(primitive)
+    on_association_rejected(primitive)
+    on_association_released(primitive)
+    on_association_aborted(primitive)
 """
-class AEGoodTimeoutSetters(unittest.TestCase):
+
+class AEVerificationSCP(threading.Thread):
+    def __init__(self):
+        self.ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.start()
+        
+    def run(self):
+        self.ae.start()
+        
+    def stop(self):
+        self.ae.stop()
+
+class AEStorageSCP(threading.Thread):
+    def __init__(self):
+        self.ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.start()
+        
+    def run(self):
+        self.ae.start()
+        
+    def stop(self):
+        self.ae.stop()
+
+
+class TestAEGoodCallbacks(unittest.TestCase):
+    def test_on_c_echo_called(self):
+        """ Check that SCP AE.on_c_echo() was called """
+        scp = AEVerificationSCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        with patch.object(scp.ae, 'on_c_echo') as mock:
+            assoc.send_c_echo()
+            
+        mock.assert_called_with()
+        
+        assoc.release()
+        
+        self.assertRaises(SystemExit, scp.stop)
+    
+    def test_on_c_store_called(self):
+        """ Check that SCP AE.on_c_store(dataset) was called """
+        scp = AEStorageSCP()
+        
+        ae = AE(scu_sop_class=StorageSOPClassList)
+        assoc = ae.associate('localhost', 11112)
+        #with patch.object(scp.ae, 'on_c_store') as mock:
+        #    assoc.send_c_store(dataset)
+            
+        #mock.assert_called_with()
+        
+        assoc.release()
+        
+        #self.assertRaises(SystemExit, scp.stop)
+
+    def test_on_c_find_called(self): pass
+    def test_on_c_get_called(self): pass
+    def test_on_c_move_called(self): pass
+    def test_on_n_event_report_called(self): pass
+    def test_on_n_get_called(self): pass
+    def test_on_n_set_called(self): pass
+    def test_on_n_action_called(self): pass
+    def test_on_n_create_called(self): pass
+    def test_on_n_delete_called(self): pass
+    def test_on_receive_connection_called(self): pass
+    def test_on_make_connection_called(self): pass
+    def test_on_association_req_called(self): pass
+    def test_on_association_acc_called(self): pass
+    def test_on_association_rej_called(self): pass
+    def test_on_association_rel_called(self): pass
+    def test_on_association_abort_called(self): pass
+
+
+class TestAEGoodAssociation(unittest.TestCase):
+    def test_associate_establish_release(self):
+        """ Check SCU Association with SCP """
+        scp = AEVerificationSCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established == True)
+        
+        assoc.release()
+        self.assertTrue(assoc.is_established == False)
+        
+        self.assertRaises(SystemExit, scp.stop)
+    
+    def test_associate_max_pdu(self):
+        """ Check Association has correct max PDUs on either end """
+        scp = AEVerificationSCP()
+        scp.ae.maximum_pdu_size = 54321
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112, max_pdu=12345)
+        
+        self.assertTrue(scp.ae.active_associations[0].local_max_pdu == 54321)
+        self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 12345)
+        self.assertTrue(assoc.local_max_pdu == 12345)
+        self.assertTrue(assoc.peer_max_pdu == 54321)
+        
+        assoc.release()
+        
+        # Check 0 max pdu value
+        assoc = ae.associate('localhost', 11112, max_pdu=0)
+        self.assertTrue(assoc.local_max_pdu == 0)
+        self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 0)
+        
+        assoc.release()
+        self.assertRaises(SystemExit, scp.stop)
+        
+    def test_association_acse_timeout(self):
+        """ Check that the Association timeouts are being set correctly """
+        scp = AEVerificationSCP()
+        scp.ae.acse_timeout = 0
+        scp.ae.dimse_timeout = 0
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 0
+        ae.dimse_timeout = 0
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(scp.ae.active_associations[0].acse_timeout == 0)
+        self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 0)
+        self.assertTrue(assoc.acse_timeout == 0)
+        self.assertTrue(assoc.dimse_timeout == 0)
+        assoc.release()
+        
+        scp.ae.acse_timeout = 21
+        scp.ae.dimse_timeout = 22
+        ae.acse_timeout = 31
+        ae.dimse_timeout = 32
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(scp.ae.active_associations[0].acse_timeout == 21)
+        self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 22)
+        self.assertTrue(assoc.acse_timeout == 31)
+        self.assertTrue(assoc.dimse_timeout == 32)
+        assoc.release()
+        
+        self.assertRaises(SystemExit, scp.stop)
+
+
+class TestAEGoodTimeoutSetters(unittest.TestCase):
     def test_acse_timeout(self):
         """ Check AE ACSE timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
@@ -44,7 +241,7 @@ class AEGoodTimeoutSetters(unittest.TestCase):
         ae.acse_timeout = 30
         self.assertTrue(ae.acse_timeout == 30)
         
-    def test_acse_timeout(self):
+    def test_dimse_timeout(self):
         """ Check AE DIMSE timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.dimse_timeout = None
@@ -73,18 +270,20 @@ class AEGoodTimeoutSetters(unittest.TestCase):
         self.assertTrue(ae.network_timeout == 30)
 
 
-class AEGoodMiscSetters(unittest.TestCase):
+class TestAEGoodMiscSetters(unittest.TestCase):
     def test_ae_title_good(self):
         """ Check AE title change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.ae_title = '     TEST     '
-        self.assertTrue(ae.ae_title == 'TEST')
+        self.assertTrue(ae.ae_title == 'TEST            ')
         ae.ae_title = '            TEST'
-        self.assertTrue(ae.ae_title == 'TEST')
+        self.assertTrue(ae.ae_title == 'TEST            ')
         ae.ae_title = '                 TEST'
-        self.assertTrue(ae.ae_title == 'TEST')
+        self.assertTrue(ae.ae_title == 'TEST            ')
         ae.ae_title = 'a            TEST'
         self.assertTrue(ae.ae_title == 'a            TES')
+        ae.ae_title = 'a        TEST'
+        self.assertTrue(ae.ae_title == 'a        TEST   ')
     
     def test_max_assoc_good(self):
         """ Check AE maximum association change produces good value """
@@ -151,7 +350,7 @@ class AEGoodMiscSetters(unittest.TestCase):
         self.assertTrue(ae.require_called_aet == 'a            TES')
 
 
-class AEGoodInitialisation(unittest.TestCase):
+class TestAEGoodInitialisation(unittest.TestCase):
     def test_sop_classes_good_uid(self):
         """ Check AE initialisation produces valid supported SOP classes """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1', '1.2.840.10008.1.1.1'])
@@ -198,7 +397,7 @@ class AEGoodInitialisation(unittest.TestCase):
         self.assertTrue(ae.transfer_syntaxes == [UID('1.2.840.10008.1.2')])
 
 
-class AEBadInitialisation(unittest.TestCase):
+class TestAEBadInitialisation(unittest.TestCase):
     def test_ae_title_all_spaces(self):
         """ AE should fail if ae_title is all spaces """
         self.assertRaises(ValueError, AE, '                ', 0, [VerificationSOPClass])
