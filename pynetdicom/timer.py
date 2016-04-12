@@ -21,10 +21,15 @@ class Timer:
     Parameters
     ---------
     max_number_seconds - int, float
-        The number of seconds before the timer expires
+        The number of seconds before the timer expires. A value of 0 means
+        no timeout
     """
     def __init__(self, max_number_seconds):
         self._start_time = None
+        
+        if max_number_seconds == 0:
+            max_number_seconds = None
+
         self._max_number_seconds = max_number_seconds
 
     def start(self):
@@ -53,7 +58,7 @@ class Timer:
         bool 
             True if the timer has expired, False otherwise
         """
-        if self._start_time is not None:
+        if self._start_time is not None and self._max_number_seconds is not None:
             if (time.time() - self._start_time) > self._max_number_seconds:
                 logger.debug("Timer has expired")
                 return True
@@ -66,8 +71,12 @@ class Timer:
         Parameters
         ----------
         timeout_seconds - float, int
-            The number of seconds before the timer expires
+            The number of seconds before the timer expires. A value of 0 means
+            no timeout
         """
+        if timeout_seconds == 0:
+            timeout_seconds = None
+
         self._max_number_seconds = timeout_seconds
 
 

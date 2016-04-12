@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 """
-    An echoscp application. 
-    
-    Used for verifying basic DICOM connectivity and as such has a focus on
-    providing useful debugging and logging information.
+    A getscp application. 
 """
 
 import argparse
@@ -12,13 +9,16 @@ import logging
 import os
 import socket
 import sys
+import time
 
+from pydicom import read_file
+from pydicom.dataset import Dataset
+
+from pynetdicom import AE, QueryRetrieveSOPClassList, StorageSOPClassList
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-from pynetdicom import AE, VerificationSOPClass
-
-logger = logging.Logger('')
+logger = logging.Logger('getscp')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
@@ -28,12 +28,14 @@ logger.setLevel(logging.ERROR)
 def _setup_argparser():
     # Description
     parser = argparse.ArgumentParser(
-        description="The echoscp application implements a Service Class "
-                    "Provider (SCP) for the Verification SOP Class. It listens "
-                    "for a DICOM C-ECHO message from a Service Class User "
-                    "(SCU) and sends a response. The application can be used "
-                    "to verify basic DICOM connectivity.", 
-        usage="echoscp [options] port")
+        description="The getscp application implements a Service Class "
+                    "Provider (SCP) for the Query/Retrieve (QR) Service Class "
+                    "and the Basic Worklist Management (BWM) Service Class. "
+                    "getscp only supports query functionality using the C-GET "
+                    "message. It receives query keys from an SCU and sends a "
+                    "response. The application can be used to test SCUs of the "
+                    "QR and BWM Service Classes.",
+        usage="getscp [options] port")
         
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
@@ -67,13 +69,13 @@ def _setup_argparser():
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
                           help="use config file f for the logger", 
                           type=str)
-
+    
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
     net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle', 
-                          help="set my AE title (default: ECHOSCP)", 
+                          help="set my AE title (default: GETSCP)", 
                           type=str, 
-                          default='ECHOSCP')
+                          default='GETSCP')
     net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
                           help="timeout for connection requests", 
                           type=int,
@@ -87,10 +89,10 @@ def _setup_argparser():
                           type=int,
                           default=0)
     net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
-                          help="set max receive pdu to n bytes (4096..131072)", 
+                          help="set max receive pdu to n bytes", 
                           type=int,
                           default=16384)
-
+    
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
     ts_opts.add_argument("-x=", "--prefer-uncompr",
@@ -106,61 +108,19 @@ def _setup_argparser():
                          help="accept implicit VR little endian TS only",
                          action="store_true")
 
-    # Association Options
-    assoc_opts = parser.add_argument_group('Association Options')
-    assoc_opts.add_argument("--refuse",
-                            help="refuse all associations",
-                            action="store_true")
-    assoc_opts.add_argument("--abort-after",
-                            help="abort association after receiving a "
-                                "C-ECHO-RQ (but before sending response)",
-                            action="store_true")
-    assoc_opts.add_argument("--abort-during",
-                            help="abort association during receipt of a "
-                                "C-ECHO-RQ",
-                            action="store_true")
-    
     return parser.parse_args()
 
 args = _setup_argparser()
 
-# Logging/Output
-if args.quiet:
-    for h in logger.handlers:
-        logger.removeHandler(h)
-        
-    logger.addHandler(logging.NullHandler())
-    
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    for h in pynetdicom_logger.handlers:
-        pynetdicom_logger.removeHandler(h)
-        
-    pynetdicom_logger.addHandler(logging.NullHandler())
-
 if args.verbose:
     logger.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.INFO)
     
 if args.debug:
     logger.setLevel(logging.DEBUG)
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-if args.log_level:
-    levels = {'critical' : logging.CRITICAL,
-              'error'    : logging.ERROR, 
-              'warn'     : logging.WARNING,
-              'info'     : logging.INFO,
-              'debug'    : logging.DEBUG}
-    logger.setLevel(levels[args.log_level])
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(levels[args.log_level])
-
-if args.log_config:
-    fileConfig(args.log_config)
-
-logger.debug('$echoscp.py v%s %s $' %('0.2.1', '2016-04-12'))
+logger.debug('$getscp.py v%s %s $' %('0.1.0', '2016-04-11'))
 logger.debug('')
 
 # Validate port
@@ -170,12 +130,12 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient privileges or "
-            "already in use" %args.port)
+        logger.error("Cannot listen on port %d, insufficient priveleges" 
+            %args.port)
         sys.exit()
 
 # Set Transfer Syntax options
-transfer_syntax = [ImplicitVRLittleEndian, 
+transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
@@ -192,34 +152,25 @@ if args.prefer_big:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
+def on_c_get(dataset):
+    basedir = '../test/dicom_files/'
+    dcm_files = ['CTImageStorage.dcm']
+    dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+    yield len(dcm_files)
+    
+    for dcm in dcm_files:
+        data = read_file(dcm, force=True)
+        yield data
+
+scp_classes = [x for x in StorageSOPClassList]
+scp_classes.extend(QueryRetrieveSOPClassList)
+
 # Create application entity
-ae = AE(ae_title=args.aetitle, 
-        port=args.port, 
+ae = AE(ae_title=args.aetitle,
+        port=args.port,
         scu_sop_class=[], 
-        scp_sop_class=[VerificationSOPClass], 
+        scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
-
-if args.abort_after:
-    # Use the on_c_echo callback to send an A-ABORT
-    def on_c_echo(dimse_msg):
-        # Issue A-ABORT request primitive for the association that received
-        #   the C-ECHO-RQ
-        assoc = dimse_msg.ACSE.parent
-        assoc.abort()
-
-    ae.on_c_echo = on_c_echo
-
-if args.abort_during:
-    
-    def on_receive_pdu(self):
-        # Clear event queue and issue A-ABORT request primitive
-        pass
-    
-if args.refuse:
-    
-    def on_receive_associate_rq(self, a_associate_rq):
-        # Issue A-ASSOCIATE refusal primitive
-        pass
 
 ae.maximum_pdu_size = args.max_pdu
 
@@ -227,5 +178,7 @@ ae.maximum_pdu_size = args.max_pdu
 ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
+
+ae.on_c_get = on_c_get
 
 ae.start()

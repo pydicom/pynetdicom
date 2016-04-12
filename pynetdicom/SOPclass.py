@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
-#
 
 import logging
 import time
@@ -13,8 +7,43 @@ from pynetdicom.DIMSEparameters import *
 import pynetdicom.DIMSEprovider
 import pynetdicom.ACSEprovider
 
-
 logger = logging.getLogger('pynetdicom.SOPclass')
+
+def class_factory(name, uid, BaseClass):
+    """
+    Generates a SOP Class subclass of `BaseClass` called `name`
+    
+    Parameters
+    ----------
+    name : str
+        The name of the SOP class
+    uid : str
+        The UID of the SOP class
+    BaseClass : pynetdicom.SOPclass.ServiceClass subclass
+        One of the following Service classes:
+            VerificationServiceClass
+            StorageServiceClass
+            QueryRetrieveFindServiceClass
+            QueryRetrieveGetServiceClass
+            QueryRetrieveMoveServiceClass
+            
+    Returns
+    -------
+    subclass of BaseClass
+        The new class
+    """
+    def __init__(self):
+        BaseClass.__init__(self)
+        
+    new_class = type(name, (BaseClass,), {"__init__": __init__})
+    new_class.UID = uid
+    
+    return new_class
+
+def _generate_service_sop_classes(class_list, service_class):
+    for name in class_list.keys():
+        cls = class_factory(name, class_list[name], service_class)
+        globals()[cls.__name__] = cls
 
 
 class Status(object):
@@ -27,166 +56,102 @@ class Status(object):
         return self.CodeRange[0]
 
     def __repr__(self):
+        return self.Type
+        
+    def __str__(self):
         return self.Type + ' ' + self.Description
 
 
+# DICOM SERVICE CLASS BASE
 class ServiceClass(object):
-    def __init__(self):
-        pass
-
+    """
+    
+    """
     def Code2Status(self, code):
+        """
+        Parameters
+        ----------
+        code : int
+            The status code value from the (0000,0900) dataset element
+            
+        Returns
+        -------
+        obj : pynetdicom.SOPclass.Status
+            The Status object for the `code`
+        """
         for dd in dir(self):
             getattr(self, dd).__class__
             obj = getattr(self, dd)
+            
             if obj.__class__ == Status:
                 if code in obj.CodeRange:
                     return obj
-        # unknown status ...
+        
+        # Unknown status
         return None
 
 
-# VERIFICATION SOP CLASSES
 class VerificationServiceClass(ServiceClass):
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-
-    def __init__(self):
-        ServiceClass.__init__(self)
-
-    def SCU(self, msg_id):
-        cecho = C_ECHO_ServiceParameters()
-        cecho.MessageID = msg_id
-        cecho.AffectedSOPClassUID = self.UID
-
-        self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
-
-        msg, _ = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-        
-        return self.Code2Status(msg.Status)
 
     def SCP(self, msg):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
-        and a C-ECHO-RQ is received then create a C-ECHO-RSP and send it
-        to the peer AE via the DIMSE provider
+        and a C-ECHO request is received then create a C-ECHO response 
+        primitive and send it to the peer AE via the DIMSE provider
         
         Parameters
         ----------
-        msg - pydicom.Dataset
-            The dataset containing the C-ECHO-RQ
+        msg : pynetdicom.DIMSEparameters.C_ECHO_ServiceParameters
+            The C-ECHO request primitive sent by the peer
         """
+        # Create C-ECHO response primitive
         rsp = C_ECHO_ServiceParameters()
-        self.message_id = msg.MessageID.value
-        rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+        rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.Status = int(self.Success)
 
+        # Try and run the user on_c_echo callback
         try:
             self.AE.on_c_echo()
-        except NotImplementedError:
-            pass
         except:
-            logger.exception("Exception raised by the AE.on_c_echo() callback")
-        
-        # Send response via DIMSE provider
-        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            logger.exception("Exception in the AE.on_c_echo() callback")
+
+        # Send primitive
+        self.DIMSE.Send(rsp, self.pcid, self.maxpdulength)
 
 
-class VerificationSOPClass(VerificationServiceClass):
-    UID = '1.2.840.10008.1.1'
-
-
-# STORAGE SOP CLASSES
 class StorageServiceClass(ServiceClass):
+    # Storage Service specific status code values - PS3.4 Annex B.2.3
+    # General status code values - PS3.7 9.1.1.1.9 - not used?
+    #
+    # Note that the response/confirmation primitives do NOT contain a dataset
+    #   and hence only the Status parameter of the primitive is of interest
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA7FF + 1)) 
-    DataSetDoesNotMatchSOPClassFailure = Status(
-                            'Failure',
-                            'Error: Data Set does not match SOP Class',
-                            range(0xA900, 0xA9FF + 1))
-    CannotUnderstand = Status(
-                            'Failure',
-                            'Error: Cannot understand',
-                            range(0xC000, 0xCFFF + 1))
-    CoercionOfDataElements = Status(
-                            'Warning',
-                            'Coercion of Data Elements',
-                            range(0xB000, 0xB000 + 1))
-    DataSetDoesNotMatchSOPClassWarning = Status(
-                            'Warning',
-                            'Data Set does not match SOP Class',
-                            range(0xB007, 0xB007 + 1))
-    ElementDisgarded = Status(
-                            'Warning',
-                            'Element Discarted',
-                            range(0xB006, 0xB006 + 1))
+    DataSetDoesNotMatchSOPClassFailure = Status('Failure',
+                                    'Error: Data Set does not match SOP Class',
+                                    range(0xA900, 0xA9FF + 1))
+    CannotUnderstand = Status('Failure',
+                              'Error: Cannot understand',
+                              range(0xC000, 0xCFFF + 1))
+    CoercionOfDataElements = Status('Warning',
+                                    'Coercion of Data Elements',
+                                    range(0xB000, 0xB000 + 1))
+    DataSetDoesNotMatchSOPClassWarning = Status('Warning',
+                                            'Data Set does not match SOP Class',
+                                            range(0xB007, 0xB007 + 1))
+    ElementDisgarded = Status('Warning',
+                              'Element Discarted',
+                              range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-    
-    def __init__(self):
-        ServiceClass.__init__(self)
-
-    def SCU(self, dataset, msg_id, priority=0x0000):
-        """
-        I think perhaps we should rewrite the .SCU and .SCP methods so
-        they return the DIMSE message that should be sent to the peer
-        
-        Parameters
-        ----------
-        dataset - pydicom.dataset
-            The DICOM dataset to send
-        msg_id - int
-            The DIMSE message ID value to use
-        priority - int, optional
-            The message priority, must be one of the following:
-                0x0002 Low
-                0x0001 High
-                0x0000 Medium
-                
-        Returns
-        -------
-        """
-        # Build C-STORE request primitive
-        c_store_primitive = C_STORE_ServiceParameters()
-        c_store_primitive.MessageID = msg_id
-        c_store_primitive.AffectedSOPClassUID = dataset.SOPClassUID
-        c_store_primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-        
-        # Message priority
-        if priority in [0x0000, 0x0001, 0x0002]:
-            c_store_primitive.Priority = priority
-        else:
-            logger.warning("StorageServiceClass.SCU(): Invalid priority value "
-                                                            "'%s'" %priority)
-            c_store_primitive.Priorty = 0x0000
-        
-        # Encode the dataset using the agreed transfer syntax
-        transfer_syntax = self.presentation_context.TransferSyntax[0]
-        c_store_primitive.DataSet = encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian)
-
-        c_store_primitive.DataSet = BytesIO(c_store_primitive.DataSet)
-        
-        # If we failed to encode our dataset, abort the association and return
-        if c_store_primitive.DataSet is None:
-            return None
-
-        # Send C-STORE request primitive to DIMSE
-        self.DIMSE.Send(c_store_primitive, 
-                        self.MessageID, 
-                        self.maxpdulength)
-
-        # Wait for C-STORE response primitive
-        ans, _ = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-
-        return self.Code2Status(ans.Status.value)
 
     def SCP(self, msg):
         try:
-            DS = decode(msg.DataSet,
-                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
+            dataset = decode(msg.DataSet,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
         except:
             status = self.CannotUnderstand
             logger.error("StorageServiceClass failed to decode the dataset")
@@ -199,8 +164,7 @@ class StorageServiceClass(ServiceClass):
         
         # ApplicationEntity's on_c_store callback 
         try:
-            self.AE.on_c_store(self, DS)
-            status = self.Success
+            status = self.AE.on_c_store(dataset)
         except Exception as e:
             logger.exception("Exception in the ApplicationEntity.on_c_store() "
                                                                 "callback")
@@ -212,383 +176,577 @@ class StorageServiceClass(ServiceClass):
             status = self.DataSetDoesNotMatchSOPClassFailure
             logger.info("Store request's dataset UID does not match the "
                                                         "presentation context")
-
+        
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
-class StorageSOPClass(StorageServiceClass): pass
 
-class MRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4'
+class QueryRetrieveFindServiceClass(ServiceClass):
+    """
+    PS3.4 C.1.4 C-FIND Service Definition
+    -------------------------------------
+    - The SCU requests that the SCP perform a match of all the keys 
+      specified in the Identifier  of the request, against the information
+      that it possesses, to the level (Patient, Study, Series or Composite
+      Object Instance) specified in the request. Identifier refers to the 
+      Identifier service parameter of the C-FIND
 
-class EnhancedMRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.1'
+    - The SCP generates a C-FIND response for each match with an Identifier
+      containing the values of all key fields and all known Attributes
+      requested. All such responses will contain a status of Pending.
+      A status of Pending indicates that the process of matching is not 
+      complete
 
-class MRSpectroscopyStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.4.2'
+    - When the process of matching is complete a C-FIND response is sent
+      with a status of Success and no Identifier.
 
-class CTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.2'
+    - A Refused or Failed response to a C-FIND request indicates that the 
+      SCP is unable to process the request.
 
-class PositronEmissionTomographyImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.128'
-
-class CRImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1'
-
-class DigitalXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.1'
-
-class DigitalXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.1.1'
-
-class DigitalMammographyXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.2'
-
-class DigitalMammographyXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.2.1'
-
-class DigitalIntraOralXRayImagePresentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.3'
-
-class DigitalIntraOralXRayImageProcessingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.1.3.1'
-
-class EncapsulatedPDFStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.104.1'
+    - The SCU may cancel the C-FIND service by issuing a C-FIND-CANCEL 
+      request at any time during the processing of the C-FIND service.
+      The SCP will interrupt all matching and return a status of Canceled.
+      
+    Patient Root QR Information Model
+    =================================
+    PS3.4 Table C.6-1, C.6-2
     
-class GrayscaleSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.1'
+    Patient Level 
+    -------------
+    Required Key 
+    - Patient's Name (0010,0010)
+    Unique Key 
+    - Patient ID (0010,0020)
     
-class ColorSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.2'
-
-class PseudocolorSoftcopyPresentationStageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.3'
-
-class BlendingSoftcopyPresentationStateStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.11.4'
-
-class XRayAngiographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.1'
-
-class EnhancedXAImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.1.1'
-
-class XRayRadiofluoroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.2'
-
-class EnhancedXRFImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.12.2.1'
-
-class EnhancedCTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.2.1'
-
-class NMImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.20'
-
-class UltrasoundMultiframeImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.3.1'
-
-class SCImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7'
-
-class MultiframeSingleBitSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.1'
-
-class MultiframeGrayscaleByteSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.2'
-
-class MultiframeGrayscaleWordSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.3'
-
-class MultiframeTrueColorSecondaryCaptureImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.7.4'
-
-class RTImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.1'
-
-class RTDoseStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.2'
-
-class RTStructureSetStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.3'
-
-class RTPlanStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.481.5'
-
-class VLEndoscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.1'
-
-class VideoEndoscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.1.1'
-
-class VLMicroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.2'
-
-class VideoMicroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.2.1'
-
-class VLSlideCoordinatesMicroscopicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.3'
-
-class VLPhotographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.4'
-
-class VideoPhotographicImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.4.1'
-
-class OphthalmicPhotography8BitImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.5.1'
-
-class OphthalmicPhotography16BitImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.5.2'
-
-class StereometricRelationshipStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.77.1.5.3'
-
-class UltrasoundImageStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.6.1'
-
-class RawDataStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66'
-
-class SpatialRegistrationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.1'
-
-class SpatialFiducialsStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.2'
-
-class DeformableSpatialRegistrationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.3'
-
-class SegmentationStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.66.4'
-
-class RealWorldValueMappingStorageSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.67'
-
-class XRayRadiationDoseStructuredReportSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.88.67'
-
-class EnhancedStructuredReportSOPClass(StorageSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.1.88.22'
-
-
-# QUERY RETRIEVE SOP Classes
-class QueryRetrieveServiceClass(ServiceClass): pass
-
-class QueryRetrieveSOPClass(QueryRetrieveServiceClass): pass
-
-class BasicWorklistServiceClass (ServiceClass): pass
-
-class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
-    OutOfResources = Status(
-        'Failure',
-        'Refused: Out of resources',
-        range(0xA700, 0xA700 + 1)
-    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)
-    )
-    UnableToProcess = Status(
-        'Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)
-    )
-    MatchingTerminatedDueToCancelRequest = Status(
-        'Cancel',
-        'Matching terminated due to Cancel request',
-        range(0xFE00, 0xFE00 + 1)
-    )
-    Success = Status(
-        'Success',
-        'Matching is complete - No final Identifier is supplied',
-        range(0x0000, 0x0000 + 1)
-    )
-    Pending = Status(
-        'Pending',
-        'Matches are continuing - Current Match is supplied'
-        'and any Optional Keys were supported in the same manner as'
-        'Required Keys',
-        range(0xFF00, 0xFF00 + 1)
-    )
-    PendingWarning = Status(
-        'Pending',
-        'Matches are continuing - Warning that one or more Optional'
-        'Keys were not supported for existence and/or matching for'
-        'this identifier',
-        range(0xFF01, 0xFF01 + 1)
-    )
-
-    def SCU(self, msgid):
-        # build C-FIND primitive
-        cfind = C_FIND_ServiceParameters()
-        cfind.MessageID = msgid
-        cfind.AffectedSOPClassUID = self.UID
-        cfind.Priority = 0x0002
-        cfind.Identifier = encode(ds,
-                                          self.transfersyntax.is_implicit_VR,
-                                          self.transfersyntax.is_little_endian)
-        cfind.Identifier = BytesIO(cfind.Identifier)
-        
-        # send c-find request
-        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
-        while 1:
-            time.sleep(0.001)
-            # wait for c-find responses
-            ans, id = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
-                continue
-            d = decode(
-                ans.Identifier, self.transfersyntax.is_implicit_VR,
-                self.transfersyntax.is_little_endian)
-            try:
-                status = self.Code2Status(ans.Status.value).Type
-            except:
-                status = None
-            if status != 'Pending':
-                break
-            yield status, d
-        yield status, d
-
-    def SCP(self, msg):
-        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
-
-        # make response
-        rsp = C_FIND_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-
-        gen = self.AE.OnReceiveFind(self, ds)
-        try:
-            while 1:
-                time.sleep(0.001)
-                IdentifierDS, status = gen.next()
-                rsp.Status = int(status)
-                rsp.Identifier = encode(
-                    IdentifierDS,
-                    self.transfersyntax.is_implicit_VR,
-                    self.transfersyntax.is_little_endian)
-                # send response
-                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-        except StopIteration:
-            # send final response
-            rsp = C_FIND_ServiceParameters()
-            rsp.MessageIDBeingRespondedTo = msg.MessageID
-            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-            rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-
-
-# QR Information Models
-class PatientRootQueryRetrieveSOPClass(QueryRetrieveSOPClass): pass
-
-class StudyRootQueryRetrieveSOPClass(QueryRetrieveSOPClass): pass
-
-class PatientStudyOnlyQueryRetrieveSOPClass(QueryRetrieveSOPClass): pass
-
-
-# C-FIND SOP Classes for QR
-class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
+    Study Level
+    -----------
+    Required Keys 
+    - Study Date (0008,0020)
+    - Study Time (0008,0030)
+    - Accession Number (0008,0050)
+    - Study ID (0020,0010)
+    Unique Key
+    - Study Instance UID (0020,000D)
+    
+    Series Level
+    ------------
+    Required Keys
+    - Modality (0008,0060)
+    - Series Number (0020,0011)
+    Unique Key
+    - Series Instance UID (0020,000E)
+    
+    Composite Object Instance Level
+    -------------------------------
+    Required Key
+    - Instance Number (0020,0013)
+    Unique Key
+    - SOP Instance UID (0008,0018)
+    
+    
+    Study Root QR Information Model
+    ===============================
+    PS3.4 C.6.2.1
+    
+    Study Level
+    -----------
+    Required Keys 
+    - Study Date (0008,0020)
+    - Study Time (0008,0030)
+    - Accession Number (0008,0050)
+    - Patient's Name (0010,0010)
+    - Patient ID (0010,0020)
+    - Study ID (0020,0010)
+    Unique Key
+    - Study Instance UID (0020,000D)
+    
+    Series Level/Composite Object Instance Level
+    --------------------------------------------
+    As for Patient Root QR Information Model
+    
+    
+    """
+    # PS3.4 Annex C.4.1.1.4
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA700 + 1))
-    IdentifierDoesNotMatchSOPClass = Status(
-                            'Failure',
-                            'Identifier does not match SOP Class',
-                            range(0xA900, 0xA900 + 1))
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
+                                            "Identifier does not match SOP "
+                                            "Class",
+                                            range(0xA900, 0xA900 + 1))
     UnableToProcess = Status('Failure',
                              'Unable to process',
                              range(0xC000, 0xCFFF + 1))
-    MatchingTerminatedDueToCancelRequest = Status(
-                            'Cancel',
-                            'Matching terminated due to Cancel request',
-                            range(0xFE00, 0xFE00 + 1))
-    Success = Status(
-                    'Success',
-                    'Matching is complete - No final Identifier is supplied',
-                    range(0x0000, 0x0000 + 1))
-    Pending = Status(
-                'Pending',
-                'Matches are continuing - Current Match is supplied \
-                and any Optional Keys were supported in the same manner as '
-                'Required Keys',
-                range(0xFF00, 0xFF00 + 1))
-    PendingWarning = Status(
-                "Pending",
-                "Matches are continuing - Warning that one or more Optional "
-                "Keys were not supported for existence and/or matching for "
-                "this identifier",
-                range(0xFF01, 0xFF01 + 1))
-    
-    def SCU(self, ds, msg_id, msg_priority=2):
-        """
-        Parameters
-        ----------
-        ds - pydicom.dataset.Dataset
-            The query
-        msg_id - int
-            The message ID
-        msg_priority - int
-            The message priority level (2: Normal)
-        """
-        # build C-FIND primitive
-        cfind = C_FIND_ServiceParameters()
-        cfind.MessageID = msg_id
-        cfind.AffectedSOPClassUID = self.UID
-        cfind.Priority = 0x0002
-        cfind.Identifier = encode(ds,
-                                  self.transfersyntax.is_implicit_VR,
-                                  self.transfersyntax.is_little_endian)
-        cfind.Identifier = BytesIO(cfind.Identifier)
+    MatchingTerminatedDueToCancelRequest = Status('Cancel',
+                                                  "Matching terminated due to "
+                                                  "Cancel request",
+                                                  range(0xFE00, 0xFE00 + 1))
+    Success = Status('Success',
+                     'Matching is complete - No final Identifier is supplied',
+                     range(0x0000, 0x0000 + 1))
+    Pending = Status('Pending',
+                     "Matches are continuing - Current Match is supplied "
+                     "and any Optional Keys were supported in the same manner "
+                     "as 'Required Keys'",
+                     range(0xFF00, 0xFF00 + 1))
+    PendingWarning = Status("Pending",
+                            "Matches are continuing - Warning that one or more "
+                            "Optional Keys were not supported for existence "
+                            "and/or matching for this identifier",
+                            range(0xFF01, 0xFF01 + 1))
 
-        # send c-find request
-        self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
+    def SCP(self, msg):
+        """
+        This is probably not going to work at the moment
         
-        logger.info('Find SCU Request Identifiers:')
+        PS3.4 Annex C.1.3
+        In order to serve as an QR SCP, a DICOM AE possesses information about
+        the Attributes of a number of stored Composite Object Instances. This
+        information is organised into a well defined QR Information Model.
+        This QR Information Model shall be a standard QR Information Model.
+        
+        A specific SOP Class of the QR Service Class consists of an Information
+        Model Definition and a DIMSE-C Service Group.
+        
+        PS3.4 Annex C.2
+        A QR Information Model contains:
+        - an Entity-Relationship Model Definition: a hierarchy of entities, with
+          Attributes defined for each level in the hierarchy (eg Patient, Study,
+          Series, Composite Object Instance)
+        - a Key Attributes Definition: Attributes should be defined at each 
+          level in the Entity-Relationship Model. An Identifier shall contain
+          values to be matched against the Attributes of the Entities in a 
+          QR Information Model. For any query, the set of entities for which
+          Attributes are returned shall be determined by the set of Key 
+          Attributes specified in the Identifier that have corresponding
+          matches on entities managed by the SCP associated with the query.
+        
+        All Attributes shall be either a Unique, Required or Optional Key. 'Key
+        Attributes' refers to these three types.
+        
+        Unique Keys
+        -----------
+        At each level in the Entity-Relationship Model (ERM), one Attribute 
+        shall be defined as a Unique Key. A single value in a Unique Key 
+        Attribute shall uniquely identify a single entity at a given level (ie 
+        two entities at the same level may not have the same Unique Key value).
+        
+        All entities managed by C-FIND SCPs shall have a specific non-zero 
+        length Unique Key value.
+        
+        Unique Keys may be contained in the Identifier of a C-FIND request.
+        
+        Required Keys
+        -------------
+        At each level in the ERM, a set of Attributes shall be defined as 
+        Required Keys. Required Keys imply the SCP of a C-FIND shall support
+        matching based on a value contained in a Required Key of the C-FIND
+        required. Multiple entities may have the same value for Required Keys.
+        
+        C-FIND SCPs shall support existence and matching of all Required Keys
+        defined by a QR Information Model. If a C-FIND SCP manages an entity
+        with a Required Key of zero length, the value is considered unknown
+        and all matching against the zero length Required Key shall be 
+        considered a successful match. 
+        
+        Required Keys may be contained in the Identifier of a C-FIND request.
+        
+        Optional Keys
+        -------------
+        At each level in the ERM, a set of Attributes shall be defined as 
+        Optional Keys. Optional Keys may have three different types of 
+        behaviour depending on support for existence and/or matching by the 
+        C-FIND SCP. 
+        1. If the SCP doesnt support the existence of the Optional Key, then
+           the Attribute shall not be returned in C-FIND responses
+        2. If the SCP supports existence of the Optional Key but does not
+           support matching on the Optional Key, then the Optional Key shall be
+           processed in the same manner as a zero length Required Key.
+        3. If the SCP supports both the existence and matching of the Optional
+           Key, then the Key shall be processed in the same manner as a Required
+           Key.
+           
+        Optional Keys may be contained in the Identifier of a C-FIND request.
+        
+        Attribute Matching
+        ==================
+        The following types of matching may be performed on Key Attributes:
+        * Single Value
+        * List of UID
+        * Universal
+        * Wild Card
+        * Range
+        * Sequence
+        
+        Matching requires special characters (*, ?, -, =, \) which need not be
+        part of the character repertoire for the VR of the Key Attribute
+        
+        The total length of the Key Attribute may exceed the length as specified
+        in the VR in PS3.5. The VM may be larger than that specified in PS3.6.
+        
+        Single Value Matching
+        ---------------------
+        single value matching shall be performed if the value specified for a 
+        Key Attribute in a request is non-zero length and it is:
+        a. Not a date or time or datetime and contains not wild card characters
+        b. A date or time or datetime and contains a single date or time or
+           datetime with no '-'.
+        
+        Except for Attributes with a PN VR, only entites with values that 
+        exactly match are included. Matching is case-sensitive.
+        
+        For PN VRs, an application may perform literal matching that is either
+        case-sensitive or that is insensitive to some or all aspects of case,
+        position, accent or other character encoding variants
+        
+        Blah blah, this is user implementation stuff
+        
+        ...
+        
+        Three standard QR Information Models are defined:
+        * Patient Root
+        * Study Root
+        * Patient/Study Only
+        
+        Patient Root QR Information Model
+        ---------------------------------
+        The Patient Root is based on a four level hierarchy: Patient, Study,
+        Series, Composite Object Instance.
+        
+        The Patient level is the top level and contains Attributes associated
+        with the Patietn Information Entity of the Composite IODs (PS3.3).
+        Patient IEs are modality independent.
+        
+        The Study level contains Attributes associated with the Series, Frame of
+        Reference and Equipment IEs of the Composite IODs. A series belongs
+        to a single study, which may have multiple series. Series IEs are 
+        modality dependant. 
+        
+        The Composite Object Instance level contains Attributes associated with
+        the Composite object IE of the Composite IODs. A Composite Object 
+        Instance belongs to a single series, which may have multiple Composite
+        Object Instances.
+        
+        Study Root
+        ----------
+        The Study Root is identical to the Patient Root except the top level is
+        the Study level. Attributes of patients are considered to be Attributes 
+        of studies
+        
+        Patient/Study Root
+        ------------------
+        Retired (PS3.4-2004)
+        """
+        dataset = decode(msg.Identifier, 
+                         self.transfersyntax.is_implicit_VR,
+                         self.transfersyntax.is_little_endian)
+
+        # Build C-FIND response primitive
+        c_find_rsp = C_FIND_ServiceParameters()
+        c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
+        c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        
+        logger.info('Find SCP Request Identifiers:')
         logger.info('')
-        logger.info('# DICOM Dataset')
-        for elem in ds:
+        logger.debug('# DICOM Data Set')
+        for elem in dataset:
             logger.info(elem)
         logger.info('')
         
-        while 1:
-            time.sleep(0.001)
+        # Callback
+        try:
+            matches = self.AE.on_c_find(dataset)
+        except:
+            logger.exception('Exception in on_c_find()')
+            matches = []
+        
+        for ii, instance in enumerate(matches):
+            c_find_rsp.Identifier = encode(instance,
+                                           self.transfersyntax.is_implicit_VR,
+                                           self.transfersyntax.is_little_endian)
+            c_find_rsp.Identifier = BytesIO(c_find_rsp.Identifier)
             
-            # wait for c-find responses
-            ans, _ = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
-                continue
+            # Send response
+            c_find_rsp.Status = int(self.Pending)
             
-            d = decode(ans.Identifier, 
-                       self.transfersyntax.is_implicit_VR,
-                       self.transfersyntax.is_little_endian)
+            logger.info('Find SCP Response: %s (Pending)' %(ii + 1))
+            
+            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            
+            logger.debug('Find SCP Response Identifiers:')
+            logger.debug('')
+            logger.debug('# DICOM Data Set')
+            for elem in instance:
+                logger.debug(elem)
+            logger.debug('')
+            
+        # Send final response
+        c_find_rsp.Status = int(self.Success)
+        
+        logger.info('Find SCP Response: %s (Success)' %(ii + 2))
+        
+        self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
-            try:
-                status = self.Code2Status(ans.Status.value).Type
-            except:
-                status = None
-            
-            if status != 'Pending':
-                break
-            
-            logger.info("Find Response: (Pending)")
-            logger.info('')
-            
-            logger.info('# DICOM Dataset')
-            for elem in d:
-                logger.info(elem)
-            logger.info('')
-            
-            yield status, d
+class QueryRetrieveMoveServiceClass(ServiceClass):
+    OutOfResourcesNumberOfMatches = Status('Failure',
+        'Refused: Out of resources - Unable to calcultate number of matches',
+        range(0xA701, 0xA701 + 1)    )
+    OutOfResourcesUnableToPerform = Status('Failure',
+        'Refused: Out of resources - Unable to perform sub-operations',
+        range(0xA702, 0xA702 + 1)    )
+    MoveDestinationUnknown = Status('Failure',
+                                    'Refused: Move destination unknown',
+                                    range(0xA801, 0xA801 + 1)    )
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
+        'Identifier does not match SOP Class',
+        range(0xA900, 0xA900 + 1)    )
+    UnableToProcess = Status('Failure',
+        'Unable to process',
+        range(0xC000, 0xCFFF + 1)    )
+    Cancel = Status('Cancel',
+        'Sub-operations terminated due to Cancel indication',
+        range(0xFE00, 0xFE00 + 1)    )
+    Warning = Status('Warning',
+        'Sub-operations Complete - One or more Failures or Warnings',
+        range(0xB000, 0xB000 + 1)    )
+    Success = Status('Success',
+        'Sub-operations Complete - No Failure or Warnings',
+        range(0x0000, 0x0000 + 1)    )
+    Pending = Status('Pending',
+        'Sub-operations are continuing',
+        range(0xFF00, 0xFF00 + 1)    )
 
-        yield status, d
+    def SCP(self, msg):
+        attributes = decode(msg.Identifier, 
+                            self.transfersyntax.is_implicit_VR,
+                            self.transfersyntax.is_little_endian)
+
+        # Build C-MOVE response primitive
+        c_move_rsp = C_MOVE_ServiceParameters()
+        c_move_rsp.MessageIDBeingRespondedTo = msg.MessageID
+        c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        c_move_rsp.Identifier = msg.Identifier
+        
+        logger.info('Move SCP Request Identifiers:')
+        logger.info('')
+        logger.info('# DICOM Data Set')
+        for elem in attributes:
+            logger.info(elem)
+        logger.info('')
+        
+        # The user is responsible for returning the matching Instances
+        try:
+            matches = self.AE.on_c_move(attributes, msg.MoveDestination)
+        except:
+            logger.error('Exception in on_c_move')
+            c_get_rsp.Status = int(self.UnableToProcess)
+            logger.info('Move SCP Response %s (Failure)' %ii)
+            self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            return
+
+        # First value is the number of matches
+        c_move_rsp.NumberOfRemainingSuboperations = next(matches)
+        c_move_rsp.NumberOfCompletedSuboperations = 0
+        c_move_rsp.NumberOfFailedSuboperations = 0
+        c_move_rsp.NumberOfWarningSuboperations = 0
+        
+        # Second value is the addr and port for the move destination if known
+        #   None, None if not known
+        addr, port = next(matches)
+        
+        if None in [addr, port]:
+            logger.error('Unknown move destination: %s' %msg.MoveDestination)
+            c_move_rsp.Status = int(self.MoveDestinationUnknown)
+            logger.info('Move SCP Response (Failure)')
+            self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            return
+
+        # Request new association with move destination
+        #   need (addr, port, aet)
+        assoc = self.AE.associate(addr, port, msg.MoveDestination)
+        
+        if assoc.is_established:
+            ii = 1
+            for dataset in matches:
+                # Send dataset via C-STORE over new association
+                status = assoc.send_c_store(dataset)
+                store_status = status.Type
+                
+                logger.info('Move SCU: Received Store SCU RSP (%s)' %store_status)
+                
+                if store_status == 'Failure':
+                    c_move_rsp.NumberOfFailedSuboperations += 1
+                elif store_status == 'Warning':
+                    c_move_rsp.NumberOfWarningSuboperations += 1
+                elif store_status == 'Success':
+                    c_move_rsp.NumberOfCompletedSuboperations += 1
+                
+                c_move_rsp.NumberOfRemainingSuboperations -= 1
+                
+                c_move_rsp.Status = int(self.Pending)
+                
+                logger.info('Move SCP Response %s (Pending)' %ii)
+                
+                self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            
+                ii += 1
+            
+            assoc.release()
+        
+        # Send Success C-GET-RSP to peer
+        c_move_rsp.Status = int(self.Success)
+        logger.info('Move SCP Response %s (Success)' %ii)
+        self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+
+
+class QueryRetrieveGetServiceClass(ServiceClass):
+    OutOfResourcesNumberOfMatches = Status('Failure',
+                                           'Refused: Out of resources - Unable '
+                                           'to calcultate number of matches',
+                                           range(0xA701, 0xA701 + 1)    )
+    OutOfResourcesUnableToPerform = Status('Failure',
+                                           'Refused: Out of resources - Unable '
+                                           'to perform sub-operations',
+                                           range(0xA702, 0xA702 + 1)    )
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
+                                            'Identifier does not match SOP '
+                                            'Class',
+                                            range(0xA900, 0xA900 + 1))
+    UnableToProcess = Status('Failure',
+                             'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    Cancel = Status('Cancel',
+                    'Sub-operations terminated due to Cancel indication',
+                    range(0xFE00, 0xFE00 + 1))
+    Warning = Status('Warning',
+                      'Sub-operations Complete - One or more Failures or '
+                      'Warnings',
+                      range(0xB000, 0xB000 + 1))
+    Success = Status('Success',
+                     'Sub-operations Complete - No Failure or Warnings',
+                     range(0x0000, 0x0000 + 1))
+    Pending = Status('Pending', 
+                     'Sub-operations are continuing', 
+                     range(0xFF00, 0xFF00 + 1))
+
+    def SCP(self, msg, priority=2):
+        """
+        PS3.7 9.1.3.2
+        
+        Service Procedure
+        -----------------
+        Performing DIMSE User
+        ~~~~~~~~~~~~~~~~~~~~~
+        - When the performer receives a C-GET indication it matches the 
+          Identifier against the Attributes of known composite SOP Instances
+          and generates a C-STORE sub-operation for each match
+        - For each match, the performing user initiates a C-STORE sub-operation
+          on the same Association as the C-GET.
+        - During the processing of the C-GET operation, the performing user may
+          issue C-GET response primitives with a status of Pending
+        - When the C-GET operation completes (either in success or failure) the
+          performing DIMSE user issues a C-GET response with status set to 
+          either refused, failed or success
+        """
+        attributes = decode(msg.Identifier,
+                            self.transfersyntax.is_implicit_VR,
+                            self.transfersyntax.is_little_endian)
+        
+        # Build C-GET response primitive
+        c_get_rsp = C_GET_ServiceParameters()
+        c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
+        c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        c_get_rsp.Identifier = msg.Identifier
+        
+        logger.info('Get SCP Request Identifiers:')
+        logger.info('')
+        logger.debug('# DICOM Data Set')
+        for elem in attributes:
+            logger.info(elem)
+        logger.info('')
+        
+        # The user is responsible for returning the matching Instances
+        try:
+            matches = self.AE.on_c_get(attributes)
+        except:
+            logger.error('Exception in on_c_get')
+            c_get_rsp.Status = int(self.UnableToProcess)
+            logger.info('Get SCP Response %s (Failure)' %ii)
+            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+            return
+    
+        c_get_rsp.NumberOfRemainingSuboperations = next(matches)
+        c_get_rsp.NumberOfCompletedSuboperations = 0
+        c_get_rsp.NumberOfFailedSuboperations = 0
+        c_get_rsp.NumberOfWarningSuboperations = 0
+        
+        ii = 1
+        for dataset in matches:
+            # Send C-STORE-RQ and Pending C-GET-RSP to peer
+            # Send each matching dataset via C-STORE
+            logger.info('Store SCU RQ: MsgID %s' %ii)
+            
+            store_status = self.ACSE.parent.send_c_store(dataset, 
+                                                         msg.MessageID, 
+                                                         priority)
+            store_status = store_status.Type
+            
+            logger.info('Get SCU: Received Store SCU RSP (%s)' %store_status)
+            
+            if store_status == 'Failure':
+                c_get_rsp.NumberOfFailedSuboperations += 1
+            elif store_status == 'Warning':
+                c_get_rsp.NumberOfWarningSuboperations += 1
+            elif store_status == 'Success':
+                c_get_rsp.NumberOfCompletedSuboperations += 1
+            
+            c_get_rsp.NumberOfRemainingSuboperations -= 1
+            
+            c_get_rsp.Status = int(self.Pending)
+            
+            logger.info('Get SCP Response %s (Pending)' %ii)
+            
+            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+        
+            ii += 1
+        
+        # Send Success C-GET-RSP to peer
+        c_get_rsp.Status = int(self.Success)
+        logger.info('Get SCP Response %s (Success)' %ii)
+        self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+
+
+# WORKLIST SOP Classes
+class BasicWorklistServiceClass (ServiceClass): pass
+
+class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
+    OutOfResources = Status('Failure',
+                            'Refused: Out of resources',
+                            range(0xA700, 0xA700 + 1))
+    IdentifierDoesNotMatchSOPClass = Status('Failure',
+                                            'Identifier does not match SOP '
+                                            'Class',
+                                            range(0xA900, 0xA900 + 1))
+    UnableToProcess = Status('Failure',
+                             'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    MatchingTerminatedDueToCancelRequest = Status('Cancel',
+                                                  'Matching terminated due to '
+                                                  'Cancel request',
+                                                  range(0xFE00, 0xFE00 + 1))
+    Success = Status('Success',
+                     'Matching is complete - No final Identifier is supplied',
+                     range(0x0000, 0x0000 + 1))
+    Pending = Status('Pending',
+                     'Matches are continuing - Current Match is supplied'
+                     'and any Optional Keys were supported in the same manner '
+                     'as Required Keys',
+                     range(0xFF00, 0xFF00 + 1))
+    PendingWarning = Status('Pending',
+                            'Matches are continuing - Warning that one or more '
+                            'Optional Keys were not supported for existence '
+                            'and/or matching for this identifier',
+                            range(0xFF01, 0xFF01 + 1))
 
     def SCP(self, msg):
         ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
@@ -614,520 +772,191 @@ class QueryRetrieveFindSOPClass(QueryRetrieveServiceClass):
         except StopIteration:
             # send final response
             rsp = C_FIND_ServiceParameters()
-            rsp.MessageIDBeingRespondedTo = msg.MessageID
-            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-            rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-
-class PatientRootFindSOPClass(PatientRootQueryRetrieveSOPClass,
-                                  QueryRetrieveFindSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.1.1'
-
-class StudyRootFindSOPClass(StudyRootQueryRetrieveSOPClass,
-                            QueryRetrieveFindSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.2.1'
-
-class PatientStudyOnlyFindSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
-                                   QueryRetrieveFindSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.3.1'
-
-
-# C-MOVE SOP Classes for QR
-class QueryRetrieveMoveSOPClass(QueryRetrieveServiceClass):
-    OutOfResourcesNumberOfMatches = Status(
-        'Failure',
-        'Refused: Out of resources - Unable to calcultate number of matches',
-        range(0xA701, 0xA701 + 1)    )
-    OutOfResourcesUnableToPerform = Status(
-        'Failure',
-        'Refused: Out of resources - Unable to perform sub-operations',
-        range(0xA702, 0xA702 + 1)    )
-    MoveDestinationUnknown = Status(
-        'Failure',
-        'Refused: Move destination unknown',
-        range(0xA801, 0xA801 + 1)    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)    )
-    UnableToProcess = Status(
-        'Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)    )
-    Cancel = Status(
-        'Cancel',
-        'Sub-operations terminated due to Cancel indication',
-        range(0xFE00, 0xFE00 + 1)    )
-    Warning = Status(
-        'Warning',
-        'Sub-operations Complete - One or more Failures or Warnings',
-        range(0xB000, 0xB000 + 1)    )
-    Success = Status(
-        'Success',
-        'Sub-operations Complete - No Failure or Warnings',
-        range(0x0000, 0x0000 + 1)    )
-    Pending = Status(
-        'Pending',
-        'Sub-operations are continuing',
-        range(0xFF00, 0xFF00 + 1)    )
-
-    def SCU(self, ds, destaet, msgid):
-        # build C-FIND primitive
-        cmove = C_MOVE_ServiceParameters()
-        cmove.MessageID = msgid
-        cmove.AffectedSOPClassUID = self.UID
-        cmove.MoveDestination = destaet
-        cmove.Priority = 0x0002
-        cmove.Identifier = encode(
-            ds, self.transfersyntax.is_implicit_VR,
-            self.transfersyntax.is_little_endian)
-        cmove.Identifier = BytesIO(cmove.Identifier)
-
-        # send c-find request
-        self.DIMSE.Send(cmove, self.pcid, self.maxpdulength)
-
-        while 1:
-            # wait for c-move responses
-            time.sleep(0.001)
-            ans, id = self.DIMSE.Receive(Wait=False, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            if not ans:
-                continue
-            status = self.Code2Status(ans.Status.value).Type
-            if status != 'Pending':
-                break
-            yield status
-
-    def SCP(self, msg):
-        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
-
-        # make response
-        rsp = C_MOVE_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID.value
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
-        gen = self.AE.OnReceiveMove(self, ds, msg.MoveDestination.value)
-
-        # first value returned by callback must be the complete remote AE specs
-        remoteAE = gen.next()
-
-        # request association to move destination
-        ass = self.AE.RequestAssociation(remoteAE)
-        nop = gen.next()
-        try:
-            ncomp = 0
-            nfailed = 0
-            nwarning = 0
-            ncompleted = 0
-            while 1:
-                DataSet = gen.next()
-                # request an association with destination
-                # send C-STORE
-                s = str(UID2SOPClass(DataSet.SOPClassUID))
-                ind = len(s) - s[::-1].find('.')
-                obj = getattr(ass, s[ind:-2])
-                status = obj.SCU(DataSet, ncompleted)
-                if status.Type == 'Failed':
-                    nfailed += 1
-                if status.Type == 'Warning':
-                    nwarning += 1
-                rsp.Status = int(self.Pending)
-                rsp.NumberOfRemainingSubOperations = nop - ncompleted
-                rsp.NumberOfCompletedSubOperations = ncompleted
-                rsp.NumberOfFailedSubOperations = nfailed
-                rsp.NumberOfWarningSubOperations = nwarning
-                ncompleted += 1
-
-                # send response
-                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-
-        except StopIteration:
-            # send final response
-            rsp = C_MOVE_ServiceParameters()
             rsp.MessageIDBeingRespondedTo = msg.MessageID.value
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
-            rsp.NumberOfRemainingSubOperations = nop - ncompleted
-            rsp.NumberOfCompletedSubOperations = ncompleted
-            rsp.NumberOfFailedSubOperations = nfailed
-            rsp.NumberOfWarningSubOperations = nwarning
             rsp.Status = int(self.Success)
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-            ass.Release(0)
-
-class PatientRootMoveSOPClass(PatientRootQueryRetrieveSOPClass,
-                              QueryRetrieveMoveSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.1.2'
-
-class StudyRootMoveSOPClass(StudyRootQueryRetrieveSOPClass,
-                            QueryRetrieveMoveSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.2.2'
-
-class PatientStudyOnlyMoveSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
-                                   QueryRetrieveMoveSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.3.2'
 
 
-# C-GET SOP Classes for QR
-class QueryRetrieveGetSOPClass(QueryRetrieveServiceClass):
-    OutOfResourcesNumberOfMatches = Status(
-        'Failure',
-        'Refused: Out of resources - Unable to calcultate number of matches',
-        range(0xA701, 0xA701 + 1)    )
-    OutOfResourcesUnableToPerform = Status(
-        'Failure',
-        'Refused: Out of resources - Unable to perform sub-operations',
-        range(0xA702, 0xA702 + 1)    )
-    IdentifierDoesNotMatchSOPClass = Status(
-        'Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)    )
-    UnableToProcess = Status(
-        'Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)    )
-    Cancel = Status(
-        'Cancel',
-        'Sub-operations terminated due to Cancel indication',
-        range(0xFE00, 0xFE00 + 1)    )
-    Warning = Status(
-        'Warning',
-        'Sub-operations Complete - One or more Failures or Warnings',
-        range(0xB000, 0xB000 + 1)    )
-    Success = Status(
-        'Success',
-        'Sub-operations Complete - No Failure or Warnings',
-        range(0x0000, 0x0000 + 1)    )
-    Pending = Status(
-        'Pending',
-        'Sub-operations are continuing',
-        range(0xFF00, 0xFF00 + 1)    )
-
-    def SCU(self, ds, msg_id, priority=2):
-        # build C-GET primitive
-        cget = C_GET_ServiceParameters()
-        cget.MessageID = msg_id
-        cget.AffectedSOPClassUID = self.UID
-        cget.Priority = 0x0002
-        cget.Identifier = encode(ds,
-                                 self.transfersyntax.is_implicit_VR,
-                                 self.transfersyntax.is_little_endian)
-        cget.Identifier = BytesIO(cget.Identifier)
-        # send c-get primitive
-        self.DIMSE.Send(cget, self.pcid, self.maxpdulength)
-
-        logger.info('Get SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
-        for elem in ds:
-            logger.info(elem)
-        logger.info('')
-
-        while 1:
-            
-            msg, id = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-            
-            # Received a C-GET response
-            if msg.__class__ == C_GET_ServiceParameters:
-                
-                status = self.Code2Status(msg.Status.value).Type
-                
-                # If the Status is "Pending" then the processing of 
-                #   matches and suboperations is initiated or continuing
-                if status == 'Pending':
-                    pass
-                    
-                # If the Status is "Success" then processing is complete
-                elif status == "Success":
-                    pass
-                
-                # All other possible responses
-                else:
-                    
-                    break
-            
-            # Received a C-STORE response
-            elif msg.__class__ == C_STORE_ServiceParameters:
-                
-                rsp = C_STORE_ServiceParameters()
-                rsp.MessageIDBeingRespondedTo = msg.MessageID
-                rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-                rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-                status = None
-                #try:
-                d = decode(msg.DataSet, 
-                               self.transfersyntax.is_implicit_VR,
-                               self.transfersyntax.is_little_endian)
-                #logger.debug('SCU', d)
-                #except:
-                #    # cannot understand
-                #    status = CannotUnderstand
-
-                SOPClass = UID2SOPClass(d.SOPClassUID)
-                
-                # Callback
-                status = self.AE.on_c_store(SOPClass, d)
-                
-                # Send Store confirmation
-                rsp.Status = int(status)
-                self.DIMSE.Send(rsp, id, self.maxpdulength)
-
-class PatientRootGetSOPClass(PatientRootQueryRetrieveSOPClass,
-                             QueryRetrieveGetSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.1.3'
-
-class StudyRootGetSOPClass(StudyRootQueryRetrieveSOPClass,
-                           QueryRetrieveGetSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.2.3'
-
-class PatientStudyOnlyGetSOPClass(PatientStudyOnlyQueryRetrieveSOPClass,
-                                  QueryRetrieveGetSOPClass):
-    UID = '1.2.840.10008.5.1.4.1.2.3.3'
-
-
-# BASIC WORKLIST SOP Classes
-class BasicWorklistSOPClass(BasicWorklistServiceClass):
-    pass
-
-class ModalityWorklistInformationFindSOPClass(BasicWorklistSOPClass,
-                                              ModalityWorklistServiceSOPClass):
-    UID = '1.2.840.10008.5.1.4.31'
-
-
-d = dir()
-
-from pydicom._uid_dict import UID_dictionary
-from pydicom.uid import UID
-
-def sop_class_factory(class_uid, parent_class, sop_name='Unknown SOP Class'):
-    """
-    SOP Class class Factory
-    Modifies the pydicom _uid_dict.UID_dictionary to add a ServiceClass
-    something something
+class MachineVerificationServiceClass(ServiceClass):
+    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE/N-SET/N-GET/N-ACTION
+    #   Slight differences in description text
+    Success = Status('Success',
+                     'Machine Verification successfully created',
+                     range(0x0000, 0x0000 + 1)) 
     
-    A list of the supported Standard SOP Classes for each service class is
-    available in PS3.4. * indicates those Service Classes supported by pynetdicom
-        A. *Verification Service Class
-        B. *Storage Service Class
-        C. *Query/Retrieve Service Class
-        F. Procedure Strep SOP Classes
-        H. Print Management Service Class
-        I. Media Storage Service Class
-        J. Storage Commitment Service Class
-        K. Basic Worklist Management Service
-        N. Softcopy Presentation State Storage SOP Classes
-        O. Structured Reporting Storage SOP Classes
-        P. Application Event Logging Service Class
-        Q. Relevant Patient Information Query Service Class
-        R. Instance Availability Notification Service Class
-        S. Media Creation Management Service Class
-        T. Hanging Protocol Storage Service Class
-        U. Ganging Protocol Query/Retrieve Service Class
-        V. Substance Administration Query Service Class
-        W. Color Palette Storage Service Class
-        X. Color Palette Query/Retrieve Service Class
-        Y. Instance and Frame Level Retrieve SOP Classes
-        Z. Composite Instance Retrieve Without Bulk Data SOP Classes
-        AA. Opthalmic Refractive Measurements Storage SOP Classes
-        BB. Implant Template Query/Retrieve Service Classes
-        CC. Unified Procedure Step Service and SOP Classes
-        DD. RT Machine Verification Service Classes
-        EE. Display System Management Service Class
+    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE
+    status_fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
+    status_fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
+    status_fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
+    status_fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
     
-    # Example usage - UID present in pydicom's UID dictionary
-    class = class_factory('1.2.840.10008.5.1.4.1.1.2', StorageServiceClass)
+    # N-SET
+    status_fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
+    status_fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
+    status_fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
     
-    # Should return these values...
-    class.UID  # '1.2.840.10008.5.1.4.1.1.2' pydicom.uid.UID
-    class.Name # 'CT Image Storage' str
-    class.Type # 'Storage SOP Class' str
-    class.Info # '' str
-    class.is_retired # '' str
+    # N-GET
+    status_fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
     
-    # Example Usage - UID not present in pydicom's UID dictionary
-    class = class_factory(1.2.840.10008.5.1.4.1.1.2.2', StorageServiceClass, name='Unknown SOP Class')
-    # Should return these values...
-    class.UID  # '1.2.840.10008.5.1.4.1.1.2.2'
-    class.Name # 'Unknown SOP Class'
-    class.Type # 'Storage SOP Class'
-    class.Info # ''
-    class.is_retired # ''
-    
-    #status = class.SCU('ct_dataset.dcm')
-    
-    # The Presentation Context the SOP Class is operating under
-    class.presentation_context = context 
-
-    # This should really be a DIMSE attribute rather than a primitive attribute
-    #sop_class.maxpdulength = self.acse.MaxPDULength
-    
-    # Used by SCU/SCP to Send/Receive self but seems inelegant
-    sop_class.DIMSE = self.dimse
-    
-    # Not sure why we need the ACSE -> presentation context checking?
-    #sop_class.ACSE = self.acse
-    
-    # Better
-    class.scu_callback = None
-    class.scp_callback = self.ae.on_c_store
-    
-    # Run SOPClass in SCP mode
-    class.SCP(dimse_msg)
-    
-    # Run SOPClass in SCU mode
-    class.SCU(*args)
-    
-    Example usage - UID not present in pydicom's UID_dictionary:
-    
-    
-    Parameters
-    ----------
-    class_name - str
-        The variable name for the class
-    parent_class - pynetdicom.SOPclass.ServiceClass subclass
-        One of the implemented Service Classes:
-            VerificationServiceClass - Only 1.2.840.10008.1.1
-            StorageServiceClass - Tables B.5-1 and B.6-1 in PS3.4
-            QueryRetrieveFindSOPClass - Annex C.4.1 in PS3.4
-            QueryRetrieveMoveSOPClass - Annex C.4.2 in PS3.4
-            QueryRetrieveGetSOPClass - Annex C.4.3 in PS3.4
-            ModalityWorklistServiceSOPClass - Annex K in PS3.4
-    """
-    if parent_class in [VerificationServiceClass, 
-                         StorageServiceClass,
-                         QueryRetrieveFindSOPClass,
-                         QueryRetrieveMoveSOPClass,
-                         QueryRetrieveGetSOPClass,
-                         ModalityWorklistServiceSOPClass]:
-
-        cls = parent_class()
-        cls.UID = UID(class_uid)
-        
-        try:
-            cls.UID.is_valid()
-        except:
-            pass
-            
-        if cls.UID.is_transfer_syntax:
-            raise ValueError("Supplied UID belongs to a Transfer Syntax")
-        
-        # Check with pydicom to see if its a known SOP Class
-        if cls.UID in UID_dictionary.keys():
-            cls.name = UID.name
-            cls.type = UID.type
-            cls.info = UID.info
-            cls.is_retired = UID.is_retired
-            cls.presentation_context = None
-            
-        else:
-            cls.name = sop_name
-            cls.type = None
-            cls.info = None
-            cls.is_retired = None
-            cls.presentation_context = None
-
-"""
-class StorageServiceClass(ServiceClass):
-    OutOfResources = Status('Failure',
-                            'Refused: Out of resources',
-                            range(0xA700, 0xA7FF + 1)) 
-    DataSetDoesNotMatchSOPClassFailure = Status(
-                            'Failure',
-                            'Error: Data Set does not match SOP Class',
-                            range(0xA900, 0xA9FF + 1))
-    CannotUnderstand = Status(
-                            'Failure',
-                            'Error: Cannot understand',
-                            range(0xC000, 0xCFFF + 1))
-    CoercionOfDataElements = Status(
-                            'Warning',
-                            'Coercion of Data Elements',
-                            range(0xB000, 0xB000 + 1))
-    DataSetDoesNotMatchSOPClassWarning = Status(
-                            'Warning',
-                            'Data Set does not match SOP Class',
-                            range(0xB007, 0xB007 + 1))
-    ElementDisgarded = Status(
-                            'Warning',
-                            'Element Discarted',
-                            range(0xB006, 0xB006 + 1))
-    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-    
-    def __init__(self):
-        ServiceClass.__init__(self)
-
-    def SCU(self, dataset, msg_id, priority=0x0000):
-        # Build C-STORE request primitive
-        c_store_primitive = C_STORE_ServiceParameters()
-        c_store_primitive.MessageID = msg_id
-        c_store_primitive.AffectedSOPClassUID = dataset.SOPClassUID
-        c_store_primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-        
-        # Message priority
-        if priority in [0x0000, 0x0001, 0x0002]:
-            c_store_primitive.Priority = priority
-        else:
-            logger.warning("StorageServiceClass.SCU(): Invalid priority value "
-                                                            "'%s'" %priority)
-            c_store_primitive.Priorty = 0x0000
-        
-        # Encode the dataset using the agreed transfer syntax
-        transfer_syntax = self.presentation_context.TransferSyntax[0]
-        c_store_primitive.DataSet = encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian)
-
-        c_store_primitive.DataSet = BytesIO(c_store_primitive.DataSet)
-        
-        # If we failed to encode our dataset, abort the association and return
-        if c_store_primitive.DataSet is None:
-            return None
-
-        # Send C-STORE request primitive to DIMSE
-        self.DIMSE.Send(c_store_primitive, 
-                        self.MessageID, 
-                        self.maxpdulength)
-
-        # Wait for C-STORE response primitive
-        ans, _ = self.DIMSE.Receive(Wait=True, 
-                                    dimse_timeout=self.DIMSE.dimse_timeout)
-
-        return self.Code2Status(ans.Status.value)
+    # N-ACTION
+    status_fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
 
     def SCP(self, msg):
-        try:
-            DS = decode(msg.DataSet,
-                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
-        except:
-            status = self.CannotUnderstand
-            logger.error("StorageServiceClass failed to decode the dataset")
+        print('MachineVerification SCP', msg)
+        pass
 
-        # Create C-STORE response primitive
-        rsp = C_STORE_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        
-        # ApplicationEntity's on_c_store callback 
-        try:
-            self.AE.on_c_store(self, DS)
-            status = self.Success
-        except Exception as e:
-            logger.exception("Exception in the ApplicationEntity.on_c_store() "
-                                                                "callback")
-            status = self.CannotUnderstand
 
-        # Check that the supplied dataset UID matches the presentation context
-        #   ID
-        if self.UID != self.sopclass:
-            status = self.DataSetDoesNotMatchSOPClassFailure
-            logger.info("Store request's dataset UID does not match the "
-                                                        "presentation context")
+# Generate the various SOP classes
+_VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}
 
-        rsp.Status = int(status)
-        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-"""
+_STORAGE_CLASSES = {'ComputedRadiographyImageStorage' : '1.2.840.10008.5.1.4.1.1.1',
+                    'DigitalXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.1',
+                    'DigitalXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.1.1.1',
+                    'DigitalMammographyXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.2',
+                    'DigitalMammographyXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.2.1',
+                    'DigitalIntraOralXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.3',
+                    'DigitalIntraOralXRayImageProcessingStorage' : '1.2.840.10008.5.1.1.4.1.1.3.1',
+                    'CTImageStorage' : '1.2.840.10008.5.1.4.1.1.2',
+                    'EnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.1',
+                    'LegacyConvertedEnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.2',
+                    'UltrasoundMultiframeImageStorage' : '1.2.840.10008.5.1.4.1.1.3.1',
+                    'MRImageStorage' : '1.2.840.10008.5.1.4.1.1.4',
+                    'EnhancedMRImageStorage' : '1.2.840.10008.5.1.4.1.1.4.1',
+                    'MRSpectroscopyStorage' : '1.2.840.10008.5.1.4.1.1.4.2',
+                    'EnhancedMRColorImageStorage' : '1.2.840.10008.5.1.4.1.1.4.3',
+                    'LegacyConvertedEnhancedMRImageStorage' : '1.2.840.10008.5.1.4.1.1.4.4',
+                    'UltrasoundImageStorage' : '1.2.840.10008.5.1.4.1.1.6.1',
+                    'EnhancedUSVolumeStorage' : '1.2.840.10008.5.1.4.1.1.6.2',
+                    'SecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7',
+                    'MultiframeSingleBitSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.1',
+                    'MultiframeGrayscaleByteSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.2',
+                    'MultiframeGrayscaleWordSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.3',
+                    'MultiframeTrueColorSecondaryCaptureImageStorage' : '1.2.840.10008.5.1.4.1.1.7.4',
+                    'TwelveLeadECGWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.1.1',
+                    'GeneralECGWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.1.2',
+                    'AmbulatoryECGWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.1.3',
+                    'HemodynamicWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.2.1',
+                    'CardiacElectrophysiologyWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.3.1',
+                    'BasicVoiceAudioWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.4.1',
+                    'GeneralAudioWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.4.2',
+                    'ArterialPulseWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.5.1',
+                    'RespiratoryWaveformStorage' : '1.2.840.10008.5.1.4.1.1.9.6.1',
+                    'GrayscaleSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.1',
+                    'ColorSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.2',
+                    'PseudocolorSoftcopyPresentationStageStorage' : '1.2.840.10008.5.1.4.1.1.11.3',
+                    'BlendingSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.4',
+                    'XAXRFGrayscaleSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.5',
+                    'XRayAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1',
+                    'EnhancedXAImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1.1',
+                    'XRayRadiofluoroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2',
+                    'EnhancedXRFImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2.1',
+                    'XRay3DAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.1',
+                    'XRay3DCraniofacialImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.2',
+                    'BreastTomosynthesisImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.3',
+                    'BreastProjectionXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.13.1.4',
+                    'BreastProjectionXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.13.1.5',
+                    'IntravascularOpticalCoherenceTomographyImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.14.1',
+                    'IntravascularOpticalCoherenceTomographyImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.14.2',
+                    'NuclearMedicineImageStorage' : '1.2.840.10008.5.1.4.1.1.20',
+                    'ParametricMapStorage' : '1.2.840.10008.5.1.4.1.1.30',
+                    'RawDataStorage' : '1.2.840.10008.5.1.4.1.1.66',
+                    'SpatialRegistrationStorage' : '1.2.840.10008.5.1.4.1.1.66.1',
+                    'SpatialFiducialsStorage' : '1.2.840.10008.5.1.4.1.1.66.2',
+                    'DeformableSpatialRegistrationStorage' : '1.2.840.10008.5.1.4.1.1.66.3',
+                    'SegmentationStorage' : '1.2.840.10008.5.1.4.1.1.66.4',
+                    'SurfaceSegmentationStorage' : '1.2.840.10008.5.1.4.1.1.66.5',
+                    'RealWorldValueMappingStorage' : '1.2.840.10008.5.1.4.1.1.67',
+                    'SurfaceScanMeshStorage' : '1.2.840.10008.5.1.4.1.1.68.1',
+                    'SurfaceScanPointCloudStorage' : '1.2.840.10008.5.1.4.1.1.68.2',
+                    'VLEndoscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.1',
+                    'VideoEndoscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.1.1',
+                    'VLMicroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.2',
+                    'VideoMicroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.2.1',
+                    'VLSlideCoordinatesMicroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.3',
+                    'VLPhotographicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.4',
+                    'VideoPhotographicImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.4.1',
+                    'OphthalmicPhotography8BitImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.1',
+                    'OphthalmicPhotography16BitImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.2',
+                    'StereometricRelationshipStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.3',
+                    'OpthalmicTomographyImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.4',
+                    'WideFieldOpthalmicPhotographyStereographicProjectionImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.5',
+                    'WideFieldOpthalmicPhotography3DCoordinatesImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.5.6',
+                    'VLWholeSlideMicroscopyImageStorage' : '1.2.840.10008.5.1.4.1.1.77.1.6',
+                    'LensometryMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.1',
+                    'AutorefractionMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.2',
+                    'KeratometryMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.3',
+                    'SubjectiveRefractionMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.4',
+                    'VisualAcuityMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.5',
+                    'SpectaclePrescriptionReportStorage' : '1.2.840.10008.5.1.4.1.1.78.6',
+                    'OpthalmicAxialMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.7',
+                    'IntraocularLensCalculationsStorage' : '1.2.840.10008.5.1.4.1.1.78.8',
+                    'MacularGridThicknessAndVolumeReport' : '1.2.840.10008.5.1.4.1.1.79.1',
+                    'OpthalmicVisualFieldStaticPerimetryMeasurementsStorag' : '1.2.840.10008.5.1.4.1.1.80.1',
+                    'OpthalmicThicknessMapStorage' : '1.2.840.10008.5.1.4.1.1.81.1',
+                    'CornealTopographyMapStorage' : '1.2.840.10008.5.1.4.1.1.82.1',
+                    'BasicTextSRStorage' : '1.2.840.10008.5.1.4.1.1.88.11',
+                    'EnhancedSRStorage' : '1.2.840.10008.5.1.4.1.1.88.22',
+                    'ComprehensiveSRStorage' : '1.2.840.10008.5.1.4.1.1.88.33',
+                    'Comprehenseice3DSRStorage' : '1.2.840.10008.5.1.4.1.1.88.34',
+                    'ExtensibleSRStorage' : '1.2.840.10008.5.1.4.1.1.88.35',
+                    'ProcedureSRStorage' : '1.2.840.10008.5.1.4.1.1.88.40',
+                    'MammographyCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.50',
+                    'KeyObjectSelectionStorage' : '1.2.840.10008.5.1.4.1.1.88.59',
+                    'ChestCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.65',
+                    'XRayRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.67',
+                    'RadiopharmaceuticalRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.68',
+                    'ColonCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.69',
+                    'ImplantationPlanSRDocumentStorage' : '1.2.840.10008.5.1.4.1.1.88.70',
+                    'EncapsulatedPDFStorage' : '1.2.840.10008.5.1.4.1.1.104.1',
+                    'EncapsulatedCDAStorage' : '1.2.840.10008.5.1.4.1.1.104.2',
+                    'PositronEmissionTomographyImageStorage' : '1.2.840.10008.5.1.4.1.1.128',
+                    'EnhancedPETImageStorage' : '1.2.840.10008.5.1.4.1.1.130',
+                    'LegacyConvertedEnhancedPETImageStorage' : '1.2.840.10008.5.1.4.1.1.128.1',
+                    'BasicStructuredDisplayStorage' : '1.2.840.10008.5.1.4.1.1.131',
+                    'RTImageStorage' : '1.2.840.10008.5.1.4.1.1.481.1',
+                    'RTDoseStorage' : '1.2.840.10008.5.1.4.1.1.481.2',
+                    'RTStructureSetStorage' : '1.2.840.10008.5.1.4.1.1.481.3',
+                    'RTBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.4',
+                    'RTPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.5',
+                    'RTBrachyTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.6',
+                    'RTTreatmentSummaryRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.7',
+                    'RTIonPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.8',
+                    'RTIonBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.9',
+                    'RTBeamsDeliveryInstructionStorage' : '1.2.840.10008.5.1.4.34.7',
+                    'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
+                    'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
+                    'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1'}
+
+_QR_FIND_CLASSES = {'PatientRootQueryRetrieveInformationModelFind'      : '1.2.840.10008.5.1.4.1.2.1.1',
+                    'StudyRootQueryRetrieveInformationModelFind'        : '1.2.840.10008.5.1.4.1.2.2.1',
+                    'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1',
+                    'ModalityWorklistInformationFind'                   : '1.2.840.10008.5.1.4.31'}
+
+_QR_MOVE_CLASSES = {'PatientRootQueryRetrieveInformationModelMove'      : '1.2.840.10008.5.1.4.1.2.1.2',
+                    'StudyRootQueryRetrieveInformationModelMove'        : '1.2.840.10008.5.1.4.1.2.2.2',
+                    'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2'}
+
+_QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840.10008.5.1.4.1.2.1.3',
+                   'StudyRootQueryRetrieveInformationModelGet'        : '1.2.840.10008.5.1.4.1.2.2.3',
+                   'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
+
+_generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
+_generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
+_generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
+_generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
+_generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
+
+STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
+QR_FIND_CLASS_LIST = QueryRetrieveFindServiceClass.__subclasses__()
+QR_MOVE_CLASS_LIST = QueryRetrieveMoveServiceClass.__subclasses__()
+QR_GET_CLASS_LIST = QueryRetrieveGetServiceClass.__subclasses__()
+
+QR_CLASS_LIST = []
+for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
+    QR_CLASS_LIST.extend(class_list)
+
+d = dir()
 
 def UID2SOPClass(UID):
     """
@@ -1146,3 +975,4 @@ def UID2SOPClass(UID):
             if tmpuid == UID:
                 return eval(ss)
     return None
+

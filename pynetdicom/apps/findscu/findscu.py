@@ -13,10 +13,10 @@ import socket
 import sys
 import time
 
+from pydicom import read_file
 from pydicom.dataset import Dataset
 
-from pynetdicom import AE
-from pynetdicom.SOPclass import PatientRootFindSOPClass
+from pynetdicom import AE, QueryRetrieveSOPClassList
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
@@ -37,7 +37,7 @@ def _setup_argparser():
                     "message. It sends query keys to an SCP and waits for a "
                     "response. The application can be used to test SCPs of the "
                     "QR and BWM Service Classes.",
-        usage="findscu [options] peer port")
+        usage="findscu [options] peer port dcmfile-in")
         
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
@@ -89,6 +89,9 @@ def _setup_argparser():
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
     qr_model = qr_group.add_mutually_exclusive_group()
+    qr_model.add_argument('-k', '--key', metavar='[k]ey: gggg,eeee="str", path or dictionary name="str"',
+                          help="override matching key",
+                          type=str)
     qr_model.add_argument("-W", "--worklist",
                           help="use modality worklist information model",
                           action="store_true")
@@ -119,23 +122,51 @@ if args.debug:
 logger.debug('$findscu.py v%s %s $' %('0.1.0', '2016-02-15'))
 logger.debug('')
 
-
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
 ae = AE(ae_title=args.calling_aet, 
         port=0, 
-        scu_sop_class=[PatientRootFindSOPClass], 
+        scu_sop_class=QueryRetrieveSOPClassList, 
         scp_sop_class=[], 
         transfer_syntax=[ExplicitVRLittleEndian])
 
 # Request association with remote
 assoc = ae.associate(args.peer, args.port, args.called_aet)
 
-# Create query dataset
-d = Dataset()
-d.PatientsName = '*'
-d.QueryRetrieveLevel = "PATIENT"
+# Import query dataset
+# Check file exists and is readable and DICOM
+logger.debug('Checking input files')
+try:
+    f = open(args.dcmfile_in, 'rb')
+    dataset = read_file(f, force=True)
+    f.close()
+except IOError:
+    logger.error('Cannot read input file %s' %args.dcmfile_in)
+    sys.exit()
+except:
+    logger.error('File may not be DICOM %s' %args.dcmfile_in)
+    sys.exit()
 
+# Modify keys if requested
+if args.key:
+    pass
+    # Format examples:
+    # "(gggg,eeee)=" Null value
+    # "(gggg,eeee)=CITIZEN*" Typical use
+    # "(gggg,eeee)[0].Modality=CT" Sequence
+    # "(gggg,eeee)[*].Modality=CT" Sequence with wildcard
+    # "(gggg,eeee)=1\\2\\3\\4" VM of 4
+    # Parse (), [], ., =, \\
+    #   () to get tag
+    #   ()[]()[]()[]()
+    #   ()[].()[].()[].()
+
+# Create query dataset
+dataset = Dataset()
+dataset.PatientsName = '*'
+dataset.QueryRetrieveLevel = "PATIENT"
+
+# Query/Retrieve Information Models
 if args.worklist:
     query_model = 'W'
 elif args.patient:
@@ -143,17 +174,19 @@ elif args.patient:
 elif args.study:
     query_model = 'S'
 elif args.psonly:
+    # Retired
     query_model = 'O'
 else:
     query_model = 'W'
-    
+
 # Send query
 if assoc.is_established:
-    response = assoc.send_c_find(d, query_model=query_model)
+    response = assoc.send_c_find(dataset, query_model=query_model)
     
     time.sleep(1)
     for value in response:
         pass
+        #print(value)
     
     assoc.release()
 

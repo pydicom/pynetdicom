@@ -20,7 +20,7 @@ from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom.DIMSEmessages import wrap_list
+from pynetdicom.utils import wrap_list
 from pynetdicom.DULparameters import *
 from pynetdicom.exceptions import InvalidPrimitive
 from pynetdicom.fsm import StateMachine
@@ -61,45 +61,46 @@ def recvn(sock, n):
 
 class DULServiceProvider(Thread):
     """
-    Three ways to call DULServiceProvider. If a port number is given,
-    the DUL will wait for incoming connections on this port. If a socket
-    is given, the DUL will use this socket as the client socket. If none
-    is given, the DUL will not be able to accept connections (but will
-    be able to initiate them.)
+    Three ways to call DULServiceProvider:
+    - If a port number is given, the DUL will wait for incoming connections on 
+      this port. 
+    - If a socket is given, the DUL will use this socket as the client socket. 
+    - If neither is given, the DUL will not be able to accept connections (but 
+      will be able to initiate them.)
     
     Parameters
-    ---------
-    Socket - socket.socket, optional
+    ----------
+    Socket : socket.socket, optional
         The local AE's listen socket
-    Port - int, optional
+    Port : int, optional
         The port number on which to wait for incoming connections
-    Name - str, optional
+    Name : str, optional
         Used help identify the DUL service provider
-    dul_timeout - float, optional
+    dul_timeout : float, optional
         The maximum amount of time to wait for connection responses (in seconds)
-    local_ae - pynetdicom.applicationentity.ApplicationEntity
+    local_ae : pynetdicom.applicationentity.ApplicationEntity
         The local AE instance
-    assoc - pynetdicom.association.Association
+    assoc : pynetdicom.association.Association
         The DUL's current Association
         
     Attributes
     ----------
-    artim_timer - pynetdicom.timer.Timer
+    artim_timer : pynetdicom.timer.Timer
         The ARTIM timer
-    dul_from_user_queue - queue.Queue
+    dul_from_user_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
         provider
-    dul_to_user_queue - queue.Queue
+    dul_to_user_queue : queue.Queue
         Queue of primitives from the DUL service to be processed by the DUL user
-    event_queue - queue.Queue
+    event_queue : queue.Queue
         List of queued events to be processed by the state machine
-    scp_socket - socket.socket()
+    scp_socket : socket.socket()
         If the local AE is acting as an SCP, this is the connection from the
         peer AE to the SCP
-    scu_socket - socket.socket()
+    scu_socket : socket.socket()
         If the local AE is acting as an SCU, this is the connection from the
         local AE to the peer AE SCP
-    state_machine - pynetdicom.fsm.StateMachine
+    state_machine : pynetdicom.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
     def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None, 
@@ -504,6 +505,12 @@ class DULServiceProvider(Thread):
         # down early? See dul_thread_bug.note
         logger.debug('DICOM UL service "%s" stopped' %self.name)
 
+    def on_receive_pdu(self):
+        """ 
+        Callback function that is called after the first byte of an incoming
+        PDU is read
+        """
+        pass
 
 def primitive2event(primitive):
     """
@@ -565,36 +572,28 @@ def Socket2PDU(data, dul):
         The decoded data as a PDU object
     """
     pdutype = unpack('B', data[0:1])[0]
-    ae = dul.local_ae
     acse = dul.association.acse
     
     if pdutype == 0x01:
         pdu = A_ASSOCIATE_RQ_PDU()
-        ae_callback = ae.on_receive_associate_rq
         acse_callback = acse.debug_receive_associate_rq
     elif pdutype == 0x02:
         pdu = A_ASSOCIATE_AC_PDU()
-        ae_callback = ae.on_receive_associate_ac
         acse_callback = acse.debug_receive_associate_ac
     elif pdutype == 0x03:
         pdu = A_ASSOCIATE_RJ_PDU()
-        ae_callback = ae.on_receive_associate_rj
         acse_callback = acse.debug_receive_associate_rj
     elif pdutype == 0x04:
         pdu = P_DATA_TF_PDU()
-        ae_callback = ae.on_receive_data_tf
         acse_callback = acse.debug_receive_data_tf
     elif pdutype == 0x05:
         pdu = A_RELEASE_RQ_PDU()
-        ae_callback = ae.on_receive_release_rq
         acse_callback = acse.debug_receive_release_rq
     elif pdutype == 0x06:
         pdu = A_RELEASE_RP_PDU()
-        ae_callback = ae.on_receive_release_rp
         acse_callback = acse.debug_receive_release_rp
     elif pdutype == 0x07:
         pdu = A_ABORT_PDU()
-        ae_callback = ae.on_receive_abort
         acse_callback = acse.debug_receive_abort
     else:
         #"Unrecognized or invalid PDU"
@@ -602,8 +601,7 @@ def Socket2PDU(data, dul):
 
     pdu.Decode(data)
     
-    # Callback
-    ae_callback(pdu)
+    # Callback - AE must always be first
     acse_callback(pdu)
 
     return pdu

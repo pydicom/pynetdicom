@@ -1,8 +1,70 @@
 
 from io import BytesIO
+import logging
 import unicodedata
 
 from pydicom.uid import UID
+
+logger = logging.getLogger('pynetdicom.utils')
+
+def fragment(max_pdu, str):
+    """
+    Convert the given str into fragments, each of maximum size `max_pdu`
+    
+    Returns
+    -------
+    fragments : list of str
+        The fragmented string
+    """
+    if isinstance(str, BytesIO):
+        str = str.getvalue()
+    s = str
+    fragments = []
+    maxsize = max_pdu - 6
+    
+    while 1:
+        fragments.append(s[:maxsize])
+        s = s[maxsize:]
+        if len(s) <= maxsize:
+            if len(s) > 0:
+                fragments.append(s)
+                
+            return fragments
+
+def correct_ambiguous_vr(dataset, transfer_syntax):
+    
+    # Correct ambiguous VRs
+    # See PS3.5 Annex A
+    
+    # Explicit VR
+    if not transfer_syntax.is_implicit_VR:
+        # Little Endian
+        if transfer_syntax.is_little_endian:
+            for elem in dataset:
+                elem_name = ''.join(elem.description().split(' '))
+                elem_group = elem.tag.group
+                elem_element = elem.tag.elem
+                
+                if ' or ' in elem.VR:
+                    if elem.tag == 0x7fe00010:
+                        # If BitsAllocated is > 8 then OW, else OB or OW
+                        elem.VR = 'OW'
+                    #elif elem.tag == 0x60xx3000:
+                    #    elem.VR = 'OW'
+                    elif elem.tag in [0x00281101, 0x00281102, 0x00281103]:
+                        elem.VR = 'OW'
+                    elif elem.tag in [0x00280106, 0x00280107]:
+                        elem.VR = 'US'
+                        elem.value = int.from_bytes(elem.value, byteorder='little')
+                    
+                    logger.debug("Setting undefined VR of %s (%04x, %04x) to "
+                        "'%s'" %(elem_name, elem_group, elem_element, elem.VR))
+                
+        # Big Endian
+        else:
+            pass
+    
+    return dataset
 
 def validate_ae_title(ae_title):
     """
@@ -15,6 +77,10 @@ def validate_ae_title(ae_title):
     If the supplied `ae_title` is greater than 16 characters once 
         non-significant spaces have been removed then the returned AE title
         will be truncated to remove the excess characters.
+    If the supplied `ae_title` is less than 16 characters once non-significant
+        spaces have been removed, the spare trailing characters will be
+        set to space (0x20)
+        
         
     Parameters
     ----------
@@ -56,6 +122,9 @@ def validate_ae_title(ae_title):
         
         # AE title OK
         if 0 < len(significant_characters) <= 16:
+            while len(significant_characters) < 16:
+                significant_characters += ' '
+            
             if is_bytes:
                 return bytes(significant_characters, 'utf-8')
             else:
@@ -79,7 +148,7 @@ def validate_ae_title(ae_title):
         raise TypeError("Invalid value for an AE title; must be a "
                 "non-empty string")
 
-def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16, max_size=None):
+def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16, max_size=512):
     lines = []
     if isinstance(lst, BytesIO):
         lst = lst.getvalue()

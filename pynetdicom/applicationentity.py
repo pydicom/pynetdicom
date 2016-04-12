@@ -1,8 +1,3 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
 
 import gc
 import logging
@@ -31,129 +26,149 @@ logger.addHandler(handler)
 
 
 class ApplicationEntity(object):
-    """Represents a DICOM application entity
+    """
+    Represents a DICOM Application Entity (AE)
     
-    As per PS3.7, the DICOM Application Entity (AE) is specified by the 
-    following parts of the DICOM Standard:
-        * PS3.3 IODs: provides data models and attributes used for defining
-            SOP Instances.
-        * PS3.4 Service Classes: defines the set of operations that can be 
-            performed on SOP Instances.
-        * PS3.6 Data Dictionary: contains registry of Data Elements
-        
-    The AE uses the Association and Presentation data services provided by the
-    Upper Layer Service.
+    An AE may be either a server (Service Class Provider or SCP) or a client
+    (Service Class User or SCU).
+    
+    SCP 
+    ---
+    To use an AE as an SCP, you need to specify the listen `port` number that 
+    peer AE SCUs can use to request Associations over, as well as the SOP 
+    Classes that the SCP supports (`scp_sop_class`). If the SCP is being used
+    for anything other than the C-ECHO DIMSE service you also need to implement
+    the required callbacks.
+    
+    The SCP can then be started using `ApplicationEntity.start()`
+    
+    C-STORE SCP Example
+    ~~~~~~~~~~~~~~~~~~~
+    .. code-block:: python 
 
-    To use as an SCU (C-ECHO example):
-        from pynetdicom.ae import AE
-        from pynetdicom.uid import VerificationSOPClass
-        
-        # Specify which SOP Classes are supported as an SCU
-        ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate(192.168.2.1, 104)
-        
-        if assoc.is_established:
-            status = assoc.send_c_echo()
-            
-            assoc.Release()
-            
-        ae.quit()
-        
-    To use as an SCP (C-STORE example):
-        from pynetdicom.ae import AE
-        from pynetdicom.SOPclasses import CTImageStorageSOPClass
+            from pynetdicom import AE, StorageSOPClassList
     
-        # Specify the listen port and which SOP Classes are supported as an SCP
-        ae = AE(port=104, scp_sop_class=[CTImageStorageSOPClass])
+            # Specify the listen port and which SOP Classes are supported
+            ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
+
+            # Define the callback for receiving a C-STORE request
+            def on_c_store(dataset):
+                # Insert your C-STORE handling code here
+
+                # Must return a valid C-STORE status - 0x0000 is Success
+                return 0x0000
+
+            ae.on_c_store = on_c_store
+
+            # Start the SCP
+            ae.start()
         
-        # Define your callbacks
-        def on_c_store(sop_class, dataset):
-            # Insert your C-STORE handling code here
+    SCU
+    ---
+    To use an AE as an SCU you only need to specify the SOP Classes that the SCU
+    supports (`scu_sop_class`) and then call `ApplicationEntity.associate(addr, 
+    port)` where *addr* and *port* are the TCP/IP address and the listen port
+    number of the peer SCP, respectively. 
+    
+    Once the Association is established you can then request any of the DIMSE-C 
+    or DIMSE-N services.
+    
+    C-ECHO SCU Example
+    ~~~~~~~~~~~~~~~~~~
+    .. code-block:: python
+
+            from pynetdicom import AE, VerificationSOPClass
+
+            # Specify which SOP Classes are supported as an SCU
+            ae = AE(scu_sop_class=[VerificationSOPClass])
             
-        ae.on_c_store = on_c_store
-        
-        # Start the SCP server
-        ae.start()
+            # Request an association with a peer SCP
+            assoc = ae.associate(addr=192.168.2.1, port=104)
+
+            if assoc.is_established:
+                status = assoc.send_c_echo()
+
+                # Release the association
+                assoc.Release()
 
     Parameters
     ----------
-    ae_title - str, optional
+    ae_title : str, optional
         The AE title of the Application Entity (default: PYNETDICOM)
-    port - int, optional
-        The port number to listen for connections on when acting as an SCP and
-        to use for making connections to the peer when acting as an SCU
+    port : int, optional
+        The port number to listen for connections on when acting as an SCP
         (default: the first available port)
-    scu_sop_class - list of pydicom.uid.UID or list of str or list of 
+    scu_sop_class : list of pydicom.uid.UID or list of str or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
-        List of the supported SOP classes when the AE is operating as an SCU. 
-        Either scu_sop_class or scp_sop_class must have values
-    scp_sop_class - list of pydicom.uid.UID or list of UID strings or list of 
+        List of the supported SOP Class UIDs when running as an SCU. 
+        Either `scu_sop_class` or `scp_sop_class` must have values
+    scp_sop_class : list of pydicom.uid.UID or list of UID strings or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
-        List of the supported SOP classes when the AE is operating as an SCP
-        Either scu_sop_class or scp_sop_class must have values
-    transfer_syntax - list of pydicom.uid.UID or list of str or list of 
+        List of the supported SOP Class UIDs when running as an SCP.
+        Either scu_`sop_class` or `scp_sop_class` must have values
+    transfer_syntax : list of pydicom.uid.UID or list of str or list of 
     pynetdicom.SOPclass.ServiceClass subclasses, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
         Endian, Implicit VR Little Endian, Explicit VR Big Endian)
 
     Attributes
     ----------
-    acse_timeout - int
+    acse_timeout : int
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of 0 means no timeout.
-    active_associations - list of pynetdicom.association.Association
+        messages. A value of 0 means no timeout. (default: 0)
+    active_associations : list of pynetdicom.association.Association
         The currently active associations between the local and peer AEs
-    address - str
+    address : str
         The local AE's TCP/IP address
-    ae_title - str
+    ae_title : str
         The local AE's title
-    client_socket - socket.socket
+    client_socket : socket.socket
         The socket used for connections with peer AEs
-    dimse_timeout - int
+    dimse_timeout : int
         The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of 0 means no timeout.
-    network_timeout - int
+        messages. A value of 0 means no timeout. (default: 0)
+    network_timeout : int
         The maximum amount of time (in seconds) to wait for network messages. 
-        A value of 0 means no timeout.
-    maximum_associations - int
+        A value of 0 means no timeout. (default: 60)
+    maximum_associations : int
         The maximum number of simultaneous associations (default: 2)
-    maximum_pdu_size - int
+    maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no 
         maximum size (default: 16382)
-    port - int
+    port : int
         The local AE's listen port number when acting as an SCP or connection
         port when acting as an SCU. A value of 0 indicates that the operating
         system should choose the port.
-    presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scu : List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCU (SCU only)
-    presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scp : List of pynetdicom.utils.PresentationContext
         The presentation context list when acting as an SCP (SCP only)
-    require_calling_aet - str
+    require_calling_aet : str
         If not empty str, the calling AE title must match `require_calling_aet`
         (SCP only)
-    require_called_aet - str
+    require_called_aet : str
         If not empty str the called AE title must match `required_called_aet`
         (SCP only)
-    scu_supported_sop - List of pydicom.uid.UID
+    scu_supported_sop : List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCU (SCU only)
-    scp_supported_sop - List of pydicom.uid.UID
+    scp_supported_sop : List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCP (SCP only)
-    transfer_syntaxes - List of pydicom.uid.UID
+    transfer_syntaxes : List of pydicom.uid.UID
         The supported transfer syntaxes
     """
-    def __init__(self, 
-                 ae_title='PYNETDICOM',
-                 port=0, 
-                 scu_sop_class=[], 
-                 scp_sop_class=[],
-                 transfer_syntax=[ExplicitVRLittleEndian,
-                                  ImplicitVRLittleEndian,
-                                  ExplicitVRBigEndian]):
+    def __init__(self, ae_title='PYNETDICOM',
+                       port=0, 
+                       scu_sop_class=[], 
+                       scp_sop_class=[],
+                       transfer_syntax=[ExplicitVRLittleEndian,
+                                        ImplicitVRLittleEndian,
+                                        ExplicitVRBigEndian]):
 
         self.address = platform.node()
         self.port = port
         self.ae_title = ae_title
 
+        # Make sure that one of scu_sop_class/scp_sop_class is not empty
         if scu_sop_class == [] and scp_sop_class == []:
             raise ValueError("No supported SOP Class UIDs supplied during "
                 "ApplicationEntity instantiation")
@@ -165,13 +180,16 @@ class ApplicationEntity(object):
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
         
+        # The user may require the use of Extended Negotiation items
+        self.extended_negotiation = []
+        
         # Default maximum simultaneous associations
         self.maximum_associations = 2
         
         # Default maximum PDU receive size (in bytes)
         self.maximum_pdu_size = 16382
         
-        # Default timeouts
+        # Default timeouts - 0 means no timeout
         self.acse_timeout = 0
         self.network_timeout = 60
         self.dimse_timeout = 0
@@ -188,13 +206,8 @@ class ApplicationEntity(object):
         #       (presentation_contexts_scu)
         #   * used to decide whether to accept or reject when remote AE 
         #       requests association (presentation_contexts_scp)
-        #       although I think they should be accepted and then aborted
-        #       due to no acceptable presentation contexts rather than rejected
         #
         #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
-        #
-        # This should maybe be given its own property setter/getter
-        #   for when the user changes scu_supported_sop and/or scp_supported_sop
         self.presentation_contexts_scu = []
         self.presentation_contexts_scp = []
         for [pc_output, sop_input] in \
@@ -239,14 +252,13 @@ class ApplicationEntity(object):
         self.local_socket = None
 
         # Used to terminate AE when running as an SCP
-        self.__Quit = False
-
+        self._quit = False
 
     def start(self):
         """
         When running the AE as an SCP this needs to be called to start the main 
-        loop, it listens for connection attempts on `local_socket` and attempts 
-        to Associate with them. 
+        loop, it listens for connections on `local_socket` and if they request
+        association starts a new Association thread
         
         Successful associations get added to `active_associations`
         """
@@ -261,22 +273,22 @@ class ApplicationEntity(object):
             return
 
         # Bind the local_socket to the specified listen port
-        self.__start_bind_socket()
+        self._bind_socket()
 
         no_loops = 0
         while True:
             try:
                 time.sleep(0.1)
                 
-                if self.__Quit:
+                if self._quit:
                     break
                 
                 # Monitor client_socket for association requests and
                 #   appends any associations to self.active_associations
-                self.__start_monitor_socket()
+                self._monitor_socket()
                 
                 # Delete dead associations
-                self.__start_cleanup_associations()
+                self._cleanup_associations()
 
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
@@ -288,7 +300,7 @@ class ApplicationEntity(object):
             except KeyboardInterrupt:
                 self.stop()
 
-    def __start_bind_socket(self):
+    def _bind_socket(self):
         """ 
         AE.start(): Set up and bind the socket. Separated out from start() to 
         enable better unit testing
@@ -299,7 +311,7 @@ class ApplicationEntity(object):
         self.local_socket.bind(('', self.port))
         self.local_socket.listen(1)
 
-    def __start_monitor_socket(self):
+    def _monitor_socket(self):
         """ 
         AE.start(): Monitors the local socket to see if anyone tries to connect 
         and if so, creates a new association. Separated out from start() to 
@@ -318,11 +330,13 @@ class ApplicationEntity(object):
             # Association(local_ae, local_socket=None, max_pdu=16382)
             assoc = Association(self, 
                                 client_socket, 
-                                max_pdu=self.maximum_pdu_size)
+                                max_pdu=self.maximum_pdu_size,
+                                acse_timeout=self.acse_timeout,
+                                dimse_timeout=self.dimse_timeout)
 
             self.active_associations.append(assoc)
 
-    def __start_cleanup_associations(self):
+    def _cleanup_associations(self):
         """ 
         AE.start(): Removes any dead associations from self.active_associations 
         by checking to see if the association thread is still alive. Separated 
@@ -333,13 +347,17 @@ class ApplicationEntity(object):
                     self.active_associations if assoc.is_alive()]
 
     def stop(self):
+        """
+        When running as an SCP, calling stop() will kill all associations,
+        close the listen socket and quit
+        """
         for aa in self.active_associations:
             aa.kill()
         
         if self.local_socket:
             self.local_socket.close()
         
-        self.__Quit = True
+        self._quit = True
         
         while True:
             sys.exit(0)
@@ -355,23 +373,22 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        addr - str
+        addr : str
             The peer AE's TCP/IP address (IPv4)
-        port - int
+        port : int
             The peer AE's listen port number
-        ae_title - str, optional
-            The peer AE's title, must meet AE title requirements
-        max_pdu - int, optional
+        ae_title : str, optional
+            The peer AE's title
+        max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the 
             association
-        ext_neg - List of UserInformation objects, optional
+        ext_neg : List of UserInformation objects, optional
             Used if extended association negotiation is required
 
         Returns
         -------
-        assoc : pynetdicom.association.Association or None
-            The Association if it was successfully established, None if failed
-            or was rejected or aborted
+        assoc : pynetdicom.association.Association
+            The Association thread
         """
         if not isinstance(addr, str):
             raise ValueError("ip_address must be a valid IPv4 string")
@@ -392,36 +409,17 @@ class ApplicationEntity(object):
                             ext_neg=ext_neg)
 
         # Endlessly loops while the Association negotiation is taking place
-        while (not assoc.is_established and not assoc.is_refused \
-                                        and not assoc.dul.kill):
+        while (not assoc.is_established and 
+                not assoc.is_refused and 
+                not assoc.is_aborted and
+                not assoc.dul.kill):
             time.sleep(0.1)
 
         # If the Association was established
         if assoc.is_established:
             self.active_associations.append(assoc)
-            return assoc
 
         return assoc
-
-    def release_association(self, assoc_no):
-        """ Release the association given by `assoc_no` """
-        if assoc_no >= len(self.active_associations):
-            self.active_associations[assoc_no].Release()
-
-    def release_all(self):
-        """ Release all the associations """
-        for assoc in self.active_associations:
-            assoc.Release()
-
-    def abort_association(self, assoc_no):
-        """ Abort the association given by `assoc_no` """
-        if assoc_no >= len(self.active_associations):
-            self.active_associations[assoc_no].Abort()
-
-    def abort_all(self):
-        """ Abort all the associations """
-        for assoc in self.active_associations:
-            assoc.Abort()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
@@ -475,15 +473,15 @@ class ApplicationEntity(object):
 
     @property
     def acse_timeout(self):
-        return self.__acse_timeout
+        return self._acse_timeout
 
     @acse_timeout.setter
     def acse_timeout(self, value):
         try:
             if 0 <= value:
-                self.__acse_timeout = value
+                self._acse_timeout = value
             else:
-                self.__acse_timeout = 0
+                self._acse_timeout = 0
                 
             return
         except:
@@ -491,30 +489,30 @@ class ApplicationEntity(object):
                 "value greater than or equal to 0. Defaulting to 0 (no "
                 "timeout)")
         
-        self.__acse_timeout = 0
+        self._acse_timeout = 0
 
     @property
     def ae_title(self):
-        return self.__ae_title
+        return self._ae_title
 
     @ae_title.setter
     def ae_title(self, value):
         try:
-            self.__ae_title = validate_ae_title(value)
+            self._ae_title = validate_ae_title(value)
         except:
             raise
 
     @property
     def dimse_timeout(self):
-        return self.__dimse_timeout
+        return self._dimse_timeout
 
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         try:
             if 0 <= value:
-                self.__dimse_timeout = value
+                self._dimse_timeout = value
             else:
-                self.__dimse_timeout = 0
+                self._dimse_timeout = 0
                 
             return
         except:
@@ -522,19 +520,19 @@ class ApplicationEntity(object):
                 "value greater than or equal to 0. Defaulting to 0 (no "
                 "timeout)")
         
-        self.__dimse_timeout = 0
+        self._dimse_timeout = 0
 
     @property
     def network_timeout(self):
-        return self.__network_timeout
+        return self._network_timeout
 
     @network_timeout.setter
     def network_timeout(self, value):
         try:
             if 0 <= value:
-                self.__network_timeout = value
+                self._network_timeout = value
             else:
-                self.__network_timeout = 60
+                self._network_timeout = 60
                 
             return
         except:
@@ -542,31 +540,31 @@ class ApplicationEntity(object):
                 "numeric value greater than or equal to 0. Defaulting to 60 "
                 "seconds")
         
-        self.__network_timeout = 60
+        self._network_timeout = 60
 
     @property
     def maximum_associations(self):
-        return self.__maximum_associations
+        return self._maximum_associations
 
     @maximum_associations.setter
     def maximum_associations(self, value):
         try:
             if 1 <= value:
-                self.__maximum_associations = value
+                self._maximum_associations = value
                 return
             else:
                 logger.warning("AE maximum associations must be greater than "
                     "or equal to 1")
-                self.__maximum_associations = 1
+                self._maximum_associations = 1
         except:
             logger.warning("AE maximum associations must be a numerical value "
                 "greater than or equal to 1. Defaulting to 1")
                 
-        self.__maximum_associations = 1
+        self._maximum_associations = 1
 
     @property
     def maximum_pdu_size(self):
-        return self.__maximum_pdu_size
+        return self._maximum_pdu_size
 
     @maximum_pdu_size.setter
     def maximum_pdu_size(self, value):
@@ -576,24 +574,24 @@ class ApplicationEntity(object):
         #       no maximum length (PS3.8 Annex D.1.1)
         try:
             if 0 <= value:
-                self.__maximum_pdu_size = value
+                self._maximum_pdu_size = value
                 return
         except:
             logger.warning("ApplicationEntity failed to set maximum PDU size "
                     "of '%s', defaulting to 16832 bytes" %value)
         
-        self.__maximum_pdu_size = 16382
+        self._maximum_pdu_size = 16382
 
     @property
     def port(self):
-        return self.__port
+        return self._port
 
     @port.setter
     def port(self, value):
         try:
             if isinstance(value, int):
                 if 0 <= value:
-                    self.__port = value
+                    self._port = value
                     return
                 else:
                     raise ValueError("AE port number must be greater than or "
@@ -609,20 +607,20 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        return self.__require_calling_aet
+        return self._require_calling_aet
 
     @require_calling_aet.setter
     def require_calling_aet(self, value):
         try:
             if 0 < len(value.strip()) <= 16:
-                self.__require_calling_aet = value.strip()
+                self._require_calling_aet = value.strip()
             elif len(value.strip()) > 16:
-                self.__require_calling_aet = value.strip()[:16]
+                self._require_calling_aet = value.strip()[:16]
                 logger.warning("ApplicationEntity tried to set required "
                     "calling AE title with more than 16 characters; title will "
                     "be truncated to '%s'" %value)
             else:
-                self.__require_calling_aet = ''
+                self._require_calling_aet = ''
             return
         
         except:
@@ -630,35 +628,35 @@ class ApplicationEntity(object):
                 "AE title, defaulting to empty string (i.e. calling AE title "
                 "not required to match)")
 
-        self.__require_calling_aet = ''
+        self._require_calling_aet = ''
 
     @property
     def require_called_aet(self):
-        return self.__require_called_aet
+        return self._require_called_aet
 
     @require_called_aet.setter
     def require_called_aet(self, value):
         try:
             if 0 < len(value.strip()) <= 16:
-                self.__require_called_aet = value.strip()
+                self._require_called_aet = value.strip()
             elif len(value.strip()) > 16:
-                self.__require_called_aet = value.strip()[:16]
+                self._require_called_aet = value.strip()[:16]
                 logger.warning("ApplicationEntity tried to set required "
                     "called AE title with more than 16 characters; title will "
                     "be truncated to '%s'" %value)
             else:
-                self.__require_called_aet = ''
+                self._require_called_aet = ''
             return
         except:
             logger.warning("ApplicationEntity failed to set required called AE "
                 "title, defaulting to empty string (i.e. called AE title not "
                 "required to match)")
 
-        self.__require_called_aet = ''
+        self._require_called_aet = ''
 
     @property
     def scu_supported_sop(self):
-        return self.__scu_supported_sop
+        return self._scu_supported_sop
 
     @scu_supported_sop.setter
     def scu_supported_sop(self, sop_list):
@@ -668,7 +666,7 @@ class ApplicationEntity(object):
         exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
         attribute(ie VerificationSOPClass)
         """
-        self.__scu_supported_sop = []
+        self._scu_supported_sop = []
         
         try:
             for sop_class in sop_list:
@@ -686,7 +684,7 @@ class ApplicationEntity(object):
                         raise ValueError("SCU SOP class must be a UID str, "
                                 "UID or ServiceClass subclass")
                                 
-                    self.__scu_supported_sop.append(sop_uid)
+                    self._scu_supported_sop.append(sop_uid)
                 
                 except InvalidUID:
                     raise ValueError("SCU SOP classes contained an invalid "
@@ -694,7 +692,7 @@ class ApplicationEntity(object):
                 except Exception as e:
                     logger.warning("Invalid SCU SOP class '%s'" %sop_class)
 
-            if sop_list != [] and self.__scu_supported_sop == []:
+            if sop_list != [] and self._scu_supported_sop == []:
                 raise ValueError("No valid SCU SOP classes were supplied")
         except TypeError:
             raise ValueError("scu_sop_class must be a list")
@@ -703,7 +701,7 @@ class ApplicationEntity(object):
 
     @property
     def scp_supported_sop(self):
-        return self.__scp_supported_sop
+        return self._scp_supported_sop
 
     @scp_supported_sop.setter
     def scp_supported_sop(self, sop_list):
@@ -713,7 +711,7 @@ class ApplicationEntity(object):
         exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
         attribute(ie VerificationSOPClass)
         """
-        self.__scp_supported_sop = []
+        self._scp_supported_sop = []
 
         try:
             for sop_class in sop_list:
@@ -731,7 +729,7 @@ class ApplicationEntity(object):
                         raise ValueError("SCU SOP class must be a UID str, "
                                 "UID or ServiceClass subclass")
 
-                    self.__scp_supported_sop.append(sop_uid)
+                    self._scp_supported_sop.append(sop_uid)
 
                 except InvalidUID:
                     raise ValueError("scp_sop_class must be a list of "
@@ -739,7 +737,7 @@ class ApplicationEntity(object):
                 except Exception as e:
                     logger.warning("Invalid SCP SOP class '%s'" %sop_class)
 
-            if sop_list != [] and self.__scp_supported_sop == []:
+            if sop_list != [] and self._scp_supported_sop == []:
                 raise ValueError("No valid SCP SOP classes were supplied")
         except TypeError:
             raise ValueError("scp_sop_class must be a list")
@@ -748,12 +746,12 @@ class ApplicationEntity(object):
 
     @property
     def transfer_syntaxes(self):
-        return self.__transfer_syntaxes
+        return self._transfer_syntaxes
 
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
         
-        self.__transfer_syntaxes = []
+        self._transfer_syntaxes = []
         
         try:
             for syntax in transfer_syntaxes:
@@ -772,7 +770,7 @@ class ApplicationEntity(object):
                                     "a UID str, UID or ServiceClass subclass")
                     
                     if sop_uid.is_transfer_syntax:
-                        self.__transfer_syntaxes.append(sop_uid)
+                        self._transfer_syntaxes.append(sop_uid)
                     else:
                         logger.warning("Attempted to add a non-transfer syntax "
                             "UID '%s'" %syntax)
@@ -780,139 +778,158 @@ class ApplicationEntity(object):
                 except InvalidUID:
                     raise ValueError("Transfer syntax contained an invalid "
                             "UID string")
-            if self.__transfer_syntaxes == []:
+            if self._transfer_syntaxes == []:
                 raise ValueError("Transfer syntax must be a list of SOP Classes")
         except:
             raise ValueError("Transfer syntax SOP class must be a "
                                 "UID str, UID or ServiceClass subclass")
 
 
-    # High-level DIMSE-C callbacks - user should replace these as required
+    # High-level DIMSE-C callbacks - user should implement these as required
     def on_c_echo(self):
         """
-        Function callback for when a C-ECHO request is received. Must be 
-        defined by the user prior to calling AE.start()
-        
-        Example
-        -------
-        def on_c_echo():
-            print('Received C-ECHO')
-            
-        ae = AE()
-        ae.on_c_echo = on_c_echo
-        
-        ae.start()
-        """
-        raise NotImplementedError("User must define their own AE.on_c_echo "
-                    "function prior to calling AE.start()")
+        Function callback for when a C-ECHO request is received. User 
+        implementation is not required for the C-ECHO service, but if you intend
+        to do so it should be defined prior to calling AE.start()
 
-    def on_c_store(self, sop_class, dataset):
+        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP() after
+        receiving a C-ECHO request and immediately prior to sending the 
+        response. As the status for a C-ECHO response is always Success no 
+        return value is required.
+
+        Example
+        -------
+        .. code-block:: python 
+
+                from pynetdicom import AE, VerificationSOPClass
+                
+                def on_c_echo():
+                    print('Received C-ECHO from peer')
+                
+                ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
+                ae.on_c_echo = on_c_echo
+                
+                ae.start()
         """
-        Function callback for when a dataset is received following a C-STORE.
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom.SOPclass.Status object
+        # User implementation of on_c_echo is optional
+        pass
+
+    def on_c_store(self, dataset):
+        """
+        Function callback for when a dataset is received following a C-STORE 
+        request from a peer AE. Must be defined by the user prior to calling 
+        AE.start() and must return a valid C-STORE status integer value or the 
+        corresponding pynetdicom.SOPclass.Status object.
         
         Example
         -------
-        def on_c_store(sop_class, dataset):
-            print(type(sop_class))
+        from pynetdicom import AE, StorageSOPClassList
+        
+        def on_c_store(dataset):
+            print(dataset.SOPInstanceUID)
+            return 0x0000
             
-        ae = AE()
+        ae = AE(11112, scp_sop_class=StorageSOPClassList)
         ae.on_c_store = on_c_store
         
         ae.start()
-        
+
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.StorageServiceClass
-            The StorageServiceClass subclass instance representing the dataset
-        dataset - pydicom.Dataset
-            The DICOM dataset sent via the C-STORE
-            
+        dataset : pydicom.dataset.Dataset
+            The DICOM dataset sent in the C-STORE request
+
         Returns
         -------
-        status : pynetdicom.SOPclass.Status
+        status : pynetdicom.SOPclass.Status or int
             A valid return status for the C-STORE operation (see PS3.4 Annex 
-            B.2.3), must be one of:
+            B.2.3), must be one of the following Status objects or the 
+            corresponding integer value:
                 Success status
-                    sop_class.Success
-                        Success - 0000
-                    
+                    StorageServiceClass.Success
+                        Success - 0x0000
+
                 Failure statuses
-                    sop_class.OutOfResources
-                        Refused: Out of Resources - A7xx
-                    sop_class.DataSetDoesNotMatchingSOPClassFailure
-                        Error: Data Set does not match SOP Class - A9xx
-                    sop_class.CannotUnderstand
-                        Error: Cannot understand - Cxxx
-                
+                    StorageServiceClass.OutOfResources
+                        Refused: Out of Resources - 0xA7xx
+                    StorageServiceClass.DataSetDoesNotMatchingSOPClassFailure
+                        Error: Data Set does not match SOP Class - 0xA9xx
+                    StorageServiceClass.CannotUnderstand
+                        Error: Cannot understand - 0xCxxx
+
                 Warning statuses
-                    sop_class.CoercionOfDataElements
-                        Coercion of Data Elements - B000
-                    sop_class.DataSetDoesNotMatchSOPClassWarning
-                        Data Set does not matching SOP Class - B007
-                    sop_class.ElementsDiscarded
-                        Elements Discarded - B006
+                    StorageServiceClass.CoercionOfDataElements
+                        Coercion of Data Elements - 0xB000
+                    StorageServiceClass.DataSetDoesNotMatchSOPClassWarning
+                        Data Set does not matching SOP Class - 0xB007
+                    StorageServiceClass.ElementsDiscarded
+                        Elements Discarded - 0xB006
+
+        Raises
+        ------
+        NotImplementedError
+            If the callback has not been implemented by the user
         """
-        raise NotImplementedError("User must define their own AE.on_c_store "
+        raise NotImplementedError("User must implement the AE.on_c_store "
                     "function prior to calling AE.start()")
 
-    def on_c_find(self, sop_class, dataset):
+    def on_c_find(self, dataset):
         """
         Function callback for when a dataset is received following a C-FIND.
         Must be defined by the user prior to calling AE.start() and must return
         a valid pynetdicom.SOPclass.Status object. In addition,the 
         AE.on_c_find_cancel() callback must also be defined
         
+        Called by QueryRetrieveFindSOPClass subclasses in SCP()
+        
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
-            The QueryRetrieveServiceClass subclass instance representing the 
-            dataset
-        dataset - pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-FIND
             
-        Returns
-        -------
-        status : pynetdicom.SOPclass.Status
+        Yields
+        ------
+        status : pynetdicom.SOPclass.Status or int
             A valid return status for the C-FIND operation (see PS3.4 Annex 
-            C.4.1.1.4), must be one of:
+            C.4.1.1.4), must be one of the following Status objects or the 
+            corresponding integer value:
                 Success status
-                    sop_class.Success
+                    QueryRetrieveFindSOPClass.Success
                         Matching is complete - No final Identifier is 
-                        supplied - 0000
+                        supplied - 0x0000
                     
                 Failure statuses
-                    sop_class.OutOfResources
-                        Refused: Out of Resources - A700
-                    sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - A900
-                    sop_class.UnableToProcess
-                        Unable to process - Cxxx
+                    QueryRetrieveFindSOPClass.OutOfResources
+                        Refused: Out of Resources - 0xA700
+                    QueryRetrieveFindSOPClass.IdentifierDoesNotMatchSOPClass
+                        Identifier does not match SOP Class - 0xA900
+                    QueryRetrieveFindSOPClass.UnableToProcess
+                        Unable to process - 0xCxxx
                 
                 Cancel status
-                    sop_class.MatchingTerminatedDueToCancelRequest
-                        Matching terminated due to Cancel request - FE00
+                    QueryRetrieveFindSOPClass.MatchingTerminatedDueToCancelRequest
+                        Matching terminated due to Cancel request - 0xFE00
                     
                 Pending statuses
-                    sop_class.Pending
+                    QueryRetrieveFindSOPClass.Pending
                         Matches are continuing - Current Match is supplied and 
                         any Optional Keys were supported in the same manner as 
-                        Required Keys - FF00
-                    sop_class.PendingWarning
+                        Required Keys - 0xFF00
+                    QueryRetrieveFindSOPClass.PendingWarning
                         Matches are continuing - Warning that one or more 
                         Optional Keys were not supported for existence and/or
-                        matching for this Identifier - FF01
-
+                        matching for this Identifier - 0xFF01
+        dataset : pydicom.dataset.Dataset or None
+            A matching dataset if the status is Pending, None otherwise
         """
-        raise NotImplementedError("User must define their own AE.on_c_find "
+        raise NotImplementedError("User must implement the AE.on_c_find "
                     "function prior to calling AE.start()")
 
     def on_c_find_cancel(self):
-        raise NotImplementedError("User must define their own "
+        raise NotImplementedError("User must implement the "
                     "AE.on_c_find_cancel function prior to calling AE.start()")
 
-    def on_c_get(self, sop_class, dataset):
+    def on_c_get(self, dataset):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
@@ -921,117 +938,96 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
-            The QueryRetrieveServiceClass subclass instance representing 
-            the dataset
-        dataset - pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-STORE
             
-        Returns
-        -------
-        status : pynetdicom.SOPclass.Status
-            A valid return status for the C-GET operation (see PS3.4 Annex 
-            C.4.3.1.4), must be one of:
-                Success status
-                    sop_class.Success
-                        Sub-operations complete - no failures or warnings - 0000
-                    
-                Failure statuses
-                    sop_class.OutOfResourcesNumberOfMatches
-                        Refused: Out of Resources - Unable to calculate number
-                        of matches - A701
-                    sop_class.OutOfResourcesUnableToPerform
-                        Refused: Out of Resources - Unable to perform 
-                        sub-operations - A702
-                    sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - A900
-                    sop_class.UnableToProcess
-                        Unable to process - Cxxx
-                
-                Cancel status
-                    sop_class.Cancel
-                        Sub-operations terminated due to Cancel indication 
-                        - FE00
-                
-                Warning statuses
-                    sop_class.Warning
-                        Sub-operations complete - one or more failures or 
-                        warnings - B000
-                        
-                Pending status
-                    sop_class.Pending
-                        Sub-operations are continuing - FF00
+        Yields
+        ------
+        int, pydicom.dataset.Dataset
+            The first yielded value should be the number of matching Instances
+            that will be returned, all subsequent yielded values should be the
+            matching Dataset(s)
         """
-        raise NotImplementedError("User must define their own AE.on_c_get "
+        raise NotImplementedError("User must implement the AE.on_c_get "
                     "function prior to calling AE.start()")
     
     def on_c_get_cancel(self):
-        raise NotImplementedError("User must define their own "
+        raise NotImplementedError("User must implement the "
                     "AE.on_c_get_cancel function prior to calling AE.start()")
 
-    def on_c_move(self, sop_class, dataset):
+    def on_c_move(self, dataset, move_aet):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom.SOPclass.Status object. In addition,the 
-        AE.on_c_move_cancel() callback must also be defined
+        a valid status. In addition,the AE.on_c_move_cancel() callback must 
+        also be defined.
         
+        Matching Instances will be sent to the known peer AE with AE title 
+        `move_aet` over a new association. If `move_aet` is unknown then the
+        C-MOVE will fail due to 'Move Destination Unknown'.
+        
+        A successful match should return a generator with the first value
+        the number of matching Instances, the second value the (addr, port) of
+        the move destination and the remaining values the matching Instance
+        datasets.
+
         Parameters
         ----------
-        sop_class - pydicom.SOPclass.QueryRetrieveServiceClass
-            The QueryRetrieveServiceClass subclass instance representing the 
-            dataset
-        dataset - pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-MOVE
-            
-        Returns
-        -------
-        status : pynetdicom.SOPclass.Status
-            A valid return status for the C-MOVE operation (see PS3.4 Annex 
-            C.4.2.1.5), must be one of:
-                Success status
-                    sop_class.Success
-                        Sub-operations complete - no failures - 0000
-                    
-                Failure statuses
-                    sop_class.OutOfResourcesNumberOfMatches
-                        Refused: Out of Resources - Unable to calculate number
-                        of matches - A701
-                    sop_class.OutOfResourcesUnableToPerform
-                        Refused: Out of Resources - Unable to perform 
-                        sub-operations - A702
-                    sop_class.MoveDestinationUnknown
-                        Refused: Move destination unknown - A801
-                    sop_class.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - A900
-                    sop_class.UnableToProcess
-                        Unable to process - Cxxx
-                
-                Cancel status
-                    sop_class.Cancel
-                        Sub-operations terminated due to Cancel indication 
-                        - FE00
-                
-                Warning statuses
-                    sop_class.Warning
-                        Sub-operations complete - one or more failures or 
-                        warnings - B000
-                        
-                Pending status
-                    sop_class.Pending
-                        Sub-operations are continuing - FF00
+        move_aet : str
+            The destination AE title that matching Instances will be sent to
+
+        Yields
+        ------
+        number_matches : int
+            The number of matching Instances
+        addr, port : str, int
+            The TCP/IP address and port number of the destination AE (if known)
+            None, None if unknown
+        match : pydicom.dataset.Dataset
+            The matching Instance dataset
         """
-        raise NotImplementedError("User must define their own AE.on_c_move "
+        raise NotImplementedError("User must implement the AE.on_c_move "
                     "function prior to calling AE.start()")
 
     def on_c_move_cancel(self):
-        raise NotImplementedError("User must define their own "
+        raise NotImplementedError("User must implement the "
                     "AE.on_c_move_cancel function prior to calling AE.start()")
 
 
-    # Communication related callback
+    # High-level DIMSE-N callbacks - user should implement these as required
+    def on_n_event_report(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_event_report function prior to calling AE.start()")
+
+    def on_n_get(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_get function prior to calling AE.start()")
+
+    def on_n_set(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_set function prior to calling AE.start()")
+
+    def on_n_action(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_action function prior to calling AE.start()")
+
+    def on_n_create(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_create function prior to calling AE.start()")
+
+    def on_n_delete(self):
+        raise NotImplementedError("User must implement the "
+                    "AE.on_n_delete function prior to calling AE.start()")
+
+
+    # Communication related callbacks
     def on_receive_connection(self):
-        pass
+        raise NotImplementedError()
+    
+    def on_make_connection(self):
+        raise NotImplementedError()
 
 
     # High-level Association related callbacks
@@ -1045,7 +1041,7 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        associate_ac_pdu - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
+        primitive - pynetdicom
             The A-ASSOCIATE-AC PDU instance received from the peer AE
         """
         pass
@@ -1067,754 +1063,4 @@ class ApplicationEntity(object):
 
     def on_association_aborted(self, primitive=None):
         # FIXME: Need to standardise callback parameters for A-ABORT
-        pass
-
-
-    # Association PDU send/receive related callbacks
-    def on_send_associate_rq(self, a_associate_rq):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ASSOCIATE-RQ PDU to 
-        a peer AE
-        
-        Called by fsm.StateMachine::do_action(AE_2)
-        
-        Parameters
-        ----------
-        a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
-            The A-ASSOCIATE-RQ PDU instance to be encoded and sent
-        """
-        pass
-
-    def on_send_associate_ac(self, a_associate_ac):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ASSOCIATE-AC PDU to a
-        peer AE
-        
-        Called by fsm.StateMachine::do_action(AE_7)
-        
-        Parameters
-        ----------
-        a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
-            The A-ASSOCIATE-AC PDU instance
-        """
-        pass
-
-    def on_send_associate_rj(self, a_associate_rj):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ASSOCIATE-RJ PDU to a 
-        peer AE
-        
-        Called by fsm.StateMachine::do_action(AE_8)
-        
-        Parameters
-        ----------
-        a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
-            The A-ASSOCIATE-RJ PDU instance
-        """
-        pass
-
-    def on_send_release_rq(self, a_release_rq):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-RELEASE-RQ  PDU to a 
-        peer AE
-        
-        Called by fsm.StateMachine::do_action(AR_1)
-        
-        Parameters
-        ----------
-        a_release_rq - pynetdicom.PDU.A_RELEASE_RQ_PDU
-            The A-RELEASE-RQ PDU instance
-        """
-        pass
-
-    def on_send_release_rp(self, a_release_rp):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-RELEASE-RP PDU to a 
-        peer AE
-        
-        Called by fsm.StateMachine::do_action(AR_4 or AR_9)
-        
-        Parameters
-        ----------
-        a_release_rp - pynetdicom.PDU.A_RELEASE_RP_PDU
-            The A-RELEASE-RP PDU instance
-        """
-        pass
-
-    def on_send_abort(self, a_abort):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an A-ABORT PDU to a peer AE
-        
-        Called by fsm.StateMachine::do_action(AA_1 or AA_7 or AA_8)
-        
-        Parameters
-        ----------
-        a_abort - pynetdicom.PDU.A_ABORT_PDU
-            The A-ABORT PDU instance
-        """
-        pass
-
-
-    def on_receive_associate_rq(self, a_associate_rq):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an A-ASSOCIATE-RQ
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_associate_rq - pynetdicom.PDU.A_ASSOCIATE_RQ_PDU
-            The A-ASSOCIATE-RQ PDU instance
-        """
-        pass
-
-    def on_receive_associate_ac(self, a_associate_ac):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an A-ASSOCIATE-AC
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_associate_ac - pynetdicom.PDU.A_ASSOCIATE_AC_PDU
-            The A-ASSOCIATE-AC PDU instance
-        """
-        pass
-
-    def on_receive_associate_rj(self, a_associate_rj):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an A-ASSOCIATE-RJ
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_associate_rj - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
-            The A-ASSOCIATE-RJ PDU instance
-        """
-        pass
-
-    def on_receive_release_rq(self, a_release_rq):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an A-RELEASE-RQ
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_release_rq - pynetdicom.PDU.A_RELEASE_RQ_PDU
-            The A-RELEASE-RQ PDU instance
-        """
-        pass
-
-    def on_receive_release_rp(self, a_release_rp):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an A-RELEASE-RP
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_release_rp - pynetdicom.PDU.A_RELEASE_RP_PDU
-            The A-RELEASE-RP PDU instance
-        """
-        pass
-
-    def on_receive_abort(self, a_abort):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an A-ABORT
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_abort - pynetdicom.PDU.A_ABORT_PDU
-            The A-ABORT PDU instance
-        """
-        pass
-
-
-    # Data PDU send/receive callbacks
-    def on_send_data_tf(self, p_data_tf):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending an P-DATA-TF PDU to a peer AE
-        
-        Called by fsm.StateMachine::do_action(DT_1 or AR_7)
-        
-        Parameters
-        ----------
-        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
-            The P-DATA-TF PDU instance
-        """
-        pass
-
-    def on_receive_data_tf(self, p_data_tf):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding an P-DATA-TF
-        
-        Called by DULprovider.DULServiceProvider::Socket2PDU()
-        
-        Parameters
-        ----------
-        a_release_rq - pynetdicom.PDU.P_DATA_TF_PDU
-            The P-DATA-TF PDU instance
-        """
-        pass
-
-
-    # DIMSE-C message send callbacks
-    def on_send_c_echo_rq(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        dimse_msg - pynetdicom.SOPclass.C_ECHO_RQ 
-        """
-        pass
-
-    def on_send_c_echo_rsp(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
-        """
-
-    def on_send_c_store_rq(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_STORE_RQ 
-        """
-        pass
-
-    def on_send_c_store_rsp(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_STORE_RSP
-        """
-        pass
-
-    def on_send_c_find_rq(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_FIND_RQ 
-        """
-        pass
-
-    def on_send_c_find_rsp(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_FIND_RSP
-        """
-        pass
-
-    def on_send_c_cancel_find_rq(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_CANCEL_FIND_RQ
-        """
-        pass
-
-    def on_send_c_get_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_send_c_get_rsp(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_send_c_cancel_get_rq(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_CANCEL_GET_RQ
-        """
-        pass
-
-    def on_send_c_move_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_send_c_move_rsp(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_send_c_cancel_move_rq(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        store - pynetdicom.SOPclass.C_CANCEL_MOVE_RQ
-        """
-        pass
-
-
-    # DIMSE-C message receive callbacks
-    def on_receive_c_echo_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        after receiving and decoding a C-ECHO-RQ. The C-ECHO service is used
-        to verify end-to-end communications with a peer DIMSE user.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        """
-        pass
-
-    def on_receive_c_echo_rsp(self, dimse_msg):
-        """
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        dimse_msg - pynetdicom.SOPclass.C_ECHO_RSP
-        """
-        pass
-
-    def on_receive_c_store_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-STORE-RQ
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        dimse_msg - 
-        """
-        pass
-
-    def on_receive_c_store_rsp(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-STORE-RSP
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        dimse_msg - 
-        """
-        pass
-
-    def on_receive_c_find_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-FIND-RQ. The C-FIND service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances. If no matching SOP Instances are found 
-            then return the empty list or None.
-        """
-        return None
-
-    def on_receive_c_find_rsp(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-FIND-RSP. The C-FIND service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances. If no matching SOP Instances are found 
-            then return the empty list or None.
-        """
-        return None
-
-    def on_receive_c_cancel_find_rq(self, dimse_msg):
-        """
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        dimse_msg - pynetdicom.DIMSEmessages.C_CANCEL_FIND_RQ
-        """
-        pass
-
-    def on_receive_c_get_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_receive_c_get_rsp(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-GET-RQ. The C-GET service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_receive_c_cancel_get_rq(self, dimse_msg):
-        """
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        dimse_msg - pynetdicom.DIMSEmessages.C_CANCEL_GET_RQ
-        """
-        pass
-
-    def on_receive_c_move_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_receive_c_move_rsp(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving a C-MOVE-RQ. The C-MOVE service is used by a DIMSE to match
-        a set of Attributes against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user, and retrieve all composite
-        SOP Instances that match. It triggers one or more C-STORE 
-        sub-operations on the same Association.
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-            
-        Returns
-        -------
-        matching_sop_instances - list of pydicom.Dataset
-            The matching SOP Instances to be sent via C-STORE sub-operations. If
-            no matching SOP Instances are found then return the empty list or
-            None.
-        """
-        return None
-
-    def on_receive_c_cancel_move_rq(self, dimse_msg):
-        """
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        dimse_msg - pynetdicom.DIMSEmessages.C_CANCEL_MOVE_RQ
-        """
-        pass
-
-
-    # DIMSE-N message receive callbacks
-    def on_receive_n_event_report_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving an N-EVENT-REPORT-RQ. The N-EVENT-REPORT service is used 
-        by a DIMSE to report an event to a peer DIMSE user.
-        
-        Not currently implemented
-        
-        Parameters
-        ----------
-        event - ???
-            ???
-        """
-        raise NotImplementedError
-
-    def on_receive_n_get_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving an N-GET-RQ. The N-GET service is used 
-        by a DIMSE to retrieve Attribute values from a peer DIMSE user.
-        
-        Not currently implemented
-        
-        Parameters
-        ----------
-        attributes - ???
-            ???
-            
-        Returns
-        values - ???
-            The attribute values to be retrieved
-        """
-        raise NotImplementedError
-
-    def on_receive_n_set_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving an N-SET-RQ. The N-SET service is used 
-        by a DIMSE to request the modification of Attribute values from a peer 
-        DIMSE user.
-        
-        Not currently implemented
-        
-        Parameters
-        ----------
-        attributes - ???
-            ???
-        """
-        raise NotImplementedError
-
-    def on_receive_n_action_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving an N-ACTION-RQ. The N-ACTION service is used 
-        by a DIMSE to request an action by a peer DIMSE user.
-        
-        Not currently implemented
-        
-        Parameters
-        ----------
-        actions - ???
-            ???
-        """
-        raise NotImplementedError
-
-    def on_receive_n_create_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving an N-CREATE-RQ. The N-CREATE service is used 
-        by a DIMSE to create a new managed SOP Instance, complete with its
-        identification and the values of its association Attributes to register
-        its identification.
-        
-        Not currently implemented
-        
-        Parameters
-        ----------
-        attributes - ???
-            ???
-        """
-        raise NotImplementedError
-
-    def on_receive_n_delete_rq(self, dimse_msg):
-        """
-        Placeholder for a function callback. Function will be called 
-        on receiving an N-DELETE-RQ. The N-DELETE service is used 
-        by a DIMSE to request a peer DIMSE user delete a managed SOP Instance
-        a deregister its identification.
-        
-        Not currently implemented
-        
-        Parameters
-        ----------
-        attributes - ???
-            ???
-        """
-        raise NotImplementedError
-
-
-    # Low-level DIMSE related callbacks
-    def on_send_dimse_message(self, message):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately prior to encoding and sending a DIMSE message
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Send()
-        
-        Parameters
-        ----------
-        message - pynetdicom.DIMSEmessage.DIMSEMessage
-            The DIMSE message to be sent
-        """
-        pass
-
-    def on_receive_dimse_message(self, message):
-        """
-        Placeholder for a function callback. Function will be called 
-        immediately after receiving and decoding a DIMSE message
-        
-        Called by DIMSEprovider.DIMSEServiceProvider.Receive()
-        
-        Parameters
-        ----------
-        sop_class - pynetdicom.SOPclass.SOPClass
-            A SOP Class instance of the type referred to by the message
-        message - pydicom.Dataset
-            The DIMSE message that was received as a Dataset
-        """
         pass

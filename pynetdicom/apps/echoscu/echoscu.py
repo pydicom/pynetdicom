@@ -15,10 +15,10 @@ import socket
 import sys
 import time
 
-from pynetdicom import AE
-from pynetdicom.SOPclass import VerificationSOPClass
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                                 ExplicitVRBigEndian
+
+from pynetdicom import AE, VerificationSOPClass
 
 logger = logging.Logger('echoscu')
 stream_logger = logging.StreamHandler()
@@ -30,11 +30,11 @@ logger.setLevel(logging.ERROR)
 def _setup_argparser():
     # Description
     parser = argparse.ArgumentParser(
-        description="The echoscu application implements a Service Class User (SCU) "
-                    "for the Verification SOP Class. It sends a DICOM C-ECHO "
-                    "message to a Service Class Provider (SCP) and waits for a "
-                    "response. The application can be used to verify basic "
-                    "DICOM connectivity.", 
+        description="The echoscu application implements a Service Class User "
+                    "(SCU) for the Verification SOP Class. It sends a DICOM "
+                    "C-ECHO message to a Service Class Provider (SCP) and "
+                    "waits for a response. The application can be used to "
+                    "verify basic DICOM connectivity.", 
         usage="echoscu [options] peer port")
         
     # Parameters
@@ -240,7 +240,7 @@ except:
 
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
-logger.debug('$echoscu.py v%s %s $' %('0.5.0', '2016-03-04'))
+logger.debug('$echoscu.py v%s %s $' %('0.5.1', '2016-04-12'))
 logger.debug('')
 
 
@@ -267,15 +267,10 @@ if assoc.is_established:
     for ii in range(args.repeat):
         status = assoc.send_c_echo()
     
-    # Abort or release association
-    if args.abort:
-        # 0x00 - Reason not specified (PS3.8 Table 9.26)
-        assoc.abort()
-    else:
-        assoc.release()
-
-
-# Quit
-ae.quit()
-
-
+    if status is not None:
+        # Abort or release association
+        if args.abort:
+            # 0x00 - Reason not specified (PS3.8 Table 9.26)
+            assoc.abort()
+        else:
+            assoc.release()
