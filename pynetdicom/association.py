@@ -1250,6 +1250,7 @@ class Association(threading.Thread):
                         
                     # If the Status is "Success" then processing is complete
                     elif status.Type == "Success":
+                        status = service_class.Success
                         break
                     
                     # All other possible responses

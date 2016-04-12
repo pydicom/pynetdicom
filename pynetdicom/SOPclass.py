@@ -526,13 +526,16 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         range(0xFF00, 0xFF00 + 1)    )
 
     def SCP(self, msg):
-        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
+        ds = decode(msg.Identifier, 
+                    self.transfersyntax.is_implicit_VR,
+                    self.transfersyntax.is_little_endian)
 
         # make response
         rsp = C_MOVE_ServiceParameters()
         rsp.MessageIDBeingRespondedTo = msg.MessageID.value
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
+        
+        # FIXME
         gen = self.AE.OnReceiveMove(self, ds, msg.MoveDestination.value)
 
         # first value returned by callback must be the complete remote AE specs
@@ -630,43 +633,51 @@ class QueryRetrieveGetServiceClass(ServiceClass):
           performing DIMSE user issues a C-GET response with status set to 
           either refused, failed or success
         """
-        dataset = decode(msg.Identifier,
-                         self.transfersyntax.is_implicit_VR,
-                         self.transfersyntax.is_little_endian)
+        attributes = decode(msg.Identifier,
+                            self.transfersyntax.is_implicit_VR,
+                            self.transfersyntax.is_little_endian)
         
         # Build C-GET response primitive
         c_get_rsp = C_GET_ServiceParameters()
         c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        c_get_rsp.Identifier = msg.Identifier
+        
+        logger.info('Get SCP Request Identifiers:')
+        logger.info('')
+        logger.debug('# DICOM Data Set')
+        for elem in attributes:
+            logger.info(elem)
+        logger.info('')
         
         # The user is responsible for returning the matching Instances
         try:
-            matches = self.AE.on_c_get(dataset)
+            matches = self.AE.on_c_get(attributes)
         except:
-            matches = []
-        
-        c_get_rsp.NumberOfRemainingSuboperations = len(matches)
+            logger.error('Exception in on_c_get')
+            c_get_rsp.Status = int(self.UnableToProcess)
+            logger.info('Get SCP Response %s (Failure)' %ii)
+            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+            return
+    
+        c_get_rsp.NumberOfRemainingSuboperations = next(matches)
         c_get_rsp.NumberOfCompletedSuboperations = 0
         c_get_rsp.NumberOfFailedSuboperations = 0
         c_get_rsp.NumberOfWarningSuboperations = 0
         
         ii = 1
-        for instance in matches:
-            c_store = C_STORE_ServiceParameters()
-            c_store.MessageID = ii
-            c_store.AffectedSOPClassUID = instance.SOPClassUID
-            c_store.AffectedSOPInstanceUID = instance.SOPInstanceUID
-            c_store.Priority = priority
-            c_store.DataSet = encode(instance,
-                                     self.transfersyntax.is_implicit_VR,
-                                     self.transfersyntax.is_little_endian)
+        for dataset in matches:
+            # Send C-STORE-RQ and Pending C-GET-RSP to peer
+            # Send each matching dataset via C-STORE
+            logger.info('Store SCU RQ: MsgID %s' %ii)
             
-            # Send C-STORE request to peer
-            self.DIMSE.Send(c_store, self.pcid, self.maxpdulength)
+            store_status = self.ACSE.parent.send_c_store(dataset, 
+                                                         msg.MessageID, 
+                                                         priority)
+            store_status = store_status.Type
             
-            c_store_rsp, context_id = self.DIMSE.Receive(Wait=True)
+            logger.info('Get SCU: Received Store SCU RSP (%s)' %store_status)
             
-            store_status = self.Code2Status(c_store_response.Status).Type
             if store_status == 'Failure':
                 c_get_rsp.NumberOfFailedSuboperations += 1
             elif store_status == 'Warning':
@@ -676,14 +687,17 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             
             c_get_rsp.NumberOfRemainingSuboperations -= 1
             
-            ii += 1
+            c_get_rsp.Status = int(self.Pending)
             
-            # Send pending response if not finished
-            if ii < len(matches):
-                rsp.Status = int(self.Pending)
-                self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
-                
+            logger.info('Get SCP Response %s (Pending)' %ii)
+            
+            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+        
+            ii += 1
+        
+        # Send Success C-GET-RSP to peer
         c_get_rsp.Status = int(self.Success)
+        logger.info('Get SCP Response %s (Success)' %ii)
         self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
 
 

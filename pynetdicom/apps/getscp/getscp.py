@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    A findscp application. 
+    A getscp application. 
 """
 
 import argparse
@@ -14,11 +14,11 @@ import time
 from pydicom import read_file
 from pydicom.dataset import Dataset
 
-from pynetdicom import AE, QueryRetrieveSOPClassList
+from pynetdicom import AE, QueryRetrieveSOPClassList, StorageSOPClassList
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-logger = logging.Logger('findscp')
+logger = logging.Logger('getscp')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
@@ -28,14 +28,14 @@ logger.setLevel(logging.ERROR)
 def _setup_argparser():
     # Description
     parser = argparse.ArgumentParser(
-        description="The findscp application implements a Service Class "
+        description="The getscp application implements a Service Class "
                     "Provider (SCP) for the Query/Retrieve (QR) Service Class "
                     "and the Basic Worklist Management (BWM) Service Class. "
-                    "findscp only supports query functionality using the C-FIND "
+                    "getscp only supports query functionality using the C-GET "
                     "message. It receives query keys from an SCU and sends a "
                     "response. The application can be used to test SCUs of the "
                     "QR and BWM Service Classes.",
-        usage="findscp [options] port")
+        usage="getscp [options] port")
         
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
@@ -73,9 +73,9 @@ def _setup_argparser():
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
     net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle', 
-                          help="set my AE title (default: FINDSCP)", 
+                          help="set my AE title (default: GETSCP)", 
                           type=str, 
-                          default='FINDSCP')
+                          default='GETSCP')
     net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
                           help="timeout for connection requests", 
                           type=int,
@@ -120,7 +120,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$findscp.py v%s %s $' %('0.1.0', '2016-04-11'))
+logger.debug('$getscp.py v%s %s $' %('0.1.0', '2016-04-11'))
 logger.debug('')
 
 # Validate port
@@ -152,24 +152,24 @@ if args.prefer_big:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_find(dataset):
+def on_c_get(dataset):
     basedir = '../test/dicom_files/'
     dcm_files = ['CTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+    yield len(dcm_files)
+    
     for dcm in dcm_files:
         data = read_file(dcm, force=True)
-        
-        d = Dataset()
-        d.QueryRetrieveLevel = dataset.QueryRetrieveLevel
-        d.RetrieveAETitle = args.aetitle
-        d.PatientName = data.PatientName
-        yield d
+        yield data
+
+scp_classes = [x for x in StorageSOPClassList]
+scp_classes.extend(QueryRetrieveSOPClassList)
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
         scu_sop_class=[], 
-        scp_sop_class=QueryRetrieveSOPClassList,
+        scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
 
 ae.maximum_pdu_size = args.max_pdu
@@ -179,6 +179,6 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-ae.on_c_find = on_c_find
+ae.on_c_get = on_c_get
 
 ae.start()
