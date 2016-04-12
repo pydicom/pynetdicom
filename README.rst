@@ -79,7 +79,7 @@ Dependencies
 ~~~~~~~~~~~~
 `pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0
 
-Installing From github
+Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh 
 
