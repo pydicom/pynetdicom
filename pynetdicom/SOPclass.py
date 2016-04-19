@@ -598,7 +598,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         logger.info('Move SCP Response %s (Success)' %ii)
         self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
 
-
 class QueryRetrieveGetServiceClass(ServiceClass):
     OutOfResourcesNumberOfMatches = Status('Failure',
                                            'Refused: Out of resources - Unable '
@@ -778,7 +777,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
-class MachineVerificationServiceClass(ServiceClass):
+class RTMachineVerificationServiceClass(ServiceClass):
     # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE/N-SET/N-GET/N-ACTION
     #   Slight differences in description text
     Success = Status('Success',
@@ -786,25 +785,38 @@ class MachineVerificationServiceClass(ServiceClass):
                      range(0x0000, 0x0000 + 1)) 
     
     # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE
-    status_fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
-    status_fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
-    status_fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
-    status_fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
+    fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
+    fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
+    fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
+    fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
     
     # N-SET
-    status_fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
-    status_fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
-    status_fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
+    fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
+    fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
+    fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
     
     # N-GET
-    status_fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
+    fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
     
     # N-ACTION
-    status_fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
+    fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
 
     def SCP(self, msg):
-        print('MachineVerification SCP', msg)
-        pass
+        print('RTMachineVerification SCP', msg)
+        
+        if msg.__class__ == N_CREATE_ServiceParameters:
+            pass
+        elif msg.__class__ == N_SET_ServiceParameters:
+            pass
+        elif msg.__class__ == N_ACTION_ServiceParameters:
+            pass
+        elif msg.__class__ == N_DELETE_ServiceParameters:
+            pass
+        elif msg.__class__ == N_EVENT_REPORT_ServiceParameters:
+            pass
+        else:
+            pass
+            
 
 
 # Generate the various SOP classes
@@ -941,11 +953,14 @@ _QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840
                    'StudyRootQueryRetrieveInformationModelGet'        : '1.2.840.10008.5.1.4.1.2.2.3',
                    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
 
+_MACHINE_VERIFICATION_CLASSES = {'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8'}
+
 _generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
 _generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
 _generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
 _generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
 _generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
+_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES, RTMachineVerificationServiceClass)
 
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
 QR_FIND_CLASS_LIST = QueryRetrieveFindServiceClass.__subclasses__()
