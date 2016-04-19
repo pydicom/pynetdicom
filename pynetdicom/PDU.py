@@ -65,7 +65,7 @@ from struct import *
 from pydicom.uid import UID
 
 from pynetdicom.DULparameters import *
-from pynetdicom.utils import wrap_list, PresentationContext
+from pynetdicom.utils import wrap_list, PresentationContext, validate_ae_title
 
 logger = logging.getLogger('pynetdicom.pdu')
 
@@ -163,7 +163,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
             Protocol version (fixed)
             Called AE title (supplied during association request)
             Calling AE title (part of local AE)
-            Application Context (UID fixed by application)
+            Application Context (UID, fixed by application)
             Presentation Context(s) (one or more)
                 ID (one)
                 Abstract Syntax (one)
@@ -174,18 +174,24 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     
     See PS3.8 Section 9.3.2 for the structure of the PDU, especially Table 9-11
     for a description of each field
+    
+    Attributes
+    ----------
+    application_context_name : pydicom.uid.UID
+        The Association Requestor's Application Context Name as a UID
+    called_ae_title : bytes
+        The called AE title as a 16-byte bytestring
+    calling_ae_title : bytes
+        The calling AE title as a 16-byte bytestring
+    presentation_context :
+        The A-ASSOCIATE-RQ's Presentation Context items
+    user_information :
+        The A-ASSOCIATE-RQ's User Information items
     '''
     def __init__(self):
-        # Unsigned byte
         self.PDUType = 0x01
-        # Unsigned int
         self.PDULength = None
-        # Unsigned short
         self.ProtocolVersion = 0x0001
-        # string of length 16
-        self.bCalledAETitle = None
-        # string of length 16
-        self.bCallingAETitle = None
         
         # VariableItems is a list containing the following:
         #   1 ApplicationContextItem
@@ -202,8 +208,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         Params - A_ASSOCIATE_ServiceParameters
             The parameters to use for setting up the PDU
         """
-        self.bCallingAETitle = Params.CallingAETitle
-        self.bCalledAETitle = Params.CalledAETitle
+        self.calling_ae_title = Params.CallingAETitle
+        self.called_ae_title = Params.CalledAETitle
         
         tmp_app_cont = ApplicationContextItem()
         tmp_app_cont.FromParams(Params.ApplicationContextName)
@@ -227,10 +233,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def ToParams(self):
         # Returns an A_ASSOCIATE_ServiceParameters object
         ass = A_ASSOCIATE_ServiceParameters()
-        ass.CallingAETitle = self.bCallingAETitle
-        ass.CalledAETitle = self.bCalledAETitle
-        ass.ApplicationContextName = self.VariableItems[
-            0].ApplicationContextName
+        ass.CallingAETitle = self.calling_ae_title
+        ass.CalledAETitle = self.called_ae_title
+        ass.ApplicationContextName = self.application_context_name
         
         # Write presentation contexts
         for ii in self.VariableItems[1:-1]:
@@ -251,17 +256,13 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         tmp = tmp + pack('>I',  self.PDULength)
         tmp = tmp + pack('>H',  self.ProtocolVersion)
         tmp = tmp + pack('>H',  0x00)
-        tmp = tmp + pack('16s', bytes(self.bCalledAETitle, 'utf-8'))
-        tmp = tmp + pack('16s', bytes(self.bCallingAETitle, 'utf-8'))
+        tmp = tmp + pack('16s', self.called_ae_title)
+        tmp = tmp + pack('16s', self.calling_ae_title)
         tmp = tmp + pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
         
         # variable item elements
         for ii in self.VariableItems:
             tmp = tmp + ii.Encode()
-        
-        # For debugging the outgoing RQ PDU
-        #for line in wrap_list(tmp, max_size=512):
-        #    logger.debug('  ' + line)
         
         return tmp
 
@@ -281,8 +282,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
          self.PDULength,
          self.ProtocolVersion, 
          _, 
-         self.bCalledAETitle,
-         self.bCallingAETitle) = unpack('> B B I H H 16s 16s', s.read(42))
+         self.called_ae_title,
+         self.calling_ae_title) = unpack('> B B I H H 16s 16s', s.read(42))
         s.read(32)
 
         while 1:
@@ -305,18 +306,60 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def TotalLength(self):
         return 6 + self.PDULength
 
-    def __repr__(self):
-        tmp = "A-ASSOCIATE-RQ PDU\n"
-        tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
-        tmp = tmp + " PDU length: %d\n" % self.PDULength
-        tmp = tmp + " Called AE title: %s\n" % self.CalledAETitle
-        tmp = tmp + " Calling AE title: %s\n" % self.CallingAETitle
-        for ii in self.VariableItems:
-            tmp = tmp + ii.__repr__()
-        return tmp + "\n"
+    @property
+    def called_ae_title(self):
+        """
+        The value for the CalledAETitle parameter
+
+        Returns
+        -------
+        bytes
+            The Requestor's AE Called AE Title as a bytestring
+        """
+        return self._called_aet
+
+    @called_ae_title.setter
+    def called_ae_title(self, s):
+        """
+        Set the CalledAETitle parameter to a 16-byte length byte string
+        
+        Parameters
+        ----------
+        s : str or bytes
+            The called AE title value you wish to set
+        """
+        if isinstance(s, str):
+            s = bytes(s, 'utf-8')
+
+        self._called_aet = validate_ae_title(s)
 
     @property
-    def ApplicationContext(self):
+    def calling_ae_title(self):
+        """
+        Returns
+        -------
+        bytes
+            The Requestor's AE Calling AE Title
+        """
+        return self._calling_aet
+
+    @calling_ae_title.setter
+    def calling_ae_title(self, s):
+        """
+        Set the CallingAETitle parameter to a 16-byte length byte string
+        
+        Parameters
+        ----------
+        s : str or bytes
+            The calling AE title value you wish to set
+        """
+        if isinstance(s, str):
+            s = bytes(s, 'utf-8')
+
+        self._calling_aet = validate_ae_title(s)
+
+    @property
+    def application_context_name(self):
         """
         See PS3.8 9.3.2, 7.1.1.2
         
@@ -327,10 +370,23 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         """
         for ii in self.VariableItems:
             if isinstance(ii, ApplicationContextItem):
-                return UID(ii.ApplicationContextName.decode('utf-8'))
+                return ii.ApplicationContextName
+    
+    @application_context_name.setter
+    def application_context_name(self, value):
+        """Set the Association request's Application Context Name
         
+        Parameters
+        ----------
+        value : pydicom.uid.UID, str or bytes
+            The value of the Application Context Name's UID
+        """
+        for ii in self.VariableItems:
+            if isinstance(ii, ApplicationContextItem):
+                ii.ApplicationContextName = value
+
     @property
-    def PresentationContext(self):
+    def presentation_context(self):
         """
         See PS3.8 9.3.2, 7.1.1.13
         
@@ -349,19 +405,19 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                 # We determine if there are any SCP/SCU Role Negotiations
                 #   for each Transfer Syntax in each Presentation Context
                 #   and if so we set the SCP and SCU attributes.
-                if self.UserInformation.RoleSelection is not None:
+                if self.user_information.RoleSelection is not None:
                     # Iterate through the role negotiations looking for a 
                     #   SOP Class match to the Abstract Syntaxes
-                    for role in self.UserInformation.RoleSelection:
+                    for role in self.user_information.RoleSelection:
                         for sop_class in ii.AbstractSyntax:
                             if role.SOPClass == sop_class:
                                 ii.SCP = role.SCP
                                 ii.SCU = role.SCU
                 contexts.append(ii)
         return contexts
-        
+
     @property
-    def UserInformation(self):
+    def user_information(self):
         """
         See PS3.8 9.3.2, 7.1.1.6
         
@@ -373,40 +429,6 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         for ii in self.VariableItems[1:]:
             if isinstance(ii, UserInformationItem):
                 return ii
- 
-    @property
-    def CalledAETitle(self):
-        """
-        While the standard says this value should match the A-ASSOCIATE-RQ
-        value there is no guarantee and this should not be used as a check
-        value
-        
-        Returns
-        -------
-        str
-            The Requestor's AE Called AE Title
-        """
-        if isinstance(self.bCalledAETitle, bytes):
-            return self.bCalledAETitle.decode('utf-8')
-        
-        return self.bCalledAETitle
-    
-    @property
-    def CallingAETitle(self):
-        """
-        While the standard says this value should match the A-ASSOCIATE-RQ
-        value there is no guarantee and this should not be used as a check
-        value
-        
-        Returns
-        -------
-        str
-            The Requestor's AE Calling AE Title
-        """
-        if isinstance(self.bCallingAETitle, bytes):
-            return self.bCallingAETitle.decode('utf-8')
-        
-        return self.bCallingAETitle
 
 
 class A_ASSOCIATE_AC_PDU(PDU):
@@ -474,7 +496,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
     def Encode(self):
         logger.debug('Constructing Associate AC PDU')
-        
+
         tmp = b''
         tmp = tmp + pack('B',   self.PDUType)
         tmp = tmp + pack('B',   self.Reserved1)
@@ -528,16 +550,6 @@ class A_ASSOCIATE_AC_PDU(PDU):
     def TotalLength(self):
         return 6 + self.PDULength
 
-    def __repr__(self):
-        tmp = "A-ASSOCIATE-AC PDU\n"
-        tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
-        tmp = tmp + " PDU length: %d\n" % self.PDULength
-        tmp = tmp + " Called AE title: %s\n" % self.Reserved3
-        tmp = tmp + " Calling AE title: %s\n" % self.Reserved4
-        for ii in self.VariableItems:
-            tmp = tmp + ii.__repr__()
-        return tmp + "\n"
-
     @property
     def ApplicationContext(self):
         """
@@ -550,7 +562,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         """
         for ii in self.VariableItems:
             if isinstance(ii, ApplicationContextItem):
-                return UID(ii.ApplicationContextName.decode('utf-8'))
+                return ii.ApplicationContextName
         
     @property
     def PresentationContext(self):
@@ -613,7 +625,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         str
             The Requestor's AE Called AE Title
         """
-        return self.Reserved3.decode('utf-8')
+        return self.Reserved3
     
     @property
     def CallingAETitle(self):
@@ -627,7 +639,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         str
             The Requestor's AE Calling AE Title
         """
-        return self.Reserved4.decode('utf-8')
+        return self.Reserved4
 
 
 class A_ASSOCIATE_RJ_PDU(PDU):
@@ -1022,28 +1034,31 @@ class ApplicationContextItem(PDU):
     association.
     
     Used in: A_ASSOCIATE_RQ, A_ASSOCIATE_AC
+    
+    Attributes
+    ----------
+    application_context_name : pydicom.uid.UID
+        The UID for the Application Context Name
     """
     def __init__(self):
         # Unsigned byte
         self.ItemType = 0x10
         # Unsigned short
         self.ItemLength = None
-        # String
-        self.ApplicationContextName = None
 
     def FromParams(self, params):
         self.ApplicationContextName = params
         self.ItemLength = len(self.ApplicationContextName)
 
     def ToParams(self):
-        return self.ApplicationContextName
+        return self.ApplicationContextName.__str__()
 
     def Encode(self):
         tmp = b''
         tmp = tmp + pack('B', self.ItemType)
         tmp = tmp + pack('B', 0x00)
         tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + self.ApplicationContextName
+        tmp = tmp + bytes(self.ApplicationContextName, 'utf-8')
         return tmp
 
     def Decode(self, Stream):
@@ -1056,13 +1071,41 @@ class ApplicationContextItem(PDU):
     def TotalLength(self):
         return 4 + self.ItemLength
 
-    def __repr__(self):
-        tmp = " Application context item\n"
-        tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + \
-            "  Presentation context ID: %s\n" % self.ApplicationContextName
-        return tmp
+    @property
+    def application_context_name(self):
+        """Get the Application Context Name as a pydicom.uid.UID"""
+        return self._application_context_name
+
+    @application_context_name.setter
+    def application_context_name(self, value):
+        """Set the Association request's Application Context Name as a 
+        pydicom.uid.UID
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, str or bytes
+            The value of the Application Context Name's UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        else:
+            raise TypeError('Application Context Name must be a UID, str or bytes')
+
+        self._application_context_name = value
+
+    # Deprecated
+    @property
+    def ApplicationContextName(self):
+        return self.application_context_name
+
+    @ApplicationContextName.setter
+    def ApplicationContextName(self, value):
+        self.application_context_name = value
+
 
 class PresentationContextItemRQ(PDU):
     """
@@ -1631,6 +1674,13 @@ class UserInformationItem(PDU):
 
 
 class MaximumLengthParameters(PDU):
+    """
+    The maximum length notification allows communicating AEs to limit the size
+    of the data for each P-DATA indication. This notification is required for 
+    all DICOM v3.0 conforming implementations.
+    
+    PS3.7 Annex D.3.3.1 and PS3.8 Annex D.1
+    """
     def __init__(self):
         self.MaximumLengthReceived = None
 
@@ -1643,10 +1693,15 @@ class MaximumLengthParameters(PDU):
         return self.MaximumLengthReceived == other.MaximumLengthReceived
 
 class MaximumLengthSubItem(PDU):
+    """
+    PS3.8 Annex D.1.1
+    
+    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
     def __init__(self):
-        self.ItemType = 0x51                        # Unsigned byte
-        self.ItemLength = 0x0004                # Unsigned short
-        self.MaximumLengthReceived = None   # Unsigned int
+        self.ItemType = 0x51
+        self.ItemLength = 0x0004
+        self.MaximumLengthReceived = None
 
     def FromParams(self, Params):
         self.MaximumLengthReceived = Params.MaximumLengthReceived
@@ -1835,9 +1890,21 @@ class GenericUserDataSubItem(PDU):
             tmp = tmp + "  User data: %s ...\n" % self.UserData[:10]
         return tmp
 
-# Extended association stuff: Defined in part 3.7
 class ImplementationClassUIDParameters:
-
+    """
+    The implementation identification notification allows implementations of
+    communicating AEs to identify each other at Association establishment time.
+    It is intended to provider respective and non-ambiguous identification in
+    the event of communication problems encountered between two nodes. This
+    negotiation is required.
+    
+    Implementation identification relies on two pieces of information:
+    - Implementation Class UID (required)
+    - Implementation Version Name (optional)
+    
+    PS3.7 Annex D.3.3.2
+    
+    """
     def __init__(self):
         self.ImplementationClassUID = None
 
@@ -1847,13 +1914,21 @@ class ImplementationClassUIDParameters:
         return tmp
 
 class ImplementationClassUIDSubItem:
-
+    """
+    Implementation Class UID identifies in a unique manner a specific class
+    of implementation. Each node claiming conformance to the DICOM Standard
+    shall be assigned an Implementation Class UID to distinguish its 
+    implementation environment from others.
+    
+    PS3.7 Annex D.3.3.2.1-2
+    
+    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
     def __init__(self):
-        self.ItemType = 0x52                                # Unsigned byte
-        # Unsigned byte 0x00
+        self.ItemType = 0x52
         self.Reserved = 0x00
-        self.ItemLength = None                          # Unsigned short
-        self.ImplementationClassUID = None          # String
+        self.ItemLength = None
+        self.ImplementationClassUID = None
 
     def FromParams(self, Params):
         self.ImplementationClassUID = Params.ImplementationClassUID
@@ -1889,7 +1964,6 @@ class ImplementationClassUIDSubItem:
         return tmp
 
 class ImplementationVersionNameParameters:
-
     def __init__(self):
         self.ImplementationVersionName = None
 
@@ -1899,13 +1973,15 @@ class ImplementationVersionNameParameters:
         return tmp
 
 class ImplementationVersionNameSubItem:
-
+    """
+    PS3.7 Annex D.3.3.2.3-4
+    
+    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
     def __init__(self):
-        self.ItemType = 0x55                                # Unsigned byte
-        # Unsigned byte 0x00
-        self.Reserved = 0x00
-        self.ItemLength = None                          # Unsigned short
-        self.ImplementationVersionName = None       # String
+        self.ItemType = 0x55
+        self.ItemLength = None
+        self.ImplementationVersionName = None
 
     def FromParams(self, Params):
         self.ImplementationVersionName = Params.ImplementationVersionName
@@ -1919,13 +1995,14 @@ class ImplementationVersionNameSubItem:
     def Encode(self):
         tmp = b''
         tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', self.Reserved)
+        tmp = tmp + pack('B', 0x00)
         tmp = tmp + pack('>H', self.ItemLength)
         tmp = tmp + self.ImplementationVersionName
         return tmp
 
     def Decode(self, Stream):
-        (self.ItemType, self.Reserved,
+        (self.ItemType, 
+         _,
          self.ItemLength) = unpack('> B B H', Stream.read(4))
         self.ImplementationVersionName = Stream.read(self.ItemLength)
 
@@ -1941,45 +2018,51 @@ class ImplementationVersionNameSubItem:
         return tmp
 
 class AsynchronousOperationsWindowSubItem:
-
+    """
+    Used to negotiate the maximum number of outstanding operation or 
+    sub-operation requests (ie command requests) for each direction. The
+    synchronous operations mode is the default mode and shall be supported by
+    all DICOM AEs. This negotiation is optional.
+    
+    PS3.7 Annex D.3.3.3
+    
+    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
     def __init__(self):
-        # Unsigned byte
         self.ItemType = 0x53
-        # Unsigned byte
-        self.Reserved = 0x00
-        # Unsigned short
         self.ItemLength = 0x0004
-        self.MaximumNumberOperationsInvoked = None          # Unsigned short
-        # Unsigned short
+        self.MaximumNumberOperationsInvoked = None
         self.MaximumNumberOperationsPerformed = None
 
     def FromParams(self, Params):
         self.MaximumNumberOperationsInvoked = \
-            Params.MaximumNumberOperationsInvoked
+                                    Params.MaximumNumberOperationsInvoked
         self.MaximumNumberOperationsPerformed = \
-            Params.MaximumNumberOperationsPerformed
+                                    Params.MaximumNumberOperationsPerformed
 
     def ToParams(self):
         tmp = AsynchronousOperationsWindowSubItem()
         tmp.MaximumNumberOperationsInvoked = \
-            self.MaximumNumberOperationsInvoked
+                                    self.MaximumNumberOperationsInvoked
         tmp.MaximumNumberOperationsPerformed = \
-            self.MaximumNumberOperationsPerformed
+                                    self.MaximumNumberOperationsPerformed
         return tmp
 
     def Encode(self):
         tmp = b''
         tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', self.Reserved)
+        tmp = tmp + pack('B', 0x00)
         tmp = tmp + pack('>H', self.ItemLength)
         tmp = tmp + pack('>H', self.MaximumNumberOperationsInvoked)
         tmp = tmp + pack('>H', self.MaximumNumberOperationsPerformed)
         return tmp
 
     def Decode(self, Stream):
-        (self.ItemType, self.Reserved, self.ItemLength,
+        (self.ItemType, 
+         _, 
+         self.ItemLength,
          self.MaximumNumberOperationsInvoked,
-         self.MaximumNumberOperationsPerformed) = unpack('> B B H H H',
+         self.MaximumNumberOperationsPerformed) = unpack('>B B H H H',
                                                                 Stream.read(8))
 
     def TotalLength(self):
@@ -1998,6 +2081,25 @@ class AsynchronousOperationsWindowSubItem:
         return tmp
 
 class SCP_SCU_RoleSelectionParameters:
+    """
+    Allows peer AEs to negotiate the roles in which they will serve for each
+    SOP Class or Meta SOP Class supported on the Association. This negotiation
+    is optional.
+    
+    The Association Requestor may use one SCP/SCU Role Selection item for each
+    SOP Class as identified by its corresponding Abstract Syntax Name and shall
+    be one of three role values:
+    - Requestor is SCU only
+    - Requestor is SCP only
+    - Requestor is both SCU/SCP
+    
+    If the SCP/SCU Role Selection item is absent the default role for a 
+    Requestor is SCU and for an Acceptor is SCP
+    
+    PS3.7 Annex D.3.3.4
+    
+    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
     def __init__(self):
         self.SOPClassUID = None
         self.SCURole = None
@@ -2010,13 +2112,12 @@ class SCP_SCU_RoleSelectionParameters:
 
 class SCP_SCU_RoleSelectionSubItem:
     def __init__(self):
-        self.ItemType = 0x54            # Unsigned byte
-        self.Reserved = 0x00            # Unsigned byte 0x00
-        self.ItemLength = None          # Unsigned short
-        self.UIDLength = None           # Unsigned short
-        self.SOPClassUID = None         # String
-        self.SCURole = None         # Unsigned byte
-        self.SCPRole = None         # Unsigned byte
+        self.ItemType = 0x54
+        self.ItemLength = None
+        self.UIDLength = None
+        self.SOPClassUID = None
+        self.SCURole = None
+        self.SCPRole = None
 
     def FromParams(self, Params):
         self.SOPClassUID = Params.SOPClassUID
@@ -2035,7 +2136,7 @@ class SCP_SCU_RoleSelectionSubItem:
     def Encode(self):
         tmp = b''
         tmp += pack('B', self.ItemType)
-        tmp += pack('B', self.Reserved)
+        tmp += pack('B', 0x00)
         tmp += pack('>H', self.ItemLength)
         tmp += pack('>H', self.UIDLength)
         tmp += bytes(self.SOPClass, 'utf-8')
@@ -2044,7 +2145,7 @@ class SCP_SCU_RoleSelectionSubItem:
 
     def Decode(self, Stream):
         (self.ItemType, 
-         self.Reserved,
+         _,
          self.ItemLength, 
          self.UIDLength) = unpack('> B B H H', Stream.read(6))
         self.SOPClassUID = Stream.read(self.UIDLength)

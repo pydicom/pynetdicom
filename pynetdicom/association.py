@@ -1362,8 +1362,43 @@ class Association(threading.Thread):
     def send_n_event_report(self):
         raise NotImplementedError
     
-    def send_n_get(self):
-        raise NotImplementedError
+    def send_n_get(self, msg_id, dataset=None):
+        if self.is_established:
+            service_class = QueryRetrieveGetServiceClass()
+            
+            # Determine the Presentation Context we are operating under
+            #   and hence the transfer syntax to use for encoding `dataset`
+            transfer_syntax = None
+            for context in self.acse.context_manager.accepted:
+                if sop_class.UID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+                    
+            if transfer_syntax is None:
+                logger.error("No Presentation Context for: '%s'" 
+                                                    %sop_class.UID)
+                logger.error("Get SCU failed due to there being no valid "
+                        "presentation context for the current dataset")
+                return service_class.IdentifierDoesNotMatchSOPClass
+
+
+            # Build N-GET primitive
+            primitive = N_GET_ServiceParameters()
+            primitive.MessageID = msg_id
+            # The SOP Class for which Attribute Values are to be retrieved
+            primitive.RequestedSOPClassUID = None
+            # The SOP Instance for which Attribute Values are to be retrieved
+            primitive.RequestedSOPInstanceUID = None
+            # A set of Attribute identifiers, if omitted then all identifiers are assumed
+            #   The definitions of the Attributes are found in PS3.3
+            if dataset is not None:
+                primitive.AttributeIdentifierList = encode(dataset,
+                                                           transfer_syntax.is_implicit_VR,
+                                                           transfer_syntax.is_little_endian)
+                primitive.AttributeIdentifierList = BytesIO(primitive.AttributeIdentifierList)
+            
+            # Send primitive to peer
+            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_n_set(self):
         raise NotImplementedError
