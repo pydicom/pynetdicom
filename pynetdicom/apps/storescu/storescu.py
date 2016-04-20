@@ -84,6 +84,18 @@ def _setup_argparser():
                           type=str, 
                           default='ANY-SCP')
 
+    # Transfer Syntaxes
+    ts_opts = parser.add_mutually_exclusive_group()
+    ts_opts.add_argument("-xe", "--request-little",
+                         help="request explicit VR little endian TS only",
+                         action="store_true")
+    ts_opts.add_argument("-xb", "--request-big",
+                         help="request explicit VR big endian TS only",
+                         action="store_true")
+    ts_opts.add_argument("-xi", "--request-implicit",
+                         help="request implicit VR little endian TS only",
+                         action="store_true")
+
     return parser.parse_args()
 
 args = _setup_argparser()
@@ -115,9 +127,16 @@ except:
     sys.exit()
 
 # Set Transfer Syntax options
-transfer_syntax = [ImplicitVRLittleEndian,
-                   ExplicitVRLittleEndian,
+transfer_syntax = [ExplicitVRLittleEndian,
+                   ImplicitVRLittleEndian,
                    ExplicitVRBigEndian]
+                   
+if args.request_little:
+    transfer_syntax = [ExplicitVRLittleEndian]
+elif args.request_big:
+    transfer_syntax = [ExplicitVRBigEndian]
+elif args.request_implicit:
+    transfer_syntax = [ImplicitVRLittleEndian]
 
 # Bind to port 0, OS will pick an available port
 ae = AE(ae_title=args.calling_aet,
