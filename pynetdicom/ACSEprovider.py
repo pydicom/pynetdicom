@@ -424,9 +424,9 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_rq = a_associate_rq
         
-        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_rq.PresentationContext
-        user_info     = assoc_rq.UserInformation
+        app_context   = assoc_rq.application_context_name.__repr__()[1:-1]
+        pres_contexts = assoc_rq.presentation_context
+        user_info     = assoc_rq.user_information
         
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
@@ -437,8 +437,8 @@ class ACSEServiceProvider(object):
         s.append('Our Implementation Version Name:   %s' 
                                         %user_info.ImplementationVersionName)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
+        s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
         s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
         
         # Presentation Contexts
@@ -472,7 +472,7 @@ class ACSEServiceProvider(object):
         s.append('Requested Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if assoc_rq.UserInformation.UserIdentity is not None:
+        if user_info.UserIdentity is not None:
             usr_id = 'Yes'
         s.append('Requested User Identity Negotiation: %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-RQ =================='
@@ -632,9 +632,9 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_rq = a_associate_rq
         
-        app_context   = assoc_rq.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_rq.PresentationContext
-        user_info     = assoc_rq.UserInformation
+        app_context   = assoc_rq.application_context_name.__repr__()[1:-1]
+        pres_contexts = assoc_rq.presentation_context
+        user_info     = assoc_rq.user_information
         
         responding_ae = 'resp. AP Title'
         their_class_uid = 'unknown'
@@ -651,8 +651,8 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_rq.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_rq.CalledAETitle)
+        s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
         s.append('Presentation Contexts:')
         for item in pres_contexts:
@@ -720,8 +720,8 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
+        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle.decode('utf-8'))
+        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
         s.append('Presentation Contexts:')
         
