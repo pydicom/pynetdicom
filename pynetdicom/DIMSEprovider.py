@@ -939,6 +939,7 @@ class DIMSEServiceProvider(object):
         for line in s:
             logger.debug(line)
 
+
     def debug_send_n_event_report_rq(self, dimse_msg):
         """
         Parameters
