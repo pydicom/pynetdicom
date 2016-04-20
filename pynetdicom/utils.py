@@ -40,8 +40,8 @@ def correct_ambiguous_vr(dataset, transfer_syntax):
     if not transfer_syntax.is_implicit_VR:
         # Little Endian
         if transfer_syntax.is_little_endian:
-            for elem in dataset:
-                try:
+            try:
+                for elem in dataset:
                     elem_name = ''.join(elem.description().split(' '))
                     elem_group = elem.tag.group
                     elem_element = elem.tag.elem
@@ -60,9 +60,9 @@ def correct_ambiguous_vr(dataset, transfer_syntax):
                         
                         logger.debug("Setting undefined VR of %s (%04x, %04x) to "
                             "'%s'" %(elem_name, elem_group, elem_element, elem.VR))
-                except Exception as e:
-                    logger.error('Failed to set ambiguous VR for element %s' %elem.keyword)
-                    logger.exception(e)
+            except NotImplementedError as e:
+                logger.error('pydicom refusing to handle compressed data in %s' %elem.keyword)
+                logger.exception(e)
         # Big Endian
         else:
             pass
