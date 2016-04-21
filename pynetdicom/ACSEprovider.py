@@ -846,6 +846,7 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
+        #logger.info('A-ABORT received from peer')
         
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
