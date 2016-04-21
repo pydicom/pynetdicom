@@ -35,34 +35,29 @@ def correct_ambiguous_vr(dataset, transfer_syntax):
     
     # Correct ambiguous VRs
     # See PS3.5 Annex A
-    
     # Explicit VR
     if not transfer_syntax.is_implicit_VR:
         # Little Endian
         if transfer_syntax.is_little_endian:
-            try:
-                for elem in dataset:
-                    elem_name = ''.join(elem.description().split(' '))
-                    elem_group = elem.tag.group
-                    elem_element = elem.tag.elem
+            for elem in dataset:
+                elem_name = ''.join(elem.description().split(' '))
+                elem_group = elem.tag.group
+                elem_element = elem.tag.elem
+                
+                if ' or ' in elem.VR:
+                    if elem.tag == 0x7fe00010:
+                        # If BitsAllocated is > 8 then OW, else OB or OW
+                        elem.VR = 'OW'
+                    #elif elem.tag == 0x60xx3000:
+                    #    elem.VR = 'OW'
+                    elif elem.tag in [0x00281101, 0x00281102, 0x00281103]:
+                        elem.VR = 'OW'
+                    elif elem.tag in [0x00280106, 0x00280107]:
+                        elem.VR = 'US'
+                        elem.value = int.from_bytes(elem.value, byteorder='little')
                     
-                    if ' or ' in elem.VR:
-                        if elem.tag == 0x7fe00010:
-                            # If BitsAllocated is > 8 then OW, else OB or OW
-                            elem.VR = 'OW'
-                        #elif elem.tag == 0x60xx3000:
-                        #    elem.VR = 'OW'
-                        elif elem.tag in [0x00281101, 0x00281102, 0x00281103]:
-                            elem.VR = 'OW'
-                        elif elem.tag in [0x00280106, 0x00280107]:
-                            elem.VR = 'US'
-                            elem.value = int.from_bytes(elem.value, byteorder='little')
-                        
-                        logger.debug("Setting undefined VR of %s (%04x, %04x) to "
-                            "'%s'" %(elem_name, elem_group, elem_element, elem.VR))
-            except NotImplementedError as e:
-                logger.error('pydicom refusing to handle compressed data in %s' %elem.keyword)
-                logger.exception(e)
+                    logger.debug("Setting undefined VR of %s (%04x, %04x) to "
+                        "'%s'" %(elem_name, elem_group, elem_element, elem.VR))
         # Big Endian
         else:
             pass
