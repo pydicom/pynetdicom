@@ -15,7 +15,7 @@ import sys
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+    ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
 from pynetdicom import AE, StorageSOPClassList, VerificationSOPClass
 from pynetdicom import pynetdicom_uid_prefix
@@ -171,6 +171,7 @@ if isinstance(args.port, int):
 # Set Transfer Syntax options
 transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
+                   DeflatedExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
 if args.implicit:
