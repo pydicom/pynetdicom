@@ -665,7 +665,9 @@ class Association(threading.Thread):
             Returns None if the DIMSE service timed out before receiving a 
             response
         """
-        if dataset._is_uncompressed_transfer_syntax:
+        
+        # pydicom can only handle uncompressed transfer syntaxes for conversion
+        if not dataset._is_uncompressed_transfer_syntax():
             logger.warning('Unable to send the dataset due to pydicom not supporting compressed datasets')
             logger.error('Sending file failed')
             return 0xC000
