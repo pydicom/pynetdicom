@@ -246,6 +246,9 @@ class DIMSEServiceProvider(object):
                     # Callback
                     self.on_receive_dimse_message(self.message)
                     dimse_msg = self.message
+                    
+                    # Fix for memory leak, Issue #41
+                    self.message.data_set = BytesIO()
                     self.message = None
                     
                     context_id = dimse_msg.ID
@@ -266,6 +269,9 @@ class DIMSEServiceProvider(object):
                 self.on_receive_dimse_message(self.message)
                 
                 dimse_msg = self.message
+                
+                # Fix for memory leak, Issue #41
+                self.message.data_set = BytesIO()
                 self.dimse_msg = None
                 
                 context_id = dimse_msg.ID

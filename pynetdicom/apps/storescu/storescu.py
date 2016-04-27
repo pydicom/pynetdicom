@@ -156,7 +156,6 @@ if assoc.is_established:
     
     assoc.release()
 
-
 # Quit
 ae.quit()
 
