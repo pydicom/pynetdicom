@@ -8,7 +8,6 @@ from pynetdicom.DULparameters import P_DATA_ServiceParameters
 
 logger = logging.getLogger('pynetdicom.dimse')
 
-
 class DIMSEServiceProvider(object):
     """
     PS3.7 6.2
@@ -246,10 +245,14 @@ class DIMSEServiceProvider(object):
                     # Callback
                     self.on_receive_dimse_message(self.message)
                     dimse_msg = self.message
-                    self.message = None
                     
                     context_id = dimse_msg.ID
                     dimse_msg = dimse_msg.message_to_primitive()
+                    
+                    # Fix for memory leak, Issue #41
+                    self.message.encoded_command_set = BytesIO()
+                    self.message.data_set = BytesIO()
+                    self.message = None
                     
                     return dimse_msg, context_id
                 else:
@@ -266,10 +269,14 @@ class DIMSEServiceProvider(object):
                 self.on_receive_dimse_message(self.message)
                 
                 dimse_msg = self.message
-                self.dimse_msg = None
                 
                 context_id = dimse_msg.ID
                 dimse_msg = dimse_msg.message_to_primitive()
+                
+                # Fix for memory leak, Issue #41
+                self.message.encoded_command_set = BytesIO()
+                self.message.data_set = BytesIO()
+                self.dimse_msg = None
 
                 return dimse_msg, context_id
             else:

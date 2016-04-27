@@ -14,7 +14,7 @@ import sys
 
 from pydicom import read_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+    ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
 from pynetdicom import AE
 from pynetdicom import StorageSOPClassList
@@ -129,6 +129,7 @@ except:
 # Set Transfer Syntax options
 transfer_syntax = [ExplicitVRLittleEndian,
                    ImplicitVRLittleEndian,
+                   DeflatedExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
                    
 if args.request_little:
@@ -154,7 +155,6 @@ if assoc.is_established:
     status = assoc.send_c_store(dataset)
     
     assoc.release()
-
 
 # Quit
 ae.quit()

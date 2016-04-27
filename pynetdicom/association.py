@@ -20,7 +20,7 @@ from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
-from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr
+from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr, wrap_list
 
 
 logger = logging.getLogger('pynetdicom.assoc')
@@ -665,6 +665,13 @@ class Association(threading.Thread):
             Returns None if the DIMSE service timed out before receiving a 
             response
         """
+        
+        # pydicom can only handle uncompressed transfer syntaxes for conversion
+        if not dataset._is_uncompressed_transfer_syntax():
+            logger.warning('Unable to send the dataset due to pydicom not supporting compressed datasets')
+            logger.error('Sending file failed')
+            return 0xC000
+        
         if self.is_established:
             # Service Class - used to determine Status
             service_class = StorageServiceClass()
@@ -708,6 +715,9 @@ class Association(threading.Thread):
             
             if primitive.DataSet is not None:
                 primitive.DataSet = BytesIO(primitive.DataSet)
+            
+            #for s in wrap_list(primitive.DataSet):
+            #    print(s)
             
             # If we failed to encode our dataset
             else:
@@ -1560,4 +1570,4 @@ class Association(threading.Thread):
         logger.info('Association Released')
 
     def debug_association_aborted(self, abort_primitive=None):
-        logger.info('Association Aborted')
+        logger.error('Association Aborted')
