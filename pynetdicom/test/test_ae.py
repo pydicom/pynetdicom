@@ -83,6 +83,7 @@ logger.setLevel(logging.ERROR)
     on_association_aborted(primitive)
 """
 
+
 class AEVerificationSCP(threading.Thread):
     def __init__(self):
         self.ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
@@ -95,6 +96,7 @@ class AEVerificationSCP(threading.Thread):
         
     def stop(self):
         self.ae.stop()
+
 
 class AEStorageSCP(threading.Thread):
     def __init__(self):

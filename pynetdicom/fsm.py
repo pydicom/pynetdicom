@@ -291,9 +291,9 @@ def AE_6(dul):
 
     # If A-ASSOCIATE-RQ not acceptable by service dul provider
     #   Then set reason and send -RJ PDU back to peer
-    if dul.pdu.ProtocolVersion != 0x0001:
+    if dul.pdu.protocol_version != 0x0001:
         logger.error("Receiving Association failed: Unsupported peer protocol "
-                "version '0x%04x' (0x0001 expected)" %dul.pdu.ProtocolVersion)
+                "version '0x%04x' (0x0001 expected)" %dul.pdu.protocol_version)
         
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
         dul.primitive.Result = 0x01
