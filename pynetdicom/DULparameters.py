@@ -197,14 +197,6 @@ class A_ASSOCIATE_ServiceParameters():
         self.SessionRequirements = ""
 
     @property
-    def Mode(self):
-        return self.__mode
-
-    @Mode.setter
-    def Mode(self, value):
-        self.__mode = "normal"
-
-    @property
     def calling_ae_title(self):
         return self.__calling_ae_title.decode('utf-8').strip()
 
@@ -235,23 +227,6 @@ class A_ASSOCIATE_ServiceParameters():
         else:
             self.__called_ae_title = None
 
-    @property
-    def PresentationRequirements(self):
-        return self.__presentation_requirements
-
-    @PresentationRequirements.setter
-    def PresentationRequirements(self, value):
-        self.__presentation_requirements = "Presentation Kernel"
-
-    @property
-    def SessionRequirements(self):
-        return self.__session_requirements
-
-    @SessionRequirements.setter
-    def SessionRequirements(self, value):
-        self.__session_requirements = ""
-
-    # Add MaximumLength property
 
 class A_RELEASE_ServiceParameters():
     """ 
