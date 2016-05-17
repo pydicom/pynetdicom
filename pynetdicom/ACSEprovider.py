@@ -720,8 +720,8 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s' %assoc_ac.called_ae_title.decode('utf-8'))
+        s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title)
+        s.append('Called Application Name:     %s' %assoc_ac.called_ae_title)
         s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
         s.append('Presentation Contexts:')
         
@@ -773,9 +773,9 @@ class ACSEServiceProvider(object):
         s = ['Reject Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
                 '=====')
-        s.append('Result:    %s' %assoc_rj.ResultString)
-        s.append('Source:    %s' %assoc_rj.SourceString)
-        s.append('Reason:    %s' %assoc_rj.Reason)
+        s.append('Result:    %s' %assoc_rj.result_str)
+        s.append('Source:    %s' %assoc_rj.source_str)
+        s.append('Reason:    %s' %assoc_rj.reason_str)
         s.append('======================= END A-ASSOCIATE-RJ =================='
                 '====')
         for line in s:

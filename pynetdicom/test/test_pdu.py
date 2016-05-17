@@ -28,7 +28,7 @@ a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\
                  b"\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f" \
                  b"\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30"
 
-a_associate_rj = b""
+a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
 
 from io import BytesIO
 import logging
@@ -45,9 +45,21 @@ from pynetdicom.PDU import *
 from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom')
-handler = logging.StreamHandler()
+#handler = logging.StreamHandler()
+handler = logging.NullHandler()
+for h in logger.handlers:
+    logger.removeHandler(h)
+logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 
+
+class TestPDU(unittest.TestCase):
+    def test_length_property(self):
+        """ Check that the length property returns the correct value """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        self.assertEqual(pdu.length, pdu.get_length())
 
 class TestPDU_NextItem(unittest.TestCase):
     def test_unknown_item_type(self):
@@ -532,13 +544,6 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         
         self.assertEqual(new_pdu, orig_pdu)
 
-    def test_length_property(self):
-        """ Check that the length property returns the correct value """
-        pdu = A_ASSOCIATE_AC_PDU()
-        pdu.Decode(a_associate_ac)
-        
-        self.assertEqual(pdu.length, pdu.get_length())
-
 class TestPDU_A_ASSOC_AC_ApplicationContext(unittest.TestCase):
     def test_stream_decode_values_types(self):
         """ Check decoding an assoc_ac produces the correct application context """
@@ -650,6 +655,167 @@ class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
                 self.assertTrue(isinstance(item.implementation_version_name, bytes))
 
 
+class TestPDU_A_ASSOC_RJ(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding the assoc_ac stream produces the correct objects """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        
+        self.assertEqual(pdu.pdu_type, 0x03)
+        self.assertEqual(pdu.pdu_length, 4)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        
+    def test_decode_properties(self):
+        """ Check decoding the assoc_ac stream produces the correct properties """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        
+        # Check reason/source/result
+        self.assertEqual(pdu.result, 1)
+        self.assertEqual(pdu.reason_diagnostic, 1)
+        self.assertEqual(pdu.source, 1)
+        self.assertTrue(isinstance(pdu.result, int))
+        self.assertTrue(isinstance(pdu.reason_diagnostic, int))
+        self.assertTrue(isinstance(pdu.source, int))
+        
+    def test_stream_encode(self):
+        """ Check encoding an assoc_ac produces the correct output """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, a_associate_rj)
 
+    def test_to_primitive(self):
+        """ Check converting PDU to primitive """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertEqual(primitive.Result, 1)
+        self.assertEqual(primitive.ResultSource, 1)
+        self.assertEqual(primitive.Diagnostic, 1)
+        self.assertTrue(isinstance(primitive.Result, int))
+        self.assertTrue(isinstance(primitive.ResultSource, int))
+        self.assertTrue(isinstance(primitive.Diagnostic, int))
+        
+        # Not used by A-ASSOCIATE-RJ or fixed value
+        self.assertEqual(primitive.Mode, "normal")
+        self.assertEqual(primitive.ApplicationContextName, None)
+        self.assertEqual(primitive.CallingAETitle, None)
+        self.assertEqual(primitive.CalledAETitle, None)
+        self.assertEqual(primitive.RespondingAETitle, None)
+        self.assertEqual(primitive.UserInformationItem, None)
+        self.assertEqual(primitive.CallingPresentationAddress, None)
+        self.assertEqual(primitive.CalledPresentationAddress, None)
+        self.assertEqual(primitive.RespondingPresentationAddress, primitive.CalledPresentationAddress)
+        self.assertEqual(primitive.PresentationContextDefinitionList, [])
+        self.assertEqual(primitive.PresentationContextDefinitionResultList, [])
+        self.assertEqual(primitive.PresentationRequirements, "Presentation Kernel")
+        self.assertEqual(primitive.SessionRequirements, "")
+
+    def test_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = A_ASSOCIATE_RJ_PDU()
+        orig_pdu.Decode(a_associate_rj)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_ASSOCIATE_RJ_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+        
+    def test_update_data(self):
+        """ Check that updating the PDU data works correctly """
+        orig_pdu = A_ASSOCIATE_RJ_PDU()
+        orig_pdu.Decode(a_associate_rj)
+        orig_pdu.source = 2
+        orig_pdu.reason_diagnostic = 2
+        orig_pdu.result = 2
+        orig_pdu.get_length()
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_ASSOCIATE_RJ_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+
+    def test_result_str(self):
+        """ Check the result str returns correct values """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        
+        pdu.result = 0
+        with self.assertRaises(ValueError): pdu.result_str
+        
+        pdu.result = 1
+        self.assertEqual(pdu.result_str, 'Rejected (Permanent)')
+        
+        pdu.result = 2
+        self.assertEqual(pdu.result_str, 'Rejected (Transient)')
+        
+        pdu.result = 3
+        with self.assertRaises(ValueError): pdu.result_str
+        
+    def test_source_str(self):
+        """ Check the source str returns correct values """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        
+        pdu.source = 0
+        with self.assertRaises(ValueError): pdu.source_str
+        
+        pdu.source = 1
+        self.assertEqual(pdu.source_str, 'DUL service-user')
+        
+        pdu.source = 2
+        self.assertEqual(pdu.source_str, 'DUL service-provider (ACSE related)')
+        
+        pdu.source = 3
+        self.assertEqual(pdu.source_str, 'DUL service-provide (presentation related)')
+        
+        pdu.source = 4
+        with self.assertRaises(ValueError): pdu.source_str
+        
+    def test_reason_str(self):
+        """ Check the reason str returns correct values """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        
+        pdu.source = 0
+        with self.assertRaises(ValueError): pdu.reason_str
+        
+        pdu.source = 1
+        for ii in range(1, 11):
+            pdu.reason_diagnostic = ii
+            self.assertTrue(isinstance(pdu.reason_str, str))
+        
+        pdu.reason_diagnostic = 11
+        with self.assertRaises(ValueError): pdu.reason_str
+        
+        pdu.source = 2
+        for ii in range(1, 3):
+            pdu.reason_diagnostic = ii
+            self.assertTrue(isinstance(pdu.reason_str, str))
+        
+        pdu.reason_diagnostic = 3
+        with self.assertRaises(ValueError): pdu.reason_str
+        
+        pdu.source = 3
+        for ii in range(1, 8):
+            pdu.reason_diagnostic = ii
+            self.assertTrue(isinstance(pdu.reason_str, str))
+        
+        pdu.reason_diagnostic = 8
+        with self.assertRaises(ValueError): pdu.reason_str
+        
+        pdu.source = 4
+        with self.assertRaises(ValueError): pdu.reason_str
+        
+    
 if __name__ == "__main__":
     unittest.main()
