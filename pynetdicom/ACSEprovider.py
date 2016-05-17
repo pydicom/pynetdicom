@@ -607,8 +607,8 @@ class ACSEServiceProvider(object):
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
                 '=====')
-        s.append('Abort Source: %s' %a_abort.Source)
-        s.append('Abort Reason: %s' %a_abort.Reason)
+        s.append('Abort Source: %s' %a_abort.source_str)
+        s.append('Abort Reason: %s' %a_abort.reason_str)
         s.append('=========================== END A-ABORT ====================='
                 '====')
         for line in s:
@@ -846,13 +846,11 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        #logger.info('A-ABORT received from peer')
-        
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
                 '=====')
-        s.append('Abort Source: %s' %a_abort.Source)
-        s.append('Abort Reason: %s' %a_abort.Reason)
+        s.append('Abort Source: %s' %a_abort.source_str)
+        s.append('Abort Reason: %s' %a_abort.reason_str)
         s.append('=========================== END A-ABORT ====================='
                 '====')
         for line in s:

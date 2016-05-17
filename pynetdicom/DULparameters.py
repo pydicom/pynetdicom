@@ -326,10 +326,7 @@ class A_ABORT_ServiceParameters():
     See PS3.8 Section 7.3.1
     """
     def __init__(self):
-        # a) UL service-user
-        # b) UL service-provider (ACSE related)
         self.AbortSource = None
-        # 
         self.UserInformation = None
 
 
