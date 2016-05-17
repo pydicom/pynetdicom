@@ -380,15 +380,19 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         
         # Encode the PDU parameters up to the Variable Items
         #   See PS3.8 Table 9-11 
+        formats = '> B B I H H 16s 16s 8I'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length, 
+                      self.protocol_version,
+                      0x00, # Reserved
+                      self.called_ae_title,
+                      self.calling_ae_title,
+                      0x00, 0x00, 0x00, 0x00, # Reserved
+                      0x00, 0x00, 0x00, 0x00] # Reserved
+                      
         bytestring  = bytes()
-        bytestring += pack('B',   self.pdu_type)
-        bytestring += pack('B',   0x00) # Reserved
-        bytestring += pack('>I',  self.pdu_length)
-        bytestring += pack('>H',  self.protocol_version)
-        bytestring += pack('>H',  0x00) # Reserved
-        bytestring += pack('16s', self.called_ae_title)
-        bytestring += pack('16s', self.calling_ae_title)
-        bytestring += pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0) # Reserved
+        bytestring += pack(formats, *parameters)
         
         # Encode the Variable Items
         for ii in self.variable_items:
@@ -450,7 +454,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def get_length(self):
         """ Returns the total length of the PDU in bytes as an int """
         self._update_pdu_length()
-        
+
         return 6 + self.pdu_length
 
     @property
@@ -717,20 +721,21 @@ class A_ASSOCIATE_AC_PDU(PDU):
             The encoded PDU that will be sent to the peer AE
         """
         logger.debug('Constructing Associate AC PDU')
-
-        # Encode the PDU parameters up to the Variable Items
-        #   See PS3.8 Table 9-17 
-        bytestring  = bytes()
-        bytestring += pack('B',   self.pdu_type)
-        bytestring += pack('B',   0x00) # Reserved
-        bytestring += pack('>I',  self.pdu_length)
-        bytestring += pack('>H',  self.protocol_version)
-        bytestring += pack('>H',  0x00) # Reserved
-        bytestring += pack('16s', self.reserved_aet)
-        bytestring += pack('16s', self.reserved_aec)
-        bytestring += pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0) # Reserved
         
-        # variable item elements
+        formats = '> B B I H H 16s 16s 8I'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length, 
+                      self.protocol_version,
+                      0x00, # Reserved
+                      self.reserved_aet,
+                      self.reserved_aec,
+                      0x00, 0x00, 0x00, 0x00, # Reserved
+                      0x00, 0x00, 0x00, 0x00] # Reserved
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        
         for ii in self.variable_items:
             bytestring += ii.Encode()
         
@@ -1002,14 +1007,18 @@ class A_ASSOCIATE_RJ_PDU(PDU):
         """
         logger.debug('Constructing Associate RJ PDU')
         
+        formats = '> B B I B B B B'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length, 
+                      0x00,
+                      self.result,
+                      self.source,
+                      self.reason_diagnostic]
+                      
         bytestring  = bytes()
-        bytestring += pack('B', self.pdu_type)
-        bytestring += pack('B', 0x00) # Reserved
-        bytestring += pack('>I', self.pdu_length)
-        bytestring += pack('B', 0x00) # Reserved
-        bytestring += pack('B', self.result)
-        bytestring += pack('B', self.source)
-        bytestring += pack('B', self.reason_diagnostic)
+        bytestring += pack(formats, *parameters)
+        
         return bytestring
 
     def Decode(self, bytestring):
@@ -1197,10 +1206,14 @@ class P_DATA_TF_PDU(PDU):
         bytestring : bytes
             The encoded PDU that will be sent to the peer AE
         """
+        
+        formats = '> B B I'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length]
+                      
         bytestring  = bytes()
-        bytestring += pack('B',  self.pdu_type)
-        bytestring += pack('B',  0x00) # Reserved
-        bytestring += pack('>I', self.pdu_length)
+        bytestring += pack(formats, *parameters)
         
         for ii in self.presentation_data_value_items:
             bytestring += ii.Encode()
@@ -1315,12 +1328,15 @@ class A_RELEASE_RQ_PDU(PDU):
         bytestring : bytes
             The encoded PDU that will be sent to the peer AE
         """
+        formats = '> B B I I'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x0000] # Reserved
+                      
         bytestring  = bytes()
-        bytestring += pack('B', self.pdu_type)
-        bytestring += pack('B', 0x00) # Reserved
-        bytestring += pack('>I', self.pdu_length)
-        bytestring += pack('>I', 0x00000000) # Reserved
-
+        bytestring += pack(formats, *parameters)
+        
         return bytestring
 
     def Decode(self, bytestring):
@@ -1407,11 +1423,15 @@ class A_RELEASE_RP_PDU(PDU):
         bytestring : bytes
             The encoded PDU that will be sent to the peer AE
         """
+        
+        formats = '> B B I I'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x0000] # Reserved
+                      
         bytestring  = bytes()
-        bytestring += pack('B',  self.pdu_type)
-        bytestring += pack('B',  0x00) # Reserved
-        bytestring += pack('>I', self.pdu_length)
-        bytestring += pack('>I', 0x00000000) # Reserved
+        bytestring += pack(formats, *parameters)
         
         return bytestring
 
@@ -1525,15 +1545,18 @@ class A_ABORT_PDU(PDU):
         bytestring : bytes
             The encoded PDU that will be sent to the peer AE
         """
+        formats = '> B B I B B B B'
+        parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x00, # Reserved
+                      0x00, # Reserved
+                      self.source,
+                      self.reason_diagnostic]
+                      
         bytestring  = bytes()
-        bytestring += pack('B', self.pdu_type)
-        bytestring += pack('B', 0x00) # Reserved
-        bytestring += pack('>I', self.pdu_length)
-        bytestring += pack('B', 0x00) # Reserved
-        bytestring += pack('B', 0x00) # Reserved
-        bytestring += pack('B', self.source)
-        bytestring += pack('B', self.reason_diagnostic)
-        
+        bytestring += pack(formats, *parameters)
+
         return bytestring
 
     def Decode(self, bytestring):
