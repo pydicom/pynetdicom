@@ -548,6 +548,25 @@ class A_ASSOCIATE_RQ_PDU(PDU):
             if isinstance(ii, UserInformationItem):
                 return ii
 
+    def __str__(self):
+        s = 'A-ASSOCIATE-RQ PDU\n'
+        s += '  PDU type: 0x%02x\n' %self.pdu_type
+        s += '  PDU length: %d\n' %self.pdu_length
+        s += '  Protocol version: %d\n' %self.protocol_version
+        s += '  Called AET:  %s\n' %self.called_ae_title
+        s += '  Calling AET: %s\n' %self.calling_ae_title
+        s += '  Variable items:\n'
+        s += '    Application context name: %s\n' %self.application_context_name
+        s += '    Presentation context(s):\n'
+        for ii in self.presentation_context:
+            s += '      %s' %ii
+        
+        s += '    User information:\n'
+        for ii in self.user_information.UserData:
+            s += '      %s' %ii
+        
+        return s
+
 
 class A_ASSOCIATE_AC_PDU(PDU):
     """
@@ -622,8 +641,15 @@ class A_ASSOCIATE_AC_PDU(PDU):
         self.variable_items = []
     
     def FromParams(self, primitive):
+        """
+        Set up the PDU using the parameter values from the A-ASSOCIATE 
+        `primitive`
         
-        # Params is an A_ASSOCIATE_ServiceParameters object
+        Parameters
+        ----------
+        primitive : pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameters
+            The parameters to use for setting up the PDU
+        """
         self.reserved_aet = primitive.CalledAETitle
         self.reserved_aec = primitive.CallingAETitle
         
@@ -647,11 +673,19 @@ class A_ASSOCIATE_AC_PDU(PDU):
         self._update_pdu_length()
 
     def ToParams(self):
+        """ 
+        Convert the current A-ASSOCIATE-AC PDU to a primitive
+        
+        Returns
+        -------
+        pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameters
+            The primitive to convert the PDU to
+        """
         primitive = A_ASSOCIATE_ServiceParameters()
         
-        # The two reserved parameters at byte offsets 11 and 27
-        #   shall be set to called and calling AET byte the value shall not be
-        #   tested when received
+        # The two reserved parameters at byte offsets 11 and 27 shall be set
+        #    to called and calling AET byte the value shall not be
+        #   tested when received (PS3.8 Table 9-17)
         primitive.CalledAETitle = self.reserved_aet
         primitive.CallingAETitle = self.reserved_aec
         
@@ -674,36 +708,57 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return primitive
 
     def Encode(self):
+        """
+        Encode the PDU's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded PDU that will be sent to the peer AE
+        """
         logger.debug('Constructing Associate AC PDU')
 
-        s = b''
-        s += pack('B',   self.pdu_type)
-        s += pack('B',   0x00)
-        s += pack('>I',  self.pdu_length)
-        s += pack('>H',  self.protocol_version)
-        s += pack('>H',  0x00)
-        s += pack('16s', self.reserved_aet)
-        s += pack('16s', self.reserved_aec)
-        s += pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
+        # Encode the PDU parameters up to the Variable Items
+        #   See PS3.8 Table 9-17 
+        bytestring  = bytes()
+        bytestring += pack('B',   self.pdu_type)
+        bytestring += pack('B',   0x00) # Reserved
+        bytestring += pack('>I',  self.pdu_length)
+        bytestring += pack('>H',  self.protocol_version)
+        bytestring += pack('>H',  0x00) # Reserved
+        bytestring += pack('16s', self.reserved_aet)
+        bytestring += pack('16s', self.reserved_aec)
+        bytestring += pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0) # Reserved
         
         # variable item elements
         for ii in self.variable_items:
-            s += ii.Encode()
+            bytestring += ii.Encode()
         
-        return s
+        return bytestring
 
-    def Decode(self, bytestream):
+    def Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
         
-        s = BytesIO(bytestream)
-        logger.debug('PDU Type: Associate Accept, PDU Length: %s + %s bytes '
-                        'PDU header' %(len(s.getvalue()), 6))
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
+        logger.debug('PDU Type: Associate Accept, PDU Length: %s + 6 bytes '
+                        'PDU header' %len(bytestring))
         
-        for line in wrap_list(s, max_size=512):
+        for line in wrap_list(bytestring, max_size=512):
             logger.debug('  ' + line)
         
         logger.debug('Parsing an A-ASSOCIATE PDU')
         
-        # 1, 1, 4, 2, 2, 16, 16, 32 : 74
+        # Convert `bytestring` to a bytes stream to make things easier 
+        #   during decoding of the Variable Items section
+        s = BytesIO(bytestring)
+        
+        # Decode the A-ASSOCIATE-AC PDU up to the Variable Items section
         (self.pdu_type, 
          _, 
          self.pdu_length,
@@ -713,15 +768,13 @@ class A_ASSOCIATE_AC_PDU(PDU):
          self.reserved_aec,
          _) = unpack('> B B I H H 16s 16s 32s', s.read(74))
 
-        while True:
-            item = self._next_item(s)
-            
-            if item is None:
-                break
-            
+        # Decode the Variable Items section of the PDU
+        item = self._next_item(s)
+        while item is not None:
             item.Decode(s)
-            
             self.variable_items.append(item)
+            
+            item = self._next_item(s)
 
     def _update_pdu_length(self):
         """ Determines the value of the PDU Length parameter """
@@ -786,6 +839,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
                         #        ii.SCP = role.SCP
                         #        ii.SCU = role.SCU
                 contexts.append(ii)
+        
         return contexts
         
     @property
@@ -811,10 +865,16 @@ class A_ASSOCIATE_AC_PDU(PDU):
         
         Returns
         -------
-        str
+        bytes
             The Requestor's AE Called AE Title
         """
-        return self.reserved_aet
+        ae_title = self.reserved_aet
+        if isinstance(ae_title, str):
+            ae_title = bytes(self.reserved_aet, 'utf-8')
+        elif isinstance(ae_title, bytes):
+            pass
+        
+        return ae_title
     
     @property
     def calling_ae_title(self):
@@ -825,10 +885,16 @@ class A_ASSOCIATE_AC_PDU(PDU):
         
         Returns
         -------
-        str
+        bytes
             The Requestor's AE Calling AE Title
         """
-        return self.reserved_aec
+        ae_title = self.reserved_aec
+        if isinstance(ae_title, str):
+            ae_title = bytes(self.reserved_aec, 'utf-8')
+        elif isinstance(ae_title, bytes):
+            pass
+        
+        return ae_title
 
     def __str__(self):
         s = 'A-ASSOCIATE-AC PDU\n'
@@ -841,7 +907,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         s += '    Application context name: %s\n' %self.application_context_name
         s += '    Presentation context(s):\n'
         for ii in self.presentation_context:
-            s += '      %s: %s (0x%02x)\n' %(ii.ID, ii.transfer_syntax, ii.ResultReason)
+            s += '      %s' %ii
         
         s += '    User information:\n'
         for ii in self.user_information.UserData:
@@ -851,127 +917,215 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
 
 class A_ASSOCIATE_RJ_PDU(PDU):
-    '''This class represents the A-ASSOCIATE-RJ PDU'''
-    def __init__(self):
-        self.PDUType = 0x03                           # Unsigned byte
-        self.PDULength = 0x00000004             # Unsigned int
-        self.Result = None                  # Unsigned byte
-        self.Source = None                            # Unsigned byte
-        self.ReasonDiag = None                      # Unsigned byte
+    """
+    Represents the A-ASSOCIATE-RJ PDU that, when encoded, is received from/sent 
+    to the peer AE.
 
-    def FromParams(self, Params):
-        # Params is an A_ASSOCIATE_ServiceParameters object
-        self.Result = Params.Result
-        self.Source = Params.ResultSource
-        self.ReasonDiag = Params.Diagnostic
+    The A-ASSOCIATE-RJ PDU is sent during association negotiation when
+    either the local or the peer AE rejects the association request.
+
+    An A_ASSOCIATE_RR requires the following parameters (see PS3.8 Section 
+        9.3.4):
+        * PDU type (1, fixed value, 0x03)
+        * PDU length (1)
+        * Result (1)
+        * Source (1)
+        * Reason/Diagnostic (1)
+        
+    See PS3.8 Section 9.3.4 for the structure of the PDU, especially Table 9-21.
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded PDU in bytes
+    reason : int
+        The raw Reason/Diagnostic parameter value
+    reason_str : str
+        The reason for the rejection as a string
+    result : int
+        The raw Result parameter value
+    result_str : str
+        The result of the rejection, one of ('Rejected (Permanent)', 
+        'Rejected (Transient)')
+    source : int
+        The raw Source parameter value
+    source_str : str
+        The source of the rejection, one of ('DUL service-user', 
+        'DUL service-provider (ACSE related)', 'DUL service-provider 
+        (presentation related)')
+    """
+    def __init__(self):
+        self.pdu_type = 0x03
+        self.pdu_length = 0x04
+        self.result = None
+        self.source = None
+        self.reason_diagnostic = None
+
+    def FromParams(self, primitive):
+        """
+        Set up the PDU using the parameter values from the A-ASSOCIATE 
+        `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameters
+            The parameters to use for setting up the PDU
+        """
+        self.result = primitive.Result
+        self.source = primitive.ResultSource
+        self.reason_diagnostic = primitive.Diagnostic
 
     def ToParams(self):
-        tmp = A_ASSOCIATE_ServiceParameters()
-        tmp.Result = self.Result
-        tmp.ResultSource = self.Source
-        tmp.Diagnostic = self.ReasonDiag
-        return tmp
+        """ 
+        Convert the current A-ASSOCIATE-RQ PDU to a primitive
+        
+        Returns
+        -------
+        pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameters
+            The primitive to convert the PDU to
+        """
+        primitive = A_ASSOCIATE_ServiceParameters()
+        primitive.Result = self.result
+        primitive.ResultSource = self.source
+        primitive.Diagnostic = self.reason_diagnostic
+        
+        return primitive
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.PDUType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>I', self.PDULength)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('B', self.Result)
-        tmp = tmp + pack('B', self.Source)
-        tmp = tmp + pack('B', self.ReasonDiag)
-        return tmp
+        """
+        Encode the PDU's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded PDU that will be sent to the peer AE
+        """
+        logger.debug('Constructing Associate RJ PDU')
+        
+        bytestring  = bytes()
+        bytestring += pack('B', self.pdu_type)
+        bytestring += pack('B', 0x00) # Reserved
+        bytestring += pack('>I', self.pdu_length)
+        bytestring += pack('B', 0x00) # Reserved
+        bytestring += pack('B', self.result)
+        bytestring += pack('B', self.source)
+        bytestring += pack('B', self.reason_diagnostic)
+        return bytestring
 
-    def Decode(self, rawstring):
-        Stream = BytesIO(rawstring)
-        (self.PDUType, 
+    def Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
+        
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
+        (self.pdu_type, 
          _, 
-         self.PDULength, 
+         self.pdu_length, 
          _,
-         self.Result, 
-         self.Source, 
-         self.ReasonDiag) = unpack('> B B I B B B B', Stream.read(10))
+         self.result, 
+         self.source, 
+         self.reason_diagnostic) = unpack('> B B I B B B B', bytestring)
 
     def get_length(self):
+        """ The total length of the encoded PDU in bytes """
         return 10
 
-    def __repr__(self):
-        tmp = "A-ASSOCIATE-RJ PDU\n"
-        tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
-        tmp = tmp + " PDU length: %d\n" % self.PDULength
-        tmp = tmp + " Result: %d\n" % self.Result
-        tmp = tmp + " Source: %s\n" % str(self.Source)
-        tmp = tmp + " Reason/Diagnostic: %s\n" % str(self.ReasonDiag)
-        return tmp + "\n"
+    @property
+    def result(self):
+        return self._result
+
+    @result.setter
+    def result(self, value):
+        self._result = value
 
     @property
-    def ResultString(self):
-        """
-        See PS3.8 9.3.4
-        
-        Returns
-        -------
-        str
-            The type of Association rejection
-        """
-        if self.Result == 0x01:
-            return 'Rejected (Permanent)'
-        else:
-            return 'Rejected (Transient)'
+    def result_str(self):
+        results = {1 : 'Rejected (Permanent)',
+                   2 : 'Rejected (Transient)'}
+
+        if self.result not in results.keys():
+            logger.error('Invalid value in Result parameter in A-ASSOCIATE-RJ PDU')
+            raise ValueError('Invalid value in Result parameter in A-ASSOCIATE-RJ PDU')
+            
+        return results[self.result]
     
     @property
-    def SourceString(self):
-        """
-        See PS3.8 9.3.4
-        
-        Returns
-        -------
-        str
-            The source of the Association rejection
-        """
-        if self.Source == 0x01:
-            return 'User'
-        elif self.Source == 0x02:
-            return 'Provider (ACSE)'
-        else:
-            return 'Provider (Presentation)'
+    def source(self):
+        return self._source
+    
+    @source.setter
+    def source(self, value):
+        self._source = value
     
     @property
-    def Reason(self):
-        """
-        See PS3.8 9.3.4
+    def source_str(self):
+        sources = {1 : 'DUL service-user',
+                   2 : 'DUL service-provider (ACSE related)',
+                   3 : 'DUL service-provide (presentation related)'}
+                   
+        if self.source not in sources.keys():
+            logger.error('Invalid value in Source parameter in A-ASSOCIATE-RJ PDU')
+            raise ValueError('Invalid value in Source parameter in A-ASSOCIATE-RJ PDU')
+            
+        return sources[self.source]
+    
+    @property
+    def reason_diagnostic(self):
+        return self._reason
+    
+    @reason_diagnostic.setter
+    def reason_diagnostic(self, value):
+        self._reason = value
         
-        Returns
-        -------
-        str
-            The reason given for the Association rejection
-        """
-        if self.Source == 0x01:
-            reason_str = { 1 : "No reason given",
-                           2 : "Application context name not supported",
-                           3 : "Calling AE title not recognised",
-                           4 : "Reserved",
-                           5 : "Reserved",
-                           6 : "Reserved",
-                           7 : "Called AE title not recognised",
-                           8 : "Reserved",
-                           9 : "Reserved",
-                          10: "Reserved"}
-        elif self.Source == 0x02:
-            reason_str = { 1 : "No reason given",
-                           2 : "Protocol version not supported"}
-        else:
-            reason_str = { 0 : "Reserved",
-                           1 : "Temporary congestion",
-                           2 : "Local limit exceeded",
-                           3 : "Reserved",
-                           4 : "Reserved",
-                           5 : "Reserved",
-                           6 : "Reserved",
-                           7 : "Reserved"}
-        return reason_str[self.ReasonDiag]
-                          
+    @property
+    def reason_str(self):
+        reasons = {1 : { 1 : "No reason given",
+                         2 : "Application context name not supported",
+                         3 : "Calling AE title not recognised",
+                         4 : "Reserved",
+                         5 : "Reserved",
+                         6 : "Reserved",
+                         7 : "Called AE title not recognised",
+                         8 : "Reserved",
+                         9 : "Reserved",
+                        10 : "Reserved"},
+                   2 : { 1 : "No reason given",
+                         2 : "Protocol version not supported"},
+                   3 : { 0 : "Reserved",
+                         1 : "Temporary congestion",
+                         2 : "Local limit exceeded",
+                         3 : "Reserved",
+                         4 : "Reserved",
+                         5 : "Reserved",
+                         6 : "Reserved",
+                         7 : "Reserved"}}
+        
+        if self.source not in reasons.keys():
+            logger.error('Invalid value in Source parameter in A-ASSOCIATE-RJ PDU')
+            raise ValueError('Invalid value in Source parameter in A-ASSOCIATE-RJ PDU')
+        
+        source_reasons = reasons[self.source]
+        
+        if self.reason_diagnostic not in source_reasons.keys():
+            logger.error('Invalid value in Reason parameter in A-ASSOCIATE-RJ PDU')
+            raise ValueError('Invalid value in Reason parameter in A-ASSOCIATE-RJ PDU')
+        
+        return source_reasons[self.reason_diagnostic]
+   
+    def __str__(self):
+        s = "A-ASSOCIATE-RJ PDU\n"
+        s += " PDU type: 0x%02x\n" % self.PDUType
+        s += " PDU length: %d\n" % self.PDULength
+        s += " Result: %d\n" % self.Result
+        s += " Source: %s\n" % str(self.Source)
+        s += " Reason/Diagnostic: %s\n" % str(self.ReasonDiag)
+        
+        return s + "\n"
+
 
 class P_DATA_TF_PDU(PDU):
     '''This class represents the P-DATA-TF PDU'''
