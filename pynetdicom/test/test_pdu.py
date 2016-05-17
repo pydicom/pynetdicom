@@ -30,6 +30,8 @@ a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\
 
 a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
 
+a_release_rq = b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
+
 # This is a C-ECHO
 p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" \
             b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
@@ -37,6 +39,7 @@ p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" 
             b"\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00\x20\x01" \
             b"\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01" \
             b"\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
+
 
 from io import BytesIO
 import logging
@@ -874,6 +877,48 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         
         self.assertEqual(new_pdu, orig_pdu)
 
-    
+
+class TestPDU_A_RELEASE_RQ(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding the assoc_ac stream produces the correct objects """
+        pdu = A_RELEASE_RQ_PDU()
+        pdu.Decode(a_release_rq)
+        
+        self.assertEqual(pdu.pdu_type, 0x05)
+        self.assertEqual(pdu.pdu_length, 4)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        
+    def test_stream_encode(self):
+        """ Check encoding an assoc_ac produces the correct output """
+        pdu = A_RELEASE_RQ_PDU()
+        pdu.Decode(a_release_rq)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, a_release_rq)
+
+    def test_to_primitive(self):
+        """ Check converting PDU to primitive """
+        pdu = A_RELEASE_RQ_PDU()
+        pdu.Decode(a_release_rq)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertEqual(primitive.Reason, "normal")
+        self.assertEqual(primitive.Result, None)
+        
+    def test_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = A_RELEASE_RQ_PDU()
+        orig_pdu.Decode(a_release_rq)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_RELEASE_RQ_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+
+
 if __name__ == "__main__":
     unittest.main()
