@@ -1360,47 +1360,95 @@ class A_RELEASE_RQ_PDU(PDU):
 
 
 class A_RELEASE_RP_PDU(PDU):
-    '''This class represents the A-RELEASE-RP PDU'''
-    def __init__(self):
-        self.PDUType = 0x06                     # Unsigned byte
-        self.PDULength = 0x00000004         # Unsigned int
+    """
+    Represents the A-RELEASE-RP PDU that, when encoded, is received from/sent 
+    to the peer AE.
 
-    def FromParams(self, Params=None):
-        # Params is an A_RELEASE_ServiceParameters object. It is optional.
-        # nothing to do
+    The A-RELEASE-RP PDU contains data to be transmitted between two associated
+    AEs.
+
+    A A-RELEASE-RP requires the following parameters (see PS3.8 Section 
+        9.3.7):
+        * PDU type (1, fixed value, 0x06)
+        * PDU length (1)
+        
+    See PS3.8 Section 9.3.7 for the structure of the PDU, especially Table 9-25.
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded PDU in bytes
+    """
+    def __init__(self):
+        self.pdu_type = 0x06
+        self.pdu_length = 0x04
+
+    def FromParams(self, primitive):
+        """
+        Set up the PDU using the parameter values from the A-RELEASE `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.DULparameters.A_RELEASE_ServiceParameters
+            The parameters to use for setting up the PDU
+        """
         pass
 
     def ToParams(self):
-        tmp = A_RELEASE_ServiceParameters()
-        #tmp.Reason = 'normal'
-        tmp.Result = 'affirmative'
-        return tmp
+        """ 
+        Convert the current A-RELEASE-RP PDU to a primitive
         
+        Returns
+        -------
+        pynetdicom.DULparameters.A_RELEASE_ServiceParameters
+            The primitive to convert the PDU to
+        """
+        primitive = A_RELEASE_ServiceParameters()
+        primitive.Result = 'affirmative'
 
+        return primitive
+        
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.PDUType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>I', self.PDULength)
-        tmp = tmp + pack('>I', 0x00000000)
-        return tmp
-
-    def Decode(self, rawstring):
-        Stream = BytesIO(rawstring)
+        """
+        Encode the PDU's parameter values into a bytes string
         
-        (self.PDUType, 
+        Returns
+        -------
+        bytestring : bytes
+            The encoded PDU that will be sent to the peer AE
+        """
+        bytestring  = bytes()
+        bytestring += pack('B',  self.pdu_type)
+        bytestring += pack('B',  0x00) # Reserved
+        bytestring += pack('>I', self.pdu_length)
+        bytestring += pack('>I', 0x00000000) # Reserved
+        
+        return bytestring
+
+    def Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
+        
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
+        # Decode the A-RELEASE-RP PDU
+        (self.pdu_type, 
          _,
-         self.PDULength, 
-         _) = unpack('> B B I I', Stream.read(10))
+         self.pdu_length, 
+         _) = unpack('> B B I I', bytestring)
 
     def get_length(self):
         return 10
 
-    def __repr__(self):
-        tmp = "A-RELEASE-RP PDU\n"
-        tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
-        tmp = tmp + " PDU length: %d\n" % self.PDULength
-        return tmp + "\n"
+    def __str__(self):
+        s  = "A-RELEASE-RP PDU\n"
+        s += " PDU type: 0x%02x\n" % self.pdu_type
+        s += " PDU length: %d\n" % self.pdu_length
+        return s
 
 
 class A_ABORT_PDU(PDU):
