@@ -245,7 +245,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     The A-ASSOCIATE-RQ PDU is sent at the start of association negotiation when
     either the local or the peer AE wants to to request an association.
 
-    An A_ASSOCIATE_RQ requires the following parameters (see PS3.8 Section 
+    An A-ASSOCIATE-RQ requires the following parameters (see PS3.8 Section 
         9.3.2):
         * PDU type (1, fixed value, 0x01)
         * PDU length (1)
@@ -407,7 +407,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
             The bytes string received from the peer
         """
         logger.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
-                        'PDU header' %len(bytestring))
+                        'PDU header' %(len(bytestring) - 6))
         
         for line in wrap_list(bytestring, max_size=512):
             logger.debug('  ' + line)
@@ -576,7 +576,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
     The A-ASSOCIATE-AC PDU is sent when the association request is accepted
     by either the local or the peer AE
 
-    An A_ASSOCIATE_AC requires the following parameters (see PS3.8 Section 
+    An A-ASSOCIATE-AC requires the following parameters (see PS3.8 Section 
         9.3.2):
         * PDU type (1, fixed value, 0x02)
         * PDU length (1)
@@ -747,7 +747,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
             The bytes string received from the peer
         """
         logger.debug('PDU Type: Associate Accept, PDU Length: %s + 6 bytes '
-                        'PDU header' %len(bytestring))
+                        'PDU header' %(len(bytestring) - 6))
         
         for line in wrap_list(bytestring, max_size=512):
             logger.debug('  ' + line)
@@ -924,7 +924,7 @@ class A_ASSOCIATE_RJ_PDU(PDU):
     The A-ASSOCIATE-RJ PDU is sent during association negotiation when
     either the local or the peer AE rejects the association request.
 
-    An A_ASSOCIATE_RR requires the following parameters (see PS3.8 Section 
+    An A-ASSOCIATE-RJ requires the following parameters (see PS3.8 Section 
         9.3.4):
         * PDU type (1, fixed value, 0x03)
         * PDU length (1)
@@ -1128,74 +1128,143 @@ class A_ASSOCIATE_RJ_PDU(PDU):
 
 
 class P_DATA_TF_PDU(PDU):
-    '''This class represents the P-DATA-TF PDU'''
-    def __init__(self):
-        self.PDUType = 0x04                     # Unsigned byte
-        self.PDULength = None                   # Unsigned int
-        # List of one of more PresentationDataValueItem
-        self.PresentationDataValueItems = []
+    """
+    Represents the P-DATA-TF PDU that, when encoded, is received from/sent 
+    to the peer AE.
 
-    def FromParams(self, Params):
-        # Params is an P_DATA_ServiceParameters object
-        for ii in Params.PresentationDataValueList:
-            tmp = PresentationDataValueItem()
-            tmp.FromParams(ii)
-            self.PresentationDataValueItems.append(tmp)
+    The P-DATA-TF PDU contains data to be transmitted between two associated
+    AEs.
+
+    A P-DATA-TF requires the following parameters (see PS3.8 Section 
+        9.3.4):
+        * PDU type (1, fixed value, 0x03)
+        * PDU length (1)
+        * Presentation data value Item(s) (1 or more)
+        
+    See PS3.8 Section 9.3.4 for the structure of the PDU, especially Table 9-21.
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded PDU in bytes
+    PDVs : list of pynetdicom.PDU.PresentationDataValueItem
+        The presentation data value items
+    """
+    def __init__(self):
+        self.pdu_type = 0x04
+        self.pdu_length = None
+        self.presentation_data_value_items = []
+
+    def FromParams(self, primitive):
+        """
+        Set up the PDU using the parameter values from the P-DATA `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.DULparameters.P_DATA_ServiceParameters
+            The parameters to use for setting up the PDU
+        """
+        for ii in primitive.PresentationDataValueList:
+            presentation_data_value = PresentationDataValueItem()
+            presentation_data_value.FromParams(ii)
+            self.presentation_data_value_items.append(presentation_data_value)
         
         self._update_pdu_length()
 
     def ToParams(self):
-        tmp = P_DATA_ServiceParameters()
-        tmp.PresentationDataValueList = []
-        for ii in self.PresentationDataValueItems:
-            tmp.PresentationDataValueList.append([ii.PresentationContextID,
-                                                  ii.PresentationDataValue])
-        return tmp
+        """ 
+        Convert the current P-DATA-TF PDU to a primitive
+        
+        Returns
+        -------
+        pynetdicom.DULparameters.P_DATA_ServiceParameters
+            The primitive to convert the PDU to
+        """
+        primitive = P_DATA_ServiceParameters()
+        
+        primitive.PresentationDataValueList = []
+        for ii in self.presentation_data_value_items:
+            primitive.PresentationDataValueList.append([ii.PresentationContextID,
+                                                        ii.PresentationDataValue])
+        return primitive
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.PDUType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>I', self.PDULength)
+        """
+        Encode the PDU's parameter values into a bytes string
         
-        for ii in self.PresentationDataValueItems:
-            tmp = tmp + ii.Encode()
-        return tmp
+        Returns
+        -------
+        bytestring : bytes
+            The encoded PDU that will be sent to the peer AE
+        """
+        bytestring  = bytes()
+        bytestring += pack('B',  self.pdu_type)
+        bytestring += pack('B',  0x00)
+        bytestring += pack('>I', self.pdu_length)
+        
+        for ii in self.presentation_data_value_items:
+            bytestring += ii.Encode()
+        
+        return bytestring
 
-    def Decode(self, rawstring):
-        Stream = BytesIO(rawstring)
+    def Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
         
-        (self.PDUType, 
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
+        logger.debug('PDU Type: Data Transfer, PDU Length: %s + 6 bytes '
+                        'PDU header' %(len(bytestring) - 6))
+        
+        for line in wrap_list(bytestring, max_size=512):
+            logger.debug('  ' + line)
+        
+        logger.debug('Parsing an P-DATA PDU')
+        
+        # Convert `bytestring` to a bytes stream to make things easier 
+        #   during decoding of the Presentation Data Value Items section
+        s = BytesIO(bytestring)
+        
+        # Decode the P-DATA-TF PDU up to the Presentation Data Value Items section
+        (self.pdu_type, 
          _,
-         self.PDULength) = unpack('> B B I', Stream.read(6))
+         self.pdu_length) = unpack('> B B I', s.read(6))
         
+        # Decode the Presentation Data Value Items section
         length_read = 0
-        while length_read != self.PDULength:
-            tmp = PresentationDataValueItem()
-            tmp.Decode(Stream)
-            length_read = length_read + tmp.get_length()
-            self.PresentationDataValueItems.append(tmp)
+        while length_read != self.pdu_length:
+            pdv_item = PresentationDataValueItem()
+            pdv_item.Decode(s)
+            
+            length_read += pdv_item.get_length()
+            self.presentation_data_value_items.append(pdv_item)
 
     def _update_pdu_length(self):
-        self.PDULength = 0
-        for ii in self.PresentationDataValueItems:
-            self.PDULength += ii.get_length()
+        self.pdu_length = 0
+        for ii in self.presentation_data_value_items:
+            self.pdu_length += ii.get_length()
 
     def get_length(self):
         self._update_pdu_length()
-        return 6 + self.PDULength
-
-    def __repr__(self):
-        tmp = "P-DATA-TF PDU\n"
-        tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
-        tmp = tmp + " PDU length: %d\n" % self.PDULength
-        for ii in self.PresentationDataValueItems:
-            tmp = tmp + ii.__repr__()
-        return tmp + "\n"
+        return 6 + self.pdu_length
 
     @property
     def PDVs(self):
-        return self.PresentationDataValueItems
+        return self.presentation_data_value_items
+
+    def __str__(self):
+        s  = "P-DATA-TF PDU\n"
+        s += " PDU type: 0x%02x\n" % self.pdu_type
+        s += " PDU length: %d\n" % self.pdu_length
+        
+        for ii in self.presentation_data_value_items:
+            s += '%s' %ii
+        
+        return s
 
 
 class A_RELEASE_RQ_PDU(PDU):
@@ -1464,7 +1533,6 @@ class ApplicationContextItem(PDU):
             raise TypeError('Application Context Name must be a UID, str or bytes')
 
         self._application_context_name = value
-
 
 class PresentationContextItemRQ(PDU):
     """
@@ -1750,7 +1818,6 @@ class PresentationContextItemAC(PDU):
         else:
             return UID(ts_uid.decode('utf-8'))
 
-
 class AbstractSyntaxSubItem(PDU):
     def __init__(self):
         self.ItemType = 0x30
@@ -1816,7 +1883,6 @@ class AbstractSyntaxSubItem(PDU):
         
         self._abstract_syntax_name = value
 
-
 class TransferSyntaxSubItem(PDU):
     def __init__(self):
         self.ItemType = 0x40
@@ -1877,7 +1943,6 @@ class TransferSyntaxSubItem(PDU):
             value = UID(value.decode('utf-8'))
         
         self._transfer_syntax_name = value
-
 
 class UserInformationItem(PDU):
     def __init__(self):
@@ -2089,7 +2154,6 @@ class UserInformationItem(PDU):
                 return ii
         
         return None
-
 
 class MaximumLengthParameters(PDU):
     """

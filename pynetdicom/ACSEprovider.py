@@ -720,8 +720,8 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title)
-        s.append('Called Application Name:     %s' %assoc_ac.called_ae_title)
+        s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s' %assoc_ac.called_ae_title.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
         s.append('Presentation Contexts:')
         
