@@ -28,6 +28,8 @@ a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\
                  b"\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f" \
                  b"\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30"
 
+a_associate_rj = b""
+
 from io import BytesIO
 import logging
 import threading
@@ -351,6 +353,266 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
         """ Check decoding an assoc_rq produces the correct user information """
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq)
+
+        user_info = pdu.variable_items[2]
+        
+        self.assertEqual(user_info.ItemType, 0x50)
+        self.assertEqual(user_info.ItemLength, 58)
+        self.assertTrue(isinstance(user_info.ItemType, int))
+        self.assertTrue(isinstance(user_info.ItemLength, int))
+        self.assertTrue(isinstance(user_info.UserData, list))
+        
+        # Test user items
+        for item in user_info.UserData:
+            # Maximum PDU Length (required)
+            if isinstance(item, MaximumLengthSubItem):
+                self.assertEqual(item.MaximumLengthReceived, 16384)
+                self.assertEqual(user_info.maximum_length, 16384)
+                self.assertTrue(isinstance(item.MaximumLengthReceived, int))
+                self.assertTrue(isinstance(user_info.maximum_length, int))
+            
+            # Implementation Class UID (required)
+            elif isinstance(item, ImplementationClassUIDSubItem):
+                self.assertEqual(item.ItemType, 0x52)
+                self.assertEqual(item.ItemLength, 27)
+                self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertTrue(isinstance(item.ItemType, int))
+                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.implementation_class_uid, UID))
+                
+            # Implementation Version Name (optional)
+            elif isinstance(item, ImplementationVersionNameSubItem):
+                self.assertEqual(item.ItemType, 0x55)
+                self.assertEqual(item.ItemLength, 15)
+                self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
+                self.assertTrue(isinstance(item.ItemType, int))
+                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.implementation_version_name, bytes))
+
+
+class TestPDU_A_ASSOC_AC(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding the assoc_ac stream produces the correct objects """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        self.assertEqual(pdu.pdu_type, 0x02)
+        self.assertEqual(pdu.pdu_length, 184)
+        self.assertEqual(pdu.protocol_version, 0x0001)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        self.assertTrue(isinstance(pdu.protocol_version, int))
+        
+        # Check VariableItems
+        #   The actual items will be tested separately
+        self.assertTrue(isinstance(pdu.variable_items[0], ApplicationContextItem))
+        self.assertTrue(isinstance(pdu.variable_items[1], PresentationContextItemAC))
+        self.assertTrue(isinstance(pdu.variable_items[2], UserInformationItem))
+        
+    def test_decode_properties(self):
+        """ Check decoding the assoc_ac stream produces the correct properties """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        # Check AE titles
+        self.assertEqual(pdu.reserved_aec.decode('utf-8'), 'ECHOSCU         ')
+        self.assertEqual(pdu.reserved_aet.decode('utf-8'), 'ANY-SCP         ')
+        self.assertTrue(isinstance(pdu.reserved_aec, bytes))
+        self.assertTrue(isinstance(pdu.reserved_aet, bytes))
+        
+        # Check application_context_name property
+        app_name = pdu.application_context_name
+        self.assertTrue(isinstance(app_name, UID))
+        self.assertEqual(app_name, '1.2.840.10008.3.1.1.1')
+        
+        # Check presentation_context property
+        contexts = pdu.presentation_context
+        self.assertTrue(isinstance(contexts, list))
+        for context in contexts:
+            self.assertTrue(isinstance(context, PresentationContextItemAC))
+            
+        # Check user_information property
+        user_info = pdu.user_information
+        self.assertTrue(isinstance(user_info, UserInformationItem))
+
+    def test_stream_encode(self):
+        """ Check encoding an assoc_ac produces the correct output """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, a_associate_ac)
+
+    def test_to_primitive(self):
+        """ Check converting PDU to primitive """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertEqual(primitive.ApplicationContextName, UID('1.2.840.10008.3.1.1.1'))
+        self.assertEqual(primitive.CallingAETitle, b'ECHOSCU         ')
+        self.assertEqual(primitive.CalledAETitle, b'ANY-SCP         ')
+        
+        # Test User Information
+        for item in primitive.UserInformationItem:
+            # Maximum PDU Length (required)
+            if isinstance(item, MaximumLengthSubItem):
+                self.assertEqual(item.MaximumLengthReceived, 16384)
+                self.assertEqual(user_info.maximum_length, 16384)
+                self.assertTrue(isinstance(item.MaximumLengthReceived, int))
+                self.assertTrue(isinstance(user_info.maximum_length, int))
+            
+            # Implementation Class UID (required)
+            elif isinstance(item, ImplementationClassUIDSubItem):
+                self.assertEqual(item.ItemType, 0x52)
+                self.assertEqual(item.ItemLength, 27)
+                self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertTrue(isinstance(item.ItemType, int))
+                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.implementation_class_uid, UID))
+                
+            # Implementation Version Name (optional)
+            elif isinstance(item, ImplementationVersionNameSubItem):
+                self.assertEqual(item.ItemType, 0x55)
+                self.assertEqual(item.ItemLength, 15)
+                self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
+                self.assertTrue(isinstance(item.ItemType, int))
+                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.implementation_version_name, bytes))
+        
+        # Test Presentation Contexts
+        for context in primitive.PresentationContextDefinitionList:
+            self.assertEqual(context.ID, 1)
+            self.assertEqual(context.TransferSyntax[0], UID('1.2.840.10008.1.2'))
+            
+        self.assertTrue(isinstance(primitive.ApplicationContextName, UID))
+        self.assertTrue(isinstance(primitive.CallingAETitle, bytes))
+        self.assertTrue(isinstance(primitive.CalledAETitle, bytes))
+        self.assertTrue(isinstance(primitive.UserInformationItem, list))
+        
+        self.assertEqual(primitive.Result, 0)
+        self.assertEqual(len(primitive.PresentationContextDefinitionResultList), 1)
+        
+        # Not used by A-ASSOCIATE-AC or fixed value
+        self.assertEqual(primitive.Mode, "normal")
+        self.assertEqual(primitive.RespondingAETitle, None)
+        self.assertEqual(primitive.ResultSource, None)
+        self.assertEqual(primitive.Diagnostic, None)
+        self.assertEqual(primitive.CallingPresentationAddress, None)
+        self.assertEqual(primitive.CalledPresentationAddress, None)
+        self.assertEqual(primitive.RespondingPresentationAddress, primitive.CalledPresentationAddress)
+        self.assertEqual(primitive.PresentationContextDefinitionList, [])
+        self.assertEqual(primitive.PresentationRequirements, "Presentation Kernel")
+        self.assertEqual(primitive.SessionRequirements, "")
+
+    def test_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = A_ASSOCIATE_AC_PDU()
+        orig_pdu.Decode(a_associate_ac)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_ASSOCIATE_AC_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+        
+    def test_update_data(self):
+        """ Check that updating the PDU data works correctly """
+        orig_pdu = A_ASSOCIATE_AC_PDU()
+        orig_pdu.Decode(a_associate_ac)
+        orig_pdu.user_information.UserData = [orig_pdu.user_information.UserData[1]]
+        orig_pdu.get_length()
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_ASSOCIATE_AC_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+
+    def test_length_property(self):
+        """ Check that the length property returns the correct value """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        self.assertEqual(pdu.length, pdu.get_length())
+
+class TestPDU_A_ASSOC_AC_ApplicationContext(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding an assoc_ac produces the correct application context """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        app_context = pdu.variable_items[0]
+        
+        self.assertEqual(app_context.ItemType, 0x10)
+        self.assertEqual(app_context.ItemLength, 21)
+        self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
+        self.assertTrue(isinstance(app_context.ItemType, int))
+        self.assertTrue(isinstance(app_context.ItemLength, int))
+        self.assertTrue(isinstance(app_context.application_context_name, UID))
+        
+        self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
+        self.assertTrue(isinstance(app_context.application_context_name, UID))
+
+class TestPDU_A_ASSOC_AC_PresentationContext(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding an assoc_ac produces the correct presentation context """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        # Check PresentationContextItemRQ attributes
+        presentation_context = pdu.variable_items[1]
+        self.assertEqual(presentation_context.ItemType, 0x21)
+        self.assertEqual(presentation_context.PresentationContextID, 0x0001)
+        self.assertEqual(presentation_context.ItemLength, 25)
+        self.assertTrue(isinstance(presentation_context.ItemType, int))
+        self.assertTrue(isinstance(presentation_context.PresentationContextID, int))
+        self.assertTrue(isinstance(presentation_context.ItemLength, int))
+        
+    def test_decode_properties(self):
+        """ Check decoding the stream produces the correct properties """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        context = pdu.presentation_context[0]
+        
+        # Check ID property
+        context_id = context.ID
+        self.assertTrue(isinstance(context_id, int))
+        self.assertEqual(context_id, 1)
+        
+        # Check Result
+        result = pdu.presentation_context[0].ResultReason
+        self.assertEqual(result, 0)
+        self.assertTrue(isinstance(result, int))
+        
+        # Check transfer syntax
+        syntax = pdu.presentation_context[0].transfer_syntax
+        self.assertTrue(syntax.is_transfer_syntax)
+        self.assertTrue(isinstance(syntax, UID))
+        self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
+
+class TestPDU_A_ASSOC_AC_PresentationContext_TransferSyntax(unittest.TestCase):
+    def test_decode_value_type(self):
+        """ Check decoding an assoc_ac produces the correct transfer syntax """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        context = pdu.presentation_context[0]
+        syntax = context.transfer_syntax
+        
+        self.assertTrue(isinstance(syntax, UID))
+        self.assertTrue(syntax.is_transfer_syntax)
+        self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
+
+class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
+    def test_decode_value_type(self):
+        """ Check decoding an assoc_rq produces the correct user information """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
 
         user_info = pdu.variable_items[2]
         

@@ -246,12 +246,12 @@ class Association(threading.Thread):
             
             # Calling AE Title not recognised
             if self.ae.require_calling_aet != '':
-                if self.ae.require_calling_aet != assoc_rq.CallingAETitle:
+                if self.ae.require_calling_aet != assoc_rq.calling_ae_title:
                     reject_assoc_rsd = [(0x01, 0x01, 0x03)]
 
             # Called AE Title not recognised
             if self.ae.require_called_aet != '':
-                if self.AE.require_called_aet != assoc_rq.CalledAETitle:
+                if self.AE.require_called_aet != assoc_rq.called_ae_title:
                     reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
             # DUL Presentation Related Rejections
