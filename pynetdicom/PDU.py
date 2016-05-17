@@ -78,15 +78,11 @@ class PDU(object):
         
     def __eq__(self, other):
         """Equality of two PDUs"""
-        is_equal = True
         for ii in self.__dict__:
             if not (self.__dict__[ii] == other.__dict__[ii]):
-                print(type(self), ii)
-                print(self.__dict__[ii], other.__dict__[ii])
-                
-                is_equal = False
+                return False
 
-        return is_equal
+        return True
     
     def encode(self):
         """
@@ -236,32 +232,53 @@ class PDU(object):
         
         return item_types[item_type]()
 
+    @property
+    def length(self):
+        return len(self.Encode())
+
 
 class A_ASSOCIATE_RQ_PDU(PDU):
     """
-    Represents the A-ASSOCIATE-RQ PDU that is received from/sent to the peer AE
+    Represents the A-ASSOCIATE-RQ PDU that, when encoded, is received from/sent 
+    to the peer AE.
 
     The A-ASSOCIATE-RQ PDU is sent at the start of association negotiation when
     either the local or the peer AE wants to to request an association.
 
     An A_ASSOCIATE_RQ requires the following parameters (see PS3.8 Section 
         9.3.2):
-        * Protocol version (1, fixed value, 0x0001)
+        * PDU type (1, fixed value, 0x01)
+        * PDU length (1)
+        * Protocol version (1, fixed value, 0x01)
         * Called AE title (1)
         * Calling AE title (1)
         * Variable items (1)
-          * Application Context (1)
+          * Application Context Item (1)
+            * Item type (1, fixed value, 0x10)
+            * Item length (1) 
             * Application Context Name (1, fixed in an application)
-          * Presentation Context(s) (1 or more)
-            * ID (1)
-            * Abstract Syntax (1)
-            * Transfer Syntax(es) (1 or more)
-          * User Information (1)
-            * Maximum Length Received (1)
-            * Other User Data items (0 or more)
+          * Presentation Context Item(s) (1 or more)
+            * Item type (1, fixed value, 0x21)
+            * Item length (1)
+            * Context ID (1)
+            * Abstract/Transfer Syntax Sub-items (1)
+              * Abstract Syntax Sub-item (1)
+                * Item type (1, fixed, 0x30)
+                * Item length (1)
+                * Abstract syntax name (1)
+              * Transfer Syntax Sub-items (1 or more)
+                * Item type (1, fixed, 0x40)
+                * Item length (1)
+                * Transfer syntax name(s) (1 or more)
+          * User Information Item (1)
+            * Item type (1, fixed, 0x50)
+            * Item length (1)
+            * User data Sub-items (2 or more)
+                * Maximum Length Received Sub-item (1)
+                * Implementation Class UID Sub-item (1)
+                * Optional User Data Sub-items (0 or more)
     
-    See PS3.8 Section 9.3.2 for the structure of the PDU, especially Table 9-11
-    for a description of each field
+    See PS3.8 Section 9.3.2 for the structure of the PDU, especially Table 9-11.
     
     Attributes
     ----------
@@ -273,7 +290,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     calling_ae_title : bytes
         The source AE title as a 16-byte bytestring.
     length : int
-        The length of the PDU in bytes
+        The length of the encoded PDU in bytes
     presentation_context : list of pynetdicom.PDU.PresentationContextItemRQ
         The A-ASSOCIATE-RQ's Presentation Context items
     user_information : pynetdicom.PDU.UserInformationItem
@@ -283,9 +300,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         # These either have a fixed value or are set programatically
         self.pdu_type = 0x01
         self.pdu_length = None
-        self.protocol_version = 0x0001
+        self.protocol_version = 0x01
         
-        # variable_items is a list containing the following:
+        # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemRQ
         #   1 UserInformationItem
@@ -351,63 +368,73 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         return primitive
 
     def Encode(self):
+        """
+        Encode the PDU's parameter values into a bytes string
         
+        Returns
+        -------
+        bytestring : bytes
+            The encoded PDU that will be sent to the peer AE
+        """
         logger.debug('Constructing Associate RQ PDU')
-
-        # Python3 must implicitly define string as bytes
-        tmp = b''
-        tmp = tmp + pack('B',   self.pdu_type)
-        tmp = tmp + pack('B',   0x00)
-        tmp = tmp + pack('>I',  self.pdu_length)
-        tmp = tmp + pack('>H',  self.protocol_version)
-        tmp = tmp + pack('>H',  0x00)
-        tmp = tmp + pack('16s', self.called_ae_title)
-        tmp = tmp + pack('16s', self.calling_ae_title)
-        tmp = tmp + pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
         
-        # variable item elements
+        # Encode the PDU parameters up to the Variable Items
+        #   See PS3.8 Table 9-11 
+        bytestring  = bytes()
+        bytestring += pack('B',   self.pdu_type)
+        bytestring += pack('B',   0x00) # Reserved
+        bytestring += pack('>I',  self.pdu_length)
+        bytestring += pack('>H',  self.protocol_version)
+        bytestring += pack('>H',  0x00) # Reserved
+        bytestring += pack('16s', self.called_ae_title)
+        bytestring += pack('16s', self.calling_ae_title)
+        bytestring += pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0) # Reserved
+        
+        # Encode the Variable Items
         for ii in self.variable_items:
-            tmp = tmp + ii.Encode()
+            bytestring += ii.Encode()
         
-        return tmp
+        return bytestring
 
-    def Decode(self, bytestream):
+    def Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
         
-        s = BytesIO(bytestream)
-        
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
         logger.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
-                        'PDU header' %len(s.getvalue()))
+                        'PDU header' %len(bytestring))
         
-        for line in wrap_list(s, max_size=512):
+        for line in wrap_list(bytestring, max_size=512):
             logger.debug('  ' + line)
         
         logger.debug('Parsing an A-ASSOCIATE PDU')
         
+        # Convert `bytestring` to a bytes stream to make things easier 
+        #   during decoding of the Variable Items section
+        s = BytesIO(bytestring)
+        
+        # Decode the A-ASSOCIATE-RQ PDU up to the Variable Items section
         (self.pdu_type, 
          _, 
          self.pdu_length,
          self.protocol_version, 
          _, 
          self.called_ae_title,
-         self.calling_ae_title) = unpack('> B B I H H 16s 16s', s.read(42))
-        s.read(32)
+         self.calling_ae_title,
+         _) = unpack('> B B I H H 16s 16s 32s', s.read(74))
 
-        while True:
-            item_type = self._next_item_type(s)
+        # Decode the Variable Items section of the PDU
+        item = self._next_item(s)
+        while item is not None:
+            item.Decode(s)
+            self.variable_items.append(item)
             
-            if item_type == 0x10:
-                tmp = ApplicationContextItem()
-            elif item_type == 0x20:
-                tmp = PresentationContextItemRQ()
-            elif item_type == 0x50:
-                tmp = UserInformationItem()
-            elif item_type is None:
-                break
-            else:
-                raise ValueError('A-ASSOCIATE-RQ: Unknown item type in Variable Items')
-                
-            tmp.Decode(s)
-            self.variable_items.append(tmp)
+            item = self._next_item(s)
 
     def _update_pdu_length(self):
         """ Determines the value of the PDU Length parameter """
@@ -425,10 +452,6 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         self._update_pdu_length()
         
         return 6 + self.pdu_length
-
-    @property
-    def length(self):
-        return self.get_length()
 
     @property
     def called_ae_title(self):
@@ -503,7 +526,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
             The Requestor AE's Presentation Context objects
         """
         contexts = []
-        for ii in self.variable_items[1:]:
+        for ii in self.variable_items:
             if isinstance(ii, PresentationContextItemRQ):
                 # We determine if there are any SCP/SCU Role Negotiations
                 #   for each Transfer Syntax in each Presentation Context
@@ -521,93 +544,157 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
     @property
     def user_information(self):
-        for ii in self.variable_items[1:]:
+        for ii in self.variable_items:
             if isinstance(ii, UserInformationItem):
                 return ii
 
 
 class A_ASSOCIATE_AC_PDU(PDU):
-    '''This class represents the A-ASSOCIATE-AC PDU'''
+    """
+    Represents the A-ASSOCIATE-AC PDU that, when encoded, is received from/sent 
+    to the peer AE
+
+    The A-ASSOCIATE-AC PDU is sent when the association request is accepted
+    by either the local or the peer AE
+
+    An A_ASSOCIATE_AC requires the following parameters (see PS3.8 Section 
+        9.3.2):
+        * PDU type (1, fixed value, 0x02)
+        * PDU length (1)
+        * Protocol version (1, fixed value, 0x01)
+        * Variable items (1)
+          * Application Context Item (1)
+            * Item type (1, fixed value, 0x10)
+            * Item length (1) 
+            * Application Context Name (1, fixed in an application)
+          * Presentation Context Item(s) (1 or more)
+            * Item type (1, fixed value, 0x21)
+            * Item length (1)
+            * Context ID (1)
+            * Transfer Syntax Sub-items (1)
+              * Item type (1, fixed, 0x40)
+              * Item length (1)
+              * Transfer syntax name(s) (1)
+          * User Information Item (1)
+            * Item type (1, fixed, 0x50)
+            * Item length (1)
+            * User data Sub-items (2 or more)
+                * Maximum Length Received Sub-item (1)
+                * Implementation Class UID Sub-item (1)
+                * Optional User Data Sub-items (0 or more)
+    
+    See PS3.8 Section 9.3.3 for the structure of the PDU, especially Table 9-17.
+    
+    Attributes
+    ----------
+    application_context_name : pydicom.uid.UID
+        The Association Requestor's Application Context Name as a UID. See 
+        PS3.8 9.3.2, 7.1.1.2
+    called_ae_title : bytes
+        The destination AE title as a 16-byte bytestring. The value is not
+        guaranteed to be the actual title and shall not be tested.
+    calling_ae_title : bytes
+        The source AE title as a 16-byte bytestring. The value is not
+        guaranteed to be the actual title and shall not be tested.
+    length : int
+        The length of the encoded PDU in bytes
+    presentation_context : list of pynetdicom.PDU.PresentationContextItemAC
+        The A-ASSOCIATE-AC's Presentation Context items
+    user_information : pynetdicom.PDU.UserInformationItem
+        The A-ASSOCIATE-AC's User Information item. See PS3.8 9.3.2, 7.1.1.6
+    """
     def __init__(self):
-        self.PDUType = 0x02                                     # Unsigned byte
-        self.Reserved1 = 0x00                                   # Unsigned byte
-        self.PDULength = None                                   # Unsigned int
-        # Unsigned short
-        self.ProtocolVersion = 1
-        # Unsigned short
-        self.Reserved2 = 0x00
-        # string of length 16
-        self.Reserved3 = None
-        # string of length 16
-        self.Reserved4 = None
-        self.Reserved5 = (0x0000, 0x0000, 0x0000, 0x0000)  # 32 bytes
-        # VariablesItems is a list containing the following:
+        # These either have a fixed value or are set programatically
+        self.pdu_type = 0x02
+        self.pdu_length = None
+        self.protocol_version = 0x01
+        
+        # Shall be set to called AE title value, but no guarantee
+        self.reserved_aet = None 
+        # Shall be set to calling AE title value, but no guarantee
+        self.reserved_aec = None
+
+        # variable_items is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemAC
         #   1 UserInformationItem
-        self.VariableItems = []
+        # The order of the items in the list may not be as given above
+        self.variable_items = []
     
-    def FromParams(self, Params):
+    def FromParams(self, primitive):
+        
         # Params is an A_ASSOCIATE_ServiceParameters object
-        self.Reserved3 = Params.CalledAETitle
-        self.Reserved4 = Params.CallingAETitle
+        self.reserved_aet = primitive.CalledAETitle
+        self.reserved_aec = primitive.CallingAETitle
+        
         # Make application context
-        tmp_app_cont = ApplicationContextItem()
-        tmp_app_cont.FromParams(Params.ApplicationContextName)
-        self.VariableItems.append(tmp_app_cont)
+        application_context = ApplicationContextItem()
+        application_context.FromParams(primitive.ApplicationContextName)
+        self.variable_items.append(application_context)
         
         # Make presentation contexts
-        for ii in Params.PresentationContextDefinitionResultList:
-            tmp_pres_cont = PresentationContextItemAC()
-            tmp_pres_cont.FromParams(ii)
-            self.VariableItems.append(tmp_pres_cont)
+        for ii in primitive.PresentationContextDefinitionResultList:
+            presentation_context = PresentationContextItemAC()
+            presentation_context.FromParams(ii)
+            self.variable_items.append(presentation_context)
         
         # Make user information
-        tmp_user_info = UserInformationItem()
-        tmp_user_info.FromParams(Params.UserInformationItem)
-        self.VariableItems.append(tmp_user_info)
+        user_information = UserInformationItem()
+        user_information.FromParams(primitive.UserInformationItem)
+        self.variable_items.append(user_information)
         
-        # Compute PDU length
+        # Compute PDU length parameter value
         self._update_pdu_length()
 
     def ToParams(self):
-        ass = A_ASSOCIATE_ServiceParameters()
+        primitive = A_ASSOCIATE_ServiceParameters()
         
-        # Reserved3 and Reserved4 shouldn't be used like this
-        ass.CalledAETitle = self.Reserved3
-        ass.CallingAETitle = self.Reserved4
-        ass.ApplicationContextName = self.VariableItems[0].ToParams()
-
-        # Write presentation context
-        for ii in self.VariableItems[1:-1]:
-            ass.PresentationContextDefinitionResultList.append(ii.ToParams())
-
-        # Write user information
-        ass.UserInformationItem = self.VariableItems[-1].ToParams()
-        ass.Result = 'Accepted'
-        return ass
+        # The two reserved parameters at byte offsets 11 and 27
+        #   shall be set to called and calling AET byte the value shall not be
+        #   tested when received
+        primitive.CalledAETitle = self.reserved_aet
+        primitive.CallingAETitle = self.reserved_aec
+        
+        for ii in self.variable_items:
+            # Add application context
+            if isinstance(ii, ApplicationContextItem):
+                primitive.ApplicationContextName = ii.application_context_name
+            
+            # Add presentation contexts
+            elif isinstance(ii, PresentationContextItemAC):
+                primitive.PresentationContextDefinitionResultList.append(ii.ToParams())
+            
+            # Add user information
+            elif isinstance(ii, UserInformationItem):
+                primitive.UserInformationItem = ii.ToParams()
+        
+        # 0x00 = Accepted
+        primitive.Result = 0x00
+        
+        return primitive
 
     def Encode(self):
         logger.debug('Constructing Associate AC PDU')
 
-        tmp = b''
-        tmp = tmp + pack('B',   self.PDUType)
-        tmp = tmp + pack('B',   self.Reserved1)
-        tmp = tmp + pack('>I',  self.PDULength)
-        tmp = tmp + pack('>H',  self.ProtocolVersion)
-        tmp = tmp + pack('>H',  self.Reserved2)
-        tmp = tmp + pack('16s', self.Reserved3)
-        tmp = tmp + pack('16s', self.Reserved4)
-        tmp = tmp + pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
+        s = b''
+        s += pack('B',   self.pdu_type)
+        s += pack('B',   0x00)
+        s += pack('>I',  self.pdu_length)
+        s += pack('>H',  self.protocol_version)
+        s += pack('>H',  0x00)
+        s += pack('16s', self.reserved_aet)
+        s += pack('16s', self.reserved_aec)
+        s += pack('>8I', 0, 0, 0, 0, 0, 0, 0, 0)
         
         # variable item elements
-        for ii in self.VariableItems:
-            tmp = tmp + ii.Encode()
-        return tmp
-
-    def Decode(self, rawstring):
+        for ii in self.variable_items:
+            s += ii.Encode()
         
-        s = BytesIO(rawstring)
+        return s
+
+    def Decode(self, bytestream):
+        
+        s = BytesIO(bytestream)
         logger.debug('PDU Type: Associate Accept, PDU Length: %s + %s bytes '
                         'PDU header' %(len(s.getvalue()), 6))
         
@@ -616,30 +703,25 @@ class A_ASSOCIATE_AC_PDU(PDU):
         
         logger.debug('Parsing an A-ASSOCIATE PDU')
         
-        (self.PDUType, 
-         self.Reserved1, 
-         self.PDULength,
-         self.ProtocolVersion, 
-         self.Reserved2, 
-         self.Reserved3,
-         self.Reserved4) = unpack('> B B I H H 16s 16s', s.read(42))
-        self.Reserved5 = unpack('>8I', s.read(32))
-        
-        while 1:
-            item_type = self._next_item_type(s)
-            if item_type == 0x10:
-                tmp = ApplicationContextItem()
-            elif item_type == 0x21:
-                tmp = PresentationContextItemAC()
-            elif item_type == 0x50:
-                tmp = UserInformationItem()
-            elif item_type is None:
-                break
-            else:
-                raise #'InvalidVariableItem'
+        # 1, 1, 4, 2, 2, 16, 16, 32 : 74
+        (self.pdu_type, 
+         _, 
+         self.pdu_length,
+         self.protocol_version, 
+         _, 
+         self.reserved_aet,
+         self.reserved_aec,
+         _) = unpack('> B B I H H 16s 16s 32s', s.read(74))
+
+        while True:
+            item = self._next_item(s)
             
-            tmp.Decode(s)
-            self.VariableItems.append(tmp)
+            if item is None:
+                break
+            
+            item.Decode(s)
+            
+            self.variable_items.append(item)
 
     def _update_pdu_length(self):
         """ Determines the value of the PDU Length parameter """
@@ -647,18 +729,18 @@ class A_ASSOCIATE_AC_PDU(PDU):
         #   first byte of the Protocol-version field (byte 7) to the end
         #   of the Variable items field (first byte is 75, unknown length)
         length = 68
-        for ii in self.VariableItems:
+        for ii in self.variable_items:
             length += ii.get_length()
         
-        self.PDULength = length
+        self.pdu_length = length
 
     def get_length(self):
         self._update_pdu_length()
         
-        return 6 + self.PDULength
+        return 6 + self.pdu_length
 
     @property
-    def ApplicationContext(self):
+    def application_context_name(self):
         """
         See PS3.8 9.3.2, 7.1.1.2
         
@@ -667,12 +749,12 @@ class A_ASSOCIATE_AC_PDU(PDU):
         pydicom.uid.UID
             The Acceptor AE's Application Context Name
         """
-        for ii in self.VariableItems:
+        for ii in self.variable_items:
             if isinstance(ii, ApplicationContextItem):
                 return ii.application_context_name
         
     @property
-    def PresentationContext(self):
+    def presentation_context(self):
         """
         See PS3.8 9.3.2, 7.1.1.13
         
@@ -687,15 +769,15 @@ class A_ASSOCIATE_AC_PDU(PDU):
                 SCU: Defaults to None if not used, 0 or 1 if used
         """
         contexts = []
-        for ii in self.VariableItems[1:]:
+        for ii in self.variable_items:
             if isinstance(ii, PresentationContextItemAC):
                 # We determine if there are any SCP/SCU Role Negotiations
                 #   for each Transfer Syntax in each Presentation Context
                 #   and if so we set the SCP and SCU attributes
-                if self.UserInformation.RoleSelection is not None:
+                if self.user_information.RoleSelection is not None:
                     # Iterate through the role negotiations looking for a 
                     #   SOP Class match to the Abstract Syntaxes
-                    for role in self.UserInformation.RoleSelection:
+                    for role in self.user_information.RoleSelection:
                         pass
                         # FIXME: Pretty sure -AC has no Abstract Syntax
                         #   need to check against standard
@@ -707,7 +789,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return contexts
         
     @property
-    def UserInformation(self):
+    def user_information(self):
         """
         See PS3.8 9.3.2, 7.1.1.6
         
@@ -716,12 +798,12 @@ class A_ASSOCIATE_AC_PDU(PDU):
         pynetdicom.PDU.UserInformationItem
             The Acceptor AE's User Information object
         """
-        for ii in self.VariableItems[1:]:
+        for ii in self.variable_items:
             if isinstance(ii, UserInformationItem):
                 return ii
         
     @property
-    def CalledAETitle(self):
+    def called_ae_title(self):
         """
         While the standard says this value should match the A-ASSOCIATE-RQ
         value there is no guarantee and this should not be used as a check
@@ -732,10 +814,10 @@ class A_ASSOCIATE_AC_PDU(PDU):
         str
             The Requestor's AE Called AE Title
         """
-        return self.Reserved3
+        return self.reserved_aet
     
     @property
-    def CallingAETitle(self):
+    def calling_ae_title(self):
         """
         While the standard says this value should match the A-ASSOCIATE-RQ
         value there is no guarantee and this should not be used as a check
@@ -746,7 +828,26 @@ class A_ASSOCIATE_AC_PDU(PDU):
         str
             The Requestor's AE Calling AE Title
         """
-        return self.Reserved4
+        return self.reserved_aec
+
+    def __str__(self):
+        s = 'A-ASSOCIATE-AC PDU\n'
+        s += '  PDU type: 0x%02x\n' %self.pdu_type
+        s += '  PDU length: %d\n' %self.pdu_length
+        s += '  Protocol version: %d\n' %self.protocol_version
+        s += '  Reserved (Called AET):  %s\n' %self.reserved_aet
+        s += '  Reserved (Calling AET): %s\n' %self.reserved_aec
+        s += '  Variable items:\n'
+        s += '    Application context name: %s\n' %self.application_context_name
+        s += '    Presentation context(s):\n'
+        for ii in self.presentation_context:
+            s += '      %s: %s (0x%02x)\n' %(ii.ID, ii.transfer_syntax, ii.ResultReason)
+        
+        s += '    User information:\n'
+        for ii in self.user_information.UserData:
+            s += '      %s' %ii
+        
+        return s
 
 
 class A_ASSOCIATE_RJ_PDU(PDU):
@@ -1181,6 +1282,7 @@ class ApplicationContextItem(PDU):
         self.application_context_name = Stream.read(self.ItemLength)
 
     def get_length(self):
+        self.ItemLength = len(self.application_context_name)
         return 4 + self.ItemLength
 
     @property
@@ -1373,49 +1475,50 @@ class PresentationContextItemAC(PDU):
         Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
     """
     def __init__(self):
-        self.ItemType = 0x21                        # Unsigned byte
-        self.ItemLength = None                  # Unsigned short
-        self.PresentationContextID = None   # Unsigned byte
-        self.ResultReason = None                # Unsigned byte
-        self.TransferSyntaxSubItem = None   # TransferSyntaxSubItem object
+        self.ItemType = 0x21
+        self.ItemLength = None
+        self.PresentationContextID = None
+        self.ResultReason = None
+        self.TransferSyntaxSubItem = None
 
         # Used for tracking SCP/SCU Role Negotiation
         self.SCP = None
         self.SCU = None
 
-    def FromParams(self, context):
+    def FromParams(self, primitive):
         """
         parameters
         ----------
-        context - list of pynetdicom.utils.PresentationContext
+        primitive : list of pynetdicom.utils.PresentationContext
             A list of the processed presentation contexts
         """
-        self.PresentationContextID = context.ID
-        self.ResultReason = context.Result
+        self.PresentationContextID = primitive.ID
+        self.ResultReason = primitive.Result
         
         self.TransferSyntaxSubItem = TransferSyntaxSubItem()
-        self.TransferSyntaxSubItem.FromParams(context.TransferSyntax[0])
+        self.TransferSyntaxSubItem.FromParams(primitive.TransferSyntax[0])
         
         self.ItemLength = 4 + self.TransferSyntaxSubItem.get_length()
 
     def ToParams(self):
         # Returns a list of PresentationContext items
-        context = PresentationContext(self.PresentationContextID)
-        context.Result = self.ResultReason
-        context.add_transfer_syntax(self.TransferSyntaxSubItem.ToParams())
-        return context
+        primitive = PresentationContext(self.PresentationContextID)
+        primitive.Result = self.ResultReason
+        primitive.add_transfer_syntax(self.TransferSyntaxSubItem.ToParams())
+
+        return primitive
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + pack('B', self.PresentationContextID)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('B', self.ResultReason)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + self.TransferSyntaxSubItem.Encode()
-        return tmp
+        s = b''
+        s += pack('B', self.ItemType)
+        s += pack('B', 0x00)
+        s += pack('>H', self.ItemLength)
+        s += pack('B', self.PresentationContextID)
+        s += pack('B', 0x00)
+        s += pack('B', self.ResultReason)
+        s += pack('B', 0x00)
+        s += self.TransferSyntaxSubItem.Encode()
+        return s
 
     def Decode(self, Stream):
         (self.ItemType, 
@@ -1443,6 +1546,9 @@ class PresentationContextItemAC(PDU):
         tmp = tmp + self.TransferSyntaxSubItem.__repr__()
         return tmp
 
+    def __str__(self):
+        return self.__repr__()
+        
     @property
     def ID(self):
         """
@@ -1456,7 +1562,7 @@ class PresentationContextItemAC(PDU):
         return self.PresentationContextID
 
     @property
-    def Result(self):
+    def result(self):
         """
         Returns
         -------
@@ -1471,7 +1577,7 @@ class PresentationContextItemAC(PDU):
         return result_options[self.ResultReason]
 
     @property
-    def TransferSyntax(self):
+    def transfer_syntax(self):
         """
         See PS3.8 9.3.2.2
         
@@ -1479,8 +1585,8 @@ class PresentationContextItemAC(PDU):
         -------
         pydicom.uid.UID
             The Acceptor AE's Presentation Context item's accepted Transfer 
-            Syntax. The UID instance has been extended with two variables
-            for tracking if SCP/SCU role negotiation has been accepted:
+            Syntax. If SCP/SCU role negotiation has been proposed then the 
+            UID class has been extended with two additional attributes:
             pydicom.uid.UID.SCP: Defaults to None if not used, 0 or 1 if used
             pydicom.uid.UID.SCU: Defaults to None if not used, 0 or 1 if used
         """
@@ -1489,6 +1595,7 @@ class PresentationContextItemAC(PDU):
             return ts_uid
         else:
             return UID(ts_uid.decode('utf-8'))
+
 
 class AbstractSyntaxSubItem(PDU):
     def __init__(self):

@@ -177,7 +177,7 @@ class ACSEServiceProvider(object):
         # Association accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
             # Accepted
-            if assoc_rsp.Result == 'Accepted':
+            if assoc_rsp.Result == 0x00:
                 # Get the association accept details from the PDU and construct
                 #   a pynetdicom.utils.AssociationInformation instance
                 # assoc_info = AssociationInformation(assoc_rq, assoc_rsp)
@@ -424,7 +424,7 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_rq = a_associate_rq
         
-        app_context   = assoc_rq.application_context_name.__repr__()[1:-1]
+        app_context   = assoc_rq.application_context_name.title()
         pres_contexts = assoc_rq.presentation_context
         user_info     = assoc_rq.user_information
         
@@ -497,9 +497,9 @@ class ACSEServiceProvider(object):
         assoc_ac = a_associate_ac
         
         # Needs some cleanup
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
+        app_context   = assoc_ac.application_context_name.title()
+        pres_contexts = assoc_ac.presentation_context
+        user_info     = assoc_ac.user_information
         
         responding_ae = 'resp. AP Title'
         
@@ -517,7 +517,7 @@ class ACSEServiceProvider(object):
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.result))
             
             # If Presentation Context was accepted
             if item.ResultReason == 0:
@@ -526,7 +526,7 @@ class ACSEServiceProvider(object):
                 else:
                     ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
                 s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
-                s.append('    Accepted Transfer Syntax: =%s' %item.TransferSyntax)
+                s.append('    Accepted Transfer Syntax: =%s' %item.transfer_syntax)
                 
         ext_nego = 'None'
         #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
@@ -534,7 +534,7 @@ class ACSEServiceProvider(object):
         s.append('Accepted Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
+        if user_info.UserIdentity is not None:
             usr_id = 'Yes'
         
         s.append('User Identity Negotiation Response:  %s' %usr_id)
@@ -632,7 +632,7 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_rq = a_associate_rq
         
-        app_context   = assoc_rq.application_context_name.__repr__()[1:-1]
+        app_context   = assoc_rq.application_context_name.title()
         pres_contexts = assoc_rq.presentation_context
         user_info     = assoc_rq.user_information
         
@@ -701,9 +701,9 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_ac = a_associate_ac
         
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
+        app_context   = assoc_ac.application_context_name.title()
+        pres_contexts = assoc_ac.presentation_context
+        user_info     = assoc_ac.user_information
         
         their_class_uid = 'unknown'
         their_version = 'unknown'
@@ -720,13 +720,13 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle.decode('utf-8'))
-        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle.decode('utf-8'))
+        s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s' %assoc_ac.called_ae_title.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.result))
 
             if item.ResultReason == 0:
                 if item.SCP is None and item.SCU is None:
@@ -737,7 +737,7 @@ class ACSEServiceProvider(object):
                 s.append('    Proposed SCP/SCU Role: %s' %rq_scp_scu_role)
                 s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
                 s.append('    Accepted Transfer Syntax: =%s' 
-                                            %item.TransferSyntax)
+                                            %item.transfer_syntax)
         
         ext_nego = 'None'
         #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
@@ -745,7 +745,7 @@ class ACSEServiceProvider(object):
         s.append('Accepted Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
+        if user_info.UserIdentity is not None:
             usr_id = 'Yes'
         
         s.append('User Identity Negotiation Response:  %s' %usr_id)
