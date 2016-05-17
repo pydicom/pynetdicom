@@ -1065,7 +1065,7 @@ class A_ASSOCIATE_RJ_PDU(PDU):
     def source_str(self):
         sources = {1 : 'DUL service-user',
                    2 : 'DUL service-provider (ACSE related)',
-                   3 : 'DUL service-provide (presentation related)'}
+                   3 : 'DUL service-provider (presentation related)'}
                    
         if self.source not in sources.keys():
             logger.error('Invalid value in Source parameter in A-ASSOCIATE-RJ PDU')
@@ -1217,14 +1217,6 @@ class P_DATA_TF_PDU(PDU):
         bytestring : bytes
             The bytes string received from the peer
         """
-        logger.debug('PDU Type: Data Transfer, PDU Length: %s + 6 bytes '
-                        'PDU header' %(len(bytestring) - 6))
-        
-        for line in wrap_list(bytestring, max_size=512):
-            logger.debug('  ' + line)
-        
-        logger.debug('Parsing an P-DATA PDU')
-        
         # Convert `bytestring` to a bytes stream to make things easier 
         #   during decoding of the Presentation Data Value Items section
         s = BytesIO(bytestring)
@@ -1272,8 +1264,7 @@ class A_RELEASE_RQ_PDU(PDU):
     Represents the A-RELEASE-RQ PDU that, when encoded, is received from/sent 
     to the peer AE.
 
-    The A-RELEASE-RQ PDU contains data to be transmitted between two associated
-    AEs.
+    The A-RELEASE-RQ PDU requests that the association be released
 
     A A-RELEASE-RQ requires the following parameters (see PS3.8 Section 
         9.3.6):
@@ -1364,8 +1355,7 @@ class A_RELEASE_RP_PDU(PDU):
     Represents the A-RELEASE-RP PDU that, when encoded, is received from/sent 
     to the peer AE.
 
-    The A-RELEASE-RP PDU contains data to be transmitted between two associated
-    AEs.
+    The A-RELEASE-RP PDU confirms that the association will be released
 
     A A-RELEASE-RP requires the following parameters (see PS3.8 Section 
         9.3.7):
@@ -1453,71 +1443,132 @@ class A_RELEASE_RP_PDU(PDU):
 
 class A_ABORT_PDU(PDU):
     """
-    This class represents the A-ABORT PDU
+    Represents the A-ABORT PDU that, when encoded, is received from/sent 
+    to the peer AE.
+
+    The A-ABORT PDU signals that the association will be aborted
+
+    A A-ABORT requires the following parameters (see PS3.8 Section 
+        9.3.8):
+        * PDU type (1, fixed value, 0x06)
+        * PDU length (1)
+        * Source (1)
+        * Reason/Diagnostic (1)
+        
+    See PS3.8 Section 9.3.7 for the structure of the PDU, especially Table 9-25.
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded PDU in bytes
+    reason_str : str
+        The reason for the abort
+    source_str : str
+        The source of the abort, one of ('DUL service-user', 
+        'DUL service-provider')
     """
     def __init__(self):
-        self.PDUType = 0x07
-        self.PDULength = 0x00000004
-        self.AbortSource = None
-        self.ReasonDiag = None
+        self.pdu_type = 0x07
+        self.pdu_length = 0x04
+        self.source = None
+        self.reason_diagnostic = None
 
-    def FromParams(self, Params):
-        # Params can be an A_ABORT_ServiceParamters or A_P_ABORT_ServiceParamters
-        # object.
-        if Params.__class__ == A_ABORT_ServiceParameters:
-            # User initiated abort
-            self.ReasonDiag = 0
-            self.AbortSource = Params.AbortSource
-        elif Params.__class__ == A_P_ABORT_ServiceParameters:
-            # User provider initiated abort
-            self.AbortSource = Params.AbortSource
-            self.ReasonDiag = None
+    def FromParams(self, primitive):
+        """
+        Set up the PDU using the parameter values from the A-RELEASE `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.DULparameters.A_ABORT_ServiceParameters or
+        pynetdicom.DULparameters.A_P_ABORT_ServiceParameters
+            The parameters to use for setting up the PDU
+        """
+        # User initiated abort
+        if primitive.__class__ == A_ABORT_ServiceParameters:
+            # The reason field shall be 0x00 when the source is DUL service-user
+            self.reason_diagnostic = 0
+            self.source = primitive.AbortSource
+        
+        # User provider primitive abort
+        elif primitive.__class__ == A_P_ABORT_ServiceParameters:
+            self.reason_diagnostic = primitive.ProviderReason
+            self.source = 2
 
     def ToParams(self):
-        # Returns either a A-ABORT of an A-P-ABORT
-        if self.AbortSource is not None:
-            tmp = A_ABORT_ServiceParameters()
-            tmp.AbortSource = self.AbortSource
-        elif self.ReasonDiag is not None:
-            tmp = A_P_ABORT_ServiceParameters()
-            tmp.ProviderReason = self.ReasonDiag
-        return tmp
+        """ 
+        Convert the current A-ABORT PDU to a primitive
+        
+        Returns
+        -------
+        pynetdicom.DULparameters.A_ABORT_ServiceParameters or 
+        pynetdicom.DULparameters.A_P_ABORT_ServiceParameters
+            The primitive to convert the PDU to
+        """
+        # User initiated abort
+        if self.source == 0x00:
+            primitive = A_ABORT_ServiceParameters()
+            primitive.AbortSource = self.source
+        
+        # User provider primitive abort
+        elif self.source == 0x02:
+            primitive = A_P_ABORT_ServiceParameters()
+            primitive.ProviderReason = self.reason_diagnostic
+        
+        return primitive
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', 0x07)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>I', 0x00000004)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('B', self.AbortSource)
-        tmp = tmp + pack('B', self.ReasonDiag)
-        return tmp
-
-    def Decode(self, rawstring):
-        Stream = BytesIO(rawstring)
+        """
+        Encode the PDU's parameter values into a bytes string
         
-        (self.PDUType, 
+        Returns
+        -------
+        bytestring : bytes
+            The encoded PDU that will be sent to the peer AE
+        """
+        bytestring  = bytes()
+        bytestring += pack('B', self.pdu_type)
+        bytestring += pack('B', 0x00) # Reserved
+        bytestring += pack('>I', self.pdu_length)
+        bytestring += pack('B', 0x00) # Reserved
+        bytestring += pack('B', 0x00) # Reserved
+        bytestring += pack('B', self.source)
+        bytestring += pack('B', self.reason_diagnostic)
+        
+        return bytestring
+
+    def Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
+        
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
+        # Decode the A-ABORT PDU
+        (self.pdu_type, 
          _, 
-         self.PDULength, 
+         self.pdu_length, 
          _,
          _, 
-         self.AbortSource, 
-         self.ReasonDiag) = unpack('> B B I B B B B', Stream.read(10))
+         self.source, 
+         self.reason_diagnostic) = unpack('> B B I B B B B', bytestring)
 
     def get_length(self):
         return 10
 
-    def __repr__(self):
-        tmp = "A-ABORT PDU\n"
-        tmp = tmp + " PDU type: 0x%02x\n" % self.PDUType
-        tmp = tmp + " PDU length: %d\n" % self.PDULength
-        tmp = tmp + " Abort Source: %d\n" % self.AbortSource
-        tmp = tmp + " Reason/Diagnostic: %d\n" % self.ReasonDiag
-        return tmp + "\n"
+    def __str__(self):
+        s  = "A-ABORT PDU\n"
+        s += " PDU type: 0x%02x\n" % self.pdu_type
+        s += " PDU length: %d\n" % self.pdu_length
+        s += " Abort Source: %d\n" % self.source
+        s += " Reason/Diagnostic: %d\n" % self.reason_diagnostic
+        
+        return s
 
     @property
-    def Source(self):
+    def source_str(self):
         """
         See PS3.8 9.3.8
         
@@ -1526,15 +1577,14 @@ class A_ABORT_PDU(PDU):
         str
             The source of the Association abort
         """
-        if self.AbortSource == 0x00:
-            return 'DUL User'
-        elif self.AbortSource == 0x01:
-            return 'Reserved'
-        else:
-            return 'DUL Provider'
+        sources = {0 : 'DUL service-user',
+                   1 : 'Reserved',
+                   2 : 'DUL service-provider'}
+        
+        return sources[self.source]
     
     @property
-    def Reason(self):
+    def reason_str(self):
         """
         See PS3.8 9.3.8
         
@@ -1543,7 +1593,7 @@ class A_ABORT_PDU(PDU):
         str
             The reason given for the Association abort
         """
-        if self.Source == 0x02:
+        if self.source == 2:
             reason_str = { 0 : "No reason given",
                            1 : "Unrecognised PDU",
                            2 : "Unexpected PDU",
@@ -1551,7 +1601,7 @@ class A_ABORT_PDU(PDU):
                            4 : "Unrecognised PDU parameter",
                            5 : "Unexpected PDU parameter",
                            6 : "Invalid PDU parameter value"}
-            return reason_str[self.ReasonDiag]
+            return reason_str[self.reason_diagnostic]
         else:
             return 'No reason given'
 

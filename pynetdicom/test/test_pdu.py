@@ -34,6 +34,9 @@ a_release_rq = b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
 
 a_release_rp = b"\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00"
 
+a_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00"
+a_p_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
+
 # This is a C-ECHO
 p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" \
             b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
@@ -670,7 +673,7 @@ class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
 
 class TestPDU_A_ASSOC_RJ(unittest.TestCase):
     def test_stream_decode_values_types(self):
-        """ Check decoding the assoc_ac stream produces the correct objects """
+        """ Check decoding the assoc_rj stream produces the correct objects """
         pdu = A_ASSOCIATE_RJ_PDU()
         pdu.Decode(a_associate_rj)
         
@@ -680,7 +683,7 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         self.assertTrue(isinstance(pdu.pdu_length, int))
         
     def test_decode_properties(self):
-        """ Check decoding the assoc_ac stream produces the correct properties """
+        """ Check decoding the assoc_rj stream produces the correct properties """
         pdu = A_ASSOCIATE_RJ_PDU()
         pdu.Decode(a_associate_rj)
         
@@ -693,7 +696,7 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         self.assertTrue(isinstance(pdu.source, int))
         
     def test_stream_encode(self):
-        """ Check encoding an assoc_ac produces the correct output """
+        """ Check encoding an assoc_rj produces the correct output """
         pdu = A_ASSOCIATE_RJ_PDU()
         pdu.Decode(a_associate_rj)
         s = pdu.Encode()
@@ -789,7 +792,7 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         self.assertEqual(pdu.source_str, 'DUL service-provider (ACSE related)')
         
         pdu.source = 3
-        self.assertEqual(pdu.source_str, 'DUL service-provide (presentation related)')
+        self.assertEqual(pdu.source_str, 'DUL service-provider (presentation related)')
         
         pdu.source = 4
         with self.assertRaises(ValueError): pdu.source_str
@@ -828,11 +831,11 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         
         pdu.source = 4
         with self.assertRaises(ValueError): pdu.reason_str
-        
+
 
 class TestPDU_P_DATA_TF(unittest.TestCase):
     def test_stream_decode_values_types(self):
-        """ Check decoding the assoc_ac stream produces the correct objects """
+        """ Check decoding the p_data stream produces the correct objects """
         pdu = P_DATA_TF_PDU()
         pdu.Decode(p_data_tf)
         
@@ -842,7 +845,7 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         self.assertTrue(isinstance(pdu.pdu_length, int))
         
     def test_decode_properties(self):
-        """ Check decoding the assoc_ac stream produces the correct properties """
+        """ Check decoding the p_data stream produces the correct properties """
         pdu = P_DATA_TF_PDU()
         pdu.Decode(p_data_tf)
         
@@ -850,7 +853,7 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         self.assertTrue(isinstance(pdu.PDVs, list))
         
     def test_stream_encode(self):
-        """ Check encoding an assoc_ac produces the correct output """
+        """ Check encoding an p_data produces the correct output """
         pdu = P_DATA_TF_PDU()
         pdu.Decode(p_data_tf)
         s = pdu.Encode()
@@ -882,7 +885,7 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
 
 class TestPDU_A_RELEASE_RQ(unittest.TestCase):
     def test_stream_decode_values_types(self):
-        """ Check decoding the assoc_ac stream produces the correct objects """
+        """ Check decoding the release_rq stream produces the correct objects """
         pdu = A_RELEASE_RQ_PDU()
         pdu.Decode(a_release_rq)
         
@@ -892,7 +895,7 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
         self.assertTrue(isinstance(pdu.pdu_length, int))
         
     def test_stream_encode(self):
-        """ Check encoding an assoc_ac produces the correct output """
+        """ Check encoding an release_rq produces the correct output """
         pdu = A_RELEASE_RQ_PDU()
         pdu.Decode(a_release_rq)
         s = pdu.Encode()
@@ -924,7 +927,7 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
 
 class TestPDU_A_RELEASE_RP(unittest.TestCase):
     def test_stream_decode_values_types(self):
-        """ Check decoding the assoc_ac stream produces the correct objects """
+        """ Check decoding the release_rp stream produces the correct objects """
         pdu = A_RELEASE_RP_PDU()
         pdu.Decode(a_release_rp)
         
@@ -934,7 +937,7 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         self.assertTrue(isinstance(pdu.pdu_length, int))
         
     def test_stream_encode(self):
-        """ Check encoding an assoc_ac produces the correct output """
+        """ Check encoding an release_rp produces the correct output """
         pdu = A_RELEASE_RP_PDU()
         pdu.Decode(a_release_rp)
         s = pdu.Encode()
@@ -962,6 +965,129 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         new_pdu.FromParams(primitive)
         
         self.assertEqual(new_pdu, orig_pdu)
+
+
+class TestPDU_A_ABORT(unittest.TestCase):
+    def test_a_abort_stream_decode_values_types(self):
+        """ Check decoding the a_abort stream produces the correct objects """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        
+        self.assertEqual(pdu.pdu_type, 0x07)
+        self.assertEqual(pdu.pdu_length, 4)
+        self.assertEqual(pdu.source, 0)
+        self.assertEqual(pdu.reason_diagnostic, 0)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        self.assertTrue(isinstance(pdu.source, int))
+        self.assertTrue(isinstance(pdu.reason_diagnostic, int))
+        
+    def test_a_p_abort_stream_decode_values_types(self):
+        """ Check decoding the a_abort stream produces the correct objects """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_p_abort)
+        
+        self.assertEqual(pdu.pdu_type, 0x07)
+        self.assertEqual(pdu.pdu_length, 4)
+        self.assertEqual(pdu.source, 2)
+        self.assertEqual(pdu.reason_diagnostic, 4)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        self.assertTrue(isinstance(pdu.source, int))
+        self.assertTrue(isinstance(pdu.reason_diagnostic, int))
+        
+    def test_a_abort_stream_encode(self):
+        """ Check encoding an a_abort produces the correct output """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, a_abort)
+    
+    def test_a_p_abort_stream_encode(self):
+        """ Check encoding an a_abort produces the correct output """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_p_abort)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, a_p_abort)
+
+    def test_to_a_abort_primitive(self):
+        """ Check converting PDU to a_abort primitive """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertTrue(isinstance(primitive, A_ABORT_ServiceParameters))
+        self.assertEqual(primitive.AbortSource, 0)
+        self.assertEqual(primitive.UserInformation, None)
+        
+    def test_to_a_p_abort_primitive(self):
+        """ Check converting PDU to a_p_abort primitive """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_p_abort)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertTrue(isinstance(primitive, A_P_ABORT_ServiceParameters))
+        self.assertEqual(primitive.ProviderReason, 4)
+        
+    def test_a_abort_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = A_ABORT_PDU()
+        orig_pdu.Decode(a_abort)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_ABORT_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+    
+    def test_a_p_abort_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = A_ABORT_PDU()
+        orig_pdu.Decode(a_p_abort)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_ABORT_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+
+    def test_source_str(self):
+        """ Check the source str returns correct values """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        
+        pdu.source = 0
+        self.assertEqual(pdu.source_str, 'DUL service-user')
+        
+        pdu.source = 2
+        self.assertEqual(pdu.source_str, 'DUL service-provider')
+        
+    def test_reason_str(self):
+        """ Check the reaspm str returns correct values """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        
+        pdu.source = 2
+        pdu.reason_diagnostic = 0
+        self.assertEqual(pdu.reason_str, "No reason given")
+        pdu.reason_diagnostic = 1
+        self.assertEqual(pdu.reason_str, "Unrecognised PDU")
+        pdu.reason_diagnostic = 2
+        self.assertEqual(pdu.reason_str, "Unexpected PDU")
+        pdu.reason_diagnostic = 3
+        self.assertEqual(pdu.reason_str, "Reserved")
+        pdu.reason_diagnostic = 4
+        self.assertEqual(pdu.reason_str, "Unrecognised PDU parameter")
+        pdu.reason_diagnostic = 5
+        self.assertEqual(pdu.reason_str, "Unexpected PDU parameter")
+        pdu.reason_diagnostic = 6
+        self.assertEqual(pdu.reason_str, "Invalid PDU parameter value")
 
 
 if __name__ == "__main__":
