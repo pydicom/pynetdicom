@@ -32,6 +32,8 @@ a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
 
 a_release_rq = b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
 
+a_release_rp = b"\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00"
+
 # This is a C-ECHO
 p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" \
             b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
@@ -915,6 +917,48 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
         primitive = orig_pdu.ToParams()
         
         new_pdu = A_RELEASE_RQ_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+
+
+class TestPDU_A_RELEASE_RP(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding the assoc_ac stream produces the correct objects """
+        pdu = A_RELEASE_RP_PDU()
+        pdu.Decode(a_release_rp)
+        
+        self.assertEqual(pdu.pdu_type, 0x06)
+        self.assertEqual(pdu.pdu_length, 4)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        
+    def test_stream_encode(self):
+        """ Check encoding an assoc_ac produces the correct output """
+        pdu = A_RELEASE_RP_PDU()
+        pdu.Decode(a_release_rp)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, a_release_rp)
+
+    def test_to_primitive(self):
+        """ Check converting PDU to primitive """
+        pdu = A_RELEASE_RP_PDU()
+        pdu.Decode(a_release_rp)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertEqual(primitive.Reason, "normal")
+        self.assertEqual(primitive.Result, "affirmative")
+        
+    def test_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = A_RELEASE_RP_PDU()
+        orig_pdu.Decode(a_release_rp)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = A_RELEASE_RP_PDU()
         new_pdu.FromParams(primitive)
         
         self.assertEqual(new_pdu, orig_pdu)
