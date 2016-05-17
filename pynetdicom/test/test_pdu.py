@@ -30,6 +30,14 @@ a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\
 
 a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
 
+# This is a C-ECHO
+p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" \
+            b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
+            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e" \
+            b"\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00\x20\x01" \
+            b"\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01" \
+            b"\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
+
 from io import BytesIO
 import logging
 import threading
@@ -816,6 +824,56 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         pdu.source = 4
         with self.assertRaises(ValueError): pdu.reason_str
         
+
+class TestPDU_P_DATA_TF(unittest.TestCase):
+    def test_stream_decode_values_types(self):
+        """ Check decoding the assoc_ac stream produces the correct objects """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        self.assertEqual(pdu.pdu_type, 0x04)
+        self.assertEqual(pdu.pdu_length, 84)
+        self.assertTrue(isinstance(pdu.pdu_type, int))
+        self.assertTrue(isinstance(pdu.pdu_length, int))
+        
+    def test_decode_properties(self):
+        """ Check decoding the assoc_ac stream produces the correct properties """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        # Check PDVs
+        self.assertTrue(isinstance(pdu.PDVs, list))
+        
+    def test_stream_encode(self):
+        """ Check encoding an assoc_ac produces the correct output """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        s = pdu.Encode()
+        
+        self.assertEqual(s, p_data_tf)
+
+    def test_to_primitive(self):
+        """ Check converting PDU to primitive """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        primitive = pdu.ToParams()
+        
+        self.assertEqual(primitive.PresentationDataValueList, [[1, p_data_tf[11:]]])
+        self.assertTrue(isinstance(primitive.PresentationDataValueList, list))
+        
+    def test_from_primitive(self):
+        """ Check converting PDU to primitive """
+        orig_pdu = P_DATA_TF_PDU()
+        orig_pdu.Decode(p_data_tf)
+        
+        primitive = orig_pdu.ToParams()
+        
+        new_pdu = P_DATA_TF_PDU()
+        new_pdu.FromParams(primitive)
+        
+        self.assertEqual(new_pdu, orig_pdu)
+
     
 if __name__ == "__main__":
     unittest.main()
