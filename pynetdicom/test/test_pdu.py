@@ -348,11 +348,11 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(unittest.TestCase):
         
         abstract_syntax = context.abstract_transfer_syntax_sub_items[0]
         
-        self.assertEqual(abstract_syntax.ItemType, 0x30)
-        self.assertEqual(abstract_syntax.ItemLength, 17)
+        self.assertEqual(abstract_syntax.item_type, 0x30)
+        self.assertEqual(abstract_syntax.item_length, 17)
         self.assertEqual(abstract_syntax.abstract_syntax_name, UID('1.2.840.10008.1.1'))
-        self.assertTrue(isinstance(abstract_syntax.ItemType, int))
-        self.assertTrue(isinstance(abstract_syntax.ItemLength, int))
+        self.assertTrue(isinstance(abstract_syntax.item_type, int))
+        self.assertTrue(isinstance(abstract_syntax.item_length, int))
         self.assertTrue(isinstance(abstract_syntax.abstract_syntax_name, UID))
         
 class TestPDU_A_ASSOC_RQ_PresentationContext_TransferSyntax(unittest.TestCase):
