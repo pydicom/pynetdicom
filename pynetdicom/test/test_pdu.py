@@ -284,11 +284,11 @@ class TestPDU_A_ASSOC_RQ_ApplicationContext(unittest.TestCase):
         
         app_context = pdu.variable_items[0]
         
-        self.assertEqual(app_context.ItemType, 0x10)
-        self.assertEqual(app_context.ItemLength, 21)
+        self.assertEqual(app_context.item_type, 0x10)
+        self.assertEqual(app_context.item_length, 21)
         self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
-        self.assertTrue(isinstance(app_context.ItemType, int))
-        self.assertTrue(isinstance(app_context.ItemLength, int))
+        self.assertTrue(isinstance(app_context.item_type, int))
+        self.assertTrue(isinstance(app_context.item_length, int))
         self.assertTrue(isinstance(app_context.application_context_name, UID))
         
         self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
@@ -302,12 +302,12 @@ class TestPDU_A_ASSOC_RQ_PresentationContext(unittest.TestCase):
         
         # Check PresentationContextItemRQ attributes
         presentation_context = pdu.variable_items[1]
-        self.assertEqual(presentation_context.ItemType, 0x20)
-        self.assertEqual(presentation_context.PresentationContextID, 0x001)
-        self.assertEqual(presentation_context.ItemLength, 46)
-        self.assertTrue(isinstance(presentation_context.ItemType, int))
-        self.assertTrue(isinstance(presentation_context.PresentationContextID, int))
-        self.assertTrue(isinstance(presentation_context.ItemLength, int))
+        self.assertEqual(presentation_context.item_type, 0x20)
+        self.assertEqual(presentation_context.presentation_context_id, 0x001)
+        self.assertEqual(presentation_context.item_length, 46)
+        self.assertTrue(isinstance(presentation_context.item_type, int))
+        self.assertTrue(isinstance(presentation_context.presentation_context_id, int))
+        self.assertTrue(isinstance(presentation_context.item_length, int))
         
     def test_decode_properties(self):
         """ Check decoding the stream produces the correct properties """
@@ -346,7 +346,7 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(unittest.TestCase):
         
         context = pdu.presentation_context[0]
         
-        abstract_syntax = context.AbstractTransferSyntaxSubItems[0]
+        abstract_syntax = context.abstract_transfer_syntax_sub_items[0]
         
         self.assertEqual(abstract_syntax.ItemType, 0x30)
         self.assertEqual(abstract_syntax.ItemLength, 17)
@@ -568,11 +568,11 @@ class TestPDU_A_ASSOC_AC_ApplicationContext(unittest.TestCase):
         
         app_context = pdu.variable_items[0]
         
-        self.assertEqual(app_context.ItemType, 0x10)
-        self.assertEqual(app_context.ItemLength, 21)
+        self.assertEqual(app_context.item_type, 0x10)
+        self.assertEqual(app_context.item_length, 21)
         self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
-        self.assertTrue(isinstance(app_context.ItemType, int))
-        self.assertTrue(isinstance(app_context.ItemLength, int))
+        self.assertTrue(isinstance(app_context.item_type, int))
+        self.assertTrue(isinstance(app_context.item_length, int))
         self.assertTrue(isinstance(app_context.application_context_name, UID))
         
         self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')

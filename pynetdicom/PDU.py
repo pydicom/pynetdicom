@@ -80,6 +80,9 @@ class PDU(object):
         """Equality of two PDUs"""
         for ii in self.__dict__:
             if not (self.__dict__[ii] == other.__dict__[ii]):
+                print(type(self), ii)
+                print(self.__dict__[ii])
+                print(other.__dict__[ii])
                 return False
 
         return True
@@ -179,13 +182,13 @@ class PDU(object):
     def _next_item(self, s):
         """ 
         Peek at the stream `s` and see what the next item type
-        it is. Each valid PDU/item/subitem has an Item-type as the first byte, so
-        we look at the first byte in the stream, then reverse back to the start
-        of the stream
+        it is. Each valid PDU/item/subitem has an PDU-type/Item-type as the 
+        first byte, so we look at the first byte in the stream, then 
+        reverse back to the start of the stream
         
         Parameters
         ----------
-        s : io.ByteIO
+        s : io.BytesIO
             The stream to peek
             
         Returns
@@ -1629,53 +1632,95 @@ class A_ABORT_PDU(PDU):
             return 'No reason given'
 
 
-# Items and sub-items classes
+# Item and sub-item classes
 class ApplicationContextItem(PDU):
     """
-    The Application Context Name identifies the application context 
-    proposed by the requestor. An application context is an explicitly defined
-    set of application service elements, related options, and any other 
-    information necessary for the interworking of application entities on an
-    association.
+    Represents the Application Context Item used in A-ASSOCIATE-RQ and 
+    A-ASSOCIATE-AC PDUs.
+
+    The Application Context Item requires the following parameters (see PS3.8 
+    Section 9.3.2.1):
+        * Item type (1, fixed value, 0x10)
+        * Item length (1) 
+        * Application Context Name (1, fixed in an application)
+        
+    See PS3.8 Section 9.3.2.1 for the structure of the PDU, especially 
+    Table 9-12.
     
-    Used in: A_ASSOCIATE_RQ, A_ASSOCIATE_AC
+    Used in A_ASSOCIATE_RQ_PDU - Variable items
+    Used in A_ASSOCIATE_AC_PDU - Variable items
     
     Attributes
     ----------
     application_context_name : pydicom.uid.UID
         The UID for the Application Context Name
+    length : int
+        The length of the Item in bytes
     """
     def __init__(self):
-        # Unsigned byte
-        self.ItemType = 0x10
-        # Unsigned short
-        self.ItemLength = None
+        self.item_type = 0x10
+        self.item_length = None
 
-    def FromParams(self, params):
-        self.application_context_name = params
-        self.ItemLength = len(self.application_context_name)
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : str
+            The UID value to use for the Application Context Name
+        """
+        self.application_context_name = primitive
 
     def ToParams(self):
-        return self.application_context_name.__repr__()[1:-1]
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        str
+            The Application Context Name's UID value
+        """
+        return self.application_context_name.title()
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + bytes(self.application_context_name.__repr__()[1:-1], 'utf-8')
-        return tmp
-
-    def Decode(self, Stream):
-        (self.ItemType, 
-         _,
-         self.ItemLength) = unpack('> B B H', Stream.read(4))
+        """
+        Encode the Item's parameter values into a bytes string
         
-        self.application_context_name = Stream.read(self.ItemLength)
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H'
+        parameters = [self.item_type, 
+                      0x00, # Reserved
+                      self.item_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.application_context_name.title(), 'utf-8')
+        
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
+         _,
+         self.item_length) = unpack('> B B H', bytestream.read(4))
+        
+        self.application_context_name = bytestream.read(self.item_length)
 
     def get_length(self):
-        self.ItemLength = len(self.application_context_name)
-        return 4 + self.ItemLength
+        return 4 + self.item_length
 
     @property
     def application_context_name(self):
@@ -1684,8 +1729,8 @@ class ApplicationContextItem(PDU):
 
     @application_context_name.setter
     def application_context_name(self, value):
-        """Set the Association request's Application Context Name as a 
-        pydicom.uid.UID
+        """
+        Set the application context name
 
         Parameters
         ----------
@@ -1702,23 +1747,48 @@ class ApplicationContextItem(PDU):
             raise TypeError('Application Context Name must be a UID, str or bytes')
 
         self._application_context_name = value
+        
+        # Update the item_length parameter to account fo the new value
+        self.item_length = len(self.application_context_name)
+
 
 class PresentationContextItemRQ(PDU):
     """
+    Represents a Presentation Context Item used in A-ASSOCIATE-RQ PDUs.
+
+    The Presentation Context Item requires the following parameters (see PS3.8 
+    Section 9.3.2.2):
+        * Item type (1, fixed value, 0x20)
+        * Item length (1)
+        * Presentation context ID (1)
+        * Abstract/Transfer Syntax Sub-items (1)
+          * Abstract Syntax Sub-item (1)
+            * Item type (1, fixed, 0x30)
+            * Item length (1)
+            * Abstract syntax name (1)
+          * Transfer Syntax Sub-items (1 or more)
+            * Item type (1, fixed, 0x40)
+            * Item length (1)
+            * Transfer syntax name(s) (1 or more)
+        
+    See PS3.8 Section 9.3.2.2 for the structure of the PDU, especially 
+    Table 9-13.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items
+    
     Attributes
     ----------
-    SCP - None or int
+    length : int
+        The length of the item in bytes
+    SCP : None or int
         Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
-    SCU - None or int
+    SCU : None or int
         Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
     """
     def __init__(self):
-        # Unsigned byte
-        self.ItemType = 0x20
-        # Unsigned short
-        self.ItemLength = None
-        # Unsigned byte
-        self.PresentationContextID = None
+        self.item_type = 0x20
+        self.item_length = None
+        self.presentation_context_id = None
         
         # Use for tracking SCP/SCU Role Negotiation
         self.SCP = None
@@ -1728,84 +1798,127 @@ class PresentationContextItemRQ(PDU):
         # containing the following elements:
         #   One AbstractSyntaxtSubItem
         #   One or more TransferSyntaxSubItem
-        self.AbstractTransferSyntaxSubItems = []
+        self.abstract_transfer_syntax_sub_items = []
 
     def FromParams(self, context):
-        # Params is a list of utils.PresentationContext items
-        self.PresentationContextID = context.ID
-        tmp_abs_syn = AbstractSyntaxSubItem()
-        tmp_abs_syn.FromParams(context.AbstractSyntax)
-        self.AbstractTransferSyntaxSubItems.append(tmp_abs_syn)
+        """
+        Set up the Item using the parameter values from the `context`
+        
+        Parameters
+        ----------
+        context : pynetdicom.utils.PresentationContext
+            The PresentationContext object to use to setup the Item
+        """
+        # Add presentation context ID
+        self.presentation_context_id = context.ID
+        
+        # Add abstract syntax
+        abstract_syntax = AbstractSyntaxSubItem()
+        abstract_syntax.FromParams(context.AbstractSyntax)
+        self.abstract_transfer_syntax_sub_items.append(abstract_syntax)
+
+        # Add transfer syntax(es)
         for syntax in context.TransferSyntax:
-            tmp_tr_syn = TransferSyntaxSubItem()
-            tmp_tr_syn.FromParams(syntax)
-            self.AbstractTransferSyntaxSubItems.append(tmp_tr_syn)
+            transfer_syntax = TransferSyntaxSubItem()
+            transfer_syntax.FromParams(syntax)
+            self.abstract_transfer_syntax_sub_items.append(transfer_syntax)
         
         self._update_item_length()
 
     def ToParams(self):
-        # Returns a list of PresentationContext items
-        context = PresentationContext(
-                        self.PresentationContextID,
-                        self.AbstractTransferSyntaxSubItems[0].ToParams())
-
-        for syntax in self.AbstractTransferSyntaxSubItems[1:]:
-            context.add_transfer_syntax(syntax.ToParams())
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.utils.PresentationContext
+            The primitive to covert the Item to
+        """
+        context = PresentationContext(self.presentation_context_id)
+        
+        # Add transfer syntax(es)
+        for syntax in self.abstract_transfer_syntax_sub_items:
+            if isinstance(syntax, TransferSyntaxSubItem):
+                context.add_transfer_syntax(syntax.ToParams())
+            elif isinstance(syntax, AbstractSyntaxSubItem):
+                context.AbstractSyntax = syntax.ToParams()
         
         return context
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + pack('B', self.PresentationContextID)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('B', 0x00)
+        """
+        Encode the Item's parameter values into a bytes string
         
-        for ii in self.AbstractTransferSyntaxSubItems:
-            tmp = tmp + ii.Encode()
-        return tmp
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H B B B B'
+        parameters = [self.item_type, 
+                      0x00, # Reserved
+                      self.item_length,
+                      self.presentation_context_id,
+                      0x00, # Reserved
+                      0x00, # Reserved
+                      0x00] # Reserved
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        
+        for ii in self.abstract_transfer_syntax_sub_items:
+            bytestring += ii.Encode()
+        
+        return bytestring
 
-    def Decode(self, Stream):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        # Decode the Item parameters up to the Abstract/Transfer Syntax
+        (self.item_type, 
          _, 
-         self.ItemLength,
-         self.PresentationContextID, 
+         self.item_length,
+         self.presentation_context_id, 
          _, 
          _,
-         _) = unpack('> B B H B B B B', Stream.read(8))
+         _) = unpack('> B B H B B B B', bytestream.read(8))
         
-        tmp = AbstractSyntaxSubItem()
-        tmp.Decode(Stream)
-        self.AbstractTransferSyntaxSubItems.append(tmp)
-        NextItemType = self._next_item_type(Stream)
-        
-        while NextItemType == 0x40:
-            tmp = TransferSyntaxSubItem()
-            tmp.Decode(Stream)
-            self.AbstractTransferSyntaxSubItems.append(tmp)
-            NextItemType = self._next_item_type(Stream)
+        # Decode the Abstract/Transfer Syntax Sub-items
+        item = self._next_item(bytestream)
+        while isinstance(item, AbstractSyntaxSubItem) or \
+                            isinstance(item, TransferSyntaxSubItem):
+            item.Decode(bytestream)
+            self.abstract_transfer_syntax_sub_items.append(item)
+            
+            item = self._next_item(bytestream)
 
     def _update_item_length(self):
-        self.ItemLength = 4
-        for ii in self.AbstractTransferSyntaxSubItems:
-            self.ItemLength += ii.get_length()
+        self.item_length = 4
+        
+        for ii in self.abstract_transfer_syntax_sub_items:
+            self.item_length += ii.length
 
     def get_length(self):
         self._update_item_length()
-        return 4 + self.ItemLength
+        return 4 + self.item_length
 
-    def __repr__(self):
-        tmp = " Presentation context RQ item\n"
-        tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + \
-            "  Presentation context ID: %d\n" % self.PresentationContextID
-        for ii in self.AbstractTransferSyntaxSubItems:
-            tmp = tmp + ii.__repr__()
-        return tmp
+    def __str__(self):
+        s  = " Presentation context RQ item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d\n" % self.item_length
+        s += "  Presentation context ID: %d\n" % self.presentation_context_id
+        
+        for ii in self.abstract_transfer_syntax_sub_items:
+            s += '%s' %ii
+            
+        return s
 
     @property
     def ID(self):
@@ -1817,7 +1930,7 @@ class PresentationContextItemRQ(PDU):
         int
             Odd number between 1 and 255 (inclusive)
         """
-        return self.PresentationContextID
+        return self.presentation_context_id
 
     @property
     def AbstractSyntax(self):
@@ -1829,7 +1942,7 @@ class PresentationContextItemRQ(PDU):
         pydicom.uid.UID
             The Requestor AE's Presentation Context item's Abstract Syntax
         """
-        for ii in self.AbstractTransferSyntaxSubItems:
+        for ii in self.abstract_transfer_syntax_sub_items:
             if isinstance(ii, AbstractSyntaxSubItem):
                 #if isinstance(ii.abstract_syntax_name, UID):
                 return ii.abstract_syntax_name
@@ -1847,7 +1960,7 @@ class PresentationContextItemRQ(PDU):
             The Requestor AE's Presentation Context item's Transfer Syntax(es)
         """
         syntaxes = []
-        for ii in self.AbstractTransferSyntaxSubItems:
+        for ii in self.abstract_transfer_syntax_sub_items:
             if isinstance(ii, TransferSyntaxSubItem):
                 #if isinstance(ii.transfer_syntax_name, UID):
                 syntaxes.append(ii.transfer_syntax_name)
@@ -2113,6 +2226,7 @@ class TransferSyntaxSubItem(PDU):
         
         self._transfer_syntax_name = value
 
+
 class UserInformationItem(PDU):
     def __init__(self):
         self.ItemType = 0x50
@@ -2121,6 +2235,7 @@ class UserInformationItem(PDU):
 
     def FromParams(self, Params):
         for ii in Params:
+            # Why is this ToParams?
             self.UserData.append(ii.ToParams())
 
         self._update_item_length()
@@ -2129,6 +2244,7 @@ class UserInformationItem(PDU):
         tmp = []
         for ii in self.UserData:
             tmp.append(ii.ToParams())
+        
         return tmp
 
     def Encode(self):
@@ -2323,25 +2439,6 @@ class UserInformationItem(PDU):
                 return ii
         
         return None
-
-class MaximumLengthParameters(PDU):
-    """
-    The maximum length notification allows communicating AEs to limit the size
-    of the data for each P-DATA indication. This notification is required for 
-    all DICOM v3.0 conforming implementations.
-    
-    PS3.7 Annex D.3.3.1 and PS3.8 Annex D.1
-    """
-    def __init__(self):
-        self.MaximumLengthReceived = None
-
-    def ToParams(self):
-        tmp = MaximumLengthSubItem()
-        tmp.FromParams(self)
-        return tmp
-
-    def __eq__(self, other):
-        return self.MaximumLengthReceived == other.MaximumLengthReceived
 
 class MaximumLengthSubItem(PDU):
     """
@@ -2540,29 +2637,6 @@ class GenericUserDataSubItem(PDU):
             tmp = tmp + "  User data: %s ...\n" % self.UserData[:10]
         return tmp
 
-class ImplementationClassUIDParameters(PDU):
-    """
-    The implementation identification notification allows implementations of
-    communicating AEs to identify each other at Association establishment time.
-    It is intended to provider respective and non-ambiguous identification in
-    the event of communication problems encountered between two nodes. This
-    negotiation is required.
-    
-    Implementation identification relies on two pieces of information:
-    - Implementation Class UID (required)
-    - Implementation Version Name (optional)
-    
-    PS3.7 Annex D.3.3.2
-    
-    """
-    def __init__(self):
-        self.ImplementationClassUID = None
-
-    def ToParams(self):
-        tmp = ImplementationClassUIDSubItem()
-        tmp.FromParams(self)
-        return tmp
-
 class ImplementationClassUIDSubItem(PDU):
     """
     Implementation Class UID identifies in a unique manner a specific class
@@ -2634,15 +2708,6 @@ class ImplementationClassUIDSubItem(PDU):
         
         self._implementation_class_uid = value
         
-class ImplementationVersionNameParameters(PDU):
-    def __init__(self):
-        self.ImplementationVersionName = None
-
-    def ToParams(self):
-        tmp = ImplementationVersionNameSubItem()
-        tmp.FromParams(self)
-        return tmp
-
 class ImplementationVersionNameSubItem(PDU):
     """
     PS3.7 Annex D.3.3.2.3-4
@@ -2766,36 +2831,6 @@ class AsynchronousOperationsWindowSubItem(PDU):
             self.MaximumNumberOperationsPerformed
         return tmp
 
-class SCP_SCU_RoleSelectionParameters(PDU):
-    """
-    Allows peer AEs to negotiate the roles in which they will serve for each
-    SOP Class or Meta SOP Class supported on the Association. This negotiation
-    is optional.
-    
-    The Association Requestor may use one SCP/SCU Role Selection item for each
-    SOP Class as identified by its corresponding Abstract Syntax Name and shall
-    be one of three role values:
-    - Requestor is SCU only
-    - Requestor is SCP only
-    - Requestor is both SCU/SCP
-    
-    If the SCP/SCU Role Selection item is absent the default role for a 
-    Requestor is SCU and for an Acceptor is SCP
-    
-    PS3.7 Annex D.3.3.4
-    
-    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
-    """
-    def __init__(self):
-        self.SOPClassUID = None
-        self.SCURole = None
-        self.SCPRole = None
-
-    def ToParams(self):
-        tmp = SCP_SCU_RoleSelectionSubItem()
-        tmp.FromParams(self)
-        return tmp
-
 class SCP_SCU_RoleSelectionSubItem(PDU):
     def __init__(self):
         self.ItemType = 0x54
@@ -2891,21 +2926,6 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
             0 if SCP role isn't supported, 1 if supported
         """
         return self.SCPRole
-
-class UserIdentityParameters(PDU):
-    def __init__(self):
-        self.UserIdentityType = None
-        self.PositiveResponseRequested = None
-        self.PrimaryField = None
-        self.ServerResponse = None
-
-    def ToParams(self, is_rq):
-        if is_rq:
-            tmp = UserIdentitySubItemRQ()
-        else:
-            tmp = UserIdentitySubItemAC()
-        tmp.FromParams(self)
-        return tmp
 
 class UserIdentitySubItemRQ(PDU):
     def __init__(self):
@@ -3003,3 +3023,100 @@ class UserIdentitySubItemAC(PDU):
 class SOPClassExtendedNegotiationSubItem(PDU):
     pass
 
+
+
+class MaximumLengthParameters():
+    """
+    The maximum length notification allows communicating AEs to limit the size
+    of the data for each P-DATA indication. This notification is required for 
+    all DICOM v3.0 conforming implementations.
+    
+    PS3.7 Annex D.3.3.1 and PS3.8 Annex D.1
+    """
+    def __init__(self):
+        self.MaximumLengthReceived = None
+
+    def ToParams(self):
+        tmp = MaximumLengthSubItem()
+        tmp.FromParams(self)
+        return tmp
+
+class ImplementationClassUIDParameters():
+    """
+    The implementation identification notification allows implementations of
+    communicating AEs to identify each other at Association establishment time.
+    It is intended to provider respective and non-ambiguous identification in
+    the event of communication problems encountered between two nodes. This
+    negotiation is required.
+    
+    Implementation identification relies on two pieces of information:
+    - Implementation Class UID (required)
+    - Implementation Version Name (optional)
+    
+    PS3.7 Annex D.3.3.2
+    
+    """
+    def __init__(self):
+        self.ImplementationClassUID = None
+
+    def ToParams(self):
+        tmp = ImplementationClassUIDSubItem()
+        tmp.FromParams(self)
+        return tmp
+
+
+class ImplementationVersionNameParameters():
+    def __init__(self):
+        self.ImplementationVersionName = None
+
+    def ToParams(self):
+        tmp = ImplementationVersionNameSubItem()
+        tmp.FromParams(self)
+        return tmp
+
+
+class SCP_SCU_RoleSelectionParameters():
+    """
+    Allows peer AEs to negotiate the roles in which they will serve for each
+    SOP Class or Meta SOP Class supported on the Association. This negotiation
+    is optional.
+    
+    The Association Requestor may use one SCP/SCU Role Selection item for each
+    SOP Class as identified by its corresponding Abstract Syntax Name and shall
+    be one of three role values:
+    - Requestor is SCU only
+    - Requestor is SCP only
+    - Requestor is both SCU/SCP
+    
+    If the SCP/SCU Role Selection item is absent the default role for a 
+    Requestor is SCU and for an Acceptor is SCP
+    
+    PS3.7 Annex D.3.3.4
+    
+    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
+    def __init__(self):
+        self.SOPClassUID = None
+        self.SCURole = None
+        self.SCPRole = None
+
+    def ToParams(self):
+        tmp = SCP_SCU_RoleSelectionSubItem()
+        tmp.FromParams(self)
+        return tmp
+
+
+class UserIdentityParameters():
+    def __init__(self):
+        self.UserIdentityType = None
+        self.PositiveResponseRequested = None
+        self.PrimaryField = None
+        self.ServerResponse = None
+
+    def ToParams(self, is_rq):
+        if is_rq:
+            tmp = UserIdentitySubItemRQ()
+        else:
+            tmp = UserIdentitySubItemAC()
+        tmp.FromParams(self)
+        return tmp

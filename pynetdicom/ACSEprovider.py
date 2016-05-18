@@ -1,11 +1,3 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
-#
-
-# This module provides association services
 
 import logging
 import socket
