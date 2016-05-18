@@ -1751,7 +1751,6 @@ class ApplicationContextItem(PDU):
         # Update the item_length parameter to account fo the new value
         self.item_length = len(self.application_context_name)
 
-
 class PresentationContextItemRQ(PDU):
     """
     Represents a Presentation Context Item used in A-ASSOCIATE-RQ PDUs.
@@ -1778,8 +1777,15 @@ class PresentationContextItemRQ(PDU):
     
     Attributes
     ----------
+    abstract_syntax : pydicom.uid.UID
+        The presentation context's Abstract Syntax value
     length : int
         The length of the item in bytes
+    ID : int
+        The presentation context's ID
+    transfer_syntax : list of pydicom.uid.UID
+        The presentation context's Transfer Syntax(es)
+        
     SCP : None or int
         Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
     SCU : None or int
@@ -1790,16 +1796,17 @@ class PresentationContextItemRQ(PDU):
         self.item_length = None
         self.presentation_context_id = None
         
-        # Use for tracking SCP/SCU Role Negotiation
-        self.SCP = None
-        self.SCU = None
-        
         # AbstractTransferSyntaxSubItems is a list
         # containing the following elements:
         #   One AbstractSyntaxtSubItem
         #   One or more TransferSyntaxSubItem
         self.abstract_transfer_syntax_sub_items = []
-
+        
+        # Non-standard parameters
+        #   Used for tracking SCP/SCU Role Negotiation
+        self.SCP = None
+        self.SCU = None
+        
     def FromParams(self, context):
         """
         Set up the Item using the parameter values from the `context`
@@ -1933,41 +1940,20 @@ class PresentationContextItemRQ(PDU):
         return self.presentation_context_id
 
     @property
-    def AbstractSyntax(self):
-        """
-        See PS3.8 9.3.2.2
-        
-        Returns
-        -------
-        pydicom.uid.UID
-            The Requestor AE's Presentation Context item's Abstract Syntax
-        """
+    def abstract_syntax(self):
         for ii in self.abstract_transfer_syntax_sub_items:
             if isinstance(ii, AbstractSyntaxSubItem):
-                #if isinstance(ii.abstract_syntax_name, UID):
                 return ii.abstract_syntax_name
-                #else:
-                #    return UID(ii.AbstractSyntaxName.decode('utf-8'))
                 
     @property
-    def TransferSyntax(self):
-        """
-        See PS3.8 9.3.2.2
-        
-        Returns
-        -------
-        list of pydicom.uid.UID
-            The Requestor AE's Presentation Context item's Transfer Syntax(es)
-        """
+    def transfer_syntax(self):
         syntaxes = []
         for ii in self.abstract_transfer_syntax_sub_items:
             if isinstance(ii, TransferSyntaxSubItem):
-                #if isinstance(ii.transfer_syntax_name, UID):
                 syntaxes.append(ii.transfer_syntax_name)
-                #else:
-                #    syntaxes.append( UID(ii.TransferSyntaxName.decode('utf-8')) )
-                
+
         return syntaxes
+
 
 class PresentationContextItemAC(PDU):
     """
@@ -3064,7 +3050,6 @@ class ImplementationClassUIDParameters():
         tmp.FromParams(self)
         return tmp
 
-
 class ImplementationVersionNameParameters():
     def __init__(self):
         self.ImplementationVersionName = None
@@ -3073,7 +3058,6 @@ class ImplementationVersionNameParameters():
         tmp = ImplementationVersionNameSubItem()
         tmp.FromParams(self)
         return tmp
-
 
 class SCP_SCU_RoleSelectionParameters():
     """
@@ -3104,7 +3088,6 @@ class SCP_SCU_RoleSelectionParameters():
         tmp = SCP_SCU_RoleSelectionSubItem()
         tmp.FromParams(self)
         return tmp
-
 
 class UserIdentityParameters():
     def __init__(self):
