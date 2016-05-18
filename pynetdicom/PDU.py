@@ -2123,14 +2123,13 @@ class PresentationContextItemAC(PDU):
     def transfer_syntax(self):
         return self.transfer_syntax_sub_item.transfer_syntax_name
 
-
 class AbstractSyntaxSubItem(PDU):
     """
     Represents an Abstract Syntax Sub-item used in A-ASSOCIATE-RQ PDUs.
 
     The Abstract Syntax Sub-item requires the following parameters (see PS3.8 
     Section 9.3.2.2.1):
-        * Item type (1, fixed value, 0x21)
+        * Item type (1, fixed value, 0x30)
         * Item length (1)
         * Abstract syntax name (1)
         
@@ -2251,50 +2250,115 @@ class AbstractSyntaxSubItem(PDU):
         elif value is None:
             pass
         else:
-            raise ValueError('Abstract Syntax must be a pydicom.uid.UID, str or bytes')
+            raise TypeError('Abstract Syntax must be a pydicom.uid.UID, str or bytes')
         
         self._abstract_syntax_name = value
 
-
 class TransferSyntaxSubItem(PDU):
+    """
+    Represents a Transfer Syntax Sub-item used in A-ASSOCIATE-RQ and 
+    A-ASSOCIATE-AC PDUs.
+
+    The Abstract Syntax Sub-item requires the following parameters (see PS3.8 
+    Section 9.3.2.2.2):
+        * Item type (1, fixed value, 0x40)
+        * Item length (1)
+        * Transfer syntax name (1)
+        
+    See PS3.8 Section 9.3.2.2.2 for the structure of the item, especially 
+    Table 9-15.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - Presentation Context items - 
+    Abstract/Transfer Syntax sub-items
+    Used in A_ASSOCIATE_AC_PDU - Variable items - Presentation Context items - 
+    Transfer Syntax sub-item
+    
+    Attributes
+    ----------
+    length : int
+        The length of the item in bytes
+    transfer_syntax : pydicom.uid.UID
+        The transfer syntax
+    """
     def __init__(self):
-        self.ItemType = 0x40
-        self.ItemLength = None
+        self.item_type = 0x40
+        self.item_length = None
         self.transfer_syntax_name = None
 
-    def FromParams(self, Params):
-        # Params is a string.
-        self.transfer_syntax_name = Params
-        self.ItemLength = len(self.transfer_syntax_name)
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pydicom.uid.UID, bytes or str
+            The transfer syntax name
+        """
+        self.transfer_syntax_name = primitive
+        self.item_length = len(self.transfer_syntax_name)
 
     def ToParams(self):
-        # Returns the transfer syntax name
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pydicom.uid.UID
+            The Transfer Syntax Name's UID value
+        """
         return self.transfer_syntax_name
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + bytes(self.transfer_syntax_name.__repr__()[1:-1], 'utf-8')
-        return tmp
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H'
+        parameters = [self.item_type, 
+                      0x00, # Reserved
+                      self.item_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.transfer_syntax_name.title(), 'utf-8')
+        
+        return bytestring
 
-    def Decode(self, Stream):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
          _,
-         self.ItemLength) = unpack('> B B H', Stream.read(4))
-        self.transfer_syntax_name = Stream.read(self.ItemLength)
+         self.item_length) = unpack('> B B H', bytestream.read(4))
+        
+        self.transfer_syntax_name = bytestream.read(self.item_length)
 
     def get_length(self):
-        self.ItemLength = len(self.transfer_syntax_name)
-        return 4 + self.ItemLength
+        self.item_length = len(self.transfer_syntax_name)
+        return 4 + self.item_length
 
-    def __repr__(self):
-        tmp = "  Transfer syntax sub item\n"
-        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   Transfer syntax name: %s\n" % self.transfer_syntax_name
-        return tmp
+    def __str__(self):
+        s  = "  Transfer syntax sub item\n"
+        s += "   Item type: 0x%02x\n" % self.item_type
+        s += "   Item length: %d\n" % self.item_length
+        s += "   Transfer syntax name: %s\n" % self.transfer_syntax_name
+        
+        return s
+
+    @property
+    def transfer_syntax(self):
+        return self.transfer_syntax_name
 
     @property
     def transfer_syntax_name(self):
@@ -2302,12 +2366,24 @@ class TransferSyntaxSubItem(PDU):
         
     @transfer_syntax_name.setter
     def transfer_syntax_name(self, value):
+        """
+        Sets the Transfer Syntax Name parameter
+        
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Transfer Syntax Name
+        """
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError('Transfer syntax must be a pydicom.uid.UID, bytes or str')
         
         self._transfer_syntax_name = value
 

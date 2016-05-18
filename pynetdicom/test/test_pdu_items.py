@@ -59,6 +59,9 @@ presentation_context_ac = b'\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31
 abstract_syntax = b'\x30\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
                   b'\x38\x2e\x31\x2e\x31'
 
+transfer_syntax = b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
+                  b'\x38\x2e\x31\x2e\x32'
+
 from io import BytesIO
 import logging
 import threading
@@ -358,9 +361,74 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
         ab_syntax.abstract_syntax_name = UID('1.2.840.10008.1.1')
         self.assertEqual(ab_syntax.abstract_syntax, UID('1.2.840.10008.1.1'))
         
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             ab_syntax.abstract_syntax_name = 10002
 
+class TestPDUItem_TransferSyntax(unittest.TestCase):
+    def test_stream_decode(self):
+        """ Check decoding produces the correct presentation context """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        contexts = pdu.presentation_context
+        tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
+        
+        self.assertEqual(tran_syntax.item_type, 0x40)
+        self.assertEqual(tran_syntax.item_length, 17)
+        self.assertEqual(tran_syntax.transfer_syntax_name, UID('1.2.840.10008.1.2'))
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        contexts = pdu.presentation_context
+        tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
+        
+        s = tran_syntax.Encode()
+
+        self.assertEqual(s, transfer_syntax)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        contexts = pdu.presentation_context
+        tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
+        
+        result = tran_syntax.ToParams()
+        
+        self.assertEqual(result, UID('1.2.840.10008.1.2'))
+        
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        contexts = pdu.presentation_context
+        orig_tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
+        
+        new_tran_syntax = TransferSyntaxSubItem()
+        new_tran_syntax.FromParams('1.2.840.10008.1.2')
+        
+        self.assertEqual(orig_tran_syntax, new_tran_syntax)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        tran_syntax = TransferSyntaxSubItem()
+        tran_syntax.transfer_syntax_name = '1.2.840.10008.1.2'
+        
+        self.assertEqual(tran_syntax.transfer_syntax, UID('1.2.840.10008.1.2'))
+        
+        tran_syntax.transfer_syntax_name = b'1.2.840.10008.1.2'
+        self.assertEqual(tran_syntax.transfer_syntax, UID('1.2.840.10008.1.2'))
+        
+        tran_syntax.transfer_syntax_name = UID('1.2.840.10008.1.2')
+        self.assertEqual(tran_syntax.transfer_syntax, UID('1.2.840.10008.1.2'))
+        
+        with self.assertRaises(TypeError):
+            tran_syntax.transfer_syntax_name = 10002
 
 if __name__ == "__main__":
     unittest.main()
