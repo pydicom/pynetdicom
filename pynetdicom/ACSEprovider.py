@@ -509,10 +509,10 @@ class ACSEServiceProvider(object):
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.result))
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.result_str))
             
             # If Presentation Context was accepted
-            if item.ResultReason == 0:
+            if item.result == 0:
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                 else:
@@ -718,9 +718,9 @@ class ACSEServiceProvider(object):
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.result))
+            s.append('  Context ID:        %s (%s)' %(item.ID, item.result_str))
 
-            if item.ResultReason == 0:
+            if item.result == 0:
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                     rq_scp_scu_role = 'Default'

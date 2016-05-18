@@ -1804,33 +1804,34 @@ class PresentationContextItemRQ(PDU):
         
         # Non-standard parameters
         #   Used for tracking SCP/SCU Role Negotiation
+        # Consider shifting to properties?
         self.SCP = None
         self.SCU = None
         
-    def FromParams(self, context):
+    def FromParams(self, primitive):
         """
-        Set up the Item using the parameter values from the `context`
+        Set up the Item using the parameter values from the `primitive`
         
         Parameters
         ----------
-        context : pynetdicom.utils.PresentationContext
+        primitive : pynetdicom.utils.PresentationContext
             The PresentationContext object to use to setup the Item
         """
         # Add presentation context ID
-        self.presentation_context_id = context.ID
+        self.presentation_context_id = primitive.ID
         
         # Add abstract syntax
         abstract_syntax = AbstractSyntaxSubItem()
-        abstract_syntax.FromParams(context.AbstractSyntax)
+        abstract_syntax.FromParams(primitive.AbstractSyntax)
         self.abstract_transfer_syntax_sub_items.append(abstract_syntax)
 
         # Add transfer syntax(es)
-        for syntax in context.TransferSyntax:
+        for syntax in primitive.TransferSyntax:
             transfer_syntax = TransferSyntaxSubItem()
             transfer_syntax.FromParams(syntax)
             self.abstract_transfer_syntax_sub_items.append(transfer_syntax)
         
-        self._update_item_length()
+        self.get_length()
 
     def ToParams(self):
         """ 
@@ -1959,17 +1960,49 @@ class PresentationContextItemAC(PDU):
     """
     Attributes
     ----------
-    SCP - None or int
+    Represents a Presentation Context Item used in A-ASSOCIATE-AC PDUs.
+
+    The Presentation Context Item requires the following parameters (see PS3.8 
+    Section 9.3.3.2):
+        * Item type (1, fixed value, 0x21)
+        * Item length (1)
+        * Presentation context ID (1)
+        * Result/reason (1)
+        * Transfer Syntax Sub-item (1)
+          * Item type (1, fixed, 0x40)
+          * Item length (1)
+          * Transfer syntax name (1)
+        
+    See PS3.8 Section 9.3.3.2 for the structure of the PDU, especially 
+    Table 9-18.
+    
+    Used in A_ASSOCIATE_AC_PDU - Variable items
+    
+    Attributes
+    ----------
+    length : int
+        The length of the item in bytes
+    ID : int
+        The presentation context's ID
+    result : int
+        The presentation context's result/reason value
+    result_str : str
+        The result as a string, one of ('Accepted', 'User Rejected', 'No Reason', 
+        'Abstract Syntax Not Supported', 'Transfer Syntaxes Not Supported')
+    transfer_syntax : pydicom.uid.UID
+        The presentation context's Transfer Syntax
+    
+    SCP : None or int
         Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
-    SCU - None or int
+    SCU : None or int
         Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
     """
     def __init__(self):
-        self.ItemType = 0x21
-        self.ItemLength = None
-        self.PresentationContextID = None
-        self.ResultReason = None
-        self.TransferSyntaxSubItem = None
+        self.item_type = 0x21
+        self.item_length = None
+        self.presentation_context_id = None
+        self.result_reason = None
+        self.transfer_syntax_sub_item = None
 
         # Used for tracking SCP/SCU Role Negotiation
         self.SCP = None
@@ -1977,114 +2010,122 @@ class PresentationContextItemAC(PDU):
 
     def FromParams(self, primitive):
         """
-        parameters
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
         ----------
-        primitive : list of pynetdicom.utils.PresentationContext
-            A list of the processed presentation contexts
+        primitive : pynetdicom.utils.PresentationContext
+            The PresentationContext object to use to setup the Item
         """
-        self.PresentationContextID = primitive.ID
-        self.ResultReason = primitive.Result
+        # Add presentation context ID
+        self.presentation_context_id = primitive.ID
         
-        self.TransferSyntaxSubItem = TransferSyntaxSubItem()
-        self.TransferSyntaxSubItem.FromParams(primitive.TransferSyntax[0])
+        # Add reason
+        self.result_reason = primitive.Result
         
-        self.ItemLength = 4 + self.TransferSyntaxSubItem.get_length()
+        # Add transfer syntax
+        self.transfer_syntax_sub_item = TransferSyntaxSubItem()
+        self.transfer_syntax_sub_item.FromParams(primitive.TransferSyntax[0])
+        
+        self.get_length()
 
     def ToParams(self):
-        # Returns a list of PresentationContext items
-        primitive = PresentationContext(self.PresentationContextID)
-        primitive.Result = self.ResultReason
-        primitive.add_transfer_syntax(self.TransferSyntaxSubItem.ToParams())
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.utils.PresentationContext
+            The primitive to covert the Item to
+        """
+        primitive = PresentationContext(self.presentation_context_id)
+        primitive.Result = self.result_reason
+        primitive.add_transfer_syntax(self.transfer_syntax_sub_item.ToParams())
 
         return primitive
 
     def Encode(self):
-        s = b''
-        s += pack('B', self.ItemType)
-        s += pack('B', 0x00)
-        s += pack('>H', self.ItemLength)
-        s += pack('B', self.PresentationContextID)
-        s += pack('B', 0x00)
-        s += pack('B', self.ResultReason)
-        s += pack('B', 0x00)
-        s += self.TransferSyntaxSubItem.Encode()
-        return s
-
-    def Decode(self, Stream):
-        (self.ItemType, 
-         _, 
-         self.ItemLength,
-         self.PresentationContextID, 
-         _, 
-         self.ResultReason,
-         _) = unpack('> B B H B B B B', Stream.read(8))
-        
-        self.TransferSyntaxSubItem = TransferSyntaxSubItem()
-        self.TransferSyntaxSubItem.Decode(Stream)
-
-    def get_length(self):
-        self.ItemLength = 4 + self.TransferSyntaxSubItem.get_length()
-        return 4 + self.ItemLength
-
-    def __repr__(self):
-        tmp = " Presentation context AC item\n"
-        tmp = tmp + "  Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + \
-            "  Presentation context ID: %d\n" % self.PresentationContextID
-        tmp = tmp + "  Result/Reason: %d\n" % self.ResultReason
-        tmp = tmp + self.TransferSyntaxSubItem.__repr__()
-        return tmp
-
-    def __str__(self):
-        return self.__repr__()
-        
-    @property
-    def ID(self):
         """
-        See PS3.8 9.3.2.2
+        Encode the Item's parameter values into a bytes string
         
         Returns
         -------
-        int
-            Odd number between 1 and 255 (inclusive)
+        bytestring : bytes
+            The encoded Item used in the parent PDU
         """
-        return self.PresentationContextID
+        formats = '> B B H B B B B'
+        parameters = [self.item_type, 
+                      0x00, # Reserved
+                      self.item_length,
+                      self.presentation_context_id,
+                      0x00, # Reserved
+                      self.result_reason, # Reserved
+                      0x00] # Reserved
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += self.transfer_syntax_sub_item.Encode()
+
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        # Decode the Item parameters up to the Transfer Syntax
+        (self.item_type, 
+         _, 
+         self.item_length,
+         self.presentation_context_id, 
+         _, 
+         self.result_reason,
+         _) = unpack('> B B H B B B B', bytestream.read(8))
+        
+        # Decode the Transfer Syntax
+        self.transfer_syntax_sub_item = TransferSyntaxSubItem()
+        self.transfer_syntax_sub_item.Decode(bytestream)
+
+    def get_length(self):
+        self.item_length = 4 + self.transfer_syntax_sub_item.length
+        
+        return 4 + self.item_length
+
+    def __str__(self):
+        s  = " Presentation context AC item\n"
+        s += "  Item type:   0x%02x\n" % self.item_type
+        s += "  Item length: %d\n" % self.item_length
+        s += "  Presentation context ID: %d\n" % self.presentation_context_id
+        s += "  Result/Reason: %d\n" % self.result_reason
+        s += "  %s" %self.transfer_syntax_sub_item
+        return s
+
+    @property
+    def ID(self):
+        return self.presentation_context_id
 
     @property
     def result(self):
-        """
-        Returns
-        -------
-        str
-            The Acceptor AE's Presentation Context item's acceptance Result 
-        """
+        return self.result_reason
+    
+    @property
+    def result_str(self):
         result_options = {0 : 'Accepted', 
                           1 : 'User Rejection', 
                           2 : 'Provider Rejection',
                           3 : 'Abstract Syntax Not Supported',
                           4 : 'Transfer Syntax Not Supported'} 
-        return result_options[self.ResultReason]
+        return result_options[self.result]
 
     @property
     def transfer_syntax(self):
-        """
-        See PS3.8 9.3.2.2
-        
-        Returns
-        -------
-        pydicom.uid.UID
-            The Acceptor AE's Presentation Context item's accepted Transfer 
-            Syntax. If SCP/SCU role negotiation has been proposed then the 
-            UID class has been extended with two additional attributes:
-            pydicom.uid.UID.SCP: Defaults to None if not used, 0 or 1 if used
-            pydicom.uid.UID.SCU: Defaults to None if not used, 0 or 1 if used
-        """
-        ts_uid = self.TransferSyntaxSubItem.transfer_syntax_name
-        if isinstance(ts_uid, UID):
-            return ts_uid
-        else:
-            return UID(ts_uid.decode('utf-8'))
+        return self.transfer_syntax_sub_item.transfer_syntax_name
+
 
 class AbstractSyntaxSubItem(PDU):
     def __init__(self):
@@ -2193,16 +2234,10 @@ class TransferSyntaxSubItem(PDU):
 
     @property
     def transfer_syntax_name(self):
-        """
-        Returns the AbstractSyntaxName as a UID
-        """
         return self._transfer_syntax_name
         
     @transfer_syntax_name.setter
     def transfer_syntax_name(self, value):
-        """
-        
-        """
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):

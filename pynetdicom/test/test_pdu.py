@@ -586,12 +586,13 @@ class TestPDU_A_ASSOC_AC_PresentationContext(unittest.TestCase):
         
         # Check PresentationContextItemRQ attributes
         presentation_context = pdu.variable_items[1]
-        self.assertEqual(presentation_context.ItemType, 0x21)
-        self.assertEqual(presentation_context.PresentationContextID, 0x0001)
-        self.assertEqual(presentation_context.ItemLength, 25)
-        self.assertTrue(isinstance(presentation_context.ItemType, int))
-        self.assertTrue(isinstance(presentation_context.PresentationContextID, int))
-        self.assertTrue(isinstance(presentation_context.ItemLength, int))
+        self.assertEqual(presentation_context.item_type, 0x21)
+        self.assertEqual(presentation_context.presentation_context_id, 0x0001)
+        self.assertEqual(presentation_context.item_length, 25)
+        self.assertEqual(presentation_context.result_reason, 0)
+        self.assertTrue(isinstance(presentation_context.item_type, int))
+        self.assertTrue(isinstance(presentation_context.presentation_context_id, int))
+        self.assertTrue(isinstance(presentation_context.item_length, int))
         
     def test_decode_properties(self):
         """ Check decoding the stream produces the correct properties """
@@ -606,7 +607,7 @@ class TestPDU_A_ASSOC_AC_PresentationContext(unittest.TestCase):
         self.assertEqual(context_id, 1)
         
         # Check Result
-        result = pdu.presentation_context[0].ResultReason
+        result = pdu.presentation_context[0].result_reason
         self.assertEqual(result, 0)
         self.assertTrue(isinstance(result, int))
         
