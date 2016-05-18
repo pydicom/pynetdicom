@@ -323,19 +323,19 @@ class TestPDU_A_ASSOC_RQ_PresentationContext(unittest.TestCase):
         
         # Check Abstract Syntax property        
         context = pdu.presentation_context[0]
-        self.assertTrue(isinstance(context.AbstractSyntax, UID))
-        self.assertEqual(context.AbstractSyntax, UID('1.2.840.10008.1.1'))
+        self.assertTrue(isinstance(context.abstract_syntax, UID))
+        self.assertEqual(context.abstract_syntax, UID('1.2.840.10008.1.1'))
         
         # Check TransferSyntax property is a list
-        self.assertTrue(isinstance(context.TransferSyntax, list))
+        self.assertTrue(isinstance(context.transfer_syntax, list))
         
         # Check TransferSyntax list contains transfer syntax type UIDs
-        for syntax in pdu.presentation_context[0].TransferSyntax:
+        for syntax in pdu.presentation_context[0].transfer_syntax:
             self.assertTrue(isinstance(syntax, UID))
             self.assertTrue(syntax.is_transfer_syntax)
         
         # Check first transfer syntax is little endian implicit
-        syntax = pdu.presentation_context[0].TransferSyntax[0]
+        syntax = pdu.presentation_context[0].transfer_syntax[0]
         self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
 
 class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(unittest.TestCase):
@@ -362,7 +362,7 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_TransferSyntax(unittest.TestCase):
         pdu.Decode(a_associate_rq)
         
         context = pdu.presentation_context[0]
-        transfer_syntaxes = context.TransferSyntax
+        transfer_syntaxes = context.transfer_syntax
         
         # Check TransferSyntax property is a list
         self.assertTrue(isinstance(transfer_syntaxes, list))

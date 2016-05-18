@@ -441,7 +441,7 @@ class ACSEServiceProvider(object):
 
         for context in pres_contexts:
             s.append('  Context ID:        %s (Proposed)' %(context.ID))
-            s.append('    Abstract Syntax: =%s' %context.AbstractSyntax)
+            s.append('    Abstract Syntax: =%s' %context.abstract_syntax)
             
             if 'SCU' in context.__dict__.keys():
                 scp_scu_role = '%s/%s' %(context.SCP, context.SCU)
@@ -450,12 +450,12 @@ class ACSEServiceProvider(object):
             s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
             
             # Transfer Syntaxes
-            if len(context.TransferSyntax) == 1:
+            if len(context.transfer_syntax) == 1:
                 s.append('    Proposed Transfer Syntax:')
             else:
                 s.append('    Proposed Transfer Syntaxes:')
                 
-            for ts in context.TransferSyntax:
+            for ts in context.transfer_syntax:
                 s.append('      =%s' %ts.name)
         
         ext_nego = 'None'
@@ -649,7 +649,7 @@ class ACSEServiceProvider(object):
         s.append('Presentation Contexts:')
         for item in pres_contexts:
             s.append('  Context ID:        %s (Proposed)' %item.ID)
-            s.append('    Abstract Syntax: =%s' %item.AbstractSyntax)
+            s.append('    Abstract Syntax: =%s' %item.abstract_syntax)
             
             if item.SCU is None and item.SCP is None:
                 scp_scu_role = 'Default'
@@ -658,7 +658,7 @@ class ACSEServiceProvider(object):
             
             s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
             s.append('    Proposed Transfer Syntax(es):')
-            for ts in item.TransferSyntax:
+            for ts in item.transfer_syntax:
                 s.append('      =%s' %ts)
         
         ext_nego = 'None'

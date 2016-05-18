@@ -235,15 +235,26 @@ class PresentationContext(object):
         """
         Parameters
         ----------
-        transfer_syntax - pydicom.uid.UID
+        transfer_syntax - pydicom.uid.UID, bytes or str
             The transfer syntax to add to the Presentation Context
         """
-        if isinstance(transfer_syntax, bytes):
+        if isinstance(transfer_syntax, str):
+            transfer_syntax = UID(transfer_syntax)
+        elif isinstance(transfer_syntax, bytes):
             transfer_syntax = UID(transfer_syntax.decode('utf-8'))
+        else:
+            raise ValueError('transfer_syntax must be a pydicom.uid.UID, bytes or str')
         
         if isinstance(transfer_syntax, UID):
             if transfer_syntax not in self.TransferSyntax:
                 self.TransferSyntax.append(transfer_syntax)
+    
+    def __eq__(self, other):
+        for ii in self.__dict__:
+            if not (self.__dict__[ii] == other.__dict__[ii]):
+                return False
+
+        return True
         
     def __str__(self):
         s = 'ID: %s\n' %self.ID
@@ -338,6 +349,7 @@ class PresentationContext(object):
             status = 'Unknown'
             
         return status
+
 
 class PresentationContextManager(object):
     """
