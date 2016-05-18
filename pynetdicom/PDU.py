@@ -1678,10 +1678,10 @@ class ApplicationContextItem(PDU):
         
         Returns
         -------
-        str
+        pydicom.uid.UID
             The Application Context Name's UID value
         """
-        return self.application_context_name.title()
+        return self.application_context_name
 
     def Encode(self):
         """
@@ -1770,7 +1770,7 @@ class PresentationContextItemRQ(PDU):
             * Item length (1)
             * Transfer syntax name(s) (1 or more)
         
-    See PS3.8 Section 9.3.2.2 for the structure of the PDU, especially 
+    See PS3.8 Section 9.3.2.2 for the structure of the item, especially 
     Table 9-13.
     
     Used in A_ASSOCIATE_RQ_PDU - Variable items
@@ -1955,11 +1955,8 @@ class PresentationContextItemRQ(PDU):
 
         return syntaxes
 
-
 class PresentationContextItemAC(PDU):
     """
-    Attributes
-    ----------
     Represents a Presentation Context Item used in A-ASSOCIATE-AC PDUs.
 
     The Presentation Context Item requires the following parameters (see PS3.8 
@@ -1973,7 +1970,7 @@ class PresentationContextItemAC(PDU):
           * Item length (1)
           * Transfer syntax name (1)
         
-    See PS3.8 Section 9.3.3.2 for the structure of the PDU, especially 
+    See PS3.8 Section 9.3.3.2 for the structure of the item, especially 
     Table 9-18.
     
     Used in A_ASSOCIATE_AC_PDU - Variable items
@@ -2128,60 +2125,122 @@ class PresentationContextItemAC(PDU):
 
 
 class AbstractSyntaxSubItem(PDU):
+    """
+    Represents an Abstract Syntax Sub-item used in A-ASSOCIATE-RQ PDUs.
+
+    The Abstract Syntax Sub-item requires the following parameters (see PS3.8 
+    Section 9.3.2.2.1):
+        * Item type (1, fixed value, 0x21)
+        * Item length (1)
+        * Abstract syntax name (1)
+        
+    See PS3.8 Section 9.3.2.2.1 for the structure of the item, especially 
+    Table 9-14.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - Presentation Context items - 
+    Abstract/Transfer Syntax sub-items
+    
+    Attributes
+    ----------
+    abstract_syntax : pydicom.uid.UID
+        The abstract syntax
+    length : int
+        The length of the item in bytes
+    """
     def __init__(self):
-        self.ItemType = 0x30
-        self.ItemLength = None
+        self.item_type = 0x30
+        self.item_length = None
         self.abstract_syntax_name = None
 
-    def FromParams(self, syntax_name):
+    def FromParams(self, primitive):
         """
+        Set up the Item using the parameter values from the `primitive`
+        
         Parameters
         ----------
-        syntax_name : pydicom.uid.UID
-            The abstract syntax name as a UID
+        primitive : pydicom.uid.UID, bytes or str
+            The abstract syntax name
         """
-        self.abstract_syntax_name = syntax_name
-        self.ItemLength = len(self.abstract_syntax_name)
+        self.abstract_syntax_name = primitive
+        self.item_length = len(self.abstract_syntax_name)
 
     def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pydicom.uid.UID
+            The Abstract Syntax Name's UID value
+        """
         return self.abstract_syntax_name
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + bytes(self.abstract_syntax_name.__repr__()[1:-1], 'utf-8')
-        return tmp
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H'
+        parameters = [self.item_type, 
+                      0x00, # Reserved
+                      self.item_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.abstract_syntax_name.title(), 'utf-8')
+        
+        return bytestring
 
-    def Decode(self, Stream):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
          _,
-         self.ItemLength) = unpack('> B B H', Stream.read(4))
-        self.abstract_syntax_name = Stream.read(self.ItemLength)
+         self.item_length) = unpack('> B B H', bytestream.read(4))
+        
+        self.abstract_syntax_name = bytestream.read(self.item_length)
 
     def get_length(self):
-        self.ItemLength = len(self.abstract_syntax_name)
-        return 4 + self.ItemLength
-
-    def __repr__(self):
-        tmp = "  Abstract syntax sub item\n"
-        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   Abstract syntax name: %s\n" % self.abstract_syntax_name
-        return tmp
+        self.item_length = len(self.abstract_syntax_name)
         
+        return 4 + self.item_length
+
+    def __str__(self):
+        s  = "  Abstract syntax sub item\n"
+        s += "   Item type: 0x%02x\n" % self.item_type
+        s += "   Item length: %d\n" % self.item_length
+        s += "   Abstract syntax name: %s\n" % self.abstract_syntax
+        
+        return s
+    
+    @property
+    def abstract_syntax(self):
+        return self.abstract_syntax_name
+    
     @property
     def abstract_syntax_name(self):
-        """
-        Returns the AbstractSyntaxName as a UID
-        """
         return self._abstract_syntax_name
         
     @abstract_syntax_name.setter
     def abstract_syntax_name(self, value):
         """
+        Sets the Abstract Syntax Name parameter
         
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Abstract Syntax Name
         """
         if isinstance(value, UID):
             pass
@@ -2189,8 +2248,13 @@ class AbstractSyntaxSubItem(PDU):
             value = UID(value)
         elif isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
+        elif value is None:
+            pass
+        else:
+            raise ValueError('Abstract Syntax must be a pydicom.uid.UID, str or bytes')
         
         self._abstract_syntax_name = value
+
 
 class TransferSyntaxSubItem(PDU):
     def __init__(self):
