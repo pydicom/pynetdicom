@@ -53,10 +53,8 @@ presentation_context_rq = b'\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31
                           b'\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31' \
                           b'\x2e\x32'
 
-presentation_context_ac = b'\x21\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31\x2e\x32\x2e' \
-                          b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x40\x00\x00' \
-                          b'\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31' \
-                          b'\x2e\x32'
+presentation_context_ac = b'\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31\x2e\x32\x2e' \
+                          b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32'
 
 
 from io import BytesIO
@@ -175,7 +173,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
                     self.assertTrue(isinstance(item.application_context_name, UID))
 
 
-class TestPDUItem_PresentationContext(unittest.TestCase):
+class TestPDUItem_PresentationContextRQ(unittest.TestCase):
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -230,6 +228,66 @@ class TestPDUItem_PresentationContext(unittest.TestCase):
         context.add_transfer_syntax('1.2.840.10008.1.2')
 
         new_item = PresentationContextItemRQ()
+        new_item.FromParams(context)
+        
+        self.assertEqual(orig_item, new_item)
+
+
+class TestPDUItem_PresentationContextAC(unittest.TestCase):
+    def test_stream_decode(self):
+        """ Check decoding produces the correct presentation context """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        pres_context = pdu.variable_items[1]
+        
+        self.assertEqual(pres_context.item_type, 0x21)
+        self.assertEqual(pres_context.item_length, 25)
+        self.assertEqual(pres_context.presentation_context_id, 1)
+        self.assertEqual(pres_context.SCP, None)
+        self.assertEqual(pres_context.SCU, None)
+        self.assertTrue(isinstance(pres_context.transfer_syntax_sub_item, TransferSyntaxSubItem))
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        for item in pdu.variable_items:
+            if isinstance(item, PresentationContextItemAC):
+                s = item.Encode()
+
+        self.assertEqual(s, presentation_context_ac)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        for item in pdu.variable_items:
+            if isinstance(item, PresentationContextItemAC):
+                result = item.ToParams()
+        
+        context = PresentationContext(1)
+        context.add_transfer_syntax('1.2.840.10008.1.2')
+        context.Result = 0
+        self.assertEqual(result, context)
+        
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        
+        for ii in pdu.variable_items:
+            if isinstance(ii, PresentationContextItemAC):
+                orig_item = ii
+                break
+        
+        context = PresentationContext(1)
+        context.add_transfer_syntax('1.2.840.10008.1.2')
+        context.Result = 0
+
+        new_item = PresentationContextItemAC()
         new_item.FromParams(context)
         
         self.assertEqual(orig_item, new_item)
