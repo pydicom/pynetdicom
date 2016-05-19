@@ -1306,8 +1306,8 @@ class P_DATA_TF_PDU(PDU):
         
         primitive.PresentationDataValueList = []
         for ii in self.presentation_data_value_items:
-            primitive.PresentationDataValueList.append([ii.PresentationContextID,
-                                                        ii.PresentationDataValue])
+            primitive.PresentationDataValueList.append([ii.presentation_context_id,
+                                                        ii.presentation_data_value])
         return primitive
 
     def Encode(self):
@@ -2642,126 +2642,132 @@ class TransferSyntaxSubItem(PDU):
 
 
 class PresentationDataValueItem(PDU):
+    """
+    Represents a Presentation Data Value Item used in P-DATA-TF PDUs.
+
+    The Presentation Data Value Item requires the following parameters (see 
+    PS3.8 Section 9.3.5.1):
+        * Item length (1)
+        * Presentation context ID (1)
+        * Presentation data value (1)
+        
+    See PS3.8 Section 9.3.5.1 for the structure of the item, especially 
+    Table 9-23.
+    
+    Used in P_DATA_TF_PDU - Presentation data value items
+    
+    Attributes
+    ----------
+    data : FIXME
+        The presentation data value
+    ID : int
+        The presentation context ID
+    length : int
+        The length of the item in bytes
+    message_control_header_byte : str
+        A string containing the contents of the message control header byte
+        formatted as an 8-bit binary. See PS3.8 FIXME
+    """
     def __init__(self):
-        self.ItemLength = None
-        self.PresentationContextID = None
-        self.PresentationDataValue = None
+        self.item_length = None
+        self.presentation_context_id = None
+        self.presentation_data_value = None
         
         self.formats = ['I', 'B', 's']
-        self.parameters = [self.ItemLength, 
-                           self.PresentationContextID, 
-                           self.PresentationDataValue]
+        self.parameters = [self.item_length, 
+                           self.presentation_context_id, 
+                           self.presentation_data_value]
 
-    def FromParams(self, Params):
-        # Takes a PresentationDataValue object
-        self.PresentationContextID = Params[0]
-        self.PresentationDataValue = Params[1]
-        self.ItemLength = 1 + len(self.PresentationDataValue)
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : list
+            The Presentation Data as a list [context ID, data]
+        """
+        self.presentation_context_id = primitive[0]
+        self.presentation_data_value = primitive[1]
+        self.item_length = 1 + len(self.presentation_data_value)
 
     def ToParams(self):
-        # Returns a PresentationDataValue
-        tmp = PresentationDataValue()
-        tmp.PresentationContextID = self.PresentationContextID
-        tmp.PresentationDataValue = self.PresentationDataValue
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        list
+            The Presentation Data as a list
+        """
+        return [self.presentation_context_id, self.presentation_data_value]
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('>I', self.ItemLength)
-        tmp = tmp + pack('B', self.PresentationContextID)
-        tmp = tmp + self.PresentationDataValue
+        """
+        Encode the Item's parameter values into a bytes string
         
-        return tmp
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> I B'
+        parameters = [self.item_length, 
+                      self.presentation_context_id]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += self.presentation_data_value
+        
+        return bytestring
 
-    def Decode(self, Stream):
-        (self.ItemLength, 
-         self.PresentationContextID) = unpack('> I B', Stream.read(5))
-        # Presentation data value is left in raw string format.
-        # The Application Entity is responsible for dealing with it.
-        self.PresentationDataValue = Stream.read(int(self.ItemLength) - 1)
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_length, 
+         self.presentation_context_id) = unpack('> I B', bytestream.read(5))
+
+        self.presentation_data_value = bytestream.read(int(self.item_length) - 1)
         
         self._update_parameters()
 
     def _update_parameters(self):
-        self.parameters = [self.ItemLength, 
-                           self.PresentationContextID, 
-                           self.PresentationDataValue]
+        self.parameters = [self.item_length, 
+                           self.presentation_context_id, 
+                           self.presentation_data_value]
 
     def get_length(self):
-        self.ItemLength = 1 + len(self.PresentationDataValue)
-        return 4 + self.ItemLength
+        self.item_length = 1 + len(self.presentation_data_value)
+        return 4 + self.item_length
 
-    def __repr__(self):
-        tmp = " Presentation value data item\n"
-        tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        tmp = tmp + \
-            "  Presentation context ID: %d\n" % self.PresentationContextID
-        tmp = tmp + \
-            "  Presentation data value: %s ...\n" % self.PresentationDataValue[
-                :20]
-        return tmp
-        
+    def __str__(self):
+        s  = " Presentation value data item\n"
+        s += "  Item length: %d\n" % self.item_length
+        s += "  Presentation context ID: %d\n" % self.presentation_context_id
+        s += "  Presentation data value: %s ...\n" % self.presentation_data_value[:20]
+        # FIXME
+        return s
+    
+    @property
+    def data(self):
+        return self.presentation_data_value
+    
     @property
     def ID(self):
-        """
-        See PS3.8 9.3.5
-        
-        Returns
-        -------
-        int
-            The Presentation Context ID (odd number 1 to 255)
-        """
-        return self.PresentationContextID
+        return self.presentation_context_id
     
     @property
-    def MessageControlHeader(self):
-        """
-        See PS3.8 9.3.5
-        
-        Returns
-        -------
-        str
-            The value of the Message Control Header byte formatted as an 8-bit
-            binary
-        """
-        return "{:08b}".format(self.PresentationDataValue[0])
-    
-    @property
-    def Value(self, bytes_per_line=16, delimiter='  ', max_size=512):
-        """
-        See PS3.8 9.3.5
-        
-        Parameters
-        ----------
-        bytes_per_line - int, optional
-            The number of bytes to per line
-        max_size - int, optional
-            The total number of bytes to return
-        delimiter - str, optional
-            The delimiter of the bytes
-        
-        Returns
-        -------
-        list of str
-            The first N bytes of the PDV formatted as a list of hex strings
-            with M bytes per line
-        """
-        str_list = wrap_list(self.PresentationDataValue, 
-                             items_per_line=bytes_per_line, 
-                             delimiter=delimiter, 
-                             max_size=max_size)
-        return str_list
-    
-    @property
-    def Length(self):
-        """
-        Returns
-        -------
-        int
-            The length of the PDV in bytes
-        """
-        return  self.get_length()
+    def message_control_header_byte(self):
+        return "{:08b}".format(self.presentation_data_value[0])
 
-
+    
 class UserInformationItem(PDU):
     """
     Represents the User Information Item used in A-ASSOCIATE-RQ and 

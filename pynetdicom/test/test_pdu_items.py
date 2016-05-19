@@ -62,6 +62,15 @@ abstract_syntax = b'\x30\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30
 transfer_syntax = b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
                   b'\x38\x2e\x31\x2e\x32'
 
+presentation_data = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02' \
+                    b'\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
+                    b'\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30' \
+                    b'\x80\x00\x00\x20\x01\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02' \
+                    b'\x00\x00\x00\x01\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00'
+
+presentation_data_value = b'\x00\x00\x00\x50\x01' + presentation_data
+
+
 from io import BytesIO
 import logging
 import threading
@@ -127,7 +136,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
         
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
-                s = item.Encode()
+                s = item.encode()
 
         self.assertEqual(s, application_context)
         
@@ -200,7 +209,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
         
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemRQ):
-                s = item.Encode()
+                s = item.encode()
 
         self.assertEqual(s, presentation_context_rq)
 
@@ -237,7 +246,6 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
         
         self.assertEqual(orig_item, new_item)
 
-
 class TestPDUItem_PresentationContextAC(unittest.TestCase):
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
@@ -260,7 +268,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
         
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemAC):
-                s = item.Encode()
+                s = item.encode()
 
         self.assertEqual(s, presentation_context_ac)
 
@@ -319,7 +327,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
         contexts = pdu.presentation_context
         ab_syntax = contexts[0].abstract_transfer_syntax_sub_items[0]
         
-        s = ab_syntax.Encode()
+        s = ab_syntax.encode()
 
         self.assertEqual(s, abstract_syntax)
 
@@ -385,7 +393,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
         contexts = pdu.presentation_context
         tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
         
-        s = tran_syntax.Encode()
+        s = tran_syntax.encode()
 
         self.assertEqual(s, transfer_syntax)
 
@@ -429,6 +437,68 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
         
         with self.assertRaises(TypeError):
             tran_syntax.transfer_syntax_name = 10002
+
+
+class TestPDUItem_PresentationDataValue(unittest.TestCase):
+    def test_stream_decode(self):
+        """ Check decoding produces the correct presentation data value """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        pdvs = pdu.PDVs
+        
+        self.assertEqual(pdvs[0].item_length, 80)
+        self.assertEqual(pdvs[0].presentation_data_value, presentation_data)
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        pdvs = pdu.PDVs
+        
+        s = pdvs[0].encode()
+
+        self.assertEqual(s, presentation_data_value)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        pdvs = pdu.PDVs
+        
+        result = pdvs[0].ToParams()
+        
+        self.assertEqual(result, [1, presentation_data])
+        
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        pdvs = pdu.PDVs
+        orig_pdv = pdvs[0]
+        
+        new_pdv = PresentationDataValueItem()
+        new_pdv.FromParams([1, presentation_data])
+        
+        self.assertEqual(orig_pdv, new_pdv)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        
+        pdvs = pdu.PDVs
+        
+        pdv = pdvs[0]
+        
+        self.assertEqual(pdv.ID, 1)
+        self.assertEqual(pdv.data, presentation_data)
+        self.assertEqual(pdv.message_control_header_byte, '00000011')
+
+
 
 if __name__ == "__main__":
     unittest.main()
