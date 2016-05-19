@@ -79,37 +79,65 @@ class PDU(object):
     def __eq__(self, other):
         """Equality of two PDUs"""
         for ii in self.__dict__:
-            if not (self.__dict__[ii] == other.__dict__[ii]):
-                print(type(self), ii)
-                print(self.__dict__[ii])
-                print(other.__dict__[ii])
-                return False
+            if ii != 'parameters':
+                if not (self.__dict__[ii] == other.__dict__[ii]):
+                    print(type(self), ii)
+                    print(self.__dict__[ii])
+                    print(other.__dict__[ii])
+                    return False
 
         return True
     
     def encode(self):
         """
-        Encode the DUL parameters as binary data according using the required
-        format
+        Encode the DUL
         
         Returns
         -------
-        encoded_data
-            The PDU encoded as binary data
+        bytes
+            The encoded PDU
         """
-        # This is sufficient for most PDUs
-        encoded_data = b''
-        for (value, fmt) in self.parameters:
-            encoded_data += struct.pack(fmt, value)
+        no_formats = len(self.formats)
         
-        # A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF, PresentationContextItemRQ,
-        # PresentationContextItemAC, UserInformationItem all have additional 
-        # items requiring encoding
-        for item in self.additional_items:
-            encoded_data += item.encode()
+        #print()
+        #print(type(self))
+        #print(self.formats)
+        #print(self.parameters[:no_formats])
+        
+        # If a parameter is already a bytestring then determine its length
+        #   and update the format
+        for (ii, ff) in enumerate(self.formats):
+            if ff == 's':
+                if isinstance(self.parameters[ii], UID):
+                    self.parameters[ii] = bytes(self.parameters[ii].title(), 'utf-8')
+                
+                self.formats[ii] = '%ds' %len(self.parameters[ii])
+                # Make sure the parameter is a bytes
+                
+        
+        # Encode using Big Endian as per PS3.8 9.3.1 - PDU headers are Big
+        #   Endian byte ordering while the encoding of PDV message fragments
+        #   is defined by the negotiated Transfer Syntax
+        pack_format = '> ' + ' '.join(self.formats)
+        
+        #print(pack_format)
+        
+        bytestream  = bytes()
+        bytestream += pack(pack_format, *self.parameters[:no_formats])
+        
+        #print(bytestream)
+        
+        # When we have more parameters then format we assume that the extra
+        #   parameters is a list of objects needing their own encoding
+        for ii in self.parameters[no_formats:]:
+            if isinstance(ii, list):
+                for item in ii:
+                    bytestream += item.encode()
+            else:
+                bytestream += ii.encode()
+        
+        return bytestream
             
-        return encoded_data
-    
     def decode(self, encoded_data):
         """
         Decode the binary encoded PDU and sets the PDU class' values using the
@@ -304,6 +332,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         self.pdu_type = 0x01
         self.pdu_length = None
         self.protocol_version = 0x01
+        self.called_ae_title = "Default"
+        self.calling_ae_title = "Default"
         
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
@@ -311,7 +341,20 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         #   1 UserInformationItem
         # The order of the items in the list may not be as given above
         self.variable_items = []
-
+        
+        self.formats = ['B', 'B', 'I', 'H', 'H', '16s', '16s', 
+                        'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I']
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           self.protocol_version,
+                           0x00, # Reserved
+                           self.called_ae_title,
+                           self.calling_ae_title,
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           self.variable_items]
+                           
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-ASSOCIATE 
@@ -442,6 +485,20 @@ class A_ASSOCIATE_RQ_PDU(PDU):
             self.variable_items.append(item)
             
             item = self._next_item(s)
+            
+        self._update_parameters()
+
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           self.protocol_version,
+                           0x00, # Reserved
+                           self.called_ae_title,
+                           self.calling_ae_title,
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           self.variable_items]
 
     def _update_pdu_length(self):
         """ Determines the value of the PDU Length parameter """
@@ -538,10 +595,10 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                 # We determine if there are any SCP/SCU Role Negotiations
                 #   for each Transfer Syntax in each Presentation Context
                 #   and if so we set the SCP and SCU attributes.
-                if self.user_information.RoleSelection is not None:
+                if self.user_information.role_selection is not None:
                     # Iterate through the role negotiations looking for a 
                     #   SOP Class match to the Abstract Syntaxes
-                    for role in self.user_information.RoleSelection:
+                    for role in self.user_information.role_selection:
                         for sop_class in ii.AbstractSyntax:
                             if role.SOPClass == sop_class:
                                 ii.SCP = role.SCP
@@ -646,6 +703,19 @@ class A_ASSOCIATE_AC_PDU(PDU):
         #   1 UserInformationItem
         # The order of the items in the list may not be as given above
         self.variable_items = []
+        
+        self.formats = ['B', 'B', 'I', 'H', 'H', '16s', '16s', 
+                        'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I']
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           self.protocol_version,
+                           0x00, # Reserved
+                           self.reserved_aet,
+                           self.reserved_aec,
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           self.variable_items]
     
     def FromParams(self, primitive):
         """
@@ -783,6 +853,20 @@ class A_ASSOCIATE_AC_PDU(PDU):
             self.variable_items.append(item)
             
             item = self._next_item(s)
+            
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           self.protocol_version,
+                           0x00, # Reserved
+                           self.reserved_aet,
+                           self.reserved_aec,
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           0x00, 0x00, 0x00, 0x00, # Reserved
+                           self.variable_items]
 
     def _update_pdu_length(self):
         """ Determines the value of the PDU Length parameter """
@@ -835,10 +919,10 @@ class A_ASSOCIATE_AC_PDU(PDU):
                 # We determine if there are any SCP/SCU Role Negotiations
                 #   for each Transfer Syntax in each Presentation Context
                 #   and if so we set the SCP and SCU attributes
-                if self.user_information.RoleSelection is not None:
+                if self.user_information.role_selection is not None:
                     # Iterate through the role negotiations looking for a 
                     #   SOP Class match to the Abstract Syntaxes
-                    for role in self.user_information.RoleSelection:
+                    for role in self.user_information.role_selection:
                         pass
                         # FIXME: Pretty sure -AC has no Abstract Syntax
                         #   need to check against standard
@@ -968,6 +1052,15 @@ class A_ASSOCIATE_RJ_PDU(PDU):
         self.result = None
         self.source = None
         self.reason_diagnostic = None
+        
+        self.formats = ['B', 'B', 'I', 'B', 'B', 'B', 'B']
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           0x00,
+                           self.result,
+                           self.source,
+                           self.reason_diagnostic]
 
     def FromParams(self, primitive):
         """
@@ -1041,6 +1134,17 @@ class A_ASSOCIATE_RJ_PDU(PDU):
          self.result, 
          self.source, 
          self.reason_diagnostic) = unpack('> B B I B B B B', bytestring)
+         
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           0x00,
+                           self.result,
+                           self.source,
+                           self.reason_diagnostic]
 
     def get_length(self):
         """ The total length of the encoded PDU in bytes """
@@ -1166,6 +1270,12 @@ class P_DATA_TF_PDU(PDU):
         self.pdu_type = 0x04
         self.pdu_length = None
         self.presentation_data_value_items = []
+        
+        self.formats = ['B', 'B', 'I']
+        self.parameters = [self.pdu_type, 
+                           0x00, # Reserved
+                           self.pdu_length, 
+                           self.presentation_data_value_items]
 
     def FromParams(self, primitive):
         """
@@ -1250,6 +1360,14 @@ class P_DATA_TF_PDU(PDU):
             
             length_read += pdv_item.get_length()
             self.presentation_data_value_items.append(pdv_item)
+            
+        self._update_parameters()
+
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                           0x00,
+                           self.pdu_length, 
+                           self.presentation_data_value_items]
 
     def _update_pdu_length(self):
         self.pdu_length = 0
@@ -1297,7 +1415,13 @@ class A_RELEASE_RQ_PDU(PDU):
     def __init__(self):
         self.pdu_type = 0x05
         self.pdu_length = 0x04
-
+        
+        self.formats = ['B', 'B', 'I', 'I']
+        self.parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x0000] # Reserved
+        
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-RELEASE `primitive`
@@ -1357,6 +1481,14 @@ class A_RELEASE_RQ_PDU(PDU):
          _,
          self.pdu_length, 
          _) = unpack('> B B I I', bytestring)
+         
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x0000] # Reserved
 
     def get_length(self):
         return 10
@@ -1391,6 +1523,12 @@ class A_RELEASE_RP_PDU(PDU):
     def __init__(self):
         self.pdu_type = 0x06
         self.pdu_length = 0x04
+        
+        self.formats = ['B', 'B', 'I', 'I']
+        self.parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x0000] # Reserved
 
     def FromParams(self, primitive):
         """
@@ -1453,6 +1591,14 @@ class A_RELEASE_RP_PDU(PDU):
          _,
          self.pdu_length, 
          _) = unpack('> B B I I', bytestring)
+         
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x0000] # Reserved
 
     def get_length(self):
         return 10
@@ -1495,6 +1641,15 @@ class A_ABORT_PDU(PDU):
         self.pdu_length = 0x04
         self.source = None
         self.reason_diagnostic = None
+        
+        self.formats = ['B', 'B', 'I', 'B', 'B', 'B', 'B']
+        self.parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x00, # Reserved
+                      0x00, # Reserved
+                      self.source,
+                      self.reason_diagnostic] # Reserved
 
     def FromParams(self, primitive):
         """
@@ -1580,6 +1735,17 @@ class A_ABORT_PDU(PDU):
          _, 
          self.source, 
          self.reason_diagnostic) = unpack('> B B I B B B B', bytestring)
+         
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.pdu_type, 
+                      0x00, # Reserved
+                      self.pdu_length,
+                      0x00, # Reserved
+                      0x00, # Reserved
+                      self.source,
+                      self.reason_diagnostic] # Reserved
 
     def get_length(self):
         return 10
@@ -1660,6 +1826,13 @@ class ApplicationContextItem(PDU):
     def __init__(self):
         self.item_type = 0x10
         self.item_length = None
+        self.application_context_name = ''
+        
+        self.formats = ['B', 'B', 'H', 's']
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.application_context_name]
 
     def FromParams(self, primitive):
         """
@@ -1718,6 +1891,14 @@ class ApplicationContextItem(PDU):
          self.item_length) = unpack('> B B H', bytestream.read(4))
         
         self.application_context_name = bytestream.read(self.item_length)
+        
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.application_context_name]
 
     def get_length(self):
         return 4 + self.item_length
@@ -1807,6 +1988,16 @@ class PresentationContextItemRQ(PDU):
         # Consider shifting to properties?
         self.SCP = None
         self.SCU = None
+        
+        self.formats = ['B', 'B', 'H', 'B', 'B', 'B', 'B']
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.presentation_context_id,
+                           0x00, # Reserved
+                           0x00, # Reserved
+                           0x00,
+                           self.abstract_transfer_syntax_sub_items] # Reserved
         
     def FromParams(self, primitive):
         """
@@ -1907,6 +2098,18 @@ class PresentationContextItemRQ(PDU):
             
             item = self._next_item(bytestream)
 
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.item_type, 
+                           0x00,
+                           self.item_length,
+                           self.presentation_context_id,
+                           0x00,
+                           0x00,
+                           0x00,
+                           self.abstract_transfer_syntax_sub_items]
+
     def _update_item_length(self):
         self.item_length = 4
         
@@ -2004,6 +2207,16 @@ class PresentationContextItemAC(PDU):
         # Used for tracking SCP/SCU Role Negotiation
         self.SCP = None
         self.SCU = None
+        
+        self.formats = ['B', 'B', 'H', 'B', 'B', 'B', 'B']
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.presentation_context_id,
+                           0x00, # Reserved
+                           self.result_reason,
+                           0x00, # Reserved
+                           self.transfer_syntax_sub_item]
 
     def FromParams(self, primitive):
         """
@@ -2087,6 +2300,18 @@ class PresentationContextItemAC(PDU):
         # Decode the Transfer Syntax
         self.transfer_syntax_sub_item = TransferSyntaxSubItem()
         self.transfer_syntax_sub_item.Decode(bytestream)
+        
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.presentation_context_id,
+                           0x00, # Reserved
+                           self.result_reason,
+                           0x00, # Reserved
+                           self.transfer_syntax_sub_item]
 
     def get_length(self):
         self.item_length = 4 + self.transfer_syntax_sub_item.length
@@ -2150,6 +2375,12 @@ class AbstractSyntaxSubItem(PDU):
         self.item_type = 0x30
         self.item_length = None
         self.abstract_syntax_name = None
+        
+        self.formats = ['B', 'B', 'H', 's']
+        self.parameters = [self.item_type, 
+                           0x00,
+                           self.item_length,
+                           self.abstract_syntax_name]
 
     def FromParams(self, primitive):
         """
@@ -2209,6 +2440,14 @@ class AbstractSyntaxSubItem(PDU):
          self.item_length) = unpack('> B B H', bytestream.read(4))
         
         self.abstract_syntax_name = bytestream.read(self.item_length)
+        
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.item_type, 
+                           0x00,
+                           self.item_length,
+                           self.abstract_syntax_name]
 
     def get_length(self):
         self.item_length = len(self.abstract_syntax_name)
@@ -2284,6 +2523,12 @@ class TransferSyntaxSubItem(PDU):
         self.item_type = 0x40
         self.item_length = None
         self.transfer_syntax_name = None
+        
+        self.formats = ['B', 'B', 'H', 's']
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.transfer_syntax_name]
 
     def FromParams(self, primitive):
         """
@@ -2343,6 +2588,14 @@ class TransferSyntaxSubItem(PDU):
          self.item_length) = unpack('> B B H', bytestream.read(4))
         
         self.transfer_syntax_name = bytestream.read(self.item_length)
+        
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.item_type, 
+                           0x00,
+                           self.item_length,
+                           self.transfer_syntax_name]
 
     def get_length(self):
         self.item_length = len(self.transfer_syntax_name)
@@ -2388,265 +2641,16 @@ class TransferSyntaxSubItem(PDU):
         self._transfer_syntax_name = value
 
 
-class UserInformationItem(PDU):
-    def __init__(self):
-        self.ItemType = 0x50
-        self.ItemLength = None
-        self.UserData = []
-
-    def FromParams(self, Params):
-        for ii in Params:
-            # Why is this ToParams?
-            self.UserData.append(ii.ToParams())
-
-        self._update_item_length()
-
-    def ToParams(self):
-        tmp = []
-        for ii in self.UserData:
-            tmp.append(ii.ToParams())
-        
-        return tmp
-
-    def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        
-        for ii in self.UserData:
-            tmp += ii.Encode()
-        return tmp
-
-    def Decode(self, s):
-        (self.ItemType, 
-         _,
-         self.ItemLength) = unpack('> B B H', s.read(4))
-
-        self.UserData = []
-        
-        while self._next_item(s) is not None:
-            tmp = self._next_item(s)
-            tmp.Decode(s)
-            self.UserData.append(tmp)
-
-    def _update_item_length(self):
-        self.ItemLength = 0
-        for ii in self.UserData:
-            self.ItemLength += ii.get_length()
-
-    def get_length(self):
-        self._update_item_length()
-        return 4 + self.ItemLength
-
-    def __repr__(self):
-        s = " User information item\n"
-        s += "  Item type: 0x%02x\n" % self.ItemType
-        s += "  Item length: %d\n" % self.ItemLength
-        s += "  User Data:\n "
-        if len(self.UserData) > 1:
-            s += str(self.UserData[0])
-            for ii in self.UserData[1:]:
-                s += "   User Data Item: " + str(ii) + "\n"
-        return s
-
-    @property
-    def maximum_length(self):
-        return self.MaximumLength
-        
-    @property
-    def MaximumLength(self):
-        """
-        See PS3.7 D3.3.1, PS3.8 Annex D.1
-        
-        Mandatory
-        
-        Returns
-        -------
-        int
-            Association Requestor's MaximumLengthReceived
-        """
-        for ii in self.UserData:
-            if isinstance(ii, MaximumLengthSubItem):
-                return ii.MaximumLengthReceived
-        
-    @property
-    def ImplementationClassUID(self):
-        """
-        See PS3.7 D3.3.2
-        
-        Mandatory
-        
-        Returns
-        -------
-        pydicom.uid.UID
-            Association Requestor's ImplementationClassUID
-        """
-        for ii in self.UserData:
-            if isinstance(ii, ImplementationClassUIDSubItem):
-                return ii.implementation_class_uid
-    
-    @property
-    def ImplementationVersionName(self):
-        """
-        See PS3.7 D3.3.2
-        
-        Optional
-        
-        Returns
-        -------
-        str
-            Association Requestor's ImplementationVersionName or '' if not available
-        """
-        # Optional
-        for ii in self.UserData:
-            if isinstance(ii, ImplementationVersionNameSubItem):
-                return ii.implementation_version_name.decode('utf-8')
-        
-        return ''
-    
-    @property
-    def MaximumOperationsInvoked(self):
-        """
-        See PS3.7 D3.3.3
-        
-        Optional
-        
-        Returns
-        -------
-        int
-            Association Requestor's MaximumOperationsInvoked
-        """
-        for ii in self.UserData:
-            if isinstance(ii, AsynchronousOperationsWindowSubItem):
-                return ii.MaximumNumberOperationsInvoked
-    
-    @property
-    def MaximumOperationsPerformed(self):
-        """
-        See PS3.7 D3.3.3
-        
-        Optional
-        
-        Returns
-        -------
-        int
-            Association Requestor's MaximumOperationsPerformed
-        """
-        for ii in self.UserData:
-            if isinstance(ii, AsynchronousOperationsWindowSubItem):
-                return ii.MaximumNumberOperationsPerformed
-        
-    @property
-    def RoleSelection(self):
-        """
-        See PS3.7 D3.3.4
-        
-        Optional
-        
-        Returns
-        -------
-        list of pynetdicom.PDU.SCP_SCU_RolesSelectionSubItem
-            A list of the Association Requestor's Role Selection sub item objects
-        """
-        roles = []
-        for ii in self.UserData:
-            if isinstance(ii, SCP_SCU_RoleSelectionSubItem):
-                roles.append(ii)
-        return roles
-        
-    @property
-    def ExtendedNegotiation(self):
-        """
-        See PS3.7 D3.3.5
-        
-        Optional
-        
-        Raises
-        -------
-        NotImplementedError
-        """
-        raise NotImplementedError()
-        
-    @property
-    def CommonExtendedNegotiation(self):
-        """
-        See PS3.7 D3.3.6
-        
-        Optional
-        
-        Raises
-        -------
-        NotImplementedError
-        """
-        raise NotImplementedError()
-        
-    @property
-    def UserIdentity(self):
-        """
-        See PS3.7 D3.3.7
-        
-        Optional
-        
-        Returns
-        -------
-        pynetdicom.PDU.UserIdentityItem
-            The Requestor AE's User Identity object if available, None otherwise
-        """
-        for ii in self.UserData:
-            if isinstance(ii, UserIdentitySubItemRQ):
-                return ii
-            elif isinstance(ii, UserIdentitySubItemAC):
-                return ii
-        
-        return None
-
-class MaximumLengthSubItem(PDU):
-    """
-    PS3.8 Annex D.1.1
-    
-    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
-    """
-    def __init__(self):
-        self.ItemType = 0x51
-        self.MaximumLengthReceived = None
-
-    def FromParams(self, primitive):
-        self.MaximumLengthReceived = primitive.MaximumLengthReceived
-
-    def ToParams(self):
-        primitive = MaximumLengthParameters()
-        primitive.MaximumLengthReceived = self.MaximumLengthReceived
-        return primitive
-
-    def Encode(self):
-        bytestream = b''
-        bytestream += pack('B', self.ItemType)
-        bytestream += pack('B', 0x00) # Reserved (fixed)
-        bytestream += pack('>H', 0x0004) # Item Length (fixed)
-        bytestream += pack('>I', self.MaximumLengthReceived)
-        return bytestream
-
-    def Decode(self, s):
-        (self.ItemType, 
-         _,
-         _, 
-         self.MaximumLengthReceived) = unpack('> B B H I', s.read(8))
-
-    def get_length(self):
-        return 0x08
-
-    def __repr__(self):
-        s  = "Maximum length sub item\n"
-        s += "\tItem type: 0x%02x\n" % self.ItemType
-        s += "\tMaximum length received: %d\n" % self.MaximumLengthReceived
-        return s
-
 class PresentationDataValueItem(PDU):
     def __init__(self):
-        self.ItemLength = None                      # Unsigned int
-        self.PresentationContextID = None       # Unsigned byte
-        self.PresentationDataValue = None       # String
+        self.ItemLength = None
+        self.PresentationContextID = None
+        self.PresentationDataValue = None
+        
+        self.formats = ['I', 'B', 's']
+        self.parameters = [self.ItemLength, 
+                           self.PresentationContextID, 
+                           self.PresentationDataValue]
 
     def FromParams(self, Params):
         # Takes a PresentationDataValue object
@@ -2665,6 +2669,7 @@ class PresentationDataValueItem(PDU):
         tmp = tmp + pack('>I', self.ItemLength)
         tmp = tmp + pack('B', self.PresentationContextID)
         tmp = tmp + self.PresentationDataValue
+        
         return tmp
 
     def Decode(self, Stream):
@@ -2673,6 +2678,13 @@ class PresentationDataValueItem(PDU):
         # Presentation data value is left in raw string format.
         # The Application Entity is responsible for dealing with it.
         self.PresentationDataValue = Stream.read(int(self.ItemLength) - 1)
+        
+        self._update_parameters()
+
+    def _update_parameters(self):
+        self.parameters = [self.ItemLength, 
+                           self.PresentationContextID, 
+                           self.PresentationDataValue]
 
     def get_length(self):
         self.ItemLength = 1 + len(self.PresentationDataValue)
@@ -2749,6 +2761,303 @@ class PresentationDataValueItem(PDU):
         """
         return  self.get_length()
 
+
+class UserInformationItem(PDU):
+    """
+    Represents the User Information Item used in A-ASSOCIATE-RQ and 
+    A-ASSOCIATE-AC PDUs.
+
+    The User Information Item requires the following parameters (see PS3.8 
+    Section 9.3.2.3):
+        * Item type (1, fixed, 0x50)
+        * Item length (1)
+        * User data sub-items (2 or more)
+            * Maximum Length Received Sub-item (1)
+            * Implementation Class UID Sub-item (1)
+            * Optional User Data Sub-items (0 or more)
+    
+    See PS3.8 Section 9.3.2.3 for the structure of the PDU, especially 
+    Table 9-16.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items
+    Used in A_ASSOCIATE_AC_PDU - Variable items
+    
+    Attributes
+    ----------
+    asynchronous_operations_window : AsynchronousOperationsWindowSubItem or None
+        The AsynchronousOperationsWindowSubItem object, or None if the sub-item 
+        is not present.
+    common_extended_negotiation : SOPClassCommonExtendedNegotiationSubItem or None
+        The SOPClassCommonExtendedNegotiationSubItem object, or None if the 
+        sub-item is not present.
+    extended_negotiation : SOPClassExtendedNegotiationSubItem or None
+        The SOPClassExtendedNegotiationSubItem object, or None if the sub-item 
+        is not present.
+    implementation_class_uid : pydicom.uid.UID
+        The implementation class UID for the Implementation Class UID sub-item
+    implementation_version_name : str or None
+        The implementation version name for the Implementation Version Name 
+        sub-item, or None if the sub-item is not present.
+    length : int
+        The length of the Item in bytes
+    maximum_length : int
+        The maximum length received value for the Maximum Length sub-item
+    maximum_operations_invoked : int or None
+        , or None if the sub-item is not present.
+    maximum_operations_performed : int or None
+        , or None if the sub-item is not present.
+    role_selection : SCP_SCU_RoleSelectionSubItem or None
+        The SCP_SCU_RoleSelectionSubItem object or None if the sub-item is 
+        not present.
+    user_identity : UserIdentitySubItemRQ or UserIdentitySubItemAC or None
+        The UserIdentitySubItemRQ/UserIdentitySubItemAC object, or None if the 
+        sub-item is not present.
+    """
+    def __init__(self):
+        self.item_type = 0x50
+        self.item_length = None
+        self.user_data = []
+        
+        self.formats = ['B', 'B', 'H']
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.user_data]
+
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : FIXME
+        """
+        for ii in primitive:
+            # Why is this ToParams?
+            self.user_data.append(ii.ToParams())
+
+        self._update_item_length()
+
+    def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        list
+            
+        """
+        primitive = []
+        for ii in self.user_data:
+            primitive.append(ii.ToParams())
+        
+        return primitive
+
+    def Encode(self):
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H'
+        parameters = [self.item_type, 
+                      0x00, # Reserved
+                      self.item_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        
+        for ii in self.user_data:
+            bytestring += ii.Encode()
+        
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
+         _,
+         self.item_length) = unpack('> B B H', bytestream.read(4))
+        
+        # Decode the User Data sub-items section
+        item = self._next_item(bytestream)
+        while item is not None:
+            item.Decode(bytestream)
+            self.user_data.append(item)
+            
+            item = self._next_item(bytestream)
+            
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.item_type, 
+                           0x00, # Reserved
+                           self.item_length,
+                           self.user_data]
+
+    def _update_item_length(self):
+        self.item_length = 0
+        for ii in self.user_data:
+            self.item_length += ii.length
+
+    def get_length(self):
+        self._update_item_length()
+        return 4 + self.item_length
+
+    def __str__(self):
+        s = " User information item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d\n" % self.item_length
+        s += "  User Data:\n "
+        
+        for ii in self.UserData[1:]:
+            s += "  %s" %ii
+        
+        return s
+
+    @property
+    def common_extended_negotiation(self):
+        raise NotImplementedError()
+    
+    @property
+    def extended_negotiation(self):
+        raise NotImplementedError()
+
+    @property
+    def implementation_class_uid(self):
+        for ii in self.user_data:
+            if isinstance(ii, ImplementationClassUIDSubItem):
+                return ii.implementation_class_uid
+    
+    @property
+    def implementation_version_name(self):
+        for ii in self.user_data:
+            if isinstance(ii, ImplementationVersionNameSubItem):
+                return ii.implementation_version_name.decode('utf-8')
+        
+        return None
+    
+    @property
+    def maximum_length(self):
+        for ii in self.user_data:
+            if isinstance(ii, MaximumLengthSubItem):
+                return ii.MaximumLengthReceived
+        
+    @property
+    def maximum_operations_invoked(self):
+        for ii in self.user_data:
+            if isinstance(ii, AsynchronousOperationsWindowSubItem):
+                return ii.MaximumNumberOperationsInvoked
+        
+        return None
+    
+    @property
+    def maximum_operations_performed(self):
+        for ii in self.user_data:
+            if isinstance(ii, AsynchronousOperationsWindowSubItem):
+                return ii.MaximumNumberOperationsPerformed
+        
+        return None
+        
+    @property
+    def role_selection(self):
+        """
+        See PS3.7 D3.3.4
+        
+        Optional
+        
+        Returns
+        -------
+        list of pynetdicom.PDU.SCP_SCU_RolesSelectionSubItem
+            A list of the Association Requestor's Role Selection sub item objects
+        """
+        roles = []
+        for ii in self.user_data:
+            if isinstance(ii, SCP_SCU_RoleSelectionSubItem):
+                roles.append(ii)
+        
+        if len(roles):
+            return roles
+            
+        return None
+
+    @property
+    def user_identity(self):
+        for ii in self.user_data:
+            if isinstance(ii, UserIdentitySubItemRQ):
+                return ii
+            elif isinstance(ii, UserIdentitySubItemAC):
+                return ii
+        
+        return None
+
+
+class MaximumLengthSubItem(PDU):
+    """
+    PS3.8 Annex D.1.1
+    
+    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    """
+    def __init__(self):
+        self.ItemType = 0x51
+        self.MaximumLengthReceived = None
+        
+        self.formats = ['B', 'B', 'H', 'I']
+        self.parameters = [self.ItemType,
+                           0x00,
+                           0x0004,
+                           self.MaximumLengthReceived]
+
+    def FromParams(self, primitive):
+        self.MaximumLengthReceived = primitive.MaximumLengthReceived
+
+    def ToParams(self):
+        primitive = MaximumLengthParameters()
+        primitive.MaximumLengthReceived = self.MaximumLengthReceived
+        return primitive
+
+    def Encode(self):
+        bytestream = b''
+        bytestream += pack('B', self.ItemType)
+        bytestream += pack('B', 0x00) # Reserved (fixed)
+        bytestream += pack('>H', 0x0004) # Item Length (fixed)
+        bytestream += pack('>I', self.MaximumLengthReceived)
+        return bytestream
+
+    def Decode(self, s):
+        (self.ItemType, 
+         _,
+         _, 
+         self.MaximumLengthReceived) = unpack('> B B H I', s.read(8))
+         
+        self._update_parameters()
+         
+    def _update_parameters(self):
+        self.parameters = [self.ItemType,
+                           0x00,
+                           0x0004,
+                           self.MaximumLengthReceived]
+
+    def get_length(self):
+        return 0x08
+
+    def __repr__(self):
+        s  = "Maximum length sub item\n"
+        s += "\tItem type: 0x%02x\n" % self.ItemType
+        s += "\tMaximum length received: %d\n" % self.MaximumLengthReceived
+        return s
+
+
 class GenericUserDataSubItem(PDU):
     """
     This class is provided only to allow user data to converted to and from
@@ -2813,6 +3122,12 @@ class ImplementationClassUIDSubItem(PDU):
         self.ItemType = 0x52
         self.ItemLength = None
         self.implementation_class_uid = None
+        
+        self.formats = ['B', 'B', 'H', 's']
+        self.parameters = [self.ItemType,
+                           0x00,
+                           self.ItemLength,
+                           self.implementation_class_uid]
 
     def FromParams(self, Params):
         self.implementation_class_uid = Params.ImplementationClassUID
@@ -2828,7 +3143,7 @@ class ImplementationClassUIDSubItem(PDU):
         s += pack('B', self.ItemType)
         s += pack('B', 0x00)
         s += pack('>H', self.ItemLength)
-        s += bytes(self.implementation_class_uid.__repr__()[1:-1], 'utf-8')
+        s += bytes(self.implementation_class_uid.title(), 'utf-8')
         return s
 
     def Decode(self, s):
@@ -2836,6 +3151,14 @@ class ImplementationClassUIDSubItem(PDU):
          _,
          self.ItemLength) = unpack('> B B H', s.read(4))
         self.implementation_class_uid = s.read(self.ItemLength)
+        
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.ItemType,
+                           0x00,
+                           self.ItemLength,
+                           self.implementation_class_uid]
 
     def get_length(self):
         self.ItemLength = len(self.implementation_class_uid)
@@ -2879,6 +3202,12 @@ class ImplementationVersionNameSubItem(PDU):
         self.ItemType = 0x55
         self.ItemLength = None
         self.implementation_version_name = None
+        
+        self.formats = ['B', 'B', 'H', 's']
+        self.parameters = [self.ItemType,
+                           0x00,
+                           self.ItemLength,
+                           self.implementation_version_name]
 
     def FromParams(self, Params):
         self.implementation_version_name = Params.ImplementationVersionName
@@ -2902,6 +3231,14 @@ class ImplementationVersionNameSubItem(PDU):
          _,
          self.ItemLength) = unpack('> B B H', Stream.read(4))
         self.implementation_version_name = Stream.read(self.ItemLength)
+        
+        self._update_parameters()
+        
+    def _update_parameters(self):
+        self.parameters = [self.ItemType,
+                           0x00,
+                           self.ItemLength,
+                           self.implementation_version_name]
 
     def get_length(self):
         self.ItemLength = len(self.implementation_version_name)
@@ -3184,6 +3521,8 @@ class UserIdentitySubItemAC(PDU):
 class SOPClassExtendedNegotiationSubItem(PDU):
     pass
 
+class SOPClassCommonExtendedNegotiationSubItem(PDU):
+    pass
 
 
 class MaximumLengthParameters():

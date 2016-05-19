@@ -425,13 +425,13 @@ class ACSEServiceProvider(object):
                 '=====')
         
         s.append('Our Implementation Class UID:      %s' 
-                                        %user_info.ImplementationClassUID)
+                                        %user_info.implementation_class_uid)
         s.append('Our Implementation Version Name:   %s' 
-                                        %user_info.ImplementationVersionName)
+                                        %user_info.implementation_version_name)
         s.append('Application Context Name:    %s' %app_context)
         s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
         s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
-        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
+        s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
         
         # Presentation Contexts
         if len(pres_contexts) == 1:
@@ -464,7 +464,7 @@ class ACSEServiceProvider(object):
         s.append('Requested Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if user_info.UserIdentity is not None:
+        if user_info.user_identity is not None:
             usr_id = 'Yes'
         s.append('Requested User Identity Negotiation: %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-RQ =================='
@@ -500,12 +500,12 @@ class ACSEServiceProvider(object):
                 '=====')
         
         s.append('Our Implementation Class UID:      %s' 
-                                        %user_info.ImplementationClassUID)
+                                        %user_info.implementation_class_uid)
         s.append('Our Implementation Version Name:   %s' 
-                                        %user_info.ImplementationVersionName)
+                                        %user_info.implementation_version_name)
         s.append('Application Context Name:    %s' %app_context)
         s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %user_info.MaximumLength)
+        s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
@@ -526,7 +526,7 @@ class ACSEServiceProvider(object):
         s.append('Accepted Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if user_info.UserIdentity is not None:
+        if user_info.user_identity is not None:
             usr_id = 'Yes'
         
         s.append('User Identity Negotiation Response:  %s' %usr_id)
@@ -632,10 +632,10 @@ class ACSEServiceProvider(object):
         their_class_uid = 'unknown'
         their_version = 'unknown'
         
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
+        if user_info.implementation_class_uid:
+            their_class_uid = user_info.implementation_class_uid
+        if user_info.implementation_version_name:
+            their_version = user_info.implementation_version_name
         
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
@@ -645,7 +645,7 @@ class ACSEServiceProvider(object):
         s.append('Application Context Name:    %s' %app_context)
         s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
         s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
         s.append('Presentation Contexts:')
         for item in pres_contexts:
             s.append('  Context ID:        %s (Proposed)' %item.ID)
@@ -667,7 +667,7 @@ class ACSEServiceProvider(object):
         s.append('Requested Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if user_info.UserIdentity is not None:
+        if user_info.user_identity is not None:
             usr_id = 'Yes'
         s.append('Requested User Identity Negotiation: %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-RQ =================='
@@ -700,10 +700,10 @@ class ACSEServiceProvider(object):
         their_class_uid = 'unknown'
         their_version = 'unknown'
         
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
+        if user_info.implementation_class_uid:
+            their_class_uid = user_info.implementation_class_uid
+        if user_info.implementation_version_name:
+            their_version = user_info.implementation_version_name
         
         s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
@@ -714,7 +714,7 @@ class ACSEServiceProvider(object):
         s.append('Application Context Name:    %s' %app_context)
         s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title.decode('utf-8'))
         s.append('Called Application Name:     %s' %assoc_ac.called_ae_title.decode('utf-8'))
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
+        s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
         s.append('Presentation Contexts:')
         
         for item in pres_contexts:
@@ -737,7 +737,7 @@ class ACSEServiceProvider(object):
         s.append('Accepted Extended Negotiation: %s' %ext_nego)
         
         usr_id = 'None'
-        if user_info.UserIdentity is not None:
+        if user_info.user_identity is not None:
             usr_id = 'Yes'
         
         s.append('User Identity Negotiation Response:  %s' %usr_id)
