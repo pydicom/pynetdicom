@@ -70,6 +70,7 @@ presentation_data = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x
 
 presentation_data_value = b'\x00\x00\x00\x50\x01' + presentation_data
 
+maximum_length_received = b'\x51\x00\x00\x04\x00\x00\x40\x00'
 
 from io import BytesIO
 import logging
@@ -499,6 +500,57 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
         self.assertEqual(pdv.message_control_header_byte, '00000011')
 
 
+class TestPDUItem_UserInformation(unittest.TestCase):
+    pass
+    
+class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
+    def test_stream_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        max_length = pdu.user_information.user_data[0]
+        
+        self.assertEqual(max_length.item_length, 4)
+        self.assertEqual(max_length.maximum_length_received, 16384)
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        max_length = pdu.user_information.user_data[0]
+        
+        s = max_length.encode()
+
+        self.assertEqual(s, maximum_length_received)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        max_length = pdu.user_information.user_data[0]
+        
+        result = max_length.ToParams()
+        
+        check = MaximumLengthParameters()
+        check.MaximumLengthReceived = 16384
+        
+        self.assertEqual(result, check)
+        
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        orig_max_length = pdu.user_information.user_data[0]
+        params = orig_max_length.ToParams()
+        
+        new_max_length = MaximumLengthSubItem()
+        new_max_length.FromParams(params)
+        
+        self.assertEqual(orig_max_length, new_max_length)
 
 if __name__ == "__main__":
     unittest.main()

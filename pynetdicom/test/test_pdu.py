@@ -404,9 +404,9 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
         for item in user_info.user_data:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthSubItem):
-                self.assertEqual(item.MaximumLengthReceived, 16384)
+                self.assertEqual(item.maximum_length_received, 16384)
                 self.assertEqual(user_info.maximum_length, 16384)
-                self.assertTrue(isinstance(item.MaximumLengthReceived, int))
+                self.assertTrue(isinstance(item.maximum_length_received, int))
                 self.assertTrue(isinstance(user_info.maximum_length, int))
             
             # Implementation Class UID (required)
@@ -667,9 +667,9 @@ class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
         for item in user_info.user_data:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthSubItem):
-                self.assertEqual(item.MaximumLengthReceived, 16384)
+                self.assertEqual(item.maximum_length_received, 16384)
                 self.assertEqual(user_info.maximum_length, 16384)
-                self.assertTrue(isinstance(item.MaximumLengthReceived, int))
+                self.assertTrue(isinstance(item.maximum_length_received, int))
                 self.assertTrue(isinstance(user_info.maximum_length, int))
             
             # Implementation Class UID (required)
