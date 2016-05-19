@@ -2640,7 +2640,6 @@ class TransferSyntaxSubItem(PDU):
         
         self._transfer_syntax_name = value
 
-
 class PresentationDataValueItem(PDU):
     """
     Represents a Presentation Data Value Item used in P-DATA-TF PDUs.
@@ -2957,7 +2956,7 @@ class UserInformationItem(PDU):
     def maximum_length(self):
         for ii in self.user_data:
             if isinstance(ii, MaximumLengthSubItem):
-                return ii.MaximumLengthReceived
+                return ii.maximum_length_received
         
     @property
     def maximum_operations_invoked(self):
@@ -3010,57 +3009,110 @@ class UserInformationItem(PDU):
 
 class MaximumLengthSubItem(PDU):
     """
-    PS3.8 Annex D.1.1
+    Represents the Maximum Length Sub Item used in A-ASSOCIATE-RQ and 
+    A-ASSOCIATE-AC PDUs.
+
+    The Maximum Length Sub Item requires the following parameters (see PS3.8 
+    Annex D.1.1):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * Maximum Length Received (1)
     
-    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    See PS3.8 Annex D.1.1 for the structure of the item, especially 
+    Table D.1-1.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
     """
     def __init__(self):
-        self.ItemType = 0x51
-        self.MaximumLengthReceived = None
+        self.item_type = 0x51
+        self.item_length = 0x04
+        self.maximum_length_received = None
         
         self.formats = ['B', 'B', 'H', 'I']
-        self.parameters = [self.ItemType,
+        self.parameters = [self.item_type,
                            0x00,
-                           0x0004,
-                           self.MaximumLengthReceived]
+                           self.item_length,
+                           self.maximum_length_received]
 
     def FromParams(self, primitive):
-        self.MaximumLengthReceived = primitive.MaximumLengthReceived
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.MaximumLengthParameters
+            The primitive to use when setting up the Item
+        """
+        self.maximum_length_received = primitive.MaximumLengthReceived
 
     def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.MaximumLengthParameters
+            The primitive to convert to
+        """
         primitive = MaximumLengthParameters()
-        primitive.MaximumLengthReceived = self.MaximumLengthReceived
+        primitive.MaximumLengthReceived = self.maximum_length_received
+        
         return primitive
 
     def Encode(self):
-        bytestream = b''
-        bytestream += pack('B', self.ItemType)
-        bytestream += pack('B', 0x00) # Reserved (fixed)
-        bytestream += pack('>H', 0x0004) # Item Length (fixed)
-        bytestream += pack('>I', self.MaximumLengthReceived)
-        return bytestream
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H I'
+        parameters = [self.item_type,
+                      0x00,
+                      0x0004,
+                      self.maximum_length_received]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        
+        return bytestring
 
-    def Decode(self, s):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
          _,
          _, 
-         self.MaximumLengthReceived) = unpack('> B B H I', s.read(8))
+         self.maximum_length_received) = unpack('> B B H I', bytestream.read(8))
          
         self._update_parameters()
          
     def _update_parameters(self):
-        self.parameters = [self.ItemType,
+        self.parameters = [self.item_type,
                            0x00,
-                           0x0004,
-                           self.MaximumLengthReceived]
+                           self.item_length,
+                           self.maximum_length_received]
 
     def get_length(self):
         return 0x08
 
-    def __repr__(self):
+    def __str__(self):
         s  = "Maximum length sub item\n"
-        s += "\tItem type: 0x%02x\n" % self.ItemType
-        s += "\tMaximum length received: %d\n" % self.MaximumLengthReceived
+        s += "\tItem type: 0x%02x\n" % self.item_type
+        s += "\tMaximum length received: %d\n" % self.maximum_length_received
         return s
 
 
@@ -3531,13 +3583,17 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     pass
 
 
-class MaximumLengthParameters():
+class MaximumLengthParameters(PDU):
     """
     The maximum length notification allows communicating AEs to limit the size
     of the data for each P-DATA indication. This notification is required for 
     all DICOM v3.0 conforming implementations.
     
     PS3.7 Annex D.3.3.1 and PS3.8 Annex D.1
+    
+    DEPRECATED BECAUSE ITS BASICALLY JUST ONE PARAMETER 
+    
+    SERIOUSLY WHY BOTHER
     """
     def __init__(self):
         self.MaximumLengthReceived = None
