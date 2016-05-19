@@ -266,7 +266,7 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         """ Check that updating the PDU data works correctly """
         orig_pdu = A_ASSOCIATE_RQ_PDU()
         orig_pdu.Decode(a_associate_rq)
-        orig_pdu.user_information.UserData = [orig_pdu.user_information.UserData[1]]
+        orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
         orig_pdu.get_length()
         
         primitive = orig_pdu.ToParams()
@@ -275,6 +275,16 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         new_pdu.FromParams(primitive)
         
         self.assertEqual(new_pdu, orig_pdu)
+
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
+
 
 class TestPDU_A_ASSOC_RQ_ApplicationContext(unittest.TestCase):
     def test_stream_decode_values_types(self):
@@ -384,14 +394,14 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
 
         user_info = pdu.variable_items[2]
         
-        self.assertEqual(user_info.ItemType, 0x50)
-        self.assertEqual(user_info.ItemLength, 58)
-        self.assertTrue(isinstance(user_info.ItemType, int))
-        self.assertTrue(isinstance(user_info.ItemLength, int))
-        self.assertTrue(isinstance(user_info.UserData, list))
+        self.assertEqual(user_info.item_type, 0x50)
+        self.assertEqual(user_info.item_length, 58)
+        self.assertTrue(isinstance(user_info.item_type, int))
+        self.assertTrue(isinstance(user_info.item_length, int))
+        self.assertTrue(isinstance(user_info.user_data, list))
         
         # Test user items
-        for item in user_info.UserData:
+        for item in user_info.user_data:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthSubItem):
                 self.assertEqual(item.MaximumLengthReceived, 16384)
@@ -550,7 +560,7 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         """ Check that updating the PDU data works correctly """
         orig_pdu = A_ASSOCIATE_AC_PDU()
         orig_pdu.Decode(a_associate_ac)
-        orig_pdu.user_information.UserData = [orig_pdu.user_information.UserData[1]]
+        orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
         orig_pdu.get_length()
         
         primitive = orig_pdu.ToParams()
@@ -559,6 +569,15 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         new_pdu.FromParams(primitive)
         
         self.assertEqual(new_pdu, orig_pdu)
+
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
 
 class TestPDU_A_ASSOC_AC_ApplicationContext(unittest.TestCase):
     def test_stream_decode_values_types(self):
@@ -638,14 +657,14 @@ class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
 
         user_info = pdu.variable_items[2]
         
-        self.assertEqual(user_info.ItemType, 0x50)
-        self.assertEqual(user_info.ItemLength, 58)
-        self.assertTrue(isinstance(user_info.ItemType, int))
-        self.assertTrue(isinstance(user_info.ItemLength, int))
-        self.assertTrue(isinstance(user_info.UserData, list))
+        self.assertEqual(user_info.item_type, 0x50)
+        self.assertEqual(user_info.item_length, 58)
+        self.assertTrue(isinstance(user_info.item_type, int))
+        self.assertTrue(isinstance(user_info.item_length, int))
+        self.assertTrue(isinstance(user_info.user_data, list))
         
         # Test user items
-        for item in user_info.UserData:
+        for item in user_info.user_data:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthSubItem):
                 self.assertEqual(item.MaximumLengthReceived, 16384)
@@ -832,6 +851,15 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         
         pdu.source = 4
         with self.assertRaises(ValueError): pdu.reason_str
+        
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
 
 
 class TestPDU_P_DATA_TF(unittest.TestCase):
@@ -882,6 +910,15 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         new_pdu.FromParams(primitive)
         
         self.assertEqual(new_pdu, orig_pdu)
+        
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
 
 
 class TestPDU_A_RELEASE_RQ(unittest.TestCase):
@@ -925,6 +962,15 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
         
         self.assertEqual(new_pdu, orig_pdu)
 
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = A_RELEASE_RQ_PDU()
+        pdu.Decode(a_release_rq)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
+
 
 class TestPDU_A_RELEASE_RP(unittest.TestCase):
     def test_stream_decode_values_types(self):
@@ -966,6 +1012,15 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         new_pdu.FromParams(primitive)
         
         self.assertEqual(new_pdu, orig_pdu)
+        
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = A_RELEASE_RP_PDU()
+        pdu.Decode(a_release_rp)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
 
 
 class TestPDU_A_ABORT(unittest.TestCase):
@@ -1090,6 +1145,14 @@ class TestPDU_A_ABORT(unittest.TestCase):
         pdu.reason_diagnostic = 6
         self.assertEqual(pdu.reason_str, "Invalid PDU parameter value")
 
+    def test_generic_encode(self):
+        """ Check using the new pdu.encode produces the correct output """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        s = pdu.Encode()
+        t = pdu.encode()
+
+        self.assertEqual(s, t)
 
 if __name__ == "__main__":
     unittest.main()
