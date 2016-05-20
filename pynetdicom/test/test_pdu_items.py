@@ -72,6 +72,11 @@ presentation_data_value = b'\x00\x00\x00\x50\x01' + presentation_data
 
 maximum_length_received = b'\x51\x00\x00\x04\x00\x00\x40\x00'
 
+implementation_class_uid = b'\x52\x00\x00\x1b\x31\x2e\x32\x2e\x32\x37\x36\x2e\x30\x2e\x37\x32' \
+                           b'\x33\x30\x30\x31\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30'
+
+
+
 from io import BytesIO
 import logging
 import threading
@@ -252,7 +257,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_AC_PDU()
         pdu.Decode(a_associate_ac)
-        
+
         pres_context = pdu.variable_items[1]
         
         self.assertEqual(pres_context.item_type, 0x21)
@@ -551,6 +556,141 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         new_max_length.FromParams(params)
         
         self.assertEqual(orig_max_length, new_max_length)
+
+class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
+    def test_stream_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        uid = pdu.user_information.user_data[1]
+        
+        self.assertEqual(uid.item_length, 27)
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        uid = pdu.user_information.user_data[1]
+        
+        s = uid.encode()
+        
+        #for ii in wrap_list(s):
+        #    print(ii)
+
+        self.assertEqual(s, implementation_class_uid)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        uid = pdu.user_information.user_data[1]
+        
+        result = uid.ToParams()
+        
+        check = ImplementationClassUIDParameters()
+        check.ImplementationClassUID = UID('1.2.276.0.7230010.3.0.3.6.0')
+        self.assertEqual(result, check)
+        
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        orig_uid = pdu.user_information.user_data[1]
+        params = orig_uid.ToParams()
+        
+        new_uid = ImplementationClassUIDSubItem()
+        new_uid.FromParams(params)
+        
+        self.assertEqual(orig_uid, new_uid)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        uid = ImplementationClassUIDSubItem()
+        uid.implementation_class_uid = '1.2.276.0.7230010.3.0.3.6.0'
+        
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        
+        uid.implementation_class_uid = b'1.2.276.0.7230010.3.0.3.6.0'
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        
+        uid.implementation_class_uid = UID('1.2.276.0.7230010.3.0.3.6.0')
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        
+        with self.assertRaises(TypeError):
+            uid.implementation_class_uid = 10002
+
+class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
+    def test_stream_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        uid = pdu.user_information.user_data[1]
+        
+        self.assertEqual(uid.item_length, 27)
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        uid = pdu.user_information.user_data[1]
+        
+        s = uid.encode()
+        
+        #for ii in wrap_list(s):
+        #    print(ii)
+
+        self.assertEqual(s, implementation_class_uid)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        uid = pdu.user_information.user_data[1]
+        
+        result = uid.ToParams()
+        
+        check = ImplementationClassUIDParameters()
+        check.ImplementationClassUID = UID('1.2.276.0.7230010.3.0.3.6.0')
+        self.assertEqual(result, check)
+        
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        orig_uid = pdu.user_information.user_data[1]
+        params = orig_uid.ToParams()
+        
+        new_uid = ImplementationClassUIDSubItem()
+        new_uid.FromParams(params)
+        
+        self.assertEqual(orig_uid, new_uid)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        uid = ImplementationClassUIDSubItem()
+        uid.implementation_class_uid = '1.2.276.0.7230010.3.0.3.6.0'
+        
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        
+        uid.implementation_class_uid = b'1.2.276.0.7230010.3.0.3.6.0'
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        
+        uid.implementation_class_uid = UID('1.2.276.0.7230010.3.0.3.6.0')
+        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        
+        with self.assertRaises(TypeError):
+            uid.implementation_class_uid = 10002
+
 
 if __name__ == "__main__":
     unittest.main()

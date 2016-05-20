@@ -411,20 +411,20 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
             
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDSubItem):
-                self.assertEqual(item.ItemType, 0x52)
-                self.assertEqual(item.ItemLength, 27)
+                self.assertEqual(item.item_type, 0x52)
+                self.assertEqual(item.item_length, 27)
                 self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.item_type, int))
+                self.assertTrue(isinstance(item.item_length, int))
                 self.assertTrue(isinstance(item.implementation_class_uid, UID))
                 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameSubItem):
-                self.assertEqual(item.ItemType, 0x55)
-                self.assertEqual(item.ItemLength, 15)
+                self.assertEqual(item.item_type, 0x55)
+                self.assertEqual(item.item_length, 15)
                 self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.item_type, int))
+                self.assertTrue(isinstance(item.item_length, int))
                 self.assertTrue(isinstance(item.implementation_version_name, bytes))
 
 
@@ -674,20 +674,20 @@ class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
             
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDSubItem):
-                self.assertEqual(item.ItemType, 0x52)
-                self.assertEqual(item.ItemLength, 27)
+                self.assertEqual(item.item_type, 0x52)
+                self.assertEqual(item.item_length, 27)
                 self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.item_type, int))
+                self.assertTrue(isinstance(item.item_length, int))
                 self.assertTrue(isinstance(item.implementation_class_uid, UID))
                 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameSubItem):
-                self.assertEqual(item.ItemType, 0x55)
-                self.assertEqual(item.ItemLength, 15)
+                self.assertEqual(item.item_type, 0x55)
+                self.assertEqual(item.item_length, 15)
                 self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
+                self.assertTrue(isinstance(item.item_type, int))
+                self.assertTrue(isinstance(item.item_length, int))
                 self.assertTrue(isinstance(item.implementation_version_name, bytes))
 
 
@@ -977,7 +977,7 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         """ Check decoding the release_rp stream produces the correct objects """
         pdu = A_RELEASE_RP_PDU()
         pdu.Decode(a_release_rp)
-        
+
         self.assertEqual(pdu.pdu_type, 0x06)
         self.assertEqual(pdu.pdu_length, 4)
         self.assertTrue(isinstance(pdu.pdu_type, int))
@@ -1028,7 +1028,7 @@ class TestPDU_A_ABORT(unittest.TestCase):
         """ Check decoding the a_abort stream produces the correct objects """
         pdu = A_ABORT_PDU()
         pdu.Decode(a_abort)
-        
+                
         self.assertEqual(pdu.pdu_type, 0x07)
         self.assertEqual(pdu.pdu_length, 4)
         self.assertEqual(pdu.source, 0)

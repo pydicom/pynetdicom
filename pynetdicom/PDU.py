@@ -354,7 +354,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                            0x00, 0x00, 0x00, 0x00, # Reserved
                            0x00, 0x00, 0x00, 0x00, # Reserved
                            self.variable_items]
-                           
+
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-ASSOCIATE 
@@ -560,7 +560,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         for ii in self.variable_items:
             if isinstance(ii, ApplicationContextItem):
                 return ii.application_context_name
-    
+
     @application_context_name.setter
     def application_context_name(self, value):
         """Set the Association request's Application Context Name
@@ -613,21 +613,36 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                 return ii
 
     def __str__(self):
-        s = 'A-ASSOCIATE-RQ PDU\n'
+        s  = 'A-ASSOCIATE-RQ PDU\n'
+        s += '==================\n'
         s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d\n' %self.pdu_length
+        s += '  PDU length: %d bytes\n' %self.length
         s += '  Protocol version: %d\n' %self.protocol_version
         s += '  Called AET:  %s\n' %self.called_ae_title
         s += '  Calling AET: %s\n' %self.calling_ae_title
-        s += '  Variable items:\n'
-        s += '    Application context name: %s\n' %self.application_context_name
-        s += '    Presentation context(s):\n'
+        s += '\n'
+
+        s += '  Variable Items:\n'
+        s += '  ---------------\n'
+        s += '  * Application Context Item\n'
+        s += '    -  Context name: =%s\n' %self.application_context_name
+
+        s += '  * Presentation Context Item(s):\n'
+
         for ii in self.presentation_context:
-            s += '      %s' %ii
-        
-        s += '    User information:\n'
-        for ii in self.user_information.UserData:
-            s += '      %s' %ii
+            item_str = '%s' %ii
+            item_str_list = item_str.split('\n')
+            s += '    -  %s\n' %item_str_list[0]
+            for jj in item_str_list[1:-1]:
+                s += '       %s\n' %jj
+
+        s += '  * User Information Item(s):\n'
+        for ii in self.user_information.user_data:
+            item_str = '%s' %ii
+            item_str_list = item_str.split('\n')
+            s += '    -  %s\n' %item_str_list[0]
+            for jj in item_str_list[1:-1]:
+                s += '       %s\n' %jj
         
         return s
 
@@ -716,7 +731,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
                            0x00, 0x00, 0x00, 0x00, # Reserved
                            0x00, 0x00, 0x00, 0x00, # Reserved
                            self.variable_items]
-    
+
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-ASSOCIATE 
@@ -855,7 +870,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
             item = self._next_item(s)
             
         self._update_parameters()
-        
+
     def _update_parameters(self):
         self.parameters = [self.pdu_type, 
                            0x00, # Reserved
@@ -897,7 +912,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         for ii in self.variable_items:
             if isinstance(ii, ApplicationContextItem):
                 return ii.application_context_name
-        
+
     @property
     def presentation_context(self):
         """
@@ -933,7 +948,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
                 contexts.append(ii)
         
         return contexts
-        
+
     @property
     def user_information(self):
         """
@@ -947,7 +962,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         for ii in self.variable_items:
             if isinstance(ii, UserInformationItem):
                 return ii
-        
+
     @property
     def called_ae_title(self):
         """
@@ -967,7 +982,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
             pass
         
         return ae_title
-    
+
     @property
     def calling_ae_title(self):
         """
@@ -989,22 +1004,37 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return ae_title
 
     def __str__(self):
-        s = 'A-ASSOCIATE-AC PDU\n'
+        s  = 'A-ASSOCIATE-AC PDU\n'
+        s += '==================\n'
         s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d\n' %self.pdu_length
+        s += '  PDU length: %d bytes\n' %self.length
         s += '  Protocol version: %d\n' %self.protocol_version
         s += '  Reserved (Called AET):  %s\n' %self.reserved_aet
         s += '  Reserved (Calling AET): %s\n' %self.reserved_aec
-        s += '  Variable items:\n'
-        s += '    Application context name: %s\n' %self.application_context_name
-        s += '    Presentation context(s):\n'
+        s += '\n'
+
+        s += '  Variable Items:\n'
+        s += '  ---------------\n'
+        s += '  * Application Context Item\n'
+        s += '    -  Context name: =%s\n' %self.application_context_name
+
+        s += '  * Presentation Context Item(s):\n'
+
         for ii in self.presentation_context:
-            s += '      %s' %ii
-        
-        s += '    User information:\n'
-        for ii in self.user_information.UserData:
-            s += '      %s' %ii
-        
+            item_str = '%s' %ii
+            item_str_list = item_str.split('\n')
+            s += '    -  %s\n' %item_str_list[0]
+            for jj in item_str_list[1:-1]:
+                s += '       %s\n' %jj
+
+        s += '  * User Information Item(s):\n'
+        for ii in self.user_information.user_data:
+            item_str = '%s' %ii
+            item_str_list = item_str.split('\n')
+            s += '    -  %s\n' %item_str_list[0]
+            for jj in item_str_list[1:-1]:
+                s += '       %s\n' %jj
+
         return s
 
 
@@ -1136,7 +1166,7 @@ class A_ASSOCIATE_RJ_PDU(PDU):
          self.reason_diagnostic) = unpack('> B B I B B B B', bytestring)
          
         self._update_parameters()
-        
+
     def _update_parameters(self):
         self.parameters = [self.pdu_type, 
                            0x00, # Reserved
@@ -1168,15 +1198,15 @@ class A_ASSOCIATE_RJ_PDU(PDU):
             raise ValueError('Invalid value in Result parameter in A-ASSOCIATE-RJ PDU')
             
         return results[self.result]
-    
+
     @property
     def source(self):
         return self._source
-    
+
     @source.setter
     def source(self, value):
         self._source = value
-    
+
     @property
     def source_str(self):
         sources = {1 : 'DUL service-user',
@@ -1188,15 +1218,15 @@ class A_ASSOCIATE_RJ_PDU(PDU):
             raise ValueError('Invalid value in Source parameter in A-ASSOCIATE-RJ PDU')
             
         return sources[self.source]
-    
+
     @property
     def reason_diagnostic(self):
         return self._reason
-    
+
     @reason_diagnostic.setter
     def reason_diagnostic(self, value):
         self._reason = value
-        
+
     @property
     def reason_str(self):
         reasons = {1 : { 1 : "No reason given",
@@ -1231,16 +1261,17 @@ class A_ASSOCIATE_RJ_PDU(PDU):
             raise ValueError('Invalid value in Reason parameter in A-ASSOCIATE-RJ PDU')
         
         return source_reasons[self.reason_diagnostic]
-   
+
     def __str__(self):
-        s = "A-ASSOCIATE-RJ PDU\n"
-        s += " PDU type: 0x%02x\n" % self.PDUType
-        s += " PDU length: %d\n" % self.PDULength
-        s += " Result: %d\n" % self.Result
-        s += " Source: %s\n" % str(self.Source)
-        s += " Reason/Diagnostic: %s\n" % str(self.ReasonDiag)
+        s  = 'A-ASSOCIATE-RJ PDU\n'
+        s += '==================\n'
+        s += '  PDU type: 0x%02x\n' %self.pdu_type
+        s += '  PDU length: %d bytes\n' %self.length
+        s += '  Result: %s\n' %self.result_str
+        s += '  Source: %s\n' %self.source_str
+        s += '  Reason/Diagnostic: %s\n' %self.reason_str
         
-        return s + "\n"
+        return s
 
 
 class P_DATA_TF_PDU(PDU):
@@ -1383,12 +1414,20 @@ class P_DATA_TF_PDU(PDU):
         return self.presentation_data_value_items
 
     def __str__(self):
-        s  = "P-DATA-TF PDU\n"
-        s += " PDU type: 0x%02x\n" % self.pdu_type
-        s += " PDU length: %d\n" % self.pdu_length
-        
+        s  = 'P-DATA-TF PDU\n'
+        s += '=============\n'
+        s += '  PDU type: 0x%02x\n' %self.pdu_type
+        s += '  PDU length: %d bytes\n' %self.length
+        s += '\n'
+        s += '  Presentation Data Value Item(s):\n'
+        s += '  --------------------------------\n'
+
         for ii in self.presentation_data_value_items:
-            s += '%s' %ii
+            item_str = '%s' %ii
+            item_str_list = item_str.split('\n')
+            s += '  *  %s\n' %item_str_list[0]
+            for jj in item_str_list[1:-1]:
+                s += '     %s\n' %jj
         
         return s
 
@@ -1421,7 +1460,7 @@ class A_RELEASE_RQ_PDU(PDU):
                       0x00, # Reserved
                       self.pdu_length,
                       0x0000] # Reserved
-        
+
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-RELEASE `primitive`
@@ -1445,7 +1484,7 @@ class A_RELEASE_RQ_PDU(PDU):
         primitive = A_RELEASE_ServiceParameters()
 
         return primitive
-        
+
     def Encode(self):
         """
         Encode the PDU's parameter values into a bytes string
@@ -1483,7 +1522,7 @@ class A_RELEASE_RQ_PDU(PDU):
          _) = unpack('> B B I I', bytestring)
          
         self._update_parameters()
-        
+
     def _update_parameters(self):
         self.parameters = [self.pdu_type, 
                       0x00, # Reserved
@@ -1494,9 +1533,10 @@ class A_RELEASE_RQ_PDU(PDU):
         return 10
 
     def __str__(self):
-        s = "A-RELEASE-RQ PDU\n"
-        s += " PDU type: 0x%02x\n" % self.pdu_type
-        s += " PDU length: %d\n" % self.pdu_length
+        s  = 'A-RELEASE-RQ PDU\n'
+        s += '================\n'
+        s += '  PDU type: 0x%02x\n' %self.pdu_type
+        s += '  PDU length: %d bytes\n' %self.length
         
         return s
 
@@ -1554,7 +1594,7 @@ class A_RELEASE_RP_PDU(PDU):
         primitive.Result = 'affirmative'
 
         return primitive
-        
+
     def Encode(self):
         """
         Encode the PDU's parameter values into a bytes string
@@ -1593,7 +1633,7 @@ class A_RELEASE_RP_PDU(PDU):
          _) = unpack('> B B I I', bytestring)
          
         self._update_parameters()
-        
+
     def _update_parameters(self):
         self.parameters = [self.pdu_type, 
                       0x00, # Reserved
@@ -1604,9 +1644,11 @@ class A_RELEASE_RP_PDU(PDU):
         return 10
 
     def __str__(self):
-        s  = "A-RELEASE-RP PDU\n"
-        s += " PDU type: 0x%02x\n" % self.pdu_type
-        s += " PDU length: %d\n" % self.pdu_length
+        s  = 'A-RELEASE-RP PDU\n'
+        s += '================\n'
+        s += '  PDU type: 0x%02x\n' %self.pdu_type
+        s += '  PDU length: %d bytes\n' %self.length
+        
         return s
 
 
@@ -1752,10 +1794,11 @@ class A_ABORT_PDU(PDU):
 
     def __str__(self):
         s  = "A-ABORT PDU\n"
-        s += " PDU type: 0x%02x\n" % self.pdu_type
-        s += " PDU length: %d\n" % self.pdu_length
-        s += " Abort Source: %d\n" % self.source
-        s += " Reason/Diagnostic: %d\n" % self.reason_diagnostic
+        s += "===========\n"
+        s += "  PDU type: 0x%02x\n" % self.pdu_type
+        s += "  PDU length: %d bytes\n" % self.pdu_length
+        s += "  Abort Source: %s\n" % self.source_str
+        s += "  Reason/Diagnostic: %s\n" % self.reason_str
         
         return s
 
@@ -1821,7 +1864,7 @@ class ApplicationContextItem(PDU):
     application_context_name : pydicom.uid.UID
         The UID for the Application Context Name
     length : int
-        The length of the Item in bytes
+        The length of the encoded Item in bytes
     """
     def __init__(self):
         self.item_type = 0x10
@@ -1903,6 +1946,11 @@ class ApplicationContextItem(PDU):
     def get_length(self):
         return 4 + self.item_length
 
+    def __str__(self):
+        s = '%s (%s)\n' %(self.application_context_name, 
+                          self.application_context_name.title())
+        return s
+
     @property
     def application_context_name(self):
         """ Returns the Application Context Name as a pydicom.uid.UID """
@@ -1961,7 +2009,7 @@ class PresentationContextItemRQ(PDU):
     abstract_syntax : pydicom.uid.UID
         The presentation context's Abstract Syntax value
     length : int
-        The length of the item in bytes
+        The length of the encoded Item in bytes
     ID : int
         The presentation context's ID
     transfer_syntax : list of pydicom.uid.UID
@@ -2121,13 +2169,17 @@ class PresentationContextItemRQ(PDU):
         return 4 + self.item_length
 
     def __str__(self):
-        s  = " Presentation context RQ item\n"
+        s  = "Presentation Context (RQ) Item\n"
         s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d\n" % self.item_length
-        s += "  Presentation context ID: %d\n" % self.presentation_context_id
+        s += "  Item length: %d bytes\n" % self.length
+        s += "  Context ID: %d\n" % self.ID
         
         for ii in self.abstract_transfer_syntax_sub_items:
-            s += '%s' %ii
+            item_str = '%s' %ii
+            item_str_list = item_str.split('\n')
+            s += '  +  %s\n' %item_str_list[0]
+            for jj in item_str_list[1:-1]:
+                s += '     %s\n' %jj
             
         return s
 
@@ -2181,7 +2233,7 @@ class PresentationContextItemAC(PDU):
     Attributes
     ----------
     length : int
-        The length of the item in bytes
+        The length of the encoded Item in bytes
     ID : int
         The presentation context's ID
     result : int
@@ -2319,12 +2371,18 @@ class PresentationContextItemAC(PDU):
         return 4 + self.item_length
 
     def __str__(self):
-        s  = " Presentation context AC item\n"
+        s  = "Presentation Context (AC) Item\n"
         s += "  Item type:   0x%02x\n" % self.item_type
-        s += "  Item length: %d\n" % self.item_length
-        s += "  Presentation context ID: %d\n" % self.presentation_context_id
-        s += "  Result/Reason: %d\n" % self.result_reason
-        s += "  %s" %self.transfer_syntax_sub_item
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  Context ID: %d\n" % self.presentation_context_id
+        s += "  Result/Reason: %s\n" % self.result_str
+
+        item_str = '%s' %self.transfer_syntax_sub_item
+        item_str_list = item_str.split('\n')
+        s += '  +  %s\n' %item_str_list[0]
+        for jj in item_str_list[1:-1]:
+            s += '     %s\n' %jj
+        
         return s
 
     @property
@@ -2369,7 +2427,7 @@ class AbstractSyntaxSubItem(PDU):
     abstract_syntax : pydicom.uid.UID
         The abstract syntax
     length : int
-        The length of the item in bytes
+        The length of the encoded Item in bytes
     """
     def __init__(self):
         self.item_type = 0x30
@@ -2455,10 +2513,10 @@ class AbstractSyntaxSubItem(PDU):
         return 4 + self.item_length
 
     def __str__(self):
-        s  = "  Abstract syntax sub item\n"
-        s += "   Item type: 0x%02x\n" % self.item_type
-        s += "   Item length: %d\n" % self.item_length
-        s += "   Abstract syntax name: %s\n" % self.abstract_syntax
+        s  = "Abstract Syntax Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += '  Syntax name: =%s\n' % self.abstract_syntax
         
         return s
     
@@ -2515,7 +2573,7 @@ class TransferSyntaxSubItem(PDU):
     Attributes
     ----------
     length : int
-        The length of the item in bytes
+        The length of the encoded Item in bytes
     transfer_syntax : pydicom.uid.UID
         The transfer syntax
     """
@@ -2602,10 +2660,10 @@ class TransferSyntaxSubItem(PDU):
         return 4 + self.item_length
 
     def __str__(self):
-        s  = "  Transfer syntax sub item\n"
-        s += "   Item type: 0x%02x\n" % self.item_type
-        s += "   Item length: %d\n" % self.item_length
-        s += "   Transfer syntax name: %s\n" % self.transfer_syntax_name
+        s  = "Transfer syntax sub item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += '  Transfer syntax name: =%s\n' % self.transfer_syntax_name
         
         return s
 
@@ -2662,7 +2720,7 @@ class PresentationDataValueItem(PDU):
     ID : int
         The presentation context ID
     length : int
-        The length of the item in bytes
+        The length of the encoded item in bytes
     message_control_header_byte : str
         A string containing the contents of the message control header byte
         formatted as an 8-bit binary. See PS3.8 FIXME
@@ -2747,11 +2805,11 @@ class PresentationDataValueItem(PDU):
         return 4 + self.item_length
 
     def __str__(self):
-        s  = " Presentation value data item\n"
-        s += "  Item length: %d\n" % self.item_length
-        s += "  Presentation context ID: %d\n" % self.presentation_context_id
-        s += "  Presentation data value: %s ...\n" % self.presentation_data_value[:20]
-        # FIXME
+        s  = "Presentation Value Data Item\n"
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  Context ID: %d\n" % self.presentation_context_id
+        s += "  Data value: 0x%s ...\n" %' 0x'.join(format(x, '02x') for x in self.presentation_data_value[:10])
+
         return s
     
     @property
@@ -2804,7 +2862,7 @@ class UserInformationItem(PDU):
         The implementation version name for the Implementation Version Name 
         sub-item, or None if the sub-item is not present.
     length : int
-        The length of the Item in bytes
+        The length of the encoded Item in bytes
     maximum_length : int
         The maximum length received value for the Maximum Length sub-item
     maximum_operations_invoked : int or None
@@ -2925,7 +2983,7 @@ class UserInformationItem(PDU):
         s += "  Item length: %d\n" % self.item_length
         s += "  User Data:\n "
         
-        for ii in self.UserData[1:]:
+        for ii in self.user_data[1:]:
             s += "  %s" %ii
         
         return s
@@ -3026,6 +3084,8 @@ class MaximumLengthSubItem(PDU):
     
     Attributes
     ----------
+    length : int
+        The length of the encoded Item in bytes
     """
     def __init__(self):
         self.item_type = 0x51
@@ -3110,136 +3170,129 @@ class MaximumLengthSubItem(PDU):
         return 0x08
 
     def __str__(self):
-        s  = "Maximum length sub item\n"
-        s += "\tItem type: 0x%02x\n" % self.item_type
-        s += "\tMaximum length received: %d\n" % self.maximum_length_received
+        s  = "Maximum length Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  Maximum length received: %d\n" % self.maximum_length_received
         return s
-
-
-class GenericUserDataSubItem(PDU):
-    """
-    This class is provided only to allow user data to converted to and from
-    PDUs. The actual data is not interpreted. This is left to the user.
-    """
-    def __init__(self):
-        self.ItemType = None                # Unsigned byte
-        self.ItemLength = None                        # Unsigned short
-        self.UserData = None                # Raw string
-
-    def FromParams(self, Params):
-        self.ItemLength = len(Params.UserData)
-        self.UserData = Params.UserData
-        seld.ItemType = Params.ItemType
-
-    def ToParams(self):
-        tmp = GenericUserDataSubItem()
-        tmp.ItemType = self.ItemType
-        tmp.UserData = self.UserData
-        return tmp
-
-    def Encode(self):
-        tmp = ''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + self.UserData
-        return tmp
-
-    def Decode(self, Stream):
-        (self.ItemType, 
-         _,
-         self.ItemLength) = unpack('> B B H', Stream.read(4))
-        # User data value is left in raw string format. The Application Entity
-        # is responsible for dealing with it.
-        self.UserData = Stream.read(int(self.ItemLength) - 1)
-
-    def get_length(self):
-        self.ItemLength = len(Params.UserData)
-        return 4 + self.ItemLength
-
-    def __repr__(self):
-        tmp = "User data item\n"
-        tmp = tmp + "  Item type: %d\n" % self.ItemType
-        tmp = tmp + "  Item length: %d\n" % self.ItemLength
-        if len(self.UserData) > 1:
-            tmp = tmp + "  User data: %s ...\n" % self.UserData[:10]
-        return tmp
 
 class ImplementationClassUIDSubItem(PDU):
     """
-    Implementation Class UID identifies in a unique manner a specific class
-    of implementation. Each node claiming conformance to the DICOM Standard
-    shall be assigned an Implementation Class UID to distinguish its 
-    implementation environment from others.
+    Represents the Implementation Class UID Sub Item used in A-ASSOCIATE-RQ and 
+    A-ASSOCIATE-AC PDUs.
+
+    The Implementation Class UID Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.2.1):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * Implementation Class UID (1)
     
-    PS3.7 Annex D.3.3.2.1-2
+    See PS3.7 Annex D.3.3.2.1-2 for the structure of the item, especially 
+    Tables D.3-1 and D.3-2.
     
-    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    implementation_class_uid : pydicom.uid.UID
+        The Implementation Class UID
+    length : int
+        The length of the encoded Item in bytes
     """
     def __init__(self):
-        self.ItemType = 0x52
-        self.ItemLength = None
+        self.item_type = 0x52
+        self.item_length = None
         self.implementation_class_uid = None
         
         self.formats = ['B', 'B', 'H', 's']
-        self.parameters = [self.ItemType,
+        self.parameters = [self.item_type,
                            0x00,
-                           self.ItemLength,
+                           self.item_length,
                            self.implementation_class_uid]
 
-    def FromParams(self, Params):
-        self.implementation_class_uid = Params.ImplementationClassUID
-        self.ItemLength = len(self.implementation_class_uid)
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.ImplementationClassUIDParameters
+            The primitive to use when setting up the Item
+        """
+        self.implementation_class_uid = primitive.ImplementationClassUID
+        self.item_length = len(self.implementation_class_uid)
 
     def ToParams(self):
-        tmp = ImplementationClassUIDParameters()
-        tmp.ImplementationClassUID = self.implementation_class_uid
-        return tmp
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.ImplementationClassUIDParameters
+            The primitive to convert to
+        """
+        primitive = ImplementationClassUIDParameters()
+        primitive.ImplementationClassUID = self.implementation_class_uid
+        
+        return primitive
 
     def Encode(self):
         s = b''
-        s += pack('B', self.ItemType)
+        s += pack('B', self.item_type)
         s += pack('B', 0x00)
-        s += pack('>H', self.ItemLength)
+        s += pack('>H', self.item_length)
         s += bytes(self.implementation_class_uid.title(), 'utf-8')
         return s
 
-    def Decode(self, s):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
          _,
-         self.ItemLength) = unpack('> B B H', s.read(4))
-        self.implementation_class_uid = s.read(self.ItemLength)
+         self.item_length) = unpack('> B B H', bytestream.read(4))
+        self.implementation_class_uid = bytestream.read(self.item_length)
         
         self._update_parameters()
-        
+
     def _update_parameters(self):
-        self.parameters = [self.ItemType,
+        self.parameters = [self.item_type,
                            0x00,
-                           self.ItemLength,
+                           self.item_length,
                            self.implementation_class_uid]
 
     def get_length(self):
-        self.ItemLength = len(self.implementation_class_uid)
-        return 4 + self.ItemLength
+        self.item_length = len(self.implementation_class_uid)
+        return 4 + self.item_length
 
-    def __repr__(self):
-        s  = "Implementation class UID sub item\n"
-        s += "\tItem type: 0x%02x\n" %self.ItemType
-        s += "\tItem length: %d\n" %self.ItemLength
-        s += "\tImplementation class UID: %s\n" %self.implementation_class_uid
-        return s
+    def __str__(self):
+        s  = "Implementation Class UID Sub-item\n"
+        s += "  Item type: 0x%02x\n" %self.item_type
+        s += "  Item length: %d bytes\n" %self.item_length
+        s += "  Implementation class UID: '%s'\n" %self.implementation_class_uid
         
+        return s
+
     @property
     def implementation_class_uid(self):
-        """
-        Returns the Implementation Class UID as a UID
-        """
         return self._implementation_class_uid
-        
+
     @implementation_class_uid.setter
     def implementation_class_uid(self, value):
         """
+        Sets the implementation class UID to `value`
         
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The UID value to set
         """
         if isinstance(value, UID):
             pass
@@ -3249,64 +3302,109 @@ class ImplementationClassUIDSubItem(PDU):
             value = UID(value.decode('utf-8'))
         
         self._implementation_class_uid = value
-        
+        if value is not None:
+            self.item_length = len(self.implementation_class_uid)
+
 class ImplementationVersionNameSubItem(PDU):
     """
-    PS3.7 Annex D.3.3.2.3-4
+    Represents the Implementation Class UID Sub Item used in A-ASSOCIATE-RQ and 
+    A-ASSOCIATE-AC PDUs.
+
+    The Implementation Class UID Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.2.3):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * Implementation version name (1)
     
-    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    See PS3.7 Annex D.3.3.2.3-4 for the structure of the item, especially 
+    Tables D.3-3 and D.3-4.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    implementation_version_name : bytes
+        The Implementation Version Name
+    length : int
+        The length of the encoded Item in bytes
     """
     def __init__(self):
-        self.ItemType = 0x55
-        self.ItemLength = None
+        self.item_type = 0x55
+        self.item_length = None
         self.implementation_version_name = None
         
         self.formats = ['B', 'B', 'H', 's']
-        self.parameters = [self.ItemType,
+        self.parameters = [self.item_type,
                            0x00,
-                           self.ItemLength,
+                           self.item_length,
                            self.implementation_version_name]
 
-    def FromParams(self, Params):
-        self.implementation_version_name = Params.ImplementationVersionName
-        self.ItemLength = len(self.implementation_version_name)
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.ImplementationVersionNameParameters
+            The primitive to use when setting up the Item
+        """
+        self.implementation_version_name = primitive.ImplementationVersionName
 
     def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.ImplementationVersionNameParameters
+            The primitive to convert to
+        """
         tmp = ImplementationVersionNameParameters()
         tmp.ImplementationVersionName = self.implementation_version_name
         return tmp
 
     def Encode(self):
         tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', self.item_type)
         tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
+        tmp = tmp + pack('>H', self.item_length)
         tmp = tmp + self.implementation_version_name
         return tmp
 
-    def Decode(self, Stream):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
          _,
-         self.ItemLength) = unpack('> B B H', Stream.read(4))
-        self.implementation_version_name = Stream.read(self.ItemLength)
+         self.item_length) = unpack('> B B H', bytestream.read(4))
+        self.implementation_version_name = bytestream.read(self.item_length)
         
         self._update_parameters()
         
     def _update_parameters(self):
-        self.parameters = [self.ItemType,
+        self.parameters = [self.item_type,
                            0x00,
-                           self.ItemLength,
+                           self.item_length,
                            self.implementation_version_name]
 
     def get_length(self):
-        self.ItemLength = len(self.implementation_version_name)
-        return 4 + self.ItemLength
+        self.item_length = len(self.implementation_version_name)
+        return 4 + self.item_length
 
-    def __repr__(self):
-        s  = "Implementation version name sub item\n"
-        s += "\tItem type: 0x%02x\n" %self.ItemType
-        s += "\tItem length: %d\n" %self.ItemLength
+    def __str__(self):
+        s  = "Implementation Version Name Sub-item\n"
+        s += "\tItem type: 0x%02x\n" %self.item_type
+        s += "\tItem length: %d bytes\n" %self.item_length
         s += "\tImplementation version name: %s\n" %self.implementation_version_name
+        
         return s
         
     @property
@@ -3322,70 +3420,82 @@ class ImplementationVersionNameSubItem(PDU):
             value = bytes(value, 'utf-8')
             
         self._implementation_version_name = value
+        if value is not None:
+            self.item_length = len(self.implementation_version_name)
+
 
 class AsynchronousOperationsWindowSubItem(PDU):
     """
-    Used to negotiate the maximum number of outstanding operation or 
-    sub-operation requests (ie command requests) for each direction. The
-    synchronous operations mode is the default mode and shall be supported by
-    all DICOM AEs. This negotiation is optional.
+    Represents the Asynchronous Operations Window Sub Item used in 
+    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
+
+    The Asynchronous Operations WindowSub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.3.1):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * Maximum number of operations invoked (1)
+        * Maximum number of operations performed (1)
     
-    PS3.7 Annex D.3.3.3
+    See PS3.7 Annex D.3.3.3.1-2 for the structure of the item, especially 
+    Tables D.3-7 and D.3-8.
     
-    Identical for A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded Item in bytes
+    max_operations_invoked : int
+        The maximum number of operations invoked
+    max_operations_performed : int
+        The maximum number of operations performed
     """
     def __init__(self):
-        self.ItemType = 0x53
-        self.ItemLength = 0x0004
-        self.MaximumNumberOperationsInvoked = None
-        self.MaximumNumberOperationsPerformed = None
+        self.item_type = 0x53
+        self.item_length = 0x04
+        self.maximum_number_operations_invoked = None
+        self.maximum_number_operations_performed = None
 
-    def FromParams(self, Params):
-        self.MaximumNumberOperationsInvoked = \
-                                    Params.MaximumNumberOperationsInvoked
-        self.MaximumNumberOperationsPerformed = \
-                                    Params.MaximumNumberOperationsPerformed
+    def FromParams(self, primitive):
+        self.maximum_number_operations_invoked = primitive.MaximumNumberOperationsInvoked
+        self.maximum_number_operations_performed = primitive.MaximumNumberOperationsPerformed
 
     def ToParams(self):
-        tmp = AsynchronousOperationsWindowSubItem()
-        tmp.MaximumNumberOperationsInvoked = \
-                                    self.MaximumNumberOperationsInvoked
-        tmp.MaximumNumberOperationsPerformed = \
-                                    self.MaximumNumberOperationsPerformed
-        return tmp
+        primitive = AsynchronousOperationsWindowSubItem()
+        primitive.MaximumNumberOperationsInvoked = self.maximum_number_operations_invoked
+        primitive.MaximumNumberOperationsPerformed = self.maximum_number_operations_performed
+        
+        return primitive
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.ItemType)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.ItemLength)
-        tmp = tmp + pack('>H', self.MaximumNumberOperationsInvoked)
-        tmp = tmp + pack('>H', self.MaximumNumberOperationsPerformed)
-        return tmp
+        s  = b''
+        s += pack('B', self.item_type)
+        s += pack('B', 0x00)
+        s += pack('>H', self.item_length)
+        s += pack('>H', self.maximum_number_operations_invoked)
+        s += pack('>H', self.maximum_number_operations_performed)
+        
+        return s
 
-    def Decode(self, Stream):
-        (self.ItemType, 
+    def Decode(self, bytestream):
+        (self.item_type, 
          _, 
-         self.ItemLength,
-         self.MaximumNumberOperationsInvoked,
-         self.MaximumNumberOperationsPerformed) = unpack('>B B H H H',
-                                                                Stream.read(8))
+         self.item_length,
+         self.maximum_number_operations_invoked,
+         self.maximum_number_operations_performed) = unpack('>B B H H H', bytestream.read(8))
 
     def get_length(self):
-        # 0x08
-        return 4 + self.ItemLength
+        return 0x08
 
-    def __repr__(self):
-        tmp = "  Asynchoneous operation window sub item\n"
-        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + \
-            "   Maximum number of operations invoked: %d\n" % \
-            self.MaximumNumberOperationsInvoked
-        tmp = tmp + \
-            "   Maximum number of operations performed: %d\n" % \
-            self.MaximumNumberOperationsPerformed
-        return tmp
+    def __str__(self):
+        s  = "Asynchronous Operation Window Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  Max. number of operations invoked: %d\n" % self.maximum_number_operations_invoked
+        s += "  Max. number of operations performed: %d\n" % self.maximum_number_operations_performed
+        
+        return s
 
 class SCP_SCU_RoleSelectionSubItem(PDU):
     def __init__(self):
@@ -3603,7 +3713,7 @@ class MaximumLengthParameters(PDU):
         tmp.FromParams(self)
         return tmp
 
-class ImplementationClassUIDParameters():
+class ImplementationClassUIDParameters(PDU):
     """
     The implementation identification notification allows implementations of
     communicating AEs to identify each other at Association establishment time.
@@ -3679,3 +3789,56 @@ class UserIdentityParameters():
             tmp = UserIdentitySubItemAC()
         tmp.FromParams(self)
         return tmp
+
+
+# Deprecated
+class GenericUserDataSubItem(PDU):
+    """
+    This class is provided only to allow user data to converted to and from
+    PDUs. The actual data is not interpreted. This is left to the user.
+    """
+    def __init__(self):
+        raise DeprecationWarning('GenericUserDataSubItem')
+        self.ItemType = None                # Unsigned byte
+        self.ItemLength = None                        # Unsigned short
+        self.UserData = None                # Raw string
+
+    def FromParams(self, Params):
+        self.ItemLength = len(Params.UserData)
+        self.UserData = Params.UserData
+        seld.ItemType = Params.ItemType
+
+    def ToParams(self):
+        tmp = GenericUserDataSubItem()
+        tmp.ItemType = self.ItemType
+        tmp.UserData = self.UserData
+        return tmp
+
+    def Encode(self):
+        tmp = ''
+        tmp = tmp + pack('B', self.ItemType)
+        tmp = tmp + pack('B', 0x00)
+        tmp = tmp + pack('>H', self.ItemLength)
+        tmp = tmp + self.UserData
+        return tmp
+
+    def Decode(self, Stream):
+        (self.ItemType, 
+         _,
+         self.ItemLength) = unpack('> B B H', Stream.read(4))
+        # User data value is left in raw string format. The Application Entity
+        # is responsible for dealing with it.
+        self.UserData = Stream.read(int(self.ItemLength) - 1)
+
+    def get_length(self):
+        self.ItemLength = len(Params.UserData)
+        return 4 + self.ItemLength
+
+    def __repr__(self):
+        tmp = "User data item\n"
+        tmp = tmp + "  Item type: %d\n" % self.ItemType
+        tmp = tmp + "  Item length: %d\n" % self.ItemLength
+        if len(self.UserData) > 1:
+            tmp = tmp + "  User data: %s ...\n" % self.UserData[:10]
+        return tmp
+
