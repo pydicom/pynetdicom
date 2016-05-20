@@ -5,7 +5,7 @@ pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__)
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.' + \
-                                        '.'.join(__version__) 
+                                        '.'.join(__version__)
 
 from pynetdicom.applicationentity import ApplicationEntity as AE
 from pynetdicom.association import Association

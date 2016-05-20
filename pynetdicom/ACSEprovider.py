@@ -126,8 +126,7 @@ class ACSEServiceProvider(object):
         # Class UID (required)
         from pynetdicom.__init__ import pynetdicom_uid_prefix
         implementation_class_uid = ImplementationClassUIDParameters()
-        implementation_class_uid.ImplementationClassUID = \
-                                        bytes(pynetdicom_uid_prefix, 'utf-8')
+        implementation_class_uid.ImplementationClassUID = UID(pynetdicom_uid_prefix)
         assoc_rq.UserInformationItem.append(implementation_class_uid)
 
         # Version Name (optional)
