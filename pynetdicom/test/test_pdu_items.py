@@ -46,6 +46,56 @@ a_associate_rq_role = b'\x01\x00\x00\x00\x00\xfc\x00\x01\x00\x00\x41\x4e\x59\x2d
                       b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32' \
                       b'\x00\x01'
 
+#a_associate_rq_user_id_kerberos
+#a_associate_rq_user_id_saml
+
+# username: pynetdicom
+a_associate_rq_user_id_user_nopw = b'\x01\x00\x00\x00\x01\x17\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
+                                   b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
+                                   b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
+                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
+                                   b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
+                                   b'\x31\x2e\x31\x20\x00\x00\x64\x01\x00\xff\x00\x30\x00\x00\x19\x31' \
+                                   b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31' \
+                                   b'\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x13\x31\x2e\x32\x2e' \
+                                   b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x2e\x31\x40' \
+                                   b'\x00\x00\x13\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38' \
+                                   b'\x2e\x31\x2e\x32\x2e\x32\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34' \
+                                   b'\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\x4e\x51' \
+                                   b'\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b\x31\x2e\x32\x2e\x32' \
+                                   b'\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31\x30\x2e\x33\x2e\x30' \
+                                   b'\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f\x46\x46\x49\x53\x5f' \
+                                   b'\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00\x00\x10\x01\x01\x00' \
+                                   b'\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x00'
+
+user_identity_rq_user_nopw = b'\x58\x00\x00\x10\x01\x01\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63' \
+                             b'\x6f\x6d\x00\x00'
+
+# username: pynetdicom, password: p4ssw0rd
+a_associate_rq_user_id_user_pass = b'\x01\x00\x00\x00\x01\x1f\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
+                                   b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
+                                   b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
+                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
+                                   b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
+                                   b'\x31\x2e\x31\x20\x00\x00\x64\x01\x00\xff\x00\x30\x00\x00\x19\x31' \
+                                   b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31' \
+                                   b'\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x13\x31\x2e\x32\x2e' \
+                                   b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x2e\x31\x40' \
+                                   b'\x00\x00\x13\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38' \
+                                   b'\x2e\x31\x2e\x32\x2e\x32\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34' \
+                                   b'\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\x56\x51' \
+                                   b'\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b\x31\x2e\x32\x2e\x32' \
+                                   b'\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31\x30\x2e\x33\x2e\x30' \
+                                   b'\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f\x46\x46\x49\x53\x5f' \
+                                   b'\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00\x00\x18\x02\x00\x00' \
+                                   b'\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x08\x70\x34\x73' \
+                                   b'\x73\x77\x30\x72\x64'
+
+user_identity_rq_user_pass = b'\x58\x00\x00\x18\x02\x00\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63' \
+                             b'\x6f\x6d\x00\x08\x70\x34\x73\x73\x77\x30\x72\x64'
+
 a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
 
 a_release_rq = b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
@@ -877,5 +927,145 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
         with self.assertRaises(ValueError):
             item.scp_role = 2
 
+class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
+    def test_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_nopw)
+
+        ui = pdu.user_information.user_identity
+        
+        self.assertEqual(ui.item_type, 0x58)
+        self.assertEqual(ui.item_length, 16)
+        self.assertEqual(ui.user_identity_type, 1)
+        self.assertEqual(ui.positive_response_requested, 1)
+        self.assertEqual(ui.primary_field_length, 10)
+        self.assertEqual(ui.primary_field, b'pynetdicom')
+        self.assertEqual(ui.secondary_field_length, 0)
+        self.assertEqual(ui.secondary_field, None)
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_nopw)
+
+        ui = pdu.user_information.user_identity
+        
+        s = ui.encode()
+
+        self.assertEqual(s, user_identity_rq_user_nopw)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_nopw)
+
+        ui = pdu.user_information.user_identity
+        
+        result = ui.ToParams()
+        
+        check = UserIdentityParameters()
+        check.UserIdentityType = 1
+        check.PositiveResponseRequested = 1
+        check.PrimaryField = b'pynetdicom'
+        check.SecondaryField = None
+
+        self.assertEqual(result, check)
+    
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_nopw)
+
+        orig = pdu.user_information.user_identity
+        params = orig.ToParams()
+        
+        new = UserIdentitySubItemRQ()
+        new.FromParams(params)
+        
+        self.assertEqual(orig, new)
+    
+    def test_properies(self):
+        """ Check property setters and getters """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_nopw)
+
+        ui = pdu.user_information.user_identity
+        
+        self.assertEqual(ui.id_type, 1)
+        self.assertEqual(ui.id_type_str, 'username')
+        self.assertEqual(ui.response_requested, 1)
+
+class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
+    def test_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_pass)
+
+        ui = pdu.user_information.user_identity
+        
+        self.assertEqual(ui.item_type, 0x58)
+        self.assertEqual(ui.item_length, 24)
+        self.assertEqual(ui.user_identity_type, 2)
+        self.assertEqual(ui.positive_response_requested, 0)
+        self.assertEqual(ui.primary_field_length, 10)
+        self.assertEqual(ui.primary_field, b'pynetdicom')
+        self.assertEqual(ui.secondary_field_length, 8)
+        self.assertEqual(ui.secondary_field, b'p4ssw0rd')
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_pass)
+
+        ui = pdu.user_information.user_identity
+        
+        s = ui.encode()
+        
+        self.assertEqual(s, user_identity_rq_user_pass)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_pass)
+
+        ui = pdu.user_information.user_identity
+        
+        result = ui.ToParams()
+        
+        check = UserIdentityParameters()
+        check.UserIdentityType = 2
+        check.PositiveResponseRequested = 0
+        check.PrimaryField = b'pynetdicom'
+        check.SecondaryField = b'p4ssw0rd'
+
+        self.assertEqual(result, check)
+    
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_pass)
+
+        orig = pdu.user_information.user_identity
+        params = orig.ToParams()
+        
+        new = UserIdentitySubItemRQ()
+        new.FromParams(params)
+        
+        self.assertEqual(orig, new)
+    
+    def test_properies(self):
+        """ Check property setters and getters """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_pass)
+
+        ui = pdu.user_information.user_identity
+        
+        self.assertEqual(ui.id_type, 2)
+        self.assertEqual(ui.id_type_str, 'username/password')
+        self.assertEqual(ui.response_requested, 0)
+
+
+    
 if __name__ == "__main__":
     unittest.main()
