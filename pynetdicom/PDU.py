@@ -3720,6 +3720,40 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
 
 class UserIdentitySubItemRQ(PDU):
+    """
+    Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
+
+    The SCP/SCU Role Selection Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.4.1):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * User identity type (1)
+        * Positive response requested (1)
+        * Primary field length (1)
+        * Primary field (1)
+        * Secondary field length (1)
+        * Secondary field (1, only if user identity type = 2)
+    
+    See PS3.7 Annex D.3.3.7.1 for the structure of the item, especially 
+    Table D.3-14.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    id_type : int
+        The SCU role (0 or 1)
+    id_type_str : str
+        The SCP role (0 or 1)
+    length : int
+        The length of the encoded Item in bytes
+    primary : bytes
+        The value of the primary field
+    response_requested : bool
+        True if a positive response is requested, False otherwise
+    secondary : bytes or None
+        The value of the secondary field, None if not used
+    """
     def __init__(self):
         self.item_type = 0x58
         self.item_length = None
@@ -3748,29 +3782,48 @@ class UserIdentitySubItemRQ(PDU):
         
         return s
 
-    def FromParams(self, parameters):
-        self.user_identity_type = parameters.UserIdentityType
-        self.positive_response_requested = parameters.PositiveResponseRequested
-        self.primary_field = parameters.PrimaryField
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.UserIdentityParameters
+            The primitive to use when setting up the Item
+        """
+        self.user_identity_type = primitive.UserIdentityType
+        self.positive_response_requested = primitive.PositiveResponseRequested
+        self.primary_field = primitive.PrimaryField
         self.primary_field_length = len(self.primary_field)
-        self.secondary_field = parameters.SecondaryField
+        self.secondary_field = primitive.SecondaryField
         
         if self.secondary_field is not None:
             self.secondary_field_length = len(self.secondary_field)
         else:
             self.secondary_field_length = 0
         
-        self.item_length = 6 + self.primary_field_length + self.secondary_field_length
+        self.item_length = 6 + self.primary_field_length \
+                             + self.secondary_field_length
 
     def ToParams(self):
-        tmp = UserIdentityParameters()
-        tmp.UserIdentityType = self.user_identity_type
-        tmp.PositiveResponseRequested = self.positive_response_requested
-        tmp.PrimaryField = self.primary_field
-        tmp.SecondaryField = self.secondary_field
-        return tmp
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.UseIdentityParameters
+            The primitive to convert to
+        """
+        primitive = UserIdentityParameters()
+        primitive.UserIdentityType = self.user_identity_type
+        primitive.PositiveResponseRequested = self.positive_response_requested
+        primitive.PrimaryField = self.primary_field
+        primitive.SecondaryField = self.secondary_field
+        
+        return primitive
 
     def encode(self):
+        # Override the default
         return self.Encode()
 
     def Encode(self):
@@ -3851,9 +3904,16 @@ class UserIdentitySubItemRQ(PDU):
         return id_types[self.user_identity_type]
     
     @property
+    def primary(self):
+        return self.primary_field
+        
+    @property
     def response_requested(self):
-        return self.positive_response_requested
+        return bool(self.positive_response_requested)
 
+    @property
+    def secondary(self):
+        return self.secondary_field
     
 
 class UserIdentitySubItemAC(PDU):
