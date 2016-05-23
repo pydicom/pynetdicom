@@ -198,7 +198,7 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         self.assertEqual(primitive.CalledAETitle, b'ANY-SCP         ')
         
         # Test User Information
-        for item in primitive.UserInformationItem:
+        for item in primitive.UserInformation:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthSubItem):
                 self.assertEqual(item.MaximumLengthReceived, 16384)
@@ -234,7 +234,7 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         self.assertTrue(isinstance(primitive.ApplicationContextName, UID))
         self.assertTrue(isinstance(primitive.CallingAETitle, bytes))
         self.assertTrue(isinstance(primitive.CalledAETitle, bytes))
-        self.assertTrue(isinstance(primitive.UserInformationItem, list))
+        self.assertTrue(isinstance(primitive.UserInformation, list))
         self.assertTrue(isinstance(primitive.PresentationContextDefinitionList, list))
         
         # Not used by A-ASSOCIATE-RQ or fixed value
@@ -493,31 +493,21 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         self.assertEqual(primitive.CalledAETitle, b'ANY-SCP         ')
         
         # Test User Information
-        for item in primitive.UserInformationItem:
+        for item in primitive.UserInformation:
             # Maximum PDU Length (required)
-            if isinstance(item, MaximumLengthSubItem):
+            if isinstance(item, MaximumLengthParameters):
                 self.assertEqual(item.MaximumLengthReceived, 16384)
-                self.assertEqual(user_info.maximum_length, 16384)
                 self.assertTrue(isinstance(item.MaximumLengthReceived, int))
-                self.assertTrue(isinstance(user_info.maximum_length, int))
             
             # Implementation Class UID (required)
-            elif isinstance(item, ImplementationClassUIDSubItem):
-                self.assertEqual(item.ItemType, 0x52)
-                self.assertEqual(item.ItemLength, 27)
-                self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
-                self.assertTrue(isinstance(item.implementation_class_uid, UID))
+            elif isinstance(item, ImplementationClassUIDParameters):
+                self.assertEqual(item.ImplementationClassUID, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertTrue(isinstance(item.ImplementationClassUID, UID))
                 
             # Implementation Version Name (optional)
-            elif isinstance(item, ImplementationVersionNameSubItem):
-                self.assertEqual(item.ItemType, 0x55)
-                self.assertEqual(item.ItemLength, 15)
-                self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
-                self.assertTrue(isinstance(item.implementation_version_name, bytes))
+            elif isinstance(item, ImplementationVersionNameParameters):
+                self.assertEqual(item.ImplementationVersionName, b'OFFIS_DCMTK_360')
+                self.assertTrue(isinstance(item.ImplementationVersionName, bytes))
         
         # Test Presentation Contexts
         for context in primitive.PresentationContextDefinitionList:
@@ -527,7 +517,7 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         self.assertTrue(isinstance(primitive.ApplicationContextName, UID))
         self.assertTrue(isinstance(primitive.CallingAETitle, bytes))
         self.assertTrue(isinstance(primitive.CalledAETitle, bytes))
-        self.assertTrue(isinstance(primitive.UserInformationItem, list))
+        self.assertTrue(isinstance(primitive.UserInformation, list))
         
         self.assertEqual(primitive.Result, 0)
         self.assertEqual(len(primitive.PresentationContextDefinitionResultList), 1)
@@ -546,15 +536,15 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
-        orig_pdu = A_ASSOCIATE_AC_PDU()
-        orig_pdu.Decode(a_associate_ac)
+        orig = A_ASSOCIATE_AC_PDU()
+        orig.Decode(a_associate_ac)
         
-        primitive = orig_pdu.ToParams()
+        primitive = orig.ToParams()
         
-        new_pdu = A_ASSOCIATE_AC_PDU()
-        new_pdu.FromParams(primitive)
+        new = A_ASSOCIATE_AC_PDU()
+        new.FromParams(primitive)
         
-        self.assertEqual(new_pdu, orig_pdu)
+        self.assertEqual(new, orig)
         
     def test_update_data(self):
         """ Check that updating the PDU data works correctly """
@@ -743,7 +733,7 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         self.assertEqual(primitive.CallingAETitle, None)
         self.assertEqual(primitive.CalledAETitle, None)
         self.assertEqual(primitive.RespondingAETitle, None)
-        self.assertEqual(primitive.UserInformationItem, None)
+        self.assertEqual(primitive.UserInformation, None)
         self.assertEqual(primitive.CallingPresentationAddress, None)
         self.assertEqual(primitive.CalledPresentationAddress, None)
         self.assertEqual(primitive.RespondingPresentationAddress, primitive.CalledPresentationAddress)

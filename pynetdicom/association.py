@@ -251,10 +251,40 @@ class Association(threading.Thread):
 
             # Called AE Title not recognised
             if self.ae.require_called_aet != '':
-                if self.AE.require_called_aet != assoc_rq.called_ae_title:
+                if self.ae.require_called_aet != assoc_rq.called_ae_title:
                     reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
-            # DUL Presentation Related Rejections
+            ## DUL ACSE Related Rejections
+            #
+            # User Identity Negotiation (PS3.7 Annex D.3.3.7)
+            for ii in assoc_rq.UserInformation:
+                if isinstance(ii, UserIdentityParameters):
+                    # Used to notify the association acceptor of the user 
+                    #   identity of the association requestor. It may also
+                    #   request that the Acceptor response with the server
+                    #   identity.
+                    #
+                    # The Acceptor does not provide an A-ASSOCIATE response
+                    #   unless a positive response is requested and user
+                    #   authentication succeeded. If a positive response
+                    #   was requested, the A-ASSOCIATE response shall contain
+                    #   a User Identity sub-item. If a Kerberos ticket is used
+                    #   the response shall include a Kerberos server ticket
+                    #
+                    # A positive response must be requested if the association
+                    #   requestor requires confirmation. If the Acceptor does
+                    #   not support user identification it will accept the 
+                    #   association without making a positive response. The 
+                    #   Requestor can then decide whether to proceed
+                    
+                    #user_authorised = self.ae.on_user_identity(ii.UserIdentityType,
+                    #                                           ii.PrimaryField,
+                    #                                           ii.SecondaryField)
+                    
+                    # Associate with all requestors
+                    assoc_rq.UserInformation.remove(ii)
+
+            ## DUL Presentation Related Rejections
             #
             # Maximum number of associations reached (local-limit-exceeded)
             if len(self.ae.active_associations) > self.ae.maximum_associations:
@@ -277,10 +307,10 @@ class Association(threading.Thread):
                                     self.acse.context_manager.accepted
             
             # Set maximum PDU send length
-            self.peer_max_pdu = assoc_rq.UserInformationItem[0].MaximumLengthReceived
+            self.peer_max_pdu = assoc_rq.UserInformation[0].MaximumLengthReceived
             
             # Set maximum PDU receive length
-            assoc_rq.UserInformationItem[0].MaximumLengthReceived = \
+            assoc_rq.UserInformation[0].MaximumLengthReceived = \
                                                         self.local_max_pdu
             
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE

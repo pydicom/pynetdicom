@@ -79,11 +79,16 @@ class PDU(object):
     def __eq__(self, other):
         """Equality of two PDUs"""
         for ii in self.__dict__:
+            if ii not in other.__dict__.keys():
+                return False
+        
+        for ii in other.__dict__:
+            if ii not in self.__dict__.keys():
+                return False
+        
+        for ii in self.__dict__:
             if ii != 'parameters':
                 if not (self.__dict__[ii] == other.__dict__[ii]):
-                    print(type(self), ii)
-                    print(self.__dict__[ii])
-                    print(other.__dict__[ii])
                     return False
 
         return True
@@ -384,7 +389,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
         # Make User Information
         user_information = UserInformationItem()
-        user_information.FromParams(primitive.UserInformationItem)
+        user_information.FromParams(primitive.UserInformation)
         self.variable_items.append(user_information)
 
         # Set the pdu_length attribute
@@ -412,7 +417,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
             
             # Add user information
             elif isinstance(ii, UserInformationItem):
-                primitive.UserInformationItem = ii.ToParams()
+                primitive.UserInformation = ii.ToParams()
         
         return primitive
 
@@ -761,7 +766,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         
         # Make user information
         user_information = UserInformationItem()
-        user_information.FromParams(primitive.UserInformationItem)
+        user_information.FromParams(primitive.UserInformation)
         self.variable_items.append(user_information)
         
         # Compute PDU length parameter value
@@ -795,7 +800,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
             
             # Add user information
             elif isinstance(ii, UserInformationItem):
-                primitive.UserInformationItem = ii.ToParams()
+                primitive.UserInformation = ii.ToParams()
         
         # 0x00 = Accepted
         primitive.Result = 0x00
@@ -2896,11 +2901,10 @@ class UserInformationItem(PDU):
         
         Parameters
         ----------
-        primitive : FIXME
+        primitive : list
         """
         for ii in primitive:
-            # Why is this ToParams?
-            self.user_data.append(ii.ToParams())
+            self.user_data.append(ii.FromParams())
 
         self._update_item_length()
 
@@ -3723,9 +3727,9 @@ class UserIdentitySubItemRQ(PDU):
     """
     Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
 
-    The SCP/SCU Role Selection Sub Item requires the following parameters 
-    (see PS3.7 Annex D.3.3.4.1):
-        * Item type (1, fixed, 0x51)
+    The User Identity RQ Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.7.1):
+        * Item type (1, fixed, 0x58)
         * Item length (1)
         * User identity type (1)
         * Positive response requested (1)
@@ -3896,10 +3900,10 @@ class UserIdentitySubItemRQ(PDU):
     
     @property
     def id_type_str(self):
-        id_types = {1 : 'username',
-                    2 : 'username/password',
-                    3 : 'kerberos service ticket',
-                    4 : 'SAML assertion'}
+        id_types = {1 : 'Username',
+                    2 : 'Username/Password',
+                    3 : 'Kerberos',
+                    4 : 'SAML'}
                     
         return id_types[self.user_identity_type]
     
@@ -3917,7 +3921,125 @@ class UserIdentitySubItemRQ(PDU):
     
 
 class UserIdentitySubItemAC(PDU):
-    pass
+    """
+    Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
+
+    The User Identity AC Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.7.2):
+        * Item type (1, fixed, 0x59)
+        * Item length (1)
+        * Server response length (1)
+        * Server response (1)
+    
+    See PS3.7 Annex D.3.3.7.2 for the structure of the item, especially 
+    Table D.3-15.
+    
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded Item in bytes
+    response : bytes
+        The value for the server response. For user identity type value of
+          * 1: b''
+          * 2: b''
+          * 3: the Kerberos service ticket
+          * 4: the SAML response
+    """
+    def __init__(self):
+        self.item_type = 0x58
+        self.item_length = None
+        self.server_response_length = None
+        self.server_response = None
+
+    def __str__(self):
+        s  = "User Identity (AC) Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  Server response length: %d bytes\n" % self.server_response_length
+        s += "  Server response: %s\n" % self.server_response
+        
+        return s
+
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.UserIdentityParameters
+            The primitive to use when setting up the Item
+        """
+        self.server_response = primitive.ServerResponse
+        self.server_response_length = len(self.server_response)
+        
+        self.item_length = 2 + self.server_response_length
+
+    def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.UseIdentityParameters
+            The primitive to convert to
+        """
+        primitive = UserIdentityParameters()
+        primitive.ServerResponse = self.server_response
+        
+        return primitive
+
+    def encode(self):
+        # Override the default
+        return self.Encode()
+
+    def Encode(self):
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H H'
+        parameters = [self.item_type,
+                      0x00,
+                      self.item_length,
+                      self.server_response_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.server_response)
+        
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type,
+         _,
+         self.item_length,
+         self.server_response_length) = unpack('>B B H H', bytestream.read(6))
+        
+        self.server_response = bytestream.read(self.server_response_length)
+
+    def get_length(self):
+        self.item_length = 2 + self.server_response_length
+        return 4 + self.item_length
+
+    @property
+    def response(self):
+        return self.server_response
+
 
 
 class SOPClassExtendedNegotiationSubItem(PDU):
@@ -4179,7 +4301,7 @@ class MaximumLengthParameters(PDU):
     def __init__(self):
         self.MaximumLengthReceived = None
 
-    def ToParams(self):
+    def FromParams(self):
         tmp = MaximumLengthSubItem()
         tmp.FromParams(self)
         return tmp
@@ -4202,7 +4324,7 @@ class ImplementationClassUIDParameters(PDU):
     def __init__(self):
         self.ImplementationClassUID = None
 
-    def ToParams(self):
+    def FromParams(self):
         tmp = ImplementationClassUIDSubItem()
         tmp.FromParams(self)
         return tmp
@@ -4211,7 +4333,7 @@ class ImplementationVersionNameParameters(PDU):
     def __init__(self):
         self.ImplementationVersionName = None
 
-    def ToParams(self):
+    def FromParams(self):
         tmp = ImplementationVersionNameSubItem()
         tmp.FromParams(self)
         return tmp
@@ -4241,7 +4363,7 @@ class SCP_SCU_RoleSelectionParameters(PDU):
         self.SCURole = None
         self.SCPRole = None
 
-    def ToParams(self):
+    def FromParams(self):
         tmp = SCP_SCU_RoleSelectionSubItem()
         tmp.FromParams(self)
         return tmp
@@ -4254,13 +4376,27 @@ class UserIdentityParameters(PDU):
         self.SecondaryField = None
         self.ServerResponse = None
 
-    def ToParams(self, is_rq):
-        if is_rq:
+    def FromParams(self):
+        if self.ServerResponse is None:
             tmp = UserIdentitySubItemRQ()
         else:
             tmp = UserIdentitySubItemAC()
         tmp.FromParams(self)
+        
         return tmp
+    
+    def __str__(self):
+        s  = 'User Identity Parameters\n'
+        if self.ServerResponse is None:
+            s += '  User identity type: %d\n' %self.UserIdentityType
+            s += '  Positive response requested: %r\n' %self.PositiveResponseRequested
+            s += '  Primary field: %s\n' %self.PrimaryField
+            if self.SecondaryField is not None:
+                s += '  Secondary field: %s\n' %self.SecondaryField
+        else:
+            s += '  Server response: %s\n' %self.ServerResponse
+            
+        return s
 
 
 # Deprecated
