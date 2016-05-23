@@ -120,25 +120,25 @@ class ACSEServiceProvider(object):
         # Maximum Length Negotiation (required)
         max_length = MaximumLengthParameters()
         max_length.MaximumLengthReceived = max_pdu_size
-        assoc_rq.UserInformationItem = [max_length]
+        assoc_rq.UserInformation = [max_length]
         
         # Implementation Identification Notification (required)
         # Class UID (required)
         from pynetdicom.__init__ import pynetdicom_uid_prefix
         implementation_class_uid = ImplementationClassUIDParameters()
         implementation_class_uid.ImplementationClassUID = UID(pynetdicom_uid_prefix)
-        assoc_rq.UserInformationItem.append(implementation_class_uid)
+        assoc_rq.UserInformation.append(implementation_class_uid)
 
         # Version Name (optional)
         from pynetdicom.__init__ import pynetdicom_version
         implementation_version_name = ImplementationVersionNameParameters()
         implementation_version_name.ImplementationVersionName = \
                                         bytes(pynetdicom_version, 'utf-8')
-        assoc_rq.UserInformationItem.append(implementation_version_name)
+        assoc_rq.UserInformation.append(implementation_version_name)
 
         # Add the extended negotiation information (optional)
         if userspdu is not None:
-            assoc_rq.UserInformationItem += userspdu
+            assoc_rq.UserInformation += userspdu
 
         assoc_rq.CallingPresentationAddress = (self.LocalAE['Address'], 
                                                self.LocalAE['Port'])
@@ -178,7 +178,7 @@ class ACSEServiceProvider(object):
                 
                 # Get maximum pdu length from answer
                 self.MaxPDULength = \
-                        assoc_rsp.UserInformationItem[0].MaximumLengthReceived
+                        assoc_rsp.UserInformation[0].MaximumLengthReceived
                 self.peer_max_pdu = self.MaxPDULength
                 self.parent.peer_max_pdu = self.MaxPDULength
 
@@ -254,7 +254,7 @@ class ACSEServiceProvider(object):
         assoc_primitive.Result = result
         assoc_primitive.ResultSource = source
         assoc_primitive.Diagnostic = diagnostic
-        assoc_primitive.UserInformationItem = []
+        assoc_primitive.UserInformation = []
         
         self.DUL.Send(assoc_primitive)
             
@@ -278,7 +278,7 @@ class ACSEServiceProvider(object):
         order of appearance in the local AE's SupportedTransferSyntax list
         """
         self.MaxPDULength = \
-                assoc_primitive.UserInformationItem[0].MaximumLengthReceived
+                assoc_primitive.UserInformation[0].MaximumLengthReceived
         self.local_max_pdu = self.MaxPDULength
         self.parent.local_max_pdu = self.MaxPDULength
 
@@ -518,7 +518,8 @@ class ACSEServiceProvider(object):
                     ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
                 s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
                 s.append('    Accepted Transfer Syntax: =%s' %item.transfer_syntax)
-                
+        
+        ## Extended Negotiation
         ext_nego = 'None'
         #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
         #    ext_nego = 'Yes'
@@ -660,15 +661,34 @@ class ACSEServiceProvider(object):
             for ts in item.transfer_syntax:
                 s.append('      =%s' %ts)
         
+        ## Extended Negotiation
         ext_nego = 'None'
         #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
         #    ext_nego = 'Yes'
         s.append('Requested Extended Negotiation: %s' %ext_nego)
         
-        usr_id = 'None'
+        ## User Identity
         if user_info.user_identity is not None:
-            usr_id = 'Yes'
-        s.append('Requested User Identity Negotiation: %s' %usr_id)
+            usid = user_info.user_identity
+            s.append('Requested User Identity Negotiation:')
+            s.append('  Authentication mode %d: %s' %(usid.id_type, usid.id_type_str))
+            if usid.id_type == 1:
+                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
+            elif usid.id_type == 2:
+                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
+                s.append('  Password: [%s]' %usid.secondary.decode('utf-8'))
+            elif usid.id_type == 3:
+                s.append('  Kerberos Service Ticket (not dumped) length: %d' %len(usid.primary))
+            elif usid.id_type == 4:
+                s.append('  SAML Assertion (not dumped) length: %d' %len(usid.primary))
+            
+            if usid.response_requested:
+                s.append('  Positive Response requested: Yes')
+            else:
+                s.append('  Positive Response requested: None')
+        else:
+            s.append('Requested User Identity Negotiation: None')
+        
         s.append('======================= END A-ASSOCIATE-RQ =================='
                 '====')
         

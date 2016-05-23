@@ -120,8 +120,7 @@ class A_ASSOCIATE_ServiceParameters():
         # 7.1.1.6 User Information [M, M(=), M, M(=)]
         # Used by Requestor and Acceptor to include AE user information. See
         #   PS3.8 Annex D
-        # FIXME: See if the variable name can be changed back to UserInformation
-        self.UserInformationItem = None
+        self.UserInformation = None
         
         # 7.1.1.7 Result [_, _, M, M(=)]
         # Provided either by the Acceptor of the A-ASSOCIATE request, the UL

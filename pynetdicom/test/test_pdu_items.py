@@ -993,7 +993,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
         ui = pdu.user_information.user_identity
         
         self.assertEqual(ui.id_type, 1)
-        self.assertEqual(ui.id_type_str, 'username')
+        self.assertEqual(ui.id_type_str, 'Username')
         self.assertEqual(ui.primary, b'pynetdicom')
         self.assertEqual(ui.response_requested, True)
         self.assertEqual(ui.secondary, None)
@@ -1064,7 +1064,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         ui = pdu.user_information.user_identity
         
         self.assertEqual(ui.id_type, 2)
-        self.assertEqual(ui.id_type_str, 'username/password')
+        self.assertEqual(ui.id_type_str, 'Username/Password')
         self.assertEqual(ui.primary, b'pynetdicom')
         self.assertEqual(ui.response_requested, False)
         self.assertEqual(ui.secondary, b'p4ssw0rd')

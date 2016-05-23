@@ -784,7 +784,37 @@ class ApplicationEntity(object):
             raise ValueError("Transfer syntax SOP class must be a "
                                 "UID str, UID or ServiceClass subclass")
 
+    
+    # Association negotiation callbacks
+    def on_user_identity(self, user_id_type, primary_field, secondary_field):
+        """
+        Function callback for when a peer requests user identity negotiations
+        
+        See PS3.7 Annex D.3.3.7.1
+        
+        Experimental and will definitely change
+        
+        Parameters
+        ----------
+        user_id_type : int
+            The User Identity Type value (1, 2, 3, 4).
+        primary_field : bytes
+            The value of the Primary Field
+        secondary_field : bytes or None
+            The value of the Secondary Field. Only used when `user_id_type` is 2
 
+        Returns
+        -------
+        response : bytes or None
+            If `user_id_type` is :
+              * 1 or 2, then return b''. 
+              * 3 then return the Kerberos Server ticket. 
+              * 4 then return the SAML response. 
+            If the identity check fails then return None
+        """
+        raise NotImplementedError
+
+    
     # High-level DIMSE-C callbacks - user should implement these as required
     def on_c_echo(self):
         """
