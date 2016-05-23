@@ -255,7 +255,10 @@ class PDU(object):
                       0x53 : AsynchronousOperationsWindowSubItem,
                       0x54 : SCP_SCU_RoleSelectionSubItem,
                       0x55 : ImplementationVersionNameSubItem,
-                      0x56 : SOPClassExtendedNegotiationSubItem}
+                      0x56 : SOPClassExtendedNegotiationSubItem,
+                      0x57 : SOPClassCommonExtendedNegotiationSubItem,
+                      0x58 : UserIdentitySubItemRQ,
+                      0x59 : UserIdentitySubItemRQ}
         
         if item_type not in item_types.keys():
             raise ValueError("During PDU decoding we received an invalid "
@@ -3392,9 +3395,9 @@ class ImplementationVersionNameSubItem(PDU):
 
     def __str__(self):
         s  = "Implementation Version Name Sub-item\n"
-        s += "\tItem type: 0x%02x\n" %self.item_type
-        s += "\tItem length: %d bytes\n" %self.item_length
-        s += "\tImplementation version name: %s\n" %self.implementation_version_name
+        s += "  Item type: 0x%02x\n" %self.item_type
+        s += "  Item length: %d bytes\n" %self.item_length
+        s += "  Implementation version name: %s\n" %self.implementation_version_name
         
         return s
         
@@ -3413,112 +3416,6 @@ class ImplementationVersionNameSubItem(PDU):
         self._implementation_version_name = value
         if value is not None:
             self.item_length = len(self.implementation_version_name)
-
-
-class AsynchronousOperationsWindowSubItem(PDU):
-    """
-    Represents the Asynchronous Operations Window Sub Item used in 
-    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
-
-    The Asynchronous Operations Window Sub Item requires the following parameters 
-    (see PS3.7 Annex D.3.3.3.1):
-        * Item type (1, fixed, 0x51)
-        * Item length (1)
-        * Maximum number of operations invoked (1)
-        * Maximum number of operations performed (1)
-    
-    See PS3.7 Annex D.3.3.3.1-2 for the structure of the item, especially 
-    Tables D.3-7 and D.3-8.
-    
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
-    
-    Attributes
-    ----------
-    length : int
-        The length of the encoded Item in bytes
-    max_operations_invoked : int
-        The maximum number of operations invoked
-    max_operations_performed : int
-        The maximum number of operations performed
-    """
-    def __init__(self):
-        self.item_type = 0x53
-        self.item_length = 0x04
-        self.maximum_number_operations_invoked = None
-        self.maximum_number_operations_performed = None
-
-    def FromParams(self, primitive):
-        """
-        Set up the Item using the parameter values from the `primitive`
-        
-        Parameters
-        ----------
-        primitive : pynetdicom.PDU.AsynchronousOperationsWindowParameters
-            The primitive to use when setting up the Item
-        """
-        self.maximum_number_operations_invoked = primitive.MaximumNumberOperationsInvoked
-        self.maximum_number_operations_performed = primitive.MaximumNumberOperationsPerformed
-
-    def ToParams(self):
-        """ 
-        Convert the current Item to a primitive
-        
-        Returns
-        -------
-        pynetdicom.PDU.AsynchronousOperationsWindowParameters
-            The primitive to convert to
-        """
-        primitive = AsynchronousOperationsWindowSubItem()
-        primitive.MaximumNumberOperationsInvoked = self.maximum_number_operations_invoked
-        primitive.MaximumNumberOperationsPerformed = self.maximum_number_operations_performed
-        
-        return primitive
-
-    def Encode(self):
-        s  = b''
-        s += pack('B', self.item_type)
-        s += pack('B', 0x00)
-        s += pack('>H', self.item_length)
-        s += pack('>H', self.maximum_number_operations_invoked)
-        s += pack('>H', self.maximum_number_operations_performed)
-        
-        return s
-
-    def Decode(self, bytestream):
-        """
-        Decode the parameter values for the Item from the parent PDU's byte
-        stream
-        
-        Parameters
-        ----------
-        bytestream : io.BytesIO
-            The byte stream to decode
-        """
-        (self.item_type, 
-         _, 
-         self.item_length,
-         self.maximum_number_operations_invoked,
-         self.maximum_number_operations_performed) = unpack('>B B H H H', bytestream.read(8))
-
-    def get_length(self):
-        return 0x08
-
-    @property
-    def max_operations_invoked(self):
-        return self.maximum_number_operations_invoked
-    @property
-    def maximum_operations_performed(self):
-        return self.maximum_number_operations_performed
-
-    def __str__(self):
-        s  = "Asynchronous Operation Window Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Max. number of operations invoked: %d\n" % self.maximum_operations_invoked
-        s += "  Max. number of operations performed: %d\n" % self.maximum_operations_performed
-        
-        return s
 
 class SCP_SCU_RoleSelectionSubItem(PDU):
     """
@@ -3715,71 +3612,222 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
             self._scp_role = value
 
 
+class AsynchronousOperationsWindowSubItem(PDU):
+    """
+    Represents the Asynchronous Operations Window Sub Item used in 
+    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
+
+    The Asynchronous Operations Window Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.3.1):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * Maximum number of operations invoked (1)
+        * Maximum number of operations performed (1)
+    
+    See PS3.7 Annex D.3.3.3.1-2 for the structure of the item, especially 
+    Tables D.3-7 and D.3-8.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded Item in bytes
+    max_operations_invoked : int
+        The maximum number of operations invoked
+    max_operations_performed : int
+        The maximum number of operations performed
+    """
+    def __init__(self):
+        self.item_type = 0x53
+        self.item_length = 0x04
+        self.maximum_number_operations_invoked = None
+        self.maximum_number_operations_performed = None
+
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to use when setting up the Item
+        """
+        self.maximum_number_operations_invoked = primitive.MaximumNumberOperationsInvoked
+        self.maximum_number_operations_performed = primitive.MaximumNumberOperationsPerformed
+
+    def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to convert to
+        """
+        primitive = AsynchronousOperationsWindowSubItem()
+        primitive.MaximumNumberOperationsInvoked = self.maximum_number_operations_invoked
+        primitive.MaximumNumberOperationsPerformed = self.maximum_number_operations_performed
+        
+        return primitive
+
+    def Encode(self):
+        s  = b''
+        s += pack('B', self.item_type)
+        s += pack('B', 0x00)
+        s += pack('>H', self.item_length)
+        s += pack('>H', self.maximum_number_operations_invoked)
+        s += pack('>H', self.maximum_number_operations_performed)
+        
+        return s
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
+         _, 
+         self.item_length,
+         self.maximum_number_operations_invoked,
+         self.maximum_number_operations_performed) = unpack('>B B H H H', bytestream.read(8))
+
+    def get_length(self):
+        return 0x08
+
+    @property
+    def max_operations_invoked(self):
+        return self.maximum_number_operations_invoked
+    
+    @property
+    def maximum_operations_performed(self):
+        return self.maximum_number_operations_performed
+
+    def __str__(self):
+        s  = "Asynchronous Operation Window Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  Max. number of operations invoked: %d\n" % self.maximum_operations_invoked
+        s += "  Max. number of operations performed: %d\n" % self.maximum_operations_performed
+        
+        return s
+
+
 class UserIdentitySubItemRQ(PDU):
     def __init__(self):
-        self.ItemType = 0x58
-        self.Reserved = 0x00
-        self.ItemLength = None
-        self.UserIdentityType = None
-        self.PositiveResponseRequested = None
-        self.PrimaryFieldLength = None
-        self.PrimaryField = None
-        self.SecondaryFieldLength = None
-        self.SecondaryField = None
+        self.item_type = 0x58
+        self.item_length = None
+        self.user_identity_type = None
+        self.positive_response_requested = None
+        self.primary_field_length = None
+        self.primary_field = None
+        self.secondary_field_length = None
+        self.secondary_field = None
+
+    def __str__(self):
+        s  = "User Identity (RQ) Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  User identity type: %d\n" % self.user_identity_type
+        s += "  Positive response requested: %d\n" % self.positive_response_requested
+        s += "  Primary field length: %d bytes\n" % self.primary_field_length
+        s += "  Primary field: %s\n" % self.primary_field
+        
+        if self.user_identity_type == 0x02:
+            s += "  Secondary field length: %d bytes\n" % self.secondary_field_length
+            s += "  Secondary field: %s\n" % self.secondary_field
+        else:
+            s += "  Secondary field length: (not used)\n"
+            s += "  Secondary field: (not used)\n"
+        
+        return s
 
     def FromParams(self, parameters):
-        self.UserIdentityType = parameters.UserIdentityType
-        self.PositiveResponseRequested = parameters.PositiveResponseRequested
-        self.PrimaryField = parameters.PrimaryField
-        self.PrimaryFieldLength = len(self.PrimaryField)
-        self.SecondaryField = parameters.SecondaryField
-        self.SecondaryFieldLength = len(self.SecondaryField)
-        self.ItemLength = 8 + self.PrimaryFieldLength + \
-                                self.SecondaryFieldLength
+        self.user_identity_type = parameters.UserIdentityType
+        self.positive_response_requested = parameters.PositiveResponseRequested
+        self.primary_field = parameters.PrimaryField
+        self.primary_field_length = len(self.primary_field)
+        self.secondary_field = parameters.SecondaryField
+        
+        if self.secondary_field is not None:
+            self.secondary_field_length = len(self.secondary_field)
+        else:
+            self.secondary_field_length = 0
+        
+        self.item_length = 6 + self.primary_field_length + self.secondary_field_length
 
     def ToParams(self):
         tmp = UserIdentityParameters()
-        tmp.UserIdentityType = self.UserIdentityType
-        tmp.PositiveResponseRequested = self.PositiveResponseRequested
-        tmp.PrimaryField = self.PrimaryField
-        tmp.SecondaryField = self.SecondaryField
+        tmp.UserIdentityType = self.user_identity_type
+        tmp.PositiveResponseRequested = self.positive_response_requested
+        tmp.PrimaryField = self.primary_field
+        tmp.SecondaryField = self.secondary_field
         return tmp
+
+    def encode(self):
+        return self.Encode()
 
     def Encode(self):
-        tmp = b''
-        tmp += pack('B', self.ItemType)
-        tmp += pack('B', self.Reserved)
-        tmp += pack('>H', self.ItemLength)
-        tmp += pack('B', self.UserIdentityType)
-        tmp += pack('B', self.PositiveResponseRequested)
-        tmp += pack('>H', self.PrimaryFieldLength)
-        tmp += bytes(self.PrimaryField)
-        tmp += pack('>H', self.SecondaryFieldLength)
-        if self.UserIdentityType == 0x02:
-            tmp += bytes(self.SecondaryField)
-
-        return tmp
-
-    def Decode(self, stream):
-        self.ItemType = unpack('>B', stream.read(2))
-        self.Reserved = unpack('>B', stream.read(2))
-        self.ItemLength = unpack('>H', stream.read(4))
-        self.UserIdentityType = unpack('>B', stream.read(2))
-        self.PositiveResponseRequested = unpack('>B', stream.read(2))
-        self.PrimaryFieldLength = unpack('>H', stream.read(4))
-        self.PrimaryField = unpack('>B', stream.read(self.PrimaryFieldLength))
-        self.SecondaryFieldLength = unpack('>H', stream.read(4))
+        """
+        Encode the Item's parameter values into a bytes string
         
-        if self.UserIdentityType == 0x02:
-            self.SecondaryField = unpack('>B', stream.read(self.SecondaryFieldLength))
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
+        formats = '> B B H B B H'
+        parameters = [self.item_type,
+                      0x00,
+                      self.item_length,
+                      self.user_identity_type,
+                      self.positive_response_requested,
+                      self.primary_field_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.primary_field)
+        bytestring += pack('>H', self.secondary_field_length)
+        if self.user_identity_type == 0x02:
+            bytestring += bytes(self.secondary_field)
+        
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type,
+         _,
+         self.item_length,
+         self.user_identity_type, 
+         self.positive_response_requested,
+         self.primary_field_length) = unpack('>B B H B B H', bytestream.read(8))
+        
+        self.primary_field = bytestream.read(self.primary_field_length)
+        (self.secondary_field_length,) = unpack('>H', bytestream.read(2))
+        
+        if self.user_identity_type == 0x02:
+            self.secondary_field = bytestream.read(self.secondary_field_length)
 
     def get_length(self):
-        self.ItemLength = 8 + self.PrimaryFieldLength + \
-                                self.SecondaryFieldLength
-        return 4 + self.ItemLength
+        self.item_length = 6 + self.primary_field_length + self.secondary_field_length
+        return 4 + self.item_length
 
     @property
-    def Type(self):
+    def id_type(self):
         """
         See PS3.7 D3.3.7
         
@@ -3791,28 +3839,269 @@ class UserIdentitySubItemRQ(PDU):
             3: Kerberos Service ticket
             4: SAML Assertion
         """
-        return self.UserIdentityType
-        
+        return self.user_identity_type
+    
     @property
-    def ResponseRequested(self):
-        """
-        See PS3.7 D3.3.7
-        
-        Returns
-        -------
-        int
-            0 if no response requested, 1 otherwise
-        """
-        return self.PositiveResponseRequested
+    def id_type_str(self):
+        id_types = {1 : 'username',
+                    2 : 'username/password',
+                    3 : 'kerberos service ticket',
+                    4 : 'SAML assertion'}
+                    
+        return id_types[self.user_identity_type]
+    
+    @property
+    def response_requested(self):
+        return self.positive_response_requested
+
+    
 
 class UserIdentitySubItemAC(PDU):
     pass
 
+
 class SOPClassExtendedNegotiationSubItem(PDU):
-    pass
+    """
+    Represents the SOP Class Extended Negotiation Sub Item used in 
+    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
+
+    The SOP Class Extended Negotiation Sub Item requires the following 
+    parameters (see PS3.7 Annex D.3.3.5.1):
+        * Item type (1, fixed, 0x56)
+        * Item length (1)
+        * UID length (1)
+        * SOP Class UID (1)
+        * Service class application information
+    
+    See PS3.7 Annex D.3.3.5.1-2 for the structure of the item, especially 
+    Tables D.3-11.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded Item in bytes
+    UID : pydicom.uid.UID
+        The UID of the abstract syntax that this sub-item pertains
+    application_information :
+        The application information specific to the service class identified
+        by `sop_class_uid`
+    """
+    def __init__(self):
+        self.item_type = 0x56
+        self.item_length = None
+        self.uid_length = None
+        self.sop_class_uid = None
+        self.service_class_application_information = None
+
+        self.formats = ['B', 'B', 'H', 'H', 's', 's']
+        self.parameters = [self.item_type,
+                           0x00,
+                           self.item_length,
+                           self.uid_length,
+                           self.sop_class_uid,
+                           self.service_class_application_information,]
+    
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to use when setting up the Item
+        """
+        pass
+        
+    def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to convert to
+        """
+        pass
+    
+    def Encode(self):
+        formats = '> B B H H'
+        parameters = [self.item_type,
+                      0x00,
+                      self.item_length,
+                      self.uid_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.sop_class_uid.title(), 'utf-8')
+        bytestring += bytes(self.service_class_application_information, 'utf-8')
+
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        pass
+    
+    def get_length(self):
+        self.item_length = 4 + len(self.sop_class_uid)
+        self.uid_length = len(self.sop_class_uid)
+        
+        return 4 + self.item_length
+    
+    @property
+    def UID(self):
+        return self.sop_class_uid
+    
+    @property
+    def sop_class_uid(self):
+        return self._sop_class_uid
+        
+    @sop_class_uid.setter
+    def sop_class_uid(self, value):
+        if isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, UID):
+            pass
+        
+        self._sop_class_uid = value
 
 class SOPClassCommonExtendedNegotiationSubItem(PDU):
-    pass
+    """
+    Represents the SOP Class Common Extended Negotiation Sub Item used in 
+    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
+
+    The SOP Class Common Extended Negotiation Sub Item requires the following 
+    parameters (see PS3.7 Annex D.3.3.6.1):
+        * Item type (1, fixed, 0x57)
+        * Sub-item version (1, fixed, 0x00)
+        * Item length (1)
+        * SOP class UID length (1)
+        * SOPcClass UID (1)
+        * Service class UID length (1)
+        * Service class UID (1)
+        * Related general SOP class identification length (1)
+        * Related general SOP class identification sub fields (0 or more)
+          * Related general SOP class UID length (1)
+          * Related general SOP class UID (1)
+    
+    See PS3.7 Annex D.3.3.6.1 for the structure of the item, especially 
+    Tables D.3-12.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded Item in bytes
+    UID : pydicom.uid.UID
+        The UID of the abstract syntax that this sub-item pertains
+    application_information :
+        The application information specific to the service class identified
+        by `sop_class_uid`
+    """
+    def __init__(self):
+        self.item_type = 0x57
+        self.sub_item_version = 0x00
+        self.item_length = None
+        self.sop_class_uid_length = None
+        self.sop_class_uid = None
+        self.service_class_uid_length = None
+        self.service_class_uid = None
+        self.related_general_sop_class_identification_length = None
+        self.related_general_sop_class_identification_sub_fields = []
+
+        self.formats = ['B', 'B', 'H', 'H', 's', 'H', 's', 'H']
+        self.parameters = [self.item_type,
+                           self.sub_item_version,
+                           self.item_length,
+                           self.sop_class_uid_length,
+                           self.sop_class_uid,
+                           self.service_class_uid_length,
+                           self.service_class_uid,
+                           self.related_general_sop_class_identification_length,
+                           self.related_general_sop_class_identification_sub_fields]
+    
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to use when setting up the Item
+        """
+        pass
+        
+    def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to convert to
+        """
+        pass
+    
+    def Encode(self):
+        formats = '> B B H H'
+        parameters = [self.item_type,
+                      0x00,
+                      self.item_length,
+                      self.uid_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.sop_class_uid.title(), 'utf-8')
+        bytestring += bytes(self.service_class_application_information, 'utf-8')
+
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        pass
+    
+    def get_length(self):
+        self.item_length = 4 + len(self.sop_class_uid)
+        self.uid_length = len(self.sop_class_uid)
+        
+        return 4 + self.item_length
+
+    @property
+    def sop_class_uid(self):
+        return self._sop_class_uid
+        
+    @sop_class_uid.setter
+    def sop_class_uid(self, value):
+        if isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, UID):
+            pass
+        
+        self._sop_class_uid = value
 
 
 class MaximumLengthParameters(PDU):
@@ -3897,11 +4186,12 @@ class SCP_SCU_RoleSelectionParameters(PDU):
         tmp.FromParams(self)
         return tmp
 
-class UserIdentityParameters():
+class UserIdentityParameters(PDU):
     def __init__(self):
         self.UserIdentityType = None
         self.PositiveResponseRequested = None
         self.PrimaryField = None
+        self.SecondaryField = None
         self.ServerResponse = None
 
     def ToParams(self, is_rq):
