@@ -599,8 +599,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                     # Iterate through the role negotiations looking for a 
                     #   SOP Class match to the Abstract Syntaxes
                     for role in self.user_information.role_selection:
-                        for sop_class in ii.AbstractSyntax:
-                            if role.SOPClass == sop_class:
+                        for sop_class in ii.abstract_syntax:
+                            if role.UID == sop_class:
                                 ii.SCP = role.SCP
                                 ii.SCU = role.SCU
                 contexts.append(ii)
@@ -2869,7 +2869,7 @@ class UserInformationItem(PDU):
         , or None if the sub-item is not present.
     maximum_operations_performed : int or None
         , or None if the sub-item is not present.
-    role_selection : SCP_SCU_RoleSelectionSubItem or None
+    role_selection : list of SCP_SCU_RoleSelectionSubItem or None
         The SCP_SCU_RoleSelectionSubItem object or None if the sub-item is 
         not present.
     user_identity : UserIdentitySubItemRQ or UserIdentitySubItemAC or None
@@ -3034,16 +3034,6 @@ class UserInformationItem(PDU):
         
     @property
     def role_selection(self):
-        """
-        See PS3.7 D3.3.4
-        
-        Optional
-        
-        Returns
-        -------
-        list of pynetdicom.PDU.SCP_SCU_RolesSelectionSubItem
-            A list of the Association Requestor's Role Selection sub item objects
-        """
         roles = []
         for ii in self.user_data:
             if isinstance(ii, SCP_SCU_RoleSelectionSubItem):
@@ -3365,12 +3355,13 @@ class ImplementationVersionNameSubItem(PDU):
         return tmp
 
     def Encode(self):
-        tmp = b''
-        tmp = tmp + pack('B', self.item_type)
-        tmp = tmp + pack('B', 0x00)
-        tmp = tmp + pack('>H', self.item_length)
-        tmp = tmp + self.implementation_version_name
-        return tmp
+        s = bytes()
+        s += pack('B', self.item_type)
+        s += pack('B', 0x00)
+        s += pack('>H', self.item_length)
+        s += self.implementation_version_name
+        
+        return s
 
     def Decode(self, bytestream):
         """
@@ -3429,7 +3420,7 @@ class AsynchronousOperationsWindowSubItem(PDU):
     Represents the Asynchronous Operations Window Sub Item used in 
     A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
 
-    The Asynchronous Operations WindowSub Item requires the following parameters 
+    The Asynchronous Operations Window Sub Item requires the following parameters 
     (see PS3.7 Annex D.3.3.3.1):
         * Item type (1, fixed, 0x51)
         * Item length (1)
@@ -3458,10 +3449,26 @@ class AsynchronousOperationsWindowSubItem(PDU):
         self.maximum_number_operations_performed = None
 
     def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to use when setting up the Item
+        """
         self.maximum_number_operations_invoked = primitive.MaximumNumberOperationsInvoked
         self.maximum_number_operations_performed = primitive.MaximumNumberOperationsPerformed
 
     def ToParams(self):
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.AsynchronousOperationsWindowParameters
+            The primitive to convert to
+        """
         primitive = AsynchronousOperationsWindowSubItem()
         primitive.MaximumNumberOperationsInvoked = self.maximum_number_operations_invoked
         primitive.MaximumNumberOperationsPerformed = self.maximum_number_operations_performed
@@ -3479,6 +3486,15 @@ class AsynchronousOperationsWindowSubItem(PDU):
         return s
 
     def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
         (self.item_type, 
          _, 
          self.item_length,
@@ -3488,110 +3504,216 @@ class AsynchronousOperationsWindowSubItem(PDU):
     def get_length(self):
         return 0x08
 
+    @property
+    def max_operations_invoked(self):
+        return self.maximum_number_operations_invoked
+    @property
+    def maximum_operations_performed(self):
+        return self.maximum_number_operations_performed
+
     def __str__(self):
         s  = "Asynchronous Operation Window Sub-item\n"
         s += "  Item type: 0x%02x\n" % self.item_type
         s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Max. number of operations invoked: %d\n" % self.maximum_number_operations_invoked
-        s += "  Max. number of operations performed: %d\n" % self.maximum_number_operations_performed
+        s += "  Max. number of operations invoked: %d\n" % self.maximum_operations_invoked
+        s += "  Max. number of operations performed: %d\n" % self.maximum_operations_performed
         
         return s
 
 class SCP_SCU_RoleSelectionSubItem(PDU):
-    def __init__(self):
-        self.ItemType = 0x54
-        self.ItemLength = None
-        self.UIDLength = None
-        self.SOPClassUID = None
-        self.SCURole = None
-        self.SCPRole = None
+    """
+    Represents the SCP/SCU Role Selection Sub Item used in 
+    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
 
-    def FromParams(self, Params):
-        self.SOPClassUID = Params.SOPClassUID
-        self.SCURole = Params.SCURole
-        self.SCPRole = Params.SCPRole
-        self.ItemLength = 4 + len(self.SOPClassUID)
-        self.UIDLength = len(self.SOPClassUID)
+    The SCP/SCU Role Selection Sub Item requires the following parameters 
+    (see PS3.7 Annex D.3.3.4.1):
+        * Item type (1, fixed, 0x51)
+        * Item length (1)
+        * UID length (1)
+        * SOP Class UID (1)
+        * SCU role (1)
+        * SCP role (1)
+    
+    See PS3.7 Annex D.3.3.4.1-2 for the structure of the item, especially 
+    Tables D.3-9 and D.3-10.
+    
+    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    
+    Attributes
+    ----------
+    length : int
+        The length of the encoded Item in bytes
+    SCU : int
+        The SCU role (0 or 1)
+    SCP : int
+        The SCP role (0 or 1)
+    UID : pydicom.uid.UID
+        The UID of the abstract syntax that this sub-item pertains
+    """
+    def __init__(self):
+        self.item_type = 0x54
+        self.item_length = None
+        self.uid_length = None
+        self.sop_class_uid = None
+        self.scu_role = None
+        self.scp_role = None
+
+        self.formats = ['B', 'B', 'H', 'H', 's', 'B', 'B']
+        self.parameters = [self.item_type,
+                           0x00,
+                           self.item_length,
+                           self.uid_length,
+                           self.sop_class_uid,
+                           self.scu_role,
+                           self.scp_role]
+
+    def FromParams(self, primitive):
+        """
+        Set up the Item using the parameter values from the `primitive`
+        
+        Parameters
+        ----------
+        primitive : pynetdicom.PDU.SCP_SCU_RoleSelectionParameters
+            The primitive to use when setting up the Item
+        """
+        self.sop_class_uid = primitive.SOPClassUID
+        self.scu_role = primitive.SCURole
+        self.scp_role = primitive.SCPRole
+        
+        self.item_length = 4 + len(self.sop_class_uid)
+        self.uid_length = len(self.sop_class_uid)
 
     def ToParams(self):
-        tmp = SCP_SCU_RoleSelectionParameters()
-        tmp.SOPClassUID = self.SOPClassUID
-        tmp.SCURole = self.SCURole
-        tmp.SCPRole = self.SCPRole
-        return tmp
+        """ 
+        Convert the current Item to a primitive
+        
+        Returns
+        -------
+        pynetdicom.PDU.SCP_SCU_RoleSelectionParameters
+            The primitive to convert to
+        """
+        primitive = SCP_SCU_RoleSelectionParameters()
+        primitive.SOPClassUID = self.sop_class_uid
+        primitive.SCURole = self.scu_role
+        primitive.SCPRole = self.scp_role
+        
+        return primitive
 
     def Encode(self):
-        tmp = b''
-        tmp += pack('B', self.ItemType)
-        tmp += pack('B', 0x00)
-        tmp += pack('>H', self.ItemLength)
-        tmp += pack('>H', self.UIDLength)
-        tmp += bytes(self.SOPClass, 'utf-8')
-        tmp += pack('B B', self.SCURole, self.SCPRole)
-        return tmp
+        formats = '> B B H H'
+        parameters = [self.item_type,
+                      0x00,
+                      self.item_length,
+                      self.uid_length]
+                      
+        bytestring  = bytes()
+        bytestring += pack(formats, *parameters)
+        bytestring += bytes(self.sop_class_uid.title(), 'utf-8')
+        bytestring += pack('> B B', self.scu_role, self.scp_role)
 
-    def Decode(self, Stream):
-        (self.ItemType, 
+        return bytestring
+
+    def Decode(self, bytestream):
+        """
+        Decode the parameter values for the Item from the parent PDU's byte
+        stream
+        
+        Parameters
+        ----------
+        bytestream : io.BytesIO
+            The byte stream to decode
+        """
+        (self.item_type, 
          _,
-         self.ItemLength, 
-         self.UIDLength) = unpack('> B B H H', Stream.read(6))
-        self.SOPClassUID = Stream.read(self.UIDLength)
-        (self.SCURole, self.SCPRole) = unpack('B B', Stream.read(2))
+         self.item_length, 
+         self.uid_length) = unpack('> B B H H', bytestream.read(6))
+        
+        self.sop_class_uid = bytestream.read(self.uid_length)
+        
+        (self.scu_role, self.scp_role) = unpack('B B', bytestream.read(2))
+        
+        self._update_parameters()
+    
+    def _update_parameters(self):
+        self.parameters = [self.item_type,
+                           0x00,
+                           self.item_length,
+                           self.uid_length,
+                           self.sop_class_uid,
+                           self.scu_role,
+                           self.scp_role]
 
     def get_length(self):
-        self.ItemLength = 4 + len(self.SOPClassUID)
-        return 4 + self.ItemLength
+        self.item_length = 4 + len(self.sop_class_uid)
+        self.uid_length = len(self.sop_class_uid)
+        
+        return 4 + self.item_length
 
-    def __repr__(self):
-        tmp = "  SCU/SCP role selection sub item\n"
-        tmp = tmp + "   Item type: 0x%02x\n" % self.ItemType
-        tmp = tmp + "   Item length: %d\n" % self.ItemLength
-        tmp = tmp + "   SOP class UID length: %d\n" % self.UIDLength
-        tmp = tmp + "   SOP class UID: %s\n" % self.SOPClassUID
-        tmp = tmp + "   SCU Role: %d\n" % self.SCURole
-        tmp = tmp + "   SCP Role: %d" % self.SCPRole
-        return tmp
+    def __str__(self):
+        s  = "SCP/SCU Role Selection Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  UID length: %d bytes\n" % self.uid_length
+        s += "  SOP Class UID: %s\n" % self.UID
+        s += "  SCU Role: %d\n" % self.SCU
+        s += "  SCP Role: %d\n" % self.SCP
+        
+        return s
 
     @property
-    def SOPClass(self):
-        """
-        See PS3.7 D3.3.4
+    def UID(self):
+        return self.sop_class_uid
+    
+    @property
+    def sop_class_uid(self):
+        return self._sop_class_uid
         
-        Returns
-        -------
-        pydicom.uid.UID
-            The SOP Class UID the Requestor AE is negotiating the role for
-        """
-        if isinstance(self.SOPClassUID, bytes):
-            return UID(self.SOPClassUID.decode('utf-8'))
-        elif isinstance(self.SOPClassUID, UID):
-            return self.SOPClassUID
-        else:
-            return UID(self.SOPClassUID)
+    @sop_class_uid.setter
+    def sop_class_uid(self, value):
+        if isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, UID):
+            pass
         
+        self._sop_class_uid = value
+        
+        if value is not None:
+            self.uid_length = len(value)
+            self.item_length = 4 + self.uid_length
+    
     @property
     def SCU(self):
-        """
-        See PS3.7 D3.3.4
-        
-        Returns
-        -------
-        int
-            0 if SCU role isn't supported, 1 if supported
-        """
-        return self.SCURole
-        
+        return self.scu_role
+    
+    @property
+    def scu_role(self):
+        return self._scu_role
+    
+    @scu_role.setter
+    def scu_role(self, value):
+        if value not in [0, 1, None]:
+            raise ValueError('SCU Role parameter value must be 0 or 1')
+        else:
+            self._scu_role = value
+    
     @property
     def SCP(self):
-        """
-        See PS3.7 D3.3.4
-        
-        Returns
-        -------
-        int
-            0 if SCP role isn't supported, 1 if supported
-        """
-        return self.SCPRole
+        return self.scp_role
+
+    @property
+    def scp_role(self):
+        return self._scp_role
+    
+    @scp_role.setter
+    def scp_role(self, value):
+        if value not in [0, 1, None]:
+            raise ValueError('SCP Role parameter value must be 0 or 1')
+        else:
+            self._scp_role = value
+
 
 class UserIdentitySubItemRQ(PDU):
     def __init__(self):
@@ -3736,7 +3858,7 @@ class ImplementationClassUIDParameters(PDU):
         tmp.FromParams(self)
         return tmp
 
-class ImplementationVersionNameParameters():
+class ImplementationVersionNameParameters(PDU):
     def __init__(self):
         self.ImplementationVersionName = None
 
@@ -3745,7 +3867,7 @@ class ImplementationVersionNameParameters():
         tmp.FromParams(self)
         return tmp
 
-class SCP_SCU_RoleSelectionParameters():
+class SCP_SCU_RoleSelectionParameters(PDU):
     """
     Allows peer AEs to negotiate the roles in which they will serve for each
     SOP Class or Meta SOP Class supported on the Association. This negotiation
