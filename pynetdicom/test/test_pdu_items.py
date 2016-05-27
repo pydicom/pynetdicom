@@ -28,6 +28,25 @@ a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\
                  b"\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f" \
                  b"\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30"
 
+a_associate_rq_user_async = b'\x01\x00\x00\x00\x00\xed\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
+                            b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
+                            b'\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
+                            b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+                            b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
+                            b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
+                            b'\x31\x2e\x31\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31' \
+                            b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31' \
+                            b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
+                            b'\x38\x2e\x31\x2e\x32\x50\x00\x00\x5a\x51\x00\x00\x04\x00\x00\x3f' \
+                            b'\xfe\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31' \
+                            b'\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e' \
+                            b'\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49' \
+                            b'\x43\x4f\x4d\x5f\x30\x39\x30\x58\x00\x00\x10\x01\x01\x00\x0a\x70' \
+                            b'\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x00\x53\x00\x00\x04\x00' \
+                            b'\x05\x00\x05'
+
+asynchronous_window_ops = b'\x53\x00\x00\x04\x00\x05\x00\x05'
+
 a_associate_rq_role = b'\x01\x00\x00\x00\x00\xfc\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
                       b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x47\x45\x54\x53\x43\x55' \
                       b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
@@ -93,6 +112,50 @@ a_associate_rq_user_id_user_pass = b'\x01\x00\x00\x00\x01\x1f\x00\x01\x00\x00\x4
                                    b'\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x08\x70\x34\x73' \
                                    b'\x73\x77\x30\x72\x64'
 
+# CTImageStorage and MRImageStorage
+a_associate_rq_user_id_ext_neg = b'\x01\x00\x00\x00\x01\xab\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
+                                 b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
+                                 b'\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
+                                 b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+                                 b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
+                                 b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
+                                 b'\x31\x2e\x31\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31' \
+                                 b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31' \
+                                 b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
+                                 b'\x38\x2e\x31\x2e\x32\x20\x00\x00\x36\x03\x00\x00\x00\x30\x00\x00' \
+                                 b'\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35' \
+                                 b'\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x11\x31\x2e' \
+                                 b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x20' \
+                                 b'\x00\x00\x36\x05\x00\x00\x00\x30\x00\x00\x19\x31\x2e\x32\x2e\x38' \
+                                 b'\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31' \
+                                 b'\x2e\x31\x2e\x34\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e' \
+                                 b'\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\xa4\x51\x00\x00' \
+                                 b'\x04\x00\x00\x3f\xfe\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36' \
+                                 b'\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33' \
+                                 b'\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e' \
+                                 b'\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30\x39\x30\x58\x00\x00\x10\x01' \
+                                 b'\x01\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x00\x53' \
+                                 b'\x00\x00\x04\x00\x05\x00\x05\x56\x00\x00\x21\x00\x19\x31\x2e\x32' \
+                                 b'\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34' \
+                                 b'\x2e\x31\x2e\x31\x2e\x32\x02\x00\x03\x00\x01\x00\x56\x00\x00\x21' \
+                                 b'\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e' \
+                                 b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x02\x00\x03\x00\x01' \
+                                 b'\x00'
+
+a_associate_ac_user_id_user_pass = b'\x02\x00\x00\x00\x00\xbe\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
+                                   b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
+                                   b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
+                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
+                                   b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
+                                   b'\x31\x2e\x31\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31' \
+                                   b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32' \
+                                   b'\x50\x00\x00\x40\x51\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b' \
+                                   b'\x31\x2e\x32\x2e\x32\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31' \
+                                   b'\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f' \
+                                   b'\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00' \
+                                   b'\x00\x02\x00\x00'
+  
 user_identity_rq_user_pass = b'\x58\x00\x00\x18\x02\x00\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63' \
                              b'\x6f\x6d\x00\x08\x70\x34\x73\x73\x77\x30\x72\x64'
 
@@ -151,6 +214,16 @@ role_selection = b'\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\
                  b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00' \
                  b'\x01'
 
+user_information = b'\x50\x00\x00\x3e\x51\x00\x00\x04\x00\x00\x3f\xfe\x52\x00\x00\x20' \
+            b'\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30' \
+            b'\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30' \
+            b'\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30' \
+            b'\x39\x30'
+
+extended_negotiation = b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
+                       b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x02' \
+                       b'\x00\x03\x00\x01\x00'
+
 from io import BytesIO
 import logging
 import threading
@@ -173,6 +246,9 @@ for h in logger.handlers:
 logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 
+
+# FIXME
+#   Bug: concat error Ext Neg Item when UID as string not known or not in scu classes
 
 class TestPDUItem_ApplicationContext(unittest.TestCase):
     def test_stream_decode_assoc_rq(self):
@@ -589,7 +665,115 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         
         self.assertEqual(user_info.item_type, 0x50)
         self.assertEqual(user_info.item_length, 95)
+    
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
         
+        user_info = pdu.user_information
+        
+        s = user_info.encode()
+        
+        #for ii in wrap_list(s):
+        #        print(ii)
+
+        self.assertEqual(s, user_information)
+    
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        
+        ui = pdu.user_information
+        
+        result = ui.ToParams()
+        
+        check = []
+        max_pdu = MaximumLengthParameters()
+        max_pdu.MaximumLengthReceived = 16382
+        check.append(max_pdu)
+        class_uid = ImplementationClassUIDParameters()
+        class_uid.ImplementationClassUID = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        check.append(class_uid)
+        v_name = ImplementationVersionNameParameters()
+        v_name.ImplementationVersionName = b'PYNETDICOM_090'
+        check.append(v_name)
+        
+        self.assertEqual(result, check)
+    
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_async)
+
+        orig = pdu.user_information
+        params = orig.ToParams()
+
+        new = UserInformationItem()
+        new.FromParams(params)
+        
+        self.assertEqual(orig, new)
+    
+    def test_properties_usr_id(self):
+        """ Check user id properties are OK """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_async)
+
+        ui = pdu.user_information
+        
+        self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
+    
+    def test_properties_ext_neg(self):
+        """ Check extended neg properties are OK """
+        return
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_async)
+
+        ui = pdu.user_information
+        
+        self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
+    
+    def test_properties_role(self):
+        """ Check user id properties are OK """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_role)
+
+        ui = pdu.user_information
+        
+        for role in ui.role_selection:
+            self.assertTrue(isinstance(role, SCP_SCU_RoleSelectionSubItem))
+    
+    def test_properties_async(self):
+        """ Check async window ops properties are OK """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_async)
+
+        ui = pdu.user_information
+        
+        self.assertEqual(ui.max_operations_invoked, 5)
+        self.assertEqual(ui.max_operations_performed, 5)
+        
+        self.assertTrue(isinstance(ui.async_ops_window, AsynchronousOperationsWindowSubItem))
+    
+    def test_properties_max_pdu(self):
+        """ Check max receive properties are OK """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_role)
+
+        ui = pdu.user_information
+
+        self.assertEqual(ui.maximum_length, 16382)
+    
+    def test_properties_implementation(self):
+        """ Check async window ops properties are OK """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_role)
+
+        ui = pdu.user_information
+
+        self.assertEqual(ui.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
+        self.assertEqual(ui.implementation_version_name, 'PYNETDICOM_090')
     
 class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
     def test_stream_decode(self):
@@ -770,69 +954,72 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq)
-        return
-        uid = pdu.user_information.user_data[1]
+        pdu.Decode(a_associate_rq_user_async)
+
+        for item in pdu.user_information.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                async = item
         
-        self.assertEqual(uid.item_length, 27)
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertEqual(async.item_length, 4)
+                self.assertEqual(async.maximum_number_operations_invoked, 5)
+                self.assertEqual(async.maximum_number_operations_performed, 5)
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq)
-        return
-        uid = pdu.user_information.user_data[1]
+        pdu.Decode(a_associate_rq_user_async)
+        for item in pdu.user_information.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                async = item
         
-        s = uid.encode()
+                s = async.encode()
         
-        #for ii in wrap_list(s):
-        #    print(ii)
+                #for ii in wrap_list(s):
+                #    print(ii)
 
-        self.assertEqual(s, implementation_class_uid)
+                self.assertEqual(s, asynchronous_window_ops)
 
     def test_to_primitive(self):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq)
-        return
-        uid = pdu.user_information.user_data[1]
+        pdu.Decode(a_associate_rq_user_async)
+        for item in pdu.user_information.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                async = item
         
-        result = uid.ToParams()
+                result = async.ToParams()
         
-        check = ImplementationClassUIDParameters()
-        check.ImplementationClassUID = UID('1.2.276.0.7230010.3.0.3.6.0')
-        self.assertEqual(result, check)
+                check = AsynchronousOperationsWindowParameters()
+                check.MaximumNumberOperationsInvoked = 5
+                check.MaximumNumberOperationsPerformed = 5
+                self.assertEqual(result, check)
         
     def test_from_primitive(self):
         """ Check converting from primitive """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq)
-        return
-        orig_uid = pdu.user_information.user_data[1]
-        params = orig_uid.ToParams()
+        pdu.Decode(a_associate_rq_user_async)
+
+        for item in pdu.user_information.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                orig = item
+                params = orig.ToParams()
         
-        new_uid = ImplementationClassUIDSubItem()
-        new_uid.FromParams(params)
-        
-        self.assertEqual(orig_uid, new_uid)
+                new = AsynchronousOperationsWindowSubItem()
+                new.FromParams(params)
+                
+                self.assertEqual(orig, new)
 
     def test_properies(self):
         """ Check property setters and getters """
-        return
-        uid = ImplementationClassUIDSubItem()
-        uid.implementation_class_uid = '1.2.276.0.7230010.3.0.3.6.0'
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_async)
+
+        for item in pdu.user_information.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                async = item
         
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-        
-        uid.implementation_class_uid = b'1.2.276.0.7230010.3.0.3.6.0'
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-        
-        uid.implementation_class_uid = UID('1.2.276.0.7230010.3.0.3.6.0')
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-        
-        with self.assertRaises(TypeError):
-            uid.implementation_class_uid = 10002
+        self.assertEqual(item.max_operations_invoked, 5)
+        self.assertEqual(item.max_operations_performed, 5)
 
 class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
     def test_stream_decode(self):
@@ -1069,7 +1256,86 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         self.assertEqual(ui.response_requested, False)
         self.assertEqual(ui.secondary, b'p4ssw0rd')
 
+class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
+    def test_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_ext_neg)
 
-    
+        item = pdu.user_information.ext_neg[0]
+        
+        self.assertEqual(item.item_type, 0x56)
+        self.assertEqual(item.item_length, 33)
+        self.assertEqual(item.sop_class_uid_length, 25)
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        self.assertEqual(item.service_class_application_information, b'\x02\x00\x03\x00\x01\x00')
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_ext_neg)
+
+        item = pdu.user_information.ext_neg[0]
+        
+        s = item.encode()
+        
+        self.assertEqual(s, extended_negotiation)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_ext_neg)
+
+        item = pdu.user_information.ext_neg[0]
+        
+        result = item.ToParams()
+        
+        check = SOPClassExtendedNegotiationParameters()
+        
+        check.SOPClassUID = UID('1.2.840.10008.5.1.4.1.1.2')
+        check.ServiceClassApplicationInformation = b'\x02\x00\x03\x00\x01\x00'
+
+        self.assertEqual(result, check)
+
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_ext_neg)
+
+        orig = pdu.user_information.ext_neg[0]
+        params = orig.ToParams()
+        
+        new = SOPClassExtendedNegotiationSubItem()
+        new.FromParams(params)
+        
+        self.assertEqual(orig, new)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        item = SOPClassExtendedNegotiationSubItem()
+        
+        # SOP Class UID
+        item.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.implementation_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.implementation_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        
+        self.assertEqual(item.UID, item.sop_class_uid)
+        
+        with self.assertRaises(TypeError):
+            item.sop_class_uid = 10002
+        
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_ext_neg)
+
+        item = pdu.user_information.ext_neg[0]
+        
+        self.assertEqual(item.app_info, b'\x02\x00\x03\x00\x01\x00')
+        
+        
+        
+
 if __name__ == "__main__":
     unittest.main()

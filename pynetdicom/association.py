@@ -283,6 +283,15 @@ class Association(threading.Thread):
                     
                     # Associate with all requestors
                     assoc_rq.UserInformation.remove(ii)
+                    
+                    # Testing
+                    #if ii.PositiveResponseRequested:
+                    #    ii.ServerResponse = b''
+            
+            # Extended Negotiation
+            for ii in assoc_rq.UserInformation:
+                if isinstance(ii, SOPClassExtendedNegotiationParameters):
+                    assoc_rq.UserInformation.remove(ii)
 
             ## DUL Presentation Related Rejections
             #
