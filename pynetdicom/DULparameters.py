@@ -226,6 +226,14 @@ class A_ASSOCIATE_ServiceParameters():
         else:
             self.__called_ae_title = None
 
+    # FIXME: Add properties for all user info items
+    @property
+    def maximum_length_received(self):
+        for item in self.UserInformation:
+            if isinstance(item, MaximumLengthParameters):
+                return item
+        
+        return None
 
 class A_RELEASE_ServiceParameters():
     """ 

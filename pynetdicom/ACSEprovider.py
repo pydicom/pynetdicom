@@ -10,6 +10,7 @@ from pynetdicom.PDU import MaximumLengthParameters, \
                             ImplementationClassUIDParameters, \
                             ImplementationVersionNameParameters
 from pynetdicom.utils import PresentationContext, PresentationContextManager
+from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom.acse')
 
@@ -277,8 +278,7 @@ class ACSEServiceProvider(object):
         The acceptability of the proposed Transfer Syntax is checked in the 
         order of appearance in the local AE's SupportedTransferSyntax list
         """
-        self.MaxPDULength = \
-                assoc_primitive.UserInformation[0].MaximumLengthReceived
+        self.MaxPDULength = assoc_primitive.maximum_length_received
         self.local_max_pdu = self.MaxPDULength
         self.parent.local_max_pdu = self.MaxPDULength
 
@@ -432,7 +432,7 @@ class ACSEServiceProvider(object):
         s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
         s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
         
-        # Presentation Contexts
+        ## Presentation Contexts
         if len(pres_contexts) == 1:
             s.append('Presentation Context:')
         else:
@@ -457,15 +457,44 @@ class ACSEServiceProvider(object):
             for ts in context.transfer_syntax:
                 s.append('      =%s' %ts.name)
         
-        ext_nego = 'None'
-        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %ext_nego)
+        ## Extended Negotiation
+        if assoc_rq.user_information.ext_neg is not None:
+            s.append('Requested Extended Negotiation:')
+            
+            for item in assoc_rq.user_information.ext_neg:
+                
+                s.append('  Abstract Syntax: =%s' %item.UID)
+                #s.append('    Application Information, length: %d bytes' %len(item.app_info))
+                app_info = wrap_list(item.app_info)
+                app_info[0] = '[' + app_info[0][1:]
+                app_info[-1] = app_info[-1] + ' ]'
+                for line in app_info:
+                    s.append('    %s' %line)
+        else:
+            s.append('Requested Extended Negotiation: None')
         
-        usr_id = 'None'
+        ## User Identity
         if user_info.user_identity is not None:
-            usr_id = 'Yes'
-        s.append('Requested User Identity Negotiation: %s' %usr_id)
+            usid = user_info.user_identity
+            s.append('Requested User Identity Negotiation:')
+            s.append('  Authentication mode %d: %s' %(usid.id_type, usid.id_type_str))
+            if usid.id_type == 1:
+                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
+            elif usid.id_type == 2:
+                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
+                s.append('  Password: [%s]' %usid.secondary.decode('utf-8'))
+            elif usid.id_type == 3:
+                s.append('  Kerberos Service Ticket (not dumped) length: %d' %len(usid.primary))
+            elif usid.id_type == 4:
+                s.append('  SAML Assertion (not dumped) length: %d' %len(usid.primary))
+            
+            if usid.response_requested:
+                s.append('  Positive Response requested: Yes')
+            else:
+                s.append('  Positive Response requested: None')
+        else:
+            s.append('Requested User Identity Negotiation: None')
+        
         s.append('======================= END A-ASSOCIATE-RQ =================='
                 '====')
         
@@ -646,6 +675,8 @@ class ACSEServiceProvider(object):
         s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
         s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
+        
+        ## Presentation Contexts
         s.append('Presentation Contexts:')
         for item in pres_contexts:
             s.append('  Context ID:        %s (Proposed)' %item.ID)
@@ -662,10 +693,20 @@ class ACSEServiceProvider(object):
                 s.append('      =%s' %ts)
         
         ## Extended Negotiation
-        ext_nego = 'None'
-        #if assoc_rq.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %ext_nego)
+        if assoc_rq.user_information.ext_neg is not None:
+            s.append('Requested Extended Negotiation:')
+            
+            for item in assoc_rq.user_information.ext_neg:
+                
+                s.append('  Abstract Syntax: =%s' %item.UID)
+                #s.append('    Application Information, length: %d bytes' %len(item.app_info))
+                app_info = wrap_list(item.app_info)
+                app_info[0] = '[' + app_info[0][1:]
+                app_info[-1] = app_info[-1] + ' ]'
+                for line in app_info:
+                    s.append('    %s' %line)
+        else:
+            s.append('Requested Extended Negotiation: None')
         
         ## User Identity
         if user_info.user_identity is not None:

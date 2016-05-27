@@ -178,6 +178,14 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         user_info = pdu.user_information
         self.assertTrue(isinstance(user_info, UserInformationItem))
 
+    def test_new_encode(self):
+        """ Check encoding using new generic method """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        s = pdu.encode()
+        
+        self.assertEqual(s, a_associate_rq)
+
     def test_stream_encode(self):
         """ Check encoding an assoc_rq produces the correct output """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -481,6 +489,14 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         
         self.assertEqual(s, a_associate_ac)
 
+    def test_new_encode(self):
+        """ Check encoding using new generic method """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        s = pdu.encode()
+        
+        self.assertEqual(s, a_associate_ac)
+
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
         pdu = A_ASSOCIATE_AC_PDU()
@@ -548,17 +564,17 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         
     def test_update_data(self):
         """ Check that updating the PDU data works correctly """
-        orig_pdu = A_ASSOCIATE_AC_PDU()
-        orig_pdu.Decode(a_associate_ac)
-        orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
-        orig_pdu.get_length()
+        original = A_ASSOCIATE_AC_PDU()
+        original.Decode(a_associate_ac)
+        original.user_information.user_data = [original.user_information.user_data[1]]
+        original.get_length()
+
+        primitive = original.ToParams()
         
-        primitive = orig_pdu.ToParams()
-        
-        new_pdu = A_ASSOCIATE_AC_PDU()
-        new_pdu.FromParams(primitive)
-        
-        self.assertEqual(new_pdu, orig_pdu)
+        new = A_ASSOCIATE_AC_PDU()
+        new.FromParams(primitive)
+
+        self.assertEqual(original, new)
 
     def test_generic_encode(self):
         """ Check using the new pdu.encode produces the correct output """
@@ -710,6 +726,14 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         pdu = A_ASSOCIATE_RJ_PDU()
         pdu.Decode(a_associate_rj)
         s = pdu.Encode()
+        
+        self.assertEqual(s, a_associate_rj)
+
+    def test_new_encode(self):
+        """ Check encoding using new generic method """
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        s = pdu.encode()
         
         self.assertEqual(s, a_associate_rj)
 
@@ -879,6 +903,14 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         
         self.assertEqual(s, p_data_tf)
 
+    def test_new_encode(self):
+        """ Check encoding using new generic method """
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        s = pdu.encode()
+        
+        self.assertEqual(s, p_data_tf)
+
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
         pdu = P_DATA_TF_PDU()
@@ -930,6 +962,14 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
         
         self.assertEqual(s, a_release_rq)
 
+    def test_new_encode(self):
+        """ Check encoding using new generic method """
+        pdu = A_RELEASE_RQ_PDU()
+        pdu.Decode(a_release_rq)
+        s = pdu.encode()
+        
+        self.assertEqual(s, a_release_rq)
+
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
         pdu = A_RELEASE_RQ_PDU()
@@ -978,6 +1018,14 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         pdu = A_RELEASE_RP_PDU()
         pdu.Decode(a_release_rp)
         s = pdu.Encode()
+        
+        self.assertEqual(s, a_release_rp)
+
+    def test_new_encode(self):
+        """ Check encoding using new generic method """
+        pdu = A_RELEASE_RP_PDU()
+        pdu.Decode(a_release_rp)
+        s = pdu.encode()
         
         self.assertEqual(s, a_release_rp)
 
@@ -1050,11 +1098,27 @@ class TestPDU_A_ABORT(unittest.TestCase):
         
         self.assertEqual(s, a_abort)
     
+    def test_new_encode_a_abort(self):
+        """ Check encoding using new generic method """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        s = pdu.encode()
+        
+        self.assertEqual(s, a_abort)
+    
     def test_a_p_abort_stream_encode(self):
         """ Check encoding an a_abort produces the correct output """
         pdu = A_ABORT_PDU()
         pdu.Decode(a_p_abort)
         s = pdu.Encode()
+        
+        self.assertEqual(s, a_p_abort)
+    
+    def test_new_encode_a_p_abort(self):
+        """ Check encoding using new generic method """
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_p_abort)
+        s = pdu.encode()
         
         self.assertEqual(s, a_p_abort)
 
