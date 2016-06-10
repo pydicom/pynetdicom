@@ -155,6 +155,28 @@ a_associate_ac_user_id_user_pass = b'\x02\x00\x00\x00\x00\xbe\x00\x01\x00\x00\x4
                                    b'\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f' \
                                    b'\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00' \
                                    b'\x00\x02\x00\x00'
+
+a_associate_rq_com_ext_neg = b'\x02\x00\x00\x00\x01\x49\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
+                             b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
+                             b'\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
+                             b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+                             b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
+                             b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
+                             b'\x31\x2e\x31\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31' \
+                             b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32' \
+                             b'\x21\x00\x00\x19\x03\x00\x00\x00\x40\x00\x00\x11\x31\x2e\x32\x2e' \
+                             b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x21\x00\x00' \
+                             b'\x19\x05\x00\x00\x00\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30' \
+                             b'\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\x91\x51\x00' \
+                             b'\x00\x04\x00\x00\x40\x00\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32' \
+                             b'\x36\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e' \
+                             b'\x33\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59' \
+                             b'\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30\x39\x30\x57\x00\x00\x4d' \
+                             b'\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e' \
+                             b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00\x11\x31\x2e\x32' \
+                             b'\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x34\x2e\x32\x00\x1d' \
+                             b'\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e' \
+                             b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38\x2e\x32\x32'
   
 user_identity_rq_user_pass = b'\x58\x00\x00\x18\x02\x00\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63' \
                              b'\x6f\x6d\x00\x08\x70\x34\x73\x73\x77\x30\x72\x64'
@@ -224,6 +246,13 @@ extended_negotiation = b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2
                        b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x02' \
                        b'\x00\x03\x00\x01\x00'
 
+common_extended_negotiation = b'\x57\x00\x00\x4d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
+                              b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00' \
+                              b'\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x34' \
+                              b'\x2e\x32\x00\x1d\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
+                              b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38' \
+                              b'\x2e\x32\x32'
+
 from io import BytesIO
 import logging
 import threading
@@ -246,9 +275,6 @@ for h in logger.handlers:
 logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 
-
-# FIXME
-#   Bug: concat error Ext Neg Item when UID as string not known or not in scu classes
 
 class TestPDUItem_ApplicationContext(unittest.TestCase):
     def test_stream_decode_assoc_rq(self):
@@ -774,7 +800,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
         self.assertEqual(ui.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
         self.assertEqual(ui.implementation_version_name, 'PYNETDICOM_090')
-    
+
 class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
@@ -1256,6 +1282,31 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         self.assertEqual(ui.response_requested, False)
         self.assertEqual(ui.secondary, b'p4ssw0rd')
 
+# FIXME: Add tests for UserIdentityRQ SAML
+class TestPDUItem_UserInformation_UserIdentityRQ_SAML(unittest.TestCase):
+    pass
+
+# FIXME: Add tests for UserIdentityRQ Kerberos
+class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(unittest.TestCase):
+    pass
+
+# FIXME: Add tests for UserIdentityAC User no pass
+class TestPDUItem_UserInformation_UserIdentityAC_UserNoPass(unittest.TestCase):
+    pass
+
+# FIXME: Add tests for UserIdentityAC User pass
+class TestPDUItem_UserInformation_UserIdentityAC_UserPass(unittest.TestCase):
+    pass
+
+# FIXME: Add tests for UserIdentityAC SAML
+class TestPDUItem_UserInformation_UserIdentityAC_SAML(unittest.TestCase):
+    pass
+
+# FIXME: Add tests for UserIdentityAC Kerberos
+class TestPDUItem_UserInformation_UserIdentityAC_Kerberos(unittest.TestCase):
+    pass
+
+
 class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
     def test_decode(self):
         """ Check decoding produces the correct values """
@@ -1333,9 +1384,101 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         item = pdu.user_information.ext_neg[0]
         
         self.assertEqual(item.app_info, b'\x02\x00\x03\x00\x01\x00')
+
+
+class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
+    def test_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_com_ext_neg)
+
+        item = pdu.user_information.common_ext_neg[0]
         
+        self.assertEqual(item.item_type, 0x57)
+        self.assertEqual(item.item_length, 77)
+        self.assertEqual(item.sop_class_uid_length, 25)
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.4'))
+        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.4.2'))
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.88.22')])
+
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_com_ext_neg)
+
+        item = pdu.user_information.common_ext_neg[0]
         
+        s = item.encode()
+
+        self.assertEqual(s, common_extended_negotiation)
+
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_com_ext_neg)
+
+        item = pdu.user_information.common_ext_neg[0]
         
+        result = item.ToParams()
+        
+        check = SOPClassCommonExtendedNegotiationParameters()
+        
+        check.SOPClassUID = UID('1.2.840.10008.5.1.4.1.1.4')
+        check.ServiceClassUID = UID('1.2.840.10008.4.2')
+        check.RelatedGeneralSOPClassUID = [UID('1.2.840.10008.5.1.4.1.1.88.22')]
+
+        self.assertEqual(result, check)
+
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_com_ext_neg)
+
+        orig = pdu.user_information.common_ext_neg[0]
+        params = orig.ToParams()
+        
+        new = SOPClassCommonExtendedNegotiationSubItem()
+        new.FromParams(params)
+        
+        self.assertEqual(orig, new)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        item = SOPClassCommonExtendedNegotiationSubItem()
+        
+        # SOP Class UID
+        item.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.implementation_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.implementation_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        
+        with self.assertRaises(TypeError):
+            item.sop_class_uid = 10002
+        
+        # Service Class UID
+        item.service_class_uid = '1.2.840.10008.5.1.4.1.1.2'
+        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.service_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
+        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.service_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        
+        with self.assertRaises(TypeError):
+            item.service_class_uid = 10002
+            
+        # Related General SOP Class UID
+        item.related_general_sop_class_identification = ['1.2.840.10008.5.1.4.1.1.2']
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.2')])
+        item.related_general_sop_class_identification = [b'1.2.840.10008.5.1.4.1.1.2']
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.2')])
+        item.related_general_sop_class_identification = [UID('1.2.840.10008.5.1.4.1.1.2')]
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.2')])
+        
+        with self.assertRaises(TypeError):
+            item.related_general_sop_class_identification = 10002
+
 
 if __name__ == "__main__":
     unittest.main()

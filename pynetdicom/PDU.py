@@ -15,21 +15,20 @@ There are seven different PDUs, each of them correspong to distinct class.
     A_RELEASE_RP_PDU
     A_ABORT_PDU
 
-
     All PDU classes implement the following methods:
 
       FromParams(DULServiceParameterObject):  Builds a PDU from a
                                               DULServiceParameter object.
                                               Used when receiving primitives
                                               from the DULServiceUser.
-      ToParams()                           :  Convert the PDU into a
-                                              DULServiceParameter object.
-                                              Used for sending primitives to
-                                              the DULServiceUser.
+      ToParams()                   :  Convert the PDU into a
+                                      DULServiceParameter object.
+                                      Used for sending primitives to
+                                      the DULServiceUser.
       Encode()                     :  Returns the encoded PDU as a string,
                                       ready to be sent over the net.
-      Decode(string)               :  Construct PDU from "string".
-                                      Used for reading PDU's from the net.
+      Decode(bytestream)           :  Construct PDU from `bytestream`.
+                                      Used for reading PDU's from the peer.
 
                         FromParams                 Encode
   |------------ -------| ------->  |------------| -------> |------------|
@@ -37,19 +36,6 @@ There are seven different PDUs, each of them correspong to distinct class.
   |       object       |           |   object   |          |   socket   |
   |____________________| <-------  |____________| <------- |____________|
                          ToParams                  Decode
-
-
-
-In addition to PDUs, several items and sub-items classes are implemented.
-These classes are:
-
-        ApplicationContextItem
-        PresentationContextItemRQ
-        AbstractSyntaxSubItem
-        TransferSyntaxSubItem
-        UserInformationItem
-        PresentationContextItemAC
-        PresentationDataValueItem
 """
 
 from io import BytesIO
@@ -68,15 +54,7 @@ class PDU(object):
     """ Base class for PDUs """
     def __init__(self):
         pass
-        # The singleton PDU parameters are stored in this list
-        #   along with their struct.pack formats as a tuple
-        #   ie. [(value1, format1), (value2, format2), ...]
-        #self.parameters = []
-        # Any non-singleton PDU parameters (ie those with required sub items,
-        #   such as A-ASSOCIATE-RQ's Variable Items or P-DATA-TF's 
-        #   Presentation Data Value Items are listed here
-        #self.additional_items = []
-        
+
     def __eq__(self, other):
         """Equality of two PDUs"""
         for ii in self.__dict__:
@@ -108,11 +86,6 @@ class PDU(object):
         """
         no_formats = len(self.formats)
         
-        #print()
-        #print(type(self))
-        #print(self.formats)
-        #print(self.parameters[:no_formats])
-        
         # If a parameter is already a bytestring then determine its length
         #   and update the format
         for (ii, ff) in enumerate(self.formats):
@@ -129,12 +102,8 @@ class PDU(object):
         #   is defined by the negotiated Transfer Syntax
         pack_format = '> ' + ' '.join(self.formats)
         
-        #print(pack_format)
-        
         bytestream  = bytes()
         bytestream += pack(pack_format, *self.parameters[:no_formats])
-        
-        #print(bytestream)
         
         # When we have more parameters then format we assume that the extra
         #   parameters is a list of objects needing their own encoding
@@ -146,7 +115,7 @@ class PDU(object):
                 bytestream += ii.encode()
         
         return bytestream
-            
+
     def decode(self, encoded_data):
         """
         Decode the binary encoded PDU and sets the PDU class' values using the
@@ -157,6 +126,8 @@ class PDU(object):
         encoded_data - ?
             The binary encoded PDU
         """
+        raise NotImplementedError
+        
         s = BytesIO(encoded_data)
         
         # We go through the PDU's parameters list and use the associated
@@ -277,7 +248,6 @@ class PDU(object):
 
     @property
     def length(self):
-            
         return len(self.Encode())
 
 
@@ -473,7 +443,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         logger.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
                         'PDU header' %(len(bytestring) - 6))
         
-        for line in wrap_list(bytestring, max_size=512):
+        for line in wrap_list(bytestring, max_size=1024):
             logger.debug('  ' + line)
         
         logger.debug('Parsing an A-ASSOCIATE PDU')
@@ -640,24 +610,24 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    -  Context name: =%s\n' %self.application_context_name
+        s += '    - Context name: =%s\n' %self.application_context_name
 
         s += '  * Presentation Context Item(s):\n'
 
         for ii in self.presentation_context:
             item_str = '%s' %ii
             item_str_list = item_str.split('\n')
-            s += '    -  %s\n' %item_str_list[0]
+            s += '    - %s\n' %item_str_list[0]
             for jj in item_str_list[1:-1]:
-                s += '       %s\n' %jj
+                s += '      %s\n' %jj
 
         s += '  * User Information Item(s):\n'
         for ii in self.user_information.user_data:
             item_str = '%s' %ii
             item_str_list = item_str.split('\n')
-            s += '    -  %s\n' %item_str_list[0]
+            s += '    - %s\n' %item_str_list[0]
             for jj in item_str_list[1:-1]:
-                s += '       %s\n' %jj
+                s += '      %s\n' %jj
         
         return s
 
@@ -1868,7 +1838,7 @@ class A_ABORT_PDU(PDU):
             return 'No reason given'
 
 
-# Item and sub-item classes
+# PDU Item and Sub-item classes
 class ApplicationContextItem(PDU):
     """
     Represents the Application Context Item used in A-ASSOCIATE-RQ and 
@@ -2209,9 +2179,9 @@ class PresentationContextItemRQ(PDU):
         for ii in self.abstract_transfer_syntax_sub_items:
             item_str = '%s' %ii
             item_str_list = item_str.split('\n')
-            s += '  +  %s\n' %item_str_list[0]
+            s += '  + %s\n' %item_str_list[0]
             for jj in item_str_list[1:-1]:
-                s += '     %s\n' %jj
+                s += '    %s\n' %jj
             
         return s
 
@@ -2896,9 +2866,8 @@ class UserInformationItem(PDU):
     async_ops_window : AsynchronousOperationsWindowSubItem or None
         The AsynchronousOperationsWindowSubItem object, or None if the sub-item 
         is not present.
-    common_ext_neg : SOPClassCommonExtendedNegotiationSubItem or None
-        The SOPClassCommonExtendedNegotiationSubItem object, or None if the 
-        sub-item is not present.
+    common_ext_neg : list of pynetdicom.pdu.SOPClassCommonExtendedNegotiationSubItem or None
+        The common extended negotiation items, or None if there aren't any
     ext_neg : list of pynetdicom.pdu.SOPClassExtendedNegotiationSubItem or None
         The extended negotiation items, or None if there aren't any
     implementation_class_uid : pydicom.uid.UID
@@ -3044,9 +3013,13 @@ class UserInformationItem(PDU):
 
     @property
     def common_ext_neg(self):
+        items = []
         for ii in self.user_data:
             if isinstance(ii, SOPClassCommonExtendedNegotiationSubItem):
-                return ii
+                items.append(ii)
+
+        if len(items):
+            return items
         
         return None
     
@@ -3827,8 +3800,8 @@ class AsynchronousOperationsWindowSubItem(PDU):
         s  = "Asynchronous Operation Window Sub-item\n"
         s += "  Item type: 0x%02x\n" % self.item_type
         s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Max. number of operations invoked: %d\n" % self.maximum_operations_invoked
-        s += "  Max. number of operations performed: %d\n" % self.maximum_operations_performed
+        s += "  Max. number of operations invoked: %d\n" % self.maximum_number_operations_invoked
+        s += "  Max. number of operations performed: %d\n" % self.maximum_number_operations_performed
         
         return s
 
@@ -4036,7 +4009,6 @@ class UserIdentitySubItemRQ(PDU):
     @property
     def secondary(self):
         return self.secondary_field
-
 
 class UserIdentitySubItemAC(PDU):
     """
@@ -4252,6 +4224,14 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         return primitive
         
     def Encode(self):
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
         formats = '> B B H H'
         parameters = [self.item_type,
                       0x00,
@@ -4300,6 +4280,16 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         
         return 4 + self.item_length
     
+    def __str__(self):
+        s  = "SOP Class Extended Negotiation Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  SOP class UID length: %d bytes\n" % self.sop_class_uid_length
+        s += "  SOP class: =%s\n" % self.sop_class_uid
+        s += "  Service class application information: %s\n" % self.service_class_application_information
+        
+        return s
+    
     @property
     def UID(self):
         return self.sop_class_uid
@@ -4333,7 +4323,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 class SOPClassCommonExtendedNegotiationSubItem(PDU):
     """
     Represents the SOP Class Common Extended Negotiation Sub Item used in 
-    A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
+    A-ASSOCIATE-RQ PDUs.
 
     The SOP Class Common Extended Negotiation Sub Item requires the following 
     parameters (see PS3.7 Annex D.3.3.6.1):
@@ -4341,7 +4331,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         * Sub-item version (1, fixed, 0x00)
         * Item length (1)
         * SOP class UID length (1)
-        * SOPcClass UID (1)
+        * SOP class UID (1)
         * Service class UID length (1)
         * Service class UID (1)
         * Related general SOP class identification length (1)
@@ -4350,20 +4340,22 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
           * Related general SOP class UID (1)
     
     See PS3.7 Annex D.3.3.6.1 for the structure of the item, especially 
-    Tables D.3-12.
+    Tables D.3-12 and D.3-13.
+    
+    The Requestor may only offset one SOP Class Common Extended Negotiation item
+    for each SOP Class UID that's present in the A-ASSOCIATE-RQ.
+    
+    No response is necessary and the Common Extended Negotiation items shall be
+    omitted in the A-ASSOCIATE response.
     
     Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
     
     Attributes
     ----------
     length : int
         The length of the encoded Item in bytes
-    UID : pydicom.uid.UID
-        The UID of the abstract syntax that this sub-item pertains
-    application_information :
-        The application information specific to the service class identified
-        by `sop_class_uid`
+    related_sop_class_uid : list of pydicom.uid.UID or None
+        The Related Generation SOP Class identifiers (if any).
     """
     def __init__(self):
         self.item_type = 0x57
@@ -4374,7 +4366,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         self.service_class_uid_length = None
         self.service_class_uid = None
         self.related_general_sop_class_identification_length = None
-        self.related_general_sop_class_identification_sub_fields = []
+        self.related_general_sop_class_identification = []
 
         self.formats = ['B', 'B', 'H', 'H', 's', 'H', 's', 'H']
         self.parameters = [self.item_type,
@@ -4385,7 +4377,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
                            self.service_class_uid_length,
                            self.service_class_uid,
                            self.related_general_sop_class_identification_length,
-                           self.related_general_sop_class_identification_sub_fields]
+                           self.related_general_sop_class_identification]
     
     def FromParams(self, primitive):
         """
@@ -4393,33 +4385,67 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         
         Parameters
         ----------
-        primitive : pynetdicom.PDU.AsynchronousOperationsWindowParameters
+        primitive : pynetdicom.PDU.SOPClassCommonExtendedNegotiationParameters
             The primitive to use when setting up the Item
         """
-        pass
+        self.sop_class_uid = primitive.SOPClassUID
+        self.sop_class_uid_length = len(self.sop_class_uid)
+        self.service_class_uid = primitive.ServiceClassUID
+        self.service_class_uid_length = len(self.service_class_uid)
+        self.related_general_sop_class_identification = primitive.RelatedGeneralSOPClassUID
         
+        self.related_general_sop_class_identification_length = 0
+        for uid in self.related_general_sop_class_identification:
+            self.related_general_sop_class_identification_length += len(uid)
+            
+        self.item_length = 2 + self.sop_class_uid_length + \
+                           2 + self.service_class_uid_length + \
+                           2 + self.related_general_sop_class_identification_length
+
     def ToParams(self):
         """ 
         Convert the current Item to a primitive
         
         Returns
         -------
-        pynetdicom.PDU.AsynchronousOperationsWindowParameters
+        pynetdicom.PDU.SOPClassCommonExtendedNegotiationParameters
             The primitive to convert to
         """
-        pass
-    
+        primitive = SOPClassCommonExtendedNegotiationParameters()
+        primitive.SOPClassUID = self.sop_class_uid
+        primitive.ServiceClassUID = self.service_class_uid
+        primitive.RelatedGeneralSOPClassUID = self.related_general_sop_class_identification
+        
+        return primitive
+
+    def encode(self):
+        return self.Encode()
+
     def Encode(self):
+        """
+        Encode the Item's parameter values into a bytes string
+        
+        Returns
+        -------
+        bytestring : bytes
+            The encoded Item used in the parent PDU
+        """
         formats = '> B B H H'
         parameters = [self.item_type,
-                      0x00,
+                      self.sub_item_version,
                       self.item_length,
-                      self.uid_length]
+                      self.sop_class_uid_length]
                       
         bytestring  = bytes()
         bytestring += pack(formats, *parameters)
         bytestring += bytes(self.sop_class_uid.title(), 'utf-8')
-        bytestring += bytes(self.service_class_application_information, 'utf-8')
+        bytestring += pack('>H', self.service_class_uid_length)
+        bytestring += bytes(self.service_class_uid, 'utf-8')
+        bytestring += pack('>H', self.related_general_sop_class_identification_length)
+        
+        for sub_fields in self.related_general_sop_class_identification:
+            bytestring += pack('>H', len(sub_fields))
+            bytestring += bytes(sub_fields.title(), 'utf-8')
 
         return bytestring
 
@@ -4433,13 +4459,51 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         bytestream : io.BytesIO
             The byte stream to decode
         """
-        pass
+        (self.item_type,
+         self.sub_item_version,
+         self.item_length,
+         self.sop_class_uid_length) = unpack('>B B H H', bytestream.read(6))
+         
+        self.sop_class_uid = bytestream.read(self.sop_class_uid_length)
+        
+        (self.service_class_uid_length,) = unpack('>H', bytestream.read(2))
+        self.service_class_uid = bytestream.read(self.service_class_uid_length)
+        
+        (self.related_general_sop_class_identification_length,) = unpack('>H', bytestream.read(2))
+
+        # Read remaining bytes in item
+        remaining = self.related_general_sop_class_identification_length
+        uids = []
+        while remaining > 0:
+            (uid_length,) = unpack('>H', bytestream.read(2))
+            uid = bytestream.read(uid_length)
+            uids.append(uid)
+            
+            remaining -= 2 + uid_length
+            
+        self.related_general_sop_class_identification = uids
     
     def get_length(self):
         self.item_length = 4 + len(self.sop_class_uid)
         self.uid_length = len(self.sop_class_uid)
         
         return 4 + self.item_length
+
+    def __str__(self):
+        s  = "SOP Class Common Extended Negotiation Sub-item\n"
+        s += "  Item type: 0x%02x\n" % self.item_type
+        s += "  Item length: %d bytes\n" % self.item_length
+        s += "  SOP class UID length: %d bytes\n" % self.sop_class_uid_length
+        s += "  SOP class: =%s\n" % self.sop_class_uid
+        s += "  Service class UID length: %d bytes\n" % self.service_class_uid_length
+        s += "  Service class UID: =%s\n" % self.service_class_uid
+        s += "  Related general SOP class ID length: %d bytes\n" % self.related_general_sop_class_identification_length
+        s += "  Related general SOP class ID(s):\n" 
+        
+        for ii in self.related_general_sop_class_identification:
+            s += "    =%s (%s)\n" %(ii, ii.title())
+
+        return s
 
     @property
     def sop_class_uid(self):
@@ -4453,9 +4517,60 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             value = UID(value)
         elif isinstance(value, UID):
             pass
+        elif value is None:
+            pass
+        else:
+            raise TypeError('sop_class_uid must be str, bytes or pydicom.uid.UID')
         
         self._sop_class_uid = value
-
+        
+        if value is not None:
+            self.uid_length = len(value)
+    
+    @property
+    def service_class_uid(self):
+        return self._service_class_uid
+        
+    @service_class_uid.setter
+    def service_class_uid(self, value):
+        if isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, UID):
+            pass
+        elif value is None:
+            pass
+        else:
+            raise TypeError('service_class_uid must be str, bytes or pydicom.uid.UID')
+        
+        self._service_class_uid = value
+        
+        if value is not None:
+            self.uid_length = len(value)
+    
+    @property
+    def related_general_sop_class_identification(self):
+        return self._related_general_sop_class_identification
+        
+    @related_general_sop_class_identification.setter
+    def related_general_sop_class_identification(self, value_list):
+        self._related_general_sop_class_identification = []
+        self.related_general_sop_class_identification_length = 0
+        
+        for value in value_list:
+            if isinstance(value, bytes):
+                value = UID(value.decode('utf-8'))
+            elif isinstance(value, str):
+                value = UID(value)
+            elif isinstance(value, UID):
+                pass
+            else:
+                raise TypeError('related_general_sop_class_identification must be str, bytes or pydicom.uid.UID')
+        
+            self._related_general_sop_class_identification.append(value)
+            self.related_general_sop_class_identification_length += len(value)
+    
 
 class SOPClassExtendedNegotiationParameters(PDU):
     def __init__(self):
@@ -4464,6 +4579,17 @@ class SOPClassExtendedNegotiationParameters(PDU):
 
     def FromParams(self):
         tmp = SOPClassExtendedNegotiationSubItem()
+        tmp.FromParams(self)
+        return tmp
+        
+class SOPClassCommonExtendedNegotiationParameters(PDU):
+    def __init__(self):
+        self.SOPClassUID = None
+        self.ServiceClassUID = None
+        self.RelatedGeneralSOPClassUID = []
+
+    def FromParams(self):
+        tmp = SOPClassCommonExtendedNegotiationSubItem()
         tmp.FromParams(self)
         return tmp
 

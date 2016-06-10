@@ -784,7 +784,7 @@ class ApplicationEntity(object):
             raise ValueError("Transfer syntax SOP class must be a "
                                 "UID str, UID or ServiceClass subclass")
 
-    
+
     # Association negotiation callbacks
     def on_user_identity(self, user_id_type, primary_field, secondary_field):
         """

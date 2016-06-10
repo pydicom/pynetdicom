@@ -229,6 +229,8 @@ class A_ASSOCIATE_ServiceParameters():
     # FIXME: Add properties for all user info items
     @property
     def maximum_length_received(self):
+        from pynetdicom.PDU import MaximumLengthParameters
+        
         for item in self.UserInformation:
             if isinstance(item, MaximumLengthParameters):
                 return item
