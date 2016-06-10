@@ -472,12 +472,30 @@ class ACSEServiceProvider(object):
                     s.append('    %s' %line)
         else:
             s.append('Requested Extended Negotiation: None')
+            
+        ## Common Extended Negotiation
+        if assoc_rq.user_information.common_ext_neg is not None:
+            s.append('Requested Common Extended Negotiation:')
+            
+            for item in assoc_rq.user_information.common_ext_neg:
+                
+                s.append('  Abstract Syntax: =%s' %item.sop_class_uid)
+                s.append('  Service Class:   =%s' %item.service_class_uid)
+                
+                if item.related_general_sop_class_identification != []:
+                    s.append('  Related General SOP Class(es):')
+                    for sub_field in item.related_general_sop_class_identification:
+                        s.append('    =%s' %sub_field)
+                else:
+                    s.append('  Related General SOP Classes: None')
+        else:
+            s.append('Requested Common Extended Negotiation: None')
         
         ## User Identity
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication mode %d: %s' %(usid.id_type, usid.id_type_str))
+            s.append('  Authentication Mode: %d - %s' %(usid.id_type, usid.id_type_str))
             if usid.id_type == 1:
                 s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
             elif usid.id_type == 2:
@@ -708,11 +726,29 @@ class ACSEServiceProvider(object):
         else:
             s.append('Requested Extended Negotiation: None')
         
+        ## Common Extended Negotiation
+        if assoc_rq.user_information.common_ext_neg is not None:
+            s.append('Requested Common Extended Negotiation:')
+            
+            for item in assoc_rq.user_information.common_ext_neg:
+                
+                s.append('  Abstract Syntax: =%s' %item.sop_class_uid)
+                s.append('  Service Class:   =%s' %item.service_class_uid)
+                
+                if item.related_general_sop_class_identification != []:
+                    s.append('  Related General SOP Class(es):')
+                    for sub_field in item.related_general_sop_class_identification:
+                        s.append('    =%s' %sub_field)
+                else:
+                    s.append('  Related General SOP Classes: None')
+        else:
+            s.append('Requested Common Extended Negotiation: None')
+        
         ## User Identity
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication mode %d: %s' %(usid.id_type, usid.id_type_str))
+            s.append('  Authentication Mode: %d - %s' %(usid.id_type, usid.id_type_str))
             if usid.id_type == 1:
                 s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
             elif usid.id_type == 2:

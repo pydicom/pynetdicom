@@ -19,7 +19,6 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                                 ExplicitVRBigEndian
 
 from pynetdicom import AE, VerificationSOPClass
-from pynetdicom.PDU import UserIdentityParameters, AsynchronousOperationsWindowParameters, SOPClassExtendedNegotiationParameters
 
 logger = logging.Logger('echoscu')
 stream_logger = logging.StreamHandler()
@@ -249,7 +248,7 @@ logger.debug('')
 # Binding to port 0, OS will pick an available port
 ae = AE(ae_title=args.calling_aet, 
         port=0, 
-        scu_sop_class=['1.2.840.10008.1.1', '1.2.840.10008.5.1.4.1.1.2', '1.2.840.10008.5.1.4.1.1.4'], 
+        scu_sop_class=[VerificationSOPClass], 
         scp_sop_class=[], 
         transfer_syntax=transfer_syntaxes)
 
@@ -260,33 +259,8 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-# Add User Identity Negotiation
-ext_neg = []
-usr_id = UserIdentityParameters()
-usr_id.UserIdentityType = 1
-usr_id.PositiveResponseRequested = 1
-usr_id.PrimaryField = b'pynetdicom'
-ext_neg.append(usr_id)
-
-# Add Async Window
-async = AsynchronousOperationsWindowParameters()
-async.MaximumNumberOperationsInvoked = 5
-async.MaximumNumberOperationsPerformed = 5
-ext_neg.append(async)
-
-# Add SOP Ext Neg
-sop_ext = SOPClassExtendedNegotiationParameters()
-sop_ext.SOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
-sop_ext.ServiceClassApplicationInformation = b'\x02\x00\x03\x00\x01\x00'
-ext_neg.append(sop_ext)
-
-sop_ext = SOPClassExtendedNegotiationParameters()
-sop_ext.SOPClassUID = '1.2.840.10008.5.1.4.1.1.4'
-sop_ext.ServiceClassApplicationInformation = b'\x02\x00\x03\x00\x01\x00'
-ext_neg.append(sop_ext)
-
 # Request association with remote AE
-assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
+assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 # If we successfully Associated then send N DIMSE C-ECHOs
 if assoc.is_established:
