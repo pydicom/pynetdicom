@@ -233,9 +233,9 @@ class A_ASSOCIATE_ServiceParameters():
         
         for item in self.UserInformation:
             if isinstance(item, MaximumLengthParameters):
-                return item
+                return item.MaximumLengthReceived
         
-        return None
+        return 0
 
 class A_RELEASE_ServiceParameters():
     """ 
