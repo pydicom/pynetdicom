@@ -342,6 +342,8 @@ class ApplicationEntity(object):
         by checking to see if the association thread is still alive. Separated 
         out from start() to enable better unit testing
         """
+        # We can use threading.enumerate() to list all alive threads
+        
         #   assoc.is_alive() is inherited from threading.thread
         self.active_associations = [assoc for assoc in 
                     self.active_associations if assoc.is_alive()]
