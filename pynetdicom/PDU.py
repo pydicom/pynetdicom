@@ -3828,9 +3828,10 @@ class UserIdentitySubItemRQ(PDU):
     Attributes
     ----------
     id_type : int
-        The SCU role (0 or 1)
+        The user identity type [1, 2, 3, 4]
     id_type_str : str
-        The SCP role (0 or 1)
+        The user identity type as a string ['Username', 'Username/Password', 
+        'Kerberos', 'SAML']
     length : int
         The length of the encoded Item in bytes
     primary : bytes
@@ -4034,7 +4035,7 @@ class UserIdentitySubItemAC(PDU):
         The value for the server response. For user identity type value of
           * 1: b''
           * 2: b''
-          * 3: the Kerberos service ticket
+          * 3: the Kerberos server ticket, encoded as per RFC-1510
           * 4: the SAML response
     """
     def __init__(self):
@@ -4354,8 +4355,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     ----------
     length : int
         The length of the encoded Item in bytes
-    related_sop_class_uid : list of pydicom.uid.UID or None
-        The Related Generation SOP Class identifiers (if any).
+    FIXME
     """
     def __init__(self):
         self.item_type = 0x57

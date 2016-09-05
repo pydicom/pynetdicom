@@ -1290,20 +1290,33 @@ class TestPDUItem_UserInformation_UserIdentityRQ_SAML(unittest.TestCase):
 class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(unittest.TestCase):
     pass
 
+
 # FIXME: Add tests for UserIdentityAC User no pass
-class TestPDUItem_UserInformation_UserIdentityAC_UserNoPass(unittest.TestCase):
+class TestPDUItem_UserInformation_UserIdentityAC_UserNoPassNoResponse(unittest.TestCase):
+    pass
+
+class TestPDUItem_UserInformation_UserIdentityAC_UserNoPassResponse(unittest.TestCase):
     pass
 
 # FIXME: Add tests for UserIdentityAC User pass
-class TestPDUItem_UserInformation_UserIdentityAC_UserPass(unittest.TestCase):
+class TestPDUItem_UserInformation_UserIdentityAC_UserPassNoResponse(unittest.TestCase):
+    pass
+
+class TestPDUItem_UserInformation_UserIdentityAC_UserPassResponse(unittest.TestCase):
     pass
 
 # FIXME: Add tests for UserIdentityAC SAML
-class TestPDUItem_UserInformation_UserIdentityAC_SAML(unittest.TestCase):
+class TestPDUItem_UserInformation_UserIdentityAC_SAMLNoResponse(unittest.TestCase):
+    pass
+
+class TestPDUItem_UserInformation_UserIdentityAC_SAMLResponse(unittest.TestCase):
     pass
 
 # FIXME: Add tests for UserIdentityAC Kerberos
-class TestPDUItem_UserInformation_UserIdentityAC_Kerberos(unittest.TestCase):
+class TestPDUItem_UserInformation_UserIdentityAC_KerberosNoResponse(unittest.TestCase):
+    pass
+
+class TestPDUItem_UserInformation_UserIdentityAC_KerberosResponse(unittest.TestCase):
     pass
 
 
