@@ -25,6 +25,7 @@ from pynetdicom.exceptions import InvalidPrimitive
 from pynetdicom.fsm import StateMachine
 from pynetdicom.PDU import *
 from pynetdicom.timer import Timer
+from pynetdicom.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 
 
 logger = logging.getLogger('pynetdicom.dul')
@@ -531,26 +532,26 @@ def primitive2event(primitive):
     InvalidPrimitive
         If the primitive is not valid
     """
-    if primitive.__class__ == A_ASSOCIATE_ServiceParameters:
-        if primitive.Result is None:
+    if primitive.__class__ == A_ASSOCIATE:
+        if primitive.result is None:
             # A-ASSOCIATE Request
             return 'Evt1'
-        elif primitive.Result == 0:
+        elif primitive.result == 0:
             # A-ASSOCIATE Response (accept)
             return 'Evt7'
         else:
             # A-ASSOCIATE Response (reject)
             return 'Evt8'
-    elif primitive.__class__ == A_RELEASE_ServiceParameters:
-        if primitive.Result is None:
+    elif primitive.__class__ == A_RELEASE:
+        if primitive.result is None:
             # A-Release Request
             return 'Evt11'
         else:
             # A-Release Response
             return 'Evt14'
-    elif primitive.__class__ == A_ABORT_ServiceParameters:
+    elif primitive.__class__ == A_ABORT:
         return 'Evt15'
-    elif primitive.__class__ == P_DATA_ServiceParameters:
+    elif primitive.__class__ == P_DATA:
         return 'Evt9'
     else:
         raise InvalidPrimitive

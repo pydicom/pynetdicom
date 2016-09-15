@@ -9,6 +9,7 @@ import socket
 
 import pynetdicom.DULparameters
 from pynetdicom.PDU import *
+from pynetdicom.primitives import A_ABORT
 from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom.sm')
@@ -124,7 +125,7 @@ def AE_1(dul):
     try:
         # CalledPresentationAddress is set by the ACSE and
         #   is an (address, port) tuple
-        dul.scu_socket.connect(dul.primitive.CalledPresentationAddress)
+        dul.scu_socket.connect(dul.primitive.called_presentation_address)
     except socket.error:
         # Failed to connect
         logger.error("Association Request Failed: Failed to establish "
@@ -296,15 +297,16 @@ def AE_6(dul):
                 "version '0x%04x' (0x0001 expected)" %dul.pdu.protocol_version)
         
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-        dul.primitive.Result = 0x01
-        dul.primitive.ResultSource = 0x02
-        dul.primitive.Diagnostic = 0x02
+        # dul.primitive is A_ASSOCIATE
+        dul.primitive.result = 0x01
+        dul.primitive.result_source = 0x02
+        dul.primitive.diagnostic = 0x02
         
         dul.pdu = A_ASSOCIATE_RJ_PDU()
         dul.pdu.FromParams(dul.primitive)
         
         # Callback
-        dul.association.ACSE.debug_send_associate_rj(dul.pdu)
+        dul.association.acse.debug_send_associate_rj(dul.pdu)
 
         dul.scu_socket.send(dul.pdu.Encode())
 
@@ -770,16 +772,16 @@ def AA_1(dul):
     # Send A-ABORT PDU (service-user source) and start (or restart
     # if already started) ARTIM timer.
     dul.pdu = A_ABORT_PDU()
-    dul.pdu.AbortSource = 0x00
+    dul.pdu.source = 0x00
     
     # The reason for the abort should really be roughly defined by the 
     #   current state of the State Machine
     if dul.state_machine.current_state == 'Sta2':
         # Unexpected PDU
-        dul.pdu.ReasonDiag = 0x02
+        dul.pdu.reason_diagnostic = 0x02
     else:
         # Reason not specified
-        dul.pdu.ReasonDiag = 0x00
+        dul.pdu.reason_diagnostic = 0x00
     
     dul.pdu.FromParams(dul.primitive)
     
@@ -879,7 +881,7 @@ def AA_4(dul):
         Sta1, the next state of the state machine
     """
     # Issue A-P-ABORT indication primitive.
-    dul.primitive = A_ABORT_ServiceParameters()
+    dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
     
     return 'Sta1'
@@ -998,13 +1000,13 @@ def AA_8(dul):
     # Send A-ABORT PDU (service-dul source), issue A-P-ABORT
     # indication, and start ARTIM timer.
     dul.pdu = A_ABORT_PDU()
-    dul.pdu.AbortSource = 0x02
-    dul.pdu.ReasonDiag = 0x00
+    dul.pdu.abort_source = 0x02
+    dul.pdu.reason_diagnostic = 0x00
     
     dul.primitive = dul.pdu.ToParams()
-    dul.primitive.ResultSource = 0x02
-    dul.primitive.Result = 0x01
-    dul.primitive.Diagnostic = 0x01
+    dul.primitive.source = 0x02
+    dul.primitive.result = 0x01
+    dul.primitive.diagnostic = 0x01
     
     if dul.scu_socket:
         # Callback

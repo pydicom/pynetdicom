@@ -5,12 +5,14 @@ import time
 
 from pydicom.uid import UID
 
-from pynetdicom.DULparameters import *
-from pynetdicom.PDU import MaximumLengthParameters, \
-                            ImplementationClassUIDParameters, \
-                            ImplementationVersionNameParameters
+#from pynetdicom.DULparameters import A_ASSOCIATE_S
+from pynetdicom.primitives import MaximumLengthNegotiation, \
+                                   ImplementationClassUIDNotification, \
+                                   ImplementationVersionNameNotification
+from pynetdicom.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
 from pynetdicom.utils import PresentationContext, PresentationContextManager
 from pynetdicom.utils import wrap_list
+
 
 logger = logging.getLogger('pynetdicom.acse')
 
@@ -111,41 +113,40 @@ class ACSEServiceProvider(object):
         #   CallingPresentationAddress
         #   CalledPresentationAddress
         #   PresentationContextDefinitionList
-        assoc_rq = A_ASSOCIATE_ServiceParameters()
-        assoc_rq.ApplicationContextName = self.ApplicationContextName
-        assoc_rq.CallingAETitle = self.LocalAE['AET']
-        assoc_rq.CalledAETitle = self.RemoteAE['AET']
+        assoc_rq = A_ASSOCIATE()
+        assoc_rq.application_context_name = self.ApplicationContextName
+        assoc_rq.calling_ae_title = self.LocalAE['AET']
+        assoc_rq.called_ae_title = self.RemoteAE['AET']
 
         # Build User Information - PS3.7 Annex D.3.3
         #
         # Maximum Length Negotiation (required)
-        max_length = MaximumLengthParameters()
-        max_length.MaximumLengthReceived = max_pdu_size
+        max_length = MaximumLengthNegotiation()
+        max_length.maximum_length_received = max_pdu_size
         assoc_rq.UserInformation = [max_length]
         
         # Implementation Identification Notification (required)
         # Class UID (required)
         from pynetdicom.__init__ import pynetdicom_uid_prefix
-        implementation_class_uid = ImplementationClassUIDParameters()
-        implementation_class_uid.ImplementationClassUID = UID(pynetdicom_uid_prefix)
-        assoc_rq.UserInformation.append(implementation_class_uid)
+        implementation_class_uid = ImplementationClassUIDNotification()
+        implementation_class_uid.implementation_class_uid = UID(pynetdicom_uid_prefix)
+        assoc_rq.user_information.append(implementation_class_uid)
 
         # Version Name (optional)
         from pynetdicom.__init__ import pynetdicom_version
-        implementation_version_name = ImplementationVersionNameParameters()
-        implementation_version_name.ImplementationVersionName = \
-                                        bytes(pynetdicom_version, 'utf-8')
-        assoc_rq.UserInformation.append(implementation_version_name)
+        implementation_version_name = ImplementationVersionNameNotification()
+        implementation_version_name.implementation_version_name = pynetdicom_version
+        assoc_rq.user_information.append(implementation_version_name)
 
         # Add the extended negotiation information (optional)
         if userspdu is not None:
-            assoc_rq.UserInformation += userspdu
+            assoc_rq.user_information += userspdu
 
-        assoc_rq.CallingPresentationAddress = (self.LocalAE['Address'], 
+        assoc_rq.calling_presentation_address = (self.LocalAE['Address'], 
                                                self.LocalAE['Port'])
-        assoc_rq.CalledPresentationAddress = (self.RemoteAE['Address'], 
+        assoc_rq.called_presentation_address = (self.RemoteAE['Address'], 
                                               self.RemoteAE['Port'])
-        assoc_rq.PresentationContextDefinitionList = pcdl
+        assoc_rq.presentation_context_definition_list = pcdl
         #
         ## A-ASSOCIATE request primitive is now complete
 
@@ -167,9 +168,9 @@ class ACSEServiceProvider(object):
             assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
 
         # Association accepted or rejected
-        if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
+        if isinstance(assoc_rsp, A_ASSOCIATE):
             # Accepted
-            if assoc_rsp.Result == 0x00:
+            if assoc_rsp.result == 0x00:
                 # Get the association accept details from the PDU and construct
                 #   a pynetdicom.utils.AssociationInformation instance
                 # assoc_info = AssociationInformation(assoc_rq, assoc_rsp)
@@ -178,15 +179,14 @@ class ACSEServiceProvider(object):
                 # return True, assoc_info
                 
                 # Get maximum pdu length from answer
-                self.MaxPDULength = \
-                        assoc_rsp.UserInformation[0].MaximumLengthReceived
+                self.MaxPDULength = assoc_rsp.maximum_length_received
                 self.peer_max_pdu = self.MaxPDULength
                 self.parent.peer_max_pdu = self.MaxPDULength
 
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl
                 self.context_manager.acceptor_contexts = \
-                            assoc_rsp.PresentationContextDefinitionResultList
+                            assoc_rsp.presentation_context_definition_results_list
                 
                 # Once the context manager gets both sets of contexts it 
                 #   automatically determines which are accepted and refused
@@ -198,22 +198,22 @@ class ACSEServiceProvider(object):
                 return True, assoc_rsp
             
             # Rejected
-            elif assoc_rsp.Result in [0x01, 0x02]:
+            elif assoc_rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
                 return False, assoc_rsp
             # Invalid Result value
-            elif assoc_rsp.Result is None:
+            elif assoc_rsp.result is None:
                 return False, assoc_rsp
             else:
                 logger.error("ACSE received an invalid result value from "
-                    "the peer AE: '%s'" %assoc_rsp.Result)
+                    "the peer AE: '%s'" %assoc_rsp.result)
                 raise ValueError("ACSE received an invalid result value from "
-                    "the peer AE: '%s'" %assoc_rsp.Result)
+                    "the peer AE: '%s'" %assoc_rsp.result)
 
         # Association aborted
-        elif isinstance(assoc_rsp, A_ABORT_ServiceParameters) or \
-             isinstance(assoc_rsp, A_P_ABORT_ServiceParameters):
+        elif isinstance(assoc_rsp, A_ABORT) or \
+             isinstance(assoc_rsp, A_P_ABORT):
             return False, assoc_rsp
         
         elif assoc_rsp is None:
@@ -249,13 +249,13 @@ class ACSEServiceProvider(object):
             raise ValueError("ACSE rejection: invalid Source value "
                                                         "'%s'" %source)
 
-        # Send the A-ASSOCIATE primitive, rejecting the association
-        assoc_primitive.PresentationContextDefinitionList = []
-        assoc_primitive.PresentationContextDefinitionResultList = []
-        assoc_primitive.Result = result
-        assoc_primitive.ResultSource = source
-        assoc_primitive.Diagnostic = diagnostic
-        assoc_primitive.UserInformation = []
+        # Send the A-ASSOCIATE RJ primitive, rejecting the association
+        assoc_primitive.presentation_context_definition_list = []
+        assoc_primitive.presentation_context_definition_result_list = []
+        assoc_primitive.result = result
+        assoc_primitive.result_source = source
+        assoc_primitive.diagnostic = diagnostic
+        assoc_primitive.user_information = []
         
         self.DUL.Send(assoc_primitive)
             
@@ -283,12 +283,13 @@ class ACSEServiceProvider(object):
         self.parent.local_max_pdu = self.MaxPDULength
 
         # Send response
-        assoc_primitive.PresentationContextDefinitionList = []
-        assoc_primitive.PresentationContextDefinitionResultList = \
+        assoc_primitive.presentation_context_definition_list = []
+        assoc_primitive.presentation_context_definition_result_list = \
                                         self.presentation_contexts_accepted
-        assoc_primitive.Result = 0
+        assoc_primitive.result = 0
         
         self.DUL.Send(assoc_primitive)
+        
         return assoc_primitive
 
     def Release(self):
@@ -310,8 +311,8 @@ class ACSEServiceProvider(object):
         """
         logger.info("Releasing Association")
         
-        release = A_RELEASE_ServiceParameters()
-        self.DUL.Send(release)
+        assoc_release = A_RELEASE()
+        self.DUL.Send(assoc_release)
         response = self.DUL.Receive(Wait=True)
 
         return response
@@ -344,36 +345,37 @@ class ACSEServiceProvider(object):
                 0x05 - unexpected PDU parameter
                 0x06 - invalid PDU parameter value
         """
-        abort = A_ABORT_ServiceParameters()
+        assoc_abort = A_ABORT()
 
         if source in [0x00, 0x02]:
-            abort.AbortSource = source
+            assoc_abort.abort_source = source
             if source == 0x00:
-                abort.Reason = 0x00
+                assoc_abort.reason = 0x00
             elif reason in [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06]:
-                abort.Reason = reason
+                assoc_abort.reason = reason
             else:
                 raise ValueError("ACSE.Abort() invalid reason '%s'" %reason)
                 
         else:
             raise ValueError("ACSE.Abort() invalid source '%s'" %source)
 
-        self.DUL.Send(abort)
+        self.DUL.Send(assoc_abort)
         time.sleep(0.5)
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
         the request a confirmation is sent"""
         rel = self.DUL.Peek()
-        if rel.__class__ == A_RELEASE_ServiceParameters:
+        if rel.__class__ == A_RELEASE:
             # Make sure this is a A-RELEASE request primitive
-            if rel.Result == 'affirmative':
+            if rel.result == 'affirmative':
                 return False
                 
             self.DUL.Receive(Wait=False)
-            relrsp = A_RELEASE_ServiceParameters()
-            relrsp.Result = 0
-            self.DUL.Send(relrsp)
+            release_rsp = A_RELEASE()
+            release_rsp.result = 0
+            self.DUL.Send(release_rsp)
+            
             return True
         else:
             return False
@@ -383,8 +385,7 @@ class ACSEServiceProvider(object):
         rel = self.DUL.Peek()
         # Abort is a non-confirmed service no so need to worry if its a request
         #   primitive
-        if rel.__class__ in (A_ABORT_ServiceParameters,
-                             A_P_ABORT_ServiceParameters):
+        if rel.__class__ in (A_ABORT, A_P_ABORT):
             self.DUL.Receive(Wait=False)
             return True
         else:
