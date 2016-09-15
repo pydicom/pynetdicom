@@ -5,10 +5,9 @@ import time
 
 from pydicom.uid import UID
 
-#from pynetdicom.DULparameters import A_ASSOCIATE_S
 from pynetdicom.primitives import MaximumLengthNegotiation, \
-                                   ImplementationClassUIDNotification, \
-                                   ImplementationVersionNameNotification
+                                  ImplementationClassUIDNotification, \
+                                  ImplementationVersionNameNotification
 from pynetdicom.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
 from pynetdicom.utils import PresentationContext, PresentationContextManager
 from pynetdicom.utils import wrap_list
@@ -123,7 +122,7 @@ class ACSEServiceProvider(object):
         # Maximum Length Negotiation (required)
         max_length = MaximumLengthNegotiation()
         max_length.maximum_length_received = max_pdu_size
-        assoc_rq.UserInformation = [max_length]
+        assoc_rq.user_information = [max_length]
         
         # Implementation Identification Notification (required)
         # Class UID (required)
@@ -143,9 +142,9 @@ class ACSEServiceProvider(object):
             assoc_rq.user_information += userspdu
 
         assoc_rq.calling_presentation_address = (self.LocalAE['Address'], 
-                                               self.LocalAE['Port'])
+                                                 self.LocalAE['Port'])
         assoc_rq.called_presentation_address = (self.RemoteAE['Address'], 
-                                              self.RemoteAE['Port'])
+                                                self.RemoteAE['Port'])
         assoc_rq.presentation_context_definition_list = pcdl
         #
         ## A-ASSOCIATE request primitive is now complete
@@ -212,8 +211,7 @@ class ACSEServiceProvider(object):
                     "the peer AE: '%s'" %assoc_rsp.result)
 
         # Association aborted
-        elif isinstance(assoc_rsp, A_ABORT) or \
-             isinstance(assoc_rsp, A_P_ABORT):
+        elif isinstance(assoc_rsp, A_ABORT) or isinstance(assoc_rsp, A_P_ABORT):
             return False, assoc_rsp
         
         elif assoc_rsp is None:
@@ -249,7 +247,7 @@ class ACSEServiceProvider(object):
             raise ValueError("ACSE rejection: invalid Source value "
                                                         "'%s'" %source)
 
-        # Send the A-ASSOCIATE RJ primitive, rejecting the association
+        # Send an A-ASSOCIATE primitive, rejecting the association
         assoc_primitive.presentation_context_definition_list = []
         assoc_primitive.presentation_context_definition_result_list = []
         assoc_primitive.result = result
@@ -329,7 +327,6 @@ class ACSEServiceProvider(object):
         source - int, optional
             The source of the abort request (default: 0x02 DUL provider)
                 0x00 - the DUL service user
-                0x01 - reserved
                 0x02 - the DUL service provider
         reason - int, optional
             The reason for aborting the association (default: 0x00 reason not 
@@ -340,7 +337,6 @@ class ACSEServiceProvider(object):
                 0x00 - reason not specified
                 0x01 - unrecognised PDU
                 0x02 - unexpected PDU
-                0x03 - reserved
                 0x04 - unrecognised PDU parameter
                 0x05 - unexpected PDU parameter
                 0x06 - invalid PDU parameter value
@@ -351,7 +347,7 @@ class ACSEServiceProvider(object):
             assoc_abort.abort_source = source
             if source == 0x00:
                 assoc_abort.reason = 0x00
-            elif reason in [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06]:
+            elif reason in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
                 assoc_abort.reason = reason
             else:
                 raise ValueError("ACSE.Abort() invalid reason '%s'" %reason)
