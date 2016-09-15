@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+## A-ASSOCIATE-RQ PDU
+# Called AET: ANY-SCP 
+# Callign AET: ECHOSCU
+# Application Context Name: 1.2.840.10008.3.1.1.1
+# 1.2.840.10008.1.1
+# Presentation Context Items:
+#   Presentation Context ID: 1
+#   Abstract Syntax: 1.2.840.10008.1.1
+#   Transfer Syntax: 1.2.840.10008.1.2
+# User Information
+#   Max Length Received: 16382
+#   Implementation Class UID: 1.2.826.0.1.3680043.9.3811.0.9.0
+#   Implementation Version Name: PYNETDICOM_090
 a_associate_rq = b"\x01\x00\x00\x00\x00\xd1\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
                  b"\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43" \
                  b"\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00" \
@@ -265,6 +278,7 @@ from pynetdicom import AE
 from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
     QueryRetrieveSOPClassList
 from pynetdicom.PDU import *
+from pynetdicom.primitives import *
 from pynetdicom.utils import wrap_list, PresentationContext
 
 logger = logging.getLogger('pynetdicom')
@@ -716,14 +730,14 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         result = ui.ToParams()
         
         check = []
-        max_pdu = MaximumLengthParameters()
-        max_pdu.MaximumLengthReceived = 16382
+        max_pdu = MaximumLengthNegotiation()
+        max_pdu.maximum_length_received = 16382
         check.append(max_pdu)
-        class_uid = ImplementationClassUIDParameters()
-        class_uid.ImplementationClassUID = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        class_uid = ImplementationClassUIDNotification()
+        class_uid.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
         check.append(class_uid)
-        v_name = ImplementationVersionNameParameters()
-        v_name.ImplementationVersionName = b'PYNETDICOM_090'
+        v_name = ImplementationVersionNameNotification()
+        v_name.implementation_version_name = b'PYNETDICOM_090'
         check.append(v_name)
         
         self.assertEqual(result, check)
@@ -832,8 +846,8 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         
         result = max_length.ToParams()
         
-        check = MaximumLengthParameters()
-        check.MaximumLengthReceived = 16382
+        check = MaximumLengthNegotiation()
+        check.maximum_length_received = 16382
         
         self.assertEqual(result, check)
         
@@ -881,8 +895,8 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
         
         result = uid.ToParams()
         
-        check = ImplementationClassUIDParameters()
-        check.ImplementationClassUID = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        check = ImplementationClassUIDNotification()
+        check.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
         self.assertEqual(result, check)
         
     def test_from_primitive(self):
@@ -946,8 +960,8 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
         
         result = version.ToParams()
         
-        check = ImplementationVersionNameParameters()
-        check.ImplementationVersionName = b'PYNETDICOM_090'
+        check = ImplementationVersionNameNotification()
+        check.implementation_version_name = b'PYNETDICOM_090'
         self.assertEqual(result, check)
         
     def test_from_primitive(self):
@@ -1015,9 +1029,9 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
         
                 result = async.ToParams()
         
-                check = AsynchronousOperationsWindowParameters()
-                check.MaximumNumberOperationsInvoked = 5
-                check.MaximumNumberOperationsPerformed = 5
+                check = AsynchronousOperationsWindowNegotiation()
+                check.maximum_number_operations_invoked = 5
+                check.maximum_number_operations_performed = 5
                 self.assertEqual(result, check)
         
     def test_from_primitive(self):
@@ -1082,10 +1096,10 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
         
         result = rs[0].ToParams()
         
-        check = SCP_SCU_RoleSelectionParameters()
-        check.SOPClassUID = UID('1.2.840.10008.5.1.4.1.1.2')
-        check.SCURole = 0
-        check.SCPRole = 1
+        check = SCP_SCU_RoleSelectionNegotiation()
+        check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        check.scu_role = False
+        check.scp_role = True
 
         self.assertEqual(result, check)
         
@@ -1177,11 +1191,11 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
         
         result = ui.ToParams()
         
-        check = UserIdentityParameters()
-        check.UserIdentityType = 1
-        check.PositiveResponseRequested = 1
-        check.PrimaryField = b'pynetdicom'
-        check.SecondaryField = None
+        check = UserIdentityNegotiation()
+        check.user_identity_type = 1
+        check.positive_response_requested = True
+        check.primary_field = b'pynetdicom'
+        check.secondary_field = None
 
         self.assertEqual(result, check)
     
@@ -1248,11 +1262,11 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         
         result = ui.ToParams()
         
-        check = UserIdentityParameters()
-        check.UserIdentityType = 2
-        check.PositiveResponseRequested = 0
-        check.PrimaryField = b'pynetdicom'
-        check.SecondaryField = b'p4ssw0rd'
+        check = UserIdentityNegotiation()
+        check.user_identity_type = 2
+        check.positive_response_requested = False
+        check.primary_field = b'pynetdicom'
+        check.secondary_field = b'p4ssw0rd'
 
         self.assertEqual(result, check)
     
@@ -1354,10 +1368,10 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         
         result = item.ToParams()
         
-        check = SOPClassExtendedNegotiationParameters()
+        check = SOPClassExtendedNegotiation()
         
-        check.SOPClassUID = UID('1.2.840.10008.5.1.4.1.1.2')
-        check.ServiceClassApplicationInformation = b'\x02\x00\x03\x00\x01\x00'
+        check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
+        check.service_class_application_information = b'\x02\x00\x03\x00\x01\x00'
 
         self.assertEqual(result, check)
 
@@ -1434,11 +1448,11 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
         
         result = item.ToParams()
         
-        check = SOPClassCommonExtendedNegotiationParameters()
+        check = SOPClassCommonExtendedNegotiation()
         
-        check.SOPClassUID = UID('1.2.840.10008.5.1.4.1.1.4')
-        check.ServiceClassUID = UID('1.2.840.10008.4.2')
-        check.RelatedGeneralSOPClassUID = [UID('1.2.840.10008.5.1.4.1.1.88.22')]
+        check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.4')
+        check.service_class_uid = UID('1.2.840.10008.4.2')
+        check.related_general_sop_class_identification = [UID('1.2.840.10008.5.1.4.1.1.88.22')]
 
         self.assertEqual(result, check)
 

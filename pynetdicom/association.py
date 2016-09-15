@@ -11,16 +11,20 @@ import time
 from weakref import proxy
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian, UID
+                         ExplicitVRBigEndian, UID
 
 from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
 from pynetdicom.DIMSEparameters import *
-from pynetdicom.PDU import *
+#from pynetdicom.PDU import *
 from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
 from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr, wrap_list
+from pynetdicom.primitives import UserIdentityNegotiation, \
+                                   SOPClassExtendedNegotiation, \
+                                   MaximumLengthNegotiation, \
+                                   A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
 
 
 logger = logging.getLogger('pynetdicom.assoc')
@@ -257,8 +261,8 @@ class Association(threading.Thread):
             ## DUL ACSE Related Rejections
             #
             # User Identity Negotiation (PS3.7 Annex D.3.3.7)
-            for ii in assoc_rq.UserInformation:
-                if isinstance(ii, UserIdentityParameters):
+            for ii in assoc_rq.user_information:
+                if isinstance(ii, UserIdentityNegotiation):
                     # Used to notify the association acceptor of the user 
                     #   identity of the association requestor. It may also
                     #   request that the Acceptor response with the server
@@ -282,16 +286,16 @@ class Association(threading.Thread):
                     #                                           ii.SecondaryField)
                     
                     # Associate with all requestors
-                    assoc_rq.UserInformation.remove(ii)
+                    assoc_rq.user_information.remove(ii)
                     
                     # Testing
                     #if ii.PositiveResponseRequested:
                     #    ii.ServerResponse = b''
             
             # Extended Negotiation
-            for ii in assoc_rq.UserInformation:
-                if isinstance(ii, SOPClassExtendedNegotiationParameters):
-                    assoc_rq.UserInformation.remove(ii)
+            for ii in assoc_rq.user_information:
+                if isinstance(ii, SOPClassExtendedNegotiation):
+                    assoc_rq.user_information.remove(ii)
 
             ## DUL Presentation Related Rejections
             #
@@ -308,7 +312,7 @@ class Association(threading.Thread):
             
             self.acse.context_manager = PresentationContextManager()
             self.acse.context_manager.requestor_contexts = \
-                                    assoc_rq.PresentationContextDefinitionList
+                                    assoc_rq.presentation_context_definition_list
             self.acse.context_manager.acceptor_contexts = \
                                     self.ae.presentation_contexts_scp
             
@@ -316,11 +320,13 @@ class Association(threading.Thread):
                                     self.acse.context_manager.accepted
             
             # Set maximum PDU send length
-            self.peer_max_pdu = assoc_rq.UserInformation[0].MaximumLengthReceived
+            #self.peer_max_pdu = assoc_rq.UserInformation[0].MaximumLengthReceived
+            self.peer_max_pdu = assoc_rq.maximum_length_received
             
             # Set maximum PDU receive length
-            assoc_rq.UserInformation[0].MaximumLengthReceived = \
-                                                        self.local_max_pdu
+            for user_item in assoc_rq.user_information:
+                if isinstance(user_item, MaximumLengthNegotiation):
+                    user_item.maximum_length_received = self.local_max_pdu
             
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
             assoc_ac = self.acse.Accept(assoc_rq)
@@ -455,7 +461,7 @@ class Association(threading.Thread):
                                         userspdu=self.ext_neg)
 
             # Association was accepted or rejected
-            if isinstance(assoc_rsp, A_ASSOCIATE_ServiceParameters):
+            if isinstance(assoc_rsp, A_ASSOCIATE):
                 # Association was accepted
                 if is_accepted:
                     self.debug_association_accepted(assoc_rsp)
@@ -524,7 +530,7 @@ class Association(threading.Thread):
                     return
             
             # Association was aborted by peer
-            elif isinstance(assoc_rsp, A_ABORT_ServiceParameters):
+            elif isinstance(assoc_rsp, A_ABORT):
                 self.ae.on_association_aborted(assoc_rsp)
                 self.debug_association_aborted(assoc_rsp)
                 
@@ -533,7 +539,7 @@ class Association(threading.Thread):
                 return
             
             # Association was aborted by DUL provider
-            elif isinstance(assoc_rsp, A_P_ABORT_ServiceParameters):
+            elif isinstance(assoc_rsp, A_P_ABORT):
                 self.is_aborted = True
                 self.dul.Kill()
                 return
@@ -1563,15 +1569,15 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        assoc_primitive - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameter
-            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        assoc_primitive - pynetdicom.primitives.A_ASSOCIATE
+            The A-ASSOCIATE primitive instance (RJ) received from the peer AE
         """
         
         # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
         #   for information on the result and diagnostic information
-        source = assoc_primitive.ResultSource
-        result = assoc_primitive.Result
-        reason = assoc_primitive.Diagnostic
+        source = assoc_primitive.result_source
+        result = assoc_primitive.result
+        reason = assoc_primitive.diagnostic
         
         source_str = { 1 : 'Service User',
                        2 : 'Service Provider (ACSE)',
