@@ -7,7 +7,7 @@ from unittest.mock import patch
 from pydicom.uid import UID
 
 from pynetdicom.primitives import *
-from pynetdicom.PDU import A_ASSOCIATE_RQ_PDU, A_ABORT_PDU
+from pynetdicom.PDU import A_ASSOCIATE_RQ_PDU, A_ABORT_PDU, P_DATA_TF_PDU
 from pynetdicom.utils import wrap_list, PresentationContext
 
 
@@ -770,6 +770,43 @@ class TestPrimitive_A_P_ABORT(unittest.TestCase):
         
         self.assertEqual(data, b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04")
 
+
+class TestPrimitive_P_DATA(unittest.TestCase):
+    def test_assignment(self):
+        """ Check assignment works correctly """
+        primitive = P_DATA()
+        primitive.presentation_data_value_list = [[1, b'\x00']]
+        self.assertEqual(primitive.presentation_data_value_list, [[1, b'\x00']])
+    
+    def test_exceptions(self):
+        """ Check incorrect types/values for properties raise exceptions """
+        primitive = P_DATA()
+        
+        with self.assertRaises(TypeError):
+            primitive.presentation_data_value_list = ([1, b'\x00'])
+        
+        with self.assertRaises(TypeError):
+            primitive.presentation_data_value_list = [1, b'\x00']
+        
+        with self.assertRaises(TypeError):
+            primitive.presentation_data_value_list = [[b'\x00', 1]]
+        
+    def test_conversion(self):
+        """ Check conversion to a PDU produces the correct output """
+        primitive = P_DATA()
+        pdv = b"\x03\x00\x00\x00\x00" \
+              b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
+              b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e" \
+              b"\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00\x20\x01" \
+              b"\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01" \
+              b"\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
+        primitive.presentation_data_value_list = [[1, pdv]]
+        
+        pdu = P_DATA_TF_PDU()
+        pdu.FromParams(primitive)
+        data = pdu.encode()
+        
+        self.assertEqual(data, b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01" + pdv)
 
 if __name__ == "__main__":
     unittest.main()
