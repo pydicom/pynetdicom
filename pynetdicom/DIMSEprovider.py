@@ -4,7 +4,7 @@ import time
 
 from pynetdicom.DIMSEmessages import *
 from pynetdicom.DIMSEparameters import *
-from pynetdicom.DULparameters import P_DATA_ServiceParameters
+from pynetdicom.primitives import P_DATA
 
 logger = logging.getLogger('pynetdicom.dimse')
 
@@ -236,7 +236,7 @@ class DIMSEServiceProvider(object):
                 if nxt is None:
                     continue
                 
-                if nxt.__class__ is not P_DATA_ServiceParameters:
+                if nxt.__class__ is not P_DATA:
                     return None, None
                 
                 primitive = self.DUL.Receive(wait, dimse_timeout)
@@ -259,7 +259,7 @@ class DIMSEServiceProvider(object):
                     return None, None
         else:
             cls = self.DUL.Peek().__class__
-            if cls not in (type(None), P_DATA_ServiceParameters):
+            if cls not in (type(None), P_DATA):
                 return None, None
 
             primitive = self.DUL.Receive(wait, dimse_timeout)

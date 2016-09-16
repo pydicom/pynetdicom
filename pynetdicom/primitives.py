@@ -355,26 +355,23 @@ class A_ASSOCIATE():
             MaximumLengthNegotiation and ImplementationClassUIDNotification
         """
         valid_usr_info_items = []
-        
+
         if isinstance(value_list, list):
-            for usr_info_class in [MaximumLengthNegotiation,
-                                    ImplementationClassUIDNotification,
-                                    ImplementationVersionNameNotification,
-                                    AsynchronousOperationsWindowNegotiation,
-                                    SCP_SCU_RoleSelectionNegotiation,
-                                    SOPClassExtendedNegotiation,
-                                    SOPClassCommonExtendedNegotiation,
-                                    UserIdentityNegotiation]:
-                for item in value_list:
-                    found_match = False
-                    if isinstance(item, usr_info_class):
-                        found_match = True
-                        valid_usr_info_items.append(item)
-                        
-                    if not found_match:
-                        logger.info("Attempted to set " \
-                            "A_ASSOCIATE.user_information to a list which " \
-                            "includes an unsupported item")
+            # Iterate through the items and check they're an acceptable class
+            for item in value_list:
+                if item.__class__.__name__ in ["MaximumLengthNegotiation",
+                                                "ImplementationClassUIDNotification",
+                                                "ImplementationVersionNameNotification",
+                                                "AsynchronousOperationsWindowNegotiation",
+                                                "SCP_SCU_RoleSelectionNegotiation",
+                                                "SOPClassExtendedNegotiation",
+                                                "SOPClassCommonExtendedNegotiation",
+                                                "UserIdentityNegotiation"]:
+                    valid_usr_info_items.append(item)
+                else:
+                    logger.info("Attempted to set " \
+                        "A_ASSOCIATE.user_information to a list which " \
+                        "includes an unsupported item")
         else:
             logger.error("A_ASSOCIATE.user_information must be a list")
             raise TypeError("A_ASSOCIATE.user_information must be a list")
@@ -874,7 +871,9 @@ class P_DATA():
                 if isinstance(pdv, list):
                     if isinstance(pdv[0], int) and isinstance(pdv[1], bytes):
                         pass
-                raise TypeError
+                else:
+                    raise TypeError("P_DATA.presentation_data_value_list " \
+                            "should be a list of [ID, PDV]")
         else:
             raise TypeError
             

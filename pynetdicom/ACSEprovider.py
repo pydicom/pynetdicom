@@ -369,7 +369,7 @@ class ACSEServiceProvider(object):
                 
             self.DUL.Receive(Wait=False)
             release_rsp = A_RELEASE()
-            release_rsp.result = 0
+            release_rsp.result = "affirmative"
             self.DUL.Send(release_rsp)
             
             return True

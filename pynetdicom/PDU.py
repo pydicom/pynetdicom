@@ -44,7 +44,6 @@ from struct import *
 
 from pydicom.uid import UID
 
-from pynetdicom.DULparameters import *
 from pynetdicom.utils import wrap_list, PresentationContext, validate_ae_title
 
 
