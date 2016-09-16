@@ -871,11 +871,15 @@ class P_DATA():
                 if isinstance(pdv, list):
                     if isinstance(pdv[0], int) and isinstance(pdv[1], bytes):
                         pass
+                    else:
+                        raise TypeError("P_DATA.presentation_data_value_list " \
+                            "should be a list of [int, bytes]")
                 else:
                     raise TypeError("P_DATA.presentation_data_value_list " \
                             "should be a list of [ID, PDV]")
         else:
-            raise TypeError
+            raise TypeError("P_DATA.presentation_data_value_list " \
+                            "should be a list of [int, bytes]")
             
         self._presentation_data_value_list = value_list
     

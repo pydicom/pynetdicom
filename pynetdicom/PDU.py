@@ -2767,7 +2767,7 @@ class PresentationDataValueItem(PDU):
         
         Parameters
         ----------
-        primitive : list
+        primitive : list of [int, bytes]
             The Presentation Data as a list [context ID, data]
         """
         self.presentation_context_id = primitive[0]
@@ -3107,7 +3107,7 @@ class UserInformationItem(PDU):
         return None
 
 
-# PDU Sub-item Classes
+# PDU User Information Sub-item Classes
 class MaximumLengthSubItem(PDU):
     """
     Represents the Maximum Length Sub Item used in A-ASSOCIATE-RQ and 
