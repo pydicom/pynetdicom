@@ -7,7 +7,6 @@
 import logging
 import socket
 
-import pynetdicom.DULparameters
 from pynetdicom.PDU import *
 from pynetdicom.primitives import A_ABORT
 from pynetdicom.utils import wrap_list

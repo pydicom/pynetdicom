@@ -13,7 +13,7 @@ from pydicom.datadict import dictionary_has_tag, dictionary_keyword
 
 from pynetdicom.DIMSEparameters import *
 from pynetdicom.dsutils import encode_element, encode, decode
-from pynetdicom.DULparameters import P_DATA_ServiceParameters
+from pynetdicom.primitives import P_DATA
 from pynetdicom.utils import fragment
 
 logger = logging.getLogger('pynetdicom.dimse')
@@ -139,7 +139,7 @@ class DIMSEMessage(object):
             
         Returns
         -------
-        p_data_list : list of pynetdicom.DULparameters.P_DATA_ServiceParameters
+        p_data_list : list of pynetdicom.primitives.P_DATA
             A list of one or more P-DATA service primitives
         """
         self.ID = context_id
@@ -155,14 +155,14 @@ class DIMSEMessage(object):
         
         # First to (n - 1)th command data fragment - b XXXXXX01
         for ii in pdvs[:-1]:
-            pdata = P_DATA_ServiceParameters()
-            pdata.PresentationDataValueList = [[self.ID, pack('b', 1) + ii]]
+            pdata = P_DATA()
+            pdata.presentation_data_value_list = [[self.ID, pack('b', 1) + ii]]
             
             p_data_list.append(pdata)
         
         # Nth command data fragment - b XXXXXX11
-        pdata = P_DATA_ServiceParameters()
-        pdata.PresentationDataValueList = [[self.ID, pack('b', 3) + pdvs[-1]]]
+        pdata = P_DATA()
+        pdata.presentation_data_value_list = [[self.ID, pack('b', 3) + pdvs[-1]]]
        
         p_data_list.append(pdata)
 
@@ -178,13 +178,13 @@ class DIMSEMessage(object):
 
             # First to (n - 1)th dataset fragment - b XXXXXX00
             for ii in pdvs[:-1]:
-                pdata = P_DATA_ServiceParameters()
-                pdata.PresentationDataValueList = [[self.ID, pack('b', 0) + ii]]
+                pdata = P_DATA()
+                pdata.presentation_data_value_list = [[self.ID, pack('b', 0) + ii]]
                 p_data_list.append(pdata)
             
             # Nth dataset fragment - b XXXXXX10
-            pdata = P_DATA_ServiceParameters()
-            pdata.PresentationDataValueList = \
+            pdata = P_DATA()
+            pdata.presentation_data_value_list = \
                                         [[self.ID, pack('b', 2) + pdvs[-1]]]
             
             p_data_list.append(pdata)
@@ -217,10 +217,10 @@ class DIMSEMessage(object):
             True when complete, False otherwise.
         """
         # Make sure this is a P-DATA primitive
-        if pdata.__class__ != P_DATA_ServiceParameters or pdata is None:
+        if pdata.__class__ != P_DATA or pdata is None:
             return False
         
-        for pdv_item in pdata.PresentationDataValueList:
+        for pdv_item in pdata.presentation_data_value_list:
             # Presentation Context ID
             self.ID = pdv_item[0]
 

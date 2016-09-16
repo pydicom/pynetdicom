@@ -16,8 +16,6 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 from pynetdicom.ACSEprovider import ACSEServiceProvider
 from pynetdicom.DIMSEprovider import DIMSEServiceProvider
 from pynetdicom.DIMSEparameters import *
-#from pynetdicom.PDU import *
-from pynetdicom.DULparameters import *
 from pynetdicom.DULprovider import DULServiceProvider
 from pynetdicom.SOPclass import *
 from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr, wrap_list
@@ -324,9 +322,10 @@ class Association(threading.Thread):
             self.peer_max_pdu = assoc_rq.maximum_length_received
             
             # Set maximum PDU receive length
-            for user_item in assoc_rq.user_information:
-                if isinstance(user_item, MaximumLengthNegotiation):
-                    user_item.maximum_length_received = self.local_max_pdu
+            assoc_rq.maximum_length_received = self.local_max_pdu
+            #for user_item in assoc_rq.user_information:
+            #    if isinstance(user_item, MaximumLengthNegotiation):
+            #        user_item.maximum_length_received = self.local_max_pdu
             
             # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
             assoc_ac = self.acse.Accept(assoc_rq)

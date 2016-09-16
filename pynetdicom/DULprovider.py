@@ -20,7 +20,6 @@ from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom.DULparameters import *
 from pynetdicom.exceptions import InvalidPrimitive
 from pynetdicom.fsm import StateMachine
 from pynetdicom.PDU import *
