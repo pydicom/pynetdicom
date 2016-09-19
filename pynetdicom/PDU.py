@@ -739,7 +739,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         self.variable_items.append(application_context)
         
         # Make presentation contexts
-        for ii in primitive.presentation_context_definition_result_list:
+        for ii in primitive.presentation_context_definition_results_list:
             presentation_context = PresentationContextItemAC()
             presentation_context.FromParams(ii)
             self.variable_items.append(presentation_context)
@@ -1742,7 +1742,7 @@ class A_ABORT_PDU(PDU):
         
         # User provider primitive abort
         elif self.source == 0x02:
-            primitive = A_P_ABORT
+            primitive = A_P_ABORT()
             primitive.provider_reason = self.reason_diagnostic
         
         return primitive
