@@ -58,6 +58,7 @@ from pynetdicom import AE
 from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
     QueryRetrieveSOPClassList
 from pynetdicom.PDU import *
+from pynetdicom.primitives import *
 from pynetdicom.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom')
@@ -201,62 +202,52 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertEqual(primitive.ApplicationContextName, UID('1.2.840.10008.3.1.1.1'))
-        self.assertEqual(primitive.CallingAETitle, b'ECHOSCU         ')
-        self.assertEqual(primitive.CalledAETitle, b'ANY-SCP         ')
+        self.assertEqual(primitive.application_context_name, UID('1.2.840.10008.3.1.1.1'))
+        self.assertEqual(primitive.calling_ae_title, b'ECHOSCU         ')
+        self.assertEqual(primitive.called_ae_title, b'ANY-SCP         ')
         
         # Test User Information
-        for item in primitive.UserInformation:
+        for item in primitive.user_information:
             # Maximum PDU Length (required)
-            if isinstance(item, MaximumLengthSubItem):
-                self.assertEqual(item.MaximumLengthReceived, 16384)
-                self.assertEqual(user_info.maximum_length, 16384)
-                self.assertTrue(isinstance(item.MaximumLengthReceived, int))
-                self.assertTrue(isinstance(user_info.maximum_length, int))
+            if isinstance(item, MaximumLengthNegotiation):
+                self.assertEqual(item.maximum_length_received, 16384)
+                self.assertTrue(isinstance(item.maximum_length_received, int))
             
             # Implementation Class UID (required)
-            elif isinstance(item, ImplementationClassUIDSubItem):
-                self.assertEqual(item.ItemType, 0x52)
-                self.assertEqual(item.ItemLength, 27)
+            elif isinstance(item, ImplementationClassUIDNotification):
                 self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
                 self.assertTrue(isinstance(item.implementation_class_uid, UID))
                 
             # Implementation Version Name (optional)
-            elif isinstance(item, ImplementationVersionNameSubItem):
-                self.assertEqual(item.ItemType, 0x55)
-                self.assertEqual(item.ItemLength, 15)
+            elif isinstance(item, ImplementationVersionNameNotification):
                 self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
-                self.assertTrue(isinstance(item.ItemType, int))
-                self.assertTrue(isinstance(item.ItemLength, int))
                 self.assertTrue(isinstance(item.implementation_version_name, bytes))
         
         # Test Presentation Contexts
-        for context in primitive.PresentationContextDefinitionList:
+        for context in primitive.presentation_context_definition_list:
             self.assertEqual(context.ID, 1)
             self.assertEqual(context.AbstractSyntax, UID('1.2.840.10008.1.1'))
             for syntax in context.TransferSyntax:
                 self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
             
-        self.assertTrue(isinstance(primitive.ApplicationContextName, UID))
-        self.assertTrue(isinstance(primitive.CallingAETitle, bytes))
-        self.assertTrue(isinstance(primitive.CalledAETitle, bytes))
-        self.assertTrue(isinstance(primitive.UserInformation, list))
-        self.assertTrue(isinstance(primitive.PresentationContextDefinitionList, list))
+        self.assertTrue(isinstance(primitive.application_context_name, UID))
+        self.assertTrue(isinstance(primitive.calling_ae_title, bytes))
+        self.assertTrue(isinstance(primitive.called_ae_title, bytes))
+        self.assertTrue(isinstance(primitive.user_information, list))
+        self.assertTrue(isinstance(primitive.presentation_context_definition_list, list))
         
         # Not used by A-ASSOCIATE-RQ or fixed value
-        self.assertEqual(primitive.Mode, "normal")
-        self.assertEqual(primitive.RespondingAETitle, None)
-        self.assertEqual(primitive.Result, None)
-        self.assertEqual(primitive.ResultSource, None)
-        self.assertEqual(primitive.Diagnostic, None)
-        self.assertEqual(primitive.CallingPresentationAddress, None)
-        self.assertEqual(primitive.CalledPresentationAddress, None)
-        self.assertEqual(primitive.RespondingPresentationAddress, primitive.CalledPresentationAddress)
-        self.assertEqual(primitive.PresentationContextDefinitionResultList, [])
-        self.assertEqual(primitive.PresentationRequirements, "Presentation Kernel")
-        self.assertEqual(primitive.SessionRequirements, "")
+        self.assertEqual(primitive.mode, "normal")
+        self.assertEqual(primitive.responding_ae_title, primitive.called_ae_title)
+        self.assertEqual(primitive.result, None)
+        self.assertEqual(primitive.result_source, None)
+        self.assertEqual(primitive.diagnostic, None)
+        self.assertEqual(primitive.calling_presentation_address, None)
+        self.assertEqual(primitive.called_presentation_address, None)
+        self.assertEqual(primitive.responding_presentation_address, primitive.called_presentation_address)
+        self.assertEqual(primitive.presentation_context_definition_results_list, [])
+        self.assertEqual(primitive.presentation_requirements, "Presentation Kernel")
+        self.assertEqual(primitive.session_requirements, "")
 
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -504,51 +495,51 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertEqual(primitive.ApplicationContextName, UID('1.2.840.10008.3.1.1.1'))
-        self.assertEqual(primitive.CallingAETitle, b'ECHOSCU         ')
-        self.assertEqual(primitive.CalledAETitle, b'ANY-SCP         ')
+        self.assertEqual(primitive.application_context_name, UID('1.2.840.10008.3.1.1.1'))
+        self.assertEqual(primitive.calling_ae_title, b'ECHOSCU         ')
+        self.assertEqual(primitive.called_ae_title, b'ANY-SCP         ')
         
         # Test User Information
-        for item in primitive.UserInformation:
+        for item in primitive.user_information:
             # Maximum PDU Length (required)
-            if isinstance(item, MaximumLengthParameters):
-                self.assertEqual(item.MaximumLengthReceived, 16384)
-                self.assertTrue(isinstance(item.MaximumLengthReceived, int))
+            if isinstance(item, MaximumLengthNegotiation):
+                self.assertEqual(item.maximum_length_received, 16384)
+                self.assertTrue(isinstance(item.maximum_length_received, int))
             
             # Implementation Class UID (required)
-            elif isinstance(item, ImplementationClassUIDParameters):
-                self.assertEqual(item.ImplementationClassUID, UID('1.2.276.0.7230010.3.0.3.6.0'))
-                self.assertTrue(isinstance(item.ImplementationClassUID, UID))
+            elif isinstance(item, ImplementationClassUIDNotification):
+                self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertTrue(isinstance(item.implementation_class_uid, UID))
                 
             # Implementation Version Name (optional)
-            elif isinstance(item, ImplementationVersionNameParameters):
-                self.assertEqual(item.ImplementationVersionName, b'OFFIS_DCMTK_360')
-                self.assertTrue(isinstance(item.ImplementationVersionName, bytes))
+            elif isinstance(item, ImplementationVersionNameNotification):
+                self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
+                self.assertTrue(isinstance(item.implementation_version_name, bytes))
         
         # Test Presentation Contexts
-        for context in primitive.PresentationContextDefinitionList:
+        for context in primitive.presentation_context_definition_list:
             self.assertEqual(context.ID, 1)
             self.assertEqual(context.TransferSyntax[0], UID('1.2.840.10008.1.2'))
             
-        self.assertTrue(isinstance(primitive.ApplicationContextName, UID))
-        self.assertTrue(isinstance(primitive.CallingAETitle, bytes))
-        self.assertTrue(isinstance(primitive.CalledAETitle, bytes))
-        self.assertTrue(isinstance(primitive.UserInformation, list))
+        self.assertTrue(isinstance(primitive.application_context_name, UID))
+        self.assertTrue(isinstance(primitive.calling_ae_title, bytes))
+        self.assertTrue(isinstance(primitive.called_ae_title, bytes))
+        self.assertTrue(isinstance(primitive.user_information, list))
         
-        self.assertEqual(primitive.Result, 0)
-        self.assertEqual(len(primitive.PresentationContextDefinitionResultList), 1)
+        self.assertEqual(primitive.result, 0)
+        self.assertEqual(len(primitive.presentation_context_definition_results_list), 1)
         
         # Not used by A-ASSOCIATE-AC or fixed value
-        self.assertEqual(primitive.Mode, "normal")
-        self.assertEqual(primitive.RespondingAETitle, None)
-        self.assertEqual(primitive.ResultSource, None)
-        self.assertEqual(primitive.Diagnostic, None)
-        self.assertEqual(primitive.CallingPresentationAddress, None)
-        self.assertEqual(primitive.CalledPresentationAddress, None)
-        self.assertEqual(primitive.RespondingPresentationAddress, primitive.CalledPresentationAddress)
-        self.assertEqual(primitive.PresentationContextDefinitionList, [])
-        self.assertEqual(primitive.PresentationRequirements, "Presentation Kernel")
-        self.assertEqual(primitive.SessionRequirements, "")
+        self.assertEqual(primitive.mode, "normal")
+        self.assertEqual(primitive.responding_ae_title, primitive.called_ae_title)
+        self.assertEqual(primitive.result_source, None)
+        self.assertEqual(primitive.diagnostic, None)
+        self.assertEqual(primitive.calling_presentation_address, None)
+        self.assertEqual(primitive.called_presentation_address, None)
+        self.assertEqual(primitive.responding_presentation_address, primitive.called_presentation_address)
+        self.assertEqual(primitive.presentation_context_definition_list, [])
+        self.assertEqual(primitive.presentation_requirements, "Presentation Kernel")
+        self.assertEqual(primitive.session_requirements, "")
 
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -744,27 +735,27 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertEqual(primitive.Result, 1)
-        self.assertEqual(primitive.ResultSource, 1)
-        self.assertEqual(primitive.Diagnostic, 1)
-        self.assertTrue(isinstance(primitive.Result, int))
-        self.assertTrue(isinstance(primitive.ResultSource, int))
-        self.assertTrue(isinstance(primitive.Diagnostic, int))
+        self.assertEqual(primitive.result, 1)
+        self.assertEqual(primitive.result_source, 1)
+        self.assertEqual(primitive.diagnostic, 1)
+        self.assertTrue(isinstance(primitive.result, int))
+        self.assertTrue(isinstance(primitive.result_source, int))
+        self.assertTrue(isinstance(primitive.diagnostic, int))
         
         # Not used by A-ASSOCIATE-RJ or fixed value
-        self.assertEqual(primitive.Mode, "normal")
-        self.assertEqual(primitive.ApplicationContextName, None)
-        self.assertEqual(primitive.CallingAETitle, None)
-        self.assertEqual(primitive.CalledAETitle, None)
-        self.assertEqual(primitive.RespondingAETitle, None)
-        self.assertEqual(primitive.UserInformation, None)
-        self.assertEqual(primitive.CallingPresentationAddress, None)
-        self.assertEqual(primitive.CalledPresentationAddress, None)
-        self.assertEqual(primitive.RespondingPresentationAddress, primitive.CalledPresentationAddress)
-        self.assertEqual(primitive.PresentationContextDefinitionList, [])
-        self.assertEqual(primitive.PresentationContextDefinitionResultList, [])
-        self.assertEqual(primitive.PresentationRequirements, "Presentation Kernel")
-        self.assertEqual(primitive.SessionRequirements, "")
+        self.assertEqual(primitive.mode, "normal")
+        self.assertEqual(primitive.application_context_name, None)
+        self.assertEqual(primitive.calling_ae_title, None)
+        self.assertEqual(primitive.called_ae_title, None)
+        self.assertEqual(primitive.responding_ae_title, None)
+        self.assertEqual(primitive.user_information, [])
+        self.assertEqual(primitive.calling_presentation_address, None)
+        self.assertEqual(primitive.called_presentation_address, None)
+        self.assertEqual(primitive.responding_presentation_address, primitive.called_presentation_address)
+        self.assertEqual(primitive.presentation_context_definition_list, [])
+        self.assertEqual(primitive.presentation_context_definition_results_list, [])
+        self.assertEqual(primitive.presentation_requirements, "Presentation Kernel")
+        self.assertEqual(primitive.session_requirements, "")
 
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -918,8 +909,8 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertEqual(primitive.PresentationDataValueList, [[1, p_data_tf[11:]]])
-        self.assertTrue(isinstance(primitive.PresentationDataValueList, list))
+        self.assertEqual(primitive.presentation_data_value_list, [[1, p_data_tf[11:]]])
+        self.assertTrue(isinstance(primitive.presentation_data_value_list, list))
         
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -977,8 +968,8 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertEqual(primitive.Reason, "normal")
-        self.assertEqual(primitive.Result, None)
+        self.assertEqual(primitive.reason, "normal")
+        self.assertEqual(primitive.result, None)
         
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -1036,8 +1027,8 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertEqual(primitive.Reason, "normal")
-        self.assertEqual(primitive.Result, "affirmative")
+        self.assertEqual(primitive.reason, "normal")
+        self.assertEqual(primitive.result, "affirmative")
         
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -1129,9 +1120,8 @@ class TestPDU_A_ABORT(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertTrue(isinstance(primitive, A_ABORT_ServiceParameters))
-        self.assertEqual(primitive.AbortSource, 0)
-        self.assertEqual(primitive.UserInformation, None)
+        self.assertTrue(isinstance(primitive, A_ABORT))
+        self.assertEqual(primitive.abort_source, 0)
         
     def test_to_a_p_abort_primitive(self):
         """ Check converting PDU to a_p_abort primitive """
@@ -1140,8 +1130,8 @@ class TestPDU_A_ABORT(unittest.TestCase):
         
         primitive = pdu.ToParams()
         
-        self.assertTrue(isinstance(primitive, A_P_ABORT_ServiceParameters))
-        self.assertEqual(primitive.ProviderReason, 4)
+        self.assertTrue(isinstance(primitive, A_P_ABORT))
+        self.assertEqual(primitive.provider_reason, 4)
         
     def test_a_abort_from_primitive(self):
         """ Check converting PDU to primitive """

@@ -308,6 +308,7 @@ class Association(threading.Thread):
                 self.kill()
                 return
             
+            ## Presentation Contexts
             self.acse.context_manager = PresentationContextManager()
             self.acse.context_manager.requestor_contexts = \
                                     assoc_rq.presentation_context_definition_list

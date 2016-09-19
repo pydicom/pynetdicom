@@ -249,7 +249,7 @@ class ACSEServiceProvider(object):
 
         # Send an A-ASSOCIATE primitive, rejecting the association
         assoc_primitive.presentation_context_definition_list = []
-        assoc_primitive.presentation_context_definition_result_list = []
+        assoc_primitive.presentation_context_definition_results_list = []
         assoc_primitive.result = result
         assoc_primitive.result_source = source
         assoc_primitive.diagnostic = diagnostic
@@ -275,6 +275,11 @@ class ACSEServiceProvider(object):
         
         The acceptability of the proposed Transfer Syntax is checked in the 
         order of appearance in the local AE's SupportedTransferSyntax list
+        
+        Parameters
+        ----------
+        assoc_primitive : pynetdicom.primitives.A_ASSOCIATE
+            The A_ASSOCIATE primitive to convert and send to the peer
         """
         self.MaxPDULength = assoc_primitive.maximum_length_received
         self.local_max_pdu = self.MaxPDULength
@@ -282,7 +287,7 @@ class ACSEServiceProvider(object):
 
         # Send response
         assoc_primitive.presentation_context_definition_list = []
-        assoc_primitive.presentation_context_definition_result_list = \
+        assoc_primitive.presentation_context_definition_results_list = \
                                         self.presentation_contexts_accepted
         assoc_primitive.result = 0
         

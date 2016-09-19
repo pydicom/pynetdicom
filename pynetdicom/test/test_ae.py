@@ -218,6 +218,7 @@ class TestAEGoodAssociation(unittest.TestCase):
         scp.ae.dimse_timeout = 22
         ae.acse_timeout = 31
         ae.dimse_timeout = 32
+
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(scp.ae.active_associations[0].acse_timeout == 21)
         self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 22)
