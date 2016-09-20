@@ -143,7 +143,7 @@ class StorageServiceClass(ServiceClass):
                                             'Data Set does not match SOP Class',
                                             range(0xB007, 0xB007 + 1))
     ElementDisgarded = Status('Warning',
-                              'Element Discarted',
+                              'Element Discarded',
                               range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 

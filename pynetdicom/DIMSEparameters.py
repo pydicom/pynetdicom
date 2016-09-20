@@ -1,8 +1,17 @@
 
+
+import logging
+
+from pydicom.uid import UID
+from pydicom.dataset import Dataset
+
+from pynetdicom.utils import validate_ae_title
+
+
+logger = logging.getLogger('pynetdicom.DIMSEparameters')
+
+
 # DIMSE-C Services
-# PS3.4 6.1.1 Composite IOD
-# A composite IOD is an IOD that represents parts of several entities in the 
-#   DICOM model of the real world
 class C_STORE_ServiceParameters:
     """
     Represents a C-STORE primitive
@@ -25,17 +34,244 @@ class C_STORE_ServiceParameters:
     
     PS3.4 Annex B
     PS3.7 9.1
+    
+    Attributes
+    ----------
+    MessageID : int
+        [M, U] Identifies the operation and is used to distinguish this operation from
+        other notifications or operations that may be in progress. No two
+        identical values for the Message ID shall be used for outstanding 
+        operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies. 
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, U(=)] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to th value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [M, U(=)] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to th value in the request/indication
+    Priority : int
+        [M, -] The priority of the C-STORE operation. It shall be one of the 
+        following:
+        * 0: Medium
+        * 1: High
+        * 2: Low (Default)
+    MoveOriginatorApplicationEntityTitle : bytes or str
+        [U, -] The DICOM AE Title of the AE that invoked the C-MOVE operation
+        from which this C-STORE sub-operation is being performed
+    MoveOriginatorMessageID : int
+        [U, -] The Message ID of the C-MOVE request/indication primitive from
+        which this C-STORE sub-operation is being performed
+    DataSet : pydicom.dataset
+        [M, -] The DICOM dataset containing the Attributes of the Composite SOP
+        Instance to be stored
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+        * 0xA700: Failure (Refused: Out of resources)
+        * 0xA900: Failure (Error: Data Set does not match SOP Class)
+        * 0xC000: Failure (Error: Cannot understand)
+        * 0xB000: Warning (Coercion of Data Elements)
+        * 0xB007: Warning (Data Set does not match SOP Class)
+        * 0xB006: Warning (Element Discarded)
+        * 0x0000: Success
     """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
-        self.Priority = None
+        self.Priority = 0x02
         self.MoveOriginatorApplicationEntityTitle = None
         self.MoveOriginatorMessageID = None
         self.DataSet = None
         self.Status = None
+    
+    @property
+    def MessageID(self):
+        return self._message_id
+        
+    @MessageID.setter
+    def MessageID(self, value):
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id = value
+            else:
+                raise ValueError("Message ID must be between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id = value
+        else:
+            raise TypeError("Message ID must be an int")
+    
+    @property
+    def MessageIDBeingRespondedTo(self):
+        return self._message_id_being_responded_to
+        
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id_being_responded_to = value
+            else:
+                raise ValueError("Message ID Being Responded To must be between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id_being_responded_to = value
+        else:
+            raise TypeError("Message ID Being Responded To must be an int")
+    
+    @property
+    def AffectedSOPClassUID(self):
+        return self._affected_sop_class_uid
+        
+    @AffectedSOPClassUID.setter
+    def AffectedSOPClassUID(self, value):
+        """
+        Sets the Affected SOP Class UID parameter
+        
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Class UID must be a " \
+                    "pydicom.uid.UID, str or bytes")
+        
+        if value is not None:
+            try:
+                value.is_valid()
+            except:
+                logger.error("Affected SOP Class UID is an invalid UID")
+                raise ValueError("Affected SOP Class UID is an invalid UID")
+        
+        self._affected_sop_class_uid = value
+    
+    @property
+    def AffectedSOPInstanceUID(self):
+        return self._affected_sop_instance_uid
+        
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """
+        Sets the Affected SOP Instance UID parameter
+        
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Instance UID must be a " \
+                    "pydicom.uid.UID, str or bytes")
+        
+        if value is not None:
+            try:
+                value.is_valid()
+            except:
+                logger.error("Affected SOP Instance UID is an invalid UID")
+                raise ValueError("Affected SOP Class UID is an invalid UID")
+        
+        self._affected_sop_instance_uid = value
+    
+    @property
+    def Priority(self):
+        return self._priority
+        
+    @Priority.setter
+    def Priority(self, value):
+        if value in [0, 1, 2]:
+            self._priority = value
+        else:
+            logger.warning("Attempted to set C-STORE Priority parameter to an " \
+                    "invalid value")
+            raise ValueError("Priority must be 0, 1, or 2")
+
+    @property
+    def MoveOriginatorApplicationEntityTitle(self):
+        return self._move_originator_application_entity_title
+        
+    @MoveOriginatorApplicationEntityTitle.setter
+    def MoveOriginatorApplicationEntityTitle(self, value):
+        """
+        Set the Move Originator AE Title
+        
+        Parameters
+        ----------
+        value : str or bytes
+            The Move Originator AE Title as a string or bytes object. Cannot be
+            an empty string and will be truncated to 16 characters long
+        """
+        if isinstance(value, str):
+            value = bytes(value, 'utf-8')
+        
+        if value is not None:
+            self._move_originator_application_entity_title = validate_ae_title(value)
+        else:
+            self._move_originator_application_entity_title = None
+    
+    @property
+    def MoveOriginatorMessageID(self):
+        return self._move_originator_message_id
+        
+    @MoveOriginatorMessageID.setter
+    def MoveOriginatorMessageID(self, value):
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._move_originator_message_id = value
+            else:
+                raise ValueError("Move Originator Message ID To must be between 0 and 65535, inclusive")
+        elif value is None:
+            self._move_originator_message_id = value
+        else:
+            raise TypeError("Move Originator Message ID To must be an int")
+    
+    @property
+    def DataSet(self):
+        return self._dataset
+        
+    @DataSet.setter
+    def DataSet(self, value):
+        if isinstance(value, Dataset):
+            self._dataset = value
+        elif value is None:
+            self._dataset = value
+        else:
+            raise TypeError("DataSet must be a pydicom Dataset object")
+    
+    @property
+    def Status(self):
+        return self._status
+        
+    @Status.setter
+    def Status(self, value):
+        if isinstance(value, int):
+            # Add value range checking
+            #if 
+            self._status = value
+        elif value is None:
+            self._status = value
+        else:
+            raise TypeError("Status must be an int")
+
 
 class C_FIND_ServiceParameters:
     """

@@ -157,6 +157,7 @@ class Association(threading.Thread):
         self.is_established = False
         self.is_refused = False
         self.is_aborted = False
+        self.is_released = False
         
         # Timeouts for the DIMSE and ACSE service providers
         self.dimse_timeout = dimse_timeout
@@ -185,9 +186,12 @@ class Association(threading.Thread):
         been stopped
         """
         self._Kill = True
+        
         self.is_established = False
         while not self.dul.Stop():
             time.sleep(0.001)
+        
+        self.ae._cleanup_associations()
 
     def release(self):
         """
@@ -197,6 +201,8 @@ class Association(threading.Thread):
         # A-RELEASE response primitive
         response = self.acse.Release()
         self.kill()
+        
+        self.is_released = True
 
     def abort(self):
         """
@@ -210,6 +216,8 @@ class Association(threading.Thread):
         """
         self.acse.Abort(source=0x00, reason=0x00)
         self.kill()
+        
+        self.is_aborted = True
 
     def run(self):
         """
@@ -675,7 +683,7 @@ class Association(threading.Thread):
         dataset - pydicom.Dataset
             The DICOM dataset to send to the peer
         msg_id - int, optional
-            The message ID (default: 1)
+            The message ID, must be between 0 and 65535, inclusive. (default: 1)
         priority : int, optional
             The C-STORE operation priority (if supported by the peer), one of:
                 2 - Low (default)

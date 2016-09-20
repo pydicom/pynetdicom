@@ -186,7 +186,7 @@ class DULServiceProvider(Thread):
             self.peer_address = None
 
         self.kill = False
-        self.daemon = True
+        self.daemon = False
         self.start()
 
     def Kill(self):
@@ -204,6 +204,9 @@ class DULServiceProvider(Thread):
         """
         if self.state_machine.current_state == 'Sta1':
             self.kill = True
+            while self.is_alive():
+                time.sleep(0.001)
+            
             return True
 
         return False
@@ -469,7 +472,8 @@ class DULServiceProvider(Thread):
         while True:
             if self._idle_timer is not None:
                 self._idle_timer.start()
-
+            
+            # Required for some reason
             time.sleep(0.001)
             
             if self.kill:

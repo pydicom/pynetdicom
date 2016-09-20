@@ -141,7 +141,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         
         assoc.release()
         
-        #self.assertRaises(SystemExit, scp.stop)
+        self.assertRaises(SystemExit, scp.stop)
 
     def test_on_c_find_called(self): pass
     def test_on_c_get_called(self): pass
@@ -478,6 +478,28 @@ class TestAEBadInitialisation(unittest.TestCase):
         """ AE should fail if transfer_syntax is not a list of valid transfer syntax UIDs"""
         self.assertRaises(ValueError, AE, 'TEST', 0, [VerificationSOPClass], [], ['1.2.840.10008.1.1'])
 
+
+class TestAE_GoodRelease(unittest.TestCase):
+    def test_ae_release_assoc(self):
+        """ Association releases OK """
+        # Start Verification SCP
+        scp = AEVerificationSCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        
+        # Test N associate/release cycles
+        for ii in range(20):
+            assoc = ae.associate('localhost', 11112)
+            self.assertTrue(assoc.is_established)
+            
+            if assoc.is_established:
+                assoc.release()
+                self.assertTrue(assoc.is_established == False)
+                self.assertTrue(assoc.is_released == True)
+                self.assertTrue(ae.active_associations == [])
+        
+        # Kill Verification SCP (important!)
+        self.assertRaises(SystemExit, scp.stop)
 
 if __name__ == "__main__":
     unittest.main()

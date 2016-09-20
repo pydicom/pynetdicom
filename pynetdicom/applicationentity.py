@@ -120,7 +120,7 @@ class ApplicationEntity(object):
         The currently active associations between the local and peer AEs
     address : str
         The local AE's TCP/IP address
-    ae_title : str
+    ae_title : str or bytes
         The local AE's title
     client_socket : socket.socket
         The socket used for connections with peer AEs
@@ -718,19 +718,20 @@ class ApplicationEntity(object):
         try:
             for sop_class in sop_list:
                 try:
+                    
                     if isinstance(sop_class, str):
                         sop_uid = UID(sop_class)
-                        sop_uid.is_valid()
                     elif isinstance(sop_class, UID):
                         sop_uid = sop_class
-                        sop_uid.is_valid()
+                    elif isinstance(sop_class, bytes):
+                        sop_uid = UID(sop_uid.decode('utf-8'))
                     elif 'UID' in sop_class.__dict__.keys():
                         sop_uid = UID(sop_class.UID)
-                        sop_uid.is_valid()
                     else:
                         raise ValueError("SCU SOP class must be a UID str, "
                                 "UID or ServiceClass subclass")
-
+                    
+                    sop_uid.is_valid()
                     self._scp_supported_sop.append(sop_uid)
 
                 except InvalidUID:
@@ -788,7 +789,7 @@ class ApplicationEntity(object):
 
 
     # Association negotiation callbacks
-    def on_user_identity(self, user_id_type, primary_field, secondary_field):
+    def on_user_identity_negotiation(self, user_id_type, primary_field, secondary_field):
         """
         Function callback for when a peer requests user identity negotiations
         
@@ -815,8 +816,8 @@ class ApplicationEntity(object):
             If the identity check fails then return None
         """
         raise NotImplementedError
-
     
+
     # High-level DIMSE-C callbacks - user should implement these as required
     def on_c_echo(self):
         """
