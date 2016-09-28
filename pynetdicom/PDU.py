@@ -4,9 +4,7 @@ Implementation of Dicom Standard, PS 3.8, section 9.3
 Dicom Upper Layer Protocol for TCP/IP
 Data Unit Structure
 
-
-Module implementing the Data Unit Structures
-There are seven different PDUs, each of them correspong to distinct class.
+There are seven different PDUs
     A_ASSOCIATE_RQ_PDU
     A_ASSOCIATE_AC_PDU
     A_ASSOCIATE_RJ_PDU
