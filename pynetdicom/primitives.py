@@ -12,7 +12,7 @@ from pynetdicom.PDU import MaximumLengthSubItem, \
                             SOPClassCommonExtendedNegotiationSubItem, \
                             UserIdentitySubItemRQ, \
                             UserIdentitySubItemAC
-from pynetdicom.utils import validate_ae_title, PresentationContext
+from pynetdicom.utils import validate_ae_title, PresentationContext, wrap_list
 
 
 logger = logging.getLogger('pynetdicom.primitives')
@@ -913,7 +913,7 @@ class P_DATA():
                                 'the DIMSE message\n'
             
             # Remaining data
-            s += wrap_list(pdv[1][1:], '    ', max_size=512)
+            #s += wrap_list(pdv[1][1:], '    ', max_size=512)
 
         return s
 

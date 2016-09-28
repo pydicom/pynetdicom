@@ -1008,8 +1008,10 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent via the C-MOVE
-        move_aet : str
-            The destination AE title that matching Instances will be sent to
+        move_aet : bytes
+            The destination AE title that matching Instances will be sent to.
+            `move_aet` will be a correctly formatted AE title (16 chars,
+            with trailing spaces as padding)
 
         Yields
         ------

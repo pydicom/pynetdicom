@@ -166,7 +166,6 @@ class DIMSEMessage(object):
        
         p_data_list.append(pdata)
 
-
         ## DATASET (if available)
         # Split out dataset up into fragment with maximum size of max_pdu
         #   Check that the Data Set is not empty
@@ -317,12 +316,22 @@ class DIMSEMessage(object):
                 elem_name = dictionary_keyword(elem.tag)
             else:
                 elem_name = elem.name.replace(' ', '')
-
+            
+            # Old method
             if elem_name in primitive.__dict__.keys():
-                # If value hasn't been set for a parameter then delete
-                #   the corresponding element
+                
                 if primitive.__dict__[elem_name] is not None:
                     elem.value = primitive.__dict__[elem_name]
+                else:
+                    del self.command_set[elem.tag]
+            
+            # New method
+            elif hasattr(primitive, elem_name):
+                # If value hasn't been set for a parameter then delete
+                #   the corresponding element
+                attr = getattr(primitive, elem_name)
+                if attr is not None:
+                    elem.value = attr
                 else:
                     del self.command_set[elem.tag]
         
@@ -339,7 +348,7 @@ class DIMSEMessage(object):
         # Default to no Data Set
         self.data_set = BytesIO()
         self.command_set.CommandDataSetType = 0x0101
-        
+
         # These message types should (except for C-FIND-RSP) always have
         #   a Data Set
         cls_type_name = self.__class__.__name__
@@ -422,33 +431,38 @@ class DIMSEMessage(object):
         ## Command Set
         # For each parameter in the primitive, set the appropriate value
         #   from the Message's Command Set
-        for param in primitive.__dict__.keys():
-            if param in self.command_set:
+        for elem in self.command_set:
+            if dictionary_has_tag(elem.tag):
+                elem_name = dictionary_keyword(elem.tag)
+            else:
+                elem_name = elem.name.replace(' ', '')
+            
+            if hasattr(primitive, elem_name):
                 try:
-                    primitive.__dict__[param] = self.command_set.__getattr__(param)
+                    setattr(primitive, elem_name, self.command_set.__getattr__(elem_name))
                 except:
                     logger.error('DIMSE failed to convert message to primitive')
 
         ## Datasets
         if cls_type_name == 'C_STORE_RQ':
-            primitive.__dict__['DataSet'] = self.data_set
+            setattr(primitive, 'DataSet', self.data_set)
         elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP',
                                 'C_GET_RQ',  'C_GET_RSP',
                                 'C_MOVE_RQ', 'C_MOVE_RSP']:
-            primitive.__dict__['Identifier'] = self.data_set
+            setattr(primitive, 'Identifier', self.data_set)
         elif cls_type_name == 'N_EVENT_REPORT_RQ':
-            primitive.__dict__['EventInformation'] = self.data_set
+            setattr(primitive, 'EventInformation', self.data_set)
         elif cls_type_name == 'N_EVENT_REPORT_RSP':
-            primitive.__dict__['EventReply'] = self.data_set
+            setattr(primitive, 'EventReply', self.data_set)
         elif cls_type_name in ['N_GET_RSP',   'N_SET_RSP',
                                 'N_CREATE_RQ', 'N_CREATE_RSP']:
-            primitive.__dict__['AttributeList'] = self.data_set
+            setattr(primitive, 'AttributeList', self.data_set)
         elif cls_type_name == 'N_SET_RQ':
-            primitive.__dict__['ModificationList'] = self.data_set
+            setattr(primitive, 'ModificationList', self.data_set)
         elif cls_type_name == 'N_ACTION_RQ':
-            primitive.__dict__['ActionInformation'] = self.data_set
+            setattr(primitive, 'ActionInformation', self.data_set)
         elif cls_type_name == 'N_ACTION_RSP':
-            primitive.__dict__['ActionReply'] = self.data_set
+            setattr(primitive, 'ActionReply', self.data_set)
 
         return primitive
 
@@ -461,7 +475,30 @@ def _build_message_classes(message_name):
     Parameters
     ----------
     message_name : str
-        The name/type of message class to construct
+        The name/type of message class to construct, one of the following:
+        * C-ECHO-RQ
+        * C-ECHO-RSP
+        * C-STORE-RQ
+        * C-STORE-RSP
+        * C-FIND-RQ
+        * C-FIND-RSP
+        * C-GET-RQ
+        * C-GET-RSP
+        * C-MOVE-RQ
+        * C-MOVE-RSP
+        * C-CANCEL-RQ
+        * N-EVENT-REPORT-RQ
+        * N-EVENT-REPORT-RSP
+        * N-GET-RQ
+        * N-GET-RSP
+        * N-SET-RQ
+        * N-SET-RSP
+        * N-ACTION-RQ
+        * N-ACTION-RSP
+        * N-CREATE-RQ
+        * N-CREATE-RSP
+        * N-DELETE-RQ
+        * N-DELETE-RSP
     """
     def __init__(self):
         DIMSEMessage.__init__(self)

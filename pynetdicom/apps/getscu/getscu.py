@@ -18,7 +18,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     
 from pynetdicom import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom import pynetdicom_uid_prefix
-from pynetdicom.PDU import SCP_SCU_RoleSelectionParameters
+from pynetdicom.primitives import SCP_SCU_RoleSelectionNegotiation
 
 logger = logging.Logger('getscu')
 stream_logger = logging.StreamHandler()
@@ -135,10 +135,10 @@ ae = AE(ae_title=args.calling_aet,
 #   C-STORE requests for the supported SOP classes
 ext_neg = []
 for context in ae.presentation_contexts_scu:
-    tmp = SCP_SCU_RoleSelectionParameters()
-    tmp.SOPClassUID = context.AbstractSyntax
-    tmp.SCURole = 0
-    tmp.SCPRole = 1
+    tmp = SCP_SCU_RoleSelectionNegotiation()
+    tmp.sop_class_uid = context.AbstractSyntax
+    tmp.scu_role = False
+    tmp.scp_role = True
     
     ext_neg.append(tmp)
 

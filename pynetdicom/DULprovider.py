@@ -204,6 +204,8 @@ class DULServiceProvider(Thread):
         """
         if self.state_machine.current_state == 'Sta1':
             self.kill = True
+            # Fix for Issue 39
+            # Give the DUL thread time to exit
             while self.is_alive():
                 time.sleep(0.001)
             
@@ -466,7 +468,7 @@ class DULServiceProvider(Thread):
         connection for incoming data. When incoming data is received it 
         categorises it and add its to the `to_user_queue`.
         """
-        logger.debug('Starting DICOM UL service "%s"' %self.name)
+        #logger.debug('Starting DICOM UL service "%s"' %self.name)
 
         # Main DUL loop
         while True:
@@ -504,9 +506,7 @@ class DULServiceProvider(Thread):
             
             self.state_machine.do_action(event)
         
-        # FIXME: Bug related to DUL not ending properly, maybe ACSE shuts
-        # down early? See dul_thread_bug.note
-        logger.debug('DICOM UL service "%s" stopped' %self.name)
+        #logger.debug('DICOM UL service "%s" stopped' %self.name)
 
     def on_receive_pdu(self):
         """ 

@@ -257,6 +257,7 @@ class DIMSEServiceProvider(object):
                     return dimse_msg, context_id
                 else:
                     return None, None
+        
         else:
             cls = self.DUL.Peek().__class__
             if cls not in (type(None), P_DATA):
@@ -479,7 +480,7 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : %s' %'C-FIND RSP')
         s.append('Message ID Being Responded To : %s' %d.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : none')
+        s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
         s.append('Data Set                      : %s' %dataset)
         s.append('DIMSE Status                  : 0x%04x' %d.Status)
         
@@ -586,7 +587,7 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : %s' %'C-MOVE RQ')
         s.append('Message ID                    : %s' %d.MessageID)
         s.append('Affected SOP Class UID        : %s' %d.AffectedSOPClassUID)
-        s.append('Move Destination              : %s' %d.MoveDestination)
+        s.append('Move Destination              : %s' %d.MoveDestination.decode('utf-8'))
         s.append('Data Set                      : %s' %dataset)
         s.append('Priority                      : %s' %priority)
         s.append('======================= END DIMSE MESSAGE ==================='
