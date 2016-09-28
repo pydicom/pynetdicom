@@ -58,7 +58,7 @@ def encode(ds, is_implicit_VR, is_little_endian):
     
     Returns
     -------
-    DicomBytesIO or None
+    bytes or None
         The encoded dataset (if successful), None if encoding failed.
     """
     f = DicomBytesIO()

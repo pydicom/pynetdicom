@@ -574,6 +574,7 @@ class ACSEServiceProvider(object):
         #    ext_nego = 'Yes'
         s.append('Accepted Extended Negotiation: %s' %ext_nego)
         
+        ## User Identity Negotiation
         usr_id = 'None'
         if user_info.user_identity is not None:
             usr_id = 'Yes'
@@ -746,6 +747,14 @@ class ACSEServiceProvider(object):
         else:
             s.append('Requested Common Extended Negotiation: None')
         
+        ## Asynchronous Operations Window Negotiation
+        async_neg = 'None'
+        if assoc_rq.user_information.async_ops_window is not None:
+            s.append('Requested Asynchronous Operations Window Negotiation:')
+            # FIXME
+        else:
+            s.append('Requested Asynchronous Operations Window Negotiation: None')
+        
         ## User Identity
         if user_info.user_identity is not None:
             usid = user_info.user_identity
@@ -829,11 +838,21 @@ class ACSEServiceProvider(object):
                 s.append('    Accepted Transfer Syntax: =%s' 
                                             %item.transfer_syntax)
         
-        ext_nego = 'None'
+        ## Extended Negotiation
+        ext_neg = 'None'
         #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
         #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        s.append('Accepted Extended Negotiation: %s' %ext_neg)
         
+        ## Common Extended Negotiation
+        common_ext_neg = 'None'
+        s.append('Accepted Common Extended Negotiation: %s' %common_ext_neg)
+        
+        ## Asynchronous Operations Negotiation
+        async_neg = 'None'
+        s.append('Accepted Asynchronous Operations Window Negotiation: %s' %async_neg)
+        
+        ## User Identity
         usr_id = 'None'
         if user_info.user_identity is not None:
             usr_id = 'Yes'

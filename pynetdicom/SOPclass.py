@@ -297,8 +297,6 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
     def SCP(self, msg):
         """
-        This is probably not going to work at the moment
-        
         PS3.4 Annex C.1.3
         In order to serve as an QR SCP, a DICOM AE possesses information about
         the Attributes of a number of stored Composite Object Instances. This
@@ -436,6 +434,11 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         Patient/Study Root
         ------------------
         Retired (PS3.4-2004)
+        
+        Parameters
+        ----------
+        msg : pynetdicom.DIMSEmessage.C_FIND_RQ
+            The C_FIND request primitive received from the peer
         """
         dataset = decode(msg.Identifier, 
                          self.transfersyntax.is_implicit_VR,
@@ -461,10 +464,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             matches = []
         
         for ii, instance in enumerate(matches):
-            c_find_rsp.Identifier = encode(instance,
-                                           self.transfersyntax.is_implicit_VR,
-                                           self.transfersyntax.is_little_endian)
-            c_find_rsp.Identifier = BytesIO(c_find_rsp.Identifier)
+            c_find_rsp.Identifier = BytesIO(encode(instance,
+                                            self.transfersyntax.is_implicit_VR,
+                                            self.transfersyntax.is_little_endian))
             
             # Send response
             c_find_rsp.Status = int(self.Pending)
@@ -475,7 +477,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             
             logger.debug('Find SCP Response Identifiers:')
             logger.debug('')
-            logger.debug('# DICOM Data Set')
+            logger.debug('# DICOM Dataset')
             for elem in instance:
                 logger.debug(elem)
             logger.debug('')
@@ -555,7 +557,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         addr, port = next(matches)
         
         if None in [addr, port]:
-            logger.error('Unknown move destination: %s' %msg.MoveDestination)
+            logger.error('Unknown Move Destination: %s' %msg.MoveDestination.decode('utf-8'))
             c_move_rsp.Status = int(self.MoveDestinationUnknown)
             logger.info('Move SCP Response (Failure)')
             self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
@@ -565,8 +567,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         #   need (addr, port, aet)
         assoc = self.AE.associate(addr, port, msg.MoveDestination)
         
+        ii = 1
         if assoc.is_established:
-            ii = 1
             for dataset in matches:
                 # Send dataset via C-STORE over new association
                 status = assoc.send_c_store(dataset)
@@ -747,9 +749,11 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                             'and/or matching for this identifier',
                             range(0xFF01, 0xFF01 + 1))
 
+    # FIXME
     def SCP(self, msg):
-        ds = decode(msg.Identifier, self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
+        ds = decode(msg.Identifier, 
+                    self.transfersyntax.is_implicit_VR,
+                    self.transfersyntax.is_little_endian)
 
         # make response
         rsp = C_FIND_ServiceParameters()
@@ -762,10 +766,9 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                 time.sleep(0.001)
                 IdentifierDS, status = gen.next()
                 rsp.Status = int(status)
-                rsp.Identifier = encode(
-                    IdentifierDS,
-                    self.transfersyntax.is_implicit_VR,
-                    self.transfersyntax.is_little_endian)
+                rsp.Identifier = encode(IdentifierDS,
+                                        self.transfersyntax.is_implicit_VR,
+                                        self.transfersyntax.is_little_endian)
                 # send response
                 self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
         except StopIteration:

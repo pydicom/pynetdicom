@@ -133,54 +133,54 @@ ae = AE(ae_title=args.calling_aet,
 # Request association with remote
 assoc = ae.associate(args.peer, args.port, args.called_aet)
 
-# Import query dataset
-# Check file exists and is readable and DICOM
-logger.debug('Checking input files')
-try:
-    f = open(args.dcmfile_in, 'rb')
-    dataset = read_file(f, force=True)
-    f.close()
-except IOError:
-    logger.error('Cannot read input file %s' %args.dcmfile_in)
-    sys.exit()
-except:
-    logger.error('File may not be DICOM %s' %args.dcmfile_in)
-    sys.exit()
-
-# Modify keys if requested
-if args.key:
-    pass
-    # Format examples:
-    # "(gggg,eeee)=" Null value
-    # "(gggg,eeee)=CITIZEN*" Typical use
-    # "(gggg,eeee)[0].Modality=CT" Sequence
-    # "(gggg,eeee)[*].Modality=CT" Sequence with wildcard
-    # "(gggg,eeee)=1\\2\\3\\4" VM of 4
-    # Parse (), [], ., =, \\
-    #   () to get tag
-    #   ()[]()[]()[]()
-    #   ()[].()[].()[].()
-
-# Create query dataset
-dataset = Dataset()
-dataset.PatientsName = '*'
-dataset.QueryRetrieveLevel = "PATIENT"
-
-# Query/Retrieve Information Models
-if args.worklist:
-    query_model = 'W'
-elif args.patient:
-    query_model = 'P'
-elif args.study:
-    query_model = 'S'
-elif args.psonly:
-    # Retired
-    query_model = 'O'
-else:
-    query_model = 'W'
-
-# Send query
 if assoc.is_established:
+    # Import query dataset
+    # Check file exists and is readable and DICOM
+    logger.debug('Checking input files')
+    try:
+        f = open(args.dcmfile_in, 'rb')
+        dataset = read_file(f, force=True)
+        f.close()
+    except IOError:
+        logger.error('Cannot read input file %s' %args.dcmfile_in)
+        sys.exit()
+    except:
+        logger.error('File may not be DICOM %s' %args.dcmfile_in)
+        sys.exit()
+
+    # Modify keys if requested
+    if args.key:
+        pass
+        # Format examples:
+        # "(gggg,eeee)=" Null value
+        # "(gggg,eeee)=CITIZEN*" Typical use
+        # "(gggg,eeee)[0].Modality=CT" Sequence
+        # "(gggg,eeee)[*].Modality=CT" Sequence with wildcard
+        # "(gggg,eeee)=1\\2\\3\\4" VM of 4
+        # Parse (), [], ., =, \\
+        #   () to get tag
+        #   ()[]()[]()[]()
+        #   ()[].()[].()[].()
+
+    # Create query dataset
+    dataset = Dataset()
+    dataset.PatientsName = '*'
+    dataset.QueryRetrieveLevel = "PATIENT"
+
+    # Query/Retrieve Information Models
+    if args.worklist:
+        query_model = 'W'
+    elif args.patient:
+        query_model = 'P'
+    elif args.study:
+        query_model = 'S'
+    elif args.psonly:
+        # Retired
+        query_model = 'O'
+    else:
+        query_model = 'W'
+
+    # Send query
     response = assoc.send_c_find(dataset, query_model=query_model)
     
     time.sleep(1)

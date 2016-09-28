@@ -762,12 +762,12 @@ class Association(threading.Thread):
                 primitive.Priorty = 0x0000
             
             # Encode the dataset using the agreed transfer syntax
-            primitive.DataSet = encode(dataset,
-                                       transfer_syntax.is_implicit_VR,
-                                       transfer_syntax.is_little_endian)
+            ds = encode(dataset,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian)
             
-            if primitive.DataSet is not None:
-                primitive.DataSet = BytesIO(primitive.DataSet)
+            if ds is not None:
+                primitive.DataSet = BytesIO(ds)
             
             #for s in wrap_list(primitive.DataSet):
             #    print(s)
@@ -868,10 +868,9 @@ class Association(threading.Thread):
             primitive.MessageID = msg_id
             primitive.AffectedSOPClassUID = sop_class.UID
             primitive.Priority = priority
-            primitive.Identifier = encode(dataset,
-                                          transfer_syntax.is_implicit_VR,
-                                          transfer_syntax.is_little_endian)
-            primitive.Identifier = BytesIO(primitive.Identifier)
+            primitive.Identifier = BytesIO(encode(dataset,
+                                           transfer_syntax.is_implicit_VR,
+                                           transfer_syntax.is_little_endian))
             
             logger.info('Find SCU Request Identifiers:')
             logger.info('')
@@ -1059,10 +1058,9 @@ class Association(threading.Thread):
             primitive.AffectedSOPClassUID = sop_class.UID
             primitive.MoveDestination = move_aet
             primitive.Priority = priority
-            primitive.Identifier = encode(dataset, 
-                                          transfer_syntax.is_implicit_VR,
-                                          transfer_syntax.is_little_endian)
-            primitive.Identifier = BytesIO(primitive.Identifier)
+            primitive.Identifier = BytesIO(encode(dataset, 
+                                           transfer_syntax.is_implicit_VR,
+                                           transfer_syntax.is_little_endian))
 
             logger.info('Move SCU Request Identifiers:')
             logger.info('')
@@ -1260,10 +1258,9 @@ class Association(threading.Thread):
             primitive.MessageID = msg_id
             primitive.AffectedSOPClassUID = sop_class.UID
             primitive.Priority = priority
-            primitive.Identifier = encode(dataset,
-                                          transfer_syntax.is_implicit_VR,
-                                          transfer_syntax.is_little_endian)
-            primitive.Identifier = BytesIO(primitive.Identifier)
+            primitive.Identifier = BytesIO(encode(dataset,
+                                           transfer_syntax.is_implicit_VR,
+                                           transfer_syntax.is_little_endian))
             
             # Send primitive to peer
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)

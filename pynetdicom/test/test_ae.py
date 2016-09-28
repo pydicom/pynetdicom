@@ -13,7 +13,7 @@ from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.CRITICAL)
 
 """
     Initialisation
@@ -488,7 +488,7 @@ class TestAE_GoodRelease(unittest.TestCase):
         ae = AE(scu_sop_class=[VerificationSOPClass])
         
         # Test N associate/release cycles
-        for ii in range(20):
+        for ii in range(10):
             assoc = ae.associate('localhost', 11112)
             self.assertTrue(assoc.is_established)
             
@@ -500,6 +500,31 @@ class TestAE_GoodRelease(unittest.TestCase):
         
         # Kill Verification SCP (important!)
         self.assertRaises(SystemExit, scp.stop)
+
+
+class TestAE_GoodAbort(unittest.TestCase):
+    def test_ae_aborts_assoc(self):
+        """ Association aborts OK """
+        # Start Verification SCP
+        scp = AEVerificationSCP()
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        
+        # Test N associate/abort cycles
+        for ii in range(10):
+            assoc = ae.associate('localhost', 11112)
+            self.assertTrue(assoc.is_established)
+            
+            if assoc.is_established:
+                assoc.abort()
+                self.assertTrue(assoc.is_established == False)
+                self.assertTrue(assoc.is_aborted == True)
+                self.assertTrue(assoc.is_released == False)
+                self.assertTrue(ae.active_associations == [])
+        
+        # Kill Verification SCP (important!)
+        self.assertRaises(SystemExit, scp.stop)
+
 
 if __name__ == "__main__":
     unittest.main()

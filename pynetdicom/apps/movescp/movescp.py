@@ -161,8 +161,8 @@ def on_c_move(dataset, move_aet):
     yield len(dcm_files)
     
     # Address and port to send to
-    if move_aet == 'ANY-SCP':
-        yield '10.40.94.43', 105
+    if move_aet == b'ANY-SCP         ':
+        yield '10.40.94.43', 104
     else:
         yield None, None
     
