@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 from pydicom.uid import UID
 
-from pynetdicom.primitives import *
-from pynetdicom.PDU import A_ASSOCIATE_RQ_PDU, A_ABORT_PDU, P_DATA_TF_PDU
-from pynetdicom.utils import wrap_list, PresentationContext
+from pynetdicom3.primitives import *
+from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ABORT_PDU, P_DATA_TF_PDU
+from pynetdicom3.utils import wrap_list, PresentationContext
 
 
 logger = logging.getLogger('pynetdicom')

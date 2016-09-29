@@ -7,9 +7,9 @@ from unittest.mock import patch
 from pydicom.uid import UID
 from pydicom.dataset import Dataset
 
-from pynetdicom.DIMSEmessages import *
-from pynetdicom.DIMSEparameters import *
-from pynetdicom.utils import wrap_list
+from pynetdicom3.DIMSEmessages import *
+from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.utils import wrap_list
 
 
 logger = logging.getLogger('pynetdicom')
