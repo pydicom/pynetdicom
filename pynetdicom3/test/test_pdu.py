@@ -54,12 +54,12 @@ from unittest.mock import patch
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom import AE
-from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
+from pynetdicom3 import AE
+from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
     QueryRetrieveSOPClassList
-from pynetdicom.PDU import *
-from pynetdicom.primitives import *
-from pynetdicom.utils import wrap_list
+from pynetdicom3.PDU import *
+from pynetdicom3.primitives import *
+from pynetdicom3.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom')
 #handler = logging.StreamHandler()

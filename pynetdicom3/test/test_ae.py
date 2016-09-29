@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom import AE
-from pynetdicom import VerificationSOPClass, StorageSOPClassList, \
+from pynetdicom3 import AE
+from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
     QueryRetrieveSOPClassList
 
 logger = logging.getLogger('pynetdicom')
