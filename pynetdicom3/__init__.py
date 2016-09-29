@@ -1,20 +1,20 @@
 
 # Version Number
-__version__ = ['0', '9', '0']
+__version__ = ['0', '1', '0']
 pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__)
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.' + \
                                         '.'.join(__version__)
 
-from pynetdicom.applicationentity import ApplicationEntity as AE
-from pynetdicom.association import Association
-from pynetdicom.ACSEprovider import ACSEServiceProvider as ACSE
-from pynetdicom.DIMSEprovider import DIMSEServiceProvider as DIMSE
-from pynetdicom.DULprovider import DULServiceProvider as DUL
-from pynetdicom.SOPclass import STORAGE_CLASS_LIST as StorageSOPClassList
-from pynetdicom.SOPclass import QR_CLASS_LIST as QueryRetrieveSOPClassList
-from pynetdicom.SOPclass import VerificationSOPClass
+from pynetdicom3.applicationentity import ApplicationEntity as AE
+from pynetdicom3.association import Association
+from pynetdicom3.ACSEprovider import ACSEServiceProvider as ACSE
+from pynetdicom3.DIMSEprovider import DIMSEServiceProvider as DIMSE
+from pynetdicom3.DULprovider import DULServiceProvider as DUL
+from pynetdicom3.SOPclass import STORAGE_CLASS_LIST as StorageSOPClassList
+from pynetdicom3.SOPclass import QR_CLASS_LIST as QueryRetrieveSOPClassList
+from pynetdicom3.SOPclass import VerificationSOPClass
 
 # Set up logging system for the whole package.  In each module, set
 # logger=logging.getLogger('pynetdicom') and the same instance will be

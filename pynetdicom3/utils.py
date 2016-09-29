@@ -3,7 +3,7 @@ from io import BytesIO
 import logging
 import unicodedata
 
-from pydicom.uid import UID
+from pydicom3.uid import UID
 
 logger = logging.getLogger('pynetdicom.utils')
 
@@ -389,7 +389,7 @@ class PresentationContextManager(object):
         
     @requestor_contexts.setter
     def requestor_contexts(self, contexts):
-        # Must be a list of pynetdicom.utils.PresentationContext
+        # Must be a list of pynetdicom3.utils.PresentationContext
         #
         # When the local AE is making the request this is a list of the SCU
         #   supported SOP classes combined with the supported Transfer 
@@ -411,7 +411,7 @@ class PresentationContextManager(object):
         
     @acceptor_contexts.setter
     def acceptor_contexts(self, contexts):
-        # Must be a list of pynetdicom.utils.PresentationContext
+        # Must be a list of pynetdicom3.utils.PresentationContext
         # There are two possible situations
         #   1. The local AE issues the request and receives the response
         #   2. The peer AE issues the request and the local must determine

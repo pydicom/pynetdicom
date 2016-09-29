@@ -3,17 +3,16 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom.PDU import MaximumLengthSubItem, \
-                            ImplementationClassUIDSubItem, \
-                            ImplementationVersionNameSubItem, \
-                            AsynchronousOperationsWindowSubItem, \
-                            SCP_SCU_RoleSelectionSubItem, \
-                            SOPClassExtendedNegotiationSubItem, \
-                            SOPClassCommonExtendedNegotiationSubItem, \
-                            UserIdentitySubItemRQ, \
-                            UserIdentitySubItemAC
-from pynetdicom.utils import validate_ae_title, PresentationContext, wrap_list
-
+from pynetdicom3.PDU import MaximumLengthSubItem, \
+                             ImplementationClassUIDSubItem, \
+                             ImplementationVersionNameSubItem, \
+                             AsynchronousOperationsWindowSubItem, \
+                             SCP_SCU_RoleSelectionSubItem, \
+                             SOPClassExtendedNegotiationSubItem, \
+                             SOPClassCommonExtendedNegotiationSubItem, \
+                             UserIdentitySubItemRQ, \
+                             UserIdentitySubItemAC
+from pynetdicom3.utils import validate_ae_title, PresentationContext, wrap_list
 
 logger = logging.getLogger('pynetdicom.primitives')
 
@@ -350,7 +349,7 @@ class A_ASSOCIATE():
         
         Parameters
         ----------
-        value_list : list of pynetdicom user information class objects
+        value_list : list of pynetdicom3 user information class objects
             A list of user information objects, must contain at least 
             MaximumLengthNegotiation and ImplementationClassUIDNotification
         """
@@ -532,7 +531,7 @@ class A_ASSOCIATE():
         
         Parameters
         ----------
-        value_list : list of pynetdicom.utils.PresentationContext
+        value_list : list of pynetdicom3.utils.PresentationContext
             The Presentation Contexts proposed by the Association Requestor
         """
         if isinstance(value_list, list):
@@ -563,7 +562,7 @@ class A_ASSOCIATE():
         
         Parameters
         ----------
-        value_list : list of pynetdicom.utils.PresentationContext
+        value_list : list of pynetdicom3.utils.PresentationContext
             The results of the Presentation Contexts proposal by the Association 
             Requestor
         """
@@ -605,7 +604,7 @@ class A_ASSOCIATE():
     # Mandatory UI Items
     @property
     def maximum_length_received(self):
-        from pynetdicom.primitives import MaximumLengthNegotiation
+        from pynetdicom3.primitives import MaximumLengthNegotiation
         
         for item in self.user_information:
             if isinstance(item, MaximumLengthNegotiation):
@@ -645,7 +644,7 @@ class A_ASSOCIATE():
 
     @property
     def implementation_class_uid(self):
-        from pynetdicom.primitives import ImplementationClassUIDNotification
+        from pynetdicom3.primitives import ImplementationClassUIDNotification
         
         for item in self.user_information:
             if isinstance(item, ImplementationClassUIDNotification):
@@ -946,7 +945,7 @@ class MaximumLengthNegotiation(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.MaximumLengthSubItem
+        item : pynetdicom3.PDU.MaximumLengthSubItem
         """
         item = MaximumLengthSubItem()
         item.FromParams(self)
@@ -1030,7 +1029,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.ImplementationClassUIDSubItem
+        item : pynetdicom3.PDU.ImplementationClassUIDSubItem
         
         Raises
         ------
@@ -1120,7 +1119,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.ImplementationVersionNameSubItem
+        item : pynetdicom3.PDU.ImplementationVersionNameSubItem
         
         Raises
         ------
@@ -1213,7 +1212,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.AsynchronousOperationsWindowSubItem
+        item : pynetdicom3.PDU.AsynchronousOperationsWindowSubItem
         """
         item = AsynchronousOperationsWindowSubItem()
         item.FromParams(self)
@@ -1339,7 +1338,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.SCP_SCU_RoleSelectionSubItem
+        item : pynetdicom3.PDU.SCP_SCU_RoleSelectionSubItem
         
         Raises
         ------
@@ -1499,7 +1498,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.SOPClassExtendedNegotiationSubItem
+        item : pynetdicom3.PDU.SOPClassExtendedNegotiationSubItem
         
         Raises
         ------
@@ -1625,7 +1624,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.SOPClassCommonExtendedNegotiationSubItem
+        item : pynetdicom3.PDU.SOPClassCommonExtendedNegotiationSubItem
         
         Raises
         ------
@@ -1857,8 +1856,8 @@ class UserIdentityNegotiation(ServiceParameter):
         
         Returns
         -------
-        item : pynetdicom.PDU.UserIdentitySubItemRQ or 
-            pynetdicom.PDU.UserIdentitySubItemAC
+        item : pynetdicom3.PDU.UserIdentitySubItemRQ or 
+            pynetdicom3.PDU.UserIdentitySubItemAC
         
         Raises
         ------

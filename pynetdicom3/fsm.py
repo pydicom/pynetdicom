@@ -1,15 +1,10 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
 
 import logging
 import socket
 
-from pynetdicom.PDU import *
-from pynetdicom.primitives import A_ABORT
-from pynetdicom.utils import wrap_list
+from pynetdicom3.PDU import *
+from pynetdicom3.primitives import A_ABORT
+from pynetdicom3.utils import wrap_list
 
 logger = logging.getLogger('pynetdicom.sm')
 
@@ -21,7 +16,7 @@ class StateMachine:
 
     Parameters
     ---------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Attributes
@@ -111,7 +106,7 @@ def AE_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -151,7 +146,7 @@ def AE_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -184,7 +179,7 @@ def AE_3(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -211,7 +206,7 @@ def AE_4(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -242,7 +237,7 @@ def AE_5(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
     
     Returns
@@ -278,7 +273,7 @@ def AE_6(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -332,7 +327,7 @@ def AE_7(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -365,7 +360,7 @@ def AE_8(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -400,7 +395,7 @@ def DT_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -434,7 +429,7 @@ def DT_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -461,7 +456,7 @@ def AR_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -494,7 +489,7 @@ def AR_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -521,7 +516,7 @@ def AR_3(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -549,7 +544,7 @@ def AR_4(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -583,7 +578,7 @@ def AR_5(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -610,7 +605,7 @@ def AR_6(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -637,7 +632,7 @@ def AR_7(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -671,7 +666,7 @@ def AR_8(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -699,7 +694,7 @@ def AR_9(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -731,7 +726,7 @@ def AR_10(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -760,7 +755,7 @@ def AA_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -807,7 +802,7 @@ def AA_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -837,7 +832,7 @@ def AA_3(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -871,7 +866,7 @@ def AA_4(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -899,7 +894,7 @@ def AA_5(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -925,7 +920,7 @@ def AA_6(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -952,7 +947,7 @@ def AA_7(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -988,7 +983,7 @@ def AA_8(dul):
 
     Parameters
     ----------
-    dul - pynetdicom.DULprovider.DULServiceProvider
+    dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns

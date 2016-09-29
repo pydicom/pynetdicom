@@ -2,10 +2,10 @@
 import logging
 import time
 
-from pynetdicom.dsutils import *
-from pynetdicom.DIMSEparameters import *
-import pynetdicom.DIMSEprovider
-import pynetdicom.ACSEprovider
+from pynetdicom3.dsutils import *
+from pynetdicom3.DIMSEparameters import *
+import pynetdicom3.DIMSEprovider
+import pynetdicom3.ACSEprovider
 
 logger = logging.getLogger('pynetdicom.SOPclass')
 
@@ -19,7 +19,7 @@ def class_factory(name, uid, BaseClass):
         The name of the SOP class
     uid : str
         The UID of the SOP class
-    BaseClass : pynetdicom.SOPclass.ServiceClass subclass
+    BaseClass : pynetdicom3.SOPclass.ServiceClass subclass
         One of the following Service classes:
             VerificationServiceClass
             StorageServiceClass
@@ -76,7 +76,7 @@ class ServiceClass(object):
             
         Returns
         -------
-        obj : pynetdicom.SOPclass.Status
+        obj : pynetdicom3.SOPclass.Status
             The Status object for the `code`
         """
         for dd in dir(self):
@@ -102,7 +102,7 @@ class VerificationServiceClass(ServiceClass):
         
         Parameters
         ----------
-        msg : pynetdicom.DIMSEparameters.C_ECHO_ServiceParameters
+        msg : pynetdicom3.DIMSEparameters.C_ECHO_ServiceParameters
             The C-ECHO request primitive sent by the peer
         """
         # Create C-ECHO response primitive
@@ -437,7 +437,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         
         Parameters
         ----------
-        msg : pynetdicom.DIMSEmessage.C_FIND_RQ
+        msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
             The C_FIND request primitive received from the peer
         """
         dataset = decode(msg.Identifier, 

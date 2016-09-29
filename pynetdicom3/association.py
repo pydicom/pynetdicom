@@ -13,13 +13,13 @@ from weakref import proxy
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                          ExplicitVRBigEndian, UID
 
-from pynetdicom.ACSEprovider import ACSEServiceProvider
-from pynetdicom.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom.DIMSEparameters import *
-from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.SOPclass import *
-from pynetdicom.utils import PresentationContextManager, correct_ambiguous_vr, wrap_list
-from pynetdicom.primitives import UserIdentityNegotiation, \
+from pynetdicom3.ACSEprovider import ACSEServiceProvider
+from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
+from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.DULprovider import DULServiceProvider
+from pynetdicom3.SOPclass import *
+from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr, wrap_list
+from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    MaximumLengthNegotiation, \
                                    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
@@ -31,7 +31,7 @@ logger = logging.getLogger('pynetdicom.assoc')
 class Association(threading.Thread):
     """
     Manages Associations with peer AEs. The actual low level work done for 
-    Associations is performed by pynetdicom.ACSEprovider.ACSEServiceProvider
+    Associations is performed by pynetdicom3.ACSEprovider.ACSEServiceProvider
     
     When the local AE is acting as an SCP, initialise the Association using 
     the socket to listen on for incoming Association requests. When the local 
@@ -51,7 +51,7 @@ class Association(threading.Thread):
     
     Parameters
     ----------
-    local_ae - pynetdicom.applicationentity.ApplicationEntity
+    local_ae - pynetdicom3.applicationentity.ApplicationEntity
         The local AE instance
     client_socket - socket.socket, optional
         If the local AE is acting as an SCP, this is the listen socket for 
@@ -76,7 +76,7 @@ class Association(threading.Thread):
     ----------
     acse - ACSEServiceProvider
         The Association Control Service Element provider
-    ae - pynetdicom.applicationentity.ApplicationEntity
+    ae - pynetdicom3.applicationentity.ApplicationEntity
         The local AE
     dimse - DIMSEServiceProvider
         The DICOM Message Service Element provider
@@ -148,7 +148,7 @@ class Association(threading.Thread):
         # Dict containing the peer AE title, address and port
         self.peer_ae = peer_ae
         
-        # Lists of pynetdicom.utils.PresentationContext items that the local
+        # Lists of pynetdicom3.utils.PresentationContext items that the local
         #   AE supports when acting as an SCU and SCP
         self.scp_supported_sop = []
         self.scu_supported_sop = []
@@ -570,7 +570,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom.SOPclass.Status or None
+        status : pynetdicom3.SOPclass.Status or None
             Returns None if no valid presentation context or no response
             from the peer, Success (0x0000) otherwise.
         """
@@ -692,7 +692,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom.SOPclass.Status or None
+        status : pynetdicom3.SOPclass.Status or None
             The status for the requested C-STORE operation (see PS3.4 Annex 
             B.2.3), should be one of the following Status objects:
                 Success status
@@ -824,7 +824,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom.SOPclass.Status
+        status : pynetdicom3.SOPclass.Status
             The resulting status(es) from the C-FIND operation
         dataset : pydicom.dataset.Dataset
             The resulting dataset(s) from the C-FIND operation
@@ -1216,7 +1216,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom.SOPclass.Status
+        status : pynetdicom3.SOPclass.Status
             The resulting status(es) from the C-GET operation
         dataset : pydicom.dataset.Dataset
             The resulting dataset(s) from the C-GET operation
@@ -1481,7 +1481,7 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        assoc_primitive - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameter
+        assoc_primitive - pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameter
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
         pass
@@ -1493,14 +1493,14 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        assoc - pynetdicom.DULparameters.A_ASSOCIATE_ServiceParameter
+        assoc - pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameter
             The Association parameters negotiated between the local and peer AEs
         
         #max_send_pdv = associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
         
         #logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
         
-        pynetdicom_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
+        pynetdicom3_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
                 
         # Shorthand
         assoc_ac = a_associate_ac
@@ -1574,7 +1574,7 @@ class Association(threading.Thread):
         
         Parameters
         ----------
-        assoc_primitive - pynetdicom.primitives.A_ASSOCIATE
+        assoc_primitive - pynetdicom3.primitives.A_ASSOCIATE
             The A-ASSOCIATE primitive instance (RJ) received from the peer AE
         """
         

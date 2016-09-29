@@ -13,9 +13,9 @@ import warnings
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID, InvalidUID
 
-from pynetdicom.association import Association
-from pynetdicom.DULprovider import DULServiceProvider
-from pynetdicom.utils import PresentationContext, validate_ae_title
+from pynetdicom3.association import Association
+from pynetdicom3.DULprovider import DULServiceProvider
+from pynetdicom3.utils import PresentationContext, validate_ae_title
 
 logger = logging.getLogger('pynetdicom')
 handler = logging.StreamHandler()
@@ -46,7 +46,7 @@ class ApplicationEntity(object):
     ~~~~~~~~~~~~~~~~~~~
     .. code-block:: python 
 
-            from pynetdicom import AE, StorageSOPClassList
+            from pynetdicom3 import AE, StorageSOPClassList
     
             # Specify the listen port and which SOP Classes are supported
             ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
@@ -77,7 +77,7 @@ class ApplicationEntity(object):
     ~~~~~~~~~~~~~~~~~~
     .. code-block:: python
 
-            from pynetdicom import AE, VerificationSOPClass
+            from pynetdicom3 import AE, VerificationSOPClass
 
             # Specify which SOP Classes are supported as an SCU
             ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -99,15 +99,15 @@ class ApplicationEntity(object):
         The port number to listen for connections on when acting as an SCP
         (default: the first available port)
     scu_sop_class : list of pydicom.uid.UID or list of str or list of 
-    pynetdicom.SOPclass.ServiceClass subclasses, optional
+    pynetdicom3.SOPclass.ServiceClass subclasses, optional
         List of the supported SOP Class UIDs when running as an SCU. 
         Either `scu_sop_class` or `scp_sop_class` must have values
     scp_sop_class : list of pydicom.uid.UID or list of UID strings or list of 
-    pynetdicom.SOPclass.ServiceClass subclasses, optional
+    pynetdicom3.SOPclass.ServiceClass subclasses, optional
         List of the supported SOP Class UIDs when running as an SCP.
         Either scu_`sop_class` or `scp_sop_class` must have values
     transfer_syntax : list of pydicom.uid.UID or list of str or list of 
-    pynetdicom.SOPclass.ServiceClass subclasses, optional
+    pynetdicom3.SOPclass.ServiceClass subclasses, optional
         List of supported Transfer Syntax UIDs (default: Explicit VR Little 
         Endian, Implicit VR Little Endian, Explicit VR Big Endian)
 
@@ -116,7 +116,7 @@ class ApplicationEntity(object):
     acse_timeout : int
         The maximum amount of time (in seconds) to wait for association related
         messages. A value of 0 means no timeout. (default: 0)
-    active_associations : list of pynetdicom.association.Association
+    active_associations : list of pynetdicom3.association.Association
         The currently active associations between the local and peer AEs
     address : str
         The local AE's TCP/IP address
@@ -139,9 +139,9 @@ class ApplicationEntity(object):
         The local AE's listen port number when acting as an SCP or connection
         port when acting as an SCU. A value of 0 indicates that the operating
         system should choose the port.
-    presentation_contexts_scu : List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scu : List of pynetdicom3.utils.PresentationContext
         The presentation context list when acting as an SCU (SCU only)
-    presentation_contexts_scp : List of pynetdicom.utils.PresentationContext
+    presentation_contexts_scp : List of pynetdicom3.utils.PresentationContext
         The presentation context list when acting as an SCP (SCP only)
     require_calling_aet : str
         If not empty str, the calling AE title must match `require_calling_aet`
@@ -228,7 +228,7 @@ class ApplicationEntity(object):
                 elif isinstance(sop_class, str):
                     abstract_syntax = UID(sop_class)
                     
-                # If the supplied SOP class is one of the pynetdicom.SOPclass 
+                # If the supplied SOP class is one of the pynetdicom3.SOPclass 
                 #   SOP class instances, convert it to pydicom UID 
                 else:
                     abstract_syntax = UID(sop_class.UID)
@@ -389,7 +389,7 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        assoc : pynetdicom.association.Association
+        assoc : pynetdicom3.association.Association
             The Association thread
         """
         if not isinstance(addr, str):
@@ -665,7 +665,7 @@ class ApplicationEntity(object):
         """
         A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
         valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an 
-        exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
+        exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID 
         attribute(ie VerificationSOPClass)
         """
         self._scu_supported_sop = []
@@ -710,7 +710,7 @@ class ApplicationEntity(object):
         """
         A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
         valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an 
-        exception) or a pynetdicom.SOPclass.ServiceClass subclass with a UID 
+        exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID 
         attribute(ie VerificationSOPClass)
         """
         self._scp_supported_sop = []
@@ -825,7 +825,7 @@ class ApplicationEntity(object):
         implementation is not required for the C-ECHO service, but if you intend
         to do so it should be defined prior to calling AE.start()
 
-        Called during pynetdicom.SOPclass.VerificationServiceClass::SCP() after
+        Called during pynetdicom3.SOPclass.VerificationServiceClass::SCP() after
         receiving a C-ECHO request and immediately prior to sending the 
         response. As the status for a C-ECHO response is always Success no 
         return value is required.
@@ -834,7 +834,7 @@ class ApplicationEntity(object):
         -------
         .. code-block:: python 
 
-                from pynetdicom import AE, VerificationSOPClass
+                from pynetdicom3 import AE, VerificationSOPClass
                 
                 def on_c_echo():
                     print('Received C-ECHO from peer')
@@ -852,11 +852,11 @@ class ApplicationEntity(object):
         Function callback for when a dataset is received following a C-STORE 
         request from a peer AE. Must be defined by the user prior to calling 
         AE.start() and must return a valid C-STORE status integer value or the 
-        corresponding pynetdicom.SOPclass.Status object.
+        corresponding pynetdicom3.SOPclass.Status object.
         
         Example
         -------
-        from pynetdicom import AE, StorageSOPClassList
+        from pynetdicom3 import AE, StorageSOPClassList
         
         def on_c_store(dataset):
             print(dataset.SOPInstanceUID)
@@ -874,7 +874,7 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        status : pynetdicom.SOPclass.Status or int
+        status : pynetdicom3.SOPclass.Status or int
             A valid return status for the C-STORE operation (see PS3.4 Annex 
             B.2.3), must be one of the following Status objects or the 
             corresponding integer value:
@@ -910,7 +910,7 @@ class ApplicationEntity(object):
         """
         Function callback for when a dataset is received following a C-FIND.
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom.SOPclass.Status object. In addition,the 
+        a valid pynetdicom3.SOPclass.Status object. In addition,the 
         AE.on_c_find_cancel() callback must also be defined
         
         Called by QueryRetrieveFindSOPClass subclasses in SCP()
@@ -922,7 +922,7 @@ class ApplicationEntity(object):
             
         Yields
         ------
-        status : pynetdicom.SOPclass.Status or int
+        status : pynetdicom3.SOPclass.Status or int
             A valid return status for the C-FIND operation (see PS3.4 Annex 
             C.4.1.1.4), must be one of the following Status objects or the 
             corresponding integer value:
@@ -966,7 +966,7 @@ class ApplicationEntity(object):
         """
         Function callback for when a dataset is received following a C-STORE.
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom.SOPclass.Status object. In addition,the 
+        a valid pynetdicom3.SOPclass.Status object. In addition,the 
         AE.on_c_get_cancel() callback must also be defined
         
         Parameters
@@ -1076,7 +1076,7 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        primitive - pynetdicom
+        primitive - pynetdicom3
             The A-ASSOCIATE-AC PDU instance received from the peer AE
         """
         pass
@@ -1088,7 +1088,7 @@ class ApplicationEntity(object):
         
         Parameters
         ----------
-        associate_rq_pdu - pynetdicom.PDU.A_ASSOCIATE_RJ_PDU
+        associate_rq_pdu - pynetdicom3.PDU.A_ASSOCIATE_RJ_PDU
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
         pass

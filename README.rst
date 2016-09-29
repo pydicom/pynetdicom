@@ -1,7 +1,7 @@
-pynetdicom
-==========
+pynetdicom3
+===========
 
-Implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol.
+A Python 3 implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol.
 
 Description
 -----------
@@ -11,7 +11,7 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other 
 medical domains.
 
-*pynetdicom* is a pure Python (3+) program that implements the DICOM networking 
+*pynetdicom3* is a pure Python (3+) program that implements the DICOM networking 
 protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it 
 allows the easy creation of DICOM clients (*Service Class Users* or SCUs) and 
 servers (*Service Class Providers* or SCPs). 
@@ -72,7 +72,6 @@ implementing the following ``AE`` callbacks:
 Where *dataset* is a pydicom Dataset object. See the SCP Examples and the AE 
 documentation for more information.
 
-
 Installation
 -----------
 Dependencies
@@ -83,8 +82,8 @@ Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh 
 
-        $ git clone https://github.com/scaramallion/pynetdicom.git
-        $ cd pynetdicom
+        $ git clone https://github.com/scaramallion/pynetdicom3.git
+        $ cd pynetdicom3
         $ python setup.py install
 
 Examples
@@ -94,7 +93,7 @@ Examples
 
 .. code-block:: python 
 
-        from pynetdicom import AE
+        from pynetdicom3 import AE
         
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
         #   we can use the UID string directly
@@ -114,7 +113,7 @@ Examples
 
 .. code-block:: python 
 
-        from pynetdicom import AE, VerificationSOPClass
+        from pynetdicom3 import AE, VerificationSOPClass
 
         # Or we can use the inbuilt Verification SOP Class
         ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
@@ -130,7 +129,7 @@ Examples
         from pydicom import read_file
         from pydicom.uid import UID
         
-        from pynetdicom import AE
+        from pynetdicom3 import AE
 
         # Or we can use a pydicom.uid.UID
         #   CTImageStorage has a UID of 1.2.840.10008.5.1.4.1.1.2
