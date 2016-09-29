@@ -17,8 +17,8 @@ from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
-from pynetdicom import AE, StorageSOPClassList, VerificationSOPClass
-from pynetdicom import pynetdicom_uid_prefix
+from pynetdicom3 import AE, StorageSOPClassList, VerificationSOPClass
+from pynetdicom3 import pynetdicom_uid_prefix
 
 logger = logging.Logger('')
 stream_logger = logging.StreamHandler()

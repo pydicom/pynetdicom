@@ -3,7 +3,7 @@ from io import BytesIO
 import logging
 import unicodedata
 
-from pydicom3.uid import UID
+from pydicom.uid import UID
 
 logger = logging.getLogger('pynetdicom.utils')
 
