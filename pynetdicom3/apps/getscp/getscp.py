@@ -13,10 +13,10 @@ import time
 
 from pydicom import read_file
 from pydicom.dataset import Dataset
-
-from pynetdicom import AE, QueryRetrieveSOPClassList, StorageSOPClassList
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
+
+from pynetdicom3 import AE, QueryRetrieveSOPClassList, StorageSOPClassList
 
 logger = logging.Logger('getscp')
 stream_logger = logging.StreamHandler()

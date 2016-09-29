@@ -16,7 +16,7 @@ import sys
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-from pynetdicom import AE, VerificationSOPClass
+from pynetdicom3 import AE, VerificationSOPClass
 
 logger = logging.Logger('')
 stream_logger = logging.StreamHandler()

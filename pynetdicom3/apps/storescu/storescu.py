@@ -16,8 +16,8 @@ from pydicom import read_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
-from pynetdicom import AE
-from pynetdicom import StorageSOPClassList
+from pynetdicom3 import AE
+from pynetdicom3 import StorageSOPClassList
 
 logger = logging.Logger('storescu')
 stream_logger = logging.StreamHandler()
