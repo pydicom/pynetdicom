@@ -11,10 +11,10 @@ from pydicom.uid import ImplicitVRLittleEndian
 # Temporary fix while waiting for pydicom upstream
 from pydicom.datadict import dictionary_has_tag, dictionary_keyword
 
-from pynetdicom.DIMSEparameters import *
-from pynetdicom.dsutils import encode_element, encode, decode
-from pynetdicom.primitives import P_DATA
-from pynetdicom.utils import fragment
+from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.dsutils import encode_element, encode, decode
+from pynetdicom3.primitives import P_DATA
+from pynetdicom3.utils import fragment
 
 logger = logging.getLogger('pynetdicom.dimse')
 
@@ -139,7 +139,7 @@ class DIMSEMessage(object):
             
         Returns
         -------
-        p_data_list : list of pynetdicom.primitives.P_DATA
+        p_data_list : list of pynetdicom3.primitives.P_DATA
             A list of one or more P-DATA service primitives
         """
         self.ID = context_id
@@ -207,7 +207,7 @@ class DIMSEMessage(object):
         
         Parameters
         ----------
-        pdata : pynetdicom.DULparameters.P_DATA_ServiceParameters
+        pdata : pynetdicom3.DULparameters.P_DATA_ServiceParameters
             The P-DATA service primitive to be decoded into a DIMSE message
         
         Returns
@@ -298,7 +298,7 @@ class DIMSEMessage(object):
         
         Parameters
         ----------
-        primitive : pynetdicom.DIMSEparameters DIMSE service parameter
+        primitive : pynetdicom3.DIMSEparameters DIMSE service parameter
             The primitive to convert to the current DIMSE Message object
         """
         ## Command Set
@@ -401,7 +401,7 @@ class DIMSEMessage(object):
         
         Returns
         -------
-        primitive : pynetdicom.DIMSEparameters DIMSE service primitive
+        primitive : pynetdicom3.DIMSEparameters DIMSE service primitive
             The primitive generated from the current DIMSE Message
         """
         cls_type_name = self.__class__.__name__

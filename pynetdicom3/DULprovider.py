@@ -1,10 +1,3 @@
-#
-# Copyright (c) 2012 Patrice Munger
-# This file is part of pynetdicom, released under a modified MIT license.
-#    See the file license.txt included with this distribution, also
-#    available at http://pynetdicom.googlecode.com
-
-
 # This module implements the DUL service provider, allowing a
 # DUL service user to send and receive DUL messages. The User and Provider
 # talk to each other using a TCP socket. The DULServer runs in a thread,
@@ -20,11 +13,11 @@ from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom.exceptions import InvalidPrimitive
-from pynetdicom.fsm import StateMachine
-from pynetdicom.PDU import *
-from pynetdicom.timer import Timer
-from pynetdicom.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom3.exceptions import InvalidPrimitive
+from pynetdicom3.fsm import StateMachine
+from pynetdicom3.PDU import *
+from pynetdicom3.timer import Timer
+from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 
 
 logger = logging.getLogger('pynetdicom.dul')
@@ -77,14 +70,14 @@ class DULServiceProvider(Thread):
         Used help identify the DUL service provider
     dul_timeout : float, optional
         The maximum amount of time to wait for connection responses (in seconds)
-    local_ae : pynetdicom.applicationentity.ApplicationEntity
+    local_ae : pynetdicom3.applicationentity.ApplicationEntity
         The local AE instance
-    assoc : pynetdicom.association.Association
+    assoc : pynetdicom3.association.Association
         The DUL's current Association
         
     Attributes
     ----------
-    artim_timer : pynetdicom.timer.Timer
+    artim_timer : pynetdicom3.timer.Timer
         The ARTIM timer
     dul_from_user_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
@@ -99,7 +92,7 @@ class DULServiceProvider(Thread):
     scu_socket : socket.socket()
         If the local AE is acting as an SCU, this is the connection from the
         local AE to the peer AE SCP
-    state_machine : pynetdicom.fsm.StateMachine
+    state_machine : pynetdicom3.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
     def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None, 
@@ -567,7 +560,7 @@ def Socket2PDU(data, dul):
     ----------
     data - 
         The incoming data stream
-    dul - pynetdicom.DULprovider.DUL
+    dul - pynetdicom3.DULprovider.DUL
         The DUL instance
     
     Returns

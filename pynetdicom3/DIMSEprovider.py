@@ -2,9 +2,9 @@
 import logging
 import time
 
-from pynetdicom.DIMSEmessages import *
-from pynetdicom.DIMSEparameters import *
-from pynetdicom.primitives import P_DATA
+from pynetdicom3.DIMSEmessages import *
+from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.primitives import P_DATA
 
 logger = logging.getLogger('pynetdicom.dimse')
 
@@ -113,7 +113,7 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        primitive : pynetdicom.DIMSEparameters
+        primitive : pynetdicom3.DIMSEparameters
             The DIMSE service primitive to send to the peer
         context_id : int
             The ID of the presentation context to be sent under
@@ -219,7 +219,7 @@ class DIMSEServiceProvider(object):
             
         Returns
         -------
-        pynetdicom.DIMSEmessage.DIMSEMessage, int or None, None
+        pynetdicom3.DIMSEmessage.DIMSEMessage, int or None, None
             Returns the complete DIMSE message and its presentation context ID 
             or None, None if 
         """
@@ -292,7 +292,7 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        message - pynetdicom.DIMSEmessage.DIMSEMessage
+        message - pynetdicom3.DIMSEmessage.DIMSEMessage
             The DIMSE message to be sent
         """
         callback = {C_ECHO_RQ  : self.debug_send_c_echo_rq,
@@ -327,7 +327,7 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        sop_class - pynetdicom.SOPclass.SOPClass
+        sop_class - pynetdicom3.SOPclass.SOPClass
             A SOP Class instance of the type referred to by the message
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
@@ -466,7 +466,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_FIND_RSP
             The sent C-FIND-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -537,7 +537,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_GET_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_GET_RSP
             The sent C-GET-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -629,7 +629,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_ECHO_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.C_ECHO_RQ
             The received C-ECHO-RQ DIMSE Message
         """
         d = dimse_msg.command_set
@@ -653,7 +653,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_ECHO_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_ECHO_RSP
             The received C-ECHO-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -665,7 +665,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_STORE_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.C_STORE_RQ
             The received C-STORE-RQ DIMSE Message
         """
         d = dimse_msg.command_set
@@ -700,7 +700,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_STORE_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_STORE_RSP
             The received C-STORE-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -755,7 +755,7 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
             The received C-FIND-RQ DIMSE Message
         """
         d = dimse_msg.command_set
@@ -793,7 +793,7 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_FIND_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_FIND_RSP
             The received C-FIND-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -825,7 +825,7 @@ class DIMSEServiceProvider(object):
         
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_CANCEL_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.C_CANCEL_RQ
             The received C-CANCEL-RQ DIMSE Message
         """
         pass
@@ -834,7 +834,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_GET_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.C_GET_RQ
             The received C-GET-RQ DIMSE Message
         """
         d = dimse_msg.command_set
@@ -867,7 +867,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_GET_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_GET_RSP
             The received C-GET-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -905,7 +905,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_MOVE_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.C_MOVE_RQ
             The received C-MOVE-RQ DIMSE Message
         """
         pass
@@ -914,7 +914,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.C_MOVE_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.C_MOVE_RSP
             The received C-MOVE-RSP DIMSE Message
         """
         d = dimse_msg.command_set
@@ -952,7 +952,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_EVENT_REPORT_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RQ
             The N-EVENT-REPORT-RQ DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -961,7 +961,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_EVENT_REPORT_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RSP
             The N-EVENT-REPORT-RSP DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -970,7 +970,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_GET_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RQ
             The N-GET-RQ DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -979,7 +979,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_GET_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RSP
             The N-GET-RSP DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -988,7 +988,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_SET_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RQ
             The N-SET-RQ DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -997,7 +997,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_SET_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RSP
             The N-SET-RSP DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1006,7 +1006,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_ACTION_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RQ
             The N-ACTION-RQ DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1015,7 +1015,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_ACTION_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RSP
             The N-ACTION-RSP DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1024,7 +1024,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_CREATE_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RQ
             The N-CREATE-RQ DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1033,7 +1033,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_CREATE_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RSP
             The N-CREATE-RSP DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1042,7 +1042,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_DELETE_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RQ
             The N-DELETE-RQ DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1051,7 +1051,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_DELETE_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RSP
             The N-DELETE-RSP DIMSE Message to be sent
         """
         raise NotImplementedError
@@ -1061,7 +1061,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_EVENT_REPORT_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RQ
             The received N-EVENT-REPORT-RQ DIMSE Message
         """
         raise NotImplementedError
@@ -1070,7 +1070,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_EVENT_REPORT_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RSP
             The received N-EVENT-REPORT-RSP DIMSE Message
         """
         raise NotImplementedError
@@ -1079,7 +1079,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_GET_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RQ
             The received N-GET-RQ DIMSE Message
         """
         raise NotImplementedError
@@ -1088,7 +1088,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_GET_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RSP
             The received N-GET-RSP DIMSE Message
         """
         raise NotImplementedError
@@ -1097,7 +1097,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_SET_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RQ
             The received N-SET-RQ DIMSE Message
         """
         raise NotImplementedError
@@ -1106,7 +1106,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_SET_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RSP
             The received N-SET-RSP DIMSE Message
         """
         raise NotImplementedError
@@ -1115,7 +1115,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_ACTION_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RQ
             The received N-ACTION-RQ DIMSE Message
         """
         raise NotImplementedError
@@ -1124,7 +1124,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_ACTION_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RSP
             The received N-ACTION-RSP DIMSE Message
         """
         raise NotImplementedError
@@ -1133,7 +1133,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_CREATE_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RQ
             The received N-CREATE-RQ DIMSE Message
         """
         raise NotImplementedError
@@ -1142,7 +1142,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_CREATE_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RSP
             The received N-CREATE-RSP DIMSE Message
         """
         raise NotImplementedError
@@ -1151,7 +1151,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_DELETE_RQ
+        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RQ
             The received N-DELETE-RQ DIMSE Message
         """
         raise NotImplementedError
@@ -1160,7 +1160,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pynetdicom.DIMSEmessage.N_DELETE_RSP
+        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RSP
             The received N-DELETE-RSP DIMSE Message
         """
         raise NotImplementedError

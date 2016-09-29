@@ -12,7 +12,7 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
 
 .. code-block:: python 
 
-        from pynetdicom import AE
+        from pynetdicom3 import AE
         
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
@@ -42,8 +42,8 @@ datasets to peer AEs.
 .. code-block:: python 
 
         from pydicom import read_file
-        from pynetdicom import AE
-        from pynetdicom import StorageSOPClassList
+        from pynetdicom3 import AE
+        from pynetdicom3 import StorageSOPClassList
         
         # StorageSOPClassList contains all the Standard SOP Classes supported
         #   by the Storage Service Class (see PS3.4 Annex B.5)
@@ -77,8 +77,8 @@ those specified by the user-created *dataset*.
 
         from pydicom.dataset import Dataset
 
-        from pynetdicom import AE
-        from pynetdicom import QueryRetrieveSOPClassList
+        from pynetdicom3 import AE
+        from pynetdicom3 import QueryRetrieveSOPClassList
         
         # QueryRetrieveSOPClassList contains the SOP Classes supported
         #   by the Query/Retrieve Service Class (see PS3.4 Annex C.6)

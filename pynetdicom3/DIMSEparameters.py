@@ -5,7 +5,7 @@ import logging
 from pydicom.uid import UID
 from pydicom.dataset import Dataset
 
-from pynetdicom.utils import validate_ae_title
+from pynetdicom3.utils import validate_ae_title
 
 
 logger = logging.getLogger('pynetdicom.DIMSEparameters')

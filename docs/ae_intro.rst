@@ -11,7 +11,7 @@ Initialisation
 .. code-block:: python
 
         from pydicom.uid import ImplicitVRLittleEndian
-        from pynetdicom import AE, VerificationSOPClass
+        from pynetdicom3 import AE, VerificationSOPClass
         
         ae = AE(ae_title='PYNETDICOM', 
                 port=11112, 
