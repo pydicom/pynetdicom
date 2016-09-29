@@ -1,7 +1,8 @@
 pynetdicom3
 ===========
 
-A Python 3 implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol.
+A Python 3 implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol, 
+originally based on `pynetdicom <https://github.com/patmun/pynetdicom>`_.
 
 Description
 -----------
