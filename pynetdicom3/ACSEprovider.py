@@ -1,22 +1,25 @@
-
+"""
+ACSE service provider
+"""
 import logging
-import socket
 import time
 
 from pydicom.uid import UID
 
+from pynetdicom3 import pynetdicom_uid_prefix
+from pynetdicom3 import pynetdicom_version
 from pynetdicom3.primitives import MaximumLengthNegotiation, \
-                                  ImplementationClassUIDNotification, \
-                                  ImplementationVersionNameNotification
+                                   ImplementationClassUIDNotification, \
+                                   ImplementationVersionNameNotification
 from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
-from pynetdicom3.utils import PresentationContext, PresentationContextManager, wrap_list
+from pynetdicom3.utils import PresentationContextManager
+from pynetdicom3.utils import wrap_list
 
-logger = logging.getLogger('pynetdicom3.acse')
+LOGGER = logging.getLogger('pynetdicom3.acse')
 
 
 class ACSEServiceProvider(object):
-    """
-    Association Control Service Element service provider
+    """Association Control Service Element service provider.
 
     The ACSE protocol handles association establishment, normal release of an
     association and the abnormal release of an association.
@@ -73,18 +76,18 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        local_ae - pynetdicom3.applicationentity.ApplicationEntity
+        local_ae : pynetdicom3.applicationentity.ApplicationEntity
             The local AE instance
             [FIXME] Change this back to a dict as the full instance isn't req'd
-        peer_ae - dict
+        peer_ae : dict
             A dict containing the peer AE's IP/TCP address, port and title
-        max_pdu_size - int
+        max_pdu_size : int
             Maximum PDU size in bytes
-        pcdl - list of pynetdicom3.utils.PresentationContext
+        pcdl : list of pynetdicom3.utils.PresentationContext
             A list of the proposed Presentation Contexts for the association
             If local_ae is ApplicationEntity then this is doubled up
             unnecessarily
-        userpdu - List of UserInformation objects
+        userpdu : List of UserInformation objects
             List of items to be added to the requests user information for use
             in extended negotiation. See PS3.7 Annex D.3.3
 
@@ -124,15 +127,15 @@ class ACSEServiceProvider(object):
 
         # Implementation Identification Notification (required)
         # Class UID (required)
-        from pynetdicom3.__init__ import pynetdicom_uid_prefix
         implementation_class_uid = ImplementationClassUIDNotification()
-        implementation_class_uid.implementation_class_uid = UID(pynetdicom_uid_prefix)
+        implementation_class_uid.implementation_class_uid = \
+            UID(pynetdicom_uid_prefix)
         assoc_rq.user_information.append(implementation_class_uid)
 
         # Version Name (optional)
-        from pynetdicom3.__init__ import pynetdicom_version
         implementation_version_name = ImplementationVersionNameNotification()
-        implementation_version_name.implementation_version_name = pynetdicom_version
+        implementation_version_name.implementation_version_name = \
+            pynetdicom_version
         assoc_rq.user_information.append(implementation_version_name)
 
         # Add the extended negotiation information (optional)
@@ -150,7 +153,7 @@ class ACSEServiceProvider(object):
 
         # Send the A-ASSOCIATE request primitive to the peer via the
         #   DICOM UL service
-        logger.info("Requesting Association")
+        LOGGER.info("Requesting Association")
         self.DUL.Send(assoc_rq)
 
 
@@ -183,14 +186,14 @@ class ACSEServiceProvider(object):
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl
                 self.context_manager.acceptor_contexts = \
-                            assoc_rsp.presentation_context_definition_results_list
+                    assoc_rsp.presentation_context_definition_results_list
 
                 # Once the context manager gets both sets of contexts it
                 #   automatically determines which are accepted and refused
                 self.presentation_contexts_accepted = \
-                                                self.context_manager.accepted
+                    self.context_manager.accepted
                 self.presentation_contexts_rejected = \
-                                                self.context_manager.rejected
+                    self.context_manager.rejected
 
                 return True, assoc_rsp
 
@@ -203,10 +206,10 @@ class ACSEServiceProvider(object):
             elif assoc_rsp.result is None:
                 return False, assoc_rsp
             else:
-                logger.error("ACSE received an invalid result value from "
-                    "the peer AE: '%s'" %assoc_rsp.result)
+                LOGGER.error("ACSE received an invalid result value from "
+                             "the peer AE: '%s'" %assoc_rsp.result)
                 raise ValueError("ACSE received an invalid result value from "
-                    "the peer AE: '%s'" %assoc_rsp.result)
+                                 "the peer AE: '%s'" %assoc_rsp.result)
 
         # Association aborted
         elif isinstance(assoc_rsp, A_ABORT) or isinstance(assoc_rsp, A_P_ABORT):
@@ -217,7 +220,7 @@ class ACSEServiceProvider(object):
 
         else:
             raise ValueError("Unexpected response by the peer AE to the "
-                                                "ACSE association request")
+                             "ACSE association request")
 
     def Reject(self, assoc_primitive, result, source, diagnostic):
         """
@@ -238,12 +241,12 @@ class ACSEServiceProvider(object):
         """
         # Check valid Result and Source values
         if result not in [0x01, 0x02]:
-            raise ValueError("ACSE rejection: invalid Result value "
-                                                        "'%s'" %result)
+            raise ValueError("ACSE rejection: invalid Result value '%s'"
+                             %result)
 
         if source not in [0x01, 0x02, 0x03]:
-            raise ValueError("ACSE rejection: invalid Source value "
-                                                        "'%s'" %source)
+            raise ValueError("ACSE rejection: invalid Source value '%s'"
+                             %source)
 
         # Send an A-ASSOCIATE primitive, rejecting the association
         assoc_primitive.presentation_context_definition_list = []
@@ -310,7 +313,7 @@ class ACSEServiceProvider(object):
         response
             The A-RELEASE-RSP
         """
-        logger.info("Releasing Association")
+        LOGGER.info("Releasing Association")
 
         assoc_release = A_RELEASE()
         self.DUL.Send(assoc_release)
@@ -415,21 +418,23 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_rq = a_associate_rq
 
-        app_context   = assoc_rq.application_context_name.title()
+        app_context = assoc_rq.application_context_name.title()
         pres_contexts = assoc_rq.presentation_context
-        user_info     = assoc_rq.user_information
+        user_info = assoc_rq.user_information
 
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-                '=====')
+                 '=====')
 
         s.append('Our Implementation Class UID:      %s'
-                                        %user_info.implementation_class_uid)
+                 %user_info.implementation_class_uid)
         s.append('Our Implementation Version Name:   %s'
-                                        %user_info.implementation_version_name)
+                 %user_info.implementation_version_name)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
+        s.append('Calling Application Name:    %s'
+                 %assoc_rq.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s'
+                 %assoc_rq.called_ae_title.decode('utf-8'))
         s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
 
         ## Presentation Contexts
@@ -495,16 +500,19 @@ class ACSEServiceProvider(object):
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: %d - %s' %(usid.id_type, usid.id_type_str))
+            s.append('  Authentication Mode: %d - %s' %(usid.id_type,
+                                                        usid.id_type_str))
             if usid.id_type == 1:
                 s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
             elif usid.id_type == 2:
                 s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
                 s.append('  Password: [%s]' %usid.secondary.decode('utf-8'))
             elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: %d' %len(usid.primary))
+                s.append('  Kerberos Service Ticket (not dumped) length: %d'
+                         %len(usid.primary))
             elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: %d' %len(usid.primary))
+                s.append('  SAML Assertion (not dumped) length: %d'
+                         %len(usid.primary))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -514,10 +522,10 @@ class ACSEServiceProvider(object):
             s.append('Requested User Identity Negotiation: None')
 
         s.append('======================= END A-ASSOCIATE-RQ =================='
-                '====')
+                 '====')
 
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
 
     def debug_send_associate_ac(self, a_associate_ac):
         """
@@ -529,26 +537,26 @@ class ACSEServiceProvider(object):
         a_associate_ac - pynetdicom3.PDU.A_ASSOCIATE_AC_PDU
             The A-ASSOCIATE-AC PDU instance
         """
-        logger.info("Association Acknowledged")
+        LOGGER.info("Association Acknowledged")
 
         # Shorthand
         assoc_ac = a_associate_ac
 
         # Needs some cleanup
-        app_context   = assoc_ac.application_context_name.title()
+        app_context = assoc_ac.application_context_name.title()
         pres_contexts = assoc_ac.presentation_context
-        user_info     = assoc_ac.user_information
+        user_info = assoc_ac.user_information
 
         responding_ae = 'resp. AP Title'
 
         s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
+                 '=====')
 
         s.append('Our Implementation Class UID:      %s'
-                                        %user_info.implementation_class_uid)
+                 %user_info.implementation_class_uid)
         s.append('Our Implementation Version Name:   %s'
-                                        %user_info.implementation_version_name)
+                 %user_info.implementation_version_name)
         s.append('Application Context Name:    %s' %app_context)
         s.append('Responding Application Name: %s' %responding_ae)
         s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
@@ -564,7 +572,8 @@ class ACSEServiceProvider(object):
                 else:
                     ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
                 s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
-                s.append('    Accepted Transfer Syntax: =%s' %item.transfer_syntax)
+                s.append('    Accepted Transfer Syntax: =%s'
+                         %item.transfer_syntax)
 
         ## Extended Negotiation
         ext_nego = 'None'
@@ -579,10 +588,10 @@ class ACSEServiceProvider(object):
 
         s.append('User Identity Negotiation Response:  %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
+                 '====')
 
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
 
     def debug_send_associate_rj(self, a_associate_rj):
         """
@@ -642,17 +651,17 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom3.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
-        logger.info("Aborting Association")
+        LOGGER.info("Aborting Association")
 
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
-                '=====')
+                 '=====')
         s.append('Abort Source: %s' %a_abort.source_str)
         s.append('Abort Reason: %s' %a_abort.reason_str)
         s.append('=========================== END A-ABORT ====================='
-                '====')
+                 '====')
         for line in s:
-            #logger.debug(line)
+            #LOGGER.debug(line)
             pass
 
 
@@ -667,14 +676,14 @@ class ACSEServiceProvider(object):
         a_associate_rq - pynetdicom3.PDU.A_ASSOCIATE_RQ_PDU
             The A-ASSOCIATE-RQ PDU instance
         """
-        logger.info("Association Received")
+        LOGGER.info("Association Received")
 
         # Shorthand
         assoc_rq = a_associate_rq
 
-        app_context   = assoc_rq.application_context_name.title()
+        app_context = assoc_rq.application_context_name.title()
         pres_contexts = assoc_rq.presentation_context
-        user_info     = assoc_rq.user_information
+        user_info = assoc_rq.user_information
 
         responding_ae = 'resp. AP Title'
         their_class_uid = 'unknown'
@@ -687,12 +696,14 @@ class ACSEServiceProvider(object):
 
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-                '=====')
+                 '=====')
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_rq.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s' %assoc_rq.called_ae_title.decode('utf-8'))
+        s.append('Calling Application Name:    %s'
+                 %assoc_rq.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s'
+                 %assoc_rq.called_ae_title.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
 
         ## Presentation Contexts
@@ -757,16 +768,19 @@ class ACSEServiceProvider(object):
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: %d - %s' %(usid.id_type, usid.id_type_str))
+            s.append('  Authentication Mode: %d - %s' %(usid.id_type,
+                                                        usid.id_type_str))
             if usid.id_type == 1:
                 s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
             elif usid.id_type == 2:
                 s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
                 s.append('  Password: [%s]' %usid.secondary.decode('utf-8'))
             elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: %d' %len(usid.primary))
+                s.append('  Kerberos Service Ticket (not dumped) length: %d'
+                         %len(usid.primary))
             elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: %d' %len(usid.primary))
+                s.append('  SAML Assertion (not dumped) length: %d'
+                         %len(usid.primary))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -776,10 +790,10 @@ class ACSEServiceProvider(object):
             s.append('Requested User Identity Negotiation: None')
 
         s.append('======================= END A-ASSOCIATE-RQ =================='
-                '====')
+                 '====')
 
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
 
     def debug_receive_associate_ac(self, a_associate_ac):
         """
@@ -798,9 +812,9 @@ class ACSEServiceProvider(object):
         # Shorthand
         assoc_ac = a_associate_ac
 
-        app_context   = assoc_ac.application_context_name.title()
+        app_context = assoc_ac.application_context_name.title()
         pres_contexts = assoc_ac.presentation_context
-        user_info     = assoc_ac.user_information
+        user_info = assoc_ac.user_information
 
         their_class_uid = 'unknown'
         their_version = 'unknown'
@@ -812,13 +826,15 @@ class ACSEServiceProvider(object):
 
         s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
+                 '=====')
 
         s.append('Their Implementation Class UID:    %s' %their_class_uid)
         s.append('Their Implementation Version Name: %s' %their_version)
         s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s' %assoc_ac.called_ae_title.decode('utf-8'))
+        s.append('Calling Application Name:    %s'
+                 %assoc_ac.calling_ae_title.decode('utf-8'))
+        s.append('Called Application Name:     %s'
+                 %assoc_ac.called_ae_title.decode('utf-8'))
         s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
         s.append('Presentation Contexts:')
 
@@ -834,7 +850,7 @@ class ACSEServiceProvider(object):
                 s.append('    Proposed SCP/SCU Role: %s' %rq_scp_scu_role)
                 s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
                 s.append('    Accepted Transfer Syntax: =%s'
-                                            %item.transfer_syntax)
+                         %item.transfer_syntax)
 
         ## Extended Negotiation
         ext_neg = 'None'
@@ -848,7 +864,8 @@ class ACSEServiceProvider(object):
 
         ## Asynchronous Operations Negotiation
         async_neg = 'None'
-        s.append('Accepted Asynchronous Operations Window Negotiation: %s' %async_neg)
+        s.append('Accepted Asynchronous Operations Window Negotiation: %s'
+                 %async_neg)
 
         ## User Identity
         usr_id = 'None'
@@ -857,12 +874,12 @@ class ACSEServiceProvider(object):
 
         s.append('User Identity Negotiation Response:  %s' %usr_id)
         s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
+                 '====')
 
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
 
-        logger.info('Association Accepted')
+        LOGGER.info('Association Accepted')
 
     def debug_receive_associate_rj(self, a_associate_rj):
         """
@@ -879,14 +896,14 @@ class ACSEServiceProvider(object):
 
         s = ['Reject Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
-                '=====')
+                 '=====')
         s.append('Result:    %s' %assoc_rj.result_str)
         s.append('Source:    %s' %assoc_rj.source_str)
         s.append('Reason:    %s' %assoc_rj.reason_str)
         s.append('======================= END A-ASSOCIATE-RJ =================='
-                '====')
+                 '====')
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
 
     def debug_receive_data_tf(self, p_data_tf):
         """
@@ -905,19 +922,20 @@ class ACSEServiceProvider(object):
 
         s = ['Data Parameters:']
         s.append('========================= BEGIN P-DATA-TF ==================='
-                '=====')
+                 '=====')
         s.append('Number of PDVs Received: %d' %len(p_data.PDVs))
 
         for ii, pdv in enumerate(p_data.PDVs):
             s.append('PDV %d' %(ii + 1))
             s.append('  Presentation context ID: %s' %pdv.ID)
-            s.append('  Message control header byte: %s' %pdv.MessageControlHeader)
+            s.append('  Message control header byte: %s'
+                     %pdv.MessageControlHeader)
             s.append('  Size: %s bytes' %pdv.Length)
 
         s.append('========================== END P-DATA-TF ===================='
-                '====')
+                 '====')
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
 
     def debug_receive_release_rq(self, a_release_rq):
         """
@@ -955,10 +973,10 @@ class ACSEServiceProvider(object):
         """
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
-                '=====')
+                 '=====')
         s.append('Abort Source: %s' %a_abort.source_str)
         s.append('Abort Reason: %s' %a_abort.reason_str)
         s.append('=========================== END A-ABORT ====================='
-                '====')
+                 '====')
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
