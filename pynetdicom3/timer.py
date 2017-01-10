@@ -4,7 +4,7 @@ A generic timer class suitable for use as the DICOM UL's ARTIM timer.
 import logging
 import time
 
-LOGGER = logging.getLogger('pynetdicom.artim')
+LOGGER = logging.getLogger('pynetdicom3.artim')
 
 
 class Timer(object):

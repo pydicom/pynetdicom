@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-    A dcmtk style storescu application. 
-    
+    A dcmtk style storescu application.
+
     Used as an SCU for sending DICOM objects from
 """
 
@@ -34,54 +34,54 @@ def _setup_argparser():
                     "file on the command line it sends a C-STORE message to a  "
                     "Storage Service Class Provider (SCP) and waits for a "
                     "response. The application can be used to transmit DICOM "
-                    "images and other composite objectes.", 
+                    "images and other composite objectes.",
         usage="storescu [options] peer port")
-        
+
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
     req_opts.add_argument("peer", help="hostname of DICOM peer", type=str)
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
-    req_opts.add_argument("dcmfile_in", 
+    req_opts.add_argument("dcmfile_in",
                           metavar="dcmfile-in",
-                          help="DICOM file or directory to be transmitted", 
+                          help="DICOM file or directory to be transmitted",
                           type=str)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version", 
-                          help="print version information and exit", 
+    gen_opts.add_argument("--version",
+                          help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments", 
-                          help="print expanded command line arguments", 
+    gen_opts.add_argument("--arguments",
+                          help="print expanded command line arguments",
                           action="store_true")
-    gen_opts.add_argument("-q", "--quiet", 
-                          help="quiet mode, print no warnings and errors", 
+    gen_opts.add_argument("-q", "--quiet",
+                          help="quiet mode, print no warnings and errors",
                           action="store_true")
-    gen_opts.add_argument("-v", "--verbose", 
-                          help="verbose mode, print processing details", 
+    gen_opts.add_argument("-v", "--verbose",
+                          help="verbose mode, print processing details",
                           action="store_true")
-    gen_opts.add_argument("-d", "--debug", 
-                          help="debug mode, print debug information", 
+    gen_opts.add_argument("-d", "--debug",
+                          help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
                           help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
-                          type=str, 
-                          choices=['fatal', 'error', 'warn', 
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
-                          help="use config file f for the logger", 
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the logger",
                           type=str)
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle', 
-                          help="set my calling AE title (default: STORESCU)", 
-                          type=str, 
+    net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle',
+                          help="set my calling AE title (default: STORESCU)",
+                          type=str,
                           default='STORESCU')
-    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle', 
-                          help="set called AE title of peer (default: ANY-SCP)", 
-                          type=str, 
+    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle',
+                          help="set called AE title of peer (default: ANY-SCP)",
+                          type=str,
                           default='ANY-SCP')
 
     # Transfer Syntaxes
@@ -102,12 +102,12 @@ args = _setup_argparser()
 
 if args.verbose:
     logger.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.INFO)
-    
+
 if args.debug:
     logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
 logger.debug('$storescu.py v%s %s $' %('0.1.0', '2016-02-10'))
@@ -131,7 +131,7 @@ transfer_syntax = [ExplicitVRLittleEndian,
                    ImplicitVRLittleEndian,
                    DeflatedExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
-                   
+
 if args.request_little:
     transfer_syntax = [ExplicitVRLittleEndian]
 elif args.request_big:
@@ -151,12 +151,10 @@ assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 if assoc.is_established:
     logger.info('Sending file: %s' %args.dcmfile_in)
-    
+
     status = assoc.send_c_store(dataset)
-    
+
     assoc.release()
 
 # Quit
 ae.quit()
-
-

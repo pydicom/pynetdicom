@@ -20,10 +20,10 @@ def setup_logger():
     """Setup the logger."""
     logger = logging.getLogger('pynetdicom3')
     handler = logging.StreamHandler()
-    LOGGER.setLevel(logging.WARNING)
+    logger.setLevel(logging.WARNING)
     formatter = logging.Formatter('%(levelname).1s: %(message)s')
     handler.setFormatter(formatter)
-    LOGGER.addHandler(handler)
+    logger.addHandler(handler)
 
     return logger
 
