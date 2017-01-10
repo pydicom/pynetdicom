@@ -6,13 +6,13 @@ from pynetdicom3.PDU import *
 from pynetdicom3.primitives import A_ABORT
 from pynetdicom3.utils import wrap_list
 
-logger = logging.getLogger('pynetdicom.sm')
+logger = logging.getLogger('pynetdicom3.sm')
 
 
 class StateMachine:
     """
     Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
-    9.2. 
+    9.2.
 
     Parameters
     ---------
@@ -38,7 +38,7 @@ class StateMachine:
         """
         # Check (event + state) is valid
         if (event, self.current_state) not in transition_table.keys():
-            logger.error("DUL State Machine received an invalid event '%s' " 
+            logger.error("DUL State Machine received an invalid event '%s' "
                 "for the current state '%s'" %(event, self.current_state))
             raise KeyError("DUL State Machine received an invalid event "
                 "'%s' for the current state '%s'" %(event, self.current_state))
@@ -54,15 +54,15 @@ class StateMachine:
         try:
             # Execute the required action
             next_state = action[1](self.dul)
-            
+
             #print(action_name, self.current_state, event, next_state)
-            
+
             # Move the state machine to the next state
-            self.transition(next_state)    
+            self.transition(next_state)
 
         except Exception as e:
             logger.error("DUL State Machine received an exception attempting "
-                "to perform the action '%s' while in state '%s'" 
+                "to perform the action '%s' while in state '%s'"
                                 %(action_name, self.current_state))
             self.dul.Kill()
             raise e
@@ -70,12 +70,12 @@ class StateMachine:
     def transition(self, state):
         """
         Transition the state machine to the next state
-        
+
         Parameters
         ----------
         state - str
             The state to transition to, Sta1 to Sta13
-            
+
         Raises
         ------
         ValueError
@@ -96,12 +96,12 @@ def AE_1(dul):
     From Idle state, local AE issues a connection request to a remote. This
     is the first step in associating a local AE (requestor) to a remote AE
     (acceptor).
-    
+
     Used when the local AE is acting as an SCU
 
     State-event triggers: Sta1 + Evt1
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -127,7 +127,7 @@ def AE_1(dul):
         logger.error("Peer aborted Association (or never connected)")
         logger.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
-        
+
     return 'Sta4'
 
 def AE_2(dul):
@@ -138,10 +138,10 @@ def AE_2(dul):
     This send a byte stream with the format given by Table 9-11
 
     State-event triggers: Sta4 + Evt2
-    
+
     Callbacks: ApplicationEntity.on_send_associate_rq(PDU)
-    
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -163,7 +163,7 @@ def AE_2(dul):
 
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
-    
+
     return 'Sta5'
 
 def AE_3(dul):
@@ -174,7 +174,7 @@ def AE_3(dul):
 
     State-event triggers: Sta5 + Evt3
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -189,19 +189,19 @@ def AE_3(dul):
     """
     # Issue A-ASSOCIATE confirmation (accept) primitive
     dul.to_user_queue.put(dul.primitive)
-    
+
     return 'Sta6'
 
 def AE_4(dul):
     """
     Association establishment action AE-4
 
-    On receiving A-ASSOCIATE-RJ, issue rejection confirmation and close 
+    On receiving A-ASSOCIATE-RJ, issue rejection confirmation and close
     connection
 
     State-event triggers: Sta5 + Evt4
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -219,27 +219,27 @@ def AE_4(dul):
     dul.to_user_queue.put(dul.primitive)
     dul.scu_socket.close()
     dul.peer_socket = None
-    
+
     return 'Sta1'
 
 def AE_5(dul):
     """
     Association establishment action AE-5
 
-    From Idle state, on receiving a remote connection attempt, respond and 
+    From Idle state, on receiving a remote connection attempt, respond and
     start ARTIM. This is the first step in associating a remote AE (requestor)
     to the local AE (acceptor).
 
     State-event triggers: Sta1 + Evt5
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
     ----------
     dul - pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
-    
+
     Returns
     -------
     str
@@ -251,7 +251,7 @@ def AE_5(dul):
 
     # Start ARTIM timer
     dul.artim_timer.start()
-    
+
     return 'Sta2'
 
 def AE_6(dul):
@@ -259,8 +259,8 @@ def AE_6(dul):
     Association establishment action AE-6
 
     On receiving an A-ASSOCIATE-RQ PDU from the peer then stop the ARTIM timer
-    and then either 
-        * issue an A-ASSOCIATE indication primitive if the -RQ is acceptable or 
+    and then either
+        * issue an A-ASSOCIATE indication primitive if the -RQ is acceptable or
         * issue an A-ASSOCIATE-RJ PDU to the peer and start the ARTIM timer
 
     This is a lower-level DUL Service Provider initiated rejection - for example
@@ -268,7 +268,7 @@ def AE_6(dul):
 
     State-event triggers: Sta2 + Evt6
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -289,16 +289,16 @@ def AE_6(dul):
     if dul.pdu.protocol_version != 0x0001:
         logger.error("Receiving Association failed: Unsupported peer protocol "
                 "version '0x%04x' (0x0001 expected)" %dul.pdu.protocol_version)
-        
+
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
         # dul.primitive is A_ASSOCIATE
         dul.primitive.result = 0x01
         dul.primitive.result_source = 0x02
         dul.primitive.diagnostic = 0x02
-        
+
         dul.pdu = A_ASSOCIATE_RJ_PDU()
         dul.pdu.FromParams(dul.primitive)
-        
+
         # Callback
         dul.association.acse.debug_send_associate_rj(dul.pdu)
 
@@ -322,7 +322,7 @@ def AE_7(dul):
 
     State-event triggers: Sta3 + Evt7
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -338,13 +338,13 @@ def AE_7(dul):
     # Send A-ASSOCIATE-AC PDU
     dul.pdu = A_ASSOCIATE_AC_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_associate_ac(dul.pdu)
-    
+
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
-    
+
     return 'Sta6'
 
 def AE_8(dul):
@@ -355,7 +355,7 @@ def AE_8(dul):
 
     State-event triggers: Sta3 + Evt8
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
         Related Actions"
 
     Parameters
@@ -371,14 +371,14 @@ def AE_8(dul):
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     dul.pdu = A_ASSOCIATE_RJ_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_associate_rj(dul.pdu)
-    
+
     dul.scu_socket.send(dul.pdu.Encode())
-    
+
     dul.artim_timer.start()
-    
+
     return 'Sta13'
 
 
@@ -390,7 +390,7 @@ def DT_1(dul):
 
     State-event triggers: Sta6 + Evt9
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related
         Actions"
 
     Parameters
@@ -407,13 +407,13 @@ def DT_1(dul):
     dul.pdu = P_DATA_TF_PDU()
     dul.pdu.FromParams(dul.primitive)
     dul.primitive = None # Why this?
-    
+
     # Callback
     dul.association.acse.debug_send_data_tf(dul.pdu)
-    
+
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
-    
+
     return 'Sta6'
 
 def DT_2(dul):
@@ -424,7 +424,7 @@ def DT_2(dul):
 
     State-event triggers: Sta6 + Evt10
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related
         Actions"
 
     Parameters
@@ -451,7 +451,7 @@ def AR_1(dul):
 
     State-event triggers: Sta6 + Evt11
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -473,7 +473,7 @@ def AR_1(dul):
 
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
-    
+
     return 'Sta7'
 
 def AR_2(dul):
@@ -484,7 +484,7 @@ def AR_2(dul):
 
     State-event triggers: Sta6 + Evt12
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -499,7 +499,7 @@ def AR_2(dul):
     """
     # Send A-RELEASE indication primitive
     dul.to_user_queue.put(dul.primitive)
-    
+
     return 'Sta8'
 
 def AR_3(dul):
@@ -511,7 +511,7 @@ def AR_3(dul):
 
     State-event triggers: Sta7 + Evt13, Sta11 + Evt13
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -528,7 +528,7 @@ def AR_3(dul):
     dul.to_user_queue.put(dul.primitive)
     dul.scu_socket.close()
     dul.peer_socket = None
-    
+
     return 'Sta1'
 
 def AR_4(dul):
@@ -539,7 +539,7 @@ def AR_4(dul):
 
     State-event triggers: Sta8 + Evt14, Sta12 + Evt14
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -555,13 +555,13 @@ def AR_4(dul):
     # Issue A-RELEASE-RP PDU and start ARTIM timer
     dul.pdu = A_RELEASE_RP_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_release_rp(dul.pdu)
-    
+
     dul.scu_socket.send(dul.pdu.Encode())
     dul.artim_timer.start()
-    
+
     return 'Sta13'
 
 def AR_5(dul):
@@ -573,7 +573,7 @@ def AR_5(dul):
 
     State-event triggers: Sta13 + Evt17
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -588,19 +588,19 @@ def AR_5(dul):
     """
     # Stop ARTIM timer
     dul.artim_timer.stop()
-    
+
     return 'Sta1'
 
 def AR_6(dul):
     """
     Association release AR-6
 
-    On receiving P-DATA-TF during attempted association release request 
+    On receiving P-DATA-TF during attempted association release request
     send P-DATA indication
 
     State-event triggers: Sta7 + Evt10
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -615,19 +615,19 @@ def AR_6(dul):
     """
     # Issue P-DATA indication
     dul.to_user_queue.put(dul.primitive)
-    
+
     return 'Sta7'
 
 def AR_7(dul):
     """
     Association release AR-7
 
-    On receiving P-DATA request during attempted association release request 
+    On receiving P-DATA request during attempted association release request
     send P-DATA-TF
 
     State-event triggers: Sta8 + Evt9
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -643,13 +643,13 @@ def AR_7(dul):
     # Issue P-DATA-TF PDU
     dul.pdu = P_DATA_TF_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_data_tf(dul.pdu)
-    
+
     bytestream = dul.pdu.Encode()
     dul.scu_socket.send(bytestream)
-    
+
     return 'Sta8'
 
 def AR_8(dul):
@@ -661,7 +661,7 @@ def AR_8(dul):
 
     State-event triggers: Sta7 + Evt12
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -680,7 +680,7 @@ def AR_8(dul):
         return 'Sta9'
     else:
         return 'Sta10'
-    
+
 def AR_9(dul):
     """
     Association release AR-9
@@ -689,7 +689,7 @@ def AR_9(dul):
 
     State-event triggers: Sta9 + Evt14
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -705,12 +705,12 @@ def AR_9(dul):
     # Send A-RELEASE-RP PDU
     dul.pdu = A_RELEASE_RP_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_release_rp(dul.pdu)
-    
+
     dul.scu_socket.send(dul.pdu.Encode())
-    
+
     return 'Sta11'
 
 def AR_10(dul):
@@ -721,7 +721,7 @@ def AR_10(dul):
 
     State-event triggers: Sta10 + Evt13
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
         Related Actions"
 
     Parameters
@@ -736,7 +736,7 @@ def AR_10(dul):
     """
     # Issue A-RELEASE confirmation primitive
     dul.to_user_queue.put(dul.primitive)
-    
+
     return 'Sta12'
 
 
@@ -747,10 +747,10 @@ def AA_1(dul):
     If on sending A-ASSOCIATE-RQ we receive an invalid reply, or an abort
     request then abort
 
-    State-event triggers: Sta2 + Evt3/Evt4/Evt10/Evt12/Evt13/Evt19, 
+    State-event triggers: Sta2 + Evt3/Evt4/Evt10/Evt12/Evt13/Evt19,
     Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 + Evt15
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -767,8 +767,8 @@ def AA_1(dul):
     # if already started) ARTIM timer.
     dul.pdu = A_ABORT_PDU()
     dul.pdu.source = 0x00
-    
-    # The reason for the abort should really be roughly defined by the 
+
+    # The reason for the abort should really be roughly defined by the
     #   current state of the State Machine
     if dul.state_machine.current_state == 'Sta2':
         # Unexpected PDU
@@ -776,28 +776,28 @@ def AA_1(dul):
     else:
         # Reason not specified
         dul.pdu.reason_diagnostic = 0x00
-    
+
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_abort(dul.pdu)
-    
+
     dul.scu_socket.send(dul.pdu.Encode())
-    
+
     dul.artim_timer.restart()
-    
+
     return 'Sta13'
 
 def AA_2(dul):
     """
     Association abort AA-2
 
-    On receiving an A-ABORT or if the ARTIM timer expires, close connection and 
+    On receiving an A-ABORT or if the ARTIM timer expires, close connection and
     return to Idle
 
     State-event triggers: Sta2 + Evt16/Evt18, Sta4 + Evt15, Sta13 + Evt16/Evt18
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -814,20 +814,20 @@ def AA_2(dul):
     dul.artim_timer.stop()
     dul.scu_socket.close()
     dul.peer_socket = None
-    
+
     return 'Sta1'
 
 def AA_3(dul):
     """
     Association abort AA-3
 
-    On receiving A-ABORT, issue abort indication, close connection and 
+    On receiving A-ABORT, issue abort indication, close connection and
     return to Idle
 
-    State-event triggers: Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 + 
+    State-event triggers: Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 +
     Evt16
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -849,7 +849,7 @@ def AA_3(dul):
     dul.scu_socket.close()
     dul.peer_socket = None
     dul.Kill()
-    
+
     return 'Sta1'
 
 def AA_4(dul):
@@ -858,10 +858,10 @@ def AA_4(dul):
 
     If connection closed, issue A-P-ABORT and return to Idle
 
-    State-event triggers: Sta3/Sta4/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 
+    State-event triggers: Sta3/Sta4/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12
     + Evt17
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -877,7 +877,7 @@ def AA_4(dul):
     # Issue A-P-ABORT indication primitive.
     dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
-    
+
     return 'Sta1'
 
 def AA_5(dul):
@@ -889,7 +889,7 @@ def AA_5(dul):
 
     State-event triggers: Sta2 + Evt17
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -904,7 +904,7 @@ def AA_5(dul):
     """
     # Stop ARTIM timer.
     dul.artim_timer.stop()
-    
+
     return 'Sta1'
 
 def AA_6(dul):
@@ -915,7 +915,7 @@ def AA_6(dul):
 
     State-event triggers: Sta13 + Evt3/Evt4/Evt10/Evt12/Evt13
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -930,19 +930,19 @@ def AA_6(dul):
     """
     # Ignore PDU
     dul.primitive = None
-    
+
     return 'Sta13'
 
 def AA_7(dul):
     """
     Association abort AA-7
 
-    If receive a association request or invalid PDU while waiting for connection 
+    If receive a association request or invalid PDU while waiting for connection
     to close, issue A-ABORT
 
     State-event triggers: Sta13 + Evt6/Evt19
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -958,12 +958,12 @@ def AA_7(dul):
     # Send A-ABORT PDU.
     dul.pdu = A_ABORT_PDU()
     dul.pdu.FromParams(dul.primitive)
-    
+
     # Callback
     dul.association.acse.debug_send_abort(dul.pdu)
-    
+
     dul.scu_socket.send(dul.pdu.Encode())
-    
+
     return 'Sta13'
 
 def AA_8(dul):
@@ -978,7 +978,7 @@ def AA_8(dul):
     Evt10 + Sta3/5/8/9/10/11/12, Evt12 + Sta3/5/8/9/10/11/12,
     Evt13 + Sta3/5/6/8/9/12, Evt19 + Sta3/5/6/7/8/9/10/11/12
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related 
+    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
     Actions"
 
     Parameters
@@ -996,22 +996,22 @@ def AA_8(dul):
     dul.pdu = A_ABORT_PDU()
     dul.pdu.abort_source = 0x02
     dul.pdu.reason_diagnostic = 0x00
-    
+
     dul.primitive = dul.pdu.ToParams()
     dul.primitive.source = 0x02
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
-    
+
     if dul.scu_socket:
         # Callback
         dul.association.acse.debug_send_abort(dul.pdu)
-        
+
         # Encode and send A-ABORT to peer
         dul.scu_socket.send(dul.pdu.Encode())
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
         dul.artim_timer.start()
-        
+
     return 'Sta13'
 
 
@@ -1055,7 +1055,7 @@ actions = {
              'timer', AE_5, 'Sta2'),
     'AE-6': ('Stop ARTIM timer and if A-ASSOCIATE-RQ acceptable by '
              'service-dul: issue A-ASSOCIATE indication primitive '
-             'otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer', AE_6, 
+             'otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer', AE_6,
              ('Sta3', 'Sta13')),
     'AE-7': ('Send A-ASSOCIATE-AC PDU', AE_7, 'Sta6'),
     'AE-8': ('Send A-ASSOCIATE-RJ PDU and start ARTIM timer', AE_8, 'Sta13'),

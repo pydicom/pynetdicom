@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-    An echoscp application. 
-    
+    An echoscp application.
+
     Used for verifying basic DICOM connectivity and as such has a focus on
     providing useful debugging and logging information.
 """
@@ -18,7 +18,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom3 import AE, VerificationSOPClass
 
-logger = logging.Logger('')
+logger = logging.Logger('echoscp')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
@@ -32,62 +32,62 @@ def _setup_argparser():
                     "Provider (SCP) for the Verification SOP Class. It listens "
                     "for a DICOM C-ECHO message from a Service Class User "
                     "(SCU) and sends a response. The application can be used "
-                    "to verify basic DICOM connectivity.", 
+                    "to verify basic DICOM connectivity.",
         usage="echoscp [options] port")
-        
+
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("port", 
-                          help="TCP/IP port number to listen on", 
+    req_opts.add_argument("port",
+                          help="TCP/IP port number to listen on",
                           type=int)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version", 
-                          help="print version information and exit", 
+    gen_opts.add_argument("--version",
+                          help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments", 
-                          help="print expanded command line arguments", 
+    gen_opts.add_argument("--arguments",
+                          help="print expanded command line arguments",
                           action="store_true")
-    gen_opts.add_argument("-q", "--quiet", 
-                          help="quiet mode, print no warnings and errors", 
+    gen_opts.add_argument("-q", "--quiet",
+                          help="quiet mode, print no warnings and errors",
                           action="store_true")
-    gen_opts.add_argument("-v", "--verbose", 
-                          help="verbose mode, print processing details", 
+    gen_opts.add_argument("-v", "--verbose",
+                          help="verbose mode, print processing details",
                           action="store_true")
-    gen_opts.add_argument("-d", "--debug", 
-                          help="debug mode, print debug information", 
+    gen_opts.add_argument("-d", "--debug",
+                          help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
                           help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
-                          type=str, 
-                          choices=['fatal', 'error', 'warn', 
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
-                          help="use config file f for the logger", 
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the logger",
                           type=str)
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle', 
-                          help="set my AE title (default: ECHOSCP)", 
-                          type=str, 
+    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle',
+                          help="set my AE title (default: ECHOSCP)",
+                          type=str,
                           default='ECHOSCP')
-    net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
-                          help="timeout for connection requests", 
+    net_opts.add_argument("-to", "--timeout", metavar='[s]econds',
+                          help="timeout for connection requests",
                           type=int,
                           default=0)
-    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds', 
-                          help="timeout for ACSE messages", 
+    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds',
+                          help="timeout for ACSE messages",
                           type=int,
                           default=30)
-    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds', 
-                          help="timeout for DIMSE messages", 
+    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds',
+                          help="timeout for DIMSE messages",
                           type=int,
                           default=0)
-    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
-                          help="set max receive pdu to n bytes (4096..131072)", 
+    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes',
+                          help="set max receive pdu to n bytes (4096..131072)",
                           type=int,
                           default=16384)
 
@@ -119,7 +119,7 @@ def _setup_argparser():
                             help="abort association during receipt of a "
                                 "C-ECHO-RQ",
                             action="store_true")
-    
+
     return parser.parse_args()
 
 args = _setup_argparser()
@@ -128,33 +128,33 @@ args = _setup_argparser()
 if args.quiet:
     for h in logger.handlers:
         logger.removeHandler(h)
-        
+
     logger.addHandler(logging.NullHandler())
-    
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     for h in pynetdicom_logger.handlers:
         pynetdicom_logger.removeHandler(h)
-        
+
     pynetdicom_logger.addHandler(logging.NullHandler())
 
 if args.verbose:
     logger.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.INFO)
-    
+
 if args.debug:
     logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
 if args.log_level:
     levels = {'critical' : logging.CRITICAL,
-              'error'    : logging.ERROR, 
+              'error'    : logging.ERROR,
               'warn'     : logging.WARNING,
               'info'     : logging.INFO,
               'debug'    : logging.DEBUG}
     logger.setLevel(levels[args.log_level])
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(levels[args.log_level])
 
 if args.log_config:
@@ -175,13 +175,13 @@ if isinstance(args.port, int):
         sys.exit()
 
 # Set Transfer Syntax options
-transfer_syntax = [ImplicitVRLittleEndian, 
+transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
-    
+
 if args.prefer_little:
     if ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
@@ -193,10 +193,10 @@ if args.prefer_big:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 # Create application entity
-ae = AE(ae_title=args.aetitle, 
-        port=args.port, 
-        scu_sop_class=[], 
-        scp_sop_class=[VerificationSOPClass], 
+ae = AE(ae_title=args.aetitle,
+        port=args.port,
+        scu_sop_class=[],
+        scp_sop_class=[VerificationSOPClass],
         transfer_syntax=transfer_syntax)
 
 if args.abort_after:
@@ -210,13 +210,13 @@ if args.abort_after:
     ae.on_c_echo = on_c_echo
 
 if args.abort_during:
-    
+
     def on_receive_pdu(self):
         # Clear event queue and issue A-ABORT request primitive
         pass
-    
+
 if args.refuse:
-    
+
     def on_receive_associate_rq(self, a_associate_rq):
         # Issue A-ASSOCIATE refusal primitive
         pass

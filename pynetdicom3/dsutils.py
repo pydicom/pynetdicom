@@ -6,13 +6,13 @@ from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
-logger = logging.getLogger('pynetdicom.dsutils')
+logger = logging.getLogger('pynetdicom3.dsutils')
 
 def decode(b, is_implicit_VR, is_little_endian):
     """
     When sent a DIMSE Message from a peer AE, decode the data and convert
     it to a pydicom Dataset instance
-    
+
     Parameters
     ----------
     b - io.BytesIO
@@ -21,7 +21,7 @@ def decode(b, is_implicit_VR, is_little_endian):
         Is implicit or explicit VR
     is_little_endian - bool
         The byte ordering, little or big endian
-        
+
     Returns
     -------
     pydicom.Dataset
@@ -31,14 +31,14 @@ def decode(b, is_implicit_VR, is_little_endian):
         transfer_syntax = "Little Endian"
     else:
         transfer_syntax = "Big Endian"
-    
+
     if is_implicit_VR:
         transfer_syntax += " Implicit"
     else:
         transfer_syntax += " Explicit"
-    
+
     logger.debug('pydicom::read_dataset() TransferSyntax="%s"' %transfer_syntax)
-    
+
     # Rewind to the start of the stream
     b.seek(0)
     return read_dataset(b, is_implicit_VR, is_little_endian)
@@ -46,7 +46,7 @@ def decode(b, is_implicit_VR, is_little_endian):
 def encode(ds, is_implicit_VR, is_little_endian):
     """
     Given a pydicom Dataset, encode it to a byte stream
-    
+
     Parameters
     ----------
     ds - pydicom.dataset.Dataset
@@ -55,7 +55,7 @@ def encode(ds, is_implicit_VR, is_little_endian):
         Transfer syntax implicit/explicit VR
     is_little_endian - bool
         Transfer syntax byte ordering
-    
+
     Returns
     -------
     bytes or None
@@ -71,7 +71,7 @@ def encode(ds, is_implicit_VR, is_little_endian):
         logger.error(e)
         f.close()
         return None
-    
+
     rawstr = f.parent.getvalue()
     f.close()
     return rawstr

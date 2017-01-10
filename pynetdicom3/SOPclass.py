@@ -4,15 +4,13 @@ import time
 
 from pynetdicom3.dsutils import *
 from pynetdicom3.DIMSEparameters import *
-import pynetdicom3.DIMSEprovider
-import pynetdicom3.ACSEprovider
 
-logger = logging.getLogger('pynetdicom.SOPclass')
+logger = logging.getLogger('pynetdicom3.SOPclass')
 
 def class_factory(name, uid, BaseClass):
     """
     Generates a SOP Class subclass of `BaseClass` called `name`
-    
+
     Parameters
     ----------
     name : str
@@ -26,7 +24,7 @@ def class_factory(name, uid, BaseClass):
             QueryRetrieveFindServiceClass
             QueryRetrieveGetServiceClass
             QueryRetrieveMoveServiceClass
-            
+
     Returns
     -------
     subclass of BaseClass
@@ -34,10 +32,10 @@ def class_factory(name, uid, BaseClass):
     """
     def __init__(self):
         BaseClass.__init__(self)
-        
+
     new_class = type(name, (BaseClass,), {"__init__": __init__})
     new_class.UID = uid
-    
+
     return new_class
 
 def _generate_service_sop_classes(class_list, service_class):
@@ -57,7 +55,7 @@ class Status(object):
 
     def __repr__(self):
         return self.Type
-        
+
     def __str__(self):
         return self.Type + ' ' + self.Description
 
@@ -65,7 +63,7 @@ class Status(object):
 # DICOM SERVICE CLASS BASE
 class ServiceClass(object):
     """
-    
+
     """
     def Code2Status(self, code):
         """
@@ -73,7 +71,7 @@ class ServiceClass(object):
         ----------
         code : int
             The status code value from the (0000,0900) dataset element
-            
+
         Returns
         -------
         obj : pynetdicom3.SOPclass.Status
@@ -82,11 +80,11 @@ class ServiceClass(object):
         for dd in dir(self):
             getattr(self, dd).__class__
             obj = getattr(self, dd)
-            
+
             if obj.__class__ == Status:
                 if code in obj.CodeRange:
                     return obj
-        
+
         # Unknown status
         return None
 
@@ -97,9 +95,9 @@ class VerificationServiceClass(ServiceClass):
     def SCP(self, msg):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
-        and a C-ECHO request is received then create a C-ECHO response 
+        and a C-ECHO request is received then create a C-ECHO response
         primitive and send it to the peer AE via the DIMSE provider
-        
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEparameters.C_ECHO_ServiceParameters
@@ -129,7 +127,7 @@ class StorageServiceClass(ServiceClass):
     #   and hence only the Status parameter of the primitive is of interest
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
-                            range(0xA700, 0xA7FF + 1)) 
+                            range(0xA700, 0xA7FF + 1))
     DataSetDoesNotMatchSOPClassFailure = Status('Failure',
                                     'Error: Data Set does not match SOP Class',
                                     range(0xA900, 0xA9FF + 1))
@@ -161,8 +159,8 @@ class StorageServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        
-        # ApplicationEntity's on_c_store callback 
+
+        # ApplicationEntity's on_c_store callback
         try:
             status = self.AE.on_c_store(dataset)
         except Exception as e:
@@ -176,7 +174,7 @@ class StorageServiceClass(ServiceClass):
             status = self.DataSetDoesNotMatchSOPClassFailure
             logger.info("Store request's dataset UID does not match the "
                                                         "presentation context")
-        
+
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
@@ -185,49 +183,49 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     """
     PS3.4 C.1.4 C-FIND Service Definition
     -------------------------------------
-    - The SCU requests that the SCP perform a match of all the keys 
+    - The SCU requests that the SCP perform a match of all the keys
       specified in the Identifier  of the request, against the information
       that it possesses, to the level (Patient, Study, Series or Composite
-      Object Instance) specified in the request. Identifier refers to the 
+      Object Instance) specified in the request. Identifier refers to the
       Identifier service parameter of the C-FIND
 
     - The SCP generates a C-FIND response for each match with an Identifier
       containing the values of all key fields and all known Attributes
       requested. All such responses will contain a status of Pending.
-      A status of Pending indicates that the process of matching is not 
+      A status of Pending indicates that the process of matching is not
       complete
 
     - When the process of matching is complete a C-FIND response is sent
       with a status of Success and no Identifier.
 
-    - A Refused or Failed response to a C-FIND request indicates that the 
+    - A Refused or Failed response to a C-FIND request indicates that the
       SCP is unable to process the request.
 
-    - The SCU may cancel the C-FIND service by issuing a C-FIND-CANCEL 
+    - The SCU may cancel the C-FIND service by issuing a C-FIND-CANCEL
       request at any time during the processing of the C-FIND service.
       The SCP will interrupt all matching and return a status of Canceled.
-      
+
     Patient Root QR Information Model
     =================================
     PS3.4 Table C.6-1, C.6-2
-    
-    Patient Level 
+
+    Patient Level
     -------------
-    Required Key 
+    Required Key
     - Patient's Name (0010,0010)
-    Unique Key 
+    Unique Key
     - Patient ID (0010,0020)
-    
+
     Study Level
     -----------
-    Required Keys 
+    Required Keys
     - Study Date (0008,0020)
     - Study Time (0008,0030)
     - Accession Number (0008,0050)
     - Study ID (0020,0010)
     Unique Key
     - Study Instance UID (0020,000D)
-    
+
     Series Level
     ------------
     Required Keys
@@ -235,22 +233,22 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     - Series Number (0020,0011)
     Unique Key
     - Series Instance UID (0020,000E)
-    
+
     Composite Object Instance Level
     -------------------------------
     Required Key
     - Instance Number (0020,0013)
     Unique Key
     - SOP Instance UID (0008,0018)
-    
-    
+
+
     Study Root QR Information Model
     ===============================
     PS3.4 C.6.2.1
-    
+
     Study Level
     -----------
-    Required Keys 
+    Required Keys
     - Study Date (0008,0020)
     - Study Time (0008,0030)
     - Accession Number (0008,0050)
@@ -259,12 +257,12 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     - Study ID (0020,0010)
     Unique Key
     - Study Instance UID (0020,000D)
-    
+
     Series Level/Composite Object Instance Level
     --------------------------------------------
     As for Patient Root QR Information Model
-    
-    
+
+
     """
     # PS3.4 Annex C.4.1.1.4
     OutOfResources = Status('Failure',
@@ -302,59 +300,59 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         the Attributes of a number of stored Composite Object Instances. This
         information is organised into a well defined QR Information Model.
         This QR Information Model shall be a standard QR Information Model.
-        
+
         A specific SOP Class of the QR Service Class consists of an Information
         Model Definition and a DIMSE-C Service Group.
-        
+
         PS3.4 Annex C.2
         A QR Information Model contains:
         - an Entity-Relationship Model Definition: a hierarchy of entities, with
           Attributes defined for each level in the hierarchy (eg Patient, Study,
           Series, Composite Object Instance)
-        - a Key Attributes Definition: Attributes should be defined at each 
+        - a Key Attributes Definition: Attributes should be defined at each
           level in the Entity-Relationship Model. An Identifier shall contain
-          values to be matched against the Attributes of the Entities in a 
+          values to be matched against the Attributes of the Entities in a
           QR Information Model. For any query, the set of entities for which
-          Attributes are returned shall be determined by the set of Key 
+          Attributes are returned shall be determined by the set of Key
           Attributes specified in the Identifier that have corresponding
           matches on entities managed by the SCP associated with the query.
-        
+
         All Attributes shall be either a Unique, Required or Optional Key. 'Key
         Attributes' refers to these three types.
-        
+
         Unique Keys
         -----------
-        At each level in the Entity-Relationship Model (ERM), one Attribute 
-        shall be defined as a Unique Key. A single value in a Unique Key 
-        Attribute shall uniquely identify a single entity at a given level (ie 
+        At each level in the Entity-Relationship Model (ERM), one Attribute
+        shall be defined as a Unique Key. A single value in a Unique Key
+        Attribute shall uniquely identify a single entity at a given level (ie
         two entities at the same level may not have the same Unique Key value).
-        
-        All entities managed by C-FIND SCPs shall have a specific non-zero 
+
+        All entities managed by C-FIND SCPs shall have a specific non-zero
         length Unique Key value.
-        
+
         Unique Keys may be contained in the Identifier of a C-FIND request.
-        
+
         Required Keys
         -------------
-        At each level in the ERM, a set of Attributes shall be defined as 
+        At each level in the ERM, a set of Attributes shall be defined as
         Required Keys. Required Keys imply the SCP of a C-FIND shall support
         matching based on a value contained in a Required Key of the C-FIND
         required. Multiple entities may have the same value for Required Keys.
-        
+
         C-FIND SCPs shall support existence and matching of all Required Keys
         defined by a QR Information Model. If a C-FIND SCP manages an entity
         with a Required Key of zero length, the value is considered unknown
-        and all matching against the zero length Required Key shall be 
-        considered a successful match. 
-        
+        and all matching against the zero length Required Key shall be
+        considered a successful match.
+
         Required Keys may be contained in the Identifier of a C-FIND request.
-        
+
         Optional Keys
         -------------
-        At each level in the ERM, a set of Attributes shall be defined as 
-        Optional Keys. Optional Keys may have three different types of 
-        behaviour depending on support for existence and/or matching by the 
-        C-FIND SCP. 
+        At each level in the ERM, a set of Attributes shall be defined as
+        Optional Keys. Optional Keys may have three different types of
+        behaviour depending on support for existence and/or matching by the
+        C-FIND SCP.
         1. If the SCP doesnt support the existence of the Optional Key, then
            the Attribute shall not be returned in C-FIND responses
         2. If the SCP supports existence of the Optional Key but does not
@@ -363,9 +361,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         3. If the SCP supports both the existence and matching of the Optional
            Key, then the Key shall be processed in the same manner as a Required
            Key.
-           
+
         Optional Keys may be contained in the Identifier of a C-FIND request.
-        
+
         Attribute Matching
         ==================
         The following types of matching may be performed on Key Attributes:
@@ -375,72 +373,72 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         * Wild Card
         * Range
         * Sequence
-        
+
         Matching requires special characters (*, ?, -, =, \) which need not be
         part of the character repertoire for the VR of the Key Attribute
-        
+
         The total length of the Key Attribute may exceed the length as specified
         in the VR in PS3.5. The VM may be larger than that specified in PS3.6.
-        
+
         Single Value Matching
         ---------------------
-        single value matching shall be performed if the value specified for a 
+        single value matching shall be performed if the value specified for a
         Key Attribute in a request is non-zero length and it is:
         a. Not a date or time or datetime and contains not wild card characters
         b. A date or time or datetime and contains a single date or time or
            datetime with no '-'.
-        
-        Except for Attributes with a PN VR, only entites with values that 
+
+        Except for Attributes with a PN VR, only entites with values that
         exactly match are included. Matching is case-sensitive.
-        
+
         For PN VRs, an application may perform literal matching that is either
         case-sensitive or that is insensitive to some or all aspects of case,
         position, accent or other character encoding variants
-        
+
         Blah blah, this is user implementation stuff
-        
+
         ...
-        
+
         Three standard QR Information Models are defined:
         * Patient Root
         * Study Root
         * Patient/Study Only
-        
+
         Patient Root QR Information Model
         ---------------------------------
         The Patient Root is based on a four level hierarchy: Patient, Study,
         Series, Composite Object Instance.
-        
+
         The Patient level is the top level and contains Attributes associated
         with the Patietn Information Entity of the Composite IODs (PS3.3).
         Patient IEs are modality independent.
-        
+
         The Study level contains Attributes associated with the Series, Frame of
         Reference and Equipment IEs of the Composite IODs. A series belongs
-        to a single study, which may have multiple series. Series IEs are 
-        modality dependant. 
-        
+        to a single study, which may have multiple series. Series IEs are
+        modality dependant.
+
         The Composite Object Instance level contains Attributes associated with
-        the Composite object IE of the Composite IODs. A Composite Object 
+        the Composite object IE of the Composite IODs. A Composite Object
         Instance belongs to a single series, which may have multiple Composite
         Object Instances.
-        
+
         Study Root
         ----------
         The Study Root is identical to the Patient Root except the top level is
-        the Study level. Attributes of patients are considered to be Attributes 
+        the Study level. Attributes of patients are considered to be Attributes
         of studies
-        
+
         Patient/Study Root
         ------------------
         Retired (PS3.4-2004)
-        
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
             The C_FIND request primitive received from the peer
         """
-        dataset = decode(msg.Identifier, 
+        dataset = decode(msg.Identifier,
                          self.transfersyntax.is_implicit_VR,
                          self.transfersyntax.is_little_endian)
 
@@ -448,45 +446,45 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         c_find_rsp = C_FIND_ServiceParameters()
         c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        
+
         logger.info('Find SCP Request Identifiers:')
         logger.info('')
         logger.debug('# DICOM Data Set')
         for elem in dataset:
             logger.info(elem)
         logger.info('')
-        
+
         # Callback
         try:
             matches = self.AE.on_c_find(dataset)
         except:
             logger.exception('Exception in on_c_find()')
             matches = []
-        
+
         for ii, instance in enumerate(matches):
             c_find_rsp.Identifier = BytesIO(encode(instance,
                                             self.transfersyntax.is_implicit_VR,
                                             self.transfersyntax.is_little_endian))
-            
+
             # Send response
             c_find_rsp.Status = int(self.Pending)
-            
+
             logger.info('Find SCP Response: %s (Pending)' %(ii + 1))
-            
+
             self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
-            
+
             logger.debug('Find SCP Response Identifiers:')
             logger.debug('')
             logger.debug('# DICOM Dataset')
             for elem in instance:
                 logger.debug(elem)
             logger.debug('')
-            
+
         # Send final response
         c_find_rsp.Status = int(self.Success)
-        
+
         logger.info('Find SCP Response: %s (Success)' %(ii + 2))
-        
+
         self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
 class QueryRetrieveMoveServiceClass(ServiceClass):
@@ -519,7 +517,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         range(0xFF00, 0xFF00 + 1)    )
 
     def SCP(self, msg):
-        attributes = decode(msg.Identifier, 
+        attributes = decode(msg.Identifier,
                             self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
 
@@ -528,14 +526,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         c_move_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_move_rsp.Identifier = msg.Identifier
-        
+
         logger.info('Move SCP Request Identifiers:')
         logger.info('')
         logger.info('# DICOM Data Set')
         for elem in attributes:
             logger.info(elem)
         logger.info('')
-        
+
         # The user is responsible for returning the matching Instances
         try:
             matches = self.AE.on_c_move(attributes, msg.MoveDestination)
@@ -551,11 +549,11 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         c_move_rsp.NumberOfCompletedSuboperations = 0
         c_move_rsp.NumberOfFailedSuboperations = 0
         c_move_rsp.NumberOfWarningSuboperations = 0
-        
+
         # Second value is the addr and port for the move destination if known
         #   None, None if not known
         addr, port = next(matches)
-        
+
         if None in [addr, port]:
             logger.error('Unknown Move Destination: %s' %msg.MoveDestination.decode('utf-8'))
             c_move_rsp.Status = int(self.MoveDestinationUnknown)
@@ -566,35 +564,35 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         # Request new association with move destination
         #   need (addr, port, aet)
         assoc = self.AE.associate(addr, port, msg.MoveDestination)
-        
+
         ii = 1
         if assoc.is_established:
             for dataset in matches:
                 # Send dataset via C-STORE over new association
                 status = assoc.send_c_store(dataset)
                 store_status = status.Type
-                
+
                 logger.info('Move SCU: Received Store SCU RSP (%s)' %store_status)
-                
+
                 if store_status == 'Failure':
                     c_move_rsp.NumberOfFailedSuboperations += 1
                 elif store_status == 'Warning':
                     c_move_rsp.NumberOfWarningSuboperations += 1
                 elif store_status == 'Success':
                     c_move_rsp.NumberOfCompletedSuboperations += 1
-                
+
                 c_move_rsp.NumberOfRemainingSuboperations -= 1
-                
+
                 c_move_rsp.Status = int(self.Pending)
-                
+
                 logger.info('Move SCP Response %s (Pending)' %ii)
-                
+
                 self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
-            
+
                 ii += 1
-            
+
             assoc.release()
-        
+
         # Send Success C-GET-RSP to peer
         c_move_rsp.Status = int(self.Success)
         logger.info('Move SCP Response %s (Success)' %ii)
@@ -626,19 +624,19 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     Success = Status('Success',
                      'Sub-operations Complete - No Failure or Warnings',
                      range(0x0000, 0x0000 + 1))
-    Pending = Status('Pending', 
-                     'Sub-operations are continuing', 
+    Pending = Status('Pending',
+                     'Sub-operations are continuing',
                      range(0xFF00, 0xFF00 + 1))
 
     def SCP(self, msg, priority=2):
         """
         PS3.7 9.1.3.2
-        
+
         Service Procedure
         -----------------
         Performing DIMSE User
         ~~~~~~~~~~~~~~~~~~~~~
-        - When the performer receives a C-GET indication it matches the 
+        - When the performer receives a C-GET indication it matches the
           Identifier against the Attributes of known composite SOP Instances
           and generates a C-STORE sub-operation for each match
         - For each match, the performing user initiates a C-STORE sub-operation
@@ -646,26 +644,26 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         - During the processing of the C-GET operation, the performing user may
           issue C-GET response primitives with a status of Pending
         - When the C-GET operation completes (either in success or failure) the
-          performing DIMSE user issues a C-GET response with status set to 
+          performing DIMSE user issues a C-GET response with status set to
           either refused, failed or success
         """
         attributes = decode(msg.Identifier,
                             self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
-        
+
         # Build C-GET response primitive
         c_get_rsp = C_GET_ServiceParameters()
         c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_get_rsp.Identifier = msg.Identifier
-        
+
         logger.info('Get SCP Request Identifiers:')
         logger.info('')
         logger.debug('# DICOM Data Set')
         for elem in attributes:
             logger.info(elem)
         logger.info('')
-        
+
         # The user is responsible for returning the matching Instances
         try:
             matches = self.AE.on_c_get(attributes)
@@ -675,42 +673,42 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             logger.info('Get SCP Response %s (Failure)' %ii)
             self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
             return
-    
+
         c_get_rsp.NumberOfRemainingSuboperations = next(matches)
         c_get_rsp.NumberOfCompletedSuboperations = 0
         c_get_rsp.NumberOfFailedSuboperations = 0
         c_get_rsp.NumberOfWarningSuboperations = 0
-        
+
         ii = 1
         for dataset in matches:
             # Send C-STORE-RQ and Pending C-GET-RSP to peer
             # Send each matching dataset via C-STORE
             logger.info('Store SCU RQ: MsgID %s' %ii)
-            
-            store_status = self.ACSE.parent.send_c_store(dataset, 
-                                                         msg.MessageID, 
+
+            store_status = self.ACSE.parent.send_c_store(dataset,
+                                                         msg.MessageID,
                                                          priority)
             store_status = store_status.Type
-            
+
             logger.info('Get SCU: Received Store SCU RSP (%s)' %store_status)
-            
+
             if store_status == 'Failure':
                 c_get_rsp.NumberOfFailedSuboperations += 1
             elif store_status == 'Warning':
                 c_get_rsp.NumberOfWarningSuboperations += 1
             elif store_status == 'Success':
                 c_get_rsp.NumberOfCompletedSuboperations += 1
-            
+
             c_get_rsp.NumberOfRemainingSuboperations -= 1
-            
+
             c_get_rsp.Status = int(self.Pending)
-            
+
             logger.info('Get SCP Response %s (Pending)' %ii)
-            
+
             self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
-        
+
             ii += 1
-        
+
         # Send Success C-GET-RSP to peer
         c_get_rsp.Status = int(self.Success)
         logger.info('Get SCP Response %s (Success)' %ii)
@@ -751,7 +749,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
     # FIXME
     def SCP(self, msg):
-        ds = decode(msg.Identifier, 
+        ds = decode(msg.Identifier,
                     self.transfersyntax.is_implicit_VR,
                     self.transfersyntax.is_little_endian)
 
@@ -785,28 +783,28 @@ class RTMachineVerificationServiceClass(ServiceClass):
     #   Slight differences in description text
     Success = Status('Success',
                      'Machine Verification successfully created',
-                     range(0x0000, 0x0000 + 1)) 
-    
+                     range(0x0000, 0x0000 + 1))
+
     # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE
     fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
     fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
     fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
     fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
-    
+
     # N-SET
     fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
     fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
     fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
-    
+
     # N-GET
     fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
-    
+
     # N-ACTION
     fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
 
     def SCP(self, msg):
         print('RTMachineVerification SCP', msg)
-        
+
         if msg.__class__ == N_CREATE_ServiceParameters:
             pass
         elif msg.__class__ == N_SET_ServiceParameters:
@@ -819,7 +817,7 @@ class RTMachineVerificationServiceClass(ServiceClass):
             pass
         else:
             pass
-            
+
 
 
 # Generate the various SOP classes
@@ -982,7 +980,7 @@ def UID2SOPClass(UID):
     ----------
     UID - str
         The class UID as a string
-    
+
     Returns
     -------
     SOPClass object corresponding to the given UID
@@ -993,4 +991,3 @@ def UID2SOPClass(UID):
             if tmpuid == UID:
                 return eval(ss)
     return None
-

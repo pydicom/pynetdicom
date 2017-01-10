@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-    A dcmtk style storescp application. 
-    
+    A dcmtk style storescp application.
+
     Used as a SCP for sending DICOM objects to
 """
 
@@ -20,12 +20,17 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 from pynetdicom3 import AE, StorageSOPClassList, VerificationSOPClass
 from pynetdicom3 import pynetdicom_uid_prefix
 
-logger = logging.Logger('')
-stream_logger = logging.StreamHandler()
-formatter = logging.Formatter('%(levelname).1s: %(message)s')
-stream_logger.setFormatter(formatter)
-logger.addHandler(stream_logger)
-logger.setLevel(logging.ERROR)
+def setup_logger():
+    logger = logging.Logger('storescp')
+    stream_logger = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    stream_logger.setFormatter(formatter)
+    logger.addHandler(stream_logger)
+    logger.setLevel(logging.ERROR)
+
+    return logger
+
+LOGGER = setup_logger()
 
 def _setup_argparser():
     # Description
@@ -33,62 +38,62 @@ def _setup_argparser():
         description="The storescp application implements a Service Class "
                     "Provider (SCP) for the Storage SOP Class. It listens "
                     "for a DICOM C-STORE message from a Service Class User "
-                    "(SCU) and stores the resulting DICOM dataset.", 
+                    "(SCU) and stores the resulting DICOM dataset.",
         usage="storescp [options] port")
-        
+
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("port", 
-                          help="TCP/IP port number to listen on", 
+    req_opts.add_argument("port",
+                          help="TCP/IP port number to listen on",
                           type=int)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version", 
-                          help="print version information and exit", 
+    gen_opts.add_argument("--version",
+                          help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments", 
-                          help="print expanded command line arguments", 
+    gen_opts.add_argument("--arguments",
+                          help="print expanded command line arguments",
                           action="store_true")
-    gen_opts.add_argument("-q", "--quiet", 
-                          help="quiet mode, print no warnings and errors", 
+    gen_opts.add_argument("-q", "--quiet",
+                          help="quiet mode, print no warnings and errors",
                           action="store_true")
-    gen_opts.add_argument("-v", "--verbose", 
-                          help="verbose mode, print processing details", 
+    gen_opts.add_argument("-v", "--verbose",
+                          help="verbose mode, print processing details",
                           action="store_true")
-    gen_opts.add_argument("-d", "--debug", 
-                          help="debug mode, print debug information", 
+    gen_opts.add_argument("-d", "--debug",
+                          help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
                           help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
-                          type=str, 
-                          choices=['fatal', 'error', 'warn', 
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
-                          help="use config file f for the logger", 
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the logger",
                           type=str)
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle', 
-                          help="set my AE title (default: STORESCP)", 
-                          type=str, 
+    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle',
+                          help="set my AE title (default: STORESCP)",
+                          type=str,
                           default='STORESCP')
-    net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
-                          help="timeout for connection requests", 
+    net_opts.add_argument("-to", "--timeout", metavar='[s]econds',
+                          help="timeout for connection requests",
                           type=int,
                           default=0)
-    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds', 
-                          help="timeout for ACSE messages", 
+    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds',
+                          help="timeout for ACSE messages",
                           type=int,
                           default=30)
-    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds', 
-                          help="timeout for DIMSE messages", 
+    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds',
+                          help="timeout for DIMSE messages",
                           type=int,
                           default=0)
-    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
-                          help="set max receive pdu to n bytes (4096..131072)", 
+    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes',
+                          help="set max receive pdu to n bytes (4096..131072)",
                           type=int,
                           default=16384)
 
@@ -106,7 +111,7 @@ def _setup_argparser():
     ts_opts.add_argument("-xi", "--implicit",
                          help="accept implicit VR little endian TS only",
                          action="store_true")
-    
+
     # Output Options
     out_opts = parser.add_argument_group('Output Options')
     out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
@@ -129,7 +134,7 @@ def _setup_argparser():
     """
     # Event Options
     event_opts = parser.add_argument_group('Event Options')
-    event_opts.add_argument('-xcr', "--exec-on-reception", 
+    event_opts.add_argument('-xcr', "--exec-on-reception",
                             metavar="[c]ommand",
                             help="execute command c after receiving and "
                                 "processing one C-STORE-RQ message",
@@ -138,24 +143,24 @@ def _setup_argparser():
 
     # Miscellaneous
     misc_opts = parser.add_argument_group('Miscellaneous')
-    misc_opts.add_argument('--ignore', 
+    misc_opts.add_argument('--ignore',
                            help="receive data but don't store it",
                            action="store_true")
-    
+
     return parser.parse_args()
 
 args = _setup_argparser()
 
 if args.verbose:
-    logger.setLevel(logging.INFO)
-    
+    LOGGER.setLevel(logging.INFO)
+
 if args.debug:
-    logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    LOGGER.setLevel(logging.DEBUG)
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$storescp.py v%s %s $' %('0.2.0', '2016-03-23'))
-logger.debug('')
+LOGGER.debug('$storescp.py v%s %s $' %('0.2.0', '2016-03-23'))
+LOGGER.debug('')
 
 # Validate port
 if isinstance(args.port, int):
@@ -164,7 +169,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient priveleges" 
+        LOGGER.error("Cannot listen on port %d, insufficient priveleges"
             %args.port)
         sys.exit()
 
@@ -176,7 +181,7 @@ transfer_syntax = [ImplicitVRLittleEndian,
 
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
-    
+
 if args.prefer_little:
     if ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
@@ -190,16 +195,16 @@ if args.prefer_big:
 def on_c_store(dataset):
     """
     Write `dataset` to file as little endian implicit VR
-    
+
     Parameters
     ----------
     dataset - pydicom.Dataset
         The DICOM dataset sent via the C-STORE
-            
+
     Returns
     -------
     status
-        A valid return status code, see PS3.4 Annex B.2.3 or the 
+        A valid return status code, see PS3.4 Annex B.2.3 or the
         StorageServiceClass implementation for the available statuses
     """
     mode_prefix = 'UN'
@@ -225,40 +230,40 @@ def on_c_store(dataset):
         mode_prefix = mode_prefixes[dataset.SOPClassUID.__str__()]
     except:
         pass
-    
+
     filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
-    logger.info('Storing DICOM file: %s' %filename)
-    
+    LOGGER.info('Storing DICOM file: %s' %filename)
+
     if os.path.exists(filename):
-        logger.warning('DICOM file already exists, overwriting')
-    
+        LOGGER.warning('DICOM file already exists, overwriting')
+
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
     meta.ImplementationClassUID = pynetdicom_uid_prefix
-    
+
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
 
     ds.is_little_endian = True
     ds.is_implicit_VR = True
-    
+
     if not args.ignore:
         # Try to save to output-directory
         if args.output_directory is not None:
             filename = os.path.join(args.output_directory, filename)
-        
+
         try:
             ds.save_as(filename)
         except IOError:
-            logger.error('Could not write file to specified directory:')
-            logger.error("    %s" %os.path.dirname(filename))
-            logger.error('Directory may not exist or you may not have write '
+            LOGGER.error('Could not write file to specified directory:')
+            LOGGER.error("    %s" %os.path.dirname(filename))
+            LOGGER.error('Directory may not exist or you may not have write '
                     'permission')
             return 0xA700 # Failed - Out of Resources
         except:
-            logger.error('Could not write file to specified directory:')
-            logger.error("    %s" %os.path.dirname(filename))
+            LOGGER.error('Could not write file to specified directory:')
+            LOGGER.error("    %s" %os.path.dirname(filename))
             return 0xA700 # Failed - Out of Resources
 
     return 0x0000 # Success
@@ -266,8 +271,8 @@ def on_c_store(dataset):
 # Test output-directory
 if args.output_directory is not None:
     if not os.access(args.output_directory, os.W_OK|os.X_OK):
-        logger.error("No write permissions or the output directory may not exist:")
-        logger.error("    %s" %args.output_directory)
+        LOGGER.error("No write permissions or the output directory may not exist:")
+        LOGGER.error("    %s" %args.output_directory)
         sys.exit()
 
 scp_classes = [x for x in StorageSOPClassList]
@@ -276,7 +281,7 @@ scp_classes.append(VerificationSOPClass)
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
-        scu_sop_class=[], 
+        scu_sop_class=[],
         scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
 

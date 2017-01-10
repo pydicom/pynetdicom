@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    A getscu application. 
+    A getscu application.
 """
 
 import argparse
@@ -15,7 +15,7 @@ from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, UID
-    
+
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3 import pynetdicom_uid_prefix
 from pynetdicom3.primitives import SCP_SCU_RoleSelectionNegotiation
@@ -38,54 +38,54 @@ def _setup_argparser():
                     "response. The application can be used to test SCPs of the "
                     "QR and BWM Service Classes.",
         usage="getscu [options] peer port")
-        
+
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
     req_opts.add_argument("peer", help="hostname of DICOM peer", type=str)
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
-    req_opts.add_argument("dcmfile_in", 
+    req_opts.add_argument("dcmfile_in",
                           metavar="dcmfile-in",
-                          help="DICOM query file(s)", 
+                          help="DICOM query file(s)",
                           type=str)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version", 
-                          help="print version information and exit", 
+    gen_opts.add_argument("--version",
+                          help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments", 
-                          help="print expanded command line arguments", 
+    gen_opts.add_argument("--arguments",
+                          help="print expanded command line arguments",
                           action="store_true")
-    gen_opts.add_argument("-q", "--quiet", 
-                          help="quiet mode, print no warnings and errors", 
+    gen_opts.add_argument("-q", "--quiet",
+                          help="quiet mode, print no warnings and errors",
                           action="store_true")
-    gen_opts.add_argument("-v", "--verbose", 
-                          help="verbose mode, print processing details", 
+    gen_opts.add_argument("-v", "--verbose",
+                          help="verbose mode, print processing details",
                           action="store_true")
-    gen_opts.add_argument("-d", "--debug", 
-                          help="debug mode, print debug information", 
+    gen_opts.add_argument("-d", "--debug",
+                          help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
                           help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
-                          type=str, 
-                          choices=['fatal', 'error', 'warn', 
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
-                          help="use config file f for the logger", 
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the logger",
                           type=str)
-    
+
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle', 
-                          help="set my calling AE title (default: GETSCU)", 
-                          type=str, 
+    net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle',
+                          help="set my calling AE title (default: GETSCU)",
+                          type=str,
                           default='GETSCU')
-    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle', 
-                          help="set called AE title of peer (default: ANY-SCP)", 
-                          type=str, 
+    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle',
+                          help="set called AE title of peer (default: ANY-SCP)",
+                          type=str,
                           default='ANY-SCP')
-    
+
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
     qr_model = qr_group.add_mutually_exclusive_group()
@@ -108,12 +108,12 @@ args = _setup_argparser()
 
 if args.verbose:
     logger.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.INFO)
-    
+
 if args.debug:
     logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
 logger.debug('$getscu.py v%s %s $' %('0.1.0', '2016-02-15'))
@@ -125,10 +125,10 @@ scu_classes.extend(StorageSOPClassList)
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet, 
-        port=0, 
-        scu_sop_class=scu_classes, 
-        scp_sop_class=[], 
+ae = AE(ae_title=args.calling_aet,
+        port=0,
+        scu_sop_class=scu_classes,
+        scp_sop_class=[],
         transfer_syntax=[ExplicitVRLittleEndian])
 
 # Set the extended negotiation SCP/SCU role selection to allow us to receive
@@ -139,7 +139,7 @@ for context in ae.presentation_contexts_scu:
     tmp.sop_class_uid = context.AbstractSyntax
     tmp.scu_role = False
     tmp.scp_role = True
-    
+
     ext_neg.append(tmp)
 
 # Request association with remote
@@ -163,18 +163,18 @@ else:
 
 def on_c_store(dataset):
     """
-    Function replacing ApplicationEntity.on_store(). Called when a dataset is 
-    received following a C-STORE. Write the received dataset to file 
-    
+    Function replacing ApplicationEntity.on_store(). Called when a dataset is
+    received following a C-STORE. Write the received dataset to file
+
     Parameters
     ----------
     dataset - pydicom.Dataset
         The DICOM dataset sent via the C-STORE
-            
+
     Returns
     -------
     status : pynetdicom.SOPclass.Status or int
-        A valid return status code, see PS3.4 Annex B.2.3 or the 
+        A valid return status code, see PS3.4 Annex B.2.3 or the
         StorageServiceClass implementation for the available statuses
     """
     mode_prefix = 'UN'
@@ -203,21 +203,21 @@ def on_c_store(dataset):
 
     filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
     logger.info('Storing DICOM file: %s' %filename)
-    
+
     if os.path.exists(filename):
         logger.warning('DICOM file already exists, overwriting')
-    
+
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
     meta.ImplementationClassUID = pynetdicom_uid_prefix
-    
+
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
     ds.is_little_endian = True
     ds.is_implicit_VR = True
     ds.save_as(filename)
-        
+
     return 0x0000 # Success
 
 ae.on_c_store = on_c_store
@@ -225,12 +225,12 @@ ae.on_c_store = on_c_store
 # Send query
 if assoc.is_established:
     response = assoc.send_c_get(d, query_model=query_model)
-    
+
     time.sleep(1)
     if response is not None:
         for value in response:
             pass
-    
+
     assoc.release()
 
 # done
