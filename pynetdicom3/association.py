@@ -1,24 +1,20 @@
-
+"""
+Defines the Association class
+"""
 import logging
-import os
-import platform
-import select
-import socket
-import struct
-import sys
 import threading
 import time
-from weakref import proxy
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                         ExplicitVRBigEndian, UID
+                        ExplicitVRBigEndian, UID
 
 from pynetdicom3.ACSEprovider import ACSEServiceProvider
 from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
 from pynetdicom3.DIMSEparameters import *
 from pynetdicom3.DULprovider import DULServiceProvider
 from pynetdicom3.SOPclass import *
-from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr, wrap_list
+from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
+from pynetdicom3.utils import wrap_list
 from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    MaximumLengthNegotiation, \
@@ -100,13 +96,8 @@ class Association(threading.Thread):
     scp_supported_sop
         A list of the supported SOP classes when acting as an SCP
     """
-    def __init__(self, local_ae,
-                       client_socket=None,
-                       peer_ae=None,
-                       acse_timeout=30,
-                       dimse_timeout=0,
-                       max_pdu=16382,
-                       ext_neg=None):
+    def __init__(self, local_ae, client_socket=None, peer_ae=None,
+                 acse_timeout=30, dimse_timeout=0, max_pdu=16382, ext_neg=None):
 
         # Why is the AE in charge of supplying the client socket?
         #   Hmm, perhaps because we can have multiple connections on the same
@@ -115,11 +106,11 @@ class Association(threading.Thread):
         #   As SCU: supply addr/port to make connection on (peer_ae != None)
         if [client_socket, peer_ae] == [None, None]:
             raise ValueError("Association must be initialised with either "
-                                "the client_socket or peer_ae parameters")
+                             "the client_socket or peer_ae parameters")
 
         if client_socket and peer_ae:
             raise ValueError("Association must be initialised with either "
-                                "client_socket or peer_ae parameter not both")
+                             "client_socket or peer_ae parameter not both")
 
         # Received a connection from a peer AE
         if client_socket:
@@ -199,7 +190,7 @@ class Association(threading.Thread):
         provider
         """
         # A-RELEASE response primitive
-        response = self.acse.Release()
+        _ = self.acse.Release()
         self.kill()
 
         self.is_released = True
@@ -461,12 +452,10 @@ class Association(threading.Thread):
                         'AET'     : self.ae.ae_title}
 
             # Request an Association via the ACSE
-            is_accepted, assoc_rsp = self.acse.Request(
-                                        local_ae,
-                                        self.peer_ae,
-                                        self.local_max_pdu,
-                                        self.ae.presentation_contexts_scu,
-                                        userspdu=self.ext_neg)
+            is_accepted, assoc_rsp = \
+                self.acse.Request(local_ae, self.peer_ae, self.local_max_pdu,
+                                  self.ae.presentation_contexts_scu,
+                                  userspdu=self.ext_neg)
 
             # Association was accepted or rejected
             if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -486,9 +475,9 @@ class Association(threading.Thread):
                     self.scu_supported_sop = []
                     for context in self.acse.presentation_contexts_accepted:
                         self.scu_supported_sop.append(
-                                       (context.ID,
-                                        UID2SOPClass(context.AbstractSyntax),
-                                        context.TransferSyntax[0]))
+                            (context.ID,
+                             UID2SOPClass(context.AbstractSyntax),
+                             context.TransferSyntax[0]))
 
                     # Assocation established OK
                     self.is_established = True
@@ -589,7 +578,7 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'" %uid)
+                logger.error("No Presentation Context for: '%s'", uid)
                 return None
 
             # Build C-STORE request primitive
@@ -610,7 +599,7 @@ class Association(threading.Thread):
 
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-ECHO request")
+                               "established before sending a C-ECHO request")
 
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """
@@ -721,7 +710,8 @@ class Association(threading.Thread):
 
         # pydicom can only handle uncompressed transfer syntaxes for conversion
         if not dataset._is_uncompressed_transfer_syntax():
-            logger.warning('Unable to send the dataset due to pydicom not supporting compressed datasets')
+            logger.warning("Unable to send the dataset due to pydicom not "
+                           "supporting compressed datasets")
             logger.error('Sending file failed')
             return 0xC000
 
@@ -738,10 +728,10 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %dataset.SOPClassUID)
+                logger.error("No Presentation Context for: '%s'",
+                             dataset.SOPClassUID)
                 logger.error("Store SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.CannotUnderstand
 
             # Set the correct VR for ambiguous elements
@@ -757,8 +747,8 @@ class Association(threading.Thread):
             if priority in [0x0000, 0x0001, 0x0002]:
                 primitive.Priority = priority
             else:
-                logger.warning("C-STORE SCU: Invalid priority value "
-                                                            "'%s'" %priority)
+                logger.warning("C-STORE SCU: Invalid priority value '%s'",
+                               priority)
                 primitive.Priorty = 0x0000
 
             # Encode the dataset using the agreed transfer syntax
@@ -791,7 +781,7 @@ class Association(threading.Thread):
 
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                    "established before sending a C-STORE request")
+                               "established before sending a C-STORE request")
 
     def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """
@@ -846,7 +836,7 @@ class Association(threading.Thread):
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
             else:
                 raise ValueError("Association::send_c_find() query_model "
-                    "must be one of ['W'|'P'|'S'|'O']")
+                                 "must be one of ['W'|'P'|'S'|'O']")
 
             # Determine the Presentation Context we are operating under
             #   and hence the transfer syntax to use for encoding `dataset`
@@ -857,10 +847,10 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'",
+                             sop_class.UID)
                 logger.error("Find SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
             # Build C-FIND primitive
@@ -868,9 +858,9 @@ class Association(threading.Thread):
             primitive.MessageID = msg_id
             primitive.AffectedSOPClassUID = sop_class.UID
             primitive.Priority = priority
-            primitive.Identifier = BytesIO(encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian))
+            primitive.Identifier = \
+                BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
+                               transfer_syntax.is_little_endian))
 
             logger.info('Find SCU Request Identifiers:')
             logger.info('')
@@ -894,9 +884,9 @@ class Association(threading.Thread):
                     continue
 
                 # Decode the dataset
-                d = decode(rsp.Identifier,
-                           transfer_syntax.is_implicit_VR,
-                           transfer_syntax.is_little_endian)
+                ds = decode(rsp.Identifier,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
 
                 # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
                 status = service_class.Code2Status(rsp.Status)
@@ -909,22 +899,22 @@ class Association(threading.Thread):
                     break
 
                 logger.debug('-' * 65)
-                logger.debug('Find Response: %s (%s)' %(ii, status.Type))
+                logger.debug('Find Response: %s (%s)', ii, status.Type)
                 logger.debug('')
                 logger.debug('# DICOM Dataset')
-                for elem in d:
+                for elem in ds:
                     logger.debug(elem)
                 logger.debug('')
 
                 ii += 1
 
-                yield status, d
+                yield status, ds
 
-            yield status, d
+            yield status, ds
 
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-FIND request")
+                               "established before sending a C-FIND request")
 
     def send_c_cancel_find(self, msg_id, query_model):
         """
@@ -958,7 +948,7 @@ class Association(threading.Thread):
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
             else:
                 raise ValueError("Association::send_c_cancel_find() "
-                    "query_model must be one of ['W'|'P'|'S'|'O']")
+                                 "query_model must be one of ['W'|'P'|'S'|'O']")
 
             # Determine the Presentation Context we are operating under
             #   and hence the transfer syntax to use for encoding `dataset`
@@ -969,10 +959,9 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'", sop_class.UID)
                 logger.error("Find SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
             logger.info('Sending C-CANCEL-FIND')
@@ -1033,7 +1022,7 @@ class Association(threading.Thread):
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
             else:
                 raise ValueError("Association::send_c_move() query_model must "
-                    "be one of ['P'|'S'|'O']")
+                                 "be one of ['P'|'S'|'O']")
 
             service_class = QueryRetrieveMoveServiceClass()
 
@@ -1046,10 +1035,9 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'", sop_class.UID)
                 logger.error("Move SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
             # Build C-MOVE primitive
@@ -1058,9 +1046,9 @@ class Association(threading.Thread):
             primitive.AffectedSOPClassUID = sop_class.UID
             primitive.MoveDestination = move_aet
             primitive.Priority = priority
-            primitive.Identifier = BytesIO(encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian))
+            primitive.Identifier = \
+                BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
+                               transfer_syntax.is_little_endian))
 
             logger.info('Move SCU Request Identifiers:')
             logger.info('')
@@ -1095,13 +1083,10 @@ class Association(threading.Thread):
 
                         # Pending Response
                         logger.debug('')
-                        logger.info("Move Response: %s (Pending)" %ii)
+                        logger.info("Move Response: %s (Pending)", ii)
                         logger.info("    Sub-Operations Remaining: %s, "
-                                "Completed: %s, Failed: %s, Warning: %s" %(
-                                                            remain,
-                                                            complete,
-                                                            failed,
-                                                            warning))
+                                    "Completed: %s, Failed: %s, Warning: %s",
+                                    remain, complete, failed, warning)
                         ii += 1
 
                         yield status, dataset
@@ -1111,22 +1096,22 @@ class Association(threading.Thread):
                     # All other possible responses
                     elif status.Type == "Failure":
                         logger.debug('')
-                        logger.error('Move Response: %s (Failure)' %ii)
-                        logger.error('    %s' %status.Description)
+                        logger.error('Move Response: %s (Failure)', ii)
+                        logger.error('    %s', status.Description)
 
                         break
                     elif status.Type == "Cancel":
                         logger.debug('')
-                        logger.info('Move Response: %s (Cancel)' %ii)
-                        logger.info('    %s' %status.Description)
+                        logger.info('Move Response: %s (Cancel)', ii)
+                        logger.info('    %s', status.Description)
                         break
                     elif status.Type == "Warning":
                         logger.debug('')
-                        logger.warning('Move Response: %s (Warning)' %ii)
-                        logger.warning('    %s' %status.Description)
+                        logger.warning('Move Response: %s (Warning)', ii)
+                        logger.warning('    %s', status.Description)
 
                         for elem in dataset:
-                            logger.warning('%s: %s' %(elem.name, elem.value))
+                            logger.warning('%s: %s', elem.name, elem.value)
 
                         break
 
@@ -1134,7 +1119,7 @@ class Association(threading.Thread):
 
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-MOVE request")
+                               "established before sending a C-MOVE request")
 
     def send_c_cancel_move(self, msg_id, query_model):
         """
@@ -1165,7 +1150,7 @@ class Association(threading.Thread):
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
             else:
                 raise ValueError("Association::send_c_cancel_move() query_model "
-                    "must be one of ['P'|'S'|'O']")
+                                 "must be one of ['P'|'S'|'O']")
 
             # Determine the Presentation Context we are operating under
             #   and hence the transfer syntax to use for encoding `dataset`
@@ -1176,10 +1161,9 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'", sop_class.UID)
                 logger.error("Move SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
             logger.info('Sending C-CANCEL-MOVE')
@@ -1233,7 +1217,7 @@ class Association(threading.Thread):
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
             else:
                 raise ValueError("Association::send_c_get() query_model "
-                    "must be one of ['P'|'S'|'O']")
+                                 "must be one of ['P'|'S'|'O']")
 
             service_class = QueryRetrieveGetServiceClass()
 
@@ -1246,10 +1230,9 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'", sop_class.UID)
                 logger.error("Get SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
 
@@ -1258,9 +1241,9 @@ class Association(threading.Thread):
             primitive.MessageID = msg_id
             primitive.AffectedSOPClassUID = sop_class.UID
             primitive.Priority = priority
-            primitive.Identifier = BytesIO(encode(dataset,
-                                           transfer_syntax.is_implicit_VR,
-                                           transfer_syntax.is_little_endian))
+            primitive.Identifier = \
+                BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
+                               transfer_syntax.is_little_endian))
 
             # Send primitive to peer
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
@@ -1294,13 +1277,10 @@ class Association(threading.Thread):
 
                         # Pending Response
                         logger.debug('')
-                        logger.info("Find Response: %s (Pending)" %ii)
+                        logger.info("Find Response: %s (Pending)", ii)
                         logger.info("    Sub-Operations Remaining: %s, "
-                                "Completed: %s, Failed: %s, Warning: %s" %(
-                                                            remain,
-                                                            complete,
-                                                            failed,
-                                                            warning))
+                                    "Completed: %s, Failed: %s, Warning: %s",
+                                    remain, complete, failed, warning)
                         ii += 1
 
                         yield status, dataset
@@ -1313,27 +1293,27 @@ class Association(threading.Thread):
                     # All other possible responses
                     elif status.Type == "Failure":
                         logger.debug('')
-                        logger.error('Find Response: %s (Failure)' %ii)
-                        logger.error('    %s' %status.Description)
+                        logger.error('Find Response: %s (Failure)', ii)
+                        logger.error('    %s', status.Description)
 
                         # Print out the status information
                         for elem in dataset:
-                            logger.error('%s: %s' %(elem.name, elem.value))
+                            logger.error('%s: %s', elem.name, elem.value)
 
                         break
                     elif status.Type == "Cancel":
                         logger.debug('')
-                        logger.info('Find Response: %s (Cancel)' %ii)
+                        logger.info('Find Response: %s (Cancel)', ii)
                         logger.info('    %s' %status.Description)
                         break
                     elif status.Type == "Warning":
                         logger.debug('')
-                        logger.warning('Find Response: %s (Warning)' %ii)
-                        logger.warning('    %s' %status.Description)
+                        logger.warning('Find Response: %s (Warning)', ii)
+                        logger.warning('    %s', status.Description)
 
                         # Print out the status information
                         for elem in dataset:
-                            logger.warning('%s: %s' %(elem.name, elem.value))
+                            logger.warning('%s: %s', elem.name, elem.value)
 
                         break
 
@@ -1346,12 +1326,12 @@ class Association(threading.Thread):
                                                     rsp.AffectedSOPInstanceUID
                     c_store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
 
-                    d = decode(rsp.DataSet,
-                               transfer_syntax.is_implicit_VR,
-                               transfer_syntax.is_little_endian)
+                    ds = decode(rsp.DataSet,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
 
                     #  Callback for C-STORE SCP (user implemented)
-                    status = self.ae.on_c_store(d)
+                    status = self.ae.on_c_store(ds)
 
                     # Send C-STORE confirmation back to peer
                     c_store_rsp.Status = int(status)
@@ -1363,7 +1343,7 @@ class Association(threading.Thread):
 
         else:
             raise RuntimeError("The association with a peer SCP must be "
-                "established before sending a C-GET request")
+                               "established before sending a C-GET request")
 
     def send_c_cancel_get(self, msg_id, query_model):
         """
@@ -1395,7 +1375,7 @@ class Association(threading.Thread):
                 sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
             else:
                 raise ValueError("Association::send_c_cancel_get() query_model "
-                    "must be one of ['P'|'S'|'O']")
+                                 "must be one of ['P'|'S'|'O']")
 
             # Determine the Presentation Context we are operating under
             #   and hence the transfer syntax to use for encoding `dataset`
@@ -1406,10 +1386,9 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'", sop_class.UID)
                 logger.error("Find SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
             logger.info('Sending C-CANCEL-GET')
@@ -1420,25 +1399,27 @@ class Association(threading.Thread):
 
     # DIMSE-N services provided by the Association
     def send_n_event_report(self):
+        """Send an N-EVENT-REPORT request message to the peer AE."""
         raise NotImplementedError
 
     def send_n_get(self, msg_id, dataset=None):
+        """Send an N-GET request message to the peer AE."""
         if self.is_established:
             service_class = QueryRetrieveGetServiceClass()
 
             # Determine the Presentation Context we are operating under
             #   and hence the transfer syntax to use for encoding `dataset`
             transfer_syntax = None
+            # FIXME: broken
             for context in self.acse.context_manager.accepted:
                 if sop_class.UID == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'"
-                                                    %sop_class.UID)
+                logger.error("No Presentation Context for: '%s'", sop_class.UID)
                 logger.error("Get SCU failed due to there being no valid "
-                        "presentation context for the current dataset")
+                             "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
 
@@ -1461,15 +1442,19 @@ class Association(threading.Thread):
             self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_n_set(self):
+        """Send an N-SET request message to the peer AE."""
         raise NotImplementedError
 
     def send_n_action(self):
+        """Send an N-ACTION request message to the peer AE."""
         raise NotImplementedError
 
     def send_n_create(self):
+        """Send an N-CREATE request message to the peer AE."""
         raise NotImplementedError
 
     def send_n_delete(self):
+        """Send an N-DELETE request message to the peer AE."""
         raise NotImplementedError
 
 
@@ -1584,40 +1569,43 @@ class Association(threading.Thread):
         result = assoc_primitive.result
         reason = assoc_primitive.diagnostic
 
-        source_str = { 1 : 'Service User',
-                       2 : 'Service Provider (ACSE)',
-                       3 : 'Service Provider (Presentation)'}
+        source_str = {1 : 'Service User',
+                      2 : 'Service Provider (ACSE)',
+                      3 : 'Service Provider (Presentation)'}
 
-        reason_str = [{ 1 : 'No reason given',
-                        2 : 'Application context name not supported',
-                        3 : 'Calling AE title not recognised',
-                        4 : 'Reserved',
-                        5 : 'Reserved',
-                        6 : 'Reserved',
-                        7 : 'Called AE title not recognised',
-                        8 : 'Reserved',
-                        9 : 'Reserved',
-                       10 : 'Reserved'},
-                      { 1 : 'No reason given',
-                        2 : 'Protocol version not supported'},
-                      { 0 : 'Reserved',
-                        1 : 'Temporary congestion',
-                        2 : 'Local limit exceeded',
-                        3 : 'Reserved',
-                        4 : 'Reserved',
-                        5 : 'Reserved',
-                        6 : 'Reserved',
-                        7 : 'Reserved'}]
+        reason_str = [{1 : 'No reason given',
+                       2 : 'Application context name not supported',
+                       3 : 'Calling AE title not recognised',
+                       4 : 'Reserved',
+                       5 : 'Reserved',
+                       6 : 'Reserved',
+                       7 : 'Called AE title not recognised',
+                       8 : 'Reserved',
+                       9 : 'Reserved',
+                      10 : 'Reserved'},
+                      {1 : 'No reason given',
+                       2 : 'Protocol version not supported'},
+                      {0 : 'Reserved',
+                       1 : 'Temporary congestion',
+                       2 : 'Local limit exceeded',
+                       3 : 'Reserved',
+                       4 : 'Reserved',
+                       5 : 'Reserved',
+                       6 : 'Reserved',
+                       7 : 'Reserved'}]
 
-        result_str = { 1 : 'Rejected Permanent',
-                       2 : 'Rejected Transient'}
+        result_str = {1 : 'Rejected Permanent',
+                      2 : 'Rejected Transient'}
 
         logger.error('Association Rejected:')
-        logger.error('Result: %s, Source: %s' %(result_str[result], source_str[source]))
-        logger.error('Reason: %s' %reason_str[source - 1][reason])
+        logger.error('Result: %s, Source: %s', result_str[result],
+                     source_str[source])
+        logger.error('Reason: %s', reason_str[source - 1][reason])
 
     def debug_association_released(self):
+        """Logging for association release."""
         logger.info('Association Released')
 
     def debug_association_aborted(self, abort_primitive=None):
+        """Logging for association abort."""
         logger.error('Association Aborted')
