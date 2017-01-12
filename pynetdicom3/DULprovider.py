@@ -16,7 +16,6 @@ from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom3.exceptions import InvalidPrimitive
 from pynetdicom3.fsm import StateMachine
 from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
                             A_ASSOCIATE_RJ_PDU, \
@@ -530,7 +529,7 @@ def primitive2event(primitive):
 
     Raises
     ------
-    InvalidPrimitive
+    ValueError
         If the primitive is not valid
     """
     if primitive.__class__ == A_ASSOCIATE:
@@ -555,7 +554,7 @@ def primitive2event(primitive):
     elif primitive.__class__ == P_DATA:
         event_str = 'Evt9'
     else:
-        raise InvalidPrimitive
+        raise ValueError("primitive2event() - Invalid primitive")
 
     return event_str
 
