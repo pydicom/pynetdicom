@@ -1,15 +1,20 @@
-
+"""
+The DUL's finite state machine representation.
+"""
 import logging
 import socket
 
-from pynetdicom3.PDU import *
+from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_RJ_PDU, \
+                            A_ASSOCIATE_AC_PDU, P_DATA_TF_PDU, \
+                            A_RELEASE_RQ_PDU, A_RELEASE_RP_PDU, A_ABORT_PDU
 from pynetdicom3.primitives import A_ABORT
-from pynetdicom3.utils import wrap_list
 
-logger = logging.getLogger('pynetdicom3.sm')
+LOGGER = logging.getLogger('pynetdicom3.sm')
+
+# pylint: disable=invalid-name
 
 
-class StateMachine:
+class StateMachine(object):
     """
     Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
     9.2.
@@ -37,17 +42,19 @@ class StateMachine:
             The event to be processed, Evt1 to Evt19
         """
         # Check (event + state) is valid
-        if (event, self.current_state) not in transition_table.keys():
-            logger.error("DUL State Machine received an invalid event '%s' "
-                "for the current state '%s'" %(event, self.current_state))
+        if (event, self.current_state) not in TRANSITION_TABLE.keys():
+            LOGGER.error("DUL State Machine received an invalid event '%s' "
+                         "for the current state '%s'",
+                         event, self.current_state)
             raise KeyError("DUL State Machine received an invalid event "
-                "'%s' for the current state '%s'" %(event, self.current_state))
+                           "'%s' for the current state '%s'",
+                           event, self.current_state)
 
-        action_name = transition_table[(event, self.current_state)]
+        action_name = TRANSITION_TABLE[(event, self.current_state)]
 
         # action is the (description, function, state) tuple
         #   associated with the action_name
-        action = actions[action_name]
+        action = ACTIONS[action_name]
 
         # Attempt to execute the action and move the state machine to its
         #   next state
@@ -60,12 +67,12 @@ class StateMachine:
             # Move the state machine to the next state
             self.transition(next_state)
 
-        except Exception as e:
-            logger.error("DUL State Machine received an exception attempting "
-                "to perform the action '%s' while in state '%s'"
-                                %(action_name, self.current_state))
+        except Exception as ex:
+            LOGGER.error("DUL State Machine received an exception attempting "
+                         "to perform the action '%s' while in state '%s'",
+                         action_name, self.current_state)
             self.dul.Kill()
-            raise e
+            raise ex
 
     def transition(self, state):
         """
@@ -82,11 +89,11 @@ class StateMachine:
             If the state is not a valid state
         """
         # Validate that state is acceptable
-        if state in states.keys():
+        if state in STATES.keys():
             self.current_state = state
         else:
-            logger.error('Invalid state "%s" for State Machine' %state)
-            raise ValueError('Invalid state "%s" for State Machine' %state)
+            LOGGER.error('Invalid state "%s" for State Machine', state)
+            raise ValueError('Invalid state "%s" for State Machine', state)
 
 
 def AE_1(dul):
@@ -122,10 +129,10 @@ def AE_1(dul):
         dul.scu_socket.connect(dul.primitive.called_presentation_address)
     except socket.error:
         # Failed to connect
-        logger.error("Association Request Failed: Failed to establish "
-                                                            "association")
-        logger.error("Peer aborted Association (or never connected)")
-        logger.error("TCP Initialisation Error: Connection refused")
+        LOGGER.error("Association Request Failed: Failed to establish "
+                     "association")
+        LOGGER.error("Peer aborted Association (or never connected)")
+        LOGGER.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
 
     return 'Sta4'
@@ -247,7 +254,6 @@ def AE_5(dul):
     """
     # Issue connection response primitive
     # not required due to implementation
-    pass
 
     # Start ARTIM timer
     dul.artim_timer.start()
@@ -287,8 +293,9 @@ def AE_6(dul):
     # If A-ASSOCIATE-RQ not acceptable by service dul provider
     #   Then set reason and send -RJ PDU back to peer
     if dul.pdu.protocol_version != 0x0001:
-        logger.error("Receiving Association failed: Unsupported peer protocol "
-                "version '0x%04x' (0x0001 expected)" %dul.pdu.protocol_version)
+        LOGGER.error("Receiving Association failed: Unsupported peer protocol "
+                     "version '0x%04x' (0x0001 expected)",
+                     dul.pdu.protocol_version)
 
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
         # dul.primitive is A_ASSOCIATE
@@ -1017,7 +1024,7 @@ def AA_8(dul):
 
 # Finite State Machine
 # Machine State Defintions, PS3.8 Tables 9-1, 9-2, 9-3, 9-4, 9-5
-states = {
+STATES = {
     # No association
     'Sta1': 'Idle',
     # Association establishment
@@ -1042,7 +1049,7 @@ states = {
 }
 
 # State Machine Action Definitions, PS3.8 Tables 9-6, 9-7, 9-8, 9-9
-actions = {
+ACTIONS = {
     # Association establishment actions
     'AE-1': ('Issue TRANSPORT CONNECT request primitive to local transport '
              'service', AE_1, 'Sta4'),
@@ -1094,169 +1101,148 @@ actions = {
 }
 
 # State Machine Event Definitions, PS3.8 Table 9-10
-events = {
-     'Evt1': "A-ASSOCIATE request (local user)",
-     'Evt2': "Transport connect confirmation (local transport service)",
-     'Evt3': "A-ASSOCIATE-AC PDU (received on transport connection)",
-     'Evt4': "A-ASSOCIATE-RJ PDU (received on transport connection)",
-     'Evt5': "Transport connection indication (local transport service)",
-     'Evt6': "A-ASSOCIATE-RQ PDU (on tranport connection)",
-     'Evt7': "A-ASSOCIATE response primitive (accept)",
-     'Evt8': "A-ASSOCIATE response primitive (reject)",
-     'Evt9': "P-DATA request primitive",
-    'Evt10': "P-DATA-TF PDU (on transport connection)",
-    'Evt11': "A-RELEASE request primitive",
-    'Evt12': "A-RELEASE-RQ PDU (on transport)",
-    'Evt13': "A-RELEASE-RP PDU (on transport)",
-    'Evt14': "A-RELEASE response primitive",
-    'Evt15': "A-ABORT request primitive",
-    'Evt16': "A-ABORT PDU (on transport)",
-    'Evt17': "Transport connection closed indication (local transport service)",
-    'Evt18': "ARTIM timer expired (Association reject/release timer)",
-    'Evt19': "Unrecognized or invalid PDU received"
-}
+EVENTS = {'Evt1': "A-ASSOCIATE request (local user)",
+          'Evt2': "Transport connect confirmation (local transport service)",
+          'Evt3': "A-ASSOCIATE-AC PDU (received on transport connection)",
+          'Evt4': "A-ASSOCIATE-RJ PDU (received on transport connection)",
+          'Evt5': "Transport connection indication (local transport service)",
+          'Evt6': "A-ASSOCIATE-RQ PDU (on tranport connection)",
+          'Evt7': "A-ASSOCIATE response primitive (accept)",
+          'Evt8': "A-ASSOCIATE response primitive (reject)",
+          'Evt9': "P-DATA request primitive",
+          'Evt10': "P-DATA-TF PDU (on transport connection)",
+          'Evt11': "A-RELEASE request primitive",
+          'Evt12': "A-RELEASE-RQ PDU (on transport)",
+          'Evt13': "A-RELEASE-RP PDU (on transport)",
+          'Evt14': "A-RELEASE response primitive",
+          'Evt15': "A-ABORT request primitive",
+          'Evt16': "A-ABORT PDU (on transport)",
+          'Evt17': "Transport connection closed indication "
+                   "(local transport service)",
+          'Evt18': "ARTIM timer expired (Association reject/release timer)",
+          'Evt19': "Unrecognized or invalid PDU received"}
 
 # State Machine Transitions, PS3.8 Table 9-10
-transition_table = {
-    ('Evt1',  'Sta1'): 'AE-1',
-
-    ('Evt2',  'Sta4'): 'AE-2',
-
-    ('Evt3',  'Sta2'): 'AA-1',
-    ('Evt3',  'Sta3'): 'AA-8',
-    ('Evt3',  'Sta5'): 'AE-3',
-    ('Evt3',  'Sta6'): 'AA-8',
-    ('Evt3',  'Sta7'): 'AA-8',
-    ('Evt3',  'Sta8'): 'AA-8',
-    ('Evt3',  'Sta9'): 'AA-8',
-    ('Evt3', 'Sta10'): 'AA-8',
-    ('Evt3', 'Sta11'): 'AA-8',
-    ('Evt3', 'Sta12'): 'AA-8',
-    ('Evt3', 'Sta13'): 'AA-6',
-
-    ('Evt4',  'Sta2'): 'AA-1',
-    ('Evt4',  'Sta3'): 'AA-8',
-    ('Evt4',  'Sta5'): 'AE-4',
-    ('Evt4',  'Sta6'): 'AA-8',
-    ('Evt4',  'Sta7'): 'AA-8',
-    ('Evt4',  'Sta8'): 'AA-8',
-    ('Evt4',  'Sta9'): 'AA-8',
-    ('Evt4', 'Sta10'): 'AA-8',
-    ('Evt4', 'Sta11'): 'AA-8',
-    ('Evt4', 'Sta12'): 'AA-8',
-    ('Evt4', 'Sta13'): 'AA-6',
-
-    ('Evt5',  'Sta1'): 'AE-5',
-
-    ('Evt6',  'Sta2'): 'AE-6',
-    ('Evt6',  'Sta3'): 'AA-8',
-    ('Evt6',  'Sta5'): 'AA-8',
-    ('Evt6',  'Sta6'): 'AA-8',
-    ('Evt6',  'Sta7'): 'AA-8',
-    ('Evt6',  'Sta8'): 'AA-8',
-    ('Evt6',  'Sta9'): 'AA-8',
-    ('Evt6', 'Sta10'): 'AA-8',
-    ('Evt6', 'Sta11'): 'AA-8',
-    ('Evt6', 'Sta12'): 'AA-8',
-    ('Evt6', 'Sta13'): 'AA-7',
-
-    ('Evt7',  'Sta3'): 'AE-7',
-
-    ('Evt8',  'Sta3'): 'AE-8',
-
-    ('Evt9',  'Sta6'): 'DT-1',
-    ('Evt9',  'Sta8'): 'AR-7',
-
-    ('Evt10',  'Sta2'): 'AA-1',
-    ('Evt10',  'Sta3'): 'AA-8',
-    ('Evt10',  'Sta5'): 'AA-8',
-    ('Evt10',  'Sta6'): 'DT-2',
-    ('Evt10',  'Sta7'): 'AR-6',
-    ('Evt10',  'Sta8'): 'AA-8',
-    ('Evt10',  'Sta9'): 'AA-8',
-    ('Evt10', 'Sta10'): 'AA-8',
-    ('Evt10', 'Sta11'): 'AA-8',
-    ('Evt10', 'Sta12'): 'AA-8',
-    ('Evt10', 'Sta13'): 'AA-6',
-
-    ('Evt11',  'Sta6'): 'AR-1',
-
-    ('Evt12',  'Sta2'): 'AA-1',
-    ('Evt12',  'Sta3'): 'AA-8',
-    ('Evt12',  'Sta5'): 'AA-8',
-    ('Evt12',  'Sta6'): 'AR-2',
-    ('Evt12',  'Sta7'): 'AR-8',
-    ('Evt12',  'Sta8'): 'AA-8',
-    ('Evt12',  'Sta9'): 'AA-8',
-    ('Evt12', 'Sta10'): 'AA-8',
-    ('Evt12', 'Sta11'): 'AA-8',
-    ('Evt12', 'Sta12'): 'AA-8',
-    ('Evt12', 'Sta13'): 'AA-6',
-
-    ('Evt13',  'Sta2'): 'AA-1',
-    ('Evt13',  'Sta3'): 'AA-8',
-    ('Evt13',  'Sta5'): 'AA-8',
-    ('Evt13',  'Sta6'): 'AA-8',
-    ('Evt13',  'Sta7'): 'AR-3',
-    ('Evt13',  'Sta8'): 'AA-8',
-    ('Evt13',  'Sta9'): 'AA-8',
-    ('Evt13', 'Sta10'): 'AR-10',
-    ('Evt13', 'Sta11'): 'AR-3',
-    ('Evt13', 'Sta12'): 'AA-8',
-    ('Evt13', 'Sta13'): 'AA-6',
-
-    ('Evt14',  'Sta8'): 'AR-4',
-    ('Evt14',  'Sta9'): 'AR-9',
-    ('Evt14', 'Sta12'): 'AR-4',
-
-    ('Evt15',  'Sta3'): 'AA-1',
-    ('Evt15',  'Sta4'): 'AA-2',
-    ('Evt15',  'Sta5'): 'AA-1',
-    ('Evt15',  'Sta6'): 'AA-1',
-    ('Evt15',  'Sta7'): 'AA-1',
-    ('Evt15',  'Sta8'): 'AA-1',
-    ('Evt15',  'Sta9'): 'AA-1',
-    ('Evt15', 'Sta10'): 'AA-1',
-    ('Evt15', 'Sta11'): 'AA-1',
-    ('Evt15', 'Sta12'): 'AA-1',
-
-    ('Evt16',  'Sta2'): 'AA-2',
-    ('Evt16',  'Sta3'): 'AA-3',
-    ('Evt16',  'Sta5'): 'AA-3',
-    ('Evt16',  'Sta6'): 'AA-3',
-    ('Evt16',  'Sta7'): 'AA-3',
-    ('Evt16',  'Sta8'): 'AA-3',
-    ('Evt16',  'Sta9'): 'AA-3',
-    ('Evt16', 'Sta10'): 'AA-3',
-    ('Evt16', 'Sta11'): 'AA-3',
-    ('Evt16', 'Sta12'): 'AA-3',
-    ('Evt16', 'Sta13'): 'AA-2',
-
-    ('Evt17',  'Sta2'): 'AA-5',
-    ('Evt17',  'Sta3'): 'AA-4',
-    ('Evt17',  'Sta4'): 'AA-4',
-    ('Evt17',  'Sta5'): 'AA-4',
-    ('Evt17',  'Sta6'): 'AA-4',
-    ('Evt17',  'Sta7'): 'AA-4',
-    ('Evt17',  'Sta8'): 'AA-4',
-    ('Evt17',  'Sta9'): 'AA-4',
-    ('Evt17', 'Sta10'): 'AA-4',
-    ('Evt17', 'Sta11'): 'AA-4',
-    ('Evt17', 'Sta12'): 'AA-4',
-    ('Evt17', 'Sta13'): 'AR-5',
-
-    ('Evt18',  'Sta2'): 'AA-2',
-    ('Evt18', 'Sta13'): 'AA-2',
-
-    ('Evt19',  'Sta2'): 'AA-1',
-    ('Evt19',  'Sta3'): 'AA-8',
-    ('Evt19',  'Sta5'): 'AA-8',
-    ('Evt19',  'Sta6'): 'AA-8',
-    ('Evt19',  'Sta7'): 'AA-8',
-    ('Evt19',  'Sta8'): 'AA-8',
-    ('Evt19',  'Sta9'): 'AA-8',
-    ('Evt19', 'Sta10'): 'AA-8',
-    ('Evt19', 'Sta11'): 'AA-8',
-    ('Evt19', 'Sta12'): 'AA-8',
-    ('Evt19', 'Sta13'): 'AA-7'
-}
+TRANSITION_TABLE = {('Evt1', 'Sta1'): 'AE-1',
+                    ('Evt2', 'Sta4'): 'AE-2',
+                    ('Evt3', 'Sta2'): 'AA-1',
+                    ('Evt3', 'Sta3'): 'AA-8',
+                    ('Evt3', 'Sta5'): 'AE-3',
+                    ('Evt3', 'Sta6'): 'AA-8',
+                    ('Evt3', 'Sta7'): 'AA-8',
+                    ('Evt3', 'Sta8'): 'AA-8',
+                    ('Evt3', 'Sta9'): 'AA-8',
+                    ('Evt3', 'Sta10'): 'AA-8',
+                    ('Evt3', 'Sta11'): 'AA-8',
+                    ('Evt3', 'Sta12'): 'AA-8',
+                    ('Evt3', 'Sta13'): 'AA-6',
+                    ('Evt4', 'Sta2'): 'AA-1',
+                    ('Evt4', 'Sta3'): 'AA-8',
+                    ('Evt4', 'Sta5'): 'AE-4',
+                    ('Evt4', 'Sta6'): 'AA-8',
+                    ('Evt4', 'Sta7'): 'AA-8',
+                    ('Evt4', 'Sta8'): 'AA-8',
+                    ('Evt4', 'Sta9'): 'AA-8',
+                    ('Evt4', 'Sta10'): 'AA-8',
+                    ('Evt4', 'Sta11'): 'AA-8',
+                    ('Evt4', 'Sta12'): 'AA-8',
+                    ('Evt4', 'Sta13'): 'AA-6',
+                    ('Evt5', 'Sta1'): 'AE-5',
+                    ('Evt6', 'Sta2'): 'AE-6',
+                    ('Evt6', 'Sta3'): 'AA-8',
+                    ('Evt6', 'Sta5'): 'AA-8',
+                    ('Evt6', 'Sta6'): 'AA-8',
+                    ('Evt6', 'Sta7'): 'AA-8',
+                    ('Evt6', 'Sta8'): 'AA-8',
+                    ('Evt6', 'Sta9'): 'AA-8',
+                    ('Evt6', 'Sta10'): 'AA-8',
+                    ('Evt6', 'Sta11'): 'AA-8',
+                    ('Evt6', 'Sta12'): 'AA-8',
+                    ('Evt6', 'Sta13'): 'AA-7',
+                    ('Evt7', 'Sta3'): 'AE-7',
+                    ('Evt8', 'Sta3'): 'AE-8',
+                    ('Evt9', 'Sta6'): 'DT-1',
+                    ('Evt9', 'Sta8'): 'AR-7',
+                    ('Evt10', 'Sta2'): 'AA-1',
+                    ('Evt10', 'Sta3'): 'AA-8',
+                    ('Evt10', 'Sta5'): 'AA-8',
+                    ('Evt10', 'Sta6'): 'DT-2',
+                    ('Evt10', 'Sta7'): 'AR-6',
+                    ('Evt10', 'Sta8'): 'AA-8',
+                    ('Evt10', 'Sta9'): 'AA-8',
+                    ('Evt10', 'Sta10'): 'AA-8',
+                    ('Evt10', 'Sta11'): 'AA-8',
+                    ('Evt10', 'Sta12'): 'AA-8',
+                    ('Evt10', 'Sta13'): 'AA-6',
+                    ('Evt11', 'Sta6'): 'AR-1',
+                    ('Evt12', 'Sta2'): 'AA-1',
+                    ('Evt12', 'Sta3'): 'AA-8',
+                    ('Evt12', 'Sta5'): 'AA-8',
+                    ('Evt12', 'Sta6'): 'AR-2',
+                    ('Evt12', 'Sta7'): 'AR-8',
+                    ('Evt12', 'Sta8'): 'AA-8',
+                    ('Evt12', 'Sta9'): 'AA-8',
+                    ('Evt12', 'Sta10'): 'AA-8',
+                    ('Evt12', 'Sta11'): 'AA-8',
+                    ('Evt12', 'Sta12'): 'AA-8',
+                    ('Evt12', 'Sta13'): 'AA-6',
+                    ('Evt13', 'Sta2'): 'AA-1',
+                    ('Evt13', 'Sta3'): 'AA-8',
+                    ('Evt13', 'Sta5'): 'AA-8',
+                    ('Evt13', 'Sta6'): 'AA-8',
+                    ('Evt13', 'Sta7'): 'AR-3',
+                    ('Evt13', 'Sta8'): 'AA-8',
+                    ('Evt13', 'Sta9'): 'AA-8',
+                    ('Evt13', 'Sta10'): 'AR-10',
+                    ('Evt13', 'Sta11'): 'AR-3',
+                    ('Evt13', 'Sta12'): 'AA-8',
+                    ('Evt13', 'Sta13'): 'AA-6',
+                    ('Evt14', 'Sta8'): 'AR-4',
+                    ('Evt14', 'Sta9'): 'AR-9',
+                    ('Evt14', 'Sta12'): 'AR-4',
+                    ('Evt15', 'Sta3'): 'AA-1',
+                    ('Evt15', 'Sta4'): 'AA-2',
+                    ('Evt15', 'Sta5'): 'AA-1',
+                    ('Evt15', 'Sta6'): 'AA-1',
+                    ('Evt15', 'Sta7'): 'AA-1',
+                    ('Evt15', 'Sta8'): 'AA-1',
+                    ('Evt15', 'Sta9'): 'AA-1',
+                    ('Evt15', 'Sta10'): 'AA-1',
+                    ('Evt15', 'Sta11'): 'AA-1',
+                    ('Evt15', 'Sta12'): 'AA-1',
+                    ('Evt16', 'Sta2'): 'AA-2',
+                    ('Evt16', 'Sta3'): 'AA-3',
+                    ('Evt16', 'Sta5'): 'AA-3',
+                    ('Evt16', 'Sta6'): 'AA-3',
+                    ('Evt16', 'Sta7'): 'AA-3',
+                    ('Evt16', 'Sta8'): 'AA-3',
+                    ('Evt16', 'Sta9'): 'AA-3',
+                    ('Evt16', 'Sta10'): 'AA-3',
+                    ('Evt16', 'Sta11'): 'AA-3',
+                    ('Evt16', 'Sta12'): 'AA-3',
+                    ('Evt16', 'Sta13'): 'AA-2',
+                    ('Evt17', 'Sta2'): 'AA-5',
+                    ('Evt17', 'Sta3'): 'AA-4',
+                    ('Evt17', 'Sta4'): 'AA-4',
+                    ('Evt17', 'Sta5'): 'AA-4',
+                    ('Evt17', 'Sta6'): 'AA-4',
+                    ('Evt17', 'Sta7'): 'AA-4',
+                    ('Evt17', 'Sta8'): 'AA-4',
+                    ('Evt17', 'Sta9'): 'AA-4',
+                    ('Evt17', 'Sta10'): 'AA-4',
+                    ('Evt17', 'Sta11'): 'AA-4',
+                    ('Evt17', 'Sta12'): 'AA-4',
+                    ('Evt17', 'Sta13'): 'AR-5',
+                    ('Evt18', 'Sta2'): 'AA-2',
+                    ('Evt18', 'Sta13'): 'AA-2',
+                    ('Evt19', 'Sta2'): 'AA-1',
+                    ('Evt19', 'Sta3'): 'AA-8',
+                    ('Evt19', 'Sta5'): 'AA-8',
+                    ('Evt19', 'Sta6'): 'AA-8',
+                    ('Evt19', 'Sta7'): 'AA-8',
+                    ('Evt19', 'Sta8'): 'AA-8',
+                    ('Evt19', 'Sta9'): 'AA-8',
+                    ('Evt19', 'Sta10'): 'AA-8',
+                    ('Evt19', 'Sta11'): 'AA-8',
+                    ('Evt19', 'Sta12'): 'AA-8',
+                    ('Evt19', 'Sta13'): 'AA-7'}
