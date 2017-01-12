@@ -1,4 +1,6 @@
-
+"""
+Implementaion of the service parameter primitives
+"""
 import logging
 
 from pydicom.uid import UID
@@ -12,9 +14,10 @@ from pynetdicom3.PDU import MaximumLengthSubItem, \
                              SOPClassCommonExtendedNegotiationSubItem, \
                              UserIdentitySubItemRQ, \
                              UserIdentitySubItemAC
-from pynetdicom3.utils import validate_ae_title, PresentationContext, wrap_list
+from pynetdicom3.utils import validate_ae_title, PresentationContext
+#from pynetdicom3.utils import wrap_list
 
-logger = logging.getLogger('pynetdicom3.primitives')
+LOGGER = logging.getLogger('pynetdicom3.primitives')
 
 
 class ServiceParameter(object):
@@ -33,17 +36,22 @@ class ServiceParameter(object):
                 return False
 
         for ii in self.__dict__:
-            if not (self.__dict__[ii] == other.__dict__[ii]):
+            if not self.__dict__[ii] == other.__dict__[ii]:
                 return False
 
         return True
 
+    def from_primitive(self):
+        """FIXME"""
+        raise NotImplementedError
+
     def FromParams(self):
+        """FIXME"""
         return self.from_primitive()
 
 
 # Association Service primitives
-class A_ASSOCIATE():
+class A_ASSOCIATE(object):
     """
     A-ASSOCIATE Parameters
 
@@ -133,8 +141,7 @@ class A_ASSOCIATE():
     7. Either Requestor or Acceptor may disrupt the Service Procedure by issuing
         an A-ABORT request primitive. The remote AE receives an A-ABORT
         indication primitive. The association shall not be established
-    """
-    """
+
     Attributes
     ----------
     mode : str
@@ -213,7 +220,8 @@ class A_ASSOCIATE():
     presentation_context_definition_list : list
         List of one or more presentation contexts, with each item containing
         a presentation context ID, an Abstract Syntax and a list of one or
-        more Transfer Syntax Names. Sent by the Requestor during request/indication
+        more Transfer Syntax Names. Sent by the Requestor during
+        request/indication
         PS3.8 7.1.1.13, [M, M(=), -, -]
     presentation_context_definition_results_list : list
         Used in response/confirmation to indicate acceptance or rejection of
@@ -247,20 +255,22 @@ class A_ASSOCIATE():
 
     @property
     def mode(self):
+        """Return the Mode parameter."""
         return "normal"
 
     @mode.setter
     def mode(self, value):
-        logger.info("Attempt to set A_ASSOCIATE.mode ignored (value is fixed)")
+        """Intercept attempts to set the Mode parameter."""
+        LOGGER.info("Attempt to set A_ASSOCIATE.mode ignored (value is fixed)")
 
     @property
     def application_context_name(self):
+        """Return the Application Context Name parameter."""
         return self._application_context_name
 
     @application_context_name.setter
     def application_context_name(self, value):
-        """
-        Sets the Application Context Name parameter
+        """Set the Application Context Name parameter.
 
         Parameters
         ----------
@@ -283,19 +293,19 @@ class A_ASSOCIATE():
             try:
                 value.is_valid()
             except:
-                logger.error("application_context_name is an invalid UID")
+                LOGGER.error("application_context_name is an invalid UID")
                 raise ValueError("application_context_name is an invalid UID")
 
         self._application_context_name = value
 
     @property
     def calling_ae_title(self):
+        """Return the Calling AE Title parameter."""
         return self._calling_ae_title
 
     @calling_ae_title.setter
     def calling_ae_title(self, value):
-        """
-        Set the A-ASSOCIATE primitive's Calling AE Title
+        """Set the Calling AE Title parameter.
 
         Parameters
         ----------
@@ -313,12 +323,12 @@ class A_ASSOCIATE():
 
     @property
     def called_ae_title(self):
+        """Return the Called AE Title parameter."""
         return self._called_ae_title
 
     @called_ae_title.setter
     def called_ae_title(self, value):
-        """
-        Set the A-ASSOCIATE primitive's Called AE Title
+        """Set the Called AE Title parameter.
 
         Parameters
         ----------
@@ -358,21 +368,22 @@ class A_ASSOCIATE():
         if isinstance(value_list, list):
             # Iterate through the items and check they're an acceptable class
             for item in value_list:
-                if item.__class__.__name__ in ["MaximumLengthNegotiation",
-                                                "ImplementationClassUIDNotification",
-                                                "ImplementationVersionNameNotification",
-                                                "AsynchronousOperationsWindowNegotiation",
-                                                "SCP_SCU_RoleSelectionNegotiation",
-                                                "SOPClassExtendedNegotiation",
-                                                "SOPClassCommonExtendedNegotiation",
-                                                "UserIdentityNegotiation"]:
+                if item.__class__.__name__ in \
+                        ["MaximumLengthNegotiation",
+                         "ImplementationClassUIDNotification",
+                         "ImplementationVersionNameNotification",
+                         "AsynchronousOperationsWindowNegotiation",
+                         "SCP_SCU_RoleSelectionNegotiation",
+                         "SOPClassExtendedNegotiation",
+                         "SOPClassCommonExtendedNegotiation",
+                         "UserIdentityNegotiation"]:
                     valid_usr_info_items.append(item)
                 else:
-                    logger.info("Attempted to set " \
+                    LOGGER.info("Attempted to set " \
                         "A_ASSOCIATE.user_information to a list which " \
                         "includes an unsupported item")
         else:
-            logger.error("A_ASSOCIATE.user_information must be a list")
+            LOGGER.error("A_ASSOCIATE.user_information must be a list")
             raise TypeError("A_ASSOCIATE.user_information must be a list")
 
         self._user_information = valid_usr_info_items
@@ -397,7 +408,7 @@ class A_ASSOCIATE():
         if value is None:
             pass
         elif value not in [0, 1, 2]:
-            logger.error("A_ASSOCIATE.result set to an unknown value")
+            LOGGER.error("A_ASSOCIATE.result set to an unknown value")
             raise ValueError("Unknown A_ASSOCIATE.result value")
 
         self._result = value
@@ -422,7 +433,7 @@ class A_ASSOCIATE():
         if value is None:
             pass
         elif value not in [1, 2, 3]:
-            logger.error("A_ASSOCIATE.result_source set to an unknown value")
+            LOGGER.error("A_ASSOCIATE.result_source set to an unknown value")
             raise ValueError("Unknown A_ASSOCIATE.result_source value")
 
         self._result_source = value
@@ -456,7 +467,7 @@ class A_ASSOCIATE():
         if value is None:
             pass
         elif value not in [1, 2, 3, 7]:
-            logger.error("A_ASSOCIATE.diagnostic set to an unknown value")
+            LOGGER.error("A_ASSOCIATE.diagnostic set to an unknown value")
             raise ValueError("Unknown A_ASSOCIATE.diagnostic value")
 
         self._diagnostic = value
@@ -468,7 +479,8 @@ class A_ASSOCIATE():
     @calling_presentation_address.setter
     def calling_presentation_address(self, value):
         """
-        Set the A-ASSOCIATE Service primitive's Calling Presentation Address parameter
+        Set the A-ASSOCIATE Service primitive's Calling Presentation
+        Address parameter
 
         Parameters
         ----------
@@ -477,16 +489,21 @@ class A_ASSOCIATE():
             as an int
         """
         if isinstance(value, tuple):
-            if len(value) == 2 and isinstance(value[0], str) and isinstance(value[1], int):
+            if len(value) == 2 and isinstance(value[0], str) \
+                and isinstance(value[1], int):
                 self._calling_presentation_address = value
             else:
-                logger.error("A_ASSOCIATE.calling_presentation_address must be (str, int) tuple")
-                raise TypeError("A_ASSOCIATE.calling_presentation_address must be (str, int) tuple")
+                LOGGER.error("A_ASSOCIATE.calling_presentation_address must " \
+                             "be (str, int) tuple")
+                raise TypeError("A_ASSOCIATE.calling_presentation_address " \
+                                "must be (str, int) tuple")
         elif value is None:
             self._calling_presentation_address = value
         else:
-            logger.error("A_ASSOCIATE.calling_presentation_address must be (str, int) tuple")
-            raise TypeError("A_ASSOCIATE.calling_presentation_address must be (str, int) tuple")
+            LOGGER.error("A_ASSOCIATE.calling_presentation_address must be " \
+                         "(str, int) tuple")
+            raise TypeError("A_ASSOCIATE.calling_presentation_address must " \
+                            "be (str, int) tuple")
 
     @property
     def called_presentation_address(self):
@@ -495,7 +512,8 @@ class A_ASSOCIATE():
     @called_presentation_address.setter
     def called_presentation_address(self, value):
         """
-        Set the A-ASSOCIATE Service primitive's Called Presentation Address parameter
+        Set the A-ASSOCIATE Service primitive's Called Presentation Address
+        parameter
 
         Parameters
         ----------
@@ -504,16 +522,21 @@ class A_ASSOCIATE():
             as an int
         """
         if isinstance(value, tuple):
-            if len(value) == 2 and isinstance(value[0], str) and isinstance(value[1], int):
+            if len(value) == 2 and isinstance(value[0], str) \
+                    and isinstance(value[1], int):
                 self._called_presentation_address = value
             else:
-                logger.error("A_ASSOCIATE.called_presentation_address must be (str, int) tuple")
-                raise TypeError("A_ASSOCIATE.called_presentation_address must be (str, int) tuple")
+                LOGGER.error("A_ASSOCIATE.called_presentation_address must " \
+                             "be (str, int) tuple")
+                raise TypeError("A_ASSOCIATE.called_presentation_address " \
+                                "must be (str, int) tuple")
         elif value is None:
             self._called_presentation_address = value
         else:
-            logger.error("A_ASSOCIATE.called_presentation_address must be (str, int) tuple")
-            raise TypeError("A_ASSOCIATE.called_presentation_address must be (str, int) tuple")
+            LOGGER.error("A_ASSOCIATE.called_presentation_address must be " \
+                         "(str, int) tuple")
+            raise TypeError("A_ASSOCIATE.called_presentation_address must " \
+                            "be (str, int) tuple")
 
     @property
     def responding_presentation_address(self):
@@ -540,15 +563,17 @@ class A_ASSOCIATE():
                 if isinstance(item, PresentationContext):
                     valid_items.append(item)
                 else:
-                    logger.warning("Attempted to set " \
+                    LOGGER.warning("Attempted to set " \
                         "A_ASSOCIATE.presentation_context_definition_list to "\
                         "a list which includes an invalid items")
 
             self._presentation_context_definition_list = valid_items
 
         else:
-            logger.error("A_ASSOCIATE.presentation_context_definition_list must be a list")
-            raise TypeError("A_ASSOCIATE.presentation_context_definition_list must be a list")
+            LOGGER.error("A_ASSOCIATE.presentation_context_definition_list " \
+                         "must be a list")
+            raise TypeError("A_ASSOCIATE.presentation_context_definition_list "\
+                            "must be a list")
 
     @property
     def presentation_context_definition_results_list(self):
@@ -572,15 +597,17 @@ class A_ASSOCIATE():
                 if isinstance(item, PresentationContext):
                     valid_items.append(item)
                 else:
-                    logger.warning("Attempted to set " \
-                        "A_ASSOCIATE.presentation_context_definition_results_list to "\
-                        "a list which includes an invalid items")
+                    LOGGER.warning("Attempted to set " \
+                        "A_ASSOCIATE.presentation_context_definition_results_list " \
+                        "to a list which includes an invalid items")
 
             self._presentation_context_definition_results_list = valid_items
 
         else:
-            logger.error("A_ASSOCIATE.presentation_context_definition_results_list must be a list")
-            raise TypeError("A_ASSOCIATE.presentation_context_definition_results_list must be a list")
+            LOGGER.error("A_ASSOCIATE.presentation_context_definition_results_list " \
+                         "must be a list")
+            raise TypeError("A_ASSOCIATE.presentation_context_definition_results_list " \
+                            "must be a list")
 
     @property
     def presentation_requirements(self):
@@ -588,7 +615,7 @@ class A_ASSOCIATE():
 
     @presentation_requirements.setter
     def presentation_requirements(self, value):
-        logger.info("Attempt to set A_ASSOCIATE.presentation_requirements " \
+        LOGGER.info("Attempt to set A_ASSOCIATE.presentation_requirements " \
                 "ignored (value is fixed)")
 
     @property
@@ -597,7 +624,7 @@ class A_ASSOCIATE():
 
     @session_requirements.setter
     def session_requirements(self, value):
-        logger.info("Attempt to set A_ASSOCIATE.session_requirements ignored " \
+        LOGGER.info("Attempt to set A_ASSOCIATE.session_requirements ignored " \
                 "(value is fixed)")
 
     ## Shortcut attributes for User Information items
@@ -649,12 +676,13 @@ class A_ASSOCIATE():
         for item in self.user_information:
             if isinstance(item, ImplementationClassUIDNotification):
                 if item.implementation_class_uid is None:
-                    logger.error("Implementation Class UID has not been set")
-                    raise ValueError("Implementation Class UID has not been set")
+                    LOGGER.error("Implementation Class UID has not been set")
+                    raise ValueError("Implementation Class UID has not "
+                                     "been set")
 
                 return item.implementation_class_uid
 
-        logger.error("Implementation Class UID has not been set")
+        LOGGER.error("Implementation Class UID has not been set")
         raise ValueError("Implementation Class UID has not been set")
 
     @implementation_class_uid.setter
@@ -688,7 +716,7 @@ class A_ASSOCIATE():
             self.user_information.append(imp_uid)
 
 
-class A_RELEASE():
+class A_RELEASE(object):
     """
     A-RELEASE Parameters
 
@@ -762,13 +790,13 @@ class A_RELEASE():
     @result.setter
     def result(self, value):
         if value is not None and value != "affirmative":
-            logger.error("A_RELEASE.result must be None or 'affirmative'")
+            LOGGER.error("A_RELEASE.result must be None or 'affirmative'")
             raise ValueError("A_RELEASE.result must be None or 'affirmative'")
 
         self._result = value
 
 
-class A_ABORT():
+class A_ABORT(object):
     """
     A-ABORT Parameters
 
@@ -788,7 +816,7 @@ class A_ABORT():
     @property
     def abort_source(self):
         if self._abort_source is None:
-            logger.error("A_ABORT.abort_source parameter not set")
+            LOGGER.error("A_ABORT.abort_source parameter not set")
             raise ValueError("A_ABORT.abort_source value not set")
 
         return self._abort_source
@@ -798,11 +826,13 @@ class A_ABORT():
         if value in [0, 2]:
             self._abort_source = value
         else:
-            logger.error("Attempted to set A_ABORT.abort_source to an invalid value")
-            raise ValueError("Attempted to set A_ABORT.abort_source to an invalid value")
+            LOGGER.error("Attempted to set A_ABORT.abort_source to an " \
+                         "invalid value")
+            raise ValueError("Attempted to set A_ABORT.abort_source to an " \
+                             "invalid value")
 
 
-class A_P_ABORT():
+class A_P_ABORT(object):
     """
     A-P-ABORT Parameters
 
@@ -826,7 +856,7 @@ class A_P_ABORT():
     @property
     def provider_reason(self):
         if self._provider_reason is None:
-            logger.error("A_ABORT.provider_reason parameter not set")
+            LOGGER.error("A_ABORT.provider_reason parameter not set")
             raise ValueError("A_ABORT.provider_reason value not set")
 
         return self._provider_reason
@@ -836,11 +866,13 @@ class A_P_ABORT():
         if value in [0, 1, 2, 4, 5, 6]:
             self._provider_reason = value
         else:
-            logger.error("Attempted to set A_ABORT.provider_reason to an invalid value")
-            raise ValueError("Attempted to set A_ABORT.provider_reason to an invalid value")
+            LOGGER.error("Attempted to set A_ABORT.provider_reason to an " \
+                         "invalid value")
+            raise ValueError("Attempted to set A_ABORT.provider_reason to an " \
+                             "invalid value")
 
 
-class P_DATA():
+class P_DATA(object):
     """
     P-DATA Parameters
 
@@ -975,18 +1007,19 @@ class MaximumLengthNegotiation(ServiceParameter):
         """
         if isinstance(val, int):
             if val < 0:
-                logger.error('Maximum Length Received must be greater than 0')
+                LOGGER.error('Maximum Length Received must be greater than 0')
                 raise ValueError("Maximum Length Received must be greater " \
                         "than 0")
             else:
                 self._maximum_length = val
         else:
-            logger.error("Maximum Length Received must be numerical")
+            LOGGER.error("Maximum Length Received must be numerical")
             raise TypeError("Maximum Length Received must be numerical")
 
     def __str__(self):
-        s  = "Maximum Length Negotiation\n"
-        s += "  Maximum length received: %d bytes\n" % self.maximum_length_received
+        s = "Maximum Length Negotiation\n"
+        s += "  Maximum length received: %d bytes\n" % \
+            self.maximum_length_received
         return s
 
 
@@ -1037,7 +1070,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
             If no UID is set
         """
         if self.implementation_class_uid is None:
-            logger.error("The Implementation Class UID must be set prior to " \
+            LOGGER.error("The Implementation Class UID must be set prior to " \
                         "requesting Association")
             raise ValueError("The Implementation Class UID must be set " \
                         "prior to requesting Association")
@@ -1077,13 +1110,13 @@ class ImplementationClassUIDNotification(ServiceParameter):
             try:
                 value.is_valid()
             except:
-                logger.error("Implementation Class UID is an invalid UID")
+                LOGGER.error("Implementation Class UID is an invalid UID")
                 raise ValueError("Implementation Class UID is an invalid UID")
 
         self._implementation_class_uid = value
 
     def __str__(self):
-        s  = "Implementation Class UID\n"
+        s = "Implementation Class UID\n"
         s += "  Implementation class UID: %s\n" % self.implementation_class_uid
         return s
 
@@ -1165,19 +1198,21 @@ class ImplementationVersionNameNotification(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("Implementation Version Name must be a str or bytes")
-            raise TypeError("Implementation Version Name must be a str or bytes")
+            LOGGER.error("Implementation Version Name must be a str or bytes")
+            raise TypeError("Implementation Version Name must be a str " \
+                            "or bytes")
 
         if value is not None:
             if len(value) < 1 or len(value) > 16:
-                raise ValueError("Implementation Version Name must be between " \
-                        "1 and 16 characters long")
+                raise ValueError("Implementation Version Name must be " \
+                        "between 1 and 16 characters long")
 
         self._implementation_version_name = value
 
     def __str__(self):
-        s  = "Implementation Version Name\n"
-        s += "  Implementation version name: %s\n" % self.implementation_version_name
+        s = "Implementation Version Name\n"
+        s += "  Implementation version name: %s\n" % \
+            self.implementation_version_name
         return s
 
 
@@ -1243,7 +1278,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         if isinstance(value, int):
             pass
         else:
-            logger.error("Maximum Number Operations Invoked must be an int")
+            LOGGER.error("Maximum Number Operations Invoked must be an int")
             raise TypeError("Maximum Number Operations Invoked must be an int")
 
         if value < 0:
@@ -1276,7 +1311,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         if isinstance(value, int):
             pass
         else:
-            logger.error("Maximum Number Operations Performed must be an int")
+            LOGGER.error("Maximum Number Operations Performed must be an int")
             raise TypeError("Maximum Number Operations Performed must be " \
                     "an int")
 
@@ -1287,9 +1322,11 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         self._maximum_number_operations_performed = value
 
     def __str__(self):
-        s  = "Asynchronous Operations Window\n"
-        s += "  Maximum number operations invoked: %d\n" % self.maximum_number_operations_invoked
-        s += "  Maximum number operations performed: %d\n" % self.maximum_number_operations_performed
+        s = "Asynchronous Operations Window\n"
+        s += "  Maximum number operations invoked: %d\n" % \
+            self.maximum_number_operations_invoked
+        s += "  Maximum number operations performed: %d\n" % \
+            self.maximum_number_operations_performed
         return s
 
 
@@ -1309,7 +1346,8 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     If the SCP/SCU Role Selection item is absent the default role for a
     Requestor is SCU and for an Acceptor is SCP.
 
-    For a Requestor support for each SOP Class shall be one of the following roles:
+    For a Requestor support for each SOP Class shall be one of the following
+    roles:
     * Requestor is SCU only
     * Requestor is SCP only
     * Requestor is both SCU and SCP
@@ -1347,16 +1385,19 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         ValueError
             If SCU Role and SCP Role are both False
         """
-        if self.sop_class_uid is None or self.scu_role is None or self.scp_role is None:
-            logger.error("SOP Class UID, SCU Role and SCP Role must " \
+        if self.sop_class_uid is None or self.scu_role is None \
+                or self.scp_role is None:
+            LOGGER.error("SOP Class UID, SCU Role and SCP Role must " \
                 "to be set prior to Association")
             raise ValueError("SOP Class UID, SCU Role and SCP Role must " \
                 "to be set prior to Association")
 
         # To get to this point self.sop_class_uid must be set
         if not self.scu_role and not self.scp_role:
-            logger.error("SCU and SCP Roles cannot both be unsupported for %s" %self.sop_class_uid)
-            raise ValueError("SCU and SCP Roles cannot both be unsupported for %s" %self.sop_class_uid)
+            LOGGER.error("SCU and SCP Roles cannot both be unsupported " \
+                         "for %s" %self.sop_class_uid)
+            raise ValueError("SCU and SCP Roles cannot both be unsupported " \
+                             "for %s" %self.sop_class_uid)
 
         item = SCP_SCU_RoleSelectionSubItem()
         item.FromParams(self)
@@ -1391,7 +1432,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("SOP Class UID must be a pydicom.uid.UID, str " \
+            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
             raise TypeError("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
@@ -1400,7 +1441,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
             try:
                 value.is_valid()
             except:
-                logger.error("Implementation Class UID is an invalid UID")
+                LOGGER.error("Implementation Class UID is an invalid UID")
                 raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
@@ -1429,7 +1470,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("SCU Role must be boolean")
+            LOGGER.error("SCU Role must be boolean")
             raise TypeError("SCU Role must be boolean")
 
         self._scu_role = value
@@ -1458,7 +1499,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("SCP Role must be boolean")
+            LOGGER.error("SCP Role must be boolean")
             raise TypeError("SCP Role must be boolean")
 
         self._scp_role = value
@@ -1471,8 +1512,8 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     the application information it supports and how this information is
     negotiated between SCUs and SCPs.
 
-    The SOP Class Extended Negotiation is optional and there may only be a single
-    SOPClassExtendedNegotiation item for each available SOP Class UID.
+    The SOP Class Extended Negotiation is optional and there may only be a
+    single SOPClassExtendedNegotiation item for each available SOP Class UID.
 
     PS3.7 Annex D.3.3.5
 
@@ -1506,8 +1547,9 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             If `sop_class_uid` or `service_class_application_information` are
             not set
         """
-        if self.sop_class_uid is None or self.service_class_application_information is None:
-            logger.error("SOP Class UID and Service Class Application " \
+        if self.sop_class_uid is None \
+                or self.service_class_application_information is None:
+            LOGGER.error("SOP Class UID and Service Class Application " \
                     "Information must be set prior to Association negotiation")
             raise ValueError("SOP Class UID and Service Class Application " \
                     "Information must be set prior to Association negotiation")
@@ -1545,7 +1587,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("SOP Class UID must be a pydicom.uid.UID, str " \
+            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
             raise TypeError("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
@@ -1554,7 +1596,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             try:
                 value.is_valid()
             except:
-                logger.error("Implementation Class UID is an invalid UID")
+                LOGGER.error("Implementation Class UID is an invalid UID")
                 raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
@@ -1584,10 +1626,10 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("Service Class Application Information should be a " \
+            LOGGER.error("Service Class Application Information should be a " \
                     "bytes object")
-            raise TypeError("Service Class Application Information should be a " \
-                    "bytes object")
+            raise TypeError("Service Class Application Information should " \
+                    "be a bytes object")
 
         self._service_class_application_information = value
 
@@ -1632,7 +1674,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             If `sop_class_uid` or `service_class_uid` are not set
         """
         if self.sop_class_uid is None or self.service_class_uid is None:
-            logger.error("SOP Class UID and Service Class UID must be set " \
+            LOGGER.error("SOP Class UID and Service Class UID must be set " \
                     "prior to Association negotiation")
             raise ValueError("SOP Class UID and Service Class UID must be " \
                     "set prior to Association negotiation")
@@ -1670,7 +1712,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("SOP Class UID must be a pydicom.uid.UID, str " \
+            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
             raise TypeError("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
@@ -1679,7 +1721,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             try:
                 value.is_valid()
             except:
-                logger.error("Implementation Class UID is an invalid UID")
+                LOGGER.error("Implementation Class UID is an invalid UID")
                 raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
@@ -1712,16 +1754,16 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("Service Class UID must be a pydicom.uid.UID, str " \
-                    "or bytes")
-            raise TypeError("Service Class UID must be a pydicom.uid.UID, str " \
-                    "or bytes")
+            LOGGER.error("Service Class UID must be a pydicom.uid.UID, str " \
+                         "or bytes")
+            raise TypeError("Service Class UID must be a pydicom.uid.UID, " \
+                            "str or bytes")
 
         if value is not None:
             try:
                 value.is_valid()
             except:
-                logger.error("Implementation Class UID is an invalid UID")
+                LOGGER.error("Implementation Class UID is an invalid UID")
                 raise ValueError("Implementation Class UID is an invalid UID")
 
         self._service_class_uid = value
@@ -1761,7 +1803,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                 elif isinstance(uid, bytes):
                     uid = UID(uid.decode('utf-8'))
                 else:
-                    logger.error("Related General SOP Class Identification " \
+                    LOGGER.error("Related General SOP Class Identification " \
                             "must be a list of pydicom.uid.UID, str " \
                             "or bytes")
                     raise TypeError("Related General SOP Class " \
@@ -1772,16 +1814,16 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                     try:
                         uid.is_valid()
                     except:
-                        logger.error("Related General SOP Class " \
+                        LOGGER.error("Related General SOP Class " \
                             "Identification contains an invalid UID")
-                        raise ValueError("Related General SOP Class contains an " \
-                            "invalid UID")
+                        raise ValueError("Related General SOP Class contains " \
+                                         "an invalid UID")
 
                 valid_uid_list.append(uid)
 
             self._related_general_sop_class_identification = valid_uid_list
         else:
-            logger.error("Related General SOP Class Identification " \
+            LOGGER.error("Related General SOP Class Identification " \
                             "must be a list of pydicom.uid.UID, str " \
                             "or bytes")
             raise TypeError("Related General SOP Class Identification " \
@@ -1872,13 +1914,13 @@ class UserIdentityNegotiation(ServiceParameter):
         if self.server_response is None:
             # Then an -RQ
             if self.user_identity_type is None or self.primary_field is None:
-                logger.error("User Identity Type and Primary Field must be " \
+                LOGGER.error("User Identity Type and Primary Field must be " \
                     "set prior to Association negotiation")
                 raise ValueError("User Identity Type and Primary Field " \
                     "must be set prior to Association negotiation")
 
             if self.user_identity_type == 2 and self.secondary_field is None:
-                logger.error("Secondary Field must be set when User Identity" \
+                LOGGER.error("Secondary Field must be set when User Identity" \
                     "is 2")
                 raise ValueError("Secondary Field must be set when User " \
                     "Identity is 2")
@@ -1920,14 +1962,14 @@ class UserIdentityNegotiation(ServiceParameter):
         """
         if isinstance(value, int):
             if value not in [1, 2, 3, 4]:
-                logger.error("User Identity Type must be 1, 2 3 or 4 if " \
+                LOGGER.error("User Identity Type must be 1, 2 3 or 4 if " \
                     "requesting Association, None otherwise")
                 raise ValueError("User Identity Type must be 1, 2 3 or 4 " \
                     "if requesting Association, None otherwise")
         elif value is None:
             pass
         else:
-            logger.error("User Identity Type must be an int or None")
+            LOGGER.error("User Identity Type must be an int or None")
             raise TypeError("User Identity Type must be an int or None")
 
         self._user_identity_type = value
@@ -1954,7 +1996,7 @@ class UserIdentityNegotiation(ServiceParameter):
         if isinstance(value, bool):
             pass
         else:
-            logger.error("Positive Response Requested must be boolean")
+            LOGGER.error("Positive Response Requested must be boolean")
             raise TypeError("Positive Response Requested must be boolean")
 
         self._positive_response_requested = value
@@ -1983,7 +2025,7 @@ class UserIdentityNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("Primary Field must be bytes if requesting " \
+            LOGGER.error("Primary Field must be bytes if requesting " \
                 "Association, None otherwise")
             raise TypeError("Primary Field must be bytes if requesting " \
                 "Association, None otherwise")
@@ -2015,10 +2057,12 @@ class UserIdentityNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("Secondary Field must be bytes if requesting " \
-                "Association with User Identity Type equal to 2, None otherwise")
+            LOGGER.error("Secondary Field must be bytes if requesting " \
+                "Association with User Identity Type equal to 2, None " \
+                "otherwise")
             raise TypeError("Secondary Field must be bytes if requesting " \
-                "Association with User Identity Type equal to 2, None otherwise")
+                "Association with User Identity Type equal to 2, None " \
+                "otherwise")
 
         self._secondary_field = value
 
@@ -2046,16 +2090,17 @@ class UserIdentityNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            logger.error("Server Response must be bytes or None")
+            LOGGER.error("Server Response must be bytes or None")
             raise TypeError("Server Response must be bytes or None")
 
         self._server_response = value
 
     def __str__(self):
-        s  = 'User Identity Parameters\n'
+        s = 'User Identity Parameters\n'
         if self.server_response is None:
             s += '  User identity type: %d\n' %self.user_identity_type
-            s += '  Positive response requested: %r\n' %self.positive_response_requested
+            s += '  Positive response requested: %r\n' \
+                %self.positive_response_requested
             s += '  Primary field: %s\n' %self.primary_field
             if self.secondary_field is not None:
                 s += '  Secondary field: %s\n' %self.secondary_field
