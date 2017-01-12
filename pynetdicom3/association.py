@@ -5,8 +5,7 @@ import logging
 import threading
 import time
 
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian, UID
+from pydicom.uid import UID
 
 from pynetdicom3.ACSEprovider import ACSEServiceProvider
 from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
@@ -14,7 +13,7 @@ from pynetdicom3.DIMSEparameters import *
 from pynetdicom3.DULprovider import DULServiceProvider
 from pynetdicom3.SOPclass import *
 from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
-from pynetdicom3.utils import wrap_list
+#from pynetdicom3.utils import wrap_list
 from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    MaximumLengthNegotiation, \
@@ -1582,7 +1581,7 @@ class Association(threading.Thread):
                        7 : 'Called AE title not recognised',
                        8 : 'Reserved',
                        9 : 'Reserved',
-                      10 : 'Reserved'},
+                       10 : 'Reserved'},
                       {1 : 'No reason given',
                        2 : 'Protocol version not supported'},
                       {0 : 'Reserved',

@@ -1,15 +1,17 @@
-
-from io import StringIO, BytesIO
+"""
+DICOM Dataset utility functions.
+"""
 import logging
 
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
-logger = logging.getLogger('pynetdicom3.dsutils')
+LOGGER = logging.getLogger('pynetdicom3.dsutils')
 
-def decode(b, is_implicit_VR, is_little_endian):
-    """
+def decode(bytestring, is_implicit_VR, is_little_endian):
+    """Decode a bytestream to a pydicom Dataset.
+
     When sent a DIMSE Message from a peer AE, decode the data and convert
     it to a pydicom Dataset instance
 
@@ -37,15 +39,14 @@ def decode(b, is_implicit_VR, is_little_endian):
     else:
         transfer_syntax += " Explicit"
 
-    logger.debug('pydicom::read_dataset() TransferSyntax="%s"' %transfer_syntax)
+    LOGGER.debug('pydicom::read_dataset() TransferSyntax="%s"', transfer_syntax)
 
     # Rewind to the start of the stream
-    b.seek(0)
-    return read_dataset(b, is_implicit_VR, is_little_endian)
+    bytestring.seek(0)
+    return read_dataset(bytestring, is_implicit_VR, is_little_endian)
 
 def encode(ds, is_implicit_VR, is_little_endian):
-    """
-    Given a pydicom Dataset, encode it to a byte stream
+    """Encode a pydicom Dataset to a byte stream.
 
     Parameters
     ----------
@@ -61,26 +62,29 @@ def encode(ds, is_implicit_VR, is_little_endian):
     bytes or None
         The encoded dataset (if successful), None if encoding failed.
     """
-    f = DicomBytesIO()
-    f.is_implicit_VR = is_implicit_VR
-    f.is_little_endian = is_little_endian
+    fp = DicomBytesIO()
+    fp.is_implicit_VR = is_implicit_VR
+    fp.is_little_endian = is_little_endian
     try:
-        write_dataset(f, ds)
-    except Exception as e:
-        logger.error("pydicom.write_dataset() failed:")
-        logger.error(e)
-        f.close()
+        write_dataset(fp, ds)
+    except Exception as ex:
+        LOGGER.error("pydicom.write_dataset() failed:")
+        LOGGER.error(ex)
+        fp.close()
         return None
 
-    rawstr = f.parent.getvalue()
-    f.close()
+    rawstr = fp.parent.getvalue()
+    fp.close()
+
     return rawstr
 
-def encode_element(el, is_implicit_VR, is_little_endian):
-    f = DicomBytesIO()
-    f.is_implicit_VR = is_implicit_VR
-    f.is_little_endian = is_little_endian
-    write_data_element(f, el)
-    rawstr = f.parent.getvalue()
-    f.close()
+def encode_element(elem, is_implicit_VR, is_little_endian):
+    """Encode a pydicom DataElement to a byte stream."""
+    fp = DicomBytesIO()
+    fp.is_implicit_VR = is_implicit_VR
+    fp.is_little_endian = is_little_endian
+    write_data_element(fp, elem)
+    rawstr = fp.parent.getvalue()
+    fp.close()
+
     return rawstr

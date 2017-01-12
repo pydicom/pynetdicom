@@ -1,20 +1,24 @@
+"""
+Define the DIMSE-C and DIMSE-N service parameter primitives.
 
+TODO: Implement properties for DIMSE-N parameters
+"""
 from io import BytesIO
 import logging
 
 from pydicom.uid import UID
-from pydicom.dataset import Dataset
 
 from pynetdicom3.utils import validate_ae_title
 
+LOGGER = logging.getLogger('pynetdicom3.DIMSEparameters')
 
-logger = logging.getLogger('pynetdicom3.DIMSEparameters')
-
+# pylint: disable=invalid-name
+# pylint: disable=attribute-defined-outside-init
+# pylint: disable=too-many-instance-attributes
 
 # DIMSE-C Services
-class C_STORE_ServiceParameters:
-    """
-    Represents a C-STORE primitive
+class C_STORE_ServiceParameters(object):
+    """Represents a C-STORE primitive.
 
     The C-STORE service is used by a DIMSE user to store a composite SOP
     Instance on a peer DISMSE user. It is a confirmed service.
@@ -38,10 +42,10 @@ class C_STORE_ServiceParameters:
     Attributes
     ----------
     MessageID : int
-        [M, U] Identifies the operation and is used to distinguish this operation from
-        other notifications or operations that may be in progress. No two
-        identical values for the Message ID shall be used for outstanding
-        operations.
+        [M, U] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
     MessageIDBeingRespondedTo : int
         [-, M] The Message ID of the operation request/indication to which this
         response/confirmation applies.
@@ -66,8 +70,8 @@ class C_STORE_ServiceParameters:
         [U, -] The Message ID of the C-MOVE request/indication primitive from
         which this C-STORE sub-operation is being performed
     DataSet : io.BytesIO
-        [M, -] The pydicom Dataset containing the Attributes of the Composite SOP
-        Instance to be stored, encoded as a BytesIO object
+        [M, -] The pydicom Dataset containing the Attributes of the Composite
+        SOP Instance to be stored, encoded as a BytesIO object
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
@@ -97,15 +101,18 @@ class C_STORE_ServiceParameters:
 
     @property
     def MessageID(self):
+        """Return the DIMSE message ID parameter."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
+        """Set the DIMSE message ID parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID must be between 0 and 65535, " \
+                                 "inclusive")
         elif value is None:
             self._message_id = value
         else:
@@ -113,15 +120,18 @@ class C_STORE_ServiceParameters:
 
     @property
     def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responded To parameter."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responded To parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -129,12 +139,12 @@ class C_STORE_ServiceParameters:
 
     @property
     def AffectedSOPClassUID(self):
+        """Return the AffectedSOPClassUID parameter."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """
-        Sets the Affected SOP Class UID parameter
+        """Set the Affected SOP Class UID parameter.
 
         Parameters
         ----------
@@ -157,19 +167,19 @@ class C_STORE_ServiceParameters:
             try:
                 value.is_valid()
             except:
-                logger.error("Affected SOP Class UID is an invalid UID")
+                LOGGER.error("Affected SOP Class UID is an invalid UID")
                 raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
+        """Return the Affected SOP Instance UID parameter."""
         return self._affected_sop_instance_uid
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
-        """
-        Sets the Affected SOP Instance UID parameter
+        """Set the Affected SOP Instance UID parameter.
 
         Parameters
         ----------
@@ -186,38 +196,40 @@ class C_STORE_ServiceParameters:
             pass
         else:
             raise TypeError("Affected SOP Instance UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None:
             try:
                 value.is_valid()
             except:
-                logger.error("Affected SOP Instance UID is an invalid UID")
+                LOGGER.error("Affected SOP Instance UID is an invalid UID")
                 raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_instance_uid = value
 
     @property
     def Priority(self):
+        """Return the Priority parameter."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
+        """Set the Priority parameter."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            logger.warning("Attempted to set C-STORE Priority parameter to an " \
-                    "invalid value")
+            LOGGER.warning("Attempted to set C-STORE Priority parameter to " \
+                           "an invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):
+        """Return the Move Originator AE Title parameter."""
         return self._move_originator_application_entity_title
 
     @MoveOriginatorApplicationEntityTitle.setter
     def MoveOriginatorApplicationEntityTitle(self, value):
-        """
-        Set the Move Originator AE Title
+        """Set the Move Originator AE Title parameter.
 
         Parameters
         ----------
@@ -229,21 +241,25 @@ class C_STORE_ServiceParameters:
             value = bytes(value, 'utf-8')
 
         if value is not None:
-            self._move_originator_application_entity_title = validate_ae_title(value)
+            self._move_originator_application_entity_title = \
+                validate_ae_title(value)
         else:
             self._move_originator_application_entity_title = None
 
     @property
     def MoveOriginatorMessageID(self):
+        """Return the Move Originator Message ID parameter."""
         return self._move_originator_message_id
 
     @MoveOriginatorMessageID.setter
     def MoveOriginatorMessageID(self, value):
+        """Set the Move Originator Message ID parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._move_originator_message_id = value
             else:
-                raise ValueError("Move Originator Message ID To must be between 0 and 65535, inclusive")
+                raise ValueError("Move Originator Message ID To must be " \
+                                 "between 0 and 65535, inclusive")
         elif value is None:
             self._move_originator_message_id = value
         else:
@@ -251,10 +267,12 @@ class C_STORE_ServiceParameters:
 
     @property
     def DataSet(self):
+        """Return the Data Set parameter."""
         return self._dataset
 
     @DataSet.setter
     def DataSet(self, value):
+        """Set the Data Set parameter."""
         if value is None:
             self._dataset = value
         elif isinstance(value, BytesIO):
@@ -264,10 +282,12 @@ class C_STORE_ServiceParameters:
 
     @property
     def Status(self):
+        """Return the Status parameter."""
         return self._status
 
     @Status.setter
     def Status(self, value):
+        """Set the Status parameter."""
         if isinstance(value, int):
             # Add value range checking
             valid_values = [range(0xA700, 0xA7FF + 1),
@@ -288,8 +308,9 @@ class C_STORE_ServiceParameters:
             raise TypeError("Status must be an int")
 
 
-class C_FIND_ServiceParameters:
-    """
+class C_FIND_ServiceParameters(object):
+    """Represents a C-FIND primitive.
+
     PS3.4 Annex C.4.1.1
     PS3.4 9.1.2
 
@@ -345,13 +366,13 @@ class C_FIND_ServiceParameters:
     Attributes
     ----------
     MessageID : int
-        [M, U, -] Identifies the operation and is used to distinguish this operation from
-        other notifications or operations that may be in progress. No two
-        identical values for the Message ID shall be used for outstanding
-        operations.
+        [M, U, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M, M] The Message ID of the operation request/indication to which this
-        response/confirmation applies.
+        [-, M, M] The Message ID of the operation request/indication to which
+        this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         [M, U(=), -] For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
@@ -363,21 +384,25 @@ class C_FIND_ServiceParameters:
         * 1: High
         * 2: Low (Default)
     Identifier : io.BytesIO
-        [M, C, -] A list of Attributes (in the form of an encoded pydicom Dataset)
-        to be matched against the values of the Attributes in the instances of the
-        composite objects known to the performing DIMSE service-user
+        [M, C, -] A list of Attributes (in the form of an encoded pydicom
+        Dataset) to be matched against the values of the Attributes in the
+        instances of the composite objects known to the performing DIMSE
+        service-user
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall be
-        one of the following values:
+        [-, M, -] The error or success notification of the operation. It shall
+        be one of the following values:
         * 0xA700: Failure (Refused: Out of resources)
         * 0xA900: Failure (Identifier does not match SOP Class)
         * 0xC000 to 0xCFFF: Failure (Unable to process)
         * 0xFE00: Cancel (Matching terminated due to Cancel request)
-        * 0x0000: Success (Matching is complete - no final Identifier is supplied)
+        * 0x0000: Success (Matching is complete - no final Identifier is
+            supplied)
         * 0xFF00: Pending (Matches are continuing - Current match is supplied
-            and any Optional Keys were supported in the same manner as Required Keys)
-        * 0xFF01: Pending (Matches are continuing - Warning that one or more Optional
-            Keys were not supported for existence and/or matching for this Identifier)
+            and any Optional Keys were supported in the same manner as Required
+            Keys)
+        * 0xFF01: Pending (Matches are continuing - Warning that one or more
+            Optional Keys were not supported for existence and/or matching for
+            this Identifier)
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -394,15 +419,18 @@ class C_FIND_ServiceParameters:
 
     @property
     def MessageID(self):
+        """Return the Message ID parameter."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
+        """Set the Message ID parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID must be between 0 and 65535, " \
+                                 "inclusive")
         elif value is None:
             self._message_id = value
         else:
@@ -410,15 +438,18 @@ class C_FIND_ServiceParameters:
 
     @property
     def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responded To parameter."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responded To parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -426,12 +457,12 @@ class C_FIND_ServiceParameters:
 
     @property
     def AffectedSOPClassUID(self):
+        """Return the Affected SOP Class UID parameter."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """
-        Sets the Affected SOP Class UID parameter
+        """Set the Affected SOP Class UID parameter.
 
         Parameters
         ----------
@@ -454,30 +485,34 @@ class C_FIND_ServiceParameters:
             try:
                 value.is_valid()
             except:
-                logger.error("Affected SOP Class UID is an invalid UID")
+                LOGGER.error("Affected SOP Class UID is an invalid UID")
                 raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
     @property
     def Priority(self):
+        """Return the Priority parameter."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
+        """Set the Priority parameter."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            logger.warning("Attempted to set C-FIND Priority parameter to an " \
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
                     "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
     def Identifier(self):
+        """Return the Identifier parameter."""
         return self._identifier
 
     @Identifier.setter
     def Identifier(self, value):
+        """Set the Identifier parameter."""
         if value is None:
             self._identifier = value
         elif isinstance(value, BytesIO):
@@ -487,10 +522,12 @@ class C_FIND_ServiceParameters:
 
     @property
     def Status(self):
+        """Return the Status parameter."""
         return self._status
 
     @Status.setter
     def Status(self, value):
+        """Set the Status parameter."""
         if isinstance(value, int):
             # Add value range checking
             valid_values = [range(0xC000, 0xCFFF + 1),
@@ -509,9 +546,8 @@ class C_FIND_ServiceParameters:
             raise TypeError("Status must be an int")
 
 
-class C_GET_ServiceParameters:
-    """
-    Represents a C-GET primitive
+class C_GET_ServiceParameters(object):
+    """Represents a C-GET primitive.
 
     The C-GET service is used
 
@@ -626,15 +662,18 @@ class C_GET_ServiceParameters:
 
     @property
     def MessageID(self):
+        """Return the Message ID parameter."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
+        """Set the Message ID parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID must be between 0 and 65535, " \
+                                 "inclusive")
         elif value is None:
             self._message_id = value
         else:
@@ -642,15 +681,18 @@ class C_GET_ServiceParameters:
 
     @property
     def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responded To parameter."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responded To parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -658,12 +700,12 @@ class C_GET_ServiceParameters:
 
     @property
     def AffectedSOPClassUID(self):
+        """Return the Affected SOP Class UID parameter."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """
-        Sets the Affected SOP Class UID parameter
+        """Set the Affected SOP Class UID parameter.
 
         Parameters
         ----------
@@ -686,30 +728,34 @@ class C_GET_ServiceParameters:
             try:
                 value.is_valid()
             except:
-                logger.error("Affected SOP Class UID is an invalid UID")
+                LOGGER.error("Affected SOP Class UID is an invalid UID")
                 raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
     @property
     def Priority(self):
+        """Return the Priority parameter."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
+        """Set the Priority parameter."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            logger.warning("Attempted to set C-FIND Priority parameter to an " \
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
                     "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
     def Identifier(self):
+        """Return the Identifier parameter."""
         return self._identifier
 
     @Identifier.setter
     def Identifier(self, value):
+        """Set the Identifier parameter."""
         if value is None:
             self._identifier = value
         elif isinstance(value, BytesIO):
@@ -719,10 +765,12 @@ class C_GET_ServiceParameters:
 
     @property
     def Status(self):
+        """Return the Status parameter."""
         return self._status
 
     @Status.setter
     def Status(self, value):
+        """Set the Status parameter."""
         if isinstance(value, int):
             # Add value range checking
             valid_values = [range(0xC000, 0xCFFF + 1),
@@ -743,15 +791,18 @@ class C_GET_ServiceParameters:
 
     @property
     def NumberOfRemainingSuboperations(self):
+        """Return the Number of Remaining Suboperations parameter."""
         return self._number_of_remaining_suboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
+        """Set the Number of Remaining Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Remaining Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_remaining_suboperations = value
         else:
@@ -759,15 +810,18 @@ class C_GET_ServiceParameters:
 
     @property
     def NumberOfCompletedSuboperations(self):
+        """Return the Number of Completed Suboperations parameter."""
         return self._number_of_completed_suboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
+        """Set the Number of Completed Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Completed Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_completed_suboperations = value
         else:
@@ -775,15 +829,18 @@ class C_GET_ServiceParameters:
 
     @property
     def NumberOfFailedSuboperations(self):
+        """Return the Number of Failed Suboperations parameter."""
         return self._number_of_failed_suboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
+        """Set the Number of Failed Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Failed Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_failed_suboperations = value
         else:
@@ -791,24 +848,26 @@ class C_GET_ServiceParameters:
 
     @property
     def NumberOfWarningSuboperations(self):
+        """Return the Number of Warning Suboperations parameter."""
         return self._number_of_warning_suboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
+        """Set the Number of Warning Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Warning Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_warning_suboperations = value
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
 
 
-class C_MOVE_ServiceParameters:
-    """
-    Represents a C-MOVE primitive
+class C_MOVE_ServiceParameters(object):
+    """Represents a C-MOVE primitive.
 
     The C-MOVE service is used
 
@@ -850,13 +909,13 @@ class C_MOVE_ServiceParameters:
     Attributes
     ----------
     MessageID : int
-        [M, U, -] Identifies the operation and is used to distinguish this operation from
-        other notifications or operations that may be in progress. No two
-        identical values for the Message ID shall be used for outstanding
-        operations.
+        [M, U, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M, M] The Message ID of the operation request/indication to which this
-        response/confirmation applies.
+        [-, M, M] The Message ID of the operation request/indication to which
+        this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         [M, U(=), -] For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
@@ -877,10 +936,12 @@ class C_MOVE_ServiceParameters:
         object. For the list of allowed Attributes and the rules defining their
         usage see PS3.4 Annex C.4.2.1.4
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall be
-        one of the following values:
-        * 0xA701: Failure (Refused: Out of resources - unable to calculate number of matches)
-        * 0xA702: Failure (Refused: Out of resources - unable to perform sub-operations)
+        [-, M, -] The error or success notification of the operation. It shall
+        be one of the following values:
+        * 0xA701: Failure (Refused: Out of resources - unable to calculate
+            number of matches)
+        * 0xA702: Failure (Refused: Out of resources - unable to perform
+            sub-operations)
         * 0xA801: Failure (Refused: Move destination unknown)
         * 0xA900: Failure (Identifier does not match SOP Class)
         * 0xC000 to 0xCFFF: Failure (Unable to process)
@@ -925,15 +986,18 @@ class C_MOVE_ServiceParameters:
 
     @property
     def MessageID(self):
+        """Return the Message ID parameter."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
+        """Set the Message ID parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID must be between 0 and 65535, " \
+                                 "inclusive")
         elif value is None:
             self._message_id = value
         else:
@@ -941,15 +1005,18 @@ class C_MOVE_ServiceParameters:
 
     @property
     def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responding To parameter."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responding To parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -957,12 +1024,12 @@ class C_MOVE_ServiceParameters:
 
     @property
     def AffectedSOPClassUID(self):
+        """Return the Affected SOP Class UID parameter."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """
-        Sets the Affected SOP Class UID parameter
+        """Set the Affected SOP Class UID parameter.
 
         Parameters
         ----------
@@ -985,32 +1052,34 @@ class C_MOVE_ServiceParameters:
             try:
                 value.is_valid()
             except:
-                logger.error("Affected SOP Class UID is an invalid UID")
+                LOGGER.error("Affected SOP Class UID is an invalid UID")
                 raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
     @property
     def Priority(self):
+        """Return the Priority parameter."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
+        """Set the Priority parameter."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            logger.warning("Attempted to set C-FIND Priority parameter to an " \
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
                     "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
     def MoveDestination(self):
+        """Return the Move Destination parameter."""
         return self._move_destination
 
     @MoveDestination.setter
     def MoveDestination(self, value):
-        """
-        Set the Move Destination AE Title
+        """Set the Move Destination parameter
 
         Parameters
         ----------
@@ -1028,10 +1097,12 @@ class C_MOVE_ServiceParameters:
 
     @property
     def Identifier(self):
+        """Return the Identifier parameter."""
         return self._identifier
 
     @Identifier.setter
     def Identifier(self, value):
+        """Set the Identifier parameter."""
         if value is None:
             self._identifier = value
         elif isinstance(value, BytesIO):
@@ -1041,10 +1112,12 @@ class C_MOVE_ServiceParameters:
 
     @property
     def Status(self):
+        """Return the Status parameter."""
         return self._status
 
     @Status.setter
     def Status(self, value):
+        """Set the Status parameter."""
         if isinstance(value, int):
             # Add value range checking
             valid_values = [range(0xC000, 0xCFFF + 1),
@@ -1065,15 +1138,18 @@ class C_MOVE_ServiceParameters:
 
     @property
     def NumberOfRemainingSuboperations(self):
+        """Return the Number of Remaining Suboperations parameter."""
         return self._number_of_remaining_suboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
+        """Set the Number of Remaining Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Remaining Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_remaining_suboperations = value
         else:
@@ -1081,15 +1157,18 @@ class C_MOVE_ServiceParameters:
 
     @property
     def NumberOfCompletedSuboperations(self):
+        """Return the Number of Completed Suboperations parameter."""
         return self._number_of_completed_suboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
+        """Set the Number of Completed Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Completed Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_completed_suboperations = value
         else:
@@ -1097,15 +1176,18 @@ class C_MOVE_ServiceParameters:
 
     @property
     def NumberOfFailedSuboperations(self):
+        """Return the Number of Failed Suboperations parameter."""
         return self._number_of_failed_suboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
+        """Set the Number of Failed Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Failed Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_failed_suboperations = value
         else:
@@ -1113,23 +1195,27 @@ class C_MOVE_ServiceParameters:
 
     @property
     def NumberOfWarningSuboperations(self):
+        """Return the Number of Warning Suboperations parameter."""
         return self._number_of_warning_suboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
+        """Set the Number of Warning Suboperations parameter."""
         if isinstance(value, int):
-            if 0 <= value:
+            if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be greater than or equal to 0")
+                raise ValueError("Number of Warning Suboperations must be " \
+                                 "greater than or equal to 0")
         elif value is None:
             self._number_of_warning_suboperations = value
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
 
 
-class C_ECHO_ServiceParameters:
-    """
+class C_ECHO_ServiceParameters(object):
+    """Represents a C-ECHO primitive.
+
     C-ECHO Service Procedure
     ========================
     1. The invoking DIMSE user requests verification of communication to the
@@ -1149,10 +1235,10 @@ class C_ECHO_ServiceParameters:
     Attributes
     ----------
     MessageID : int
-        [M, U] Identifies the operation and is used to distinguish this operation from
-        other notifications or operations that may be in progress. No two
-        identical values for the Message ID shall be used for outstanding
-        operations.
+        [M, U] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
     MessageIDBeingRespondedTo : int
         [-, M] The Message ID of the operation request/indication to which this
         response/confirmation applies.
@@ -1178,15 +1264,18 @@ class C_ECHO_ServiceParameters:
 
     @property
     def MessageID(self):
+        """Return the Message ID parameter."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
+        """Set the Message ID parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID must be between 0 and 65535, " \
+                                 "inclusive")
         elif value is None:
             self._message_id = value
         else:
@@ -1194,15 +1283,18 @@ class C_ECHO_ServiceParameters:
 
     @property
     def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responded To parameter."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responded To parameter."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be between 0 and 65535, inclusive")
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -1210,12 +1302,12 @@ class C_ECHO_ServiceParameters:
 
     @property
     def AffectedSOPClassUID(self):
+        """Return the Afffected SOP Class UID parameter."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """
-        Sets the Affected SOP Class UID parameter
+        """Set the Affected SOP Class UID parameter.
 
         Parameters
         ----------
@@ -1238,17 +1330,19 @@ class C_ECHO_ServiceParameters:
             try:
                 value.is_valid()
             except:
-                logger.error("Affected SOP Class UID is an invalid UID")
+                LOGGER.error("Affected SOP Class UID is an invalid UID")
                 raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
     @property
     def Status(self):
+        """Return the Status parameter."""
         return self._status
 
     @Status.setter
     def Status(self, value):
+        """Set the Status parameter."""
         if value == 0x0000 or value is None:
             self._status = value
         else:
@@ -1256,8 +1350,11 @@ class C_ECHO_ServiceParameters:
 
 
 # DIMSE-N Services
-class N_EVENT_REPORT_ServiceParameters:
-    """ PS3.7 10.1.1.1 """
+class N_EVENT_REPORT_ServiceParameters(object):
+    """Represents a N-EVENT-REPORT primitive.
+
+    PS3.7 10.1.1.1
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1268,8 +1365,11 @@ class N_EVENT_REPORT_ServiceParameters:
         self.EventReply = None
         self.Status = None
 
-class N_GET_ServiceParameters:
-    """ PS3.7 10.1.2.1 """
+class N_GET_ServiceParameters(object):
+    """Represents a N-GET primitive.
+
+    PS3.7 10.1.2.1
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1281,8 +1381,11 @@ class N_GET_ServiceParameters:
         self.AttributeList = None
         self.Status = None
 
-class N_SET_ServiceParameters:
-    """ PS3.7 10.1.3.1 """
+class N_SET_ServiceParameters(object):
+    """Represents a N-SET primitive.
+
+    PS3.7 10.1.3.1
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1294,8 +1397,11 @@ class N_SET_ServiceParameters:
         self.AffectedSOPInstanceUID = None
         self.Status = None
 
-class N_ACTION_ServiceParameters:
-    """ PS3.7 10.1.4.1 """
+class N_ACTION_ServiceParameters(object):
+    """Represents a N-ACTION primitive.
+
+    PS3.7 10.1.4.1
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1308,8 +1414,11 @@ class N_ACTION_ServiceParameters:
         self.ActionReply = None
         self.Status = None
 
-class N_CREATE_ServiceParameters:
-    """ PS3.7 10.1.5.1 """
+class N_CREATE_ServiceParameters(object):
+    """Represents a N-CREATE primitive.
+
+    PS3.7 10.1.5.1
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1318,8 +1427,11 @@ class N_CREATE_ServiceParameters:
         self.AttributeList = None
         self.Status = None
 
-class N_DELETE_ServiceParameters:
-    """ PS3.7 10.1.6.1 """
+class N_DELETE_ServiceParameters(object):
+    """Represents a N-DELETE primitive.
+
+    PS3.7 10.1.6.1
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
