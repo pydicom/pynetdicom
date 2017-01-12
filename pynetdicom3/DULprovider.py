@@ -1,9 +1,12 @@
-# This module implements the DUL service provider, allowing a
-# DUL service user to send and receive DUL messages. The User and Provider
-# talk to each other using a TCP socket. The DULServer runs in a thread,
-# so that and implements an event loop whose events will drive the
-# state machine.
+"""
+This module implements the DUL service provider, allowing a
+DUL service user to send and receive DUL messages. The User and Provider
+talk to each other using a TCP socket. The DULServer runs in a thread,
+so that and implements an event loop whose events will drive the
+state machine.
 
+TODO: change DULServiceProvider method names to lowercase
+"""
 import logging
 import os
 import queue
@@ -15,17 +18,19 @@ import time
 
 from pynetdicom3.exceptions import InvalidPrimitive
 from pynetdicom3.fsm import StateMachine
-from pynetdicom3.PDU import *
+from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
+                            A_ASSOCIATE_RJ_PDU, \
+                            P_DATA_TF_PDU, \
+                            A_RELEASE_RQ_PDU, \
+                            A_RELEASE_RP_PDU, \
+                            A_ABORT_PDU
 from pynetdicom3.timer import Timer
 from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 
+LOGGER = logging.getLogger('pynetdicom3.dul')
 
-logger = logging.getLogger('pynetdicom3.dul')
-
-
-def recvn(sock, n):
-    """
-    Read n bytes from a socket
+def recvn(sock, n_bytes):
+    """Read `n_bytes` from a socket.
 
     Parameters
     ----------
@@ -36,17 +41,18 @@ def recvn(sock, n):
     """
     ret = b''
     read_length = 0
-    while read_length < n:
-        tmp = sock.recv(n - read_length)
+    while read_length < n_bytes:
+        tmp = sock.recv(n_bytes - read_length)
 
-        if len(tmp)==0:
+        if len(tmp) == 0:
             return ret
 
         ret += tmp
         read_length += len(tmp)
 
-    if read_length != n:
-        raise #"Low level Network ERROR: "
+    if read_length != n_bytes:
+        raise RuntimeError("recvn(socket, %d) - Error reading data from " \
+                           "socket." %n_bytes)
 
     return ret
 
@@ -96,11 +102,11 @@ class DULServiceProvider(Thread):
         The DICOM Upper Layer's State Machine
     """
     def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None,
-                        acse_timeout=30, local_ae=None, assoc=None):
+                 acse_timeout=30, local_ae=None, assoc=None):
 
         if Socket and Port:
             raise ValueError("DULServiceProvider can't be instantiated with "
-                                        "both Socket and Port parameters")
+                             "both Socket and Port parameters")
 
         # The local AE
         self.local_ae = local_ae
@@ -160,7 +166,7 @@ class DULServiceProvider(Thread):
                     local_address = os.popen('hostname').read()[:-1]
                     self.scp_socket.bind((local_address, self.local_port))
                 except:
-                    #logger.error("Already bound")
+                    #LOGGER.error("Already bound")
                     # FIXME: If already bound then warn?
                     #   Why would it already be bound?
                     # A: Another process may be using it
@@ -248,6 +254,7 @@ class DULServiceProvider(Thread):
         """Look at next item to be returned by get"""
         try:
             return self.to_user_queue.queue[0]
+        # FIXME: this should be the queue exception rather than general
         except:
             return None
 
@@ -266,7 +273,7 @@ class DULServiceProvider(Thread):
             self.event_queue.put('Evt17')
             self.scu_socket.close()
             self.scu_socket = None
-            logger.error('DUL: Error reading data from the socket')
+            LOGGER.error('DUL: Error reading data from the socket')
             return
 
         # Remote port has been closed
@@ -274,7 +281,7 @@ class DULServiceProvider(Thread):
             self.event_queue.put('Evt17')
             self.scu_socket.close()
             self.scu_socket = None
-            logger.error('Peer has closed transport connection')
+            LOGGER.error('Peer has closed transport connection')
             return
 
         # Incoming data is OK
@@ -295,7 +302,7 @@ class DULServiceProvider(Thread):
 
             # Unrecognised PDU type - Evt19 in the State Machine
             if pdu_type[0] not in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
-                logger.error("Unrecognised PDU type: 0x%s" %pdu_type)
+                LOGGER.error("Unrecognised PDU type: 0x%s", pdu_type)
                 self.event_queue.put('Evt19')
                 return
 
@@ -336,7 +343,7 @@ class DULServiceProvider(Thread):
             True if the ARTIM timer has expired, False otherwise
         """
         if self.artim_timer.is_expired():
-            #logger.debug('%s: timer expired' % (self.name))
+            #LOGGER.debug('%s: timer expired' % (self.name))
             self.event_queue.put('Evt18')
             return True
 
@@ -354,16 +361,14 @@ class DULServiceProvider(Thread):
         if self._idle_timer is None:
             return False
 
-        if self._idle_timer.is_expired() == True:
+        if self._idle_timer.is_expired():
             return True
 
         return False
 
     def CheckIncomingPrimitive(self):
-        """
-
-        """
-        #logger.debug('%s: checking incoming primitive' % (self.name))
+        """Check the incoming primitive."""
+        #LOGGER.debug('%s: checking incoming primitive' % (self.name))
         # look at self.ReceivePrimitive for incoming primitives
         try:
             # Check the queue and see if there are any primitives
@@ -375,11 +380,11 @@ class DULServiceProvider(Thread):
             return False
 
     def CheckNetwork(self):
+        """Check the network."""
         return self.is_transport_connection_event()
 
     def is_transport_connection_event(self):
-        """
-        Check to see if the transport connection has incoming data
+        """Check to see if the transport connection has incoming data
 
         Returns
         -------
@@ -419,7 +424,7 @@ class DULServiceProvider(Thread):
 
             # If theres incoming connection request, accept it
             if read_list:
-                self.scu_socket, address = self.scp_socket.accept()
+                self.scu_socket, _ = self.scp_socket.accept()
 
                 # Add to event queue (Sta1 + Evt5 -> AE-5 -> Sta2
                 self.event_queue.put('Evt5')
@@ -461,7 +466,7 @@ class DULServiceProvider(Thread):
         connection for incoming data. When incoming data is received it
         categorises it and add its to the `to_user_queue`.
         """
-        #logger.debug('Starting DICOM UL service "%s"' %self.name)
+        #LOGGER.debug('Starting DICOM UL service "%s"' %self.name)
 
         # Main DUL loop
         while True:
@@ -499,7 +504,7 @@ class DULServiceProvider(Thread):
 
             self.state_machine.do_action(event)
 
-        #logger.debug('DICOM UL service "%s" stopped' %self.name)
+        #LOGGER.debug('DICOM UL service "%s" stopped' %self.name)
 
     def on_receive_pdu(self):
         """
@@ -531,26 +536,28 @@ def primitive2event(primitive):
     if primitive.__class__ == A_ASSOCIATE:
         if primitive.result is None:
             # A-ASSOCIATE Request
-            return 'Evt1'
+            event_str = 'Evt1'
         elif primitive.result == 0:
             # A-ASSOCIATE Response (accept)
-            return 'Evt7'
+            event_str = 'Evt7'
         else:
             # A-ASSOCIATE Response (reject)
-            return 'Evt8'
+            event_str = 'Evt8'
     elif primitive.__class__ == A_RELEASE:
         if primitive.result is None:
             # A-Release Request
-            return 'Evt11'
+            event_str = 'Evt11'
         else:
             # A-Release Response
-            return 'Evt14'
+            event_str = 'Evt14'
     elif primitive.__class__ == A_ABORT:
-        return 'Evt15'
+        event_str = 'Evt15'
     elif primitive.__class__ == P_DATA:
-        return 'Evt9'
+        event_str = 'Evt9'
     else:
         raise InvalidPrimitive
+
+    return event_str
 
 def Socket2PDU(data, dul):
     """
@@ -609,7 +616,7 @@ def PDU2Event(pdu):
 
     Parameters
     ----------
-    pdu -
+    pdu
         The PDU
 
     Returns
@@ -618,19 +625,21 @@ def PDU2Event(pdu):
         The event str associated with the PDU
     """
     if pdu.__class__ == A_ASSOCIATE_RQ_PDU:
-        return 'Evt6'
+        event_str = 'Evt6'
     elif pdu.__class__ == A_ASSOCIATE_AC_PDU:
-        return 'Evt3'
+        event_str = 'Evt3'
     elif pdu.__class__ == A_ASSOCIATE_RJ_PDU:
-        return 'Evt4'
+        event_str = 'Evt4'
     elif pdu.__class__ == P_DATA_TF_PDU:
-        return 'Evt10'
+        event_str = 'Evt10'
     elif pdu.__class__ == A_RELEASE_RQ_PDU:
-        return 'Evt12'
+        event_str = 'Evt12'
     elif pdu.__class__ == A_RELEASE_RP_PDU:
-        return 'Evt13'
+        event_str = 'Evt13'
     elif pdu.__class__ == A_ABORT_PDU:
-        return 'Evt16'
+        event_str = 'Evt16'
     else:
         #"Unrecognized or invalid PDU"
-        return 'Evt19'
+        event_str = 'Evt19'
+
+    return event_str
