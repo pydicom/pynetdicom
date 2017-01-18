@@ -1365,6 +1365,7 @@ class N_EVENT_REPORT_ServiceParameters(object):
         self.EventReply = None
         self.Status = None
 
+
 class N_GET_ServiceParameters(object):
     """Represents a N-GET primitive.
 
@@ -1381,6 +1382,7 @@ class N_GET_ServiceParameters(object):
         self.AttributeList = None
         self.Status = None
 
+
 class N_SET_ServiceParameters(object):
     """Represents a N-SET primitive.
 
@@ -1396,6 +1398,7 @@ class N_SET_ServiceParameters(object):
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.Status = None
+
 
 class N_ACTION_ServiceParameters(object):
     """Represents a N-ACTION primitive.
@@ -1414,6 +1417,7 @@ class N_ACTION_ServiceParameters(object):
         self.ActionReply = None
         self.Status = None
 
+
 class N_CREATE_ServiceParameters(object):
     """Represents a N-CREATE primitive.
 
@@ -1426,6 +1430,7 @@ class N_CREATE_ServiceParameters(object):
         self.AffectedSOPInstanceUID = None
         self.AttributeList = None
         self.Status = None
+
 
 class N_DELETE_ServiceParameters(object):
     """Represents a N-DELETE primitive.

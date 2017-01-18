@@ -6,7 +6,17 @@ import logging
 import time
 
 from pynetdicom3.dsutils import decode, encode
-#from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
+                                        C_ECHO_ServiceParameters, \
+                                        C_MOVE_ServiceParameters, \
+                                        C_GET_ServiceParameters, \
+                                        C_FIND_ServiceParameters, \
+                                        N_EVENT_REPORT_ServiceParameters, \
+                                        N_GET_ServiceParameters, \
+                                        N_SET_ServiceParameters, \
+                                        N_CREATE_ServiceParameters, \
+                                        N_ACTION_ServiceParameters, \
+                                        N_DELETE_ServiceParameters
 
 LOGGER = logging.getLogger('pynetdicom3.SOPclass')
 
@@ -565,7 +575,9 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         except:
             LOGGER.error('Exception in on_c_move')
             c_move_rsp.Status = int(self.UnableToProcess)
-            LOGGER.info('Move SCP Response %s (Failure)', ii)
+            # FIXME: index ii
+            #LOGGER.info('Move SCP Response %s (Failure)', ii)
+            LOGGER.info('Move SCP Response (Failure)')
             self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
             return
 
@@ -1001,10 +1013,12 @@ _generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
 _generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES,
                               RTMachineVerificationServiceClass)
 
+# pylint: disable=no-member
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
 QR_FIND_CLASS_LIST = QueryRetrieveFindServiceClass.__subclasses__()
 QR_MOVE_CLASS_LIST = QueryRetrieveMoveServiceClass.__subclasses__()
 QR_GET_CLASS_LIST = QueryRetrieveGetServiceClass.__subclasses__()
+# pylint: enable=no-member
 
 QR_CLASS_LIST = []
 for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
