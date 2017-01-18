@@ -264,7 +264,7 @@ class PresentationContext(object):
 
     def __eq__(self, other):
         """Return True if `self` is equal to `other`."""
-        if isinstance(self, other):
+        if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
 
         return False
