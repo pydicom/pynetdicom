@@ -1,15 +1,18 @@
-
+"""
+Define the various supported SOP Classes
+"""
+from io import BytesIO
 import logging
 import time
 
-from pynetdicom3.dsutils import *
-from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.dsutils import decode, encode
+#from pynetdicom3.DIMSEparameters import *
 
-logger = logging.getLogger('pynetdicom3.SOPclass')
+LOGGER = logging.getLogger('pynetdicom3.SOPclass')
 
-def class_factory(name, uid, BaseClass):
+def class_factory(name, uid, base_cls):
     """
-    Generates a SOP Class subclass of `BaseClass` called `name`
+    Generates a SOP Class subclass of `base_cls` called `name`
 
     Parameters
     ----------
@@ -17,7 +20,7 @@ def class_factory(name, uid, BaseClass):
         The name of the SOP class
     uid : str
         The UID of the SOP class
-    BaseClass : pynetdicom3.SOPclass.ServiceClass subclass
+    base_cls : pynetdicom3.SOPclass.ServiceClass subclass
         One of the following Service classes:
             VerificationServiceClass
             StorageServiceClass
@@ -31,20 +34,22 @@ def class_factory(name, uid, BaseClass):
         The new class
     """
     def __init__(self):
-        BaseClass.__init__(self)
+        base_cls.__init__(self)
 
-    new_class = type(name, (BaseClass,), {"__init__": __init__})
+    new_class = type(name, (base_cls,), {"__init__": __init__})
     new_class.UID = uid
 
     return new_class
 
-def _generate_service_sop_classes(class_list, service_class):
-    for name in class_list.keys():
-        cls = class_factory(name, class_list[name], service_class)
+def _generate_service_sop_classes(sop_class_list, service_class):
+    """Generate the SOP Classes."""
+    for name in sop_class_list.keys():
+        cls = class_factory(name, sop_class_list[name], service_class)
         globals()[cls.__name__] = cls
 
 
 class Status(object):
+    """Status object for the SOP Classes"""
     def __init__(self, Type, Description, CodeRange):
         self.Type = Type
         self.Description = Description
@@ -62,9 +67,14 @@ class Status(object):
 
 # DICOM SERVICE CLASS BASE
 class ServiceClass(object):
-    """
+    """The base class for all the service class types.
 
+    FIXME: Determine a better method for the statuses
+    FIXME: Perhaps define some class attributes such as self.AE = None
+        self.UID = None,
+        then call ServiceClass.__init__() in the subclasses?
     """
+    # FIXME: Replace this method
     def Code2Status(self, code):
         """
         Parameters
@@ -78,6 +88,7 @@ class ServiceClass(object):
             The Status object for the `code`
         """
         for dd in dir(self):
+            # FIXME: Assigned to nothing
             getattr(self, dd).__class__
             obj = getattr(self, dd)
 
@@ -89,7 +100,10 @@ class ServiceClass(object):
         return None
 
 
+# Service Class types
 class VerificationServiceClass(ServiceClass):
+    """Represents the Verification Service Class.
+    """
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
     def SCP(self, msg):
@@ -113,13 +127,14 @@ class VerificationServiceClass(ServiceClass):
         try:
             self.AE.on_c_echo()
         except:
-            logger.exception("Exception in the AE.on_c_echo() callback")
+            LOGGER.exception("Exception in the AE.on_c_echo() callback")
 
         # Send primitive
         self.DIMSE.Send(rsp, self.pcid, self.maxpdulength)
 
 
 class StorageServiceClass(ServiceClass):
+    """Represents the Storage Service Class"""
     # Storage Service specific status code values - PS3.4 Annex B.2.3
     # General status code values - PS3.7 9.1.1.1.9 - not used?
     #
@@ -129,8 +144,9 @@ class StorageServiceClass(ServiceClass):
                             'Refused: Out of resources',
                             range(0xA700, 0xA7FF + 1))
     DataSetDoesNotMatchSOPClassFailure = Status('Failure',
-                                    'Error: Data Set does not match SOP Class',
-                                    range(0xA900, 0xA9FF + 1))
+                                                'Error: Data Set does not ' \
+                                                'match SOP Class',
+                                                range(0xA900, 0xA9FF + 1))
     CannotUnderstand = Status('Failure',
                               'Error: Cannot understand',
                               range(0xC000, 0xCFFF + 1))
@@ -138,21 +154,23 @@ class StorageServiceClass(ServiceClass):
                                     'Coercion of Data Elements',
                                     range(0xB000, 0xB000 + 1))
     DataSetDoesNotMatchSOPClassWarning = Status('Warning',
-                                            'Data Set does not match SOP Class',
-                                            range(0xB007, 0xB007 + 1))
+                                                'Data Set does not match ' \
+                                                'SOP Class',
+                                                range(0xB007, 0xB007 + 1))
     ElementDisgarded = Status('Warning',
                               'Element Discarded',
                               range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
     def SCP(self, msg):
+        """Called when running as an SCP and receive a C-STORE request."""
         try:
             dataset = decode(msg.DataSet,
                              self.transfersyntax.is_implicit_VR,
                              self.transfersyntax.is_little_endian)
         except:
             status = self.CannotUnderstand
-            logger.error("StorageServiceClass failed to decode the dataset")
+            LOGGER.error("StorageServiceClass failed to decode the dataset")
 
         # Create C-STORE response primitive
         rsp = C_STORE_ServiceParameters()
@@ -163,24 +181,24 @@ class StorageServiceClass(ServiceClass):
         # ApplicationEntity's on_c_store callback
         try:
             status = self.AE.on_c_store(dataset)
-        except Exception as e:
-            logger.exception("Exception in the ApplicationEntity.on_c_store() "
-                                                                "callback")
+        except Exception:
+            LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
+                             "callback")
             status = self.CannotUnderstand
 
         # Check that the supplied dataset UID matches the presentation context
         #   ID
         if self.UID != self.sopclass:
             status = self.DataSetDoesNotMatchSOPClassFailure
-            logger.info("Store request's dataset UID does not match the "
-                                                        "presentation context")
+            LOGGER.info("Store request's dataset UID does not match the "
+                        "presentation context")
 
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
 class QueryRetrieveFindServiceClass(ServiceClass):
-    """
+    """Implements the QR Move Service Class.
     PS3.4 C.1.4 C-FIND Service Definition
     -------------------------------------
     - The SCU requests that the SCP perform a match of all the keys
@@ -447,76 +465,83 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
-        logger.info('Find SCP Request Identifiers:')
-        logger.info('')
-        logger.debug('# DICOM Data Set')
+        LOGGER.info('Find SCP Request Identifiers:')
+        LOGGER.info('')
+        LOGGER.debug('# DICOM Data Set')
         for elem in dataset:
-            logger.info(elem)
-        logger.info('')
+            LOGGER.info(elem)
+        LOGGER.info('')
 
         # Callback
         try:
             matches = self.AE.on_c_find(dataset)
         except:
-            logger.exception('Exception in on_c_find()')
+            LOGGER.exception('Exception in on_c_find()')
             matches = []
 
         for ii, instance in enumerate(matches):
-            c_find_rsp.Identifier = BytesIO(encode(instance,
-                                            self.transfersyntax.is_implicit_VR,
-                                            self.transfersyntax.is_little_endian))
+            c_find_rsp.Identifier = \
+                    BytesIO(encode(instance,
+                                   self.transfersyntax.is_implicit_VR,
+                                   self.transfersyntax.is_little_endian))
 
             # Send response
             c_find_rsp.Status = int(self.Pending)
 
-            logger.info('Find SCP Response: %s (Pending)' %(ii + 1))
+            LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
 
             self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
-            logger.debug('Find SCP Response Identifiers:')
-            logger.debug('')
-            logger.debug('# DICOM Dataset')
+            LOGGER.debug('Find SCP Response Identifiers:')
+            LOGGER.debug('')
+            LOGGER.debug('# DICOM Dataset')
             for elem in instance:
-                logger.debug(elem)
-            logger.debug('')
+                LOGGER.debug(elem)
+            LOGGER.debug('')
 
         # Send final response
         c_find_rsp.Status = int(self.Success)
 
-        logger.info('Find SCP Response: %s (Success)' %(ii + 2))
+        LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
 
         self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
+
 class QueryRetrieveMoveServiceClass(ServiceClass):
-    OutOfResourcesNumberOfMatches = Status('Failure',
-        'Refused: Out of resources - Unable to calcultate number of matches',
-        range(0xA701, 0xA701 + 1)    )
-    OutOfResourcesUnableToPerform = Status('Failure',
-        'Refused: Out of resources - Unable to perform sub-operations',
-        range(0xA702, 0xA702 + 1)    )
+    """Implements the QR Move Service Class."""
+    OutOfResourcesNumberOfMatches = \
+            Status('Failure',
+                   'Refused: Out of resources - Unable to calcultate number ' \
+                   'of matches',
+                   range(0xA701, 0xA701 + 1))
+    OutOfResourcesUnableToPerform = \
+            Status('Failure',
+                   'Refused: Out of resources - Unable to perform ' \
+                   'sub-operations',
+                   range(0xA702, 0xA702 + 1))
     MoveDestinationUnknown = Status('Failure',
                                     'Refused: Move destination unknown',
-                                    range(0xA801, 0xA801 + 1)    )
-    IdentifierDoesNotMatchSOPClass = Status('Failure',
-        'Identifier does not match SOP Class',
-        range(0xA900, 0xA900 + 1)    )
-    UnableToProcess = Status('Failure',
-        'Unable to process',
-        range(0xC000, 0xCFFF + 1)    )
+                                    range(0xA801, 0xA801 + 1))
+    IdentifierDoesNotMatchSOPClass = \
+            Status('Failure', 'Identifier does not match SOP Class',
+                   range(0xA900, 0xA900 + 1))
+    UnableToProcess = Status('Failure', 'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
     Cancel = Status('Cancel',
-        'Sub-operations terminated due to Cancel indication',
-        range(0xFE00, 0xFE00 + 1)    )
+                    'Sub-operations terminated due to Cancel indication',
+                    range(0xFE00, 0xFE00 + 1))
     Warning = Status('Warning',
-        'Sub-operations Complete - One or more Failures or Warnings',
-        range(0xB000, 0xB000 + 1)    )
+                     'Sub-operations Complete - One or more Failures or ' \
+                     'Warnings',
+                     range(0xB000, 0xB000 + 1))
     Success = Status('Success',
-        'Sub-operations Complete - No Failure or Warnings',
-        range(0x0000, 0x0000 + 1)    )
-    Pending = Status('Pending',
-        'Sub-operations are continuing',
-        range(0xFF00, 0xFF00 + 1)    )
+                     'Sub-operations Complete - No Failure or Warnings',
+                     range(0x0000, 0x0000 + 1))
+    Pending = Status('Pending', 'Sub-operations are continuing',
+                     range(0xFF00, 0xFF00 + 1))
 
     def SCP(self, msg):
+        """SCP"""
         attributes = decode(msg.Identifier,
                             self.transfersyntax.is_implicit_VR,
                             self.transfersyntax.is_little_endian)
@@ -527,20 +552,20 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_move_rsp.Identifier = msg.Identifier
 
-        logger.info('Move SCP Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Data Set')
+        LOGGER.info('Move SCP Request Identifiers:')
+        LOGGER.info('')
+        LOGGER.info('# DICOM Data Set')
         for elem in attributes:
-            logger.info(elem)
-        logger.info('')
+            LOGGER.info(elem)
+        LOGGER.info('')
 
         # The user is responsible for returning the matching Instances
         try:
             matches = self.AE.on_c_move(attributes, msg.MoveDestination)
         except:
-            logger.error('Exception in on_c_move')
-            c_get_rsp.Status = int(self.UnableToProcess)
-            logger.info('Move SCP Response %s (Failure)' %ii)
+            LOGGER.error('Exception in on_c_move')
+            c_move_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Move SCP Response %s (Failure)', ii)
             self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
             return
 
@@ -555,9 +580,10 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         addr, port = next(matches)
 
         if None in [addr, port]:
-            logger.error('Unknown Move Destination: %s' %msg.MoveDestination.decode('utf-8'))
+            LOGGER.error('Unknown Move Destination: %s',
+                         msg.MoveDestination.decode('utf-8'))
             c_move_rsp.Status = int(self.MoveDestinationUnknown)
-            logger.info('Move SCP Response (Failure)')
+            LOGGER.info('Move SCP Response (Failure)')
             self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
             return
 
@@ -572,7 +598,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                 status = assoc.send_c_store(dataset)
                 store_status = status.Type
 
-                logger.info('Move SCU: Received Store SCU RSP (%s)' %store_status)
+                LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
+                            store_status)
 
                 if store_status == 'Failure':
                     c_move_rsp.NumberOfFailedSuboperations += 1
@@ -585,7 +612,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
                 c_move_rsp.Status = int(self.Pending)
 
-                logger.info('Move SCP Response %s (Pending)' %ii)
+                LOGGER.info('Move SCP Response %s (Pending)', ii)
 
                 self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
 
@@ -595,18 +622,20 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         # Send Success C-GET-RSP to peer
         c_move_rsp.Status = int(self.Success)
-        logger.info('Move SCP Response %s (Success)' %ii)
+        LOGGER.info('Move SCP Response %s (Success)', ii)
         self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
 
+
 class QueryRetrieveGetServiceClass(ServiceClass):
+    """Implements the QR Get Service Class."""
     OutOfResourcesNumberOfMatches = Status('Failure',
                                            'Refused: Out of resources - Unable '
                                            'to calcultate number of matches',
-                                           range(0xA701, 0xA701 + 1)    )
+                                           range(0xA701, 0xA701 + 1))
     OutOfResourcesUnableToPerform = Status('Failure',
                                            'Refused: Out of resources - Unable '
                                            'to perform sub-operations',
-                                           range(0xA702, 0xA702 + 1)    )
+                                           range(0xA702, 0xA702 + 1))
     IdentifierDoesNotMatchSOPClass = Status('Failure',
                                             'Identifier does not match SOP '
                                             'Class',
@@ -618,9 +647,9 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                     'Sub-operations terminated due to Cancel indication',
                     range(0xFE00, 0xFE00 + 1))
     Warning = Status('Warning',
-                      'Sub-operations Complete - One or more Failures or '
-                      'Warnings',
-                      range(0xB000, 0xB000 + 1))
+                     'Sub-operations Complete - One or more Failures or '
+                     'Warnings',
+                     range(0xB000, 0xB000 + 1))
     Success = Status('Success',
                      'Sub-operations Complete - No Failure or Warnings',
                      range(0x0000, 0x0000 + 1))
@@ -657,20 +686,22 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_get_rsp.Identifier = msg.Identifier
 
-        logger.info('Get SCP Request Identifiers:')
-        logger.info('')
-        logger.debug('# DICOM Data Set')
+        LOGGER.info('Get SCP Request Identifiers:')
+        LOGGER.info('')
+        LOGGER.debug('# DICOM Data Set')
         for elem in attributes:
-            logger.info(elem)
-        logger.info('')
+            LOGGER.info(elem)
+        LOGGER.info('')
 
         # The user is responsible for returning the matching Instances
         try:
             matches = self.AE.on_c_get(attributes)
         except:
-            logger.error('Exception in on_c_get')
+            LOGGER.error('Exception in on_c_get')
             c_get_rsp.Status = int(self.UnableToProcess)
-            logger.info('Get SCP Response %s (Failure)' %ii)
+            # FIXME: ii indexing?
+            #LOGGER.info('Get SCP Response %s (Failure)', ii)
+            LOGGER.info('Get SCP Response (Failure)')
             self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
             return
 
@@ -683,14 +714,14 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         for dataset in matches:
             # Send C-STORE-RQ and Pending C-GET-RSP to peer
             # Send each matching dataset via C-STORE
-            logger.info('Store SCU RQ: MsgID %s' %ii)
+            LOGGER.info('Store SCU RQ: MsgID %s', ii)
 
             store_status = self.ACSE.parent.send_c_store(dataset,
                                                          msg.MessageID,
                                                          priority)
             store_status = store_status.Type
 
-            logger.info('Get SCU: Received Store SCU RSP (%s)' %store_status)
+            LOGGER.info('Get SCU: Received Store SCU RSP (%s)', store_status)
 
             if store_status == 'Failure':
                 c_get_rsp.NumberOfFailedSuboperations += 1
@@ -703,7 +734,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
             c_get_rsp.Status = int(self.Pending)
 
-            logger.info('Get SCP Response %s (Pending)' %ii)
+            LOGGER.info('Get SCP Response %s (Pending)', ii)
 
             self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
 
@@ -711,14 +742,16 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         # Send Success C-GET-RSP to peer
         c_get_rsp.Status = int(self.Success)
-        logger.info('Get SCP Response %s (Success)' %ii)
+        LOGGER.info('Get SCP Response %s (Success)', ii)
         self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
 
 
 # WORKLIST SOP Classes
-class BasicWorklistServiceClass (ServiceClass): pass
+class BasicWorklistServiceClass(ServiceClass): pass
 
-class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
+
+class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
+    """Implements the Modality Worklist Service Class."""
     OutOfResources = Status('Failure',
                             'Refused: Out of resources',
                             range(0xA700, 0xA700 + 1))
@@ -749,6 +782,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
     # FIXME
     def SCP(self, msg):
+        """SCP"""
         ds = decode(msg.Identifier,
                     self.transfersyntax.is_implicit_VR,
                     self.transfersyntax.is_little_endian)
@@ -762,9 +796,9 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         try:
             while 1:
                 time.sleep(0.001)
-                IdentifierDS, status = gen.next()
+                dataset, status = gen.next()
                 rsp.Status = int(status)
-                rsp.Identifier = encode(IdentifierDS,
+                rsp.Identifier = encode(dataset,
                                         self.transfersyntax.is_implicit_VR,
                                         self.transfersyntax.is_little_endian)
                 # send response
@@ -779,6 +813,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
 
 class RTMachineVerificationServiceClass(ServiceClass):
+    """Test implements of the RT Machine Verification Service Class."""
     # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE/N-SET/N-GET/N-ACTION
     #   Slight differences in description text
     Success = Status('Success',
@@ -803,6 +838,7 @@ class RTMachineVerificationServiceClass(ServiceClass):
     fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
 
     def SCP(self, msg):
+        """SCP"""
         print('RTMachineVerification SCP', msg)
 
         if msg.__class__ == N_CREATE_ServiceParameters:
@@ -819,10 +855,10 @@ class RTMachineVerificationServiceClass(ServiceClass):
             pass
 
 
-
 # Generate the various SOP classes
 _VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}
 
+# pylint: disable=line-too-long
 _STORAGE_CLASSES = {'ComputedRadiographyImageStorage' : '1.2.840.10008.5.1.4.1.1.1',
                     'DigitalXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.1',
                     'DigitalXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.1.1.1',
@@ -956,12 +992,14 @@ _QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840
 
 _MACHINE_VERIFICATION_CLASSES = {'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8'}
 
+# pylint: enable=line-too-long
 _generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
 _generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
 _generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
 _generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
 _generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
-_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES, RTMachineVerificationServiceClass)
+_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES,
+                              RTMachineVerificationServiceClass)
 
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
 QR_FIND_CLASS_LIST = QueryRetrieveFindServiceClass.__subclasses__()
@@ -972,7 +1010,27 @@ QR_CLASS_LIST = []
 for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
     QR_CLASS_LIST.extend(class_list)
 
-d = dir()
+MODULE_OBJECTS = dir()
+
+def uid_to_sop_class(uid):
+    """Given a `uid` return the corresponding SOP Class.
+
+    Parameters
+    ----------
+    uid : pydicom.uid.UID
+
+    Returns
+    -------
+    subclass of pynetdicom3.sopclass.ServiceClass
+        The SOP class corresponding to `uid`
+    """
+    for obj in MODULE_OBJECTS:
+        if hasattr(obj, 'UID'):
+            if obj.UID == uid:
+                return obj
+
+    raise NotImplementedError("The SOP Class for UID '%s' has not been " \
+                              "implemented" %uid)
 
 def UID2SOPClass(UID):
     """
@@ -985,7 +1043,8 @@ def UID2SOPClass(UID):
     -------
     SOPClass object corresponding to the given UID
     """
-    for ss in d:
+    for ss in MODULE_OBJECTS:
+        # FIXME: eval!?
         if hasattr(eval(ss), 'UID'):
             tmpuid = getattr(eval(ss), 'UID')
             if tmpuid == UID:
