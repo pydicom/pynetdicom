@@ -95,26 +95,6 @@ class ApplicationEntity(object):
                 # Release the association
                 assoc.Release()
 
-    Parameters
-    ----------
-    ae_title : str, optional
-        The AE title of the Application Entity (default: PYNETDICOM)
-    port : int, optional
-        The port number to listen for connections on when acting as an SCP
-        (default: the first available port)
-    scu_sop_class : list of pydicom.uid.UID or list of str or list of
-    pynetdicom3.SOPclass.ServiceClass subclasses, optional
-        List of the supported SOP Class UIDs when running as an SCU.
-        Either `scu_sop_class` or `scp_sop_class` must have values
-    scp_sop_class : list of pydicom.uid.UID or list of UID strings or list of
-    pynetdicom3.SOPclass.ServiceClass subclasses, optional
-        List of the supported SOP Class UIDs when running as an SCP.
-        Either scu_`sop_class` or `scp_sop_class` must have values
-    transfer_syntax : list of pydicom.uid.UID or list of str or list of
-    pynetdicom3.SOPclass.ServiceClass subclasses, optional
-        List of supported Transfer Syntax UIDs (default: Explicit VR Little
-        Endian, Implicit VR Little Endian, Explicit VR Big Endian)
-
     Attributes
     ----------
     acse_timeout : int
@@ -160,22 +140,48 @@ class ApplicationEntity(object):
     transfer_syntaxes : List of pydicom.uid.UID
         The supported transfer syntaxes
     """
-    def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=[],
-                 scp_sop_class=[], transfer_syntax=[ExplicitVRLittleEndian,
-                                                    ImplicitVRLittleEndian,
-                                                    ExplicitVRBigEndian]):
+    # pylint: disable=too-many-instance-attributes,too-many-public-methods
+    def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
+                 scp_sop_class=None, transfer_syntax=None):
+        """Create a new Application Entity.
 
+        Parameters
+        ----------
+        ae_title : str, optional
+            The AE title of the Application Entity (default: PYNETDICOM)
+        port : int, optional
+            The port number to listen for connections on when acting as an SCP
+            (default: the first available port)
+        scu_sop_class : list of pydicom.uid.UID or list of str or list of
+        pynetdicom3.SOPclass.ServiceClass subclasses, optional
+            List of the supported SOP Class UIDs when running as an SCU.
+            Either `scu_sop_class` or `scp_sop_class` must have values
+        scp_sop_class : list of pydicom.uid.UID or list of UID strings or list
+        of pynetdicom3.SOPclass.ServiceClass subclasses, optional
+            List of the supported SOP Class UIDs when running as an SCP.
+            Either scu_`sop_class` or `scp_sop_class` must have values
+        transfer_syntax : list of pydicom.uid.UID or list of str or list of
+        pynetdicom3.SOPclass.ServiceClass subclasses, optional
+            List of supported Transfer Syntax UIDs (default: Explicit VR Little
+            Endian, Implicit VR Little Endian, Explicit VR Big Endian)
+        """
         self.address = platform.node()
         self.port = port
         self.ae_title = ae_title
+
+        # Avoid dangerous default values
+        if transfer_syntax is None:
+            transfer_syntax = [ExplicitVRLittleEndian,
+                               ImplicitVRLittleEndian,
+                               ExplicitVRBigEndian]
 
         # Make sure that one of scu_sop_class/scp_sop_class is not empty
         if scu_sop_class == [] and scp_sop_class == []:
             raise ValueError("No supported SOP Class UIDs supplied during "
                              "ApplicationEntity instantiation")
 
-        self.scu_supported_sop = scu_sop_class
-        self.scp_supported_sop = scp_sop_class
+        self.scu_supported_sop = scu_sop_class or []
+        self.scp_supported_sop = scp_sop_class or []
 
         # The transfer syntax(es) available to the AE
         #   At a minimum this must be ... FIXME
@@ -270,7 +276,7 @@ class ApplicationEntity(object):
         if self.scp_supported_sop == []:
             LOGGER.error("AE is running as an SCP but no supported SOP classes "
                          "for use with the SCP have been included during"
-                         "ApplicationEntity() initialisation or by setting the "
+                         "ApplicationEntity initialisation or by setting the "
                          "scp_supported_sop attribute")
             return
 
@@ -348,7 +354,6 @@ class ApplicationEntity(object):
         out from start() to enable better unit testing
         """
         # We can use threading.enumerate() to list all alive threads
-
         #   assoc.is_alive() is inherited from threading.thread
         self.active_associations = \
             [assoc for assoc in self.active_associations if assoc.is_alive()]
@@ -378,7 +383,10 @@ class ApplicationEntity(object):
                   max_pdu=16382, ext_neg=None):
         """Attempts to associate with a remote application entity
 
-        When requesting an association the local AE is acting as an SCU
+        When requesting an association the local AE is acting as an SCU. The
+        Association thread is returned whether or not the association is
+        accepted and should be checked using Association.is_established before
+        sending any messages.
 
         Parameters
         ----------
@@ -418,7 +426,7 @@ class ApplicationEntity(object):
                             ext_neg=ext_neg)
 
         # Endlessly loops while the Association negotiation is taking place
-        while (not assoc.is_established and not assoc.is_refused and
+        while (not assoc.is_established and not assoc.is_rejected and
                not assoc.is_aborted and not assoc.dul.kill):
             time.sleep(0.1)
 
@@ -431,7 +439,9 @@ class ApplicationEntity(object):
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
-        str_out += "Application Entity '%s' on %s:%s\n" %(self.ae_title, self.address, self.port)
+        str_out += "Application Entity '%s' on %s:%s\n" %(self.ae_title,
+                                                          self.address,
+                                                          self.port)
 
         str_out += "\n"
         str_out += "  Available Transfer Syntax(es):\n"
@@ -460,9 +470,11 @@ class ApplicationEntity(object):
         if self.require_called_aet != '' or self.require_calling_aet != '':
             str_out += "\n"
         if self.require_calling_aet != '':
-            str_out += "  Required calling AE title: %s\n" %self.require_calling_aet
+            str_out += "  Required calling AE title: %s\n" \
+                                        % self.require_calling_aet
         if self.require_called_aet != '':
-            str_out += "  Required called AE title: %s\n" %self.require_called_aet
+            str_out += "  Required called AE title: %s\n" \
+                                        % self.require_called_aet
 
         str_out += "\n"
 
@@ -486,6 +498,7 @@ class ApplicationEntity(object):
     @acse_timeout.setter
     def acse_timeout(self, value):
         """Set the ACSE timeout."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if value >= 0:
                 self._acse_timeout = value
@@ -507,6 +520,7 @@ class ApplicationEntity(object):
     @ae_title.setter
     def ae_title(self, value):
         """Get the AE title."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             self._ae_title = validate_ae_title(value)
         except:
@@ -520,6 +534,7 @@ class ApplicationEntity(object):
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         """Get the DIMSE timeout."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if value >= 0:
                 self._dimse_timeout = value
@@ -542,6 +557,7 @@ class ApplicationEntity(object):
     @network_timeout.setter
     def network_timeout(self, value):
         """Set the network timeout."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if value >= 0:
                 self._network_timeout = value
@@ -564,6 +580,7 @@ class ApplicationEntity(object):
     @maximum_associations.setter
     def maximum_associations(self, value):
         """Set the number of maximum associations."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if value >= 1:
                 self._maximum_associations = value
@@ -586,6 +603,7 @@ class ApplicationEntity(object):
     @maximum_pdu_size.setter
     def maximum_pdu_size(self, value):
         """Set the maximum PDU size."""
+        # pylint: disable=attribute-defined-outside-init
         # Bounds and type checking of the received maximum length of the
         #   variable field of P-DATA-TF PDUs (in bytes)
         #   * Must be numerical, greater than or equal to 0 (0 indicates
@@ -608,6 +626,7 @@ class ApplicationEntity(object):
     @port.setter
     def port(self, value):
         """Set the port number."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if isinstance(value, int):
                 if value >= 0:
@@ -630,6 +649,7 @@ class ApplicationEntity(object):
     @require_calling_aet.setter
     def require_calling_aet(self, value):
         """Set the required calling AE title."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if 0 < len(value.strip()) <= 16:
                 self._require_calling_aet = value.strip()
@@ -657,6 +677,7 @@ class ApplicationEntity(object):
     @require_called_aet.setter
     def require_called_aet(self, value):
         """Set the required called AE title."""
+        # pylint: disable=attribute-defined-outside-init
         try:
             if 0 < len(value.strip()) <= 16:
                 self._require_called_aet = value.strip()
@@ -688,6 +709,7 @@ class ApplicationEntity(object):
         exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID
         attribute(ie VerificationSOPClass)
         """
+        # pylint: disable=attribute-defined-outside-init
         self._scu_supported_sop = []
 
         try:
@@ -734,6 +756,7 @@ class ApplicationEntity(object):
         exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID
         attribute(ie VerificationSOPClass)
         """
+        # pylint: disable=attribute-defined-outside-init
         self._scp_supported_sop = []
 
         try:
@@ -776,6 +799,7 @@ class ApplicationEntity(object):
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
         """Set the supported transfer syntaxes."""
+        # pylint: disable=attribute-defined-outside-init
         self._transfer_syntaxes = []
 
         try:
@@ -814,7 +838,8 @@ class ApplicationEntity(object):
 
 
     # Association negotiation callbacks
-    def on_user_identity_negotiation(self, user_id_type, primary_field, secondary_field):
+    def on_user_identity_negotiation(self, user_id_type, primary_field,
+                                     secondary_field):
         """Callback for when a peer requests user identity negotiations.
 
         See PS3.7 Annex D.3.3.7.1
@@ -950,34 +975,31 @@ class ApplicationEntity(object):
             A valid return status for the C-FIND operation (see PS3.4 Annex
             C.4.1.1.4), must be one of the following Status objects or the
             corresponding integer value:
-                Success status
-                    QueryRetrieveFindSOPClass.Success
-                        Matching is complete - No final Identifier is
-                        supplied - 0x0000
-
-                Failure statuses
-                    QueryRetrieveFindSOPClass.OutOfResources
-                        Refused: Out of Resources - 0xA700
-                    QueryRetrieveFindSOPClass.IdentifierDoesNotMatchSOPClass
-                        Identifier does not match SOP Class - 0xA900
-                    QueryRetrieveFindSOPClass.UnableToProcess
-                        Unable to process - 0xCxxx
-
-                Cancel status
-                    QueryRetrieveFindSOPClass.MatchingTerminatedDueToCancelRequest
-                        Matching terminated due to Cancel request - 0xFE00
-
-                Pending statuses
-                    QueryRetrieveFindSOPClass.Pending
-                        Matches are continuing - Current Match is supplied and
-                        any Optional Keys were supported in the same manner as
-                        Required Keys - 0xFF00
-                    QueryRetrieveFindSOPClass.PendingWarning
-                        Matches are continuing - Warning that one or more
-                        Optional Keys were not supported for existence and/or
-                        matching for this Identifier - 0xFF01
+            Success status
+                QueryRetrieveFindSOPClass.Success
+                    Matching is complete - No final Identifier is
+                    supplied - 0x0000
+            Failure statuses
+                QueryRetrieveFindSOPClass.OutOfResources
+                    Refused: Out of Resources - 0xA700
+                QueryRetrieveFindSOPClass.IdentifierDoesNotMatchSOPClass
+                    Identifier does not match SOP Class - 0xA900
+                QueryRetrieveFindSOPClass.UnableToProcess
+                    Unable to process - 0xCxxx
+            Cancel status
+                QueryRetrieveFindSOPClass.MatchingTerminatedDueToCancelRequest
+                    Matching terminated due to Cancel request - 0xFE00
+            Pending statuses
+                QueryRetrieveFindSOPClass.Pending
+                    Matches are continuing - Current Match is supplied and
+                    any Optional Keys were supported in the same manner as
+                    Required Keys - 0xFF00
+                QueryRetrieveFindSOPClass.PendingWarning
+                    Matches are continuing - Warning that one or more
+                    Optional Keys were not supported for existence and/or
+                    matching for this Identifier - 0xFF01
         dataset : pydicom.dataset.Dataset or None
-            A matching dataset if the status is Pending, None otherwise
+            A matching dataset if the status is Pending, None otherwise.
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
