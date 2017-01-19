@@ -1381,17 +1381,20 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
         self.assertEqual(orig, new)
 
-    def test_properies(self):
+    def test_properties(self):
         """ Check property setters and getters """
         item = SOPClassExtendedNegotiationSubItem()
 
         # SOP Class UID
-        item.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
-        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
-        item.implementation_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
-        item.implementation_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.sop_class_uid = '1.2'
+        self.assertEqual(item.sop_class_uid, UID('1.2'))
+        self.assertEqual(item.sop_class_uid_length, 3)
+        item.sop_class_uid = b'1.2.3'
+        self.assertEqual(item.sop_class_uid, UID('1.2.3'))
+        self.assertEqual(item.sop_class_uid_length, 5)
+        item.sop_class_uid = UID('1.2.3.4')
+        self.assertEqual(item.sop_class_uid, UID('1.2.3.4'))
+        self.assertEqual(item.sop_class_uid_length, 7)
 
         self.assertEqual(item.UID, item.sop_class_uid)
 
