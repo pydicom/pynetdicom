@@ -438,9 +438,9 @@ class DIMSEServiceProvider(object):
         if dimse_msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        if ds.AffectedSOPClassUIds.name == 'CT Image Storage':
+        if ds.AffectedSOPClassUID.name == 'CT Image Storage':
             dataset_type = ', (CT)'
-        elif ds.AffectedSOPClassUIds.name == 'MR Image Storage':
+        elif ds.AffectedSOPClassUID.name == 'MR Image Storage':
             dataset_type = ', (MR)'
         else:
             dataset_type = ''
