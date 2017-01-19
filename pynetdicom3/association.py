@@ -147,7 +147,7 @@ class Association(threading.Thread):
 
         # Status attributes
         self.is_established = False
-        self.is_refused = False
+        self.is_rejected = False
         self.is_aborted = False
         self.is_released = False
 
@@ -426,7 +426,7 @@ class Association(threading.Thread):
         elif self.mode == 'Requestor':
 
             if self.ae.presentation_contexts_scu == []:
-                logger.error("No presentation contexts set for the SCU")
+                LOGGER.error("No presentation contexts set for the SCU")
                 self.kill()
                 return
 
@@ -464,7 +464,7 @@ class Association(threading.Thread):
 
                     # No acceptable presentation contexts
                     if self.acse.presentation_contexts_accepted == []:
-                        logger.error("No Acceptable Presentation Contexts")
+                        LOGGER.error("No Acceptable Presentation Contexts")
                         self.acse.Abort(0x02, 0x00)
                         self.kill()
                         return
@@ -579,7 +579,7 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'", uid)
+            LOGGER.error("No Presentation Context for: '%s'", uid)
             return None
 
         # Build C-STORE request primitive
@@ -707,9 +707,9 @@ class Association(threading.Thread):
         """
         # pydicom can only handle uncompressed transfer syntaxes for conversion
         if not dataset._is_uncompressed_transfer_syntax():
-            logger.warning("Unable to send the dataset due to pydicom not "
+            LOGGER.warning("Unable to send the dataset due to pydicom not "
                            "supporting compressed datasets")
-            logger.error('Sending file failed')
+            LOGGER.error('Sending file failed')
             return 0xC000
 
         # Can't send a C-STORE without an Association
@@ -730,9 +730,9 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'",
+            LOGGER.error("No Presentation Context for: '%s'",
                          dataset.SOPClassUID)
-            logger.error("Store SCU failed due to there being no valid "
+            LOGGER.error("Store SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             return service_class.CannotUnderstand
 
@@ -749,7 +749,7 @@ class Association(threading.Thread):
         if priority in [0x0000, 0x0001, 0x0002]:
             primitive.Priority = priority
         else:
-            logger.warning("C-STORE SCU: Invalid priority value '%s'",
+            LOGGER.warning("C-STORE SCU: Invalid priority value '%s'",
                            priority)
             primitive.Priorty = 0x0000
 
@@ -845,9 +845,9 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'",
+            LOGGER.error("No Presentation Context for: '%s'",
                          sop_class.UID)
-            logger.error("Find SCU failed due to there being no valid "
+            LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
 
@@ -860,12 +860,12 @@ class Association(threading.Thread):
                                               transfer_syntax.is_implicit_VR,
                                               transfer_syntax.is_little_endian))
 
-        logger.info('Find SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
+        LOGGER.info('Find SCU Request Identifiers:')
+        LOGGER.info('')
+        LOGGER.info('# DICOM Dataset')
         for elem in dataset:
-            logger.info(elem)
-        logger.info('')
+            LOGGER.info(elem)
+        LOGGER.info('')
 
         # Send C-FIND request
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
@@ -895,13 +895,13 @@ class Association(threading.Thread):
             if status.Type != 'Pending':
                 break
 
-            logger.debug('-' * 65)
-            logger.debug('Find Response: %s (%s)', ii, status.Type)
-            logger.debug('')
-            logger.debug('# DICOM Dataset')
+            LOGGER.debug('-' * 65)
+            LOGGER.debug('Find Response: %s (%s)', ii, status.Type)
+            LOGGER.debug('')
+            LOGGER.debug('# DICOM Dataset')
             for elem in ds:
-                logger.debug(elem)
-            logger.debug('')
+                LOGGER.debug(elem)
+            LOGGER.debug('')
 
             ii += 1
 
@@ -972,12 +972,12 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'", sop_class.UID)
-            logger.error("Find SCU failed due to there being no valid "
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             return service_class.IdentifierDoesNotMatchSOPClass
 
-        logger.info('Sending C-CANCEL-FIND')
+        LOGGER.info('Sending C-CANCEL-FIND')
 
         # send c-find request
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
@@ -1055,8 +1055,8 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'", sop_class.UID)
-            logger.error("Move SCU failed due to there being no valid "
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
 
@@ -1070,12 +1070,12 @@ class Association(threading.Thread):
                                               transfer_syntax.is_implicit_VR,
                                               transfer_syntax.is_little_endian))
 
-        logger.info('Move SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
+        LOGGER.info('Move SCU Request Identifiers:')
+        LOGGER.info('')
+        LOGGER.info('# DICOM Dataset')
         for elem in dataset:
-            logger.info(elem)
-        logger.info('')
+            LOGGER.info(elem)
+        LOGGER.info('')
 
         # Send C-MOVE request to peer
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
@@ -1103,9 +1103,9 @@ class Association(threading.Thread):
                     warning = rsp.NumberOfWarningSuboperations
 
                     # Pending Response
-                    logger.debug('')
-                    logger.info("Move Response: %s (Pending)", ii)
-                    logger.info("    Sub-Operations Remaining: %s, "
+                    LOGGER.debug('')
+                    LOGGER.info("Move Response: %s (Pending)", ii)
+                    LOGGER.info("    Sub-Operations Remaining: %s, "
                                 "Completed: %s, Failed: %s, Warning: %s",
                                 remain, complete, failed, warning)
                     ii += 1
@@ -1116,22 +1116,22 @@ class Association(threading.Thread):
                     break
                 # All other possible responses
                 elif status.Type == "Failure":
-                    logger.debug('')
-                    logger.error('Move Response: %s (Failure)', ii)
-                    logger.error('    %s', status.Description)
+                    LOGGER.debug('')
+                    LOGGER.error('Move Response: %s (Failure)', ii)
+                    LOGGER.error('    %s', status.Description)
                     break
                 elif status.Type == "Cancel":
-                    logger.debug('')
-                    logger.info('Move Response: %s (Cancel)', ii)
-                    logger.info('    %s', status.Description)
+                    LOGGER.debug('')
+                    LOGGER.info('Move Response: %s (Cancel)', ii)
+                    LOGGER.info('    %s', status.Description)
                     break
                 elif status.Type == "Warning":
-                    logger.debug('')
-                    logger.warning('Move Response: %s (Warning)', ii)
-                    logger.warning('    %s', status.Description)
+                    LOGGER.debug('')
+                    LOGGER.warning('Move Response: %s (Warning)', ii)
+                    LOGGER.warning('    %s', status.Description)
 
                     for elem in dataset:
-                        logger.warning('%s: %s', elem.name, elem.value)
+                        LOGGER.warning('%s: %s', elem.name, elem.value)
 
                     break
 
@@ -1186,12 +1186,12 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'", sop_class.UID)
-            logger.error("Move SCU failed due to there being no valid "
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             return service_class.IdentifierDoesNotMatchSOPClass
 
-        logger.info('Sending C-CANCEL-MOVE')
+        LOGGER.info('Sending C-CANCEL-MOVE')
 
         # Send C-CANCEL-MOVE request
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
@@ -1259,8 +1259,8 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'", sop_class.UID)
-            logger.error("Get SCU failed due to there being no valid "
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
 
@@ -1277,12 +1277,12 @@ class Association(threading.Thread):
         # Send primitive to peer
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
-        logger.info('Get SCU Request Identifiers:')
-        logger.info('')
-        logger.info('# DICOM Dataset')
+        LOGGER.info('Get SCU Request Identifiers:')
+        LOGGER.info('')
+        LOGGER.info('# DICOM Dataset')
         for elem in dataset:
-            logger.info(elem)
-        logger.info('')
+            LOGGER.info(elem)
+        LOGGER.info('')
 
         ii = 1
         while True:
@@ -1306,9 +1306,9 @@ class Association(threading.Thread):
                     warning = rsp.NumberOfWarningSuboperations
 
                     # Pending Response
-                    logger.debug('')
-                    logger.info("Find Response: %s (Pending)", ii)
-                    logger.info("    Sub-Operations Remaining: %s, "
+                    LOGGER.debug('')
+                    LOGGER.info("Find Response: %s (Pending)", ii)
+                    LOGGER.info("    Sub-Operations Remaining: %s, "
                                 "Completed: %s, Failed: %s, Warning: %s",
                                 remain, complete, failed, warning)
                     ii += 1
@@ -1322,28 +1322,28 @@ class Association(threading.Thread):
 
                 # All other possible responses
                 elif status.Type == "Failure":
-                    logger.debug('')
-                    logger.error('Find Response: %s (Failure)', ii)
-                    logger.error('    %s', status.Description)
+                    LOGGER.debug('')
+                    LOGGER.error('Find Response: %s (Failure)', ii)
+                    LOGGER.error('    %s', status.Description)
 
                     # Print out the status information
                     for elem in dataset:
-                        logger.error('%s: %s', elem.name, elem.value)
+                        LOGGER.error('%s: %s', elem.name, elem.value)
 
                     break
                 elif status.Type == "Cancel":
-                    logger.debug('')
-                    logger.info('Find Response: %s (Cancel)', ii)
-                    logger.info('    %s', status.Description)
+                    LOGGER.debug('')
+                    LOGGER.info('Find Response: %s (Cancel)', ii)
+                    LOGGER.info('    %s', status.Description)
                     break
                 elif status.Type == "Warning":
-                    logger.debug('')
-                    logger.warning('Find Response: %s (Warning)', ii)
-                    logger.warning('    %s', status.Description)
+                    LOGGER.debug('')
+                    LOGGER.warning('Find Response: %s (Warning)', ii)
+                    LOGGER.warning('    %s', status.Description)
 
                     # Print out the status information
                     for elem in dataset:
-                        logger.warning('%s: %s', elem.name, elem.value)
+                        LOGGER.warning('%s: %s', elem.name, elem.value)
 
                     break
 
@@ -1422,12 +1422,12 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            logger.error("No Presentation Context for: '%s'", sop_class.UID)
-            logger.error("Find SCU failed due to there being no valid "
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             return service_class.IdentifierDoesNotMatchSOPClass
 
-        logger.info('Sending C-CANCEL-GET')
+        LOGGER.info('Sending C-CANCEL-GET')
 
         # Send c-cancel-get request
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
@@ -1455,8 +1455,8 @@ class Association(threading.Thread):
                     context_id = context.ID
 
             if transfer_syntax is None:
-                logger.error("No Presentation Context for: '%s'", sop_class.UID)
-                logger.error("Get SCU failed due to there being no valid "
+                LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+                LOGGER.error("Get SCU failed due to there being no valid "
                              "presentation context for the current dataset")
                 return service_class.IdentifierDoesNotMatchSOPClass
 
@@ -1525,7 +1525,7 @@ class Association(threading.Thread):
         #max_send_pdv = \
         #   associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
 
-        #logger.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
+        #LOGGER.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
 
         pynetdicom3_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
 
@@ -1590,7 +1590,7 @@ class Association(threading.Thread):
                 '====')
 
         for line in s:
-            logger.debug(line)
+            LOGGER.debug(line)
         '''
         pass
 
@@ -1639,15 +1639,15 @@ class Association(threading.Thread):
         result_str = {1 : 'Rejected Permanent',
                       2 : 'Rejected Transient'}
 
-        logger.error('Association Rejected:')
-        logger.error('Result: %s, Source: %s', result_str[result],
+        LOGGER.error('Association Rejected:')
+        LOGGER.error('Result: %s, Source: %s', result_str[result],
                      source_str[source])
-        logger.error('Reason: %s', reason_str[source - 1][reason])
+        LOGGER.error('Reason: %s', reason_str[source - 1][reason])
 
     def debug_association_released(self):
         """Logging for association release."""
-        logger.info('Association Released')
+        LOGGER.info('Association Released')
 
     def debug_association_aborted(self, abort_primitive=None):
         """Logging for association abort."""
-        logger.error('Association Aborted')
+        LOGGER.error('Association Aborted')

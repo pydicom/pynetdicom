@@ -176,7 +176,7 @@ class ApplicationEntity(object):
                                ExplicitVRBigEndian]
 
         # Make sure that one of scu_sop_class/scp_sop_class is not empty
-        if scu_sop_class == [] and scp_sop_class == []:
+        if scu_sop_class is None and scp_sop_class is None:
             raise ValueError("No supported SOP Class UIDs supplied during "
                              "ApplicationEntity instantiation")
 

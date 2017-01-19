@@ -821,6 +821,8 @@ class A_ABORT(object):
         # pylint: disable=attribute-defined-outside-init
         if value in [0, 2]:
             self._abort_source = value
+        elif value is None:
+            self._abort_source = None
         else:
             LOGGER.error("Attempted to set A_ABORT.abort_source to an " \
                          "invalid value")
@@ -863,6 +865,8 @@ class A_P_ABORT(object):
         # pylint: disable=attribute-defined-outside-init
         if value in [0, 1, 2, 4, 5, 6]:
             self._provider_reason = value
+        elif value is None:
+            self._provider_reason = None
         else:
             LOGGER.error("Attempted to set A_ABORT.provider_reason to an " \
                          "invalid value")
