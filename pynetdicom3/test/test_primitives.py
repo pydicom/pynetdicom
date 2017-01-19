@@ -461,14 +461,14 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         """ Check assignment works correctly """
         assoc = A_ASSOCIATE()
 
-        assoc.mode = "test value"
-        self.assertTrue(assoc.mode == "normal")
+        def test_mode(): assoc.mode = "test value"
+        self.assertRaises(AttributeError, test_mode)
 
-        assoc.presentation_requirements = "test value2"
-        self.assertTrue(assoc.presentation_requirements == "Presentation Kernel")
+        def test_preq(): assoc.presentation_requirements = "test value2"
+        self.assertRaises(AttributeError, test_preq)
 
-        assoc.session_requirements = "test value3"
-        self.assertTrue(assoc.session_requirements == "")
+        def test_sreq(): assoc.session_requirements = "test value3"
+        self.assertRaises(AttributeError, test_sreq)
 
         assoc.application_context_name = "1.2.840.10008.3.1.1.1"
         self.assertTrue(assoc.application_context_name == UID('1.2.840.10008.3.1.1.1'))
