@@ -50,7 +50,8 @@ LOGGER = logging.getLogger('pynetdicom3.pdu')
 class PDU(object):
     """ Base class for PDUs """
     def __init__(self):
-        pass
+        self.formats = None
+        self.parameters = None
 
     def __eq__(self, other):
         """Equality of two PDUs"""
@@ -142,7 +143,7 @@ class PDU(object):
         # A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF and others may have
         # additional sub items requiring decoding
         while True:
-            item = next_item(s)
+            item = _next_item(s)
 
             if item is None:
                 # Then the stream is empty so we break out of the loop
@@ -154,7 +155,8 @@ class PDU(object):
         # After decoding, check that we have only added allowed items
         self.validate_additional_items()
 
-    def _next_item_type(self, s):
+    @staticmethod
+    def _next_item_type(s):
         """
         Peek at the stream `s` and see what PDU sub-item type
         it is by checking the value of the first byte, then reversing back to
@@ -167,10 +169,8 @@ class PDU(object):
 
         Returns
         -------
-        item_type : int
-            The first byte of the stream
-        None
-            If the stream is empty
+        int or None
+            The first byte of the stream, None if the stream is empty.
         """
         first_byte = s.read(1)
 
@@ -486,7 +486,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                            self.variable_items]
 
     def _update_pdu_length(self):
-        """ Determines the value of the PDU Length parameter """
+        """Determines the value of the PDU Length parameter."""
         # Determine the total length of the PDU, this is the length from the
         #   first byte of the Protocol-version field (byte 7) to the end
         #   of the Variable items field (first byte is 75, unknown length)
@@ -497,7 +497,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         self.pdu_length = length
 
     def get_length(self):
-        """ Returns the total length of the PDU in bytes as an int """
+        """Returns the total length of the encoded PDU in bytes as an int."""
         self._update_pdu_length()
         self._update_parameters()
 
@@ -505,19 +505,19 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
     @property
     def called_ae_title(self):
-        """Return the called AE title"""
+        """Return the called AE title."""
         return self._called_aet
 
     @called_ae_title.setter
     def called_ae_title(self, s):
-        """
-        Set the Called-AE-title parameter to a 16-byte length byte string
+        """Set the Called-AE-title parameter to a 16-byte length byte string.
 
         Parameters
         ----------
         s : str or bytes
             The called AE title value you wish to set
         """
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(s, str):
             s = bytes(s, 'utf-8')
 
@@ -525,19 +525,19 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
     @property
     def calling_ae_title(self):
-        """Return the calling AE title"""
+        """Return the calling AE title."""
         return self._calling_aet
 
     @calling_ae_title.setter
     def calling_ae_title(self, s):
-        """
-        Set the Calling-AE-title parameter to a 16-byte length byte string
+        """Set the Calling-AE-title parameter to a 16-byte length byte string.
 
         Parameters
         ----------
         s : str or bytes
             The calling AE title value you wish to set
         """
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(s, str):
             s = bytes(s, 'utf-8')
 
@@ -545,14 +545,14 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
     @property
     def application_context_name(self):
-        """Return the application context name"""
+        """Return the application context name."""
         for ii in self.variable_items:
             if isinstance(ii, ApplicationContextItem):
                 return ii.application_context_name
 
     @application_context_name.setter
     def application_context_name(self, value):
-        """Set the Association request's Application Context Name
+        """Set the Association request's Application Context Name.
 
         Parameters
         ----------
@@ -597,7 +597,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
     @property
     def user_information(self):
-        """Return the user information item"""
+        """Return the user information item."""
         for ii in self.variable_items:
             if isinstance(ii, UserInformationItem):
                 return ii
@@ -1177,23 +1177,24 @@ class A_ASSOCIATE_RJ_PDU(PDU):
                            self.reason_diagnostic]
 
     def get_length(self):
-        """ The total length of the encoded PDU in bytes """
+        """The total length of the encoded PDU in bytes ."""
         self._update_parameters()
         return 10
 
     @property
     def result(self):
-        """Get the Result parameter"""
+        """Get the Result parameter."""
         return self._result
 
     @result.setter
     def result(self, value):
-        """Set the Result parameter"""
+        """Set the Result parameter."""
+        # pylint: disable=attribute-defined-outside-init
         self._result = value
 
     @property
     def result_str(self):
-        """Get the Result parameter in the form of a string"""
+        """Get the Result parameter in the form of a string."""
         results = {1 : 'Rejected (Permanent)',
                    2 : 'Rejected (Transient)'}
 
@@ -1207,17 +1208,18 @@ class A_ASSOCIATE_RJ_PDU(PDU):
 
     @property
     def source(self):
-        """Get the Source parameter"""
+        """Get the Source parameter."""
         return self._source
 
     @source.setter
     def source(self, value):
-        """Set the source parameter"""
+        """Set the source parameter."""
+        # pylint: disable=attribute-defined-outside-init
         self._source = value
 
     @property
     def source_str(self):
-        """Get the source parameter in the form of a string"""
+        """Get the source parameter in the form of a string."""
         sources = {1 : 'DUL service-user',
                    2 : 'DUL service-provider (ACSE related)',
                    3 : 'DUL service-provider (presentation related)'}
@@ -1232,17 +1234,18 @@ class A_ASSOCIATE_RJ_PDU(PDU):
 
     @property
     def reason_diagnostic(self):
-        """Get the reason diagnostic parameter"""
+        """Get the reason diagnostic parameter."""
         return self._reason
 
     @reason_diagnostic.setter
     def reason_diagnostic(self, value):
-        """Set the reason diagnostic parameter"""
+        """Set the reason diagnostic parameter."""
+        # pylint: disable=attribute-defined-outside-init
         self._reason = value
 
     @property
     def reason_str(self):
-        """Get a string describing the reason parameter"""
+        """Get a string describing the reason parameter."""
         reasons = {1 : {1 : "No reason given",
                         2 : "Application context name not supported",
                         3 : "Calling AE title not recognised",
@@ -1417,27 +1420,27 @@ class P_DATA_TF_PDU(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.pdu_type,
                            0x00,
                            self.pdu_length,
                            self.presentation_data_value_items]
 
     def _update_pdu_length(self):
-        """Update the PDU length parameter"""
+        """Update the PDU length parameter."""
         self.pdu_length = 0
         for ii in self.presentation_data_value_items:
             self.pdu_length += ii.get_length()
 
     def get_length(self):
-        """Get the length of the PDU"""
+        """Get the length of the PDU."""
         self._update_pdu_length()
         self._update_parameters()
         return 6 + self.pdu_length
 
     @property
     def PDVs(self):
-        """Get the PDVs"""
+        """Get the PDVs."""
         return self.presentation_data_value_items
 
     def __str__(self):
@@ -1488,7 +1491,7 @@ class A_RELEASE_RQ_PDU(PDU):
                            self.pdu_length,
                            0x0000] # Reserved
 
-    def FromParams(self, primitive):
+    def FromParams(self, _):
         """
         Set up the PDU using the parameter values from the A-RELEASE `primitive`
 
@@ -1552,14 +1555,14 @@ class A_RELEASE_RQ_PDU(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.pdu_type,
                            0x00, # Reserved
                            self.pdu_length,
                            0x0000] # Reserved
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self._update_parameters()
         return 10
 
@@ -1601,7 +1604,7 @@ class A_RELEASE_RP_PDU(PDU):
                            self.pdu_length,
                            0x0000] # Reserved
 
-    def FromParams(self, primitive):
+    def FromParams(self, _):
         """
         Set up the PDU using the parameter values from the A-RELEASE `primitive`
 
@@ -1636,7 +1639,6 @@ class A_RELEASE_RP_PDU(PDU):
         bytestring : bytes
             The encoded PDU that will be sent to the peer AE
         """
-
         formats = '> B B I I'
         parameters = [self.pdu_type,
                       0x00, # Reserved
@@ -1667,14 +1669,14 @@ class A_RELEASE_RP_PDU(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.pdu_type,
                            0x00, # Reserved
                            self.pdu_length,
                            0x0000] # Reserved
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self._update_parameters()
         return 10
 
@@ -1822,7 +1824,7 @@ class A_ABORT_PDU(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.pdu_type,
                            0x00, # Reserved
                            self.pdu_length,
@@ -1832,7 +1834,7 @@ class A_ABORT_PDU(PDU):
                            self.reason_diagnostic] # Reserved
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self._update_parameters()
         return 10
 
@@ -1984,14 +1986,14 @@ class ApplicationContextItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.item_type,
                            0x00, # Reserved
                            self.item_length,
                            self.application_context_name]
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self._update_parameters()
         return 4 + self.item_length
 
@@ -2002,19 +2004,19 @@ class ApplicationContextItem(PDU):
 
     @property
     def application_context_name(self):
-        """ Returns the Application Context Name as a pydicom.uid.UID """
+        """Returns the Application Context Name as a pydicom.uid.UID."""
         return self._application_context_name
 
     @application_context_name.setter
     def application_context_name(self, value):
-        """
-        Set the application context name
+        """Set the application context name.
 
         Parameters
         ----------
         value : pydicom.uid.UID, str or bytes
             The value of the Application Context Name's UID
         """
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):
@@ -2200,7 +2202,7 @@ class PresentationContextItemRQ(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.item_type,
                            0x00,
                            self.item_length,
@@ -2211,14 +2213,14 @@ class PresentationContextItemRQ(PDU):
                            self.abstract_transfer_syntax_sub_items]
 
     def _update_item_length(self):
-        """Update the PDU length"""
+        """Update the PDU length."""
         self.item_length = 4
 
         for ii in self.abstract_transfer_syntax_sub_items:
             self.item_length += ii.length
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self._update_item_length()
         self._update_parameters()
         return 4 + self.item_length
@@ -2252,14 +2254,14 @@ class PresentationContextItemRQ(PDU):
 
     @property
     def abstract_syntax(self):
-        """Get the abstract syntax"""
+        """Get the abstract syntax."""
         for ii in self.abstract_transfer_syntax_sub_items:
             if isinstance(ii, AbstractSyntaxSubItem):
                 return ii.abstract_syntax_name
 
     @property
     def transfer_syntax(self):
-        """Get the transfer syntaxes"""
+        """Get the transfer syntaxes."""
         syntaxes = []
         for ii in self.abstract_transfer_syntax_sub_items:
             if isinstance(ii, TransferSyntaxSubItem):
@@ -2426,7 +2428,7 @@ class PresentationContextItemAC(PDU):
                            self.transfer_syntax_sub_item]
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self.item_length = 4 + self.transfer_syntax_sub_item.length
         self._update_parameters()
 
@@ -2449,17 +2451,17 @@ class PresentationContextItemAC(PDU):
 
     @property
     def ID(self):
-        """Get the presentation context ID"""
+        """Get the presentation context ID."""
         return self.presentation_context_id
 
     @property
     def result(self):
-        """Get the Result parameter"""
+        """Get the Result parameter."""
         return self.result_reason
 
     @property
     def result_str(self):
-        """Get a string describing the result"""
+        """Get a string describing the result."""
         result_options = {0 : 'Accepted',
                           1 : 'User Rejection',
                           2 : 'Provider Rejection',
@@ -2469,7 +2471,7 @@ class PresentationContextItemAC(PDU):
 
     @property
     def transfer_syntax(self):
-        """Get the transfer syntax"""
+        """Get the transfer syntax."""
         return self.transfer_syntax_sub_item.transfer_syntax_name
 
 class AbstractSyntaxSubItem(PDU):
@@ -2570,14 +2572,14 @@ class AbstractSyntaxSubItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the PDU parameters"""
+        """Update the PDU parameters."""
         self.parameters = [self.item_type,
                            0x00,
                            self.item_length,
                            self.abstract_syntax_name]
 
     def get_length(self):
-        """Get the PDU length"""
+        """Get the PDU length."""
         self.item_length = len(self.abstract_syntax_name)
         self._update_parameters()
 
@@ -2593,24 +2595,24 @@ class AbstractSyntaxSubItem(PDU):
 
     @property
     def abstract_syntax(self):
-        """Get the abstract syntax"""
+        """Get the abstract syntax."""
         return self.abstract_syntax_name
 
     @property
     def abstract_syntax_name(self):
-        """Get the abstract syntax name"""
+        """Get the abstract syntax name."""
         return self._abstract_syntax_name
 
     @abstract_syntax_name.setter
     def abstract_syntax_name(self, value):
-        """
-        Sets the Abstract Syntax Name parameter
+        """Sets the Abstract Syntax Name parameter
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value for the Abstract Syntax Name
         """
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):
@@ -2726,14 +2728,14 @@ class TransferSyntaxSubItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the parameters"""
+        """Update the parameters."""
         self.parameters = [self.item_type,
                            0x00,
                            self.item_length,
                            self.transfer_syntax_name]
 
     def get_length(self):
-        """Get the item length"""
+        """Get the item length."""
         self.item_length = len(self.transfer_syntax_name)
         self._update_parameters()
 
@@ -2749,24 +2751,24 @@ class TransferSyntaxSubItem(PDU):
 
     @property
     def transfer_syntax(self):
-        """Get the transfer syntax"""
+        """Get the transfer syntax."""
         return self.transfer_syntax_name
 
     @property
     def transfer_syntax_name(self):
-        """Get the transfer syntax name"""
+        """Get the transfer syntax name."""
         return self._transfer_syntax_name
 
     @transfer_syntax_name.setter
     def transfer_syntax_name(self, value):
-        """
-        Sets the Transfer Syntax Name parameter
+        """Sets the Transfer Syntax Name parameter.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value for the Transfer Syntax Name
         """
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):
@@ -2882,13 +2884,13 @@ class PresentationDataValueItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the parameters"""
+        """Update the parameters."""
         self.parameters = [self.item_length,
                            self.presentation_context_id,
                            self.presentation_data_value]
 
     def get_length(self):
-        """Get the item length"""
+        """Get the item length."""
         self.item_length = 1 + len(self.presentation_data_value)
         self._update_parameters()
 
@@ -2905,17 +2907,17 @@ class PresentationDataValueItem(PDU):
 
     @property
     def data(self):
-        """Get the presentation data value"""
+        """Get the presentation data value."""
         return self.presentation_data_value
 
     @property
     def ID(self):
-        """Get the presentation context ID"""
+        """Get the presentation context ID."""
         return self.presentation_context_id
 
     @property
     def message_control_header_byte(self):
-        """Get the message control header byte"""
+        """Get the message control header byte."""
         return "{:08b}".format(self.presentation_data_value[0])
 
 class UserInformationItem(PDU):
@@ -3056,20 +3058,20 @@ class UserInformationItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the parameters"""
+        """Update the parameters."""
         self.parameters = [self.item_type,
                            0x00, # Reserved
                            self.item_length,
                            self.user_data]
 
     def _update_item_length(self):
-        """Update the item length"""
+        """Update the item length."""
         self.item_length = 0
         for ii in self.user_data:
             self.item_length += ii.length
 
     def get_length(self):
-        """Get the item length"""
+        """Get the item length."""
         self._update_item_length()
         self._update_parameters()
         return 4 + self.item_length
@@ -3087,7 +3089,7 @@ class UserInformationItem(PDU):
 
     @property
     def async_ops_window(self):
-        """Get the asynchronous operations window item"""
+        """Get the asynchronous operations window item."""
         for ii in self.user_data:
             if isinstance(ii, AsynchronousOperationsWindowSubItem):
                 return ii
@@ -3096,7 +3098,7 @@ class UserInformationItem(PDU):
 
     @property
     def common_ext_neg(self):
-        """Get the common extended negotiation items"""
+        """Get the common extended negotiation items."""
         items = []
         for ii in self.user_data:
             if isinstance(ii, SOPClassCommonExtendedNegotiationSubItem):
@@ -3109,7 +3111,7 @@ class UserInformationItem(PDU):
 
     @property
     def ext_neg(self):
-        """Get the extended negotiation item"""
+        """Get the extended negotiation item."""
         items = []
         for ii in self.user_data:
             if isinstance(ii, SOPClassExtendedNegotiationSubItem):
@@ -3122,14 +3124,14 @@ class UserInformationItem(PDU):
 
     @property
     def implementation_class_uid(self):
-        """Get the implementation class UID"""
+        """Get the implementation class UID."""
         for ii in self.user_data:
             if isinstance(ii, ImplementationClassUIDSubItem):
                 return ii.implementation_class_uid
 
     @property
     def implementation_version_name(self):
-        """Get the implementation version name"""
+        """Get the implementation version name."""
         for ii in self.user_data:
             if isinstance(ii, ImplementationVersionNameSubItem):
                 return ii.implementation_version_name.decode('utf-8')
@@ -3138,14 +3140,14 @@ class UserInformationItem(PDU):
 
     @property
     def maximum_length(self):
-        """Get the maximum length"""
+        """Get the maximum length."""
         for ii in self.user_data:
             if isinstance(ii, MaximumLengthSubItem):
                 return ii.maximum_length_received
 
     @property
     def max_operations_invoked(self):
-        """Get the maximum number of invoked operations"""
+        """Get the maximum number of invoked operations."""
         for ii in self.user_data:
             if isinstance(ii, AsynchronousOperationsWindowSubItem):
                 return ii.max_operations_invoked
@@ -3154,7 +3156,7 @@ class UserInformationItem(PDU):
 
     @property
     def max_operations_performed(self):
-        """Get the maximum number of performed operations"""
+        """Get the maximum number of performed operations."""
         for ii in self.user_data:
             if isinstance(ii, AsynchronousOperationsWindowSubItem):
                 return ii.max_operations_invoked
@@ -3163,7 +3165,7 @@ class UserInformationItem(PDU):
 
     @property
     def role_selection(self):
-        """Get the SCP/SCU role selection item"""
+        """Get the SCP/SCU role selection item."""
         roles = []
         for ii in self.user_data:
             if isinstance(ii, SCP_SCU_RoleSelectionSubItem):
@@ -3176,7 +3178,7 @@ class UserInformationItem(PDU):
 
     @property
     def user_identity(self):
-        """Get the user identity item"""
+        """Get the user identity item."""
         for ii in self.user_data:
             if isinstance(ii, UserIdentitySubItemRQ):
                 return ii
@@ -3287,14 +3289,14 @@ class MaximumLengthSubItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the parameters"""
+        """Update the parameters."""
         self.parameters = [self.item_type,
                            0x00,
                            self.item_length,
                            self.maximum_length_received]
 
     def get_length(self):
-        """Get the item length"""
+        """Get the item length."""
         self._update_parameters()
         return 0x08
 
@@ -3397,14 +3399,14 @@ class ImplementationClassUIDSubItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the parameters"""
+        """Update the parameters."""
         self.parameters = [self.item_type,
                            0x00,
                            self.item_length,
                            self.implementation_class_uid]
 
     def get_length(self):
-        """Get the item length"""
+        """Get the item length."""
         self.item_length = len(self.implementation_class_uid)
         self._update_parameters()
 
@@ -3420,19 +3422,19 @@ class ImplementationClassUIDSubItem(PDU):
 
     @property
     def implementation_class_uid(self):
-        """Get the implementation class uid"""
+        """Get the implementation class uid."""
         return self._implementation_class_uid
 
     @implementation_class_uid.setter
     def implementation_class_uid(self, value):
-        """
-        Sets the implementation class UID to `value`
+        """Sets the implementation class UID to `value`.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The UID value to set
         """
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):
@@ -3498,8 +3500,7 @@ class ImplementationVersionNameSubItem(PDU):
         self._update_parameters()
 
     def ToParams(self):
-        """
-        Convert the current Item to a primitive
+        """Convert the current Item to a primitive.
 
         Returns
         -------
@@ -3514,7 +3515,7 @@ class ImplementationVersionNameSubItem(PDU):
         return tmp
 
     def Encode(self):
-        """Encode the item"""
+        """Encode the item."""
         s = bytes()
         s += pack('B', self.item_type)
         s += pack('B', 0x00)
@@ -3541,14 +3542,14 @@ class ImplementationVersionNameSubItem(PDU):
         self._update_parameters()
 
     def _update_parameters(self):
-        """Update the parameters"""
+        """Update the parameters."""
         self.parameters = [self.item_type,
                            0x00,
                            self.item_length,
                            self.implementation_version_name]
 
     def get_length(self):
-        """Get the item length"""
+        """Get the item length."""
         self.item_length = len(self.implementation_version_name)
         self._update_parameters()
 
@@ -3565,12 +3566,13 @@ class ImplementationVersionNameSubItem(PDU):
 
     @property
     def implementation_version_name(self):
-        """ Returns the implementation version name as bytes """
+        """Returns the implementation version name as bytes."""
         return self._implementation_version_name
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
-        """Get the implementation version name"""
+        """Get the implementation version name."""
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             pass
         elif isinstance(value, str):
@@ -3731,17 +3733,18 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
     @property
     def UID(self):
-        """Get the UID"""
+        """Get the UID."""
         return self.sop_class_uid
 
     @property
     def sop_class_uid(self):
-        """Get the SOP class uid"""
+        """Get the SOP class uid."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
     def sop_class_uid(self, value):
-        """Set the SOP class uid"""
+        """Set the SOP class uid."""
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
@@ -3773,6 +3776,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     @scu_role.setter
     def scu_role(self, value):
         """Set the SCU role"""
+        # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
             raise ValueError('SCU Role parameter value must be 0 or 1')
         else:
@@ -3791,6 +3795,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     @scp_role.setter
     def scp_role(self, value):
         """Set the SCP role"""
+        # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
             raise ValueError('SCP Role parameter value must be 0 or 1')
         else:
@@ -4471,6 +4476,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     @sop_class_uid.setter
     def sop_class_uid(self, value):
         """Set the SOP class UID"""
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
@@ -4590,7 +4596,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         primitive.sop_class_uid = self.sop_class_uid
         primitive.service_class_uid = self.service_class_uid
         primitive.related_general_sop_class_identification = \
-            self.related_general_sop_class_identification
+                                self.related_general_sop_class_identification
 
         return primitive
 
@@ -4665,7 +4671,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     def get_length(self):
         """Get the item length"""
         self.item_length = 4 + len(self.sop_class_uid)
-        self.uid_length = len(self.sop_class_uid)
+        self.sop_class_uid_length = len(self.sop_class_uid)
 
         return 4 + self.item_length
 
@@ -4695,6 +4701,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     @sop_class_uid.setter
     def sop_class_uid(self, value):
         """Set the SOP class UID"""
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
@@ -4710,7 +4717,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         self._sop_class_uid = value
 
         if value is not None:
-            self.uid_length = len(value)
+            self.sop_class_uid_length = len(value)
 
     @property
     def service_class_uid(self):
@@ -4720,6 +4727,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     @service_class_uid.setter
     def service_class_uid(self, value):
         """Set the service class UID"""
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
@@ -4735,7 +4743,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         self._service_class_uid = value
 
         if value is not None:
-            self.uid_length = len(value)
+            self.service_class_uid_length = len(value)
 
     @property
     def related_general_sop_class_identification(self):
@@ -4745,6 +4753,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     @related_general_sop_class_identification.setter
     def related_general_sop_class_identification(self, value_list):
         """Set the related general sop class ID"""
+        # pylint: disable=attribute-defined-outside-init
         self._related_general_sop_class_identification = []
         self.related_general_sop_class_identification_length = 0
 

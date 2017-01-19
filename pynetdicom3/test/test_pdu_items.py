@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+import logging
+import unittest
+
+from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
+from pynetdicom3.PDU import *
+from pynetdicom3.primitives import *
+from pynetdicom3.utils import wrap_list, PresentationContext
+
 ## A-ASSOCIATE-RQ PDU
 # Called AET: ANY-SCP
 # Callign AET: ECHOSCU
@@ -265,21 +273,6 @@ common_extended_negotiation = b'\x57\x00\x00\x4d\x00\x19\x31\x2e\x32\x2e\x38\x34
                               b'\x2e\x32\x00\x1d\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
                               b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38' \
                               b'\x2e\x32\x32'
-
-from io import BytesIO
-import logging
-import threading
-import unittest
-from unittest.mock import patch
-
-from pydicom.uid import UID, ImplicitVRLittleEndian
-
-from pynetdicom3 import AE
-from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
-    QueryRetrieveSOPClassList
-from pynetdicom3.PDU import *
-from pynetdicom3.primitives import *
-from pynetdicom3.utils import wrap_list, PresentationContext
 
 logger = logging.getLogger('pynetdicom3')
 #handler = logging.StreamHandler()
@@ -1474,34 +1467,37 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
         item = SOPClassCommonExtendedNegotiationSubItem()
 
         # SOP Class UID
-        item.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
-        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
-        item.implementation_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
-        item.implementation_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.sop_class_uid = '1.1'
+        self.assertEqual(item.sop_class_uid, UID('1.1'))
+        self.assertEqual(item.sop_class_uid_length, 3)
 
         with self.assertRaises(TypeError):
             item.sop_class_uid = 10002
 
         # Service Class UID
-        item.service_class_uid = '1.2.840.10008.5.1.4.1.1.2'
-        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
-        item.service_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
-        item.service_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        self.assertEqual(item.service_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
+        item.service_class_uid = '1.2'
+        self.assertEqual(item.service_class_uid, UID('1.2'))
+        self.assertEqual(item.service_class_uid_length, 3)
+        item.service_class_uid = b'1.2.3'
+        self.assertEqual(item.service_class_uid, UID('1.2.3'))
+        self.assertEqual(item.service_class_uid_length, 5)
+        item.service_class_uid = UID('1.2.3.4')
+        self.assertEqual(item.service_class_uid, UID('1.2.3.4'))
+        self.assertEqual(item.service_class_uid_length, 7)
 
         with self.assertRaises(TypeError):
             item.service_class_uid = 10002
 
         # Related General SOP Class UID
-        item.related_general_sop_class_identification = ['1.2.840.10008.5.1.4.1.1.2']
-        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.2')])
-        item.related_general_sop_class_identification = [b'1.2.840.10008.5.1.4.1.1.2']
-        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.2')])
-        item.related_general_sop_class_identification = [UID('1.2.840.10008.5.1.4.1.1.2')]
-        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.840.10008.5.1.4.1.1.2')])
+        item.related_general_sop_class_identification = ['1.2']
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2')])
+        self.assertEqual(item.related_general_sop_class_identification_length, 3)
+        item.related_general_sop_class_identification = [b'1.2.3']
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.3')])
+        self.assertEqual(item.related_general_sop_class_identification_length, 5)
+        item.related_general_sop_class_identification = [UID('1.2.3.4')]
+        self.assertEqual(item.related_general_sop_class_identification, [UID('1.2.3.4')])
+        self.assertEqual(item.related_general_sop_class_identification_length, 7)
 
         with self.assertRaises(TypeError):
             item.related_general_sop_class_identification = 10002
