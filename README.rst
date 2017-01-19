@@ -1,4 +1,7 @@
-[![Coverage Status](https://coveralls.io/repos/github/scaramallion/pynetdicom3/badge.svg)](https://coveralls.io/github/scaramallion/pynetdicom3)[![Build Status](https://travis-ci.org/scaramallion/pynetdicom3.svg?branch=master)](https://travis-ci.org/scaramallion/pynetdicom3)
+.. image:: https://coveralls.io/repos/github/scaramallion/pynetdicom3/badge.svg
+:target: https://coveralls.io/github/scaramallion/pynetdicom3
+.. image:: https://travis-ci.org/scaramallion/pynetdicom3.svg?branch=master
+    :target: https://travis-ci.org/scaramallion/pynetdicom3
 
 pynetdicom3
 ===========

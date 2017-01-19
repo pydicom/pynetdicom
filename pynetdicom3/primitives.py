@@ -272,7 +272,7 @@ class A_ASSOCIATE(object):
             pass
         else:
             raise TypeError("application_context_name must be a " \
-                    "pydicom.uid.UID, str or bytes")
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None:
             try:
@@ -369,8 +369,8 @@ class A_ASSOCIATE(object):
                     valid_usr_info_items.append(item)
                 else:
                     LOGGER.info("Attempted to set " \
-                        "A_ASSOCIATE.user_information to a list which " \
-                        "includes an unsupported item")
+                                "A_ASSOCIATE.user_information to a list " \
+                                "which includes an unsupported item")
         else:
             LOGGER.error("A_ASSOCIATE.user_information must be a list")
             raise TypeError("A_ASSOCIATE.user_information must be a list")
