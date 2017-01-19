@@ -1,5 +1,6 @@
+.. class:: center
 .. image:: https://coveralls.io/repos/github/scaramallion/pynetdicom3/badge.svg
-:target: https://coveralls.io/github/scaramallion/pynetdicom3
+    :target: https://coveralls.io/github/scaramallion/pynetdicom3
 .. image:: https://travis-ci.org/scaramallion/pynetdicom3.svg?branch=master
     :target: https://travis-ci.org/scaramallion/pynetdicom3
 
