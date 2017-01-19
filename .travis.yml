@@ -9,7 +9,7 @@ python:
 
 # Command to install dependencies
 before_script:
-    - wget https://github.com/darcymason/pydicom/archive/master/tar/gz
+    - wget https://github.com/darcymason/pydicom/archive/master.tar.gz
     - tar xzf /tmp/pydicom-master.tar.gz
     - pip install pydicom-master
 
