@@ -112,6 +112,27 @@ class AEStorageSCP(threading.Thread):
         self.ae.stop()
 
 
+class TestAEVerificationSCU(unittest.TestCase):
+    """
+    TODO:
+    * Check no matching transfer syntaxes
+    * Check no matching abstract syntax
+    """
+    def setUp(self):
+        self.ae = AEVerificationSCP()
+
+    def test_send_c_echo(self):
+        """Test sending a c-echo"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', port=11112)
+        if assoc.is_established:
+            result = assoc.send_c_echo()
+            self.assertEqual(result.Type, 'Success')
+
+        assoc.release()
+        self.assertRaises(SystemExit, self.ae.stop)
+
+
 class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_c_echo_called(self):
         """ Check that SCP AE.on_c_echo() was called """

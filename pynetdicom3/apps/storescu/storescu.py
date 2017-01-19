@@ -35,7 +35,7 @@ def _setup_argparser():
                     "Storage Service Class Provider (SCP) and waits for a "
                     "response. The application can be used to transmit DICOM "
                     "images and other composite objectes.",
-        usage="storescu [options] peer port")
+        usage="storescu [options] peer port dcmfile-in")
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
