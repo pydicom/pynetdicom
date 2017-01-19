@@ -20,7 +20,7 @@ install:
 
 # Command to run tests
 script:
-    - coverage run -m test.run_all_tests
+    - coverage run --source=pynetdicom3 -m test.run_all_tests
 
 after_success:
     - coveralls
