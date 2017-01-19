@@ -16,7 +16,7 @@ before_script:
 install:
     - pip install coverage
     - pip install coveralls
-    - pip setup.py install
+    - python setup.py install
 
 # Command to run tests
 script:
