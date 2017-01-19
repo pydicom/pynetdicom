@@ -341,7 +341,7 @@ class DULServiceProvider(Thread):
         bool
             True if the ARTIM timer has expired, False otherwise
         """
-        if self.artim_timer.is_expired():
+        if self.artim_timer.is_expired:
             #LOGGER.debug('%s: timer expired' % (self.name))
             self.event_queue.put('Evt18')
             return True
@@ -360,7 +360,7 @@ class DULServiceProvider(Thread):
         if self._idle_timer is None:
             return False
 
-        if self._idle_timer.is_expired():
+        if self._idle_timer.is_expired:
             return True
 
         return False
