@@ -4492,7 +4492,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         self._sop_class_uid = value
 
         if value is not None:
-            self.uid_length = len(value)
+            self.sop_class_uid_length = len(value)
 
     @property
     def app_info(self):
