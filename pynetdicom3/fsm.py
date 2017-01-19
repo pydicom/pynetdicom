@@ -15,31 +15,35 @@ LOGGER = logging.getLogger('pynetdicom3.sm')
 
 
 class StateMachine(object):
-    """
-    Implementation of the DICOM Upper Layer State Machine as per PS3.8 Section
-    9.2.
+    """Implementation of the DICOM Upper Layer State Machine.
 
-    Parameters
-    ---------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
-        The DICOM Upper Layer Service instance for the local AE
+    Seer PS3.8 Section 9.2.
 
     Attributes
     ----------
-    current_state - str
-        The current state of the state machine, Sta1 to Sta13
+    current_state : str
+        The current state of the state machine, 'Sta1' to 'Sta13'.
+    dul : pynetdicom3.DULprovider.DULServiceProvider
+        The DICOM Upper Layer service instance for the local AE
     """
     def __init__(self, dul):
+        """Create a new StateMachine.
+
+        Parameters
+        ---------
+        dul : pynetdicom3.DULprovider.DULServiceProvider
+            The DICOM Upper Layer Service instance for the local AE.
+        """
         self.current_state = 'Sta1'
         self.dul = dul
 
     def do_action(self, event):
-        """ Execute the action triggered by `event`
+        """Execute the action triggered by `event`.
 
         Parameters
         ----------
-        event - str
-            The event to be processed, Evt1 to Evt19
+        event : str
+            The event to be processed, 'Evt1' to 'Evt19'
         """
         # Check (event + state) is valid
         if (event, self.current_state) not in TRANSITION_TABLE.keys():
@@ -75,18 +79,17 @@ class StateMachine(object):
             raise ex
 
     def transition(self, state):
-        """
-        Transition the state machine to the next state
+        """Transition the state machine to the next state.
 
         Parameters
         ----------
-        state - str
-            The state to transition to, Sta1 to Sta13
+        state : str
+            The state to transition to, 'Sta1' to 'Sta13'.
 
         Raises
         ------
         ValueError
-            If the state is not a valid state
+            If `state` is not a valid state.
         """
         # Validate that state is acceptable
         if state in STATES.keys():
@@ -97,8 +100,7 @@ class StateMachine(object):
 
 
 def AE_1(dul):
-    """
-    Association establishment action AE-1
+    """Association establishment action AE-1.
 
     From Idle state, local AE issues a connection request to a remote. This
     is the first step in associating a local AE (requestor) to a remote AE
@@ -113,13 +115,13 @@ def AE_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
     str
-        Sta4, the next state of the state machine
+        'Sta4', the next state of the state machine.
     """
     # Issue TRANSPORT CONNECT request primitive to local transport service
     dul.scu_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -138,8 +140,7 @@ def AE_1(dul):
     return 'Sta4'
 
 def AE_2(dul):
-    """
-    Association establishment action AE-2
+    """Association establishment action AE-2.
 
     On receiving connection confirmation, send A-ASSOCIATE-RQ to the peer AE
     This send a byte stream with the format given by Table 9-11
@@ -153,13 +154,13 @@ def AE_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
     -------
     str
-        Sta5, the next state of the state machine
+        'Sta5', the next state of the state machine.
     """
     # Send A-ASSOCIATE-RQ PDU
     dul.pdu = A_ASSOCIATE_RQ_PDU()
@@ -174,8 +175,7 @@ def AE_2(dul):
     return 'Sta5'
 
 def AE_3(dul):
-    """
-    Association establishment action AE-3
+    """Association establishment action AE-3.
 
     On receiving A-ASSOCIATE-AC, issue acceptance confirmation
 
@@ -186,7 +186,7 @@ def AE_3(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -200,8 +200,7 @@ def AE_3(dul):
     return 'Sta6'
 
 def AE_4(dul):
-    """
-    Association establishment action AE-4
+    """Association establishment action AE-4.
 
     On receiving A-ASSOCIATE-RJ, issue rejection confirmation and close
     connection
@@ -213,7 +212,7 @@ def AE_4(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -230,8 +229,7 @@ def AE_4(dul):
     return 'Sta1'
 
 def AE_5(dul):
-    """
-    Association establishment action AE-5
+    """Association establishment action AE-5.
 
     From Idle state, on receiving a remote connection attempt, respond and
     start ARTIM. This is the first step in associating a remote AE (requestor)
@@ -244,7 +242,7 @@ def AE_5(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -261,8 +259,7 @@ def AE_5(dul):
     return 'Sta2'
 
 def AE_6(dul):
-    """
-    Association establishment action AE-6
+    """Association establishment action AE-6.
 
     On receiving an A-ASSOCIATE-RQ PDU from the peer then stop the ARTIM timer
     and then either
@@ -279,7 +276,7 @@ def AE_6(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -322,8 +319,7 @@ def AE_6(dul):
     return 'Sta3'
 
 def AE_7(dul):
-    """
-    Association establishment action AE-7
+    """Association establishment action AE-7.
 
     On receiving association request acceptance, issue A-ASSOCIATE-AC
 
@@ -334,7 +330,7 @@ def AE_7(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -355,8 +351,7 @@ def AE_7(dul):
     return 'Sta6'
 
 def AE_8(dul):
-    """
-    Association establishment action AE-8
+    """Association establishment action AE-8.
 
     On receiving association request rejection, issue A-ASSOCIATE-RJ
 
@@ -367,7 +362,7 @@ def AE_8(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -390,8 +385,7 @@ def AE_8(dul):
 
 
 def DT_1(dul):
-    """
-    Data transfer DT-1
+    """Data transfer DT-1.
 
     On receiving a P-DATA request, send P-DATA-TF
 
@@ -402,7 +396,7 @@ def DT_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -424,8 +418,7 @@ def DT_1(dul):
     return 'Sta6'
 
 def DT_2(dul):
-    """
-    Data transfer DT-2
+    """Data transfer DT-2.
 
     On receiving a P-DATA-TF request, send P-DATA indication
 
@@ -436,7 +429,7 @@ def DT_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -451,8 +444,7 @@ def DT_2(dul):
 
 
 def AR_1(dul):
-    """
-    Association release AR-1
+    """Association release AR-1.
 
     Send Association release request
 
@@ -463,7 +455,7 @@ def AR_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -484,8 +476,7 @@ def AR_1(dul):
     return 'Sta7'
 
 def AR_2(dul):
-    """
-    Association release AR-2
+    """Association release AR-2.
 
     On receiving an association release request, send release indication
 
@@ -496,7 +487,7 @@ def AR_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -510,8 +501,7 @@ def AR_2(dul):
     return 'Sta8'
 
 def AR_3(dul):
-    """
-    Association release AR-3
+    """Association release AR-3.
 
     On receiving an association release response, send release confirmation,
     close connection and go back to Idle state
@@ -523,7 +513,7 @@ def AR_3(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -539,8 +529,7 @@ def AR_3(dul):
     return 'Sta1'
 
 def AR_4(dul):
-    """
-    Association release AR-4
+    """Association release AR-4.
 
     On receiving an association release response, send release response
 
@@ -551,7 +540,7 @@ def AR_4(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -572,8 +561,7 @@ def AR_4(dul):
     return 'Sta13'
 
 def AR_5(dul):
-    """
-    Association release AR-5
+    """Association release AR-5.
 
     On receiving transport connection closed, stop the ARTIM timer and go back
     to Idle state
@@ -585,7 +573,7 @@ def AR_5(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -599,8 +587,7 @@ def AR_5(dul):
     return 'Sta1'
 
 def AR_6(dul):
-    """
-    Association release AR-6
+    """Association release AR-6.
 
     On receiving P-DATA-TF during attempted association release request
     send P-DATA indication
@@ -612,7 +599,7 @@ def AR_6(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -626,8 +613,7 @@ def AR_6(dul):
     return 'Sta7'
 
 def AR_7(dul):
-    """
-    Association release AR-7
+    """Association release AR-7.
 
     On receiving P-DATA request during attempted association release request
     send P-DATA-TF
@@ -639,7 +625,7 @@ def AR_7(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -660,8 +646,7 @@ def AR_7(dul):
     return 'Sta8'
 
 def AR_8(dul):
-    """
-    Association release AR-8
+    """Association release AR-8.
 
     On receiving association release request while local is requesting release
     then issue release collision indication
@@ -673,7 +658,7 @@ def AR_8(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -689,8 +674,7 @@ def AR_8(dul):
         return 'Sta10'
 
 def AR_9(dul):
-    """
-    Association release AR-9
+    """Association release AR-9.
 
     On receiving A-RELEASE primitive, send release response
 
@@ -701,7 +685,7 @@ def AR_9(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -721,8 +705,7 @@ def AR_9(dul):
     return 'Sta11'
 
 def AR_10(dul):
-    """
-    Association release AR-10
+    """Association release AR-10.
 
     On receiving A-RELEASE-RP, issue release confirmation
 
@@ -733,7 +716,7 @@ def AR_10(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -748,8 +731,7 @@ def AR_10(dul):
 
 
 def AA_1(dul):
-    """
-    Association abort AA-1
+    """Association abort AA-1.
 
     If on sending A-ASSOCIATE-RQ we receive an invalid reply, or an abort
     request then abort
@@ -762,7 +744,7 @@ def AA_1(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -796,8 +778,7 @@ def AA_1(dul):
     return 'Sta13'
 
 def AA_2(dul):
-    """
-    Association abort AA-2
+    """Association abort AA-2.
 
     On receiving an A-ABORT or if the ARTIM timer expires, close connection and
     return to Idle
@@ -809,7 +790,7 @@ def AA_2(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -825,8 +806,7 @@ def AA_2(dul):
     return 'Sta1'
 
 def AA_3(dul):
-    """
-    Association abort AA-3
+    """Association abort AA-3.
 
     On receiving A-ABORT, issue abort indication, close connection and
     return to Idle
@@ -839,7 +819,7 @@ def AA_3(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -860,8 +840,7 @@ def AA_3(dul):
     return 'Sta1'
 
 def AA_4(dul):
-    """
-    Association abort AA-4
+    """Association abort AA-4.
 
     If connection closed, issue A-P-ABORT and return to Idle
 
@@ -873,7 +852,7 @@ def AA_4(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -888,8 +867,7 @@ def AA_4(dul):
     return 'Sta1'
 
 def AA_5(dul):
-    """
-    Association abort AA-5
+    """Association abort AA-5.
 
     If connection closed during association request, stop ARTIM timer and return
     to Idle
@@ -901,7 +879,7 @@ def AA_5(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -915,8 +893,7 @@ def AA_5(dul):
     return 'Sta1'
 
 def AA_6(dul):
-    """
-    Association abort AA-6
+    """Association abort AA-6.
 
     If receive a PDU while waiting for connection to close, ignore it
 
@@ -927,7 +904,7 @@ def AA_6(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -941,8 +918,7 @@ def AA_6(dul):
     return 'Sta13'
 
 def AA_7(dul):
-    """
-    Association abort AA-7
+    """Association abort AA-7.
 
     If receive a association request or invalid PDU while waiting for connection
     to close, issue A-ABORT
@@ -954,7 +930,7 @@ def AA_7(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -974,8 +950,7 @@ def AA_7(dul):
     return 'Sta13'
 
 def AA_8(dul):
-    """
-    Association abort AA-8
+    """Association abort AA-8.
 
     If receive invalid event, send A-ABORT, issue A-P-ABORT indication and start
     ARTIM timer
@@ -990,7 +965,7 @@ def AA_8(dul):
 
     Parameters
     ----------
-    dul - pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.DULprovider.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -1024,81 +999,74 @@ def AA_8(dul):
 
 # Finite State Machine
 # Machine State Defintions, PS3.8 Tables 9-1, 9-2, 9-3, 9-4, 9-5
-STATES = {
-    # No association
-    'Sta1': 'Idle',
-    # Association establishment
-    'Sta2': 'Transport connection open (Awaiting A-ASSOCIATE-RQ PDU)',
-    'Sta3': 'Awaiting local A-ASSOCIATE response primitive (from local user)',
-    'Sta4': 'Awaiting transport connection opening to complete (from local '
-            'transport service',
-    'Sta5': 'Awaiting A-ASSOCIATE-AC or A-ASSOCIATE-RJ PDU',
-    # Data transfer
-    'Sta6': 'Association established and ready for data transfer',
-    # Association release
-    'Sta7': 'Awaiting A-RELEASE-RP PDU',
-    'Sta8': 'Awaiting local A-RELEASE response primitive (from local user)',
-    'Sta9': 'Release collision requestor side; awaiting A-RELEASE response '
-            ' (from local user)',
-    'Sta10': 'Release collision acceptor side; awaiting A-RELEASE-RP PDU',
-    'Sta11': 'Release collision requestor side; awaiting A-RELEASE-RP PDU',
-    'Sta12': 'Release collision acceptor side; awaiting A-RELEASE response '
-             'primitive (from local user)',
-    'Sta13': 'Awaiting Transport Connection Close Indication (Association no '
-             'longer exists)'
-}
+# pylint: disable=line-too-long
+STATES = {'Sta1': 'Idle',
+          # Association establishment
+          'Sta2': 'Transport connection open (Awaiting A-ASSOCIATE-RQ PDU)',
+          'Sta3': 'Awaiting local A-ASSOCIATE response primitive (from local user)',
+          'Sta4': 'Awaiting transport connection opening to complete (from local transport service',
+          'Sta5': 'Awaiting A-ASSOCIATE-AC or A-ASSOCIATE-RJ PDU',
+          # Data transfer
+          'Sta6': 'Association established and ready for data transfer',
+          # Association release
+          'Sta7': 'Awaiting A-RELEASE-RP PDU',
+          'Sta8': 'Awaiting local A-RELEASE response primitive (from local user)',
+          'Sta9': 'Release collision requestor side; awaiting A-RELEASE response (from local user)',
+          'Sta10': 'Release collision acceptor side; awaiting A-RELEASE-RP PDU',
+          'Sta11': 'Release collision requestor side; awaiting A-RELEASE-RP PDU',
+          'Sta12': 'Release collision acceptor side; awaiting A-RELEASE response primitive (from local user)',
+          'Sta13': 'Awaiting Transport Connection Close Indication (Association no longer exists)'}
 
 # State Machine Action Definitions, PS3.8 Tables 9-6, 9-7, 9-8, 9-9
-ACTIONS = {
-    # Association establishment actions
-    'AE-1': ('Issue TRANSPORT CONNECT request primitive to local transport '
-             'service', AE_1, 'Sta4'),
-    'AE-2': ('Send A-ASSOCIATE-RQ-PDU', AE_2, 'Sta5'),
-    'AE-3': ('Issue A-ASSOCIATE confirmation (accept) primitive', AE_3,
-             'Sta6'),
-    'AE-4': ('Issue A-ASSOCIATE confirmation (reject) primitive and close '
-             'transport connection', AE_4, 'Sta1'),
-    'AE-5': ('Issue Transport connection response primitive; start ARTIM '
-             'timer', AE_5, 'Sta2'),
-    'AE-6': ('Stop ARTIM timer and if A-ASSOCIATE-RQ acceptable by '
-             'service-dul: issue A-ASSOCIATE indication primitive '
-             'otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer', AE_6,
-             ('Sta3', 'Sta13')),
-    'AE-7': ('Send A-ASSOCIATE-AC PDU', AE_7, 'Sta6'),
-    'AE-8': ('Send A-ASSOCIATE-RJ PDU and start ARTIM timer', AE_8, 'Sta13'),
-    # Data transfer related actions
-    'DT-1': ('Send P-DATA-TF PDU', DT_1, 'Sta6'),
-    'DT-2': ('Send P-DATA indication primitive', DT_2, 'Sta6'),
-    # Assocation Release related actions
-    'AR-1': ('Send A-RELEASE-RQ PDU', AR_1, 'Sta7'),
-    'AR-2': ('Issue A-RELEASE indication primitive', AR_2, 'Sta8'),
-    'AR-3': ('Issue A-RELEASE confirmation primitive and close transport '
-             'connection', AR_3, 'Sta1'),
-    'AR-4': ('Issue A-RELEASE-RP PDU and start ARTIM timer', AR_4, 'Sta13'),
-    'AR-5': ('Stop ARTIM timer', AR_5, 'Sta1'),
-    'AR-6': ('Issue P-DATA indication', AR_6, 'Sta7'),
-    'AR-7': ('Issue P-DATA-TF PDU', AR_7, 'Sta8'),
-    'AR-8': ('Issue A-RELEASE indication (release collision): if '
-             'association-requestor, next state is Sta9, if not next state is '
-             'Sta10', AR_8, ('Sta9', 'Sta10')),
-    'AR-9': ('Send A-RELEASE-RP PDU', AR_9, 'Sta11'),
-    'AR-10': ('Issue A-RELEASE confimation primitive', AR_10, 'Sta12'),
-    # Association abort related actions
-    'AA-1': ('Send A-ABORT PDU (service-user source) and start (or restart if '
-             'already started) ARTIM timer', AA_1, 'Sta13'),
-    'AA-2': ('Stop ARTIM timer if running. Close transport connection', AA_2,
-             'Sta1'),
-    'AA-3': ('If (service-user initiated abort): issue A-ABORT indication and '
-             'close transport connection, otherwise (service-dul '
-             'initiated abort): issue A-P-ABORT indication and close transport '
-             'connection', AA_3, 'Sta1'),
-    'AA-4': ('Issue A-P-ABORT indication primitive', AA_4, 'Sta1'),
-    'AA-5': ('Stop ARTIM timer', AA_5, 'Sta1'),
-    'AA-6': ('Ignore PDU', AA_6, 'Sta13'),
-    'AA-7': ('Send A-ABORT PDU', AA_7, 'Sta13'),
-    'AA-8': ('Send A-ABORT PDU (service-dul source), issue an A-P-ABORT '
-             'indication and start ARTIM timer', AA_8, 'Sta13')
-}
+ACTIONS = {'AE-1': ('Issue TRANSPORT CONNECT request primitive to local '
+                    'transport service', AE_1, 'Sta4'),
+           'AE-2': ('Send A-ASSOCIATE-RQ-PDU', AE_2, 'Sta5'),
+           'AE-3': ('Issue A-ASSOCIATE confirmation (accept) primitive',
+                    AE_3, 'Sta6'),
+           'AE-4': ('Issue A-ASSOCIATE confirmation (reject) primitive and '
+                    'close transport connection', AE_4, 'Sta1'),
+           'AE-5': ('Issue Transport connection response primitive; start '
+                    'ARTIM timer', AE_5, 'Sta2'),
+           'AE-6': ('Stop ARTIM timer and if A-ASSOCIATE-RQ acceptable by '
+                    'service-dul: issue A-ASSOCIATE indication primitive '
+                    'otherwise issue A-ASSOCIATE-RJ-PDU and start ARTIM timer',
+                    AE_6, ('Sta3', 'Sta13')),
+           'AE-7': ('Send A-ASSOCIATE-AC PDU', AE_7, 'Sta6'),
+           'AE-8': ('Send A-ASSOCIATE-RJ PDU and start ARTIM timer',
+                    AE_8, 'Sta13'),
+           # Data transfer related actions
+           'DT-1': ('Send P-DATA-TF PDU', DT_1, 'Sta6'),
+           'DT-2': ('Send P-DATA indication primitive', DT_2, 'Sta6'),
+           # Assocation Release related actions
+           'AR-1': ('Send A-RELEASE-RQ PDU', AR_1, 'Sta7'),
+           'AR-2': ('Issue A-RELEASE indication primitive', AR_2, 'Sta8'),
+           'AR-3': ('Issue A-RELEASE confirmation primitive and close '
+                    'transport connection', AR_3, 'Sta1'),
+           'AR-4': ('Issue A-RELEASE-RP PDU and start ARTIM timer',
+                    AR_4, 'Sta13'),
+           'AR-5': ('Stop ARTIM timer', AR_5, 'Sta1'),
+           'AR-6': ('Issue P-DATA indication', AR_6, 'Sta7'),
+           'AR-7': ('Issue P-DATA-TF PDU', AR_7, 'Sta8'),
+           'AR-8': ('Issue A-RELEASE indication (release collision): if '
+                    'association-requestor, next state is Sta9, if not next '
+                    'state is Sta10', AR_8, ('Sta9', 'Sta10')),
+           'AR-9': ('Send A-RELEASE-RP PDU', AR_9, 'Sta11'),
+           'AR-10': ('Issue A-RELEASE confimation primitive', AR_10, 'Sta12'),
+           # Association abort related actions
+           'AA-1': ('Send A-ABORT PDU (service-user source) and start (or '
+                    'restart if already started) ARTIM timer', AA_1, 'Sta13'),
+           'AA-2': ('Stop ARTIM timer if running. Close transport connection',
+                    AA_2, 'Sta1'),
+           'AA-3': ('If (service-user initiated abort): issue A-ABORT '
+                    'indication and close transport connection, otherwise '
+                    '(service-dul initiated abort): issue A-P-ABORT indication '
+                    'and close transport connection', AA_3, 'Sta1'),
+           'AA-4': ('Issue A-P-ABORT indication primitive', AA_4, 'Sta1'),
+           'AA-5': ('Stop ARTIM timer', AA_5, 'Sta1'),
+           'AA-6': ('Ignore PDU', AA_6, 'Sta13'),
+           'AA-7': ('Send A-ABORT PDU', AA_7, 'Sta13'),
+           'AA-8': ('Send A-ABORT PDU (service-dul source), issue an A-P-ABORT '
+                    'indication and start ARTIM timer', AA_8, 'Sta13')}
 
 # State Machine Event Definitions, PS3.8 Table 9-10
 EVENTS = {'Evt1': "A-ASSOCIATE request (local user)",
@@ -1117,8 +1085,7 @@ EVENTS = {'Evt1': "A-ASSOCIATE request (local user)",
           'Evt14': "A-RELEASE response primitive",
           'Evt15': "A-ABORT request primitive",
           'Evt16': "A-ABORT PDU (on transport)",
-          'Evt17': "Transport connection closed indication "
-                   "(local transport service)",
+          'Evt17': "Transport connection closed indication (local transport service)",
           'Evt18': "ARTIM timer expired (Association reject/release timer)",
           'Evt19': "Unrecognized or invalid PDU received"}
 

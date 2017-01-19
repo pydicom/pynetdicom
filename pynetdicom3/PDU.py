@@ -33,6 +33,8 @@ There are seven different PDUs
   |       object       |           |   object   |          |   socket   |
   |____________________| <-------  |____________| <------- |____________|
                          ToParams                  Decode
+
+TODO: Make encoding/decoding more generic
 """
 
 from io import BytesIO
