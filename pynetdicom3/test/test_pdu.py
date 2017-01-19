@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 
+from io import BytesIO
+import logging
+import threading
+import unittest
+from unittest.mock import patch
+
+from pydicom.uid import UID, ImplicitVRLittleEndian
+
+from pynetdicom3 import AE
+from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
+                        QueryRetrieveSOPClassList
+from pynetdicom3.PDU import *
+from pynetdicom3.primitives import *
+from pynetdicom3.utils import wrap_list
+
+
 a_associate_rq = b"\x01\x00\x00\x00\x00\xcd\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
                  b"\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43" \
                  b"\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00" \
@@ -45,29 +61,13 @@ p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" 
             b"\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01" \
             b"\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
 
-
-from io import BytesIO
-import logging
-import threading
-import unittest
-from unittest.mock import patch
-
-from pydicom.uid import UID, ImplicitVRLittleEndian
-
-from pynetdicom3 import AE
-from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
-    QueryRetrieveSOPClassList
-from pynetdicom3.PDU import *
-from pynetdicom3.primitives import *
-from pynetdicom3.utils import wrap_list
-
-logger = logging.getLogger('pynetdicom3')
+LOGGER = logging.getLogger('pynetdicom3')
 #handler = logging.StreamHandler()
 handler = logging.NullHandler()
-for h in logger.handlers:
-    logger.removeHandler(h)
-logger.addHandler(handler)
-logger.setLevel(logging.ERROR)
+for h in LOGGER.handlers:
+    LOGGER.removeHandler(h)
+LOGGER.addHandler(handler)
+LOGGER.setLevel(logging.ERROR)
 
 
 class TestPDU(unittest.TestCase):
