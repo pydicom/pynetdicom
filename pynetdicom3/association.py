@@ -175,7 +175,6 @@ class Association(threading.Thread):
     def kill(self):
         """Kill the main association thread loop."""
         self._kill = True
-
         self.is_established = False
         while not self.dul.Stop():
             time.sleep(0.001)

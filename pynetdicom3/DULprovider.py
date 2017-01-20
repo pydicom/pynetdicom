@@ -185,6 +185,10 @@ class DULServiceProvider(Thread):
 
         self.kill = False
         self.daemon = False
+
+        # Controls the minimum delay between loops in run()
+        self._run_loop_delay = 0.001
+
         self.start()
 
     def Kill(self):
@@ -438,23 +442,19 @@ class DULServiceProvider(Thread):
                 self.event_queue.put('Evt2')
                 return True
 
-            # By this point the connection is established
+            # By this point the connection should be established
             #   If theres incoming data on the connection then check the PDU
             #   type
-            #
-            # FIXME: bug related to socket closing, see socket_bug.note
-            #
-            #try:
-            #print(self.scu_socket)
-
-            read_list, _, _ = select.select([self.scu_socket], [], [], 0)
+            # Fix for #28 - caused by peer disconnecting before run loop is
+            #   stopped by assoc.release()
+            try:
+                read_list, _, _ = select.select([self.scu_socket], [], [], 0)
+            except ValueError:
+                return False
 
             if read_list:
                 self.CheckIncomingPDU()
                 return True
-            #except ValueError:
-            #    self.event_queue.put('Evt17')
-            #    return False
 
         else:
             return False
@@ -464,6 +464,9 @@ class DULServiceProvider(Thread):
         The main threading.Thread run loop. Runs constantly, checking the
         connection for incoming data. When incoming data is received it
         categorises it and add its to the `to_user_queue`.
+
+        Ripping out this loop and replacing it with event-driven reactor would
+            be nice.
         """
         #LOGGER.debug('Starting DICOM UL service "%s"' %self.name)
 
@@ -472,8 +475,8 @@ class DULServiceProvider(Thread):
             if self._idle_timer is not None:
                 self._idle_timer.start()
 
-            # Required for some reason
-            time.sleep(0.001)
+            # This effectively controls how often the DUL checks the network
+            time.sleep(self._run_loop_delay)
 
             if self.kill:
                 break
@@ -491,6 +494,7 @@ class DULServiceProvider(Thread):
                     self.kill = True
 
             except:
+                # FIXME: This catch all should be removed
                 self.kill = True
                 raise
 
