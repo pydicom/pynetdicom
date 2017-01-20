@@ -1,74 +1,100 @@
-
+"""
+A generic timer class suitable for use as the DICOM UL's ARTIM timer.
+"""
 import logging
 import time
 
-logger = logging.getLogger('pynetdicom.artim')
+LOGGER = logging.getLogger('pynetdicom3.artim')
 
 
-class Timer:
-    """
+class Timer(object):
+    """A generic timer.
+
     Implementation of the DICOM Upper Layer's ARTIM timer as per PS3.8 Section
     9.1.5. The ARTIM timer is used by the state machine to monitor connection
     and response timeouts. This class may also be used as a general purpose
     expiry timer.
-    
-    Parameters
-    ---------
-    max_number_seconds - int, float
-        The number of seconds before the timer expires. A value of 0 means
-        no timeout
     """
     def __init__(self, max_number_seconds):
+        """Create a new Timer.
+
+        Parameters
+        ---------
+        max_number_seconds : int, float
+            The number of seconds before the timer expires. A value of 0 means
+            no timeout.
+        """
         self._start_time = None
-        
+
         if max_number_seconds == 0:
             max_number_seconds = None
 
         self._max_number_seconds = max_number_seconds
 
     def start(self):
-        """ Resets and starts the timer running """
+        """Resets and starts the timer running."""
         self._start_time = time.time()
-        #logger.debug("Timer started at %s" %time.ctime(self._start_time))
+        #LOGGER.debug("Timer started at %s" %time.ctime(self._start_time))
 
     def stop(self):
-        """ Stops the timer and resets it """
-        #logger.debug("Timer stopped at %s" %time.ctime(time.time()))
+        """Stops the timer and resets it."""
         self._start_time = None
+        #LOGGER.debug("Timer stopped at %s" %time.ctime(time.time()))
 
     def restart(self):
-        """ Restart the timer
-        
+        """Restart the timer.
+
         If the timer has already started then stop it, reset it and start it.
         If the timer isn't running then reset it and start it.
         """
         self.start()
 
+    @property
     def is_expired(self):
-        """ Check if the timer has expired
+        """Check if the timer has expired.
 
         Returns
         -------
-        bool 
+        bool
             True if the timer has expired, False otherwise
         """
-        if self._start_time is not None and self._max_number_seconds is not None:
-            if (time.time() - self._start_time) > self._max_number_seconds:
-                #logger.debug("ARTIM timer has expired")
+        if self._start_time is not None and self.timeout_seconds is not None:
+            if self.time_remaining < 0:
                 return True
 
         return False
 
-    def set_timeout(self, timeout_seconds):
-        """ Set the number of seconds before the timer expires
-        
+    @property
+    def timeout_seconds(self):
+        """Return the number of seconds set for timeout."""
+        return self._max_number_seconds
+
+    @timeout_seconds.setter
+    def timeout_seconds(self, value):
+        """Set the number of seconds before the timer expires.
+
         Parameters
         ----------
-        timeout_seconds - float, int
+        value : float or int
             The number of seconds before the timer expires. A value of 0 means
-            no timeout
+            no timeout.
         """
-        if timeout_seconds == 0:
-            timeout_seconds = None
+        if value == 0:
+            value = None
 
-        self._max_number_seconds = timeout_seconds
+        self._max_number_seconds = value
+
+    @property
+    def time_remaining(self):
+        """Return the number of seconds remaining until timeout.
+
+        Returns -1 if the timer is set to unlimited timeout.
+        """
+        if self._start_time is None:
+            if self.timeout_seconds is None:
+                return -1
+            else:
+                return self.timeout_seconds
+
+        seconds_elapsed = time.time() - self._start_time
+        return self.timeout_seconds - seconds_elapsed

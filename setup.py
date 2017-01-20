@@ -25,5 +25,6 @@ setup(name="pynetdicom3",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Software Development :: Libraries",
         ],
-      install_requires=["pydicom >= 1.0.0"]
+      install_requires=[#"pydicom >= 1.0.0"
+                       ]
      )
