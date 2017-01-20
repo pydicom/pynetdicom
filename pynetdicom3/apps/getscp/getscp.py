@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    A getscp application. 
+    A getscp application.
 """
 
 import argparse
@@ -36,63 +36,63 @@ def _setup_argparser():
                     "response. The application can be used to test SCUs of the "
                     "QR and BWM Service Classes.",
         usage="getscp [options] port")
-        
+
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("port", 
-                          help="TCP/IP port number to listen on", 
+    req_opts.add_argument("port",
+                          help="TCP/IP port number to listen on",
                           type=int)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version", 
-                          help="print version information and exit", 
+    gen_opts.add_argument("--version",
+                          help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments", 
-                          help="print expanded command line arguments", 
+    gen_opts.add_argument("--arguments",
+                          help="print expanded command line arguments",
                           action="store_true")
-    gen_opts.add_argument("-q", "--quiet", 
-                          help="quiet mode, print no warnings and errors", 
+    gen_opts.add_argument("-q", "--quiet",
+                          help="quiet mode, print no warnings and errors",
                           action="store_true")
-    gen_opts.add_argument("-v", "--verbose", 
-                          help="verbose mode, print processing details", 
+    gen_opts.add_argument("-v", "--verbose",
+                          help="verbose mode, print processing details",
                           action="store_true")
-    gen_opts.add_argument("-d", "--debug", 
-                          help="debug mode, print debug information", 
+    gen_opts.add_argument("-d", "--debug",
+                          help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
                           help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
-                          type=str, 
-                          choices=['fatal', 'error', 'warn', 
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
-                          help="use config file f for the logger", 
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the logger",
                           type=str)
-    
+
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle', 
-                          help="set my AE title (default: GETSCP)", 
-                          type=str, 
+    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle',
+                          help="set my AE title (default: GETSCP)",
+                          type=str,
                           default='GETSCP')
-    net_opts.add_argument("-to", "--timeout", metavar='[s]econds', 
-                          help="timeout for connection requests", 
+    net_opts.add_argument("-to", "--timeout", metavar='[s]econds',
+                          help="timeout for connection requests",
                           type=int,
                           default=0)
-    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds', 
-                          help="timeout for ACSE messages", 
+    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds',
+                          help="timeout for ACSE messages",
                           type=int,
                           default=30)
-    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds', 
-                          help="timeout for DIMSE messages", 
+    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds',
+                          help="timeout for DIMSE messages",
                           type=int,
                           default=0)
-    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes', 
-                          help="set max receive pdu to n bytes", 
+    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes',
+                          help="set max receive pdu to n bytes",
                           type=int,
                           default=16384)
-    
+
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
     ts_opts.add_argument("-x=", "--prefer-uncompr",
@@ -114,10 +114,10 @@ args = _setup_argparser()
 
 if args.verbose:
     logger.setLevel(logging.INFO)
-    
+
 if args.debug:
     logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
 logger.debug('$getscp.py v%s %s $' %('0.1.0', '2016-04-11'))
@@ -130,7 +130,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient priveleges" 
+        logger.error("Cannot listen on port %d, insufficient priveleges"
             %args.port)
         sys.exit()
 
@@ -141,7 +141,7 @@ transfer_syntax = [ImplicitVRLittleEndian,
 
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
-    
+
 if args.prefer_little:
     if ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
@@ -157,7 +157,7 @@ def on_c_get(dataset):
     dcm_files = ['CTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
     yield len(dcm_files)
-    
+
     for dcm in dcm_files:
         data = read_file(dcm, force=True)
         yield data
@@ -168,7 +168,7 @@ scp_classes.extend(QueryRetrieveSOPClassList)
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
-        scu_sop_class=[], 
+        scu_sop_class=[],
         scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
 

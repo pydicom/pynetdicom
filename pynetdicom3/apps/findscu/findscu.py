@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-    A dcmtk style findscu application. 
-    
-    Used for 
+    A dcmtk style findscu application.
+
+    Used for
 """
 
 import argparse
@@ -38,54 +38,54 @@ def _setup_argparser():
                     "response. The application can be used to test SCPs of the "
                     "QR and BWM Service Classes.",
         usage="findscu [options] peer port dcmfile-in")
-        
+
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
     req_opts.add_argument("peer", help="hostname of DICOM peer", type=str)
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
-    req_opts.add_argument("dcmfile_in", 
+    req_opts.add_argument("dcmfile_in",
                           metavar="dcmfile-in",
-                          help="DICOM query file(s)", 
+                          help="DICOM query file(s)",
                           type=str)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version", 
-                          help="print version information and exit", 
+    gen_opts.add_argument("--version",
+                          help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments", 
-                          help="print expanded command line arguments", 
+    gen_opts.add_argument("--arguments",
+                          help="print expanded command line arguments",
                           action="store_true")
-    gen_opts.add_argument("-q", "--quiet", 
-                          help="quiet mode, print no warnings and errors", 
+    gen_opts.add_argument("-q", "--quiet",
+                          help="quiet mode, print no warnings and errors",
                           action="store_true")
-    gen_opts.add_argument("-v", "--verbose", 
-                          help="verbose mode, print processing details", 
+    gen_opts.add_argument("-v", "--verbose",
+                          help="verbose mode, print processing details",
                           action="store_true")
-    gen_opts.add_argument("-d", "--debug", 
-                          help="debug mode, print debug information", 
+    gen_opts.add_argument("-d", "--debug",
+                          help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]', 
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
                           help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)", 
-                          type=str, 
-                          choices=['fatal', 'error', 'warn', 
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]', 
-                          help="use config file f for the logger", 
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the logger",
                           type=str)
-    
+
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle', 
-                          help="set my calling AE title (default: FINDSCU)", 
-                          type=str, 
+    net_opts.add_argument("-aet", "--calling-aet", metavar='[a]etitle',
+                          help="set my calling AE title (default: FINDSCU)",
+                          type=str,
                           default='FINDSCU')
-    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle', 
-                          help="set called AE title of peer (default: ANY-SCP)", 
-                          type=str, 
+    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle',
+                          help="set called AE title of peer (default: ANY-SCP)",
+                          type=str,
                           default='ANY-SCP')
-    
+
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
     qr_model = qr_group.add_mutually_exclusive_group()
@@ -111,12 +111,12 @@ args = _setup_argparser()
 
 if args.verbose:
     logger.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.INFO)
-    
+
 if args.debug:
     logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
 logger.debug('$findscu.py v%s %s $' %('0.1.0', '2016-02-15'))
@@ -124,10 +124,10 @@ logger.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet, 
-        port=0, 
-        scu_sop_class=QueryRetrieveSOPClassList, 
-        scp_sop_class=[], 
+ae = AE(ae_title=args.calling_aet,
+        port=0,
+        scu_sop_class=QueryRetrieveSOPClassList,
+        scp_sop_class=[],
         transfer_syntax=[ExplicitVRLittleEndian])
 
 # Request association with remote
@@ -182,12 +182,12 @@ if assoc.is_established:
 
     # Send query
     response = assoc.send_c_find(dataset, query_model=query_model)
-    
+
     time.sleep(1)
     for value in response:
         pass
         #print(value)
-    
+
     assoc.release()
 
 ae.quit()
