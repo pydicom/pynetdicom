@@ -9,7 +9,7 @@ from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom3 import AE
 from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
-    QueryRetrieveSOPClassList
+                        QueryRetrieveSOPClassList
 
 logger = logging.getLogger('pynetdicom3')
 handler = logging.StreamHandler()
