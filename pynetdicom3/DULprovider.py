@@ -65,25 +65,12 @@ class DULServiceProvider(Thread):
     - If neither is given, the DUL will not be able to accept connections (but
       will be able to initiate them.)
 
-    Parameters
-    ----------
-    Socket : socket.socket, optional
-        The local AE's listen socket
-    Port : int, optional
-        The port number on which to wait for incoming connections
-    Name : str, optional
-        Used help identify the DUL service provider
-    dul_timeout : float, optional
-        The maximum amount of time to wait for connection responses (in seconds)
-    local_ae : pynetdicom3.applicationentity.ApplicationEntity
-        The local AE instance
-    assoc : pynetdicom3.association.Association
-        The DUL's current Association
-
     Attributes
     ----------
     artim_timer : pynetdicom3.timer.Timer
         The ARTIM timer
+    association : pynetdicom3.association.Association
+        The DUL's current Association
     dul_from_user_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
         provider
@@ -102,7 +89,22 @@ class DULServiceProvider(Thread):
     """
     def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None,
                  acse_timeout=30, local_ae=None, assoc=None):
-
+        """
+        Parameters
+        ----------
+        Socket : socket.socket, optional
+            The local AE's listen socket
+        Port : int, optional
+            The port number on which to wait for incoming connections
+        Name : str, optional
+            Used help identify the DUL service provider
+        dul_timeout : float, optional
+            The maximum amount of time to wait for connection responses (in seconds)
+        local_ae : pynetdicom3.applicationentity.ApplicationEntity
+            The local AE instance
+        assoc : pynetdicom3.association.Association
+            The DUL's current Association
+        """
         if Socket and Port:
             raise ValueError("DULServiceProvider can't be instantiated with "
                              "both Socket and Port parameters")
@@ -165,6 +167,7 @@ class DULServiceProvider(Thread):
                     local_address = os.popen('hostname').read()[:-1]
                     self.scp_socket.bind((local_address, self.local_port))
                 except:
+                    # FIXME: Remove the catch-all
                     #LOGGER.error("Already bound")
                     # FIXME: If already bound then warn?
                     #   Why would it already be bound?
@@ -188,8 +191,6 @@ class DULServiceProvider(Thread):
 
         # Controls the minimum delay between loops in run()
         self._run_loop_delay = 0.001
-
-        self.start()
 
     def Kill(self):
         """Immediately interrupts the thread"""
