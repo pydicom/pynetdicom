@@ -192,8 +192,6 @@ class DULServiceProvider(Thread):
         # Controls the minimum delay between loops in run()
         self._run_loop_delay = 0.001
 
-        self.start()
-
     def Kill(self):
         """Immediately interrupts the thread"""
         self.kill = True
