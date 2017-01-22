@@ -110,7 +110,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$storescu.py v%s %s $' %('0.1.0', '2016-02-10'))
+logger.debug('$storescu.py v{0!s} {1!s} $'.format('0.1.0', '2016-02-10'))
 logger.debug('')
 
 # Check file exists and is readable and DICOM
@@ -120,10 +120,10 @@ try:
     dataset = read_file(f, force=True)
     f.close()
 except IOError:
-    logger.error('Cannot read input file %s' %args.dcmfile_in)
+    logger.error('Cannot read input file {0!s}'.format(args.dcmfile_in))
     sys.exit()
 except:
-    logger.error('File may not be DICOM %s' %args.dcmfile_in)
+    logger.error('File may not be DICOM {0!s}'.format(args.dcmfile_in))
     sys.exit()
 
 # Set Transfer Syntax options
@@ -150,7 +150,7 @@ ae = AE(ae_title=args.calling_aet,
 assoc = ae.associate(args.peer, args.port, args.called_aet)
 
 if assoc.is_established:
-    logger.info('Sending file: %s' %args.dcmfile_in)
+    logger.info('Sending file: {0!s}'.format(args.dcmfile_in))
 
     status = assoc.send_c_store(dataset)
 
