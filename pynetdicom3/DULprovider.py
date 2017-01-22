@@ -50,8 +50,8 @@ def recvn(sock, n_bytes):
         read_length += len(tmp)
 
     if read_length != n_bytes:
-        raise RuntimeError("recvn(socket, %d) - Error reading data from " \
-                           "socket." %n_bytes)
+        raise RuntimeError("recvn(socket, {}) - Error reading data from " \
+                           "socket.".format(n_bytes))
 
     return ret
 
@@ -99,7 +99,8 @@ class DULServiceProvider(Thread):
         Name : str, optional
             Used help identify the DUL service provider
         dul_timeout : float, optional
-            The maximum amount of time to wait for connection responses (in seconds)
+            The maximum amount of time to wait for connection responses
+            (in seconds)
         local_ae : pynetdicom3.applicationentity.ApplicationEntity
             The local AE instance
         assoc : pynetdicom3.association.Association
@@ -377,7 +378,7 @@ class DULServiceProvider(Thread):
         try:
             # Check the queue and see if there are any primitives
             # If so then put the corresponding event on the event queue
-            self.primitive = self.to_provider_queue.get(False, None)
+            self.primitive = self.to_provider_queue.get(False)
             self.event_queue.put(primitive2event(self.primitive))
             return True
         except queue.Empty:

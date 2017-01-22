@@ -439,9 +439,8 @@ class ApplicationEntity(object):
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
-        str_out += "Application Entity '{0!s}' on {1!s}:{2!s}\n".format(self.ae_title,
-                                                          self.address,
-                                                          self.port)
+        str_out += "Application Entity '{0!s}' on {1!s}:{2!s}\n" \
+                   .format(self.ae_title, self.address, self.port)
 
         str_out += "\n"
         str_out += "  Available Transfer Syntax(es):\n"
@@ -470,20 +469,24 @@ class ApplicationEntity(object):
         if self.require_called_aet != '' or self.require_calling_aet != '':
             str_out += "\n"
         if self.require_calling_aet != '':
-            str_out += "  Required calling AE title: {0!s}\n".format(self.require_calling_aet)
+            str_out += "  Required calling AE title: {0!s}\n" \
+                       .format(self.require_calling_aet)
         if self.require_called_aet != '':
-            str_out += "  Required called AE title: {0!s}\n".format(self.require_called_aet)
+            str_out += "  Required called AE title: {0!s}\n" \
+                       .format(self.require_called_aet)
 
         str_out += "\n"
 
         # Association information
-        str_out += '  Association(s): {0!s}/{1!s}\n'.format(len(self.active_associations),
-                                                 self.maximum_associations)
+        str_out += '  Association(s): {0!s}/{1!s}\n' \
+                   .format(len(self.active_associations),
+                           self.maximum_associations)
 
         for assoc in self.active_associations:
-            str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n'.format(assoc.peer_ae['AET'],
-                                                 assoc.peer_ae['Address'],
-                                                 assoc.peer_ae['Port'])
+            str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
+                       .format(assoc.peer_ae['AET'],
+                               assoc.peer_ae['Address'],
+                               assoc.peer_ae['Port'])
 
         return str_out
 

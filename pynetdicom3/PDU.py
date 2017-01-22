@@ -127,8 +127,7 @@ class PDU(object):
         encoded_data - ?
             The binary encoded PDU
         """
-        raise NotImplementedError
-
+        '''
         s = BytesIO(encoded_data)
 
         # We go through the PDU's parameters list and use the associated
@@ -156,6 +155,8 @@ class PDU(object):
 
         # After decoding, check that we have only added allowed items
         self.validate_additional_items()
+        '''
+        raise NotImplementedError
 
     @staticmethod
     def _next_item_type(s):
@@ -242,7 +243,7 @@ class PDU(object):
 
         if item_type not in item_types.keys():
             raise ValueError("During PDU decoding we received an invalid "
-                             "item type: %s" %item_type)
+                             "item type: {}".format(item_type))
 
         return item_types[item_type]()
 
@@ -1507,8 +1508,7 @@ class A_RELEASE_RQ_PDU(PDU):
         """
         self._update_parameters()
 
-    @staticmethod
-    def ToParams():
+    def ToParams(self):
         """
         Convert the current A-RELEASE-RQ PDU to a primitive
 

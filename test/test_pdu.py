@@ -2,18 +2,37 @@
 
 from io import BytesIO
 import logging
-import threading
 import unittest
-from unittest.mock import patch
 
-from pydicom.uid import UID, ImplicitVRLittleEndian
+from pydicom.uid import UID
 
-from pynetdicom3 import AE
 from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
                         QueryRetrieveSOPClassList
-from pynetdicom3.PDU import *
-from pynetdicom3.primitives import *
-from pynetdicom3.utils import wrap_list
+from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
+                            A_ASSOCIATE_RJ_PDU, \
+                            P_DATA_TF_PDU, \
+                            A_RELEASE_RQ_PDU, \
+                            A_RELEASE_RP_PDU, \
+                            A_ABORT_PDU, \
+                            MaximumLengthSubItem, \
+                            ImplementationClassUIDSubItem, \
+                            ImplementationVersionNameSubItem, \
+                            AsynchronousOperationsWindowSubItem, \
+                            SCP_SCU_RoleSelectionSubItem, \
+                            SOPClassExtendedNegotiationSubItem, \
+                            SOPClassCommonExtendedNegotiationSubItem, \
+                            UserIdentitySubItemRQ, \
+                            UserIdentitySubItemAC, \
+                            PDU, \
+                            ApplicationContextItem, \
+                            PresentationContextItemAC, \
+                            PresentationContextItemRQ, \
+                            UserInformationItem
+from pynetdicom3.primitives import MaximumLengthNegotiation, \
+                                   ImplementationClassUIDNotification, \
+                                   ImplementationVersionNameNotification, \
+                                   A_P_ABORT, A_ABORT, A_ASSOCIATE, P_DATA
+#from pynetdicom3.utils import wrap_list
 
 
 a_associate_rq = b"\x01\x00\x00\x00\x00\xcd\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
