@@ -661,7 +661,9 @@ class A_ASSOCIATE_AC_PDU(PDU):
           * Presentation Context Item(s) (1 or more)
             * Item type (1, fixed value, 0x21)
             * Item length (1)
-            * Context ID (1)
+            StorageSOPClassList, \
+                                 VerificationSOPClass, \
+                                 QueryRetrieveSOPClassList* Context ID (1)
             * Transfer Syntax Sub-items (1)
               * Item type (1, fixed, 0x40)
               * Item length (1)
@@ -1505,7 +1507,8 @@ class A_RELEASE_RQ_PDU(PDU):
         """
         self._update_parameters()
 
-    def ToParams(self):
+    @staticmethod
+    def ToParams():
         """
         Convert the current A-RELEASE-RQ PDU to a primitive
 
