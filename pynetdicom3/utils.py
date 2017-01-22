@@ -179,7 +179,7 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
             lines.append(line)
 
     if cutoff_output:
-        lines.insert(0, prefix + 'Only dumping %s bytes.' %max_size)
+        lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))
 
     return lines
 
@@ -271,19 +271,19 @@ class PresentationContext(object):
 
     def __str__(self):
         """String representation of the Presentation Context."""
-        s = 'ID: %s\n' %self.ID
+        s = 'ID: {0!s}\n'.format(self.ID)
 
         if self.AbstractSyntax is not None:
-            s += 'Abstract Syntax: %s\n' %self.AbstractSyntax
+            s += 'Abstract Syntax: {0!s}\n'.format(self.AbstractSyntax)
 
         s += 'Transfer Syntax(es):\n'
         for syntax in self.TransferSyntax:
-            s += '\t=%s\n' %syntax
+            s += '\t={0!s}\n'.format(syntax)
 
         #s += 'SCP/SCU: %s/%s'
 
         if self.Result is not None:
-            s += 'Result: %s\n' %self.status
+            s += 'Result: {0!s}\n'.format(self.status)
 
         return s
 
