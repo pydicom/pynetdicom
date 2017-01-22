@@ -9,7 +9,11 @@ from pydicom.uid import UID
 
 from pynetdicom3.ACSEprovider import ACSEServiceProvider
 from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
+                                        C_MOVE_ServiceParameters, \
+                                        C_STORE_ServiceParameters, \
+                                        C_GET_ServiceParameters, \
+                                        C_FIND_ServiceParameters
 from pynetdicom3.DULprovider import DULServiceProvider
 from pynetdicom3.SOPclass import *
 from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
@@ -1242,8 +1246,8 @@ class Association(threading.Thread):
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
-                raise RuntimeError("The association with a peer SCP must be "
-                                   "established before sending a C-GET request")
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending a C-GET request")
 
         if query_model == "P":
             # Four level hierarchy, patient, study, series, composite object
@@ -1396,6 +1400,7 @@ class Association(threading.Thread):
 
         FIXME: Add Returns section
         """
+        # Can't send a C-CANCEL-GET without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-CANCEL-GET "
@@ -1446,70 +1451,101 @@ class Association(threading.Thread):
     # DIMSE-N services provided by the Association
     def send_n_event_report(self):
         """Send an N-EVENT-REPORT request message to the peer AE."""
+        # Can't send an N-EVENT-REPORT without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-EVENT-REPORT "
+                               "request")
         raise NotImplementedError
 
     def send_n_get(self, msg_id, dataset=None):
         """Send an N-GET request message to the peer AE."""
+        '''
+        service_class = QueryRetrieveGetServiceClass()
+
+        # Determine the Presentation Context we are operating under
+        #   and hence the transfer syntax to use for encoding `dataset`
+        transfer_syntax = None
+        # FIXME: broken
+        for context in self.acse.context_manager.accepted:
+            if sop_class.UID == context.AbstractSyntax:
+                transfer_syntax = context.TransferSyntax[0]
+                context_id = context.ID
+
+        if transfer_syntax is None:
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Get SCU failed due to there being no valid "
+                         "presentation context for the current dataset")
+            return service_class.IdentifierDoesNotMatchSOPClass
+
+
+        # Build N-GET primitive
+        primitive = N_GET_ServiceParameters()
+        primitive.MessageID = msg_id
+        # The SOP Class for which Attribute Values are to be retrieved
+        primitive.RequestedSOPClassUID = None
+        # The SOP Instance for which Attribute Values are to be retrieved
+        primitive.RequestedSOPInstanceUID = None
+        # A set of Attribute identifiers, if omitted then all identifiers
+        #   are assumed. The definitions of the Attributes are found
+        #   in PS3.3
+        if dataset is not None:
+            primitive.AttributeIdentifierList = \
+                    encode(dataset, transfer_syntax.is_implicit_VR,
+                           transfer_syntax.is_little_endian)
+            primitive.AttributeIdentifierList = \
+                    BytesIO(primitive.AttributeIdentifierList)
+
+        # Send primitive to peer
+        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        '''
+        # Can't send an N-GET without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-GET "
+                               "request.")
         raise NotImplementedError
-
-        if self.is_established:
-            service_class = QueryRetrieveGetServiceClass()
-
-            # Determine the Presentation Context we are operating under
-            #   and hence the transfer syntax to use for encoding `dataset`
-            transfer_syntax = None
-            # FIXME: broken
-            for context in self.acse.context_manager.accepted:
-                if sop_class.UID == context.AbstractSyntax:
-                    transfer_syntax = context.TransferSyntax[0]
-                    context_id = context.ID
-
-            if transfer_syntax is None:
-                LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-                LOGGER.error("Get SCU failed due to there being no valid "
-                             "presentation context for the current dataset")
-                return service_class.IdentifierDoesNotMatchSOPClass
-
-
-            # Build N-GET primitive
-            primitive = N_GET_ServiceParameters()
-            primitive.MessageID = msg_id
-            # The SOP Class for which Attribute Values are to be retrieved
-            primitive.RequestedSOPClassUID = None
-            # The SOP Instance for which Attribute Values are to be retrieved
-            primitive.RequestedSOPInstanceUID = None
-            # A set of Attribute identifiers, if omitted then all identifiers
-            #   are assumed. The definitions of the Attributes are found
-            #   in PS3.3
-            if dataset is not None:
-                primitive.AttributeIdentifierList = \
-                        encode(dataset, transfer_syntax.is_implicit_VR,
-                               transfer_syntax.is_little_endian)
-                primitive.AttributeIdentifierList = \
-                        BytesIO(primitive.AttributeIdentifierList)
-
-            # Send primitive to peer
-            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_n_set(self):
         """Send an N-SET request message to the peer AE."""
+        # Can't send an N-SET without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-SET "
+                               "request.")
         raise NotImplementedError
 
     def send_n_action(self):
         """Send an N-ACTION request message to the peer AE."""
+        # Can't send an N-ACTION without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-ACTION "
+                               "request.")
         raise NotImplementedError
 
     def send_n_create(self):
         """Send an N-CREATE request message to the peer AE."""
+        # Can't send an N-CREATE without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-CREATE "
+                               "request.")
         raise NotImplementedError
 
     def send_n_delete(self):
         """Send an N-DELETE request message to the peer AE."""
+        # Can't send an N-DELETE without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-DELETE "
+                               "request.")
         raise NotImplementedError
 
 
     # Association logging/debugging functions
-    def debug_association_requested(self, primitive):
+    @staticmethod
+    def debug_association_requested(primitive):
         """
         Called when an association is reuested by a peer AE, used for
         logging/debugging information
@@ -1521,7 +1557,8 @@ class Association(threading.Thread):
         """
         pass
 
-    def debug_association_accepted(self, assoc):
+    @staticmethod
+    def debug_association_accepted(assoc):
         """
         Called when an association attempt is accepted by a peer AE, used for
         logging/debugging information
@@ -1604,7 +1641,8 @@ class Association(threading.Thread):
         '''
         pass
 
-    def debug_association_rejected(self, assoc_primitive):
+    @staticmethod
+    def debug_association_rejected(assoc_primitive):
         """
         Called when an association attempt is rejected by a peer AE, used for
         logging/debugging information
@@ -1654,10 +1692,12 @@ class Association(threading.Thread):
                      source_str[source])
         LOGGER.error('Reason: %s', reason_str[source - 1][reason])
 
-    def debug_association_released(self):
+    @staticmethod
+    def debug_association_released():
         """Logging for association release."""
         LOGGER.info('Association Released')
 
-    def debug_association_aborted(self, abort_primitive=None):
+    @staticmethod
+    def debug_association_aborted(abort_primitive=None):
         """Logging for association abort."""
         LOGGER.error('Association Aborted')
