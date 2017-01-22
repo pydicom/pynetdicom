@@ -401,7 +401,8 @@ class DIMSEServiceProvider(object):
 
 
     # Mid-level DIMSE related logging/debugging
-    def debug_send_c_echo_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_echo_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -411,7 +412,8 @@ class DIMSEServiceProvider(object):
         ds = dimse_msg.command_set
         LOGGER.info("Sending Echo Request: MsgID %s", ds.MessageID)
 
-    def debug_send_c_echo_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_echo_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -420,7 +422,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_send_c_store_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_store_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -462,7 +465,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_store_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_store_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -471,7 +475,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_send_c_find_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_find_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -504,7 +509,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_find_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_find_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -532,7 +538,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_cancel_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_cancel_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -542,7 +549,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_send_c_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -575,7 +583,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -603,7 +612,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_move_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_move_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -638,7 +648,8 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
         return None
 
-    def debug_send_c_move_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_move_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -666,8 +677,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-
-    def debug_receive_c_echo_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_echo_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -691,7 +702,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_echo_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_echo_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -701,7 +713,8 @@ class DIMSEServiceProvider(object):
         # Status must always be Success for C_ECHO_RSP
         LOGGER.info("Received Echo Response (Status: Success)")
 
-    def debug_receive_c_store_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_store_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -736,7 +749,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_store_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_store_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -786,7 +800,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_find_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_find_rq(dimse_msg):
         """
         Called on receiving a C-FIND-RQ from the peer AE.
         The C-FIND service is used by a DIMSE to match a set of Attributes
@@ -824,7 +839,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.info(line)
 
-    def debug_receive_c_find_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_find_rsp(dimse_msg):
         """
         Called on receiving a C-FIND-RSP from the peer AE.
         The C-FIND service is used by a DIMSE to match a set of Attributes
@@ -859,7 +875,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.info(line)
 
-    def debug_receive_c_cancel_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_cancel_rq(dimse_msg):
         """
         Placeholder for C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
@@ -870,7 +887,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_receive_c_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -903,7 +921,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.info(line)
 
-    def debug_receive_c_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -941,7 +960,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_move_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_move_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -950,7 +970,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_receive_c_move_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_move_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -987,8 +1008,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-
-    def debug_send_n_event_report_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_event_report_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -997,7 +1018,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_event_report_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_event_report_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1006,7 +1028,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1015,7 +1038,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1024,7 +1048,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_set_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_set_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1033,7 +1058,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_set_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_set_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1042,7 +1068,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_action_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_action_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1051,7 +1078,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_action_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_action_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1060,7 +1088,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_create_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_create_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1069,7 +1098,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_create_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_create_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1078,7 +1108,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_delete_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_delete_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1087,7 +1118,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_delete_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_delete_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1096,8 +1128,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-
-    def debug_receive_n_event_report_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_event_report_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1106,7 +1138,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_event_report_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_event_report_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1115,7 +1148,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1124,7 +1158,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1133,7 +1168,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_set_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_set_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1142,7 +1178,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_set_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_set_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1151,7 +1188,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_action_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_action_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1160,7 +1198,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_action_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_action_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1169,7 +1208,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_create_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_create_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1178,7 +1218,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_create_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_create_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1187,7 +1228,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_delete_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_delete_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1196,7 +1238,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_delete_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_delete_rsp(dimse_msg):
         """
         Parameters
         ----------

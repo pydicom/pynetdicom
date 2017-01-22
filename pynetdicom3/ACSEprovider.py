@@ -174,7 +174,8 @@ class ACSEServiceProvider(object):
                 # Get the association accept details from the PDU and construct
                 #   a pynetdicom3.utils.AssociationInformation instance
                 # assoc_info = AssociationInformation(assoc_rq, assoc_rsp)
-                # accepted_presentation_contexts = assoc_info.AcceptedPresentationContexts
+                # accepted_presentation_contexts = \
+                #                   assoc_info.AcceptedPresentationContexts
                 #
                 # return True, assoc_info
 
@@ -207,7 +208,7 @@ class ACSEServiceProvider(object):
                 return False, assoc_rsp
             else:
                 LOGGER.error("ACSE received an invalid result value from "
-                             "the peer AE: '%s'" %assoc_rsp.result)
+                             "the peer AE: '%s'", assoc_rsp.result)
                 raise ValueError("ACSE received an invalid result value from "
                                  "the peer AE: '%s'" %assoc_rsp.result)
 
@@ -392,6 +393,7 @@ class ACSEServiceProvider(object):
             return False
 
     def Status(self):
+        """Return the current state of the DUL's state machine"""
         return self.DUL.state_machine.current_state()
 
     def Kill(self):
@@ -400,7 +402,8 @@ class ACSEServiceProvider(object):
 
     # ACSE logging/debugging functions
     # Local AE sending PDU to peer AE
-    def debug_send_associate_rq(self, a_associate_rq):
+    @staticmethod
+    def debug_send_associate_rq(a_associate_rq):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-ASSOCIATE-RQ to
@@ -461,9 +464,9 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation:')
 
             for item in assoc_rq.user_information.ext_neg:
-
                 s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
                 #s.append('    Application Information, length: %d bytes' %len(item.app_info))
+
                 app_info = wrap_list(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
@@ -519,7 +522,8 @@ class ACSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_associate_ac(self, a_associate_ac):
+    @staticmethod
+    def debug_send_associate_ac(a_associate_ac):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
@@ -582,7 +586,8 @@ class ACSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_associate_rj(self, a_associate_rj):
+    @staticmethod
+    def debug_send_associate_rj(a_associate_rj):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
@@ -594,7 +599,8 @@ class ACSEServiceProvider(object):
         """
         pass
 
-    def debug_send_data_tf(self, p_data_tf):
+    @staticmethod
+    def debug_send_data_tf(p_data_tf):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an P-DATA-TF to a peer AE
@@ -606,7 +612,8 @@ class ACSEServiceProvider(object):
         """
         pass
 
-    def debug_send_release_rq(self, a_release_rq):
+    @staticmethod
+    def debug_send_release_rq(a_release_rq):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
@@ -618,7 +625,8 @@ class ACSEServiceProvider(object):
         """
         pass
 
-    def debug_send_release_rp(self, a_release_rp):
+    @staticmethod
+    def debug_send_release_rp(a_release_rp):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-RELEASE-RP to a peer AE
@@ -630,7 +638,8 @@ class ACSEServiceProvider(object):
         """
         pass
 
-    def debug_send_abort(self, a_abort):
+    @staticmethod
+    def debug_send_abort(a_abort):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-ABORT to a peer AE
@@ -659,7 +668,8 @@ class ACSEServiceProvider(object):
 
 
     # Local AE receiving PDU from peer AE
-    def debug_receive_associate_rq(self, a_associate_rq):
+    @staticmethod
+    def debug_receive_associate_rq(a_associate_rq):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an A-ASSOCIATE-RQ
@@ -718,9 +728,9 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation:')
 
             for item in assoc_rq.user_information.ext_neg:
-
                 s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
                 #s.append('    Application Information, length: %d bytes' %len(item.app_info))
+
                 app_info = wrap_list(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
@@ -753,7 +763,8 @@ class ACSEServiceProvider(object):
             s.append('Requested Asynchronous Operations Window Negotiation:')
             # FIXME
         else:
-            s.append('Requested Asynchronous Operations Window Negotiation: None')
+            s.append('Requested Asynchronous Operations Window ' \
+                     'Negotiation: None')
 
         ## User Identity
         if user_info.user_identity is not None:
@@ -784,7 +795,8 @@ class ACSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_associate_ac(self, a_associate_ac):
+    @staticmethod
+    def debug_receive_associate_ac(a_associate_ac):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an A-ASSOCIATE-AC
@@ -866,7 +878,8 @@ class ACSEServiceProvider(object):
 
         LOGGER.info('Association Accepted')
 
-    def debug_receive_associate_rj(self, a_associate_rj):
+    @staticmethod
+    def debug_receive_associate_rj(a_associate_rj):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an A-ASSOCIATE-RJ
@@ -890,7 +903,8 @@ class ACSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_data_tf(self, p_data_tf):
+    @staticmethod
+    def debug_receive_data_tf(p_data_tf):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an P-DATA-TF
@@ -923,7 +937,8 @@ class ACSEServiceProvider(object):
         '''
         pass
 
-    def debug_receive_release_rq(self, a_release_rq):
+    @staticmethod
+    def debug_receive_release_rq(a_release_rq):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an A-RELEASE-RQ
@@ -935,7 +950,8 @@ class ACSEServiceProvider(object):
         """
         pass
 
-    def debug_receive_release_rp(self, a_release_rp):
+    @staticmethod
+    def debug_receive_release_rp(a_release_rp):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an A-RELEASE-RP
@@ -947,7 +963,8 @@ class ACSEServiceProvider(object):
         """
         pass
 
-    def debug_receive_abort(self, a_abort):
+    @staticmethod
+    def debug_receive_abort(a_abort):
         """
         Placeholder for a function callback. Function will be called
         immediately after receiving and decoding an A-ABORT
