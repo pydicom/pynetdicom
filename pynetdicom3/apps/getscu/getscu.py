@@ -14,7 +14,7 @@ import time
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian, UID
+                        ExplicitVRBigEndian, UID
 
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3 import pynetdicom_uid_prefix
@@ -116,7 +116,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$getscu.py v%s %s $' %('0.1.0', '2016-02-15'))
+logger.debug('$getscu.py v{0!s} {1!s} $'.format('0.1.0', '2016-02-15'))
 logger.debug('')
 
 
@@ -201,8 +201,8 @@ def on_c_store(dataset):
     except:
         pass
 
-    filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
-    logger.info('Storing DICOM file: %s' %filename)
+    filename = '{0!s}.{1!s}'.format(mode_prefix, dataset.SOPInstanceUID)
+    logger.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
         logger.warning('DICOM file already exists, overwriting')

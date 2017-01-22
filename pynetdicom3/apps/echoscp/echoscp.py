@@ -160,7 +160,7 @@ if args.log_level:
 if args.log_config:
     fileConfig(args.log_config)
 
-logger.debug('$echoscp.py v%s %s $' %('0.2.1', '2016-04-12'))
+logger.debug('$echoscp.py v{0!s} {1!s} $'.format('0.2.1', '2016-04-12'))
 logger.debug('')
 
 # Validate port
@@ -170,8 +170,8 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient privileges or "
-            "already in use" %args.port)
+        logger.error("Cannot listen on port {}, insufficient privileges or "
+            "already in use".format(args.port))
         sys.exit()
 
 # Set Transfer Syntax options

@@ -1,8 +1,10 @@
 """
-Define the various supported SOP Classes
+Defines Status and the supported Service Classes, generates the SOP Classes.
 """
+import inspect
 from io import BytesIO
 import logging
+import sys
 import time
 
 from pynetdicom3.dsutils import decode, encode
@@ -18,9 +20,9 @@ from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
                                         N_ACTION_ServiceParameters, \
                                         N_DELETE_ServiceParameters
 
-LOGGER = logging.getLogger('pynetdicom3.SOPclass')
+LOGGER = logging.getLogger('pynetdicom3.sop')
 
-def class_factory(name, uid, base_cls):
+def _class_factory(name, uid, base_cls):
     """
     Generates a SOP Class subclass of `base_cls` called `name`
 
@@ -54,25 +56,67 @@ def class_factory(name, uid, base_cls):
 def _generate_service_sop_classes(sop_class_list, service_class):
     """Generate the SOP Classes."""
     for name in sop_class_list.keys():
-        cls = class_factory(name, sop_class_list[name], service_class)
+        cls = _class_factory(name, sop_class_list[name], service_class)
         globals()[cls.__name__] = cls
 
 
 class Status(object):
-    """Status object for the SOP Classes"""
-    def __init__(self, Type, Description, CodeRange):
-        self.Type = Type
-        self.Description = Description
-        self.CodeRange = CodeRange
+    """Status object for the SOP Classes.
+
+    Attributes
+    ----------
+    status_type : str
+        The type of Status (e.g. Success, Warning, Failure, Pending).
+    description : str
+        A description of the Status.
+    code_range : range
+        The range of valid code values for the Status.
+    code : int
+        The assigned Status code, returns the first valid code range in
+        `code_range` if not assigned.
+    """
+    def __init__(self, status_type, description, code_range):
+        """Create a new Status.
+
+        Parameters
+        ----------
+        status_type : str
+            The type of Status (e.g. Success, Warning, Failure, Pending).
+        description : str
+            A description of the Status.
+        code_range : range
+            The range of valid code values for the Status.
+        """
+        self.status_type = status_type
+        self.description = description
+        self.code_range = code_range
+        self.code = self.code_range[0]
+
+    @property
+    def code(self):
+        """Return the assigned code for the Status."""
+        return self._code
+
+    @code.setter
+    def code(self, value):
+        """Set the code for the Status."""
+        # pylint: disable=attribute-defined-outside-init
+        if not isinstance(value, int):
+            raise TypeError("Status code value must be an integer.")
+
+        if not value in self.code_range:
+            raise ValueError("Status code value must be within the allowed "
+                             "range.")
+        self._code = value
 
     def __int__(self):
-        return self.CodeRange[0]
-
-    def __repr__(self):
-        return self.Type
+        """Return the assigned code of the Status."""
+        return self.code
 
     def __str__(self):
-        return self.Type + ' ' + self.Description
+        """Return a string representation of the Status."""
+        return '0x{0:04x}: {1} - {2}'.format(self.code, self.status_type,
+                                             self.description)
 
 
 # DICOM SERVICE CLASS BASE
@@ -80,34 +124,40 @@ class ServiceClass(object):
     """The base class for all the service class types.
 
     FIXME: Determine a better method for the statuses
+    FIXME: SOP class status values shouldn't overwrite Warning (which is a
+    non-pythonic attribute name anyway)
     FIXME: Perhaps define some class attributes such as self.AE = None
         self.UID = None,
         then call ServiceClass.__init__() in the subclasses?
     """
-    # FIXME: Replace this method
-    def Code2Status(self, code):
+    def code_to_status(self, code):
         """
         Parameters
         ----------
         code : int
-            The status code value from the (0000,0900) dataset element
+            The status code value from/for the (0000,0900) dataset element.
 
         Returns
         -------
         obj : pynetdicom3.SOPclass.Status
-            The Status object for the `code`
-        """
-        for dd in dir(self):
-            # FIXME: Assigned to nothing
-            getattr(self, dd).__class__
-            obj = getattr(self, dd)
+            The Status object for the `code`.
 
-            if obj.__class__ == Status:
-                if code in obj.CodeRange:
+        Raises
+        ------
+        ValueError
+            If the code is not valid for the Service class' Status code ranges.
+        """
+        # For all the members in the class
+        for member in dir(self):
+            # If the member is a Status class object and `code` is in the
+            #   Status' code range, return the Status object.
+            obj = getattr(self, member)
+            if isinstance(obj, Status):
+                if code in obj.code_range:
                     return obj
 
-        # Unknown status
-        return None
+        return ValueError('Code 0x{0:04x} is not a valid Status code for the '
+                          'current SOP class.'.format(code))
 
 
 # Service Class types
@@ -608,7 +658,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             for dataset in matches:
                 # Send dataset via C-STORE over new association
                 status = assoc.send_c_store(dataset)
-                store_status = status.Type
+                store_status = status.status_type
 
                 LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
                             store_status)
@@ -731,7 +781,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             store_status = self.ACSE.parent.send_c_store(dataset,
                                                          msg.MessageID,
                                                          priority)
-            store_status = store_status.Type
+            store_status = store_status.status_type
 
             LOGGER.info('Get SCU: Received Store SCU RSP (%s)', store_status)
 
@@ -1024,8 +1074,6 @@ QR_CLASS_LIST = []
 for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
     QR_CLASS_LIST.extend(class_list)
 
-MODULE_OBJECTS = dir()
-
 def uid_to_sop_class(uid):
     """Given a `uid` return the corresponding SOP Class.
 
@@ -1038,29 +1086,14 @@ def uid_to_sop_class(uid):
     subclass of pynetdicom3.sopclass.ServiceClass
         The SOP class corresponding to `uid`
     """
-    for obj in MODULE_OBJECTS:
-        if hasattr(obj, 'UID'):
-            if obj.UID == uid:
-                return obj
+    # Get a list of all the class members of the current module
+    members = inspect.getmembers(sys.modules[__name__], lambda member: \
+                    inspect.isclass(member) and member.__module__ == __name__)
 
-    raise NotImplementedError("The SOP Class for UID '%s' has not been " \
-                              "implemented" %uid)
+    for obj in members:
+        if hasattr(obj[1], 'UID'):
+            if obj[1].UID == uid:
+                return obj[1]
 
-def UID2SOPClass(UID):
-    """
-    Parameters
-    ----------
-    UID - str
-        The class UID as a string
-
-    Returns
-    -------
-    SOPClass object corresponding to the given UID
-    """
-    for ss in MODULE_OBJECTS:
-        # FIXME: eval!?
-        if hasattr(eval(ss), 'UID'):
-            tmpuid = getattr(eval(ss), 'UID')
-            if tmpuid == UID:
-                return eval(ss)
-    return None
+    raise NotImplementedError("The SOP Class for UID '{}' has not been " \
+                              "implemented".format(uid))

@@ -1,26 +1,37 @@
 #!/usr/bin/env python
+"""Test DIMSE-C operations."""
 
+from io import BytesIO
 import logging
 import unittest
-from unittest.mock import patch
 
-from pydicom.uid import UID
 from pydicom.dataset import Dataset
 
-from pynetdicom3.DIMSEmessages import *
-from pynetdicom3.DIMSEparameters import *
-from pynetdicom3.utils import wrap_list
+from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
+                                      C_MOVE_RQ, C_MOVE_RSP, \
+                                      C_ECHO_RQ, C_ECHO_RSP, \
+                                      C_FIND_RQ, C_FIND_RSP, \
+                                      C_GET_RQ, C_GET_RSP
+from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
+                                        C_MOVE_ServiceParameters, \
+                                        C_STORE_ServiceParameters, \
+                                        C_GET_ServiceParameters, \
+                                        C_FIND_ServiceParameters
+#from pynetdicom3.utils import wrap_list
+from pynetdicom3.dsutils import encode
+from pynetdicom3.utils import validate_ae_title
 
 
-logger = logging.getLogger('pynetdicom3')
+LOGGER = logging.getLogger('pynetdicom3')
 handler = logging.NullHandler()
-for h in logger.handlers:
-    logger.removeHandler(h)
-logger.addHandler(handler)
-logger.setLevel(logging.ERROR)
+for h in LOGGER.handlers:
+    LOGGER.removeHandler(h)
+LOGGER.addHandler(handler)
+LOGGER.setLevel(logging.ERROR)
 
 
 class TestPrimitive_C_STORE(unittest.TestCase):
+    """Test DIMSE C-STORE operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_STORE_ServiceParameters()
@@ -41,16 +52,17 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         self.assertEqual(primitive.Priority, 0x02)
 
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
-        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle, b'UNITTEST_SCP    ')
+        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle,
+                         b'UNITTEST_SCP    ')
 
         primitive.MoveOriginatorMessageID = 15
         self.assertEqual(primitive.MoveOriginatorMessageID, 15)
 
-        refDataset = Dataset()
-        refDataset.PatientID = 1234567
+        ref_ds = Dataset()
+        ref_ds.PatientID = 1234567
 
-        primitive.DataSet = BytesIO(encode(refDataset, True, True))
-        #self.assertEqual(primitive.DataSet, refDataset)
+        primitive.DataSet = BytesIO(encode(ref_ds, True, True))
+        #self.assertEqual(primitive.DataSet, ref_ds)
 
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
@@ -172,16 +184,17 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         primitive = C_STORE_ServiceParameters()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
-        primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.1215709044.1459316254.522441'
+        primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
+                                           '1215709044.1459316254.522441'
         primitive.Priority = 0x02
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
         primitive.MoveOriginatorMessageID = 3
 
-        refDataset = Dataset()
-        refDataset.PatientID = 'Test1101'
-        refDataset.PatientName = "Tube HeNe"
+        ref_ds = Dataset()
+        ref_ds.PatientID = 'Test1101'
+        ref_ds.PatientName = "Tube HeNe"
 
-        primitive.DataSet = BytesIO(encode(refDataset, True, True))
+        primitive.DataSet = BytesIO(encode(ref_ds, True, True))
 
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
@@ -189,24 +202,25 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\xae\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x01\x00\x00\x00\x10\x01\x02\x00\x00' \
-              b'\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00\x02\x00\x00\x00\x00' \
-              b'\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00\x10\x3a\x00\x00\x00\x31' \
-              b'\x2e\x32\x2e\x33\x39\x32\x2e\x32\x30\x30\x30\x33\x36\x2e\x39\x31' \
-              b'\x31\x36\x2e\x32\x2e\x36\x2e\x31\x2e\x34\x38\x2e\x31\x32\x31\x35' \
-              b'\x37\x30\x39\x30\x34\x34\x2e\x31\x34\x35\x39\x33\x31\x36\x32\x35' \
-              b'\x34\x2e\x35\x32\x32\x34\x34\x31\x00\x00\x00\x30\x10\x10\x00\x00' \
-              b'\x00\x55\x4e\x49\x54\x54\x45\x53\x54\x5f\x53\x43\x50\x20\x20\x20' \
-              b'\x20\x00\x00\x31\x10\x02\x00\x00\x00\x03\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\xae\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x01\x00\x00\x00\x10' \
+              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00' \
+              b'\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00' \
+              b'\x10\x3a\x00\x00\x00\x31\x2e\x32\x2e\x33\x39\x32\x2e\x32\x30' \
+              b'\x30\x30\x33\x36\x2e\x39\x31\x31\x36\x2e\x32\x2e\x36\x2e\x31' \
+              b'\x2e\x34\x38\x2e\x31\x32\x31\x35\x37\x30\x39\x30\x34\x34\x2e' \
+              b'\x31\x34\x35\x39\x33\x31\x36\x32\x35\x34\x2e\x35\x32\x32\x34' \
+              b'\x34\x31\x00\x00\x00\x30\x10\x10\x00\x00\x00\x55\x4e\x49\x54' \
+              b'\x54\x45\x53\x54\x5f\x53\x43\x50\x20\x20\x20\x20\x00\x00\x31' \
+              b'\x10\x02\x00\x00\x00\x03\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
         # Dataset
-        ref = b'\x02\x10\x00\x10\x00\x0a\x00\x00\x00\x54\x75\x62\x65\x20\x48\x65' \
-              b'\x4e\x65\x20\x10\x00\x20\x00\x08\x00\x00\x00\x54\x65\x73\x74\x31' \
-              b'\x31\x30\x31'
+        ref = b'\x02\x10\x00\x10\x00\x0a\x00\x00\x00\x54\x75\x62\x65\x20\x48' \
+              b'\x65\x4e\x65\x20\x10\x00\x20\x00\x08\x00\x00\x00\x54\x65\x73' \
+              b'\x74\x31\x31\x30\x31'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
     def test_conversion_rsp(self):
@@ -223,16 +237,17 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4c\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x08\x00\x00\x00\x31\x2e\x32\x2e\x34\x2e\x31\x30\x00\x00\x00' \
-              b'\x01\x02\x00\x00\x00\x01\x80\x00\x00\x20\x01\x02\x00\x00\x00\x05' \
-              b'\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01\x00\x00\x00\x09\x02' \
-              b'\x00\x00\x00\x00\x00\x00\x00\x00\x10\x0c\x00\x00\x00\x31\x2e\x32' \
-              b'\x2e\x34\x2e\x35\x2e\x37\x2e\x38\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4c\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x08\x00\x00\x00\x31\x2e\x32\x2e\x34\x2e\x31\x30\x00' \
+              b'\x00\x00\x01\x02\x00\x00\x00\x01\x80\x00\x00\x20\x01\x02\x00' \
+              b'\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01\x00' \
+              b'\x00\x00\x09\x02\x00\x00\x00\x00\x00\x00\x00\x00\x10\x0c\x00' \
+              b'\x00\x00\x31\x2e\x32\x2e\x34\x2e\x35\x2e\x37\x2e\x38\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
 
 class TestPrimitive_C_FIND(unittest.TestCase):
+    """Test DIMSE C-FIND operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_FIND_ServiceParameters()
@@ -249,12 +264,12 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
 
-        refDataset = Dataset()
-        refDataset.PatientID = '*'
-        refDataset.QueryRetrieveLevel = "PATIENT"
+        ref_ds = Dataset()
+        ref_ds.PatientID = '*'
+        ref_ds.QueryRetrieveLevel = "PATIENT"
 
-        primitive.Identifier = BytesIO(encode(refDataset, True, True))
-        #self.assertEqual(primitive.DataSet, refDataset)
+        primitive.Identifier = BytesIO(encode(ref_ds, True, True))
+        #self.assertEqual(primitive.DataSet, ref_ds)
 
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
@@ -342,11 +357,11 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
 
-        refIdentifier = Dataset()
-        refIdentifier.PatientID = '*'
-        refIdentifier.QueryRetrieveLevel = "PATIENT"
+        ref_identifier = Dataset()
+        ref_identifier.PatientID = '*'
+        ref_identifier.QueryRetrieveLevel = "PATIENT"
 
-        primitive.Identifier = BytesIO(encode(refIdentifier, True, True))
+        primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
 
         dimse_msg = C_FIND_RQ()
         dimse_msg.primitive_to_message(primitive)
@@ -361,7 +376,8 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         #
         # \x00\x00\x00\x02\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30
         # \x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00
-        # (0000, 0002) UI [1.2.840.10008.5.1.4.1.1.2] #  26, 1 Affected SOP Class UID (if odd length, trailing 0x00)
+        # (0000, 0002) UI [1.2.840.10008.5.1.4.1.1.2] #  26, 1
+        #       Affected SOP Class UID (if odd length, trailing 0x00)
         #
         # \x00\x00\x00\x01\x02\x00\x00\x00\x20\x00
         # (0000, 0100) US [0x00, 0x20] #  2, 1 Command Field
@@ -374,24 +390,26 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         #
         # \x00\x00\x00\x08\x02\x00\x00\x00\x01\x00
         # (0000, 0800) US [1] #  2, 1 Command Data Set Type
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x20\x00\x00\x00\x10\x01\x02\x00\x00' \
-              b'\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00\x02\x00\x00\x00\x00' \
-              b'\x08\x02\x00\x00\x00\x01\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x20\x00\x00\x00\x10' \
+              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00' \
+              b'\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
         ## Dataset
         # \x02 Message Control Header Byte
         #
         # \x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54\x20
-        # (0008, 0052) CS [PATIENT ] #  8, 1 Query/Retrieve Level (leading/trailing spaces non-significant)
+        # (0008, 0052) CS [PATIENT ] #  8, 1 Query/Retrieve Level
+        #                       (leading/trailing spaces non-significant)
         #
         # \x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20
-        # (0010, 0020) LO [* ] #  2, 1 Patient ID (may be padded with leading/trailing spaces)
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54' \
-              b'\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
+        # (0010, 0020) LO [* ] #  2, 1 Patient ID (may be padded with
+        #                                           leading/trailing spaces)
+        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
+              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
     def test_conversion_rsp(self):
@@ -401,12 +419,12 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
 
-        refIdentifier = Dataset()
-        refIdentifier.QueryRetrieveLevel = "PATIENT"
-        refIdentifier.RetrieveAETitle = validate_ae_title("FINDSCP")
-        refIdentifier.PatientName = "ANON^A^B^C^D"
+        ref_identifier = Dataset()
+        ref_identifier.QueryRetrieveLevel = "PATIENT"
+        ref_identifier.RetrieveAETitle = validate_ae_title("FINDSCP")
+        ref_identifier.PatientName = "ANON^A^B^C^D"
 
-        primitive.Identifier = BytesIO(encode(refIdentifier, True, True))
+        primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
 
         dimse_msg = C_FIND_RSP()
         dimse_msg.primitive_to_message(primitive)
@@ -414,22 +432,24 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x20\x80\x00\x00\x20\x01\x02\x00\x00' \
-              b'\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00' \
-              b'\x09\x02\x00\x00\x00\x00\xff'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x20\x80\x00\x00\x20' \
+              b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00' \
+              b'\x01\x00\x00\x00\x00\x09\x02\x00\x00\x00\x00\xff'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54' \
-              b'\x20\x08\x00\x54\x00\x10\x00\x00\x00\x46\x49\x4e\x44\x53\x43\x50' \
-              b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x10\x00\x10\x00\x0c\x00\x00' \
-              b'\x00\x41\x4e\x4f\x4e\x5e\x41\x5e\x42\x5e\x43\x5e\x44'
+        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
+              b'\x54\x20\x08\x00\x54\x00\x10\x00\x00\x00\x46\x49\x4e\x44\x53' \
+              b'\x43\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x10\x00\x10\x00' \
+              b'\x0c\x00\x00\x00\x41\x4e\x4f\x4e\x5e\x41\x5e\x42\x5e\x43\x5e' \
+              b'\x44'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
 
 class TestPrimitive_C_GET(unittest.TestCase):
+    """Test DIMSE C-GET operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_GET_ServiceParameters()
@@ -446,11 +466,11 @@ class TestPrimitive_C_GET(unittest.TestCase):
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
 
-        refDataset = Dataset()
-        refDataset.PatientID = 1234567
+        ref_ds = Dataset()
+        ref_ds.PatientID = 1234567
 
-        primitive.Identifier = BytesIO(encode(refDataset, True, True))
-        #self.assertEqual(primitive.DataSet, refDataset)
+        primitive.Identifier = BytesIO(encode(ref_ds, True, True))
+        #self.assertEqual(primitive.DataSet, ref_ds)
 
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
@@ -550,11 +570,11 @@ class TestPrimitive_C_GET(unittest.TestCase):
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
 
-        refIdentifier = Dataset()
-        refIdentifier.PatientID = '*'
-        refIdentifier.QueryRetrieveLevel = "PATIENT"
+        ref_identifier = Dataset()
+        ref_identifier.PatientID = '*'
+        ref_identifier.QueryRetrieveLevel = "PATIENT"
 
-        primitive.Identifier = BytesIO(encode(refIdentifier, True, True))
+        primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
 
         dimse_msg = C_GET_RQ()
         dimse_msg.primitive_to_message(primitive)
@@ -562,17 +582,17 @@ class TestPrimitive_C_GET(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x10\x00\x00\x00\x10\x01\x02\x00\x00' \
-              b'\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00\x02\x00\x00\x00\x00' \
-              b'\x08\x02\x00\x00\x00\x01\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x10\x00\x00\x00\x10' \
+              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00' \
+              b'\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
         # Dataset
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54' \
-              b'\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
+        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
+              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
     def test_conversion_rsp(self):
@@ -586,11 +606,11 @@ class TestPrimitive_C_GET(unittest.TestCase):
         primitive.NumberOfFailedSuboperations = 2
         primitive.NumberOfWarningSuboperations = 4
 
-        refIdentifier = Dataset()
-        refIdentifier.QueryRetrieveLevel = "PATIENT"
-        refIdentifier.PatientID = "*"
+        ref_identifier = Dataset()
+        ref_identifier.QueryRetrieveLevel = "PATIENT"
+        ref_identifier.PatientID = "*"
 
-        primitive.Identifier = BytesIO(encode(refIdentifier, True, True))
+        primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
 
         dimse_msg = C_GET_RSP()
         dimse_msg.primitive_to_message(primitive)
@@ -598,23 +618,25 @@ class TestPrimitive_C_GET(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x10\x80\x00\x00\x20\x01\x02\x00\x00' \
-              b'\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00' \
-              b'\x09\x02\x00\x00\x00\x00\xff\x00\x00\x20\x10\x02\x00\x00\x00\x03' \
-              b'\x00\x00\x00\x21\x10\x02\x00\x00\x00\x01\x00\x00\x00\x22\x10\x02' \
-              b'\x00\x00\x00\x02\x00\x00\x00\x23\x10\x02\x00\x00\x00\x04\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x10\x80\x00\x00\x20' \
+              b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00' \
+              b'\x01\x00\x00\x00\x00\x09\x02\x00\x00\x00\x00\xff\x00\x00\x20' \
+              b'\x10\x02\x00\x00\x00\x03\x00\x00\x00\x21\x10\x02\x00\x00\x00' \
+              b'\x01\x00\x00\x00\x22\x10\x02\x00\x00\x00\x02\x00\x00\x00\x23' \
+              b'\x10\x02\x00\x00\x00\x04\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
         # Data Set
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54' \
-              b'\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
+        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
+              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
 
 class TestPrimitive_C_MOVE(unittest.TestCase):
+    """Test DIMSE C-MOVE operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_MOVE_ServiceParameters()
@@ -634,11 +656,11 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         primitive.MoveDestination = 'UNITTEST_SCP'
         self.assertEqual(primitive.MoveDestination, b'UNITTEST_SCP    ')
 
-        refDataset = Dataset()
-        refDataset.PatientID = 1234567
+        ref_ds = Dataset()
+        ref_ds.PatientID = 1234567
 
-        primitive.Identifier = BytesIO(encode(refDataset, True, True))
-        #self.assertEqual(primitive.DataSet, refDataset)
+        primitive.Identifier = BytesIO(encode(ref_ds, True, True))
+        #self.assertEqual(primitive.DataSet, ref_ds)
 
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
@@ -740,11 +762,11 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         primitive.Priority = 0x02
         primitive.MoveDestination = validate_ae_title("MOVE_SCP")
 
-        refIdentifier = Dataset()
-        refIdentifier.PatientID = '*'
-        refIdentifier.QueryRetrieveLevel = "PATIENT"
+        ref_identifier = Dataset()
+        ref_identifier.PatientID = '*'
+        ref_identifier.QueryRetrieveLevel = "PATIENT"
 
-        primitive.Identifier = BytesIO(encode(refIdentifier, True, True))
+        primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
 
         dimse_msg = C_MOVE_RQ()
         dimse_msg.primitive_to_message(primitive)
@@ -752,18 +774,19 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x62\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x21\x00\x00\x00\x10\x01\x02\x00\x00' \
-              b'\x00\x07\x00\x00\x00\x00\x06\x10\x00\x00\x00\x4d\x4f\x56\x45\x5f' \
-              b'\x53\x43\x50\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x07\x02' \
-              b'\x00\x00\x00\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x62\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x21\x00\x00\x00\x10' \
+              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x06\x10\x00\x00\x00' \
+              b'\x4d\x4f\x56\x45\x5f\x53\x43\x50\x20\x20\x20\x20\x20\x20\x20' \
+              b'\x20\x00\x00\x00\x07\x02\x00\x00\x00\x02\x00\x00\x00\x00\x08' \
+              b'\x02\x00\x00\x00\x01\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
         # Dataset
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54' \
-              b'\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
+        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
+              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
     def test_conversion_rsp(self):
@@ -777,11 +800,11 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         primitive.NumberOfFailedSuboperations = 2
         primitive.NumberOfWarningSuboperations = 4
 
-        refIdentifier = Dataset()
-        refIdentifier.QueryRetrieveLevel = "PATIENT"
-        refIdentifier.PatientID = "*"
+        ref_identifier = Dataset()
+        ref_identifier.QueryRetrieveLevel = "PATIENT"
+        ref_identifier.PatientID = "*"
 
-        primitive.Identifier = BytesIO(encode(refIdentifier, True, True))
+        primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
 
         dimse_msg = C_MOVE_RSP()
         dimse_msg.primitive_to_message(primitive)
@@ -789,23 +812,25 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x21\x80\x00\x00\x20\x01\x02\x00\x00' \
-              b'\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00' \
-              b'\x09\x02\x00\x00\x00\x00\xff\x00\x00\x20\x10\x02\x00\x00\x00\x03' \
-              b'\x00\x00\x00\x21\x10\x02\x00\x00\x00\x01\x00\x00\x00\x22\x10\x02' \
-              b'\x00\x00\x00\x02\x00\x00\x00\x23\x10\x02\x00\x00\x00\x04\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
+              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x21\x80\x00\x00\x20' \
+              b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00' \
+              b'\x01\x00\x00\x00\x00\x09\x02\x00\x00\x00\x00\xff\x00\x00\x20' \
+              b'\x10\x02\x00\x00\x00\x03\x00\x00\x00\x21\x10\x02\x00\x00\x00' \
+              b'\x01\x00\x00\x00\x22\x10\x02\x00\x00\x00\x02\x00\x00\x00\x23' \
+              b'\x10\x02\x00\x00\x00\x04\x00'
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
         # Data Set
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54' \
-              b'\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
+        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
+              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
         self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
 
 
 class TestPrimitive_C_ECHO(unittest.TestCase):
+    """Test DIMSE C-ECHO operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_ECHO_ServiceParameters()
@@ -881,11 +906,11 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30' \
-              b'\x00\x00\x00\x10\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x08\x02' \
-              b'\x00\x00\x00\x01\x01'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00' \
+              b'\x00\x00\x30\x00\x00\x00\x10\x01\x02\x00\x00\x00\x07\x00\x00' \
+              b'\x00\x00\x08\x02\x00\x00\x00\x01\x01'
 
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 
@@ -902,11 +927,12 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         pdvs = dimse_msg.Encode(1, 16382)
 
         # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02' \
-              b'\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-              b'\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30' \
-              b'\x80\x00\x00\x20\x01\x02\x00\x00\x00\x08\x00\x00\x00\x00\x08\x02' \
-              b'\x00\x00\x00\x01\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00'
+        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00' \
+              b'\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+              b'\x30\x30\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00' \
+              b'\x00\x00\x30\x80\x00\x00\x20\x01\x02\x00\x00\x00\x08\x00\x00' \
+              b'\x00\x00\x08\x02\x00\x00\x00\x01\x01\x00\x00\x00\x09\x02\x00' \
+              b'\x00\x00\x00\x00'
 
         self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
 

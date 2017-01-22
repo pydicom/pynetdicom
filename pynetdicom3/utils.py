@@ -2,6 +2,7 @@
 """Various utility functions"""
 from io import BytesIO
 import logging
+from struct import unpack
 import unicodedata
 
 from pydicom.uid import UID
@@ -36,40 +37,160 @@ def fragment(max_pdu, byte_str):
 def correct_ambiguous_vr(dataset, transfer_syntax):
     """Iterate through `dataset` correct ambiguous VR elements.
 
-    FIXME: Add Parameters, Returns sections
-    FIXME: Make more general
+    Also fixes the element.value as pydicom doesn't always handle decoding
+    correctly.
+
+    OB, string of bytes and insensitive to byte ordering
+    OW, string of 16-bit words, sensitive to byte ordering
+    SS, signed binary int, 16 bits in 2's complement. 2 byte fixed length.
+    US, unsigned binary int. 2 byte fixed length.
+
+    Elements with Unsolved Ambiguous VRs
+    ------------------------------------
+    OB or OW        0014,3050 DarkCurrentCounts (DICONDE)
+    OB or OW        0014,3070 AirCounts (DICONDE)
+    US or SS        0028,0071 PerimeterValue (Retired)
+    US or SS        0028,1100 GrayLookupTableDescriptor (Retired)
+    US or SS        0028,1111 LargeRedPaletteColorLookupTableDescriptor (Retired)
+    US or SS        0028,1112 LargeGreenPaletteColorLookupTableDescriptor (Retired)
+    US or SS        0028,1113 LargeBluePaletteColorLookupTableDescriptor (Retired)
+    US or SS or OW  0028,1200 GrayLookupTableData (Retired)
+    OB or OW        50xx,200C AudioSampleData (Retired)
+    OB or OW        50xx,3000 CurveData (Retired)
+    OB or OW        60xx,3000 OverlayData
+    OB or OW        7Fxx,0010 VariablePixelData
+
+    Parameters
+    ----------
+    dataset : pydicom.dataset.Dataset
+        The dataset containing the elements with ambiguous VRs
+    transfer_syntax :
+        The transfer syntax the dataset will be transferred using.
+
+    Returns
+    -------
+    dataset : pydicom.dataset.Dataset
+        A dataset with (hopefully) unambiguous VRs.
+
+    Raises
+    ------
+    ValueError
+        If the ambiguous VR requires another element within the dataset to
+        determine the VR to use, but this element is absent then ValueError will
+        be raised.
     """
-    # Correct ambiguous VRs
-    # See PS3.5 Annex A
-    # Explicit VR
+    if transfer_syntax.is_little_endian:
+        byte_order = '<'
+    else:
+        byte_order = '>'
+
+    # Explicit VR Little/Big Endian
     if not transfer_syntax.is_implicit_VR:
-        # Little Endian
-        if transfer_syntax.is_little_endian:
-            for elem in dataset:
-                elem_name = ''.join(elem.description().split(' '))
-                elem_group = elem.tag.group
-                elem_element = elem.tag.elem
+        for elem in dataset:
+            if ' or ' in elem.VR:
+                # OB or OW: 7fe0,0010 PixelData
+                if elem.tag == 0x7fe00010:
+                    # If BitsAllocated is > 8 then OW, else may be OB or OW
+                    #   As per PS3.5 Annex A.2
+                    elem.VR = 'OW' # Use OW for both to make it simpler
 
-                if ' or ' in elem.VR:
-                    if elem.tag == 0x7fe00010:
-                        # If BitsAllocated is > 8 then OW, else OB or OW
-                        elem.VR = 'OW'
-                    #elif elem.tag == 0x60xx3000:
-                    #    elem.VR = 'OW'
-                    elif elem.tag in [0x00281101, 0x00281102, 0x00281103]:
-                        elem.VR = 'OW'
-                    elif elem.tag in [0x00280106, 0x00280107]:
-                        elem.VR = 'US'
-                        elem.value = int.from_bytes(elem.value,
-                                                    byteorder='little')
+                # US or SS: 0018,9810 ZeroVelocityPixelValue
+                # US or SS: 0022,1452 MappedPixelValue
+                # US or SS: 0028,0104 SmallestValidPixelValue (Retired)
+                # US or SS: 0028,0105 LargestValidPixelValue (Retired)
+                # US or SS: 0028,0106 SmallestImagePixelValue
+                # US or SS: 0028,0107 LargestImagePixelValue
+                # US or SS: 0028,0108 SmallestPixelValueInSeries
+                # US or SS: 0028,0109 LargestPixelValueInSeries
+                # US or SS: 0028,0110 SmallestImagePixelValueInPlane (Retired)
+                # US or SS: 0028,0111 LargestImagePixelValueInPlane (Retired)
+                # US or SS: 0028,0120 PixelPaddingValue
+                # US or SS: 0028,0121 PixelPaddingRangeLimit
+                # US or SS: 0028,1101 RedPaletteColorLookupTableDescriptor
+                # US or SS: 0028,1102 BluePaletteColorLookupTableDescriptor
+                # US or SS: 0028,1103 GreenPaletteColorLookupTableDescriptor
+                # US or SS: 0028,3002 LUTDescriptor
+                # US or SS: 0040,9211 RealWorldValueLastValueMapped
+                # US or SS: 0040,9216 RealWorldValueFirstValueMapped
+                # US or SS: 0060,3004 HistogramFirstBinValue
+                # US or SS: 0060,3006 HistogramLastBinValue
+                elif elem.tag in [0x00189810, 0x00221452, 0x00280104,
+                                  0x00280105,
+                                  0x00280106, 0x00280107, 0x00280108,
+                                  0x00280108, 0x00280110, 0x00280111,
+                                  0x00280120, 0x00280121,
+                                  0x00281101, 0x00281102, 0x00281103,
+                                  0x00283002, 0x00409211, 0x00409216,
+                                  0x00603004, 0x00603006]:
+                    # US if PixelRepresenation value is 0x0000, else SS
+                    #   For references, see the list at
+                    #   https://github.com/scaramallion/pynetdicom3/issues/3
+                    if 'PixelRepresentation' in dataset:
+                        if dataset.PixelRepresentation == 0:
+                            elem.VR = 'US'
+                            value_type = 'H'
+                        else:
+                            elem.VR = 'SS'
+                            value_type = 'h'
+                        # Fix for pydicom not handling this correctly
+                        elem.value = unpack(byte_order + value_type,
+                                            elem.value)[0]
 
-                    LOGGER.debug("Setting undefined VR of %s (%04x, %04x) to "
-                                 "'%s'", elem_name, elem_group,
-                                 elem_element, elem.VR)
-        # Big Endian
-        else:
-            pass
+                    else:
+                        raise ValueError("Cannot set VR of {} if "
+                                         "PixelRepresentation is not in the"
+                                         "dataset. Consider using Implicit"
+                                         " VR as the transfer syntax."
+                                         .format(elem.keyword))
 
+                # OB or OW: 5400,0110 ChannelMinimumValue
+                # OB or OW: 5400,0112 ChannelMaximumValue
+                # OB or OW: 5400,100A WaveformPaddingValue
+                # OB or OW: 5400,1010 WaveformData
+                elif elem.tag in [0x54000100, 0x54000112, 0x5400100A,
+                                  0x54001010]:
+                    # OB if WaveformSampleInterpretation value is
+                    #   SB/UB/MB/AB, else OW. See the list at
+                    #   https://github.com/scaramallion/pynetdicom3/issues/3
+                    if 'WaveformSampleInterpretation' in dataset:
+                        if dataset.WaveformSampleInterpretation in \
+                                                ['SB', 'UB', 'MB', 'AB']:
+                            elem.VR = 'OB'
+                        else:
+                            elem.VR = 'OW'
+                    else:
+                        raise ValueError("Cannot set VR of {} if "
+                                         "WaveformSampleInterpretation is "
+                                         "not in the dataset. Consider "
+                                         "using Implicit VR as the "
+                                         "transfer syntax."
+                                         .format(elem.keyword))
+
+                # US or OW: 0028,3006 LUTData
+                elif elem.tag in [0x00283006]:
+                    if 'LUTDescriptor' in dataset:
+                        # First value in LUT Descriptor is how many values in
+                        #   LUTData
+                        if dataset.LUTDescriptor[0] == 1:
+                            elem.VR = 'US'
+                        else:
+                            elem.VR = 'OW'
+                    else:
+                        raise ValueError("Cannot set VR of {} if "
+                                         "LUTDescriptor is "
+                                         "not in the dataset. Consider "
+                                         "using Implicit VR as the "
+                                         "transfer syntax."
+                                         .format(elem.keyword))
+                else:
+                    raise NotImplementedError("Cannot set VR of {} as the"
+                                              " correct method for doing "
+                                              "so is not known."
+                                              .format(elem.keyword))
+
+                LOGGER.debug("Setting VR of (%04x, %04x) %s to "
+                             "'%s'.", elem.tag.group, elem.tag.elem,
+                             elem.name, elem.VR)
     return dataset
 
 def validate_ae_title(ae_title):
@@ -179,7 +300,7 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
             lines.append(line)
 
     if cutoff_output:
-        lines.insert(0, prefix + 'Only dumping %s bytes.' %max_size)
+        lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))
 
     return lines
 
@@ -271,19 +392,19 @@ class PresentationContext(object):
 
     def __str__(self):
         """String representation of the Presentation Context."""
-        s = 'ID: %s\n' %self.ID
+        s = 'ID: {0!s}\n'.format(self.ID)
 
         if self.AbstractSyntax is not None:
-            s += 'Abstract Syntax: %s\n' %self.AbstractSyntax
+            s += 'Abstract Syntax: {0!s}\n'.format(self.AbstractSyntax)
 
         s += 'Transfer Syntax(es):\n'
         for syntax in self.TransferSyntax:
-            s += '\t=%s\n' %syntax
+            s += '\t={0!s}\n'.format(syntax)
 
         #s += 'SCP/SCU: %s/%s'
 
         if self.Result is not None:
-            s += 'Result: %s\n' %self.status
+            s += 'Result: {0!s}\n'.format(self.status)
 
         return s
 
