@@ -1,6 +1,7 @@
 """
 Defines the Association class
 """
+from io import BytesIO
 import logging
 import threading
 import time
@@ -14,13 +15,25 @@ from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
                                         C_STORE_ServiceParameters, \
                                         C_GET_ServiceParameters, \
                                         C_FIND_ServiceParameters
+from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.DULprovider import DULServiceProvider
 #from pynetdicom3.SOPclass import *
 from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
-                                 StorageServiceClass, \
-                                 QueryRetrieveGetServiceClass, \
-                                 QueryRetrieveFindServiceClass, \
-                                 QueryRetrieveMoveServiceClass
+                        StorageServiceClass, \
+                        QueryRetrieveGetServiceClass, \
+                        QueryRetrieveFindServiceClass, \
+                        QueryRetrieveMoveServiceClass, \
+                        ModalityWorklistInformationFind, \
+                        ModalityWorklistServiceSOPClass, \
+                        PatientRootQueryRetrieveInformationModelFind, \
+                        StudyRootQueryRetrieveInformationModelFind, \
+                        PatientStudyOnlyQueryRetrieveInformationModelFind, \
+                        PatientRootQueryRetrieveInformationModelMove, \
+                        StudyRootQueryRetrieveInformationModelMove, \
+                        PatientStudyOnlyQueryRetrieveInformationModelMove, \
+                        PatientRootQueryRetrieveInformationModelGet, \
+                        StudyRootQueryRetrieveInformationModelGet, \
+                        PatientStudyOnlyQueryRetrieveInformationModelGet
 from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
 #from pynetdicom3.utils import wrap_list
 from pynetdicom3.primitives import UserIdentityNegotiation, \

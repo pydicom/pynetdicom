@@ -152,8 +152,8 @@ if args.prefer_big:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 def on_c_find(dataset):
-    basedir = '../test/dicom_files/'
-    dcm_files = ['CTImageStorage.dcm']
+    basedir = '../../test/dicom_files/'
+    dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
     for dcm in dcm_files:
         data = read_file(dcm, force=True)
