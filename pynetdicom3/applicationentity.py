@@ -439,51 +439,49 @@ class ApplicationEntity(object):
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
-        str_out += "Application Entity '%s' on %s:%s\n" %(self.ae_title,
+        str_out += "Application Entity '{0!s}' on {1!s}:{2!s}\n".format(self.ae_title,
                                                           self.address,
                                                           self.port)
 
         str_out += "\n"
         str_out += "  Available Transfer Syntax(es):\n"
         for syntax in self.transfer_syntaxes:
-            str_out += "\t%s\n" %syntax
+            str_out += "\t{0!s}\n".format(syntax)
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCU):\n"
         if len(self.scu_supported_sop) == 0:
             str_out += "\tNone\n"
         for sop_class in self.scu_supported_sop:
-            str_out += "\t%s\n" %sop_class
+            str_out += "\t{0!s}\n".format(sop_class)
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCP):\n"
         if len(self.scp_supported_sop) == 0:
             str_out += "\tNone\n"
         for sop_class in self.scp_supported_sop:
-            str_out += "\t%s\n" %sop_class
+            str_out += "\t{0!s}\n".format(sop_class)
 
         str_out += "\n"
-        str_out += "  ACSE timeout: %s s\n" %self.acse_timeout
-        str_out += "  DIMSE timeout: %s s\n" %self.dimse_timeout
-        str_out += "  Network timeout: %s s\n" %self.network_timeout
+        str_out += "  ACSE timeout: {0!s} s\n".format(self.acse_timeout)
+        str_out += "  DIMSE timeout: {0!s} s\n".format(self.dimse_timeout)
+        str_out += "  Network timeout: {0!s} s\n".format(self.network_timeout)
 
         if self.require_called_aet != '' or self.require_calling_aet != '':
             str_out += "\n"
         if self.require_calling_aet != '':
-            str_out += "  Required calling AE title: %s\n" \
-                                        % self.require_calling_aet
+            str_out += "  Required calling AE title: {0!s}\n".format(self.require_calling_aet)
         if self.require_called_aet != '':
-            str_out += "  Required called AE title: %s\n" \
-                                        % self.require_called_aet
+            str_out += "  Required called AE title: {0!s}\n".format(self.require_called_aet)
 
         str_out += "\n"
 
         # Association information
-        str_out += '  Association(s): %s/%s\n' %(len(self.active_associations),
+        str_out += '  Association(s): {0!s}/{1!s}\n'.format(len(self.active_associations),
                                                  self.maximum_associations)
 
         for assoc in self.active_associations:
-            str_out += '\tPeer: %s on %s:%s\n' %(assoc.peer_ae['AET'],
+            str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n'.format(assoc.peer_ae['AET'],
                                                  assoc.peer_ae['Address'],
                                                  assoc.peer_ae['Port'])
 
