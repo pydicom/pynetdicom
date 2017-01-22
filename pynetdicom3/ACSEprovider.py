@@ -651,6 +651,7 @@ class ACSEServiceProvider(object):
         a_abort - pynetdicom3.PDU.A_ABORT_PDU
             The A-ABORT PDU instance
         """
+        '''
         LOGGER.info("Aborting Association")
 
         s = ['Abort Parameters:']
@@ -660,9 +661,12 @@ class ACSEServiceProvider(object):
         s.append('Abort Reason: %s' %a_abort.reason_str)
         s.append('=========================== END A-ABORT ====================='
                  '====')
+
         for line in s:
             #LOGGER.debug(line)
             pass
+        '''
+        pass
 
 
     # Local AE receiving PDU from peer AE
@@ -685,7 +689,7 @@ class ACSEServiceProvider(object):
         pres_contexts = assoc_rq.presentation_context
         user_info = assoc_rq.user_information
 
-        responding_ae = 'resp. AP Title'
+        #responding_ae = 'resp. AP Title'
         their_class_uid = 'unknown'
         their_version = 'unknown'
 
@@ -757,7 +761,7 @@ class ACSEServiceProvider(object):
             s.append('Requested Common Extended Negotiation: None')
 
         ## Asynchronous Operations Window Negotiation
-        async_neg = 'None'
+        #async_neg = 'None'
         if assoc_rq.user_information.async_ops_window is not None:
             s.append('Requested Asynchronous Operations Window Negotiation:')
             # FIXME
@@ -915,8 +919,7 @@ class ACSEServiceProvider(object):
         a_release_rq - pynetdicom3.PDU.P_DATA_TF_PDU
             The P-DATA-TF PDU instance
         """
-        return
-
+        '''
         # Shorthand
         p_data = p_data_tf
 
@@ -936,6 +939,8 @@ class ACSEServiceProvider(object):
                  '====')
         for line in s:
             LOGGER.debug(line)
+        '''
+        pass
 
     def debug_receive_release_rq(self, a_release_rq):
         """

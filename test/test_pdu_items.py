@@ -759,13 +759,15 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_ext_neg(self):
         """ Check extended neg properties are OK """
-        return
+        '''
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information
 
         self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
+        '''
+        pass
 
     def test_properties_role(self):
         """ Check user id properties are OK """
