@@ -589,6 +589,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                 if self.user_information.role_selection is not None:
                     # Iterate through the role negotiations looking for a
                     #   SOP Class match to the Abstract Syntaxes
+                    # FIXME: Remove joined loops
                     for role in self.user_information.role_selection:
                         for sop_class in ii.abstract_syntax:
                             if role.UID == sop_class:
