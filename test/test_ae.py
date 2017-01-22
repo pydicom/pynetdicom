@@ -127,7 +127,7 @@ class TestAEVerificationSCU(unittest.TestCase):
         assoc = ae.associate('localhost', port=11112)
         if assoc.is_established:
             result = assoc.send_c_echo()
-            self.assertEqual(result.Type, 'Success')
+            self.assertEqual(result.status_type, 'Success')
 
         assoc.release()
         self.assertRaises(SystemExit, self.ae.stop)
