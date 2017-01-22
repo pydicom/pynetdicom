@@ -33,7 +33,7 @@ Entity. Once the ``AE`` has been created then you would typically either:
   thread.
 
 Once the application is associated with a peer, DICOM data can be sent between
-them by utilising the DIMSE-C and DIMSE-N services (see DICOM Standard PS3.7,
+them by utilising the DIMSE-C services (see DICOM Standard PS3.7,
 Sections 7.5, 9 and 10).
 
 Supported SCU Services
@@ -148,4 +148,4 @@ Examples
             dataset = read_file('dcm_file')
             assoc.send_c_store(dataset)
 
-        assoc.release()
+            assoc.release()
