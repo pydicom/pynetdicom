@@ -242,12 +242,10 @@ class ACSEServiceProvider(object):
         """
         # Check valid Result and Source values
         if result not in [0x01, 0x02]:
-            raise ValueError("ACSE rejection: invalid Result value '%s'"
-                             %result)
+            raise ValueError("ACSE rejection: invalid Result value '{0!s}'".format(result))
 
         if source not in [0x01, 0x02, 0x03]:
-            raise ValueError("ACSE rejection: invalid Source value '%s'"
-                             %source)
+            raise ValueError("ACSE rejection: invalid Source value '{0!s}'".format(source))
 
         # Send an A-ASSOCIATE primitive, rejecting the association
         assoc_primitive.presentation_context_definition_list = []
@@ -357,10 +355,10 @@ class ACSEServiceProvider(object):
             elif reason in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
                 assoc_abort.reason = reason
             else:
-                raise ValueError("ACSE.Abort() invalid reason '%s'" %reason)
+                raise ValueError("ACSE.Abort() invalid reason '{0!s}'".format(reason))
 
         else:
-            raise ValueError("ACSE.Abort() invalid source '%s'" %source)
+            raise ValueError("ACSE.Abort() invalid source '{0!s}'".format(source))
 
         self.DUL.Send(assoc_abort)
         time.sleep(0.5)
@@ -429,16 +427,12 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                  '=====')
 
-        s.append('Our Implementation Class UID:      %s'
-                 %user_info.implementation_class_uid)
-        s.append('Our Implementation Version Name:   %s'
-                 %user_info.implementation_version_name)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s'
-                 %assoc_rq.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s'
-                 %assoc_rq.called_ae_title.decode('utf-8'))
-        s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
+        s.append('Our Implementation Class UID:      {0!s}'.format(user_info.implementation_class_uid))
+        s.append('Our Implementation Version Name:   {0!s}'.format(user_info.implementation_version_name))
+        s.append('Application Context Name:    {0!s}'.format(app_context))
+        s.append('Calling Application Name:    {0!s}'.format(assoc_rq.calling_ae_title.decode('utf-8')))
+        s.append('Called Application Name:     {0!s}'.format(assoc_rq.called_ae_title.decode('utf-8')))
+        s.append('Our Max PDU Receive Size:    {0!s}'.format(user_info.maximum_length))
 
         ## Presentation Contexts
         if len(pres_contexts) == 1:
@@ -447,14 +441,14 @@ class ACSEServiceProvider(object):
             s.append('Presentation Contexts:')
 
         for context in pres_contexts:
-            s.append('  Context ID:        %s (Proposed)' %(context.ID))
-            s.append('    Abstract Syntax: =%s' %context.abstract_syntax)
+            s.append('  Context ID:        {0!s} (Proposed)'.format((context.ID)))
+            s.append('    Abstract Syntax: ={0!s}'.format(context.abstract_syntax))
 
             if 'SCU' in context.__dict__.keys():
-                scp_scu_role = '%s/%s' %(context.SCP, context.SCU)
+                scp_scu_role = '{0!s}/{1!s}'.format(context.SCP, context.SCU)
             else:
                 scp_scu_role = 'Default'
-            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
+            s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
 
             # Transfer Syntaxes
             if len(context.transfer_syntax) == 1:
@@ -463,22 +457,21 @@ class ACSEServiceProvider(object):
                 s.append('    Proposed Transfer Syntaxes:')
 
             for ts in context.transfer_syntax:
-                s.append('      =%s' %ts.name)
+                s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
         if assoc_rq.user_information.ext_neg is not None:
             s.append('Requested Extended Negotiation:')
 
             for item in assoc_rq.user_information.ext_neg:
+                s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
+                #s.append('    Application Information, length: %d bytes' %len(item.app_info))
 
-                s.append('  Abstract Syntax: =%s' %item.UID)
-                #s.append('    Application Information, length: %d bytes' \
-                #                                       %len(item.app_info))
                 app_info = wrap_list(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
                 for line in app_info:
-                    s.append('    %s' %line)
+                    s.append('    {0!s}'.format(line))
         else:
             s.append('Requested Extended Negotiation: None')
 
@@ -488,13 +481,13 @@ class ACSEServiceProvider(object):
 
             for item in assoc_rq.user_information.common_ext_neg:
 
-                s.append('  Abstract Syntax: =%s' %item.sop_class_uid)
-                s.append('  Service Class:   =%s' %item.service_class_uid)
+                s.append('  Abstract Syntax: ={0!s}'.format(item.sop_class_uid))
+                s.append('  Service Class:   ={0!s}'.format(item.service_class_uid))
 
                 if item.related_general_sop_class_identification != []:
                     s.append('  Related General SOP Class(es):')
                     for sub_field in item.related_general_sop_class_identification:
-                        s.append('    =%s' %sub_field)
+                        s.append('    ={0!s}'.format(sub_field))
                 else:
                     s.append('  Related General SOP Classes: None')
         else:
@@ -504,19 +497,17 @@ class ACSEServiceProvider(object):
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: %d - %s' %(usid.id_type,
+            s.append('  Authentication Mode: {0:d} - {1!s}'.format(usid.id_type,
                                                         usid.id_type_str))
             if usid.id_type == 1:
-                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
+                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
             elif usid.id_type == 2:
-                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
-                s.append('  Password: [%s]' %usid.secondary.decode('utf-8'))
+                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
+                s.append('  Password: [{0!s}]'.format(usid.secondary.decode('utf-8')))
             elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: %d'
-                         %len(usid.primary))
+                s.append('  Kerberos Service Ticket (not dumped) length: {0:d}'.format(len(usid.primary)))
             elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: %d'
-                         %len(usid.primary))
+                s.append('  SAML Assertion (not dumped) length: {0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -558,40 +549,37 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
                  '=====')
 
-        s.append('Our Implementation Class UID:      %s'
-                 %user_info.implementation_class_uid)
-        s.append('Our Implementation Version Name:   %s'
-                 %user_info.implementation_version_name)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %user_info.maximum_length)
+        s.append('Our Implementation Class UID:      {0!s}'.format(user_info.implementation_class_uid))
+        s.append('Our Implementation Version Name:   {0!s}'.format(user_info.implementation_version_name))
+        s.append('Application Context Name:    {0!s}'.format(app_context))
+        s.append('Responding Application Name: {0!s}'.format(responding_ae))
+        s.append('Our Max PDU Receive Size:    {0!s}'.format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
         for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.result_str))
+            s.append('  Context ID:        {0!s} ({1!s})'.format(item.ID, item.result_str))
 
             # If Presentation Context was accepted
             if item.result == 0:
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                 else:
-                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
-                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
-                s.append('    Accepted Transfer Syntax: =%s'
-                         %item.transfer_syntax)
+                    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
+                s.append('    Accepted SCP/SCU Role: {0!s}'.format(ac_scp_scu_role))
+                s.append('    Accepted Transfer Syntax: ={0!s}'.format(item.transfer_syntax))
 
         ## Extended Negotiation
         ext_nego = 'None'
         #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
         #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
+        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_nego))
 
         ## User Identity Negotiation
         usr_id = 'None'
         if user_info.user_identity is not None:
             usr_id = 'Yes'
 
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
+        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
         s.append('======================= END A-ASSOCIATE-AC =================='
                  '====')
 
@@ -712,45 +700,42 @@ class ACSEServiceProvider(object):
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                  '=====')
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s'
-                 %assoc_rq.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s'
-                 %assoc_rq.called_ae_title.decode('utf-8'))
-        s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
+        s.append('Their Implementation Class UID:    {0!s}'.format(their_class_uid))
+        s.append('Their Implementation Version Name: {0!s}'.format(their_version))
+        s.append('Application Context Name:    {0!s}'.format(app_context))
+        s.append('Calling Application Name:    {0!s}'.format(assoc_rq.calling_ae_title.decode('utf-8')))
+        s.append('Called Application Name:     {0!s}'.format(assoc_rq.called_ae_title.decode('utf-8')))
+        s.append('Their Max PDU Receive Size:  {0!s}'.format(user_info.maximum_length))
 
         ## Presentation Contexts
         s.append('Presentation Contexts:')
         for item in pres_contexts:
-            s.append('  Context ID:        %s (Proposed)' %item.ID)
-            s.append('    Abstract Syntax: =%s' %item.abstract_syntax)
+            s.append('  Context ID:        {0!s} (Proposed)'.format(item.ID))
+            s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax))
 
             if item.SCU is None and item.SCP is None:
                 scp_scu_role = 'Default'
             else:
-                scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
+                scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
 
-            s.append('    Proposed SCP/SCU Role: %s' %scp_scu_role)
+            s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
             s.append('    Proposed Transfer Syntax(es):')
             for ts in item.transfer_syntax:
-                s.append('      =%s' %ts)
+                s.append('      ={0!s}'.format(ts))
 
         ## Extended Negotiation
         if assoc_rq.user_information.ext_neg is not None:
             s.append('Requested Extended Negotiation:')
 
             for item in assoc_rq.user_information.ext_neg:
+                s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
+                #s.append('    Application Information, length: %d bytes' %len(item.app_info))
 
-                s.append('  Abstract Syntax: =%s' %item.UID)
-                #s.append('    Application Information, length: %d bytes' \
-                #                                           %len(item.app_info))
                 app_info = wrap_list(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
                 for line in app_info:
-                    s.append('    %s' %line)
+                    s.append('    {0!s}'.format(line))
         else:
             s.append('Requested Extended Negotiation: None')
 
@@ -760,13 +745,13 @@ class ACSEServiceProvider(object):
 
             for item in assoc_rq.user_information.common_ext_neg:
 
-                s.append('  Abstract Syntax: =%s' %item.sop_class_uid)
-                s.append('  Service Class:   =%s' %item.service_class_uid)
+                s.append('  Abstract Syntax: ={0!s}'.format(item.sop_class_uid))
+                s.append('  Service Class:   ={0!s}'.format(item.service_class_uid))
 
                 if item.related_general_sop_class_identification != []:
                     s.append('  Related General SOP Class(es):')
                     for sub_field in item.related_general_sop_class_identification:
-                        s.append('    =%s' %sub_field)
+                        s.append('    ={0!s}'.format(sub_field))
                 else:
                     s.append('  Related General SOP Classes: None')
         else:
@@ -785,19 +770,17 @@ class ACSEServiceProvider(object):
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: %d - %s' %(usid.id_type,
+            s.append('  Authentication Mode: {0:d} - {1!s}'.format(usid.id_type,
                                                         usid.id_type_str))
             if usid.id_type == 1:
-                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
+                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
             elif usid.id_type == 2:
-                s.append('  Username: [%s]' %usid.primary.decode('utf-8'))
-                s.append('  Password: [%s]' %usid.secondary.decode('utf-8'))
+                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
+                s.append('  Password: [{0!s}]'.format(usid.secondary.decode('utf-8')))
             elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: %d'
-                         %len(usid.primary))
+                s.append('  Kerberos Service Ticket (not dumped) length: {0:d}'.format(len(usid.primary)))
             elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: %d'
-                         %len(usid.primary))
+                s.append('  SAML Assertion (not dumped) length: {0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -846,51 +829,47 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
                  '=====')
 
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s'
-                 %assoc_ac.calling_ae_title.decode('utf-8'))
-        s.append('Called Application Name:     %s'
-                 %assoc_ac.called_ae_title.decode('utf-8'))
-        s.append('Their Max PDU Receive Size:  %s' %user_info.maximum_length)
+        s.append('Their Implementation Class UID:    {0!s}'.format(their_class_uid))
+        s.append('Their Implementation Version Name: {0!s}'.format(their_version))
+        s.append('Application Context Name:    {0!s}'.format(app_context))
+        s.append('Calling Application Name:    {0!s}'.format(assoc_ac.calling_ae_title.decode('utf-8')))
+        s.append('Called Application Name:     {0!s}'.format(assoc_ac.called_ae_title.decode('utf-8')))
+        s.append('Their Max PDU Receive Size:  {0!s}'.format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
         for item in pres_contexts:
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.result_str))
+            s.append('  Context ID:        {0!s} ({1!s})'.format(item.ID, item.result_str))
 
             if item.result == 0:
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                     rq_scp_scu_role = 'Default'
                 else:
-                    ac_scp_scu_role = '%s/%s' %(item.SCP, item.SCU)
-                s.append('    Proposed SCP/SCU Role: %s' %rq_scp_scu_role)
-                s.append('    Accepted SCP/SCU Role: %s' %ac_scp_scu_role)
-                s.append('    Accepted Transfer Syntax: =%s'
-                         %item.transfer_syntax)
+                    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
+                s.append('    Proposed SCP/SCU Role: {0!s}'.format(rq_scp_scu_role))
+                s.append('    Accepted SCP/SCU Role: {0!s}'.format(ac_scp_scu_role))
+                s.append('    Accepted Transfer Syntax: ={0!s}'.format(item.transfer_syntax))
 
         ## Extended Negotiation
         ext_neg = 'None'
         #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
         #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: %s' %ext_neg)
+        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_neg))
 
         ## Common Extended Negotiation
         common_ext_neg = 'None'
-        s.append('Accepted Common Extended Negotiation: %s' %common_ext_neg)
+        s.append('Accepted Common Extended Negotiation: {0!s}'.format(common_ext_neg))
 
         ## Asynchronous Operations Negotiation
         async_neg = 'None'
-        s.append('Accepted Asynchronous Operations Window Negotiation: %s'
-                 %async_neg)
+        s.append('Accepted Asynchronous Operations Window Negotiation: {0!s}'.format(async_neg))
 
         ## User Identity
         usr_id = 'None'
         if user_info.user_identity is not None:
             usr_id = 'Yes'
 
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
+        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
         s.append('======================= END A-ASSOCIATE-AC =================='
                  '====')
 
@@ -916,9 +895,9 @@ class ACSEServiceProvider(object):
         s = ['Reject Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
                  '=====')
-        s.append('Result:    %s' %assoc_rj.result_str)
-        s.append('Source:    %s' %assoc_rj.source_str)
-        s.append('Reason:    %s' %assoc_rj.reason_str)
+        s.append('Result:    {0!s}'.format(assoc_rj.result_str))
+        s.append('Source:    {0!s}'.format(assoc_rj.source_str))
+        s.append('Reason:    {0!s}'.format(assoc_rj.reason_str))
         s.append('======================= END A-ASSOCIATE-RJ =================='
                  '====')
         for line in s:
@@ -998,8 +977,8 @@ class ACSEServiceProvider(object):
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
                  '=====')
-        s.append('Abort Source: %s' %a_abort.source_str)
-        s.append('Abort Reason: %s' %a_abort.reason_str)
+        s.append('Abort Source: {0!s}'.format(a_abort.source_str))
+        s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
         s.append('=========================== END A-ABORT ====================='
                  '====')
         for line in s:

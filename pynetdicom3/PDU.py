@@ -94,7 +94,7 @@ class PDU(object):
                     self.parameters[ii] = \
                         bytes(self.parameters[ii].title(), 'utf-8')
 
-                self.formats[ii] = '%ds' %len(self.parameters[ii])
+                self.formats[ii] = '{0:d}s'.format(len(self.parameters[ii]))
                 # Make sure the parameter is a bytes
 
 
@@ -608,34 +608,34 @@ class A_ASSOCIATE_RQ_PDU(PDU):
     def __str__(self):
         s = 'A-ASSOCIATE-RQ PDU\n'
         s += '==================\n'
-        s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d bytes\n' %self.length
-        s += '  Protocol version: %d\n' %self.protocol_version
-        s += '  Called AET:  %s\n' %self.called_ae_title
-        s += '  Calling AET: %s\n' %self.calling_ae_title
+        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
+        s += '  PDU length: {0:d} bytes\n'.format(self.length)
+        s += '  Protocol version: {0:d}\n'.format(self.protocol_version)
+        s += '  Called AET:  {0!s}\n'.format(self.called_ae_title)
+        s += '  Calling AET: {0!s}\n'.format(self.calling_ae_title)
         s += '\n'
 
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    - Context name: =%s\n' %self.application_context_name
+        s += '    - Context name: ={0!s}\n'.format(self.application_context_name)
 
         s += '  * Presentation Context Item(s):\n'
 
         for ii in self.presentation_context:
-            item_str = '%s' %ii
+            item_str = '{0!s}'.format(ii)
             item_str_list = item_str.split('\n')
-            s += '    - %s\n' %item_str_list[0]
+            s += '    - {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
-                s += '      %s\n' %jj
+                s += '      {0!s}\n'.format(jj)
 
         s += '  * User Information Item(s):\n'
         for ii in self.user_information.user_data:
-            item_str = '%s' %ii
+            item_str = '{0!s}'.format(ii)
             item_str_list = item_str.split('\n')
-            s += '    - %s\n' %item_str_list[0]
+            s += '    - {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
-                s += '      %s\n' %jj
+                s += '      {0!s}\n'.format(jj)
 
         return s
 
@@ -1006,34 +1006,34 @@ class A_ASSOCIATE_AC_PDU(PDU):
     def __str__(self):
         s = 'A-ASSOCIATE-AC PDU\n'
         s += '==================\n'
-        s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d bytes\n' %self.length
-        s += '  Protocol version: %d\n' %self.protocol_version
-        s += '  Reserved (Called AET):  %s\n' %self.reserved_aet
-        s += '  Reserved (Calling AET): %s\n' %self.reserved_aec
+        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
+        s += '  PDU length: {0:d} bytes\n'.format(self.length)
+        s += '  Protocol version: {0:d}\n'.format(self.protocol_version)
+        s += '  Reserved (Called AET):  {0!s}\n'.format(self.reserved_aet)
+        s += '  Reserved (Calling AET): {0!s}\n'.format(self.reserved_aec)
         s += '\n'
 
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    -  Context name: =%s\n' %self.application_context_name
+        s += '    -  Context name: ={0!s}\n'.format(self.application_context_name)
 
         s += '  * Presentation Context Item(s):\n'
 
         for ii in self.presentation_context:
-            item_str = '%s' %ii
+            item_str = '{0!s}'.format(ii)
             item_str_list = item_str.split('\n')
-            s += '    -  %s\n' %item_str_list[0]
+            s += '    -  {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
-                s += '       %s\n' %jj
+                s += '       {0!s}\n'.format(jj)
 
         s += '  * User Information Item(s):\n'
         for ii in self.user_information.user_data:
-            item_str = '%s' %ii
+            item_str = '{0!s}'.format(ii)
             item_str_list = item_str.split('\n')
-            s += '    -  %s\n' %item_str_list[0]
+            s += '    -  {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
-                s += '       %s\n' %jj
+                s += '       {0!s}\n'.format(jj)
 
         return s
 
@@ -1291,11 +1291,11 @@ class A_ASSOCIATE_RJ_PDU(PDU):
     def __str__(self):
         s = 'A-ASSOCIATE-RJ PDU\n'
         s += '==================\n'
-        s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d bytes\n' %self.length
-        s += '  Result: %s\n' %self.result_str
-        s += '  Source: %s\n' %self.source_str
-        s += '  Reason/Diagnostic: %s\n' %self.reason_str
+        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
+        s += '  PDU length: {0:d} bytes\n'.format(self.length)
+        s += '  Result: {0!s}\n'.format(self.result_str)
+        s += '  Source: {0!s}\n'.format(self.source_str)
+        s += '  Reason/Diagnostic: {0!s}\n'.format(self.reason_str)
 
         return s
 
@@ -1451,18 +1451,18 @@ class P_DATA_TF_PDU(PDU):
     def __str__(self):
         s = 'P-DATA-TF PDU\n'
         s += '=============\n'
-        s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d bytes\n' %self.length
+        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
+        s += '  PDU length: {0:d} bytes\n'.format(self.length)
         s += '\n'
         s += '  Presentation Data Value Item(s):\n'
         s += '  --------------------------------\n'
 
         for ii in self.presentation_data_value_items:
-            item_str = '%s' %ii
+            item_str = '{0!s}'.format(ii)
             item_str_list = item_str.split('\n')
-            s += '  *  %s\n' %item_str_list[0]
+            s += '  *  {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
-                s += '     %s\n' %jj
+                s += '     {0!s}\n'.format(jj)
 
         return s
 
@@ -1575,8 +1575,8 @@ class A_RELEASE_RQ_PDU(PDU):
     def __str__(self):
         s = 'A-RELEASE-RQ PDU\n'
         s += '================\n'
-        s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d bytes\n' %self.length
+        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
+        s += '  PDU length: {0:d} bytes\n'.format(self.length)
 
         return s
 
@@ -1689,8 +1689,8 @@ class A_RELEASE_RP_PDU(PDU):
     def __str__(self):
         s = 'A-RELEASE-RP PDU\n'
         s += '================\n'
-        s += '  PDU type: 0x%02x\n' %self.pdu_type
-        s += '  PDU length: %d bytes\n' %self.length
+        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
+        s += '  PDU length: {0:d} bytes\n'.format(self.length)
 
         return s
 
@@ -1847,10 +1847,10 @@ class A_ABORT_PDU(PDU):
     def __str__(self):
         s = "A-ABORT PDU\n"
         s += "===========\n"
-        s += "  PDU type: 0x%02x\n" % self.pdu_type
-        s += "  PDU length: %d bytes\n" % self.pdu_length
-        s += "  Abort Source: %s\n" % self.source_str
-        s += "  Reason/Diagnostic: %s\n" % self.reason_str
+        s += "  PDU type: 0x{0:02x}\n".format(self.pdu_type)
+        s += "  PDU length: {0:d} bytes\n".format(self.pdu_length)
+        s += "  Abort Source: {0!s}\n".format(self.source_str)
+        s += "  Reason/Diagnostic: {0!s}\n".format(self.reason_str)
 
         return s
 
@@ -2004,7 +2004,7 @@ class ApplicationContextItem(PDU):
         return 4 + self.item_length
 
     def __str__(self):
-        s = '%s (%s)\n' %(self.application_context_name,
+        s = '{0!s} ({1!s})\n'.format(self.application_context_name,
                           self.application_context_name.title())
         return s
 
@@ -2233,16 +2233,16 @@ class PresentationContextItemRQ(PDU):
 
     def __str__(self):
         s = "Presentation Context (RQ) Item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.length
-        s += "  Context ID: %d\n" % self.ID
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.length)
+        s += "  Context ID: {0:d}\n".format(self.ID)
 
         for ii in self.abstract_transfer_syntax_sub_items:
-            item_str = '%s' %ii
+            item_str = '{0!s}'.format(ii)
             item_str_list = item_str.split('\n')
-            s += '  + %s\n' %item_str_list[0]
+            s += '  + {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
-                s += '    %s\n' %jj
+                s += '    {0!s}\n'.format(jj)
 
         return s
 
@@ -2442,16 +2442,16 @@ class PresentationContextItemAC(PDU):
 
     def __str__(self):
         s = "Presentation Context (AC) Item\n"
-        s += "  Item type:   0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Context ID: %d\n" % self.presentation_context_id
-        s += "  Result/Reason: %s\n" % self.result_str
+        s += "  Item type:   0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
+        s += "  Result/Reason: {0!s}\n".format(self.result_str)
 
-        item_str = '%s' %self.transfer_syntax_sub_item
+        item_str = '{0!s}'.format(self.transfer_syntax_sub_item)
         item_str_list = item_str.split('\n')
-        s += '  +  %s\n' %item_str_list[0]
+        s += '  +  {0!s}\n'.format(item_str_list[0])
         for jj in item_str_list[1:-1]:
-            s += '     %s\n' %jj
+            s += '     {0!s}\n'.format(jj)
 
         return s
 
@@ -2593,9 +2593,9 @@ class AbstractSyntaxSubItem(PDU):
 
     def __str__(self):
         s = "Abstract Syntax Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += '  Syntax name: =%s\n' % self.abstract_syntax
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += '  Syntax name: ={0!s}\n'.format(self.abstract_syntax)
 
         return s
 
@@ -2749,9 +2749,9 @@ class TransferSyntaxSubItem(PDU):
 
     def __str__(self):
         s = "Transfer syntax sub item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += '  Transfer syntax name: =%s\n' % self.transfer_syntax_name
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += '  Transfer syntax name: ={0!s}\n'.format(self.transfer_syntax_name)
 
         return s
 
@@ -2904,10 +2904,10 @@ class PresentationDataValueItem(PDU):
 
     def __str__(self):
         s = "Presentation Value Data Item\n"
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Context ID: %d\n" % self.presentation_context_id
-        s += "  Data value: 0x%s ...\n" %' 0x'.join(
-            format(x, '02x') for x in self.presentation_data_value[:10])
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
+        s += "  Data value: 0x{0!s} ...\n".format(' 0x'.join(
+            format(x, '02x') for x in self.presentation_data_value[:10]))
 
         return s
 
@@ -3084,12 +3084,12 @@ class UserInformationItem(PDU):
 
     def __str__(self):
         s = " User information item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d\n" % self.item_length
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d}\n".format(self.item_length)
         s += "  User Data:\n "
 
         for ii in self.user_data[1:]:
-            s += "  %s" %ii
+            s += "  {0!s}".format(ii)
 
         return s
 
@@ -3308,9 +3308,9 @@ class MaximumLengthSubItem(PDU):
 
     def __str__(self):
         s = "Maximum length Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Maximum length received: %d\n" % self.maximum_length_received
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Maximum length received: {0:d}\n".format(self.maximum_length_received)
         return s
 
 class ImplementationClassUIDSubItem(PDU):
@@ -3420,9 +3420,9 @@ class ImplementationClassUIDSubItem(PDU):
 
     def __str__(self):
         s = "Implementation Class UID Sub-item\n"
-        s += "  Item type: 0x%02x\n" %self.item_type
-        s += "  Item length: %d bytes\n" %self.item_length
-        s += "  Implementation class UID: '%s'\n" %self.implementation_class_uid
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Implementation class UID: '{0!s}'\n".format(self.implementation_class_uid)
 
         return s
 
@@ -3563,10 +3563,10 @@ class ImplementationVersionNameSubItem(PDU):
 
     def __str__(self):
         s = "Implementation Version Name Sub-item\n"
-        s += "  Item type: 0x%02x\n" %self.item_type
-        s += "  Item length: %d bytes\n" %self.item_length
-        s += "  Implementation version name: %s\n" % \
-            self.implementation_version_name
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Implementation version name: {0!s}\n".format( \
+            self.implementation_version_name)
 
         return s
 
@@ -3728,12 +3728,12 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
     def __str__(self):
         s = "SCP/SCU Role Selection Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  UID length: %d bytes\n" % self.uid_length
-        s += "  SOP Class UID: %s\n" % self.UID
-        s += "  SCU Role: %d\n" % self.SCU
-        s += "  SCP Role: %d\n" % self.SCP
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  UID length: {0:d} bytes\n".format(self.uid_length)
+        s += "  SOP Class UID: {0!s}\n".format(self.UID)
+        s += "  SCU Role: {0:d}\n".format(self.SCU)
+        s += "  SCP Role: {0:d}\n".format(self.SCP)
 
         return s
 
@@ -3949,12 +3949,12 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
     def __str__(self):
         s = "Asynchronous Operation Window Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Max. number of operations invoked: %d\n" % \
-            self.maximum_number_operations_invoked
-        s += "  Max. number of operations performed: %d\n" % \
-            self.maximum_number_operations_performed
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Max. number of operations invoked: {0:d}\n".format( \
+            self.maximum_number_operations_invoked)
+        s += "  Max. number of operations performed: {0:d}\n".format( \
+            self.maximum_number_operations_performed)
 
         return s
 
@@ -4006,18 +4006,18 @@ class UserIdentitySubItemRQ(PDU):
 
     def __str__(self):
         s = "User Identity (RQ) Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  User identity type: %d\n" % self.user_identity_type
-        s += "  Positive response requested: %d\n" % \
-            self.positive_response_requested
-        s += "  Primary field length: %d bytes\n" % self.primary_field_length
-        s += "  Primary field: %s\n" % self.primary_field
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  User identity type: {0:d}\n".format(self.user_identity_type)
+        s += "  Positive response requested: {0:d}\n".format( \
+            self.positive_response_requested)
+        s += "  Primary field length: {0:d} bytes\n".format(self.primary_field_length)
+        s += "  Primary field: {0!s}\n".format(self.primary_field)
 
         if self.user_identity_type == 0x02:
-            s += "  Secondary field length: %d bytes\n" % \
-                self.secondary_field_length
-            s += "  Secondary field: %s\n" % self.secondary_field
+            s += "  Secondary field length: {0:d} bytes\n".format( \
+                self.secondary_field_length)
+            s += "  Secondary field: {0!s}\n".format(self.secondary_field)
         else:
             s += "  Secondary field length: (not used)\n"
             s += "  Secondary field: (not used)\n"
@@ -4219,11 +4219,11 @@ class UserIdentitySubItemAC(PDU):
 
     def __str__(self):
         s = "User Identity (AC) Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  Server response length: %d bytes\n" % \
-            self.server_response_length
-        s += "  Server response: %s\n" % self.server_response
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  Server response length: {0:d} bytes\n".format( \
+            self.server_response_length)
+        s += "  Server response: {0!s}\n".format(self.server_response)
 
         return s
 
@@ -4460,12 +4460,12 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
     def __str__(self):
         s = "SOP Class Extended Negotiation Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  SOP class UID length: %d bytes\n" % self.sop_class_uid_length
-        s += "  SOP class: =%s\n" % self.sop_class_uid
-        s += "  Service class application information: %s\n" % \
-            self.service_class_application_information
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  SOP class UID length: {0:d} bytes\n".format(self.sop_class_uid_length)
+        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
+        s += "  Service class application information: {0!s}\n".format( \
+            self.service_class_application_information)
 
         return s
 
@@ -4683,19 +4683,19 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
     def __str__(self):
         s = "SOP Class Common Extended Negotiation Sub-item\n"
-        s += "  Item type: 0x%02x\n" % self.item_type
-        s += "  Item length: %d bytes\n" % self.item_length
-        s += "  SOP class UID length: %d bytes\n" % self.sop_class_uid_length
-        s += "  SOP class: =%s\n" % self.sop_class_uid
-        s += "  Service class UID length: %d bytes\n" % \
-            self.service_class_uid_length
-        s += "  Service class UID: =%s\n" % self.service_class_uid
-        s += "  Related general SOP class ID length: %d bytes\n" % \
-            self.related_general_sop_class_identification_length
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  SOP class UID length: {0:d} bytes\n".format(self.sop_class_uid_length)
+        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
+        s += "  Service class UID length: {0:d} bytes\n".format( \
+            self.service_class_uid_length)
+        s += "  Service class UID: ={0!s}\n".format(self.service_class_uid)
+        s += "  Related general SOP class ID length: {0:d} bytes\n".format( \
+            self.related_general_sop_class_identification_length)
         s += "  Related general SOP class ID(s):\n"
 
         for ii in self.related_general_sop_class_identification:
-            s += "    =%s (%s)\n" %(ii, ii.title())
+            s += "    ={0!s} ({1!s})\n".format(ii, ii.title())
 
         return s
 
