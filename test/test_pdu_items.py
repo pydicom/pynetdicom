@@ -3,9 +3,34 @@
 import logging
 import unittest
 
+from pydicom.uid import UID
+
 from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3.PDU import *
-from pynetdicom3.primitives import *
+from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
+                            P_DATA_TF_PDU, \
+                            MaximumLengthSubItem, \
+                            ImplementationClassUIDSubItem, \
+                            ImplementationVersionNameSubItem, \
+                            AsynchronousOperationsWindowSubItem, \
+                            SCP_SCU_RoleSelectionSubItem, \
+                            SOPClassExtendedNegotiationSubItem, \
+                            SOPClassCommonExtendedNegotiationSubItem, \
+                            UserIdentitySubItemRQ, \
+                            ApplicationContextItem, \
+                            PresentationContextItemAC, \
+                            PresentationContextItemRQ, \
+                            UserInformationItem, \
+                            TransferSyntaxSubItem, \
+                            PresentationDataValueItem, \
+                            AbstractSyntaxSubItem
+from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
+                                   SOPClassCommonExtendedNegotiation, \
+                                   MaximumLengthNegotiation, \
+                                   ImplementationClassUIDNotification, \
+                                   ImplementationVersionNameNotification, \
+                                   SCP_SCU_RoleSelectionNegotiation, \
+                                   AsynchronousOperationsWindowNegotiation, \
+                                   UserIdentityNegotiation
 from pynetdicom3.utils import wrap_list, PresentationContext
 
 ## A-ASSOCIATE-RQ PDU
@@ -759,13 +784,15 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_ext_neg(self):
         """ Check extended neg properties are OK """
-        return
+        '''
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information
 
         self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
+        '''
+        pass
 
     def test_properties_role(self):
         """ Check user id properties are OK """

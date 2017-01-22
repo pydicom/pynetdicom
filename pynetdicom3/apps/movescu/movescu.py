@@ -124,7 +124,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$movescu.py v%s %s $' %('0.1.0', '2016-03-15'))
+logger.debug('$movescu.py v{0!s} {1!s} $'.format('0.1.0', '2016-03-15'))
 logger.debug('')
 
 # Create application entity
@@ -181,8 +181,8 @@ def on_c_store(sop_class, dataset):
         A valid return status, see the StorageServiceClass for the
         available statuses
     """
-    filename = 'CT.%s' %dataset.SOPInstanceUID
-    logger.info('Storing DICOM file: %s' %filename)
+    filename = 'CT.{0!s}'.format(dataset.SOPInstanceUID)
+    logger.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
         logger.warning('DICOM file already exists, overwriting')

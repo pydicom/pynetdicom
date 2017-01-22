@@ -922,8 +922,8 @@ class P_DATA(object):
         """String representation of the class."""
         s = 'P-DATA\n'
         for pdv in self.presentation_data_value_list:
-            s += '  Context ID: %s\n' %pdv[0]
-            s += '  Value Length: %s bytes\n' %len(pdv[1])
+            s += '  Context ID: {0!s}\n'.format(pdv[0])
+            s += '  Value Length: {0!s} bytes\n'.format(len(pdv[1]))
             header_byte = pdv[1][0]
             s += "  Message Control Header Byte: {:08b}\n".format(header_byte)
 
@@ -1025,8 +1025,8 @@ class MaximumLengthNegotiation(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Maximum Length Negotiation\n"
-        s += "  Maximum length received: %d bytes\n" % \
-            self.maximum_length_received
+        s += "  Maximum length received: {0:d} bytes\n".format( \
+            self.maximum_length_received)
         return s
 
 
@@ -1126,7 +1126,8 @@ class ImplementationClassUIDNotification(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Implementation Class UID\n"
-        s += "  Implementation class UID: %s\n" % self.implementation_class_uid
+        s += "  Implementation class UID: {0!s}\n" \
+             .format(self.implementation_class_uid)
         return s
 
 
@@ -1220,8 +1221,8 @@ class ImplementationVersionNameNotification(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Implementation Version Name\n"
-        s += "  Implementation version name: %s\n" % \
-                self.implementation_version_name
+        s += "  Implementation version name: {0!s}\n".format( \
+                self.implementation_version_name)
         return s
 
 
@@ -1333,10 +1334,10 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Asynchronous Operations Window\n"
-        s += "  Maximum number operations invoked: %d\n" % \
-                self.maximum_number_operations_invoked
-        s += "  Maximum number operations performed: %d\n" % \
-                self.maximum_number_operations_performed
+        s += "  Maximum number operations invoked: {0:d}\n".format( \
+                self.maximum_number_operations_invoked)
+        s += "  Maximum number operations performed: {0:d}\n".format( \
+                self.maximum_number_operations_performed)
         return s
 
 
@@ -1407,7 +1408,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
             LOGGER.error("SCU and SCP Roles cannot both be unsupported " \
                          "for %s", self.sop_class_uid)
             raise ValueError("SCU and SCP Roles cannot both be unsupported " \
-                             "for %s" %self.sop_class_uid)
+                             "for {}".format(self.sop_class_uid))
 
         item = SCP_SCU_RoleSelectionSubItem()
         item.FromParams(self)
@@ -2122,13 +2123,13 @@ class UserIdentityNegotiation(ServiceParameter):
         """String representation of the class."""
         s = 'User Identity Parameters\n'
         if self.server_response is None:
-            s += '  User identity type: %d\n' %self.user_identity_type
-            s += '  Positive response requested: %r\n' \
-                %self.positive_response_requested
-            s += '  Primary field: %s\n' %self.primary_field
+            s += '  User identity type: {0:d}\n'.format(self.user_identity_type)
+            s += '  Positive response requested: {0!r}\n' \
+                 .format(self.positive_response_requested)
+            s += '  Primary field: {0!s}\n'.format(self.primary_field)
             if self.secondary_field is not None:
-                s += '  Secondary field: %s\n' %self.secondary_field
+                s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
         else:
-            s += '  Server response: %s\n' %self.server_response
+            s += '  Server response: {0!s}\n'.format(self.server_response)
 
         return s

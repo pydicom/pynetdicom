@@ -1,6 +1,7 @@
 """
 Defines the Association class
 """
+from io import BytesIO
 import logging
 import threading
 import time
@@ -9,9 +10,30 @@ from pydicom.uid import UID
 
 from pynetdicom3.ACSEprovider import ACSEServiceProvider
 from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom3.DIMSEparameters import *
+from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
+                                        C_MOVE_ServiceParameters, \
+                                        C_STORE_ServiceParameters, \
+                                        C_GET_ServiceParameters, \
+                                        C_FIND_ServiceParameters
+from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.DULprovider import DULServiceProvider
-from pynetdicom3.SOPclass import *
+#from pynetdicom3.SOPclass import *
+from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
+                        StorageServiceClass, \
+                        QueryRetrieveGetServiceClass, \
+                        QueryRetrieveFindServiceClass, \
+                        QueryRetrieveMoveServiceClass, \
+                        ModalityWorklistInformationFind, \
+                        ModalityWorklistServiceSOPClass, \
+                        PatientRootQueryRetrieveInformationModelFind, \
+                        StudyRootQueryRetrieveInformationModelFind, \
+                        PatientStudyOnlyQueryRetrieveInformationModelFind, \
+                        PatientRootQueryRetrieveInformationModelMove, \
+                        StudyRootQueryRetrieveInformationModelMove, \
+                        PatientStudyOnlyQueryRetrieveInformationModelMove, \
+                        PatientRootQueryRetrieveInformationModelGet, \
+                        StudyRootQueryRetrieveInformationModelGet, \
+                        PatientStudyOnlyQueryRetrieveInformationModelGet
 from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
 #from pynetdicom3.utils import wrap_list
 from pynetdicom3.primitives import UserIdentityNegotiation, \
@@ -382,9 +404,9 @@ class Association(threading.Thread):
                 # FIXME: avoid catch-all, why does uid sometimes have value
                 #   member?
                 try:
-                    sop_class = UID2SOPClass(uid.value)()
+                    sop_class = uid_to_sop_class(uid.value)()
                 except:
-                    sop_class = UID2SOPClass(uid)()
+                    sop_class = uid_to_sop_class(uid)()
 
                 # Check that the SOP Class is supported by the AE
                 matching_context = False
@@ -484,7 +506,7 @@ class Association(threading.Thread):
                 for context in self.acse.presentation_contexts_accepted:
                     self.scu_supported_sop.append(
                         (context.ID,
-                         UID2SOPClass(context.AbstractSyntax),
+                         uid_to_sop_class(context.AbstractSyntax),
                          context.TransferSyntax[0]))
 
                 # Assocation established OK
@@ -606,7 +628,7 @@ class Association(threading.Thread):
         if rsp is None:
             return None
 
-        return service_class.Code2Status(rsp.Status)
+        return service_class.code_to_status(rsp.Status)
 
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """Send a C-STORE request to the peer AE.
@@ -783,7 +805,7 @@ class Association(threading.Thread):
 
         status = None
         if rsp is not None:
-            status = service_class.Code2Status(rsp.Status)
+            status = service_class.code_to_status(rsp.Status)
 
         return status
 
@@ -898,15 +920,15 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian)
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-            status = service_class.Code2Status(rsp.Status)
+            status = service_class.code_to_status(rsp.Status)
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status.Type != 'Pending':
+            if status.status_type != 'Pending':
                 break
 
             LOGGER.debug('-' * 65)
-            LOGGER.debug('Find Response: %s (%s)', ii, status.Type)
+            LOGGER.debug('Find Response: %s (%s)', ii, status.status_type)
             LOGGER.debug('')
             LOGGER.debug('# DICOM Dataset')
             for elem in ds:
@@ -1099,14 +1121,14 @@ class Association(threading.Thread):
                                                  self.dimse.dimse_timeout)
 
             if rsp.__class__ == C_MOVE_ServiceParameters:
-                status = service_class.Code2Status(rsp.Status)
+                status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
                                  transfer_syntax.is_little_endian)
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.Type == 'Pending':
+                if status.status_type == 'Pending':
                     remain = rsp.NumberOfRemainingSuboperations
                     complete = rsp.NumberOfCompletedSuboperations
                     failed = rsp.NumberOfFailedSuboperations
@@ -1122,23 +1144,23 @@ class Association(threading.Thread):
 
                     yield status, dataset
                 # If the Status is "Success" then processing is complete
-                elif status.Type == "Success":
+                elif status.status_type == "Success":
                     break
                 # All other possible responses
-                elif status.Type == "Failure":
+                elif status.status_type == "Failure":
                     LOGGER.debug('')
                     LOGGER.error('Move Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.Description)
+                    LOGGER.error('    %s', status.description)
                     break
-                elif status.Type == "Cancel":
+                elif status.status_type == "Cancel":
                     LOGGER.debug('')
                     LOGGER.info('Move Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.Description)
+                    LOGGER.info('    %s', status.description)
                     break
-                elif status.Type == "Warning":
+                elif status.status_type == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Move Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.Description)
+                    LOGGER.warning('    %s', status.description)
 
                     for elem in dataset:
                         LOGGER.warning('%s: %s', elem.name, elem.value)
@@ -1242,8 +1264,8 @@ class Association(threading.Thread):
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
-                raise RuntimeError("The association with a peer SCP must be "
-                                   "established before sending a C-GET request")
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending a C-GET request")
 
         if query_model == "P":
             # Four level hierarchy, patient, study, series, composite object
@@ -1302,14 +1324,14 @@ class Association(threading.Thread):
             # Received a C-GET response
             if rsp.__class__ == C_GET_ServiceParameters:
 
-                status = service_class.Code2Status(rsp.Status)
+                status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
                                  transfer_syntax.is_little_endian)
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.Type == 'Pending':
+                if status.status_type == 'Pending':
                     remain = rsp.NumberOfRemainingSuboperations
                     complete = rsp.NumberOfCompletedSuboperations
                     failed = rsp.NumberOfFailedSuboperations
@@ -1326,30 +1348,30 @@ class Association(threading.Thread):
                     yield status, dataset
 
                 # If the Status is "Success" then processing is complete
-                elif status.Type == "Success":
+                elif status.status_type == "Success":
                     status = service_class.Success
                     break
 
                 # All other possible responses
-                elif status.Type == "Failure":
+                elif status.status_type == "Failure":
                     LOGGER.debug('')
                     LOGGER.error('Find Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.Description)
+                    LOGGER.error('    %s', status.description)
 
                     # Print out the status information
                     for elem in dataset:
                         LOGGER.error('%s: %s', elem.name, elem.value)
 
                     break
-                elif status.Type == "Cancel":
+                elif status.status_type == "Cancel":
                     LOGGER.debug('')
                     LOGGER.info('Find Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.Description)
+                    LOGGER.info('    %s', status.description)
                     break
-                elif status.Type == "Warning":
+                elif status.status_type == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Find Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.Description)
+                    LOGGER.warning('    %s', status.description)
 
                     # Print out the status information
                     for elem in dataset:
@@ -1396,6 +1418,7 @@ class Association(threading.Thread):
 
         FIXME: Add Returns section
         """
+        # Can't send a C-CANCEL-GET without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-CANCEL-GET "
@@ -1446,70 +1469,101 @@ class Association(threading.Thread):
     # DIMSE-N services provided by the Association
     def send_n_event_report(self):
         """Send an N-EVENT-REPORT request message to the peer AE."""
+        # Can't send an N-EVENT-REPORT without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-EVENT-REPORT "
+                               "request")
         raise NotImplementedError
 
     def send_n_get(self, msg_id, dataset=None):
         """Send an N-GET request message to the peer AE."""
+        '''
+        service_class = QueryRetrieveGetServiceClass()
+
+        # Determine the Presentation Context we are operating under
+        #   and hence the transfer syntax to use for encoding `dataset`
+        transfer_syntax = None
+        # FIXME: broken
+        for context in self.acse.context_manager.accepted:
+            if sop_class.UID == context.AbstractSyntax:
+                transfer_syntax = context.TransferSyntax[0]
+                context_id = context.ID
+
+        if transfer_syntax is None:
+            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
+            LOGGER.error("Get SCU failed due to there being no valid "
+                         "presentation context for the current dataset")
+            return service_class.IdentifierDoesNotMatchSOPClass
+
+
+        # Build N-GET primitive
+        primitive = N_GET_ServiceParameters()
+        primitive.MessageID = msg_id
+        # The SOP Class for which Attribute Values are to be retrieved
+        primitive.RequestedSOPClassUID = None
+        # The SOP Instance for which Attribute Values are to be retrieved
+        primitive.RequestedSOPInstanceUID = None
+        # A set of Attribute identifiers, if omitted then all identifiers
+        #   are assumed. The definitions of the Attributes are found
+        #   in PS3.3
+        if dataset is not None:
+            primitive.AttributeIdentifierList = \
+                    encode(dataset, transfer_syntax.is_implicit_VR,
+                           transfer_syntax.is_little_endian)
+            primitive.AttributeIdentifierList = \
+                    BytesIO(primitive.AttributeIdentifierList)
+
+        # Send primitive to peer
+        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        '''
+        # Can't send an N-GET without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-GET "
+                               "request.")
         raise NotImplementedError
-
-        if self.is_established:
-            service_class = QueryRetrieveGetServiceClass()
-
-            # Determine the Presentation Context we are operating under
-            #   and hence the transfer syntax to use for encoding `dataset`
-            transfer_syntax = None
-            # FIXME: broken
-            for context in self.acse.context_manager.accepted:
-                if sop_class.UID == context.AbstractSyntax:
-                    transfer_syntax = context.TransferSyntax[0]
-                    context_id = context.ID
-
-            if transfer_syntax is None:
-                LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-                LOGGER.error("Get SCU failed due to there being no valid "
-                             "presentation context for the current dataset")
-                return service_class.IdentifierDoesNotMatchSOPClass
-
-
-            # Build N-GET primitive
-            primitive = N_GET_ServiceParameters()
-            primitive.MessageID = msg_id
-            # The SOP Class for which Attribute Values are to be retrieved
-            primitive.RequestedSOPClassUID = None
-            # The SOP Instance for which Attribute Values are to be retrieved
-            primitive.RequestedSOPInstanceUID = None
-            # A set of Attribute identifiers, if omitted then all identifiers
-            #   are assumed. The definitions of the Attributes are found
-            #   in PS3.3
-            if dataset is not None:
-                primitive.AttributeIdentifierList = \
-                        encode(dataset, transfer_syntax.is_implicit_VR,
-                               transfer_syntax.is_little_endian)
-                primitive.AttributeIdentifierList = \
-                        BytesIO(primitive.AttributeIdentifierList)
-
-            # Send primitive to peer
-            self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_n_set(self):
         """Send an N-SET request message to the peer AE."""
+        # Can't send an N-SET without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-SET "
+                               "request.")
         raise NotImplementedError
 
     def send_n_action(self):
         """Send an N-ACTION request message to the peer AE."""
+        # Can't send an N-ACTION without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-ACTION "
+                               "request.")
         raise NotImplementedError
 
     def send_n_create(self):
         """Send an N-CREATE request message to the peer AE."""
+        # Can't send an N-CREATE without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-CREATE "
+                               "request.")
         raise NotImplementedError
 
     def send_n_delete(self):
         """Send an N-DELETE request message to the peer AE."""
+        # Can't send an N-DELETE without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending an N-DELETE "
+                               "request.")
         raise NotImplementedError
 
 
     # Association logging/debugging functions
-    def debug_association_requested(self, primitive):
+    @staticmethod
+    def debug_association_requested(primitive):
         """
         Called when an association is reuested by a peer AE, used for
         logging/debugging information
@@ -1521,7 +1575,8 @@ class Association(threading.Thread):
         """
         pass
 
-    def debug_association_accepted(self, assoc):
+    @staticmethod
+    def debug_association_accepted(assoc):
         """
         Called when an association attempt is accepted by a peer AE, used for
         logging/debugging information
@@ -1604,7 +1659,8 @@ class Association(threading.Thread):
         '''
         pass
 
-    def debug_association_rejected(self, assoc_primitive):
+    @staticmethod
+    def debug_association_rejected(assoc_primitive):
         """
         Called when an association attempt is rejected by a peer AE, used for
         logging/debugging information
@@ -1654,10 +1710,12 @@ class Association(threading.Thread):
                      source_str[source])
         LOGGER.error('Reason: %s', reason_str[source - 1][reason])
 
-    def debug_association_released(self):
+    @staticmethod
+    def debug_association_released():
         """Logging for association release."""
         LOGGER.info('Association Released')
 
-    def debug_association_aborted(self, abort_primitive=None):
+    @staticmethod
+    def debug_association_aborted(abort_primitive=None):
         """Logging for association abort."""
         LOGGER.error('Association Aborted')

@@ -7,11 +7,12 @@ import unittest
 test_dir = os.path.dirname(__file__)
 
 class TestLoader(object):
-    def load_tests(self, *args):
-        suite = unittest.TestSuite()
-        suite.addTests(unittest.defaultTestLoader.discover(test_dir))
-
-        return suite
+    @staticmethod
+    def load_tests(*args):
+        """Load unit tests"""
+        test_suite = unittest.TestSuite()
+        test_suite.addTests(unittest.defaultTestLoader.discover(test_dir))
+        return test_suite
 
 if __name__ == "__main__":
     # Get the testss

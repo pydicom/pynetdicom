@@ -401,7 +401,8 @@ class DIMSEServiceProvider(object):
 
 
     # Mid-level DIMSE related logging/debugging
-    def debug_send_c_echo_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_echo_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -411,7 +412,8 @@ class DIMSEServiceProvider(object):
         ds = dimse_msg.command_set
         LOGGER.info("Sending Echo Request: MsgID %s", ds.MessageID)
 
-    def debug_send_c_echo_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_echo_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -420,7 +422,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_send_c_store_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_store_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -451,19 +454,21 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-STORE RQ')
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Affected SOP Instance UID     : %s'
-                 %ds.AffectedSOPInstanceUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(ds.AffectedSOPInstanceUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_store_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_store_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -472,7 +477,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_send_c_find_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_find_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -493,19 +499,21 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-FIND RQ')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
+        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
 
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_find_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_find_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -521,12 +529,13 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-FIND RSP')
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%04x' %ds.Status)
+        s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -534,7 +543,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_cancel_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_cancel_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -544,7 +554,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_send_c_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -567,17 +578,19 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-GET RQ')
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -593,12 +606,12 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-GET RSP')
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
+        s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : none')
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%04x' %ds.Status)
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -606,7 +619,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_send_c_move_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_move_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -629,20 +643,22 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-MOVE RQ')
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Move Destination              : %s'
-                 %ds.MoveDestination.decode('utf-8'))
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Move Destination              : {0!s}'
+                 .format(ds.MoveDestination.decode('utf-8')))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
         for line in s:
             LOGGER.debug(line)
         return None
 
-    def debug_send_c_move_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_c_move_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -658,12 +674,12 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-MOVE RSP')
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
+        s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : none')
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%04x' %ds.Status)
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -671,8 +687,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-
-    def debug_receive_c_echo_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_echo_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -686,17 +702,18 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-ECHO RQ')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Data Set                      : %s' %'none')
+        s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
+        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Data Set                      : {0!s}'.format('none'))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
 
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_echo_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_echo_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -706,7 +723,8 @@ class DIMSEServiceProvider(object):
         # Status must always be Success for C_ECHO_RSP
         LOGGER.info("Received Echo Response (Status: Success)")
 
-    def debug_receive_c_store_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_store_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -729,20 +747,22 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-STORE RQ')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Affected SOP Instance UID     : %s'
-                 %ds.AffectedSOPInstanceUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
+        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(ds.AffectedSOPInstanceUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_store_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_store_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -756,7 +776,7 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
-        status = '0x%04x' %ds.Status
+        status = '0x{0:04x}'.format(ds.Status)
         if status == '0x0000':
             status += ': Success'
         elif '0xb000' in status:
@@ -778,15 +798,16 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-STORE RSP')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Affected SOP Instance UID     : %s'
-                 %ds.AffectedSOPInstanceUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : %s' %status)
+        s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
+        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(ds.AffectedSOPInstanceUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : {0!s}'.format(status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -794,7 +815,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_find_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_find_rq(dimse_msg):
         """
         Called on receiving a C-FIND-RQ from the peer AE.
         The C-FIND service is used by a DIMSE to match a set of Attributes
@@ -820,11 +842,12 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-FIND RQ')
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -832,7 +855,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.info(line)
 
-    def debug_receive_c_find_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_find_rsp(dimse_msg):
         """
         Called on receiving a C-FIND-RSP from the peer AE.
         The C-FIND service is used by a DIMSE to match a set of Attributes
@@ -855,12 +879,13 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-FIND RSP')
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%04x' %ds.Status)
+        s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -868,7 +893,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.info(line)
 
-    def debug_receive_c_cancel_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_cancel_rq(dimse_msg):
         """
         Placeholder for C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
@@ -879,7 +905,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_receive_c_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -900,11 +927,12 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-GET RQ')
-        s.append('Message ID                    : %s' %ds.MessageID)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('Priority                      : %s' %priority)
+        s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
+        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Priority                      : {0!s}'.format(priority))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -912,7 +940,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.info(line)
 
-    def debug_receive_c_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -933,20 +962,21 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-GET RSP')
-        s.append('Presentation Context ID       : %s' %dimse_msg.ID)
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Remaining Sub-operations      : %s' %no_remain)
-        s.append('Completed Sub-operations      : %s'
-                 %ds.NumberOfCompletedSuboperations)
-        s.append('Failed Sub-operations         : %s'
-                 %ds.NumberOfFailedSuboperations)
-        s.append('Warning Sub-operations        : %s'
-                 %ds.NumberOfWarningSuboperations)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%04x' %ds.Status)
+        s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
+        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
+        s.append('Completed Sub-operations      : {0!s}'
+                 .format(ds.NumberOfCompletedSuboperations))
+        s.append('Failed Sub-operations         : {0!s}'
+                 .format(ds.NumberOfFailedSuboperations))
+        s.append('Warning Sub-operations        : {0!s}'
+                 .format(ds.NumberOfWarningSuboperations))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -954,7 +984,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-    def debug_receive_c_move_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_move_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -963,7 +994,8 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    def debug_receive_c_move_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_c_move_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -984,19 +1016,20 @@ class DIMSEServiceProvider(object):
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : %s' %'C-MOVE RSP')
-        s.append('Message ID Being Responded To : %s'
-                 %ds.MessageIDBeingRespondedTo)
-        s.append('Affected SOP Class UID        : %s' %ds.AffectedSOPClassUID)
-        s.append('Remaining Sub-operations      : %s' %no_remain)
-        s.append('Completed Sub-operations      : %s'
-                 %ds.NumberOfCompletedSuboperations)
-        s.append('Failed Sub-operations         : %s'
-                 %ds.NumberOfFailedSuboperations)
-        s.append('Warning Sub-operations        : %s'
-                 %ds.NumberOfWarningSuboperations)
-        s.append('Data Set                      : %s' %dataset)
-        s.append('DIMSE Status                  : 0x%04x' %ds.Status)
+        s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
+        s.append('Completed Sub-operations      : {0!s}'
+                 .format(ds.NumberOfCompletedSuboperations))
+        s.append('Failed Sub-operations         : {0!s}'
+                 .format(ds.NumberOfFailedSuboperations))
+        s.append('Warning Sub-operations        : {0!s}'
+                 .format(ds.NumberOfWarningSuboperations))
+        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1004,8 +1037,8 @@ class DIMSEServiceProvider(object):
         for line in s:
             LOGGER.debug(line)
 
-
-    def debug_send_n_event_report_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_event_report_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1014,7 +1047,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_event_report_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_event_report_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1023,7 +1057,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1032,7 +1067,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1041,7 +1077,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_set_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_set_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1050,7 +1087,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_set_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_set_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1059,7 +1097,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_action_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_action_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1068,7 +1107,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_action_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_action_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1077,7 +1117,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_create_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_create_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1086,7 +1127,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_create_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_create_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1095,7 +1137,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_delete_rq(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_delete_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1104,7 +1147,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_send_n_delete_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_send_n_delete_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1113,8 +1157,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-
-    def debug_receive_n_event_report_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_event_report_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1123,7 +1167,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_event_report_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_event_report_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1132,7 +1177,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_get_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_get_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1141,7 +1187,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_get_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_get_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1150,7 +1197,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_set_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_set_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1159,7 +1207,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_set_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_set_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1168,7 +1217,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_action_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_action_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1177,7 +1227,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_action_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_action_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1186,7 +1237,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_create_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_create_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1195,7 +1247,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_create_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_create_rsp(dimse_msg):
         """
         Parameters
         ----------
@@ -1204,7 +1257,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_delete_rq(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_delete_rq(dimse_msg):
         """
         Parameters
         ----------
@@ -1213,7 +1267,8 @@ class DIMSEServiceProvider(object):
         """
         raise NotImplementedError
 
-    def debug_receive_n_delete_rsp(self, dimse_msg):
+    @staticmethod
+    def debug_receive_n_delete_rsp(dimse_msg):
         """
         Parameters
         ----------
