@@ -382,9 +382,9 @@ class Association(threading.Thread):
                 # FIXME: avoid catch-all, why does uid sometimes have value
                 #   member?
                 try:
-                    sop_class = UID2SOPClass(uid.value)()
+                    sop_class = uid_to_sop_class(uid.value)()
                 except:
-                    sop_class = UID2SOPClass(uid)()
+                    sop_class = uid_to_sop_class(uid)()
 
                 # Check that the SOP Class is supported by the AE
                 matching_context = False
@@ -484,7 +484,7 @@ class Association(threading.Thread):
                 for context in self.acse.presentation_contexts_accepted:
                     self.scu_supported_sop.append(
                         (context.ID,
-                         UID2SOPClass(context.AbstractSyntax),
+                         uid_to_sop_class(context.AbstractSyntax),
                          context.TransferSyntax[0]))
 
                 # Assocation established OK
@@ -606,7 +606,7 @@ class Association(threading.Thread):
         if rsp is None:
             return None
 
-        return service_class.Code2Status(rsp.Status)
+        return service_class.code_to_status(rsp.Status)
 
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """Send a C-STORE request to the peer AE.
@@ -783,7 +783,7 @@ class Association(threading.Thread):
 
         status = None
         if rsp is not None:
-            status = service_class.Code2Status(rsp.Status)
+            status = service_class.code_to_status(rsp.Status)
 
         return status
 
@@ -898,15 +898,15 @@ class Association(threading.Thread):
                         transfer_syntax.is_little_endian)
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-            status = service_class.Code2Status(rsp.Status)
+            status = service_class.code_to_status(rsp.Status)
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status.Type != 'Pending':
+            if status.status_type != 'Pending':
                 break
 
             LOGGER.debug('-' * 65)
-            LOGGER.debug('Find Response: %s (%s)', ii, status.Type)
+            LOGGER.debug('Find Response: %s (%s)', ii, status.status_type)
             LOGGER.debug('')
             LOGGER.debug('# DICOM Dataset')
             for elem in ds:
@@ -1099,14 +1099,14 @@ class Association(threading.Thread):
                                                  self.dimse.dimse_timeout)
 
             if rsp.__class__ == C_MOVE_ServiceParameters:
-                status = service_class.Code2Status(rsp.Status)
+                status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
                                  transfer_syntax.is_little_endian)
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.Type == 'Pending':
+                if status.status_type == 'Pending':
                     remain = rsp.NumberOfRemainingSuboperations
                     complete = rsp.NumberOfCompletedSuboperations
                     failed = rsp.NumberOfFailedSuboperations
@@ -1122,23 +1122,23 @@ class Association(threading.Thread):
 
                     yield status, dataset
                 # If the Status is "Success" then processing is complete
-                elif status.Type == "Success":
+                elif status.status_type == "Success":
                     break
                 # All other possible responses
-                elif status.Type == "Failure":
+                elif status.status_type == "Failure":
                     LOGGER.debug('')
                     LOGGER.error('Move Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.Description)
+                    LOGGER.error('    %s', status.description)
                     break
-                elif status.Type == "Cancel":
+                elif status.status_type == "Cancel":
                     LOGGER.debug('')
                     LOGGER.info('Move Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.Description)
+                    LOGGER.info('    %s', status.description)
                     break
-                elif status.Type == "Warning":
+                elif status.status_type == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Move Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.Description)
+                    LOGGER.warning('    %s', status.description)
 
                     for elem in dataset:
                         LOGGER.warning('%s: %s', elem.name, elem.value)
@@ -1302,14 +1302,14 @@ class Association(threading.Thread):
             # Received a C-GET response
             if rsp.__class__ == C_GET_ServiceParameters:
 
-                status = service_class.Code2Status(rsp.Status)
+                status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
                                  transfer_syntax.is_little_endian)
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.Type == 'Pending':
+                if status.status_type == 'Pending':
                     remain = rsp.NumberOfRemainingSuboperations
                     complete = rsp.NumberOfCompletedSuboperations
                     failed = rsp.NumberOfFailedSuboperations
@@ -1326,30 +1326,30 @@ class Association(threading.Thread):
                     yield status, dataset
 
                 # If the Status is "Success" then processing is complete
-                elif status.Type == "Success":
+                elif status.status_type == "Success":
                     status = service_class.Success
                     break
 
                 # All other possible responses
-                elif status.Type == "Failure":
+                elif status.status_type == "Failure":
                     LOGGER.debug('')
                     LOGGER.error('Find Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.Description)
+                    LOGGER.error('    %s', status.description)
 
                     # Print out the status information
                     for elem in dataset:
                         LOGGER.error('%s: %s', elem.name, elem.value)
 
                     break
-                elif status.Type == "Cancel":
+                elif status.status_type == "Cancel":
                     LOGGER.debug('')
                     LOGGER.info('Find Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.Description)
+                    LOGGER.info('    %s', status.description)
                     break
-                elif status.Type == "Warning":
+                elif status.status_type == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Find Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.Description)
+                    LOGGER.warning('    %s', status.description)
 
                     # Print out the status information
                     for elem in dataset:
