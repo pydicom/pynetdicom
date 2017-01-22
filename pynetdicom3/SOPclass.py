@@ -1095,5 +1095,5 @@ def uid_to_sop_class(uid):
             if obj[1].UID == uid:
                 return obj[1]
 
-    raise NotImplementedError("The SOP Class for UID '%s' has not been " \
-                              "implemented" %uid)
+    raise NotImplementedError("The SOP Class for UID '{}' has not been " \
+                              "implemented".format(uid))

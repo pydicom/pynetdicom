@@ -15,7 +15,12 @@ from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
                                         C_GET_ServiceParameters, \
                                         C_FIND_ServiceParameters
 from pynetdicom3.DULprovider import DULServiceProvider
-from pynetdicom3.SOPclass import *
+#from pynetdicom3.SOPclass import *
+from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
+                                 StorageServiceClass, \
+                                 QueryRetrieveGetServiceClass, \
+                                 QueryRetrieveFindServiceClass, \
+                                 QueryRetrieveMoveServiceClass
 from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
 #from pynetdicom3.utils import wrap_list
 from pynetdicom3.primitives import UserIdentityNegotiation, \

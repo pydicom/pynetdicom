@@ -170,8 +170,8 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient privileges or "
-            "already in use" %args.port)
+        logger.error("Cannot listen on port {}, insufficient privileges or "
+            "already in use".format(args.port))
         sys.exit()
 
 # Set Transfer Syntax options

@@ -456,8 +456,10 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
-        s.append('Affected SOP Instance UID     : {0!s}'.format(ds.AffectedSOPInstanceUID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(ds.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -500,7 +502,8 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
         s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -527,8 +530,10 @@ class DIMSEServiceProvider(object):
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
@@ -575,7 +580,8 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -601,7 +607,8 @@ class DIMSEServiceProvider(object):
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : none')
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
@@ -638,8 +645,10 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
-        s.append('Move Destination              : {0!s}'.format(ds.MoveDestination.decode('utf-8')))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Move Destination              : {0!s}'
+                 .format(ds.MoveDestination.decode('utf-8')))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -666,7 +675,8 @@ class DIMSEServiceProvider(object):
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : none')
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
@@ -740,8 +750,10 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
         s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
-        s.append('Affected SOP Instance UID     : {0!s}'.format(ds.AffectedSOPInstanceUID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(ds.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -788,9 +800,12 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
         s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
-        s.append('Affected SOP Instance UID     : {0!s}'.format(ds.AffectedSOPInstanceUID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(ds.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : {0!s}'.format(status))
 
@@ -829,7 +844,8 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
 
@@ -864,8 +880,10 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
@@ -911,7 +929,8 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
         s.append('Message ID                    : {0!s}'.format(ds.MessageID))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
 
@@ -945,12 +964,17 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
         s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
-        s.append('Completed Sub-operations      : {0!s}'.format(ds.NumberOfCompletedSuboperations))
-        s.append('Failed Sub-operations         : {0!s}'.format(ds.NumberOfFailedSuboperations))
-        s.append('Warning Sub-operations        : {0!s}'.format(ds.NumberOfWarningSuboperations))
+        s.append('Completed Sub-operations      : {0!s}'
+                 .format(ds.NumberOfCompletedSuboperations))
+        s.append('Failed Sub-operations         : {0!s}'
+                 .format(ds.NumberOfFailedSuboperations))
+        s.append('Warning Sub-operations        : {0!s}'
+                 .format(ds.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
@@ -993,12 +1017,17 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
-        s.append('Message ID Being Responded To : {0!s}'.format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'.format(ds.AffectedSOPClassUID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(ds.MessageIDBeingRespondedTo))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(ds.AffectedSOPClassUID))
         s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
-        s.append('Completed Sub-operations      : {0!s}'.format(ds.NumberOfCompletedSuboperations))
-        s.append('Failed Sub-operations         : {0!s}'.format(ds.NumberOfFailedSuboperations))
-        s.append('Warning Sub-operations        : {0!s}'.format(ds.NumberOfWarningSuboperations))
+        s.append('Completed Sub-operations      : {0!s}'
+                 .format(ds.NumberOfCompletedSuboperations))
+        s.append('Failed Sub-operations         : {0!s}'
+                 .format(ds.NumberOfFailedSuboperations))
+        s.append('Warning Sub-operations        : {0!s}'
+                 .format(ds.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 

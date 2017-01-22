@@ -3,9 +3,34 @@
 import logging
 import unittest
 
+from pydicom.uid import UID
+
 from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3.PDU import *
-from pynetdicom3.primitives import *
+from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
+                            P_DATA_TF_PDU, \
+                            MaximumLengthSubItem, \
+                            ImplementationClassUIDSubItem, \
+                            ImplementationVersionNameSubItem, \
+                            AsynchronousOperationsWindowSubItem, \
+                            SCP_SCU_RoleSelectionSubItem, \
+                            SOPClassExtendedNegotiationSubItem, \
+                            SOPClassCommonExtendedNegotiationSubItem, \
+                            UserIdentitySubItemRQ, \
+                            ApplicationContextItem, \
+                            PresentationContextItemAC, \
+                            PresentationContextItemRQ, \
+                            UserInformationItem, \
+                            TransferSyntaxSubItem, \
+                            PresentationDataValueItem, \
+                            AbstractSyntaxSubItem
+from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
+                                   SOPClassCommonExtendedNegotiation, \
+                                   MaximumLengthNegotiation, \
+                                   ImplementationClassUIDNotification, \
+                                   ImplementationVersionNameNotification, \
+                                   SCP_SCU_RoleSelectionNegotiation, \
+                                   AsynchronousOperationsWindowNegotiation, \
+                                   UserIdentityNegotiation
 from pynetdicom3.utils import wrap_list, PresentationContext
 
 ## A-ASSOCIATE-RQ PDU

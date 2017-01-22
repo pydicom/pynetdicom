@@ -6,7 +6,15 @@ from unittest.mock import patch
 
 from pydicom.uid import UID
 
-from pynetdicom3.primitives import *
+from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
+                                   SOPClassCommonExtendedNegotiation, \
+                                   MaximumLengthNegotiation, \
+                                   ImplementationClassUIDNotification, \
+                                   ImplementationVersionNameNotification, \
+                                   P_DATA, A_RELEASE, A_ASSOCIATE, A_P_ABORT, \
+                                   A_ABORT, \
+                                   SCP_SCU_RoleSelectionNegotiation, \
+                                   AsynchronousOperationsWindowNegotiation
 from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ABORT_PDU, P_DATA_TF_PDU
 from pynetdicom3.utils import wrap_list, PresentationContext
 

@@ -210,10 +210,10 @@ class ACSEServiceProvider(object):
                 LOGGER.error("ACSE received an invalid result value from "
                              "the peer AE: '%s'", assoc_rsp.result)
                 raise ValueError("ACSE received an invalid result value from "
-                                 "the peer AE: '%s'" %assoc_rsp.result)
+                                 "the peer AE: '{}'".format(assoc_rsp.result))
 
         # Association aborted
-        elif isinstance(assoc_rsp, A_ABORT) or isinstance(assoc_rsp, A_P_ABORT):
+        elif isinstance(assoc_rsp, (A_ABORT, A_P_ABORT)):
             return False, assoc_rsp
 
         elif assoc_rsp is None:
@@ -242,10 +242,12 @@ class ACSEServiceProvider(object):
         """
         # Check valid Result and Source values
         if result not in [0x01, 0x02]:
-            raise ValueError("ACSE rejection: invalid Result value '{0!s}'".format(result))
+            raise ValueError("ACSE rejection: invalid Result value " \
+                             "'{0!s}'".format(result))
 
         if source not in [0x01, 0x02, 0x03]:
-            raise ValueError("ACSE rejection: invalid Source value '{0!s}'".format(source))
+            raise ValueError("ACSE rejection: invalid Source value "
+                             "'{0!s}'".format(source))
 
         # Send an A-ASSOCIATE primitive, rejecting the association
         assoc_primitive.presentation_context_definition_list = []
@@ -355,10 +357,12 @@ class ACSEServiceProvider(object):
             elif reason in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
                 assoc_abort.reason = reason
             else:
-                raise ValueError("ACSE.Abort() invalid reason '{0!s}'".format(reason))
+                raise ValueError("ACSE.Abort() invalid reason "
+                                 "'{0!s}'".format(reason))
 
         else:
-            raise ValueError("ACSE.Abort() invalid source '{0!s}'".format(source))
+            raise ValueError("ACSE.Abort() invalid source "
+                             "'{0!s}'".format(source))
 
         self.DUL.Send(assoc_abort)
         time.sleep(0.5)
@@ -397,6 +401,7 @@ class ACSEServiceProvider(object):
         return self.DUL.state_machine.current_state()
 
     def Kill(self):
+        """Kill the ACSE service."""
         self.DUL.Kill()
 
 
@@ -427,12 +432,17 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                  '=====')
 
-        s.append('Our Implementation Class UID:      {0!s}'.format(user_info.implementation_class_uid))
-        s.append('Our Implementation Version Name:   {0!s}'.format(user_info.implementation_version_name))
+        s.append('Our Implementation Class UID:      '
+                 '{0!s}'.format(user_info.implementation_class_uid))
+        s.append('Our Implementation Version Name:   '
+                 '{0!s}'.format(user_info.implementation_version_name))
         s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Calling Application Name:    {0!s}'.format(assoc_rq.calling_ae_title.decode('utf-8')))
-        s.append('Called Application Name:     {0!s}'.format(assoc_rq.called_ae_title.decode('utf-8')))
-        s.append('Our Max PDU Receive Size:    {0!s}'.format(user_info.maximum_length))
+        s.append('Calling Application Name:    '
+                 '{0!s}'.format(assoc_rq.calling_ae_title.decode('utf-8')))
+        s.append('Called Application Name:     '
+                 '{0!s}'.format(assoc_rq.called_ae_title.decode('utf-8')))
+        s.append('Our Max PDU Receive Size:    '
+                 '{0!s}'.format(user_info.maximum_length))
 
         ## Presentation Contexts
         if len(pres_contexts) == 1:
@@ -441,8 +451,10 @@ class ACSEServiceProvider(object):
             s.append('Presentation Contexts:')
 
         for context in pres_contexts:
-            s.append('  Context ID:        {0!s} (Proposed)'.format((context.ID)))
-            s.append('    Abstract Syntax: ={0!s}'.format(context.abstract_syntax))
+            s.append('  Context ID:        {0!s} '
+                     '(Proposed)'.format((context.ID)))
+            s.append('    Abstract Syntax: ='
+                     '{0!s}'.format(context.abstract_syntax))
 
             if 'SCU' in context.__dict__.keys():
                 scp_scu_role = '{0!s}/{1!s}'.format(context.SCP, context.SCU)
@@ -465,7 +477,8 @@ class ACSEServiceProvider(object):
 
             for item in assoc_rq.user_information.ext_neg:
                 s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
-                #s.append('    Application Information, length: %d bytes' %len(item.app_info))
+                #s.append('    Application Information, length: %d bytes'
+                #                                       %len(item.app_info))
 
                 app_info = wrap_list(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
@@ -482,11 +495,13 @@ class ACSEServiceProvider(object):
             for item in assoc_rq.user_information.common_ext_neg:
 
                 s.append('  Abstract Syntax: ={0!s}'.format(item.sop_class_uid))
-                s.append('  Service Class:   ={0!s}'.format(item.service_class_uid))
+                s.append('  Service Class:   ='
+                         '{0!s}'.format(item.service_class_uid))
 
                 if item.related_general_sop_class_identification != []:
                     s.append('  Related General SOP Class(es):')
-                    for sub_field in item.related_general_sop_class_identification:
+                    for sub_field in \
+                            item.related_general_sop_class_identification:
                         s.append('    ={0!s}'.format(sub_field))
                 else:
                     s.append('  Related General SOP Classes: None')
@@ -497,17 +512,22 @@ class ACSEServiceProvider(object):
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: {0:d} - {1!s}'.format(usid.id_type,
-                                                        usid.id_type_str))
+            s.append('  Authentication Mode: {0:d} - '
+                     '{1!s}'.format(usid.id_type, usid.id_type_str))
             if usid.id_type == 1:
-                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
+                s.append('  Username: '
+                         '[{0!s}]'.format(usid.primary.decode('utf-8')))
             elif usid.id_type == 2:
-                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
-                s.append('  Password: [{0!s}]'.format(usid.secondary.decode('utf-8')))
+                s.append('  Username: '
+                         '[{0!s}]'.format(usid.primary.decode('utf-8')))
+                s.append('  Password: '
+                         '[{0!s}]'.format(usid.secondary.decode('utf-8')))
             elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: {0:d}'.format(len(usid.primary)))
+                s.append('  Kerberos Service Ticket (not dumped) length: '
+                         '{0:d}'.format(len(usid.primary)))
             elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: {0:d}'.format(len(usid.primary)))
+                s.append('  SAML Assertion (not dumped) length: '
+                         '{0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -549,15 +569,19 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
                  '=====')
 
-        s.append('Our Implementation Class UID:      {0!s}'.format(user_info.implementation_class_uid))
-        s.append('Our Implementation Version Name:   {0!s}'.format(user_info.implementation_version_name))
+        s.append('Our Implementation Class UID:      '
+                 '{0!s}'.format(user_info.implementation_class_uid))
+        s.append('Our Implementation Version Name:   '
+                 '{0!s}'.format(user_info.implementation_version_name))
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Responding Application Name: {0!s}'.format(responding_ae))
-        s.append('Our Max PDU Receive Size:    {0!s}'.format(user_info.maximum_length))
+        s.append('Our Max PDU Receive Size:    '
+                 '{0!s}'.format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
         for item in pres_contexts:
-            s.append('  Context ID:        {0!s} ({1!s})'.format(item.ID, item.result_str))
+            s.append('  Context ID:        {0!s} ({1!s})'
+                     .format(item.ID, item.result_str))
 
             # If Presentation Context was accepted
             if item.result == 0:
@@ -565,8 +589,10 @@ class ACSEServiceProvider(object):
                     ac_scp_scu_role = 'Default'
                 else:
                     ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
-                s.append('    Accepted SCP/SCU Role: {0!s}'.format(ac_scp_scu_role))
-                s.append('    Accepted Transfer Syntax: ={0!s}'.format(item.transfer_syntax))
+                s.append('    Accepted SCP/SCU Role: {0!s}'
+                         .format(ac_scp_scu_role))
+                s.append('    Accepted Transfer Syntax: ={0!s}'
+                         .format(item.transfer_syntax))
 
         ## Extended Negotiation
         ext_nego = 'None'
@@ -700,12 +726,18 @@ class ACSEServiceProvider(object):
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                  '=====')
-        s.append('Their Implementation Class UID:    {0!s}'.format(their_class_uid))
-        s.append('Their Implementation Version Name: {0!s}'.format(their_version))
-        s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Calling Application Name:    {0!s}'.format(assoc_rq.calling_ae_title.decode('utf-8')))
-        s.append('Called Application Name:     {0!s}'.format(assoc_rq.called_ae_title.decode('utf-8')))
-        s.append('Their Max PDU Receive Size:  {0!s}'.format(user_info.maximum_length))
+        s.append('Their Implementation Class UID:    {0!s}'
+                 .format(their_class_uid))
+        s.append('Their Implementation Version Name: {0!s}'
+                 .format(their_version))
+        s.append('Application Context Name:    {0!s}'
+                 .format(app_context))
+        s.append('Calling Application Name:    {0!s}'
+                 .format(assoc_rq.calling_ae_title.decode('utf-8')))
+        s.append('Called Application Name:     {0!s}'
+                 .format(assoc_rq.called_ae_title.decode('utf-8')))
+        s.append('Their Max PDU Receive Size:  {0!s}'
+                 .format(user_info.maximum_length))
 
         ## Presentation Contexts
         s.append('Presentation Contexts:')
@@ -729,7 +761,8 @@ class ACSEServiceProvider(object):
 
             for item in assoc_rq.user_information.ext_neg:
                 s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
-                #s.append('    Application Information, length: %d bytes' %len(item.app_info))
+                #s.append('    Application Information, length: %d bytes'
+                #                                       %len(item.app_info))
 
                 app_info = wrap_list(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
@@ -745,12 +778,15 @@ class ACSEServiceProvider(object):
 
             for item in assoc_rq.user_information.common_ext_neg:
 
-                s.append('  Abstract Syntax: ={0!s}'.format(item.sop_class_uid))
-                s.append('  Service Class:   ={0!s}'.format(item.service_class_uid))
+                s.append('  Abstract Syntax: ={0!s}'
+                         .format(item.sop_class_uid))
+                s.append('  Service Class:   ={0!s}'
+                         .format(item.service_class_uid))
 
                 if item.related_general_sop_class_identification != []:
                     s.append('  Related General SOP Class(es):')
-                    for sub_field in item.related_general_sop_class_identification:
+                    for sub_field in \
+                                item.related_general_sop_class_identification:
                         s.append('    ={0!s}'.format(sub_field))
                 else:
                     s.append('  Related General SOP Classes: None')
@@ -770,17 +806,22 @@ class ACSEServiceProvider(object):
         if user_info.user_identity is not None:
             usid = user_info.user_identity
             s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: {0:d} - {1!s}'.format(usid.id_type,
-                                                        usid.id_type_str))
+            s.append('  Authentication Mode: {0:d} - {1!s}'
+                     .format(usid.id_type, usid.id_type_str))
             if usid.id_type == 1:
-                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
+                s.append('  Username: [{0!s}]'
+                         .format(usid.primary.decode('utf-8')))
             elif usid.id_type == 2:
-                s.append('  Username: [{0!s}]'.format(usid.primary.decode('utf-8')))
-                s.append('  Password: [{0!s}]'.format(usid.secondary.decode('utf-8')))
+                s.append('  Username: [{0!s}]'
+                         .format(usid.primary.decode('utf-8')))
+                s.append('  Password: [{0!s}]'
+                         .format(usid.secondary.decode('utf-8')))
             elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: {0:d}'.format(len(usid.primary)))
+                s.append('  Kerberos Service Ticket (not dumped) length: '
+                         '{0:d}'.format(len(usid.primary)))
             elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: {0:d}'.format(len(usid.primary)))
+                s.append('  SAML Assertion (not dumped) length: '
+                         '{0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -829,16 +870,22 @@ class ACSEServiceProvider(object):
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
                  '=====')
 
-        s.append('Their Implementation Class UID:    {0!s}'.format(their_class_uid))
-        s.append('Their Implementation Version Name: {0!s}'.format(their_version))
+        s.append('Their Implementation Class UID:    {0!s}'
+                 .format(their_class_uid))
+        s.append('Their Implementation Version Name: {0!s}'
+                 .format(their_version))
         s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Calling Application Name:    {0!s}'.format(assoc_ac.calling_ae_title.decode('utf-8')))
-        s.append('Called Application Name:     {0!s}'.format(assoc_ac.called_ae_title.decode('utf-8')))
-        s.append('Their Max PDU Receive Size:  {0!s}'.format(user_info.maximum_length))
+        s.append('Calling Application Name:    {0!s}'
+                 .format(assoc_ac.calling_ae_title.decode('utf-8')))
+        s.append('Called Application Name:     {0!s}'
+                 .format(assoc_ac.called_ae_title.decode('utf-8')))
+        s.append('Their Max PDU Receive Size:  {0!s}'
+                 .format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
         for item in pres_contexts:
-            s.append('  Context ID:        {0!s} ({1!s})'.format(item.ID, item.result_str))
+            s.append('  Context ID:        {0!s} ({1!s})'
+                     .format(item.ID, item.result_str))
 
             if item.result == 0:
                 if item.SCP is None and item.SCU is None:
@@ -846,9 +893,12 @@ class ACSEServiceProvider(object):
                     rq_scp_scu_role = 'Default'
                 else:
                     ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
-                s.append('    Proposed SCP/SCU Role: {0!s}'.format(rq_scp_scu_role))
-                s.append('    Accepted SCP/SCU Role: {0!s}'.format(ac_scp_scu_role))
-                s.append('    Accepted Transfer Syntax: ={0!s}'.format(item.transfer_syntax))
+                s.append('    Proposed SCP/SCU Role: {0!s}'
+                         .format(rq_scp_scu_role))
+                s.append('    Accepted SCP/SCU Role: {0!s}'
+                         .format(ac_scp_scu_role))
+                s.append('    Accepted Transfer Syntax: ={0!s}'
+                         .format(item.transfer_syntax))
 
         ## Extended Negotiation
         ext_neg = 'None'
@@ -858,11 +908,13 @@ class ACSEServiceProvider(object):
 
         ## Common Extended Negotiation
         common_ext_neg = 'None'
-        s.append('Accepted Common Extended Negotiation: {0!s}'.format(common_ext_neg))
+        s.append('Accepted Common Extended Negotiation: {0!s}'
+                 .format(common_ext_neg))
 
         ## Asynchronous Operations Negotiation
         async_neg = 'None'
-        s.append('Accepted Asynchronous Operations Window Negotiation: {0!s}'.format(async_neg))
+        s.append('Accepted Asynchronous Operations Window Negotiation: {0!s}'
+                 .format(async_neg))
 
         ## User Identity
         usr_id = 'None'

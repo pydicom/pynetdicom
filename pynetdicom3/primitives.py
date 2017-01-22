@@ -1126,7 +1126,8 @@ class ImplementationClassUIDNotification(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Implementation Class UID\n"
-        s += "  Implementation class UID: {0!s}\n".format(self.implementation_class_uid)
+        s += "  Implementation class UID: {0!s}\n" \
+             .format(self.implementation_class_uid)
         return s
 
 
@@ -1407,7 +1408,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
             LOGGER.error("SCU and SCP Roles cannot both be unsupported " \
                          "for %s", self.sop_class_uid)
             raise ValueError("SCU and SCP Roles cannot both be unsupported " \
-                             "for %s" %self.sop_class_uid)
+                             "for {}".format(self.sop_class_uid))
 
         item = SCP_SCU_RoleSelectionSubItem()
         item.FromParams(self)
@@ -2123,7 +2124,8 @@ class UserIdentityNegotiation(ServiceParameter):
         s = 'User Identity Parameters\n'
         if self.server_response is None:
             s += '  User identity type: {0:d}\n'.format(self.user_identity_type)
-            s += '  Positive response requested: {0!r}\n'.format(self.positive_response_requested)
+            s += '  Positive response requested: {0!r}\n' \
+                 .format(self.positive_response_requested)
             s += '  Primary field: {0!s}\n'.format(self.primary_field)
             if self.secondary_field is not None:
                 s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
