@@ -14,7 +14,7 @@ import time
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian, UID
+                        ExplicitVRBigEndian, UID
 
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3 import pynetdicom_uid_prefix
