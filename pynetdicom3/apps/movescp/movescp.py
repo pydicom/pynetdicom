@@ -120,7 +120,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$movescp.py v%s %s $' %('0.1.0', '2016-04-12'))
+logger.debug('$movescp.py v{0!s} {1!s} $'.format('0.1.0', '2016-04-12'))
 logger.debug('')
 
 # Validate port
@@ -130,8 +130,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port %d, insufficient priveleges"
-            %args.port)
+        logger.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
         sys.exit()
 
 # Set Transfer Syntax options

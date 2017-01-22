@@ -159,7 +159,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-LOGGER.debug('$storescp.py v%s %s $' %('0.2.0', '2016-03-23'))
+LOGGER.debug('$storescp.py v{0!s} {1!s} $'.format('0.2.0', '2016-03-23'))
 LOGGER.debug('')
 
 # Validate port
@@ -169,8 +169,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        LOGGER.error("Cannot listen on port %d, insufficient priveleges"
-            %args.port)
+        LOGGER.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
         sys.exit()
 
 # Set Transfer Syntax options
@@ -231,8 +230,8 @@ def on_c_store(dataset):
     except:
         pass
 
-    filename = '%s.%s' %(mode_prefix, dataset.SOPInstanceUID)
-    LOGGER.info('Storing DICOM file: %s' %filename)
+    filename = '{0!s}.{1!s}'.format(mode_prefix, dataset.SOPInstanceUID)
+    LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
         LOGGER.warning('DICOM file already exists, overwriting')
@@ -257,13 +256,13 @@ def on_c_store(dataset):
             ds.save_as(filename)
         except IOError:
             LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    %s" %os.path.dirname(filename))
+            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
             LOGGER.error('Directory may not exist or you may not have write '
                     'permission')
             return 0xA700 # Failed - Out of Resources
         except:
             LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    %s" %os.path.dirname(filename))
+            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
             return 0xA700 # Failed - Out of Resources
 
     return 0x0000 # Success
@@ -272,7 +271,7 @@ def on_c_store(dataset):
 if args.output_directory is not None:
     if not os.access(args.output_directory, os.W_OK|os.X_OK):
         LOGGER.error("No write permissions or the output directory may not exist:")
-        LOGGER.error("    %s" %args.output_directory)
+        LOGGER.error("    {0!s}".format(args.output_directory))
         sys.exit()
 
 scp_classes = [x for x in StorageSOPClassList]
