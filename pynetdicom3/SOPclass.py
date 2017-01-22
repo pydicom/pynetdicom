@@ -1,8 +1,10 @@
 """
 Defines Status and the supported Service Classes, generates the SOP Classes.
 """
+import inspect
 from io import BytesIO
 import logging
+import sys
 import time
 
 from pynetdicom3.dsutils import decode, encode
@@ -154,7 +156,7 @@ class ServiceClass(object):
                 if code in obj.code_range:
                     return obj
 
-        return ValueError('Code {0} is not a valid Status code for the '
+        return ValueError('Code 0x{0:04x} is not a valid Status code for the '
                           'current SOP class.'.format(code))
 
 
@@ -1072,8 +1074,6 @@ QR_CLASS_LIST = []
 for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
     QR_CLASS_LIST.extend(class_list)
 
-MODULE_OBJECTS = dir()
-
 def uid_to_sop_class(uid):
     """Given a `uid` return the corresponding SOP Class.
 
@@ -1086,10 +1086,14 @@ def uid_to_sop_class(uid):
     subclass of pynetdicom3.sopclass.ServiceClass
         The SOP class corresponding to `uid`
     """
-    for obj in MODULE_OBJECTS:
-        if hasattr(obj, 'UID'):
-            if obj.UID == uid:
-                return obj
+    # Get a list of all the class members of the current module
+    members = inspect.getmembers(sys.modules[__name__], lambda member: \
+                    inspect.isclass(member) and member.__module__ == __name__)
+
+    for obj in members:
+        if hasattr(obj[1], 'UID'):
+            if obj[1].UID == uid:
+                return obj[1]
 
     raise NotImplementedError("The SOP Class for UID '%s' has not been " \
                               "implemented" %uid)
