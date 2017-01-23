@@ -182,6 +182,13 @@ class TestCorrectAmbiguousVR(unittest.TestCase):
         self.assertEqual(ds.BeamSequence[0].BeamSequence[0].SmallestValidPixelValue, 256)
         self.assertEqual(ds.BeamSequence[0].BeamSequence[0][0x00280104].VR, 'US')
 
+    def test_write_explicit_vr_raises(self):
+        """Test writing explicit vr raises exception if unsolved element."""
+        ds = Dataset()
+        ds.PerimeterValue = b'\x00\x01'
+        with self.assertRaises(NotImplementedError):
+            correct_ambiguous_vr(ds, True)
+
 
 if __name__ == "__main__":
     unittest.main()
