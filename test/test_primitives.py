@@ -939,6 +939,7 @@ class TestServiceParameter(unittest.TestCase):
         prim_a = MaximumLengthNegotiation()
         prim_b = MaximumLengthNegotiation()
         self.assertTrue(prim_a == prim_b)
+        self.assertFalse(prim_a == 'test')
         self.assertFalse(prim_a != prim_b)
         prim_b.maximum_length_received = 12
         self.assertFalse(prim_a == prim_b)

@@ -6,6 +6,7 @@ import logging
 import unittest
 
 from pydicom.dataset import Dataset
+from pydicom.uid import UID
 
 from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
@@ -23,11 +24,7 @@ from pynetdicom3.utils import validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-handler = logging.NullHandler()
-for h in LOGGER.handlers:
-    LOGGER.removeHandler(h)
-LOGGER.addHandler(handler)
-LOGGER.setLevel(logging.ERROR)
+LOGGER.setLevel(logging.CRITICAL)
 
 
 class TestPrimitive_C_STORE(unittest.TestCase):
@@ -42,18 +39,35 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
-        primitive.AffectedSOPInstanceUID = '1.2.4.5.7.8'
-        self.assertEqual(primitive.AffectedSOPInstanceUID, '1.2.4.5.7.8')
+        # AffectedSOPInstanceUID
+        primitive.AffectedSOPInstanceUID = b'1.2.1'
+        self.assertEqual(primitive.AffectedSOPInstanceUID, UID('1.2.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPInstanceUID = UID('1.2.2')
+        self.assertEqual(primitive.AffectedSOPInstanceUID, UID('1.2.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPInstanceUID = '1.2.3'
+        self.assertEqual(primitive.AffectedSOPInstanceUID, UID('1.2.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
 
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
-        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle,
-                         b'UNITTEST_SCP    ')
+        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle, b'UNITTEST_SCP    ')
+        primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST_SCP'
+        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle, b'UNITTEST_SCP    ')
 
         primitive.MoveOriginatorMessageID = 15
         self.assertEqual(primitive.MoveOriginatorMessageID, 15)
@@ -258,8 +272,16 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
@@ -460,8 +482,16 @@ class TestPrimitive_C_GET(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
@@ -519,6 +549,38 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = -1
+
+        # NumberOfRemainingSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfRemainingSuboperations = -1
+
+        # NumberOfCompletedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfCompletedSuboperations = -1
+
+        # NumberOfFailedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfFailedSuboperations = -1
+
+        # NumberOfWarningSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfWarningSuboperations = -1
 
         # AffectedSOPClassUID
         with self.assertRaises(TypeError):
@@ -647,8 +709,16 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
@@ -697,6 +767,38 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = -1
+
+        # NumberOfRemainingSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfRemainingSuboperations = -1
+
+        # NumberOfCompletedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfCompletedSuboperations = -1
+
+        # NumberOfFailedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfFailedSuboperations = -1
+
+        # NumberOfWarningSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfWarningSuboperations = -1
 
         # AffectedSOPClassUID
         with self.assertRaises(TypeError):
@@ -841,8 +943,16 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
