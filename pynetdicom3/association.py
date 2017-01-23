@@ -15,7 +15,7 @@ from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
                                         C_STORE_ServiceParameters, \
                                         C_GET_ServiceParameters, \
                                         C_FIND_ServiceParameters
-from pynetdicom3.dsutils import decode, encode
+from pynetdicom3.dsutils import decode, encode, correct_ambiguous_vr
 from pynetdicom3.DULprovider import DULServiceProvider
 #from pynetdicom3.SOPclass import *
 from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
@@ -34,12 +34,11 @@ from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
                         PatientRootQueryRetrieveInformationModelGet, \
                         StudyRootQueryRetrieveInformationModelGet, \
                         PatientStudyOnlyQueryRetrieveInformationModelGet
-from pynetdicom3.utils import PresentationContextManager, correct_ambiguous_vr
-#from pynetdicom3.utils import wrap_list
 from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
-
+from pynetdicom3.utils import PresentationContextManager
+#from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
@@ -769,7 +768,8 @@ class Association(threading.Thread):
             return service_class.CannotUnderstand
 
         # Set the correct VR for ambiguous elements
-        dataset = correct_ambiguous_vr(dataset, transfer_syntax)
+        dataset = correct_ambiguous_vr(dataset,
+                                       transfer_syntax.is_little_endian)
 
         # Build C-STORE request primitive
         primitive = C_STORE_ServiceParameters()
