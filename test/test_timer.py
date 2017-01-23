@@ -7,10 +7,11 @@ import unittest
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3')
-handler = logging.StreamHandler()
 LOGGER.setLevel(logging.CRITICAL)
 
+
 class TestTimer(unittest.TestCase):
+    """Test the Timer class."""
     def test_init(self):
         """Test Timer initialisation"""
         timer = Timer(10)
@@ -37,6 +38,9 @@ class TestTimer(unittest.TestCase):
         self.assertFalse(timer.is_expired)
         time.sleep(0.1)
         self.assertTrue(timer.is_expired)
+
+        timer.timeout_seconds = 0
+        self.assertEqual(timer.timeout_seconds, None)
 
     def test_start_stop(self):
         """Test Timer stops."""
