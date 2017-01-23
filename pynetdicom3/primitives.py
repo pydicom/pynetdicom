@@ -1,5 +1,5 @@
 """
-Implementaion of the service parameter primitives
+Implementaion of the service parameter primitives.
 """
 import logging
 
@@ -28,6 +28,10 @@ class ServiceParameter(object):
             return other.__dict__ == self.__dict__
 
         return False
+
+    def __ne__(self, other):
+        """Inequality of two ServiceParameters"""
+        return not self == other
 
     def from_primitive(self):
         """FIXME"""
@@ -931,21 +935,21 @@ class P_DATA(object):
             if header_byte & 1:
                 # xxxxxx11
                 if header_byte & 2:
-                    s += '  Command information, last fragment of the ' \
+                    s += '    Command information, last fragment of the ' \
                          'DIMSE message\n'
                 # xxxxxx01
                 else:
-                    s += '  Command information, not the last fragment of ' \
+                    s += '    Command information, not the last fragment of ' \
                          'the DIMSE message\n'
             # xxxxxx00, xxxxxxx10
             else:
                 # xxxxxx10
                 if header_byte & 2 != 0:
-                    s += '  Dataset information, last fragment of the ' \
+                    s += '    Dataset information, last fragment of the ' \
                          'DIMSE message\n'
                 # xxxxxx00
                 else:
-                    s += '  Dataset information, not the last fragment of ' \
+                    s += '    Dataset information, not the last fragment of ' \
                          'the DIMSE message\n'
 
             # Remaining data
@@ -2109,7 +2113,7 @@ class UserIdentityNegotiation(ServiceParameter):
             If `value` is not bytes or None
         """
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bool):
+        if isinstance(value, bytes):
             pass
         elif value is None:
             pass
