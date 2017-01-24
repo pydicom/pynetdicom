@@ -38,12 +38,7 @@ from pynetdicom3.primitives import MaximumLengthNegotiation, \
 #from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3')
-#handler = logging.StreamHandler()
-handler = logging.NullHandler()
-for h in LOGGER.handlers:
-    LOGGER.removeHandler(h)
-LOGGER.addHandler(handler)
-LOGGER.setLevel(logging.ERROR)
+LOGGER.setLevel(logging.CRITICAL)
 
 
 class TestPDU(unittest.TestCase):

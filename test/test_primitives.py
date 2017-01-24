@@ -30,11 +30,12 @@ logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 
 
-def bytes_to_hex_string(bytestring):
-    """Debugging function to view encoded element data."""
-    hexa = wrap_list(bytestring)
-    for item in hexa:
-        print(item)
+def print_nice_bytes(bytestream):
+    """Nice output for bytestream."""
+    str_list = wrap_list(bytestream, prefix="b'\\x", delimiter='\\x',
+                        items_per_line=10)
+    for string in str_list:
+        print(string)
 
 
 class TestPrimitive_MaximumLengthNegotiation(unittest.TestCase):
@@ -532,6 +533,14 @@ class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
         self.assertEqual(primitive.server_response, b'\x00\x31')
         with self.assertRaises(TypeError):
             primitive.server_response = ['test']
+        
+        primitive = UserIdentityNegotiation()
+        with self.assertRaises(ValueError):
+            primitive.from_primitive()
+            
+        primitive.user_identity_type = 2
+        with self.assertRaises(ValueError):
+            primitive.from_primitive()
 
     def test_string(self):
         """Check string output."""
@@ -547,6 +556,20 @@ class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
 
         primitive.server_response = b'\x00\x31'
         self.assertTrue('Server response' in primitive.__str__())
+
+    def test_conversion(self):
+        """ Check converting to PDU item works correctly """
+        primitive = UserIdentityNegotiation()
+        # -RQ
+        primitive.user_identity_type = 1
+        primitive.primary_field = b'test'
+        item = primitive.from_primitive()
+
+        # -AC
+        primitive = UserIdentityNegotiation()
+        primitive.server_response = b'Test'
+        item = primitive.from_primitive()
+        self.assertTrue(item.encode() == b'\x59\x00\x00\x06\x00\x04\x54\x65\x73\x74')
 
 
 class TestPrimitive_A_ASSOCIATE(unittest.TestCase):

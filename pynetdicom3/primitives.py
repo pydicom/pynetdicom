@@ -2131,8 +2131,7 @@ class UserIdentityNegotiation(ServiceParameter):
             s += '  Positive response requested: {0!r}\n' \
                  .format(self.positive_response_requested)
             s += '  Primary field: {0!s}\n'.format(self.primary_field)
-            if self.secondary_field is not None:
-                s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
+            s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
         else:
             s += '  Server response: {0!s}\n'.format(self.server_response)
 
