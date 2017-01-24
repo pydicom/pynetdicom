@@ -156,8 +156,8 @@ class ServiceClass(object):
                 if code in obj.code_range:
                     return obj
 
-        return ValueError('Code 0x{0:04x} is not a valid Status code for the '
-                          'current SOP class.'.format(code))
+        raise ValueError('Code 0x{0:04x} is not a valid Status code for the '
+                         'current SOP class.'.format(code))
 
 
 # Service Class types

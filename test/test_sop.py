@@ -3,11 +3,62 @@
 import logging
 import unittest
 
-from pynetdicom3.SOPclass import Status
+from pynetdicom3.SOPclass import Status, uid_to_sop_class, \
+                                 VerificationServiceClass, \
+                                 StorageServiceClass, \
+                                 QueryRetrieveGetServiceClass, \
+                                 QueryRetrieveFindServiceClass, \
+                                 QueryRetrieveMoveServiceClass, \
+                                 ModalityWorklistServiceSOPClass, \
+                                 RTMachineVerificationServiceClass
 
 LOGGER = logging.getLogger('pynetdicom3')
-handler = logging.StreamHandler()
 LOGGER.setLevel(logging.CRITICAL)
+
+
+class TestServiceClass(unittest.TestCase):
+    def test_code_to_status(self):
+        """Test conversion of status code to Status class."""
+        sop = VerificationServiceClass()
+        with self.assertRaises(ValueError):
+            sop.code_to_status(0x0001)
+
+
+class TestStorageServiceClass(unittest.TestCase):
+    def test_scp(self):
+        """Test SCP"""
+        pass
+
+
+class TestQRFindServiceClass(unittest.TestCase):
+    def test_scp(self):
+        """Test SCP"""
+        pass
+
+
+class TestQRGetServiceClass(unittest.TestCase):
+    def test_scp(self):
+        """Test SCP"""
+        pass
+
+
+class TestQRMoveServiceClass(unittest.TestCase):
+    def test_scp(self):
+        """Test SCP"""
+        pass
+
+
+class TestModalityWorklistServiceClass(unittest.TestCase):
+    def test_scp(self):
+        """Test SCP"""
+        pass
+
+
+class TestRTMachineVerificationServiceClass(unittest.TestCase):
+    def test_scp(self):
+        """Test SCP"""
+        pass
+
 
 class TestStatus(unittest.TestCase):
     def test_init(self):
@@ -40,6 +91,13 @@ class TestStatus(unittest.TestCase):
         """Test the Status __str__ method."""
         status = Status('Success', 'A test status', range(0x0000, 0x0000 + 2))
         self.assertEqual(str(status), '0x0000: Success - A test status')
+
+
+class TestUIDtoSOPlass(unittest.TestCase):
+    def test_missing_sop(self):
+        """Test raise if SOP Class not found."""
+        with self.assertRaises(NotImplementedError):
+            uid_to_sop_class('1.2.3.4')
 
 
 if __name__ == "__main__":
