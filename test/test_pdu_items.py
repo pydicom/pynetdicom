@@ -5,6 +5,28 @@ import unittest
 
 from pydicom.uid import UID
 
+from encoded_pdu_items import a_associate_rq, a_associate_ac, \
+                              a_associate_rq_user_async, \
+                              asynchronous_window_ops, a_associate_rq_role, \
+                              user_identity_rq_user_nopw, \
+                              a_associate_rq_user_id_user_pass, \
+                              a_associate_rq_user_id_ext_neg, \
+                              a_associate_ac_user_id_user_pass, \
+                              a_associate_rq_com_ext_neg, \
+                              user_identity_rq_user_pass, a_associate_rj, \
+                              a_release_rq, a_release_rp, a_abort, \
+                              a_p_abort, application_context, \
+                              presentation_context_rq, \
+                              presentation_context_ac, abstract_syntax, \
+                              transfer_syntax, presentation_data, \
+                              presentation_data_value, \
+                              maximum_length_received, \
+                              implementation_class_uid, \
+                              implementation_version_name, \
+                              role_selection, user_information, \
+                              extended_negotiation, \
+                              common_extended_negotiation, \
+                              p_data_tf
 from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
                             P_DATA_TF_PDU, \
@@ -34,281 +56,23 @@ from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
                                    UserIdentityNegotiation
 from pynetdicom3.utils import wrap_list, PresentationContext
 
-## A-ASSOCIATE-RQ PDU
-# Called AET: ANY-SCP
-# Callign AET: ECHOSCU
-# Application Context Name: 1.2.840.10008.3.1.1.1
-# 1.2.840.10008.1.1
-# Presentation Context Items:
-#   Presentation Context ID: 1
-#   Abstract Syntax: 1.2.840.10008.1.1
-#   Transfer Syntax: 1.2.840.10008.1.2
-# User Information
-#   Max Length Received: 16382
-#   Implementation Class UID: 1.2.826.0.1.3680043.9.3811.0.9.0
-#   Implementation Version Name: PYNETDICOM_090
-a_associate_rq = b"\x01\x00\x00\x00\x00\xd1\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
-                 b"\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43" \
-                 b"\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e" \
-                 b"\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e" \
-                 b"\x31\x2e\x31\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31" \
-                 b"\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31" \
-                 b"\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30" \
-                 b"\x38\x2e\x31\x2e\x32\x50\x00\x00\x3e\x51\x00\x00\x04\x00\x00\x3f" \
-                 b"\xfe\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31" \
-                 b"\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e" \
-                 b"\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49" \
-                 b"\x43\x4f\x4d\x5f\x30\x39\x30"
-
-a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
-                 b"\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43" \
-                 b"\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e" \
-                 b"\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e" \
-                 b"\x31\x2e\x31\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31" \
-                 b"\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32" \
-                 b"\x50\x00\x00\x3a\x51\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b" \
-                 b"\x31\x2e\x32\x2e\x32\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31" \
-                 b"\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f" \
-                 b"\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30"
-
-a_associate_rq_user_async = b'\x01\x00\x00\x00\x00\xed\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                            b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
-                            b'\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                            b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                            b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                            b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                            b'\x31\x2e\x31\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31' \
-                            b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31' \
-                            b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
-                            b'\x38\x2e\x31\x2e\x32\x50\x00\x00\x5a\x51\x00\x00\x04\x00\x00\x3f' \
-                            b'\xfe\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31' \
-                            b'\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e' \
-                            b'\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49' \
-                            b'\x43\x4f\x4d\x5f\x30\x39\x30\x58\x00\x00\x10\x01\x01\x00\x0a\x70' \
-                            b'\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x00\x53\x00\x00\x04\x00' \
-                            b'\x05\x00\x05'
-
-asynchronous_window_ops = b'\x53\x00\x00\x04\x00\x05\x00\x05'
-
-a_associate_rq_role = b'\x01\x00\x00\x00\x00\xfc\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                      b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x47\x45\x54\x53\x43\x55' \
-                      b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                      b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                      b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                      b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                      b'\x31\x2e\x31\x20\x00\x00\x38\x01\x00\x00\x00\x30\x00\x00\x19\x31' \
-                      b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31' \
-                      b'\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x13\x31\x2e\x32\x2e' \
-                      b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x2e\x31\x50' \
-                      b'\x00\x00\x5f\x51\x00\x00\x04\x00\x00\x3f\xfe\x52\x00\x00\x20\x31' \
-                      b'\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30\x30' \
-                      b'\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30\x55' \
-                      b'\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30\x39' \
-                      b'\x30\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-                      b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32' \
-                      b'\x00\x01'
-
-#a_associate_rq_user_id_kerberos
-#a_associate_rq_user_id_saml
-
-# username: pynetdicom
-a_associate_rq_user_id_user_nopw = b'\x01\x00\x00\x00\x01\x17\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                                   b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
-                                   b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                                   b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                                   b'\x31\x2e\x31\x20\x00\x00\x64\x01\x00\xff\x00\x30\x00\x00\x19\x31' \
-                                   b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31' \
-                                   b'\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x13\x31\x2e\x32\x2e' \
-                                   b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x2e\x31\x40' \
-                                   b'\x00\x00\x13\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38' \
-                                   b'\x2e\x31\x2e\x32\x2e\x32\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34' \
-                                   b'\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\x4e\x51' \
-                                   b'\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b\x31\x2e\x32\x2e\x32' \
-                                   b'\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31\x30\x2e\x33\x2e\x30' \
-                                   b'\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f\x46\x46\x49\x53\x5f' \
-                                   b'\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00\x00\x10\x01\x01\x00' \
-                                   b'\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x00'
-
-user_identity_rq_user_nopw = b'\x58\x00\x00\x10\x01\x01\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63' \
-                             b'\x6f\x6d\x00\x00'
-
-# username: pynetdicom, password: p4ssw0rd
-a_associate_rq_user_id_user_pass = b'\x01\x00\x00\x00\x01\x1f\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                                   b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
-                                   b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                                   b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                                   b'\x31\x2e\x31\x20\x00\x00\x64\x01\x00\xff\x00\x30\x00\x00\x19\x31' \
-                                   b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31' \
-                                   b'\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x13\x31\x2e\x32\x2e' \
-                                   b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x2e\x31\x40' \
-                                   b'\x00\x00\x13\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38' \
-                                   b'\x2e\x31\x2e\x32\x2e\x32\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34' \
-                                   b'\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\x56\x51' \
-                                   b'\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b\x31\x2e\x32\x2e\x32' \
-                                   b'\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31\x30\x2e\x33\x2e\x30' \
-                                   b'\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f\x46\x46\x49\x53\x5f' \
-                                   b'\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00\x00\x18\x02\x00\x00' \
-                                   b'\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x08\x70\x34\x73' \
-                                   b'\x73\x77\x30\x72\x64'
-
-# CTImageStorage and MRImageStorage
-a_associate_rq_user_id_ext_neg = b'\x01\x00\x00\x00\x01\xab\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                                 b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
-                                 b'\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                                 b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                                 b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                                 b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                                 b'\x31\x2e\x31\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31' \
-                                 b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31' \
-                                 b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
-                                 b'\x38\x2e\x31\x2e\x32\x20\x00\x00\x36\x03\x00\x00\x00\x30\x00\x00' \
-                                 b'\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35' \
-                                 b'\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x40\x00\x00\x11\x31\x2e' \
-                                 b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x20' \
-                                 b'\x00\x00\x36\x05\x00\x00\x00\x30\x00\x00\x19\x31\x2e\x32\x2e\x38' \
-                                 b'\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31' \
-                                 b'\x2e\x31\x2e\x34\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e' \
-                                 b'\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\xa4\x51\x00\x00' \
-                                 b'\x04\x00\x00\x3f\xfe\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36' \
-                                 b'\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33' \
-                                 b'\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e' \
-                                 b'\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30\x39\x30\x58\x00\x00\x10\x01' \
-                                 b'\x01\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63\x6f\x6d\x00\x00\x53' \
-                                 b'\x00\x00\x04\x00\x05\x00\x05\x56\x00\x00\x21\x00\x19\x31\x2e\x32' \
-                                 b'\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34' \
-                                 b'\x2e\x31\x2e\x31\x2e\x32\x02\x00\x03\x00\x01\x00\x56\x00\x00\x21' \
-                                 b'\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e' \
-                                 b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x02\x00\x03\x00\x01' \
-                                 b'\x00'
-
-# Seems faulty
-a_associate_ac_user_id_user_pass = b'\x02\x00\x00\x00\x00\xbe\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                                   b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
-                                   b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                                   b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                                   b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                                   b'\x31\x2e\x31\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31' \
-                                   b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32' \
-                                   b'\x50\x00\x00\x40\x51\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b' \
-                                   b'\x31\x2e\x32\x2e\x32\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31' \
-                                   b'\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f' \
-                                   b'\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00' \
-                                   b'\x00\x02\x00\x00'
+LOGGER = logging.getLogger('pynetdicom3')
+LOGGER.setLevel(logging.ERROR)
 
 
-a_associate_rq_com_ext_neg = b'\x02\x00\x00\x00\x01\x49\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
-                             b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
-                             b'\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
-                             b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                             b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e' \
-                             b'\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e' \
-                             b'\x31\x2e\x31\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31' \
-                             b'\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32' \
-                             b'\x21\x00\x00\x19\x03\x00\x00\x00\x40\x00\x00\x11\x31\x2e\x32\x2e' \
-                             b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x21\x00\x00' \
-                             b'\x19\x05\x00\x00\x00\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30' \
-                             b'\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x50\x00\x00\x91\x51\x00' \
-                             b'\x00\x04\x00\x00\x40\x00\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32' \
-                             b'\x36\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e' \
-                             b'\x33\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59' \
-                             b'\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30\x39\x30\x57\x00\x00\x4d' \
-                             b'\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e' \
-                             b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00\x11\x31\x2e\x32' \
-                             b'\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x34\x2e\x32\x00\x1d' \
-                             b'\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e' \
-                             b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38\x2e\x32\x32'
+def bytes_to_bytesio(bytestream):
+    from io import BytesIO
+    fp = BytesIO()
+    fp.write(bytestream)
+    fp.seek(0)
+    return fp
 
-user_identity_rq_user_pass = b'\x58\x00\x00\x18\x02\x00\x00\x0a\x70\x79\x6e\x65\x74\x64\x69\x63' \
-                             b'\x6f\x6d\x00\x08\x70\x34\x73\x73\x77\x30\x72\x64'
 
-a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
-
-a_release_rq = b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
-
-a_release_rp = b"\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00"
-
-a_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00"
-
-a_p_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
-
-# This is a C-ECHO
-p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" \
-            b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
-            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e" \
-            b"\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00\x20\x01" \
-            b"\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01" \
-            b"\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
-
-application_context = b'\x10\x00\x00\x151.2.840.10008.3.1.1.1'
-
-presentation_context_rq = b'\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31\x2e\x32\x2e' \
-                          b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x40\x00\x00' \
-                          b'\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31' \
-                          b'\x2e\x32'
-
-presentation_context_ac = b'\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31\x2e\x32\x2e' \
-                          b'\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32'
-
-abstract_syntax = b'\x30\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
-                  b'\x38\x2e\x31\x2e\x31'
-
-transfer_syntax = b'\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30' \
-                  b'\x38\x2e\x31\x2e\x32'
-
-presentation_data = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02' \
-                    b'\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30' \
-                    b'\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30' \
-                    b'\x80\x00\x00\x20\x01\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02' \
-                    b'\x00\x00\x00\x01\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00'
-
-presentation_data_value = b'\x00\x00\x00\x50\x01' + presentation_data
-
-maximum_length_received = b'\x51\x00\x00\x04\x00\x00\x3f\xfe'
-
-implementation_class_uid = b'\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31\x2e' \
-                           b'\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e\x30' \
-                           b'\x2e\x39\x2e\x30'
-
-implementation_version_name = b'\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f' \
-                              b'\x30\x39\x30'
-
-role_selection = b'\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
-                 b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00' \
-                 b'\x01'
-
-user_information = b'\x50\x00\x00\x3e\x51\x00\x00\x04\x00\x00\x3f\xfe\x52\x00\x00\x20' \
-            b'\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31\x2e\x33\x36\x38\x30' \
-            b'\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e\x30\x2e\x39\x2e\x30' \
-            b'\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49\x43\x4f\x4d\x5f\x30' \
-            b'\x39\x30'
-
-extended_negotiation = b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
-                       b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x02' \
-                       b'\x00\x03\x00\x01\x00'
-
-common_extended_negotiation = b'\x57\x00\x00\x4d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
-                              b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00' \
-                              b'\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x34' \
-                              b'\x2e\x32\x00\x1d\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
-                              b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38' \
-                              b'\x2e\x32\x32'
-
-logger = logging.getLogger('pynetdicom3')
-#handler = logging.StreamHandler()
-handler = logging.NullHandler()
-for h in logger.handlers:
-    logger.removeHandler(h)
-logger.addHandler(handler)
-logger.setLevel(logging.ERROR)
+class TestTest(unittest.TestCase):
+    def test(self):
+        test = SOPClassCommonExtendedNegotiationSubItem()
+        test.Decode(bytes_to_bytesio(common_extended_negotiation))
+        print(test)
 
 
 class TestPDUItem_ApplicationContext(unittest.TestCase):
@@ -319,7 +83,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
                 self.assertTrue('1.2.840.10008.3.1.1.1' in item.__str__())
-    
+
     def test_stream_decode_assoc_rq(self):
         """ Check decoding an assoc_rq produces the correct application context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -423,7 +187,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
             if isinstance(item, PresentationContextItemRQ):
                 self.assertTrue('Verification SOP Class' in item.__str__())
                 self.assertTrue('Implicit VR Little Endian' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -492,7 +256,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
             if isinstance(item, PresentationContextItemAC):
                 self.assertTrue('Accepted' in item.__str__())
                 self.assertTrue('Implicit VR Little Endian' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_AC_PDU()
@@ -560,7 +324,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
         item.get_length()
         self.assertTrue('17 bytes' in item.__str__())
         self.assertTrue('Verification SOP Class' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -636,7 +400,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
         item.get_length()
         self.assertTrue('17 bytes' in item.__str__())
         self.assertTrue('Implicit VR Little Endian' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -713,7 +477,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
         item = pdvs[0]
         self.assertTrue('80 bytes' in item.__str__())
         self.assertTrue('0x03 0x00' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation data value """
         pdu = P_DATA_TF_PDU()
@@ -782,7 +546,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         self.assertTrue('Implementation Class UID Sub-item' in item.__str__())
         self.assertTrue('Implementation Version Name Sub-item' in item.__str__())
         self.assertTrue('SCP/SCU Role Selection Sub-item' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -848,7 +612,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         pdu.Decode(a_associate_rq_user_async)
         ui = pdu.user_information
         self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
-        
+
         pdu = A_ASSOCIATE_AC_PDU()
         pdu.Decode(a_associate_ac)
         ui = pdu.user_information
@@ -888,7 +652,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         self.assertEqual(ui.max_operations_performed, 5)
 
         self.assertTrue(isinstance(ui.async_ops_window, AsynchronousOperationsWindowSubItem))
-        
+
         for item in ui.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
                 ui.user_data.remove(item)
@@ -903,7 +667,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         ui = pdu.user_information
 
         self.assertEqual(ui.maximum_length, 16382)
-        
+
         for item in ui.user_data:
             if isinstance(item, MaximumLengthSubItem):
                 ui.user_data.remove(item)
@@ -917,7 +681,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
         self.assertEqual(ui.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
         self.assertEqual(ui.implementation_version_name, 'PYNETDICOM_090')
-        
+
         for item in ui.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
                 ui.user_data.remove(item)
@@ -931,7 +695,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         pdu.Decode(a_associate_rq)
         item = pdu.user_information.user_data[0]
         self.assertTrue('16382' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -958,27 +722,20 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq)
-
         max_length = pdu.user_information.user_data[0]
-
         result = max_length.ToParams()
-
         check = MaximumLengthNegotiation()
         check.maximum_length_received = 16382
-
         self.assertEqual(result, check)
 
     def test_from_primitive(self):
         """ Check converting from primitive """
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq)
-
         orig_max_length = pdu.user_information.user_data[0]
         params = orig_max_length.ToParams()
-
         new_max_length = MaximumLengthSubItem()
         new_max_length.FromParams(params)
-
         self.assertEqual(orig_max_length, new_max_length)
 
 
@@ -989,7 +746,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
         pdu.Decode(a_associate_rq)
         item = pdu.user_information.user_data[1]
         self.assertTrue('1.2.826.0.1.3680043' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1062,7 +819,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
         pdu.Decode(a_associate_rq)
         item = pdu.user_information.user_data[2]
         self.assertTrue('PYNETDICOM_090' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1135,7 +892,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
             if isinstance(item, AsynchronousOperationsWindowSubItem):
                 self.assertTrue('invoked: 5' in item.__str__())
                 self.assertTrue('performed: 5' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1216,7 +973,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
         item = pdu.user_information.role_selection[0]
         self.assertTrue('CT Image Storage' in item.__str__())
         self.assertTrue('SCU Role: 0' in item.__str__())
-    
+
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1318,16 +1075,16 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq_user_id_user_nopw)
+        pdu.Decode(a_associate_rq_user_async)
         item = pdu.user_information.user_identity
         self.assertTrue('type: 1' in item.__str__())
         self.assertTrue('requested: 1' in item.__str__())
         self.assertTrue("Primary field: b'pynetdicom'" in item.__str__())
-    
+
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq_user_id_user_nopw)
+        pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information.user_identity
 
@@ -1343,35 +1100,28 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq_user_id_user_nopw)
-
+        pdu.Decode(a_associate_rq_user_async)
         ui = pdu.user_information.user_identity
-
         s = ui.encode()
-
         self.assertEqual(s, user_identity_rq_user_nopw)
 
     def test_to_primitive(self):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq_user_id_user_nopw)
-
+        pdu.Decode(a_associate_rq_user_async)
         ui = pdu.user_information.user_identity
-
         result = ui.ToParams()
-
         check = UserIdentityNegotiation()
         check.user_identity_type = 1
         check.positive_response_requested = True
         check.primary_field = b'pynetdicom'
         check.secondary_field = None
-
         self.assertEqual(result, check)
 
     def test_from_primitive(self):
         """ Check converting from primitive """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq_user_id_user_nopw)
+        pdu.Decode(a_associate_rq_user_async)
 
         orig = pdu.user_information.user_identity
         params = orig.ToParams()
@@ -1384,7 +1134,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
     def test_properies(self):
         """ Check property setters and getters """
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq_user_id_user_nopw)
+        pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information.user_identity
 
@@ -1405,7 +1155,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         self.assertTrue('requested: 0' in item.__str__())
         self.assertTrue("Primary field: b'pynetdicom'" in item.__str__())
         self.assertTrue("Secondary field: b'p4ssw0rd'" in item.__str__())
-    
+
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1532,7 +1282,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         item = pdu.user_information.ext_neg[0]
         self.assertTrue('CT Image Storage' in item.__str__())
         self.assertTrue("information: b'\\x02\\x00" in item.__str__())
-    
+
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()

@@ -3080,6 +3080,7 @@ class UserInformationItem(PDU):
         return 4 + self.item_length
 
     def __str__(self):
+        # FIXME: Indent not applying correctly to user_data
         s = " User information item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d}\n".format(self.item_length)
@@ -4687,12 +4688,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         self.related_general_sop_class_identification_length = 0
         for item in self.related_general_sop_class_identification:
             self.related_general_sop_class_identification_length += len(item)
-        
+
         self.item_length = 2 + self.sop_class_uid_length + \
                            2 + self.service_class_uid_length + \
                            2 + self.related_general_sop_class_identification_length
-        
-        
+
+
 
         return 4 + self.item_length
 

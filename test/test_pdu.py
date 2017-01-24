@@ -6,6 +6,9 @@ import unittest
 
 from pydicom.uid import UID
 
+from encoded_pdu_items import a_associate_rq, a_associate_ac, a_associate_rj, \
+                              a_release_rq, a_release_rq, a_release_rp, \
+                              a_abort, a_p_abort, p_data_tf
 from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
                         QueryRetrieveSOPClassList
 from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
@@ -33,52 +36,6 @@ from pynetdicom3.primitives import MaximumLengthNegotiation, \
                                    ImplementationVersionNameNotification, \
                                    A_P_ABORT, A_ABORT, A_ASSOCIATE, P_DATA
 #from pynetdicom3.utils import wrap_list
-
-
-a_associate_rq = b"\x01\x00\x00\x00\x00\xcd\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
-                 b"\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43" \
-                 b"\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e" \
-                 b"\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e" \
-                 b"\x31\x2e\x31\x20\x00\x00\x2e\x01\x00\x00\x00\x30\x00\x00\x11\x31" \
-                 b"\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31" \
-                 b"\x40\x00\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30" \
-                 b"\x38\x2e\x31\x2e\x32\x50\x00\x00\x3a\x51\x00\x00\x04\x00\x00\x40" \
-                 b"\x00\x52\x00\x00\x1b\x31\x2e\x32\x2e\x32\x37\x36\x2e\x30\x2e\x37" \
-                 b"\x32\x33\x30\x30\x31\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30" \
-                 b"\x55\x00\x00\x0f\x4f\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f" \
-                 b"\x33\x36\x30"
-
-a_associate_ac = b"\x02\x00\x00\x00\x00\xb8\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
-                 b"\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43" \
-                 b"\x55\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-                 b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x15\x31\x2e" \
-                 b"\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e" \
-                 b"\x31\x2e\x31\x21\x00\x00\x19\x01\x00\x00\x00\x40\x00\x00\x11\x31" \
-                 b"\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32" \
-                 b"\x50\x00\x00\x3a\x51\x00\x00\x04\x00\x00\x40\x00\x52\x00\x00\x1b" \
-                 b"\x31\x2e\x32\x2e\x32\x37\x36\x2e\x30\x2e\x37\x32\x33\x30\x30\x31" \
-                 b"\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f" \
-                 b"\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30"
-
-a_associate_rj = b"\x03\x00\x00\x00\x00\x04\x00\x01\x01\x01"
-
-a_release_rq = b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
-
-a_release_rp = b"\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00"
-
-a_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00"
-a_p_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
-
-# This is a C-ECHO
-p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00\x00" \
-            b"\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00" \
-            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e" \
-            b"\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00\x20\x01" \
-            b"\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01" \
-            b"\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
 
 LOGGER = logging.getLogger('pynetdicom3')
 #handler = logging.StreamHandler()
@@ -204,7 +161,7 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         pdu.Decode(a_associate_rq)
         self.assertTrue("Verification SOP Class" in pdu.__str__())
         self.assertTrue("Implicit VR Little Endian" in pdu.__str__())
-        self.assertTrue("1.2.276.0.7230010" in pdu.__str__())
+        self.assertTrue("3680043.9.3811.0.9.0" in pdu.__str__())
 
     def test_stream_decode_values_types(self):
         """ Check decoding the assoc_rq stream produces the correct objects """
@@ -212,7 +169,7 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         pdu.Decode(a_associate_rq)
 
         self.assertEqual(pdu.pdu_type, 0x01)
-        self.assertEqual(pdu.pdu_length, 205)
+        self.assertEqual(pdu.pdu_length, 209)
         self.assertEqual(pdu.protocol_version, 0x0001)
         self.assertTrue(isinstance(pdu.pdu_type, int))
         self.assertTrue(isinstance(pdu.pdu_length, int))
@@ -281,17 +238,17 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         for item in primitive.user_information:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthNegotiation):
-                self.assertEqual(item.maximum_length_received, 16384)
+                self.assertEqual(item.maximum_length_received, 16382)
                 self.assertTrue(isinstance(item.maximum_length_received, int))
 
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDNotification):
-                self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertEqual(item.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
                 self.assertTrue(isinstance(item.implementation_class_uid, UID))
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
+                self.assertEqual(item.implementation_version_name, b'PYNETDICOM_090')
                 self.assertTrue(isinstance(item.implementation_version_name, bytes))
 
         # Test Presentation Contexts
@@ -465,7 +422,7 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
         user_info = pdu.variable_items[2]
 
         self.assertEqual(user_info.item_type, 0x50)
-        self.assertEqual(user_info.item_length, 58)
+        self.assertEqual(user_info.item_length, 62)
         self.assertTrue(isinstance(user_info.item_type, int))
         self.assertTrue(isinstance(user_info.item_length, int))
         self.assertTrue(isinstance(user_info.user_data, list))
@@ -474,16 +431,16 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
         for item in user_info.user_data:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthSubItem):
-                self.assertEqual(item.maximum_length_received, 16384)
-                self.assertEqual(user_info.maximum_length, 16384)
+                self.assertEqual(item.maximum_length_received, 16382)
+                self.assertEqual(user_info.maximum_length, 16382)
                 self.assertTrue(isinstance(item.maximum_length_received, int))
                 self.assertTrue(isinstance(user_info.maximum_length, int))
 
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDSubItem):
                 self.assertEqual(item.item_type, 0x52)
-                self.assertEqual(item.item_length, 27)
-                self.assertEqual(item.implementation_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+                self.assertEqual(item.item_length, 32)
+                self.assertEqual(item.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
                 self.assertTrue(isinstance(item.item_type, int))
                 self.assertTrue(isinstance(item.item_length, int))
                 self.assertTrue(isinstance(item.implementation_class_uid, UID))
@@ -491,8 +448,8 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameSubItem):
                 self.assertEqual(item.item_type, 0x55)
-                self.assertEqual(item.item_length, 15)
-                self.assertEqual(item.implementation_version_name, b'OFFIS_DCMTK_360')
+                self.assertEqual(item.item_length, 14)
+                self.assertEqual(item.implementation_version_name, b'PYNETDICOM_090')
                 self.assertTrue(isinstance(item.item_type, int))
                 self.assertTrue(isinstance(item.item_length, int))
                 self.assertTrue(isinstance(item.implementation_version_name, bytes))
@@ -511,7 +468,7 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         pdu.user_information.user_data.append(role_selection)
         context = pdu.presentation_context[0]
         self.assertTrue(context.transfer_syntax == '1.2.840.10008.1.2')
-    
+
     def test_property_getters(self):
         """Test the property getters"""
         # called_ae_title
@@ -522,7 +479,7 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         pdu.reserved_aet = 'TESTA'
         self.assertEqual(pdu.called_ae_title, b'TESTA')
         self.assertTrue(isinstance(pdu.called_ae_title, bytes))
-        
+
         # calling_ae_title
         pdu = A_ASSOCIATE_AC_PDU()
         pdu.reserved_aec = b'TESTA'
@@ -531,15 +488,15 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         pdu.reserved_aec = 'TESTA'
         self.assertEqual(pdu.calling_ae_title, b'TESTA')
         self.assertTrue(isinstance(pdu.calling_ae_title, bytes))
-        
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_AC_PDU()
         pdu.Decode(a_associate_ac)
         self.assertTrue("Implicit VR Little Endian" in pdu.__str__())
         self.assertTrue("1.2.276.0.7230010" in pdu.__str__())
-        
-        
+
+
     def test_stream_decode_values_types(self):
         """ Check decoding the assoc_ac stream produces the correct objects """
         pdu = A_ASSOCIATE_AC_PDU()
@@ -807,7 +764,7 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
         pdu.Decode(a_associate_rj)
         self.assertTrue("Rejected (Permanent)" in pdu.__str__())
         self.assertTrue("DUL service-user" in pdu.__str__())
-    
+
     def test_stream_decode_values_types(self):
         """ Check decoding the assoc_rj stream produces the correct objects """
         pdu = A_ASSOCIATE_RJ_PDU()
@@ -993,7 +950,7 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
         pdu.Decode(p_data_tf)
         self.assertTrue("80 bytes" in pdu.__str__())
         self.assertTrue("0x03 0x00" in pdu.__str__())
-    
+
     def test_stream_decode_values_types(self):
         """ Check decoding the p_data stream produces the correct objects """
         pdu = P_DATA_TF_PDU()
@@ -1068,7 +1025,7 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
         pdu.Decode(a_release_rq)
         self.assertTrue("0x05" in pdu.__str__())
         self.assertTrue("10 bytes" in pdu.__str__())
-    
+
     def test_stream_decode_values_types(self):
         """ Check decoding the release_rq stream produces the correct objects """
         pdu = A_RELEASE_RQ_PDU()
@@ -1135,7 +1092,7 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
         pdu.Decode(a_release_rp)
         self.assertTrue("0x06" in pdu.__str__())
         self.assertTrue("10 bytes" in pdu.__str__())
-        
+
     def test_stream_decode_values_types(self):
         """ Check decoding the release_rp stream produces the correct objects """
         pdu = A_RELEASE_RP_PDU()
@@ -1203,7 +1160,7 @@ class TestPDU_A_ABORT(unittest.TestCase):
         self.assertTrue("0x07" in pdu.__str__())
         self.assertTrue("4 bytes" in pdu.__str__())
         self.assertTrue("DUL service-user" in pdu.__str__())
-    
+
     def test_a_abort_stream_decode_values_types(self):
         """ Check decoding the a_abort stream produces the correct objects """
         pdu = A_ABORT_PDU()
