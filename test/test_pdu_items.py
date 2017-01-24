@@ -9,9 +9,10 @@ from encoded_pdu_items import a_associate_rq, a_associate_ac, \
                               a_associate_rq_user_async, \
                               asynchronous_window_ops, a_associate_rq_role, \
                               user_identity_rq_user_nopw, \
+                              user_identity_ac, \
                               a_associate_rq_user_id_user_pass, \
                               a_associate_rq_user_id_ext_neg, \
-                              a_associate_ac_user_id_user_pass, \
+                              a_associate_ac_user, \
                               a_associate_rq_com_ext_neg, \
                               user_identity_rq_user_pass, a_associate_rj, \
                               a_release_rq, a_release_rp, a_abort, \
@@ -60,19 +61,34 @@ LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.ERROR)
 
 
+def print_nice_bytes(bytestream):
+    """Nice output for bytestream."""
+    str_list = wrap_list(bytestream, prefix="b'\\x", delimiter='\\x',
+                        items_per_line=10)
+    for string in str_list:
+        print(string)
+
 def bytes_to_bytesio(bytestream):
+    """Convert a bytestring to a BytesIO ready to be decoded."""
     from io import BytesIO
     fp = BytesIO()
     fp.write(bytestream)
     fp.seek(0)
     return fp
 
+def create_encoded_pdu():
+    """Function to create a PDU for testing"""
+    pdu = A_ASSOCIATE_AC_PDU()
+    pdu.Decode(a_associate_ac)
+    ui = pdu.user_information
+    data = ui.user_data
 
-class TestTest(unittest.TestCase):
-    def test(self):
-        test = SOPClassCommonExtendedNegotiationSubItem()
-        test.Decode(bytes_to_bytesio(common_extended_negotiation))
-        print(test)
+    usr_id = UserIdentitySubItemAC()
+    usr_id.server_response = b'Accepted'
+    usr_id.server_response_length = 8
+    usr_id.get_length()
+    data.append(usr_id)
+    print_nice_bytes(pdu.encode())
 
 
 class TestPDUItem_ApplicationContext(unittest.TestCase):
@@ -182,11 +198,14 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ_PDU()
-        pdu.Decode(a_associate_rq)
+        pdu.Decode(a_associate_rq_role)
+        pdu.presentation_context
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemRQ):
-                self.assertTrue('Verification SOP Class' in item.__str__())
-                self.assertTrue('Implicit VR Little Endian' in item.__str__())
+                self.assertTrue('CT Image Storage' in item.__str__())
+                self.assertTrue('Explicit VR Little Endian' in item.__str__())
+                self.assertTrue('SCP Role: 1' in item.__str__())
+                self.assertTrue('SCU Role: 0' in item.__str__())
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
@@ -993,11 +1012,10 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq_role)
-
         rs = pdu.user_information.role_selection
-
         s = rs[0].encode()
-
+        self.assertEqual(s, role_selection)
+        s = rs[0].Encode()
         self.assertEqual(s, role_selection)
 
     def test_to_primitive(self):
@@ -1030,20 +1048,23 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 
         self.assertEqual(orig, new)
 
-    def test_properies(self):
+    def test_properties(self):
         """ Check property setters and getters """
         item = SCP_SCU_RoleSelectionSubItem()
 
         # SOP Class UID
-        item.sop_class_uid = '1.1.1'
-        self.assertEqual(item.sop_class_uid, UID('1.1.1'))
+        item.sop_class_uid = '1.1'
+        self.assertEqual(item.sop_class_uid, UID('1.1'))
         self.assertTrue(isinstance(item.sop_class_uid, UID))
+        self.assertEqual(item.uid_length, 3)
         item.sop_class_uid = b'1.1.2'
         self.assertEqual(item.sop_class_uid, UID('1.1.2'))
         self.assertTrue(isinstance(item.sop_class_uid, UID))
-        item.sop_class_uid = UID('1.1.3')
-        self.assertEqual(item.sop_class_uid, UID('1.1.3'))
+        self.assertEqual(item.uid_length, 5)
+        item.sop_class_uid = UID('1.1.3.1')
+        self.assertEqual(item.sop_class_uid, UID('1.1.3.1'))
         self.assertTrue(isinstance(item.sop_class_uid, UID))
+        self.assertEqual(item.uid_length, 7)
 
         self.assertEqual(item.UID, item.sop_class_uid)
 
@@ -1238,38 +1259,73 @@ class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(unittest.TestCase):
     pass
 
 
-# FIXME: Add tests for UserIdentityAC User no pass
-class TestPDUItem_UserInformation_UserIdentityAC_UserNoPassNoResponse(unittest.TestCase):
-    pass
+class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac_user)
+        item = pdu.user_information.user_identity
+        self.assertTrue("Server response: b'Accepted'" in item.__str__())
 
+    def test_decode(self):
+        """ Check decoding produces the correct values """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac_user)
 
-class TestPDUItem_UserInformation_UserIdentityAC_UserNoPassResponse(unittest.TestCase):
-    pass
+        ui = pdu.user_information.user_identity
 
+        self.assertEqual(ui.item_type, 0x59)
+        self.assertEqual(ui.item_length, 10)
+        self.assertEqual(ui.server_response_length, 8)
+        self.assertEqual(ui.server_response, b'Accepted')
 
-# FIXME: Add tests for UserIdentityAC User pass
-class TestPDUItem_UserInformation_UserIdentityAC_UserPassNoResponse(unittest.TestCase):
-    pass
+    def test_encode(self):
+        """ Check encoding produces the correct output """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac_user)
 
+        ui = pdu.user_information.user_identity
+        s = ui.encode()
+        self.assertEqual(s, user_identity_ac)
 
-class TestPDUItem_UserInformation_UserIdentityAC_UserPassResponse(unittest.TestCase):
-    pass
+    def test_to_primitive(self):
+        """ Check converting to primitive """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac_user)
+
+        ui = pdu.user_information.user_identity
+        result = ui.ToParams()
+        check = UserIdentityNegotiation()
+        check.server_response = b'Accepted'
+        self.assertEqual(result, check)
+
+    def test_from_primitive(self):
+        """ Check converting from primitive """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac_user)
+        orig = pdu.user_information.user_identity
+        params = orig.ToParams()
+
+        new = UserIdentitySubItemAC()
+        new.FromParams(params)
+
+        self.assertEqual(orig, new)
+
+    def test_properies(self):
+        """ Check property setters and getters """
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac_user)
+        ui = pdu.user_information.user_identity
+        self.assertEqual(ui.response, b'Accepted')
+
 
 
 # FIXME: Add tests for UserIdentityAC SAML
-class TestPDUItem_UserInformation_UserIdentityAC_SAMLNoResponse(unittest.TestCase):
-    pass
-
-
 class TestPDUItem_UserInformation_UserIdentityAC_SAMLResponse(unittest.TestCase):
     pass
 
 
 # FIXME: Add tests for UserIdentityAC Kerberos
-class TestPDUItem_UserInformation_UserIdentityAC_KerberosNoResponse(unittest.TestCase):
-    pass
-
-
 class TestPDUItem_UserInformation_UserIdentityAC_KerberosResponse(unittest.TestCase):
     pass
 

@@ -229,11 +229,11 @@ class PDU(object):
                       0x56 : SOPClassExtendedNegotiationSubItem,
                       0x57 : SOPClassCommonExtendedNegotiationSubItem,
                       0x58 : UserIdentitySubItemRQ,
-                      0x59 : UserIdentitySubItemRQ}
+                      0x59 : UserIdentitySubItemAC}
 
         if item_type not in item_types.keys():
             raise ValueError("During PDU decoding we received an invalid "
-                             "item type: {}".format(item_type))
+                             "item type: \\x{0:02x}".format(item_type))
 
         return item_types[item_type]()
 
@@ -3753,12 +3753,11 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     def sop_class_uid(self, value):
         """Set the SOP class uid."""
         # pylint: disable=attribute-defined-outside-init
+        # UID is a str subclass
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -4208,9 +4207,12 @@ class UserIdentitySubItemAC(PDU):
           * 2: b''
           * 3: the Kerberos server ticket, encoded as per RFC-1510
           * 4: the SAML response
+
+    TODO: Add user interface - setter for server_response, automatic length
+            determination
     """
     def __init__(self):
-        self.item_type = 0x58
+        self.item_type = 0x59
         self.item_length = None
         self.server_response_length = None
         self.server_response = None
@@ -4259,7 +4261,7 @@ class UserIdentitySubItemAC(PDU):
         """
         from pynetdicom3.primitives import UserIdentityNegotiation
 
-        primitive = UserIdentityParameters()
+        primitive = UserIdentityNegotiation()
         primitive.server_response = self.server_response
 
         return primitive
