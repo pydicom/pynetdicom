@@ -97,6 +97,7 @@ class TestPDU(unittest.TestCase):
 
         self.assertEqual(pdu.length, pdu.get_length())
 
+
 class TestPDU_NextItem(unittest.TestCase):
     def test_unknown_item_type(self):
         """ Check that an unknown item value raises ValueError """
@@ -127,6 +128,7 @@ class TestPDU_NextItem(unittest.TestCase):
         item = pdu._next_item(BytesIO(b'\x10'))
         self.assertTrue(isinstance(item, ApplicationContextItem))
 
+
 class TestPDU_NextItemType(unittest.TestCase):
     def test_empty_stream(self):
         """ Check that an empty stream returns None """
@@ -153,7 +155,57 @@ class TestPDU_NextItemType(unittest.TestCase):
         self.assertTrue(isinstance(item_type, int))
 
 
+class TestPDU_Equality(unittest.TestCase):
+    """Test the PDU equality/inequality operators."""
+    def test_equality(self):
+        """Test the equality operator"""
+        self.assertTrue(PDU() == PDU())
+        self.assertFalse(PDU() == 'TEST')
+        pdu = PDU()
+        pdu.formats = ['a']
+        self.assertFalse(pdu == PDU())
+
+    def test_inequality(self):
+        """Test the inequality operator"""
+        self.assertFalse(PDU() != PDU())
+        self.assertTrue(PDU() != 'TEST')
+        pdu = PDU()
+        pdu.formats = ['a']
+        self.assertTrue(pdu != PDU())
+
+
 class TestPDU_A_ASSOC_RQ(unittest.TestCase):
+    """Test the A_ASSOCIATE_RQ_PDU class."""
+    def test_property_setters(self):
+        """Check the property setters are working correctly."""
+        # pdu.application_context_name
+        pdu = A_ASSOCIATE_RQ_PDU()
+        item = ApplicationContextItem()
+        pdu.variable_items = [item]
+        self.assertEqual(pdu.application_context_name, '')
+        pdu.application_context_name = 'TEST'
+        self.assertEqual(pdu.application_context_name, 'TEST')
+
+        # pdu.presentation_context
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        role_selection = SCP_SCU_RoleSelectionSubItem()
+        role_selection.sop_class_uid = '1.2.840.10008.1.1'
+        role_selection.scu_role = 1
+        role_selection.scp_role = 1
+        pdu.user_information.user_data.append(role_selection)
+        context = pdu.presentation_context[0]
+        self.assertTrue(context.SCP == 1)
+        self.assertTrue(context.SCU == 1)
+
+    def test_string_output(self):
+        """Check the string output works"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        self.assertTrue("Verification SOP Class" in pdu.__str__())
+        self.assertTrue("Implicit VR Little Endian" in pdu.__str__())
+        self.assertTrue("1.2.276.0.7230010" in pdu.__str__())
+
     def test_stream_decode_values_types(self):
         """ Check decoding the assoc_rq stream produces the correct objects """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -447,6 +499,47 @@ class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
 
 
 class TestPDU_A_ASSOC_AC(unittest.TestCase):
+    def test_property_setters(self):
+        """Test the property setters"""
+        # presentation_context
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        role_selection = SCP_SCU_RoleSelectionSubItem()
+        role_selection.sop_class_uid = '1.2.840.10008.1.1'
+        role_selection.scu_role = 1
+        role_selection.scp_role = 1
+        pdu.user_information.user_data.append(role_selection)
+        context = pdu.presentation_context[0]
+        self.assertTrue(context.transfer_syntax == '1.2.840.10008.1.2')
+    
+    def test_property_getters(self):
+        """Test the property getters"""
+        # called_ae_title
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.reserved_aet = b'TESTA'
+        self.assertEqual(pdu.called_ae_title, b'TESTA')
+        self.assertTrue(isinstance(pdu.called_ae_title, bytes))
+        pdu.reserved_aet = 'TESTA'
+        self.assertEqual(pdu.called_ae_title, b'TESTA')
+        self.assertTrue(isinstance(pdu.called_ae_title, bytes))
+        
+        # calling_ae_title
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.reserved_aec = b'TESTA'
+        self.assertEqual(pdu.calling_ae_title, b'TESTA')
+        self.assertTrue(isinstance(pdu.calling_ae_title, bytes))
+        pdu.reserved_aec = 'TESTA'
+        self.assertEqual(pdu.calling_ae_title, b'TESTA')
+        self.assertTrue(isinstance(pdu.calling_ae_title, bytes))
+        
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        self.assertTrue("Implicit VR Little Endian" in pdu.__str__())
+        self.assertTrue("1.2.276.0.7230010" in pdu.__str__())
+        
+        
     def test_stream_decode_values_types(self):
         """ Check decoding the assoc_ac stream produces the correct objects """
         pdu = A_ASSOCIATE_AC_PDU()
@@ -708,6 +801,13 @@ class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
 
 
 class TestPDU_A_ASSOC_RJ(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu.Decode(a_associate_rj)
+        self.assertTrue("Rejected (Permanent)" in pdu.__str__())
+        self.assertTrue("DUL service-user" in pdu.__str__())
+    
     def test_stream_decode_values_types(self):
         """ Check decoding the assoc_rj stream produces the correct objects """
         pdu = A_ASSOCIATE_RJ_PDU()
@@ -887,6 +987,13 @@ class TestPDU_A_ASSOC_RJ(unittest.TestCase):
 
 
 class TestPDU_P_DATA_TF(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        self.assertTrue("80 bytes" in pdu.__str__())
+        self.assertTrue("0x03 0x00" in pdu.__str__())
+    
     def test_stream_decode_values_types(self):
         """ Check decoding the p_data stream produces the correct objects """
         pdu = P_DATA_TF_PDU()
@@ -904,6 +1011,7 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
 
         # Check PDVs
         self.assertTrue(isinstance(pdu.PDVs, list))
+        self.assertEqual(pdu.get_length(), 90)
 
     def test_stream_encode(self):
         """ Check encoding an p_data produces the correct output """
@@ -954,6 +1062,13 @@ class TestPDU_P_DATA_TF(unittest.TestCase):
 
 
 class TestPDU_A_RELEASE_RQ(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_RELEASE_RQ_PDU()
+        pdu.Decode(a_release_rq)
+        self.assertTrue("0x05" in pdu.__str__())
+        self.assertTrue("10 bytes" in pdu.__str__())
+    
     def test_stream_decode_values_types(self):
         """ Check decoding the release_rq stream produces the correct objects """
         pdu = A_RELEASE_RQ_PDU()
@@ -961,6 +1076,7 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
 
         self.assertEqual(pdu.pdu_type, 0x05)
         self.assertEqual(pdu.pdu_length, 4)
+        self.assertEqual(pdu.get_length(), 10)
         self.assertTrue(isinstance(pdu.pdu_type, int))
         self.assertTrue(isinstance(pdu.pdu_length, int))
 
@@ -1013,6 +1129,13 @@ class TestPDU_A_RELEASE_RQ(unittest.TestCase):
 
 
 class TestPDU_A_RELEASE_RP(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_RELEASE_RP_PDU()
+        pdu.Decode(a_release_rp)
+        self.assertTrue("0x06" in pdu.__str__())
+        self.assertTrue("10 bytes" in pdu.__str__())
+        
     def test_stream_decode_values_types(self):
         """ Check decoding the release_rp stream produces the correct objects """
         pdu = A_RELEASE_RP_PDU()
@@ -1020,6 +1143,7 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
 
         self.assertEqual(pdu.pdu_type, 0x06)
         self.assertEqual(pdu.pdu_length, 4)
+        self.assertEqual(pdu.get_length(), 10)
         self.assertTrue(isinstance(pdu.pdu_type, int))
         self.assertTrue(isinstance(pdu.pdu_length, int))
 
@@ -1072,6 +1196,14 @@ class TestPDU_A_RELEASE_RP(unittest.TestCase):
 
 
 class TestPDU_A_ABORT(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ABORT_PDU()
+        pdu.Decode(a_abort)
+        self.assertTrue("0x07" in pdu.__str__())
+        self.assertTrue("4 bytes" in pdu.__str__())
+        self.assertTrue("DUL service-user" in pdu.__str__())
+    
     def test_a_abort_stream_decode_values_types(self):
         """ Check decoding the a_abort stream produces the correct objects """
         pdu = A_ABORT_PDU()
@@ -1081,6 +1213,7 @@ class TestPDU_A_ABORT(unittest.TestCase):
         self.assertEqual(pdu.pdu_length, 4)
         self.assertEqual(pdu.source, 0)
         self.assertEqual(pdu.reason_diagnostic, 0)
+        self.assertEqual(pdu.get_length(), 10)
         self.assertTrue(isinstance(pdu.pdu_type, int))
         self.assertTrue(isinstance(pdu.pdu_length, int))
         self.assertTrue(isinstance(pdu.source, int))

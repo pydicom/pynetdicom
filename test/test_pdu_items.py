@@ -16,6 +16,7 @@ from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
                             SOPClassExtendedNegotiationSubItem, \
                             SOPClassCommonExtendedNegotiationSubItem, \
                             UserIdentitySubItemRQ, \
+                            UserIdentitySubItemAC, \
                             ApplicationContextItem, \
                             PresentationContextItemAC, \
                             PresentationContextItemRQ, \
@@ -188,6 +189,7 @@ a_associate_rq_user_id_ext_neg = b'\x01\x00\x00\x00\x01\xab\x00\x01\x00\x00\x41\
                                  b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x02\x00\x03\x00\x01' \
                                  b'\x00'
 
+# Seems faulty
 a_associate_ac_user_id_user_pass = b'\x02\x00\x00\x00\x00\xbe\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
                                    b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x53\x54\x4f\x52\x45\x53' \
                                    b'\x43\x55\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x00\x00\x00' \
@@ -201,6 +203,7 @@ a_associate_ac_user_id_user_pass = b'\x02\x00\x00\x00\x00\xbe\x00\x01\x00\x00\x4
                                    b'\x30\x2e\x33\x2e\x30\x2e\x33\x2e\x36\x2e\x30\x55\x00\x00\x0f\x4f' \
                                    b'\x46\x46\x49\x53\x5f\x44\x43\x4d\x54\x4b\x5f\x33\x36\x30\x58\x00' \
                                    b'\x00\x02\x00\x00'
+
 
 a_associate_rq_com_ext_neg = b'\x02\x00\x00\x00\x01\x49\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43' \
                              b'\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x45\x43\x48\x4f\x53\x43' \
@@ -309,6 +312,14 @@ logger.setLevel(logging.ERROR)
 
 
 class TestPDUItem_ApplicationContext(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        for item in pdu.variable_items:
+            if isinstance(item, ApplicationContextItem):
+                self.assertTrue('1.2.840.10008.3.1.1.1' in item.__str__())
+    
     def test_stream_decode_assoc_rq(self):
         """ Check decoding an assoc_rq produces the correct application context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -399,9 +410,20 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
                     item.application_context_name = s
                     self.assertEqual(item.application_context_name, UID(uid))
                     self.assertTrue(isinstance(item.application_context_name, UID))
+                    with self.assertRaises(TypeError):
+                        item.application_context_name = []
 
 
 class TestPDUItem_PresentationContextRQ(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        for item in pdu.variable_items:
+            if isinstance(item, PresentationContextItemRQ):
+                self.assertTrue('Verification SOP Class' in item.__str__())
+                self.assertTrue('Implicit VR Little Endian' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -460,7 +482,17 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 
         self.assertEqual(orig_item, new_item)
 
+
 class TestPDUItem_PresentationContextAC(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        for item in pdu.variable_items:
+            if isinstance(item, PresentationContextItemAC):
+                self.assertTrue('Accepted' in item.__str__())
+                self.assertTrue('Implicit VR Little Endian' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_AC_PDU()
@@ -521,6 +553,14 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
 
 
 class TestPDUItem_AbstractSyntax(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        item = AbstractSyntaxSubItem()
+        item.abstract_syntax_name = '1.2.840.10008.1.1'
+        item.get_length()
+        self.assertTrue('17 bytes' in item.__str__())
+        self.assertTrue('Verification SOP Class' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -531,6 +571,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
 
         self.assertEqual(ab_syntax.item_type, 0x30)
         self.assertEqual(ab_syntax.item_length, 17)
+        self.assertEqual(ab_syntax.get_length(), 21)
         self.assertEqual(ab_syntax.abstract_syntax_name, UID('1.2.840.10008.1.1'))
 
     def test_encode(self):
@@ -586,7 +627,16 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
         with self.assertRaises(TypeError):
             ab_syntax.abstract_syntax_name = 10002
 
+
 class TestPDUItem_TransferSyntax(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        item = TransferSyntaxSubItem()
+        item.transfer_syntax_name = '1.2.840.10008.1.2'
+        item.get_length()
+        self.assertTrue('17 bytes' in item.__str__())
+        self.assertTrue('Implicit VR Little Endian' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -597,6 +647,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 
         self.assertEqual(tran_syntax.item_type, 0x40)
         self.assertEqual(tran_syntax.item_length, 17)
+        self.assertEqual(tran_syntax.get_length(), 21)
         self.assertEqual(tran_syntax.transfer_syntax_name, UID('1.2.840.10008.1.2'))
 
     def test_encode(self):
@@ -654,6 +705,15 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 
 
 class TestPDUItem_PresentationDataValue(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = P_DATA_TF_PDU()
+        pdu.Decode(p_data_tf)
+        pdvs = pdu.PDVs
+        item = pdvs[0]
+        self.assertTrue('80 bytes' in item.__str__())
+        self.assertTrue('0x03 0x00' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation data value """
         pdu = P_DATA_TF_PDU()
@@ -714,6 +774,15 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 
 
 class TestPDUItem_UserInformation(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_role)
+        item = pdu.user_information
+        self.assertTrue('Implementation Class UID Sub-item' in item.__str__())
+        self.assertTrue('Implementation Version Name Sub-item' in item.__str__())
+        self.assertTrue('SCP/SCU Role Selection Sub-item' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -777,10 +846,14 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         """ Check user id properties are OK """
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq_user_async)
-
         ui = pdu.user_information
-
         self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
+        
+        pdu = A_ASSOCIATE_AC_PDU()
+        pdu.Decode(a_associate_ac)
+        ui = pdu.user_information
+        ui.user_data.append(UserIdentitySubItemAC())
+        self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemAC))
 
     def test_properties_ext_neg(self):
         """ Check extended neg properties are OK """
@@ -815,6 +888,12 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         self.assertEqual(ui.max_operations_performed, 5)
 
         self.assertTrue(isinstance(ui.async_ops_window, AsynchronousOperationsWindowSubItem))
+        
+        for item in ui.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                ui.user_data.remove(item)
+        self.assertTrue(ui.max_operations_performed is None)
+        self.assertTrue(ui.max_operations_invoked is None)
 
     def test_properties_max_pdu(self):
         """ Check max receive properties are OK """
@@ -824,18 +903,35 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         ui = pdu.user_information
 
         self.assertEqual(ui.maximum_length, 16382)
+        
+        for item in ui.user_data:
+            if isinstance(item, MaximumLengthSubItem):
+                ui.user_data.remove(item)
+        self.assertTrue(ui.maximum_length is None)
 
     def test_properties_implementation(self):
         """ Check async window ops properties are OK """
         pdu = A_ASSOCIATE_RQ_PDU()
         pdu.Decode(a_associate_rq_role)
-
         ui = pdu.user_information
 
         self.assertEqual(ui.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
         self.assertEqual(ui.implementation_version_name, 'PYNETDICOM_090')
+        
+        for item in ui.user_data:
+            if isinstance(item, ImplementationVersionNameSubItem):
+                ui.user_data.remove(item)
+        self.assertTrue(ui.implementation_version_name is None)
+
 
 class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        item = pdu.user_information.user_data[0]
+        self.assertTrue('16382' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -844,6 +940,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         max_length = pdu.user_information.user_data[0]
 
         self.assertEqual(max_length.item_length, 4)
+        self.assertEqual(max_length.get_length(), 8)
         self.assertEqual(max_length.maximum_length_received, 16382)
 
     def test_encode(self):
@@ -884,7 +981,15 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
 
         self.assertEqual(orig_max_length, new_max_length)
 
+
 class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        item = pdu.user_information.user_data[1]
+        self.assertTrue('1.2.826.0.1.3680043' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -893,6 +998,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
         uid = pdu.user_information.user_data[1]
 
         self.assertEqual(uid.item_length, 32)
+        self.assertEqual(uid.get_length(), 36)
         self.assertEqual(uid.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
 
     def test_encode(self):
@@ -948,7 +1054,15 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
         with self.assertRaises(TypeError):
             uid.implementation_class_uid = 10002
 
+
 class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq)
+        item = pdu.user_information.user_data[2]
+        self.assertTrue('PYNETDICOM_090' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -957,6 +1071,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
         version = pdu.user_information.user_data[2]
 
         self.assertEqual(version.item_length, 14)
+        self.assertEqual(version.get_length(), 18)
         self.assertEqual(version.implementation_version_name, b'PYNETDICOM_090')
 
     def test_encode(self):
@@ -1010,7 +1125,17 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
         with self.assertRaises(TypeError):
             version.implementation_version_name = 10002
 
+
 class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_async)
+        for item in pdu.user_information.user_data:
+            if isinstance(item, AsynchronousOperationsWindowSubItem):
+                self.assertTrue('invoked: 5' in item.__str__())
+                self.assertTrue('performed: 5' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1021,6 +1146,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
                 async = item
 
                 self.assertEqual(async.item_length, 4)
+                self.assertEqual(async.get_length(), 8)
                 self.assertEqual(async.maximum_number_operations_invoked, 5)
                 self.assertEqual(async.maximum_number_operations_performed, 5)
 
@@ -1081,7 +1207,16 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
         self.assertEqual(item.max_operations_invoked, 5)
         self.assertEqual(item.max_operations_performed, 5)
 
+
 class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_role)
+        item = pdu.user_information.role_selection[0]
+        self.assertTrue('CT Image Storage' in item.__str__())
+        self.assertTrue('SCU Role: 0' in item.__str__())
+    
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1091,6 +1226,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 
         self.assertEqual(rs[0].item_type, 0x54)
         self.assertEqual(rs[0].item_length, 29)
+        self.assertEqual(rs[0].get_length(), 33)
         self.assertEqual(rs[0].uid_length, 25)
         self.assertEqual(rs[0].sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertEqual(rs[0].scu_role, 0)
@@ -1142,12 +1278,15 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
         item = SCP_SCU_RoleSelectionSubItem()
 
         # SOP Class UID
-        item.sop_class_uid = '1.2.276.0.7230010.3.0.3.6.0'
-        self.assertEqual(item.sop_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-        item.implementation_class_uid = b'1.2.276.0.7230010.3.0.3.6.0'
-        self.assertEqual(item.sop_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
-        item.implementation_class_uid = UID('1.2.276.0.7230010.3.0.3.6.0')
-        self.assertEqual(item.sop_class_uid, UID('1.2.276.0.7230010.3.0.3.6.0'))
+        item.sop_class_uid = '1.1.1'
+        self.assertEqual(item.sop_class_uid, UID('1.1.1'))
+        self.assertTrue(isinstance(item.sop_class_uid, UID))
+        item.sop_class_uid = b'1.1.2'
+        self.assertEqual(item.sop_class_uid, UID('1.1.2'))
+        self.assertTrue(isinstance(item.sop_class_uid, UID))
+        item.sop_class_uid = UID('1.1.3')
+        self.assertEqual(item.sop_class_uid, UID('1.1.3'))
+        self.assertTrue(isinstance(item.sop_class_uid, UID))
 
         self.assertEqual(item.UID, item.sop_class_uid)
 
@@ -1174,7 +1313,17 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
         with self.assertRaises(ValueError):
             item.scp_role = 2
 
+
 class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_nopw)
+        item = pdu.user_information.user_identity
+        self.assertTrue('type: 1' in item.__str__())
+        self.assertTrue('requested: 1' in item.__str__())
+        self.assertTrue("Primary field: b'pynetdicom'" in item.__str__())
+    
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1245,7 +1394,18 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
         self.assertEqual(ui.response_requested, True)
         self.assertEqual(ui.secondary, None)
 
+
 class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_user_pass)
+        item = pdu.user_information.user_identity
+        self.assertTrue('type: 2' in item.__str__())
+        self.assertTrue('requested: 0' in item.__str__())
+        self.assertTrue("Primary field: b'pynetdicom'" in item.__str__())
+        self.assertTrue("Secondary field: b'p4ssw0rd'" in item.__str__())
+    
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1255,6 +1415,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
 
         self.assertEqual(ui.item_type, 0x58)
         self.assertEqual(ui.item_length, 24)
+        self.assertEqual(ui.get_length(), 28)
         self.assertEqual(ui.user_identity_type, 2)
         self.assertEqual(ui.positive_response_requested, 0)
         self.assertEqual(ui.primary_field_length, 10)
@@ -1316,9 +1477,11 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         self.assertEqual(ui.response_requested, False)
         self.assertEqual(ui.secondary, b'p4ssw0rd')
 
+
 # FIXME: Add tests for UserIdentityRQ SAML
 class TestPDUItem_UserInformation_UserIdentityRQ_SAML(unittest.TestCase):
     pass
+
 
 # FIXME: Add tests for UserIdentityRQ Kerberos
 class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(unittest.TestCase):
@@ -1329,32 +1492,47 @@ class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(unittest.TestCase):
 class TestPDUItem_UserInformation_UserIdentityAC_UserNoPassNoResponse(unittest.TestCase):
     pass
 
+
 class TestPDUItem_UserInformation_UserIdentityAC_UserNoPassResponse(unittest.TestCase):
     pass
+
 
 # FIXME: Add tests for UserIdentityAC User pass
 class TestPDUItem_UserInformation_UserIdentityAC_UserPassNoResponse(unittest.TestCase):
     pass
 
+
 class TestPDUItem_UserInformation_UserIdentityAC_UserPassResponse(unittest.TestCase):
     pass
+
 
 # FIXME: Add tests for UserIdentityAC SAML
 class TestPDUItem_UserInformation_UserIdentityAC_SAMLNoResponse(unittest.TestCase):
     pass
 
+
 class TestPDUItem_UserInformation_UserIdentityAC_SAMLResponse(unittest.TestCase):
     pass
+
 
 # FIXME: Add tests for UserIdentityAC Kerberos
 class TestPDUItem_UserInformation_UserIdentityAC_KerberosNoResponse(unittest.TestCase):
     pass
+
 
 class TestPDUItem_UserInformation_UserIdentityAC_KerberosResponse(unittest.TestCase):
     pass
 
 
 class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_user_id_ext_neg)
+        item = pdu.user_information.ext_neg[0]
+        self.assertTrue('CT Image Storage' in item.__str__())
+        self.assertTrue("information: b'\\x02\\x00" in item.__str__())
+    
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1364,6 +1542,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
         self.assertEqual(item.item_type, 0x56)
         self.assertEqual(item.item_length, 33)
+        self.assertEqual(item.get_length(), 37)
         self.assertEqual(item.sop_class_uid_length, 25)
         self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertEqual(item.service_class_application_information, b'\x02\x00\x03\x00\x01\x00')
@@ -1413,15 +1592,18 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         item = SOPClassExtendedNegotiationSubItem()
 
         # SOP Class UID
-        item.sop_class_uid = '1.2'
-        self.assertEqual(item.sop_class_uid, UID('1.2'))
-        self.assertEqual(item.sop_class_uid_length, 3)
-        item.sop_class_uid = b'1.2.3'
-        self.assertEqual(item.sop_class_uid, UID('1.2.3'))
+        item.sop_class_uid = '1.1.1'
+        self.assertEqual(item.sop_class_uid, UID('1.1.1'))
         self.assertEqual(item.sop_class_uid_length, 5)
-        item.sop_class_uid = UID('1.2.3.4')
-        self.assertEqual(item.sop_class_uid, UID('1.2.3.4'))
+        self.assertTrue(isinstance(item.sop_class_uid, UID))
+        item.sop_class_uid = b'1.1.2.1'
+        self.assertEqual(item.sop_class_uid, UID('1.1.2.1'))
         self.assertEqual(item.sop_class_uid_length, 7)
+        self.assertTrue(isinstance(item.sop_class_uid, UID))
+        item.sop_class_uid = UID('1.1.3.1.1')
+        self.assertEqual(item.sop_class_uid, UID('1.1.3.1.1'))
+        self.assertEqual(item.sop_class_uid_length, 9)
+        self.assertTrue(isinstance(item.sop_class_uid, UID))
 
         self.assertEqual(item.UID, item.sop_class_uid)
 
@@ -1437,6 +1619,14 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
 
 class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
+    def test_string_output(self):
+        """Test the string output"""
+        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu.Decode(a_associate_rq_com_ext_neg)
+        item = pdu.user_information.common_ext_neg[0]
+        self.assertTrue('MR Image Storage' in item.__str__())
+        self.assertTrue('Enhanced SR Storage' in item.__str__())
+
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ_PDU()
@@ -1446,6 +1636,7 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
 
         self.assertEqual(item.item_type, 0x57)
         self.assertEqual(item.item_length, 77)
+        self.assertEqual(item.get_length(), 81)
         self.assertEqual(item.sop_class_uid_length, 25)
         self.assertEqual(item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.4'))
         self.assertEqual(item.service_class_uid, UID('1.2.840.10008.4.2'))
