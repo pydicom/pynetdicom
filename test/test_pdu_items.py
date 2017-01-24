@@ -1276,6 +1276,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
         self.assertEqual(ui.item_type, 0x59)
         self.assertEqual(ui.item_length, 10)
+        self.assertEqual(ui.get_length(), 14)
         self.assertEqual(ui.server_response_length, 8)
         self.assertEqual(ui.server_response, b'Accepted')
 
@@ -1286,6 +1287,9 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
         ui = pdu.user_information.user_identity
         s = ui.encode()
+        self.assertEqual(s, user_identity_ac)
+
+        s = ui.Encode()
         self.assertEqual(s, user_identity_ac)
 
     def test_to_primitive(self):
@@ -1361,7 +1365,9 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         item = pdu.user_information.ext_neg[0]
 
         s = item.encode()
+        self.assertEqual(s, extended_negotiation)
 
+        s = item.Encode()
         self.assertEqual(s, extended_negotiation)
 
     def test_to_primitive(self):
@@ -1456,7 +1462,9 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
         item = pdu.user_information.common_ext_neg[0]
 
         s = item.encode()
+        self.assertEqual(s, common_extended_negotiation)
 
+        s = item.Encode()
         self.assertEqual(s, common_extended_negotiation)
 
     def test_to_primitive(self):
@@ -1528,6 +1536,8 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             item.related_general_sop_class_identification = 10002
+        with self.assertRaises(TypeError):
+            item.related_general_sop_class_identification = [10002]
 
 
 if __name__ == "__main__":

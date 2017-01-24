@@ -4495,8 +4495,6 @@ class SOPClassExtendedNegotiationSubItem(PDU):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -4730,8 +4728,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -4756,8 +4752,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
