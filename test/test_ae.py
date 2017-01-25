@@ -147,7 +147,7 @@ class TestAEVerificationSCP(unittest.TestCase):
     """Check verification SCP"""
     def tearDown(self):
         for thread in threading.enumerate():
-            if thread != threading.main_thread():
+            if thread.name != 'MainThread':
                 self.assertRaises(SystemExit, thread.stop)
     
     def test_bad_start(self):
