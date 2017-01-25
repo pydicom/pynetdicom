@@ -13,77 +13,8 @@ from pynetdicom3 import AE
 from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
                         QueryRetrieveSOPClassList
 
-logger = logging.getLogger('pynetdicom3')
-handler = logging.StreamHandler()
-logger.setLevel(logging.CRITICAL)
-
-"""
-    Initialisation
-    --------------
-    AE(
-       ae_title='PYNETDICOM',
-       port=0,
-       scu_sop_class=[],
-       scp_sop_class=[],
-       transfer_syntax=[ExplicitVRLittleEndian,
-                        ImplicitVRLittleEndian,
-                        ExplicitVRBigEndian]
-      )
-
-    Functions
-    ---------
-    AE.start()
-    AE.stop()
-    AE.quit()
-    AE.associate(addr, port)
-
-    Attributes
-    ----------
-    acse_timeout - int
-    active_associations - list of pynetdicom.association.Association
-    address - str
-    ae_title - str
-    client_socket - socket.socket
-    dimse_timeout - int
-    network_timeout - int
-    maximum_associations - int
-    maximum_pdu_size - int
-    port - int
-    presentation_contexts_scu - List of pynetdicom.utils.PresentationContext
-    presentation_contexts_scp - List of pynetdicom.utils.PresentationContext
-    require_calling_aet - str
-    require_called_aet - str
-    scu_supported_sop - List of pydicom.uid.UID
-    scp_supported_sop - List of pydicom.uid.UID
-    transfer_syntaxes - List of pydicom.uid.UID
-
-    Callbacks
-    ---------
-    on_c_echo()
-    on_c_store(dataset)
-    on_c_find(dataset)
-    on_c_find_cancel()
-    on_c_get(dataset)
-    on_c_get_cancel()
-    on_c_move(dataset)
-    on_c_move_cancel()
-
-    on_n_event_report()
-    on_n_get()
-    on_n_set()
-    on_n_action()
-    on_n_create()
-    on_n_delete()
-
-    on_receive_connection()
-    on_make_connection()
-
-    on_association_requested(primitive)
-    on_association_accepted(primitive)
-    on_association_rejected(primitive)
-    on_association_released(primitive)
-    on_association_aborted(primitive)
-"""
+LOGGER = logging.getLogger('pynetdicom3')
+LOGGER.setLevel(logging.CRITICAL)
 
 
 class AEVerificationSCP(threading.Thread):
@@ -100,7 +31,7 @@ class AEVerificationSCP(threading.Thread):
 
     def stop(self):
         self.ae.stop()
-        
+
     def quit(self):
         self.ae.quit()
 
@@ -128,9 +59,6 @@ class TestAEVerificationSCU(unittest.TestCase):
     def setUp(self):
         self.ae = AEVerificationSCP()
         self.ae.start()
-        
-    def tearDown(self):
-        self.assertRaises(SystemExit, self.ae.stop)
 
     def test_send_c_echo(self):
         """Test sending a c-echo"""
@@ -142,6 +70,8 @@ class TestAEVerificationSCU(unittest.TestCase):
 
         assoc.release()
 
+        self.assertRaises(SystemExit, self.ae.stop)
+
 
 class TestAEVerificationSCP(unittest.TestCase):
     """Check verification SCP"""
@@ -149,15 +79,15 @@ class TestAEVerificationSCP(unittest.TestCase):
         for thread in threading.enumerate():
             if thread.name != 'MainThread':
                 self.assertRaises(SystemExit, thread.stop)
-    
+
     def test_bad_start(self):
         """Test bad startup"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(ValueError):
             ae.start()
-            
+
         self.assertRaises(SystemExit, ae.stop)
-    
+
     def test_string_output(self):
         """Test string output"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -170,7 +100,7 @@ class TestAEVerificationSCP(unittest.TestCase):
         self.assertTrue('elsething' in ae.__str__())
         ae.scp_supported_sop = StorageSOPClassList
         self.assertTrue('CT Image' in ae.__str__())
-    
+
     def test_stop_scp_keyboard(self):
         """Test stopping the SCP with keyboard"""
         self.scp = AEVerificationSCP()
@@ -179,7 +109,7 @@ class TestAEVerificationSCP(unittest.TestCase):
             raise KeyboardInterrupt
 
         self.assertRaises(KeyboardInterrupt, test)
-   
+
     def test_stop_scp_quit(self):
         """Test stopping the SCP with quit"""
         self.scp = AEVerificationSCP()
@@ -235,7 +165,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_association_rej_called(self): pass
     def test_on_association_rel_called(self): pass
     def test_on_association_abort_called(self): pass
-    
+
     def test_on_user_identity_negotiation(self):
         """ Check that SCP AE.on_user_identity_negotiation() was called """
         #scp = AEVerificationSCP()
@@ -470,10 +400,10 @@ class TestAEGoodInitialisation(unittest.TestCase):
                                                  UID('1.2.840.10008.1.1.1')])
         ae = AE(scu_sop_class=[UID('1.2.840.10008.1.1')])
         self.assertTrue(ae.scu_supported_sop == [UID('1.2.840.10008.1.1')])
-        
+
         ae = AE(scu_sop_class=[VerificationSOPClass])
         self.assertTrue(ae.scu_supported_sop == [UID('1.2.840.10008.1.1')])
-        
+
         ae = AE(scu_sop_class=[1, VerificationSOPClass, 3])
         self.assertTrue(ae.scu_supported_sop == [UID('1.2.840.10008.1.1')])
 
@@ -483,10 +413,10 @@ class TestAEGoodInitialisation(unittest.TestCase):
                                                  UID('1.2.840.10008.1.1.1')])
         ae = AE(scp_sop_class=[UID('1.2.840.10008.1.1')])
         self.assertTrue(ae.scp_supported_sop == [UID('1.2.840.10008.1.1')])
-        
+
         ae = AE(scp_sop_class=[VerificationSOPClass])
         self.assertTrue(ae.scp_supported_sop == [UID('1.2.840.10008.1.1')])
-        
+
         ae = AE(scp_sop_class=[1, VerificationSOPClass, 3])
         self.assertTrue(ae.scp_supported_sop == [UID('1.2.840.10008.1.1')])
 
@@ -521,7 +451,7 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
-        
+
         # UID no change
         ae = AE(scu_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
         ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
@@ -533,7 +463,7 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
-        
+
         # bytes -> UID
         ae = AE(scu_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
         ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
@@ -554,7 +484,7 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
-        
+
         # UID no change
         ae = AE(scp_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
         ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
@@ -566,7 +496,7 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
-        
+
         # bytes -> UID
         ae = AE(scp_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
         ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
@@ -588,23 +518,23 @@ class TestAEGoodInitialisation(unittest.TestCase):
         tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
-        
+
         # UID no change
         ae = AE(scu_sop_class=['1.2'], transfer_syntax=[b'1.2.840.10008.1.2'])
         tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
-        
+
         # bytes -> UID
         ae = AE(scu_sop_class=['1.3'], transfer_syntax=[UID('1.2.840.10008.1.2')])
         tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
-        
+
         # If not transfer syntax raise
         with self.assertRaises(ValueError):
             ae = AE(scu_sop_class=['1.3'], transfer_syntax=['1.2.840'])
-        
+
         # If not str, bytes, UID raise
         with self.assertRaises(ValueError):
             ae = AE(scu_sop_class=['1.3'], transfer_syntax=[123456])
@@ -612,7 +542,7 @@ class TestAEGoodInitialisation(unittest.TestCase):
         # If not valid UID raise
         with self.assertRaises(ValueError):
             ae = AE(scu_sop_class=['1.3'], transfer_syntax=['1.2.3.4.5.'])
-        
+
         # If no valid transfer syntax UID raise
         with self.assertRaises(ValueError):
             ae = AE(scu_sop_class=['1.3'], transfer_syntax=[])
@@ -663,7 +593,7 @@ class TestAEBadInitialisation(unittest.TestCase):
         """ AE should fail if scu_sop_class or scp_sop_class are not lists of SOP classes """
         self.assertRaises(ValueError, AE, 'TEST', 0, [1, 2, 'a'], [])
         self.assertRaises(ValueError, AE, 'TEST', 0, [], [1, 'a', 3])
-        
+
     def test_sop_classes_too_many(self):
         """Presentation context list should be cutoff after 126 sop classes"""
         sop_classes = ['1.1'] * 130
