@@ -1,5 +1,8 @@
 
-"""Various utility functions"""
+"""Various utility functions
+
+TODO: Rename wrap_list globally to pretty_bytes_string
+"""
 from io import BytesIO
 import logging
 import unicodedata
@@ -116,7 +119,7 @@ def validate_ae_title(ae_title):
                         "non-empty string")
 
 def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
-              max_size=512):
+              max_size=512, suffix=''):
     """Given a bytestring `lst` turn it into a list of nicely formatted str."""
     lines = []
     if isinstance(lst, BytesIO):
@@ -137,7 +140,7 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
                 break
         else:
             line = prefix + delimiter.join(format(x, '02x') for x in chunk)
-            lines.append(line)
+            lines.append(line + suffix)
 
     if cutoff_output:
         lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))

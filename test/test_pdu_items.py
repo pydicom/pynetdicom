@@ -58,7 +58,7 @@ from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
 from pynetdicom3.utils import wrap_list, PresentationContext
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.ERROR)
+LOGGER.setLevel(logging.CRITICAL)
 
 
 def print_nice_bytes(bytestream):

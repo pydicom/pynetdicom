@@ -21,13 +21,8 @@ from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
 from pynetdicom3.utils import PresentationContext
 from pynetdicom3.utils import wrap_list
 
-
-logger = logging.getLogger('pynetdicom3')
-handler = logging.NullHandler()
-for h in logger.handlers:
-    logger.removeHandler(h)
-logger.addHandler(handler)
-logger.setLevel(logging.ERROR)
+LOGGER = logging.getLogger('pynetdicom3')
+LOGGER.setLevel(logging.CRITICAL)
 
 
 def print_nice_bytes(bytestream):
@@ -533,11 +528,11 @@ class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
         self.assertEqual(primitive.server_response, b'\x00\x31')
         with self.assertRaises(TypeError):
             primitive.server_response = ['test']
-        
+
         primitive = UserIdentityNegotiation()
         with self.assertRaises(ValueError):
             primitive.from_primitive()
-            
+
         primitive.user_identity_type = 2
         with self.assertRaises(ValueError):
             primitive.from_primitive()

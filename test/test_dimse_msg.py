@@ -1,4 +1,4 @@
-"""Unit tests for the Status class."""
+"""Unit tests for the DIMSE Message classes."""
 
 from io import BytesIO
 import logging
@@ -7,10 +7,15 @@ import unittest
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
-from encoded_dimse_msg import c_store_cmd, c_store_ds
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters
-from pynetdicom3.dsutils import encode, decode
+from encoded_dimse_msg import c_store_rq_cmd, c_store_ds
+from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage, \
+                                      C_ECHO_RQ, C_FIND_RQ, C_MOVE_RQ, C_GET_RQ
+from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
+                                        C_ECHO_ServiceParameters, \
+                                        C_GET_ServiceParameters, \
+                                        C_MOVE_ServiceParameters, \
+                                        C_FIND_ServiceParameters
+from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -61,7 +66,7 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertEqual(dimse_msg.ID, 13)
 
         p_data_list = dimse_msg.Encode(1, 31682)
-        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1], c_store_cmd)
+        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1], c_store_rq_cmd)
         self.assertEqual(p_data_list[1].presentation_data_value_list[0][1], c_store_ds)
 
     def test_decode(self):
@@ -113,9 +118,35 @@ class TestDIMSEMessage(unittest.TestCase):
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.AffectedSOPInstanceUID = '1.2.1'
         primitive.Priority = 0x02
-        primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST'
-        primitive.MoveOriginatorMessageID = 3
+        msg = C_STORE_RQ()
+        msg.primitive_to_message(primitive)
+        # Test unused command set elements are deleted
+        self.assertFalse('MoveOriginatorApplicationEntityTitle' in msg.command_set)
 
+        # Test raise error for unknown DIMSE message type
+        msg.__class__.__name__ = 'TestClass'
+        with self.assertRaises(ValueError):
+            msg.primitive_to_message(primitive)
+
+    def test_message_to_primitive_c_store(self):
+        """Test converting C_STORE_RQ to C_STORE primitive."""
+        msg = C_STORE_RQ()
+
+    def test_message_to_primitive_c_echo(self):
+        """Test converting C_ECHO_RQ to C_ECHO primitive."""
+        msg = C_ECHO_RQ()
+
+    def test_message_to_primitive_c_get(self):
+        """Test converting C_GET_RQ to C_GET primitive."""
+        msg = C_GET_RQ()
+
+    def test_message_to_primitive_c_move(self):
+        """Test converting C_MOVE_RQ to C_MOVE primitive."""
+        msg = C_MOVE_RQ()
+
+    def test_message_to_primitive_c_find(self):
+        """Test converting C_FIND_RQ to C_FIND primitive."""
+        msg = C_FIND_RQ()
 
 if __name__ == "__main__":
     unittest.main()

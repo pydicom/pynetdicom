@@ -367,6 +367,12 @@ class DIMSEMessage(object):
             rev_type[MESSAGE_TYPE[value]] = value
 
         cls_type_name = self.__class__.__name__.replace('_', '-')
+
+        # Check class type is valid
+        if not cls_type_name in rev_type:
+            raise ValueError("Can't convert primitive to message for unknown "
+                             "DIMSE message type '{}'".format(cls_type_name))
+
         self.command_set.CommandField = rev_type[cls_type_name]
 
         ## Data Set
@@ -408,13 +414,10 @@ class DIMSEMessage(object):
         elif cls_type_name == 'N_ACTION_RSP':
             self.data_set = primitive.ActionReply
             self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name in ['C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ',
-                               'C_STORE_RSP', 'C_CANCEL_RQ',
-                               'N_DELETE_RSP', 'C_FIND_RSP']:
-            pass
-        else:
-            LOGGER.error("DIMSE - Can't convert primitive to message for "
-                         "unknown message type '%s'", cls_type_name)
+
+        # The following message types don't have a dataset
+        # 'C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 'C_STORE_RSP',
+        # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP'
 
         # Set the Command Set length
         self._set_command_group_length()
