@@ -10,8 +10,6 @@ from struct import pack
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
-# Temporary fix while waiting for pydicom upstream
-from pydicom.datadict import dictionary_has_tag, dictionary_keyword
 
 from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
                                         C_FIND_ServiceParameters, \
@@ -163,6 +161,7 @@ class DIMSEMessage(object):
 
         # Required to save command set data from multiple fragments
         # self.command_set is added by _build_message_classes()
+        # and contains the elements required by the subclass
         self.encoded_command_set = BytesIO()
         self.data_set = BytesIO()
 
@@ -352,31 +351,10 @@ class DIMSEMessage(object):
         for elem in self.command_set:
             # Use the short version of the element names as these should
             #   match the parameter names in the primitive
-            #
-            # Nope, there's no guarantee that this will be the case
-            #   I think I'll add a keyword parameter to the pydicom Element
-            #   class and push upstream
-            # elem_name = elem.keyword
-            #
-            # In the meantime we can add a workaround
-            if dictionary_has_tag(elem.tag):
-                elem_name = dictionary_keyword(elem.tag)
-            else:
-                elem_name = elem.name.replace(' ', '')
-
-            # Old method
-            if elem_name in primitive.__dict__.keys():
-
-                if primitive.__dict__[elem_name] is not None:
-                    elem.value = primitive.__dict__[elem_name]
-                else:
-                    del self.command_set[elem.tag]
-
-            # New method
-            elif hasattr(primitive, elem_name):
+            if hasattr(primitive, elem.keyword):
                 # If value hasn't been set for a parameter then delete
                 #   the corresponding element
-                attr = getattr(primitive, elem_name)
+                attr = getattr(primitive, elem.keyword)
                 if attr is not None:
                     elem.value = attr
                 else:
@@ -479,17 +457,9 @@ class DIMSEMessage(object):
         # For each parameter in the primitive, set the appropriate value
         #   from the Message's Command Set
         for elem in self.command_set:
-            if dictionary_has_tag(elem.tag):
-                elem_name = dictionary_keyword(elem.tag)
-            else:
-                elem_name = elem.name.replace(' ', '')
-
-            if hasattr(primitive, elem_name):
-                try:
-                    setattr(primitive, elem_name,
-                            self.command_set.__getattr__(elem_name))
-                except:
-                    LOGGER.error('DIMSE failed to convert message to primitive')
+            if hasattr(primitive, elem.keyword):
+                setattr(primitive, elem.keyword,
+                        self.command_set.__getattr__(elem.keyword))
 
         ## Datasets
         if cls_type_name == 'C_STORE_RQ':
@@ -567,11 +537,13 @@ def _build_message_classes(message_name):
         #   to be checked to ensure it functions OK
         try:
             ds.add_new(tag, vr, None)
-        except:
+        except TypeError:
             ds.add_new(tag, vr, '')
 
+    # Add the Command Set dataset to the class
     cls.command_set = ds
 
+    # Add the class to the module
     globals()[cls.__name__] = cls
 
     return cls

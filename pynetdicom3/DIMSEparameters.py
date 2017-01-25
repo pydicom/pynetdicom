@@ -1,6 +1,10 @@
 """
 Define the DIMSE-C and DIMSE-N service parameter primitives.
 
+Notes:
+* The class member names must match their corresponding DICOM element keyword
+    in order for the DIMSE messages/primitives to be created correctly.
+
 TODO: Implement properties for DIMSE-N parameters
 """
 from io import BytesIO
