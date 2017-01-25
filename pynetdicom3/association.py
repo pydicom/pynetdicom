@@ -184,6 +184,7 @@ class Association(threading.Thread):
 
         # Kills the thread loop in run()
         self._kill = False
+        self._is_running = False
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -385,6 +386,7 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        self._is_running = True
         while not self._kill:
             time.sleep(0.001)
 

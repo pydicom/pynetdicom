@@ -2,6 +2,7 @@
 The main user class, represents a DICOM Application Entity
 """
 import gc
+from inspect import isclass
 import logging
 import platform
 import select
@@ -11,7 +12,7 @@ import sys
 import time
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian, UID, InvalidUID
+                        ExplicitVRBigEndian, UID, InvalidUID
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
@@ -215,6 +216,7 @@ class ApplicationEntity(object):
         #       requests association (presentation_contexts_scp)
         #
         #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
+        # TODO: Split this out into its own function
         self.presentation_contexts_scu = []
         self.presentation_contexts_scp = []
         for [pc_output, sop_input] in \
@@ -227,16 +229,11 @@ class ApplicationEntity(object):
                 abstract_syntax = None
 
                 # If supplied SOP Class is already a pydicom.UID class
+                #   str UID or SOPClass instance
                 if isinstance(sop_class, UID):
                     abstract_syntax = sop_class
-
-                # If supplied SOP Class is a UID string, try and see if we can
-                #   create a pydicom UID class from it
                 elif isinstance(sop_class, str):
                     abstract_syntax = UID(sop_class)
-
-                # If the supplied SOP class is one of the pynetdicom3.SOPclass
-                #   SOP class instances, convert it to pydicom UID
                 else:
                     abstract_syntax = UID(sop_class.UID)
 
@@ -278,15 +275,23 @@ class ApplicationEntity(object):
                          "for use with the SCP have been included during"
                          "ApplicationEntity initialisation or by setting the "
                          "scp_supported_sop attribute")
-            return
+            raise ValueError("AE is running as an SCP but no SCP SOP classes "
+                               "have been supplied.")
 
         # Bind the local_socket to the specified listen port
-        self._bind_socket()
+        try:
+            self._bind_socket()
+        except OSError:
+            self._quit = True
+            self.stop()
+            return
 
         no_loops = 0
         while True:
             try:
-                time.sleep(0.1)
+                # This seems to be here to help alleviate socket issues
+                # FIXME: refactor so not needed
+                #time.sleep(0.5)
 
                 if self._quit:
                     break
@@ -318,6 +323,8 @@ class ApplicationEntity(object):
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.local_socket.bind(('', self.port))
+        # Listen for connections made to the socket, the backlog argument
+        #   specifies the maximum number of queued connections.
         self.local_socket.listen(1)
 
     def _monitor_socket(self):
@@ -327,7 +334,11 @@ class ApplicationEntity(object):
         and if so, creates a new association. Separated out from start() to
         enable better unit testing
         """
-        read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        # FIXME: this needs to be dealt with properly
+        try:
+            read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        except ValueError:
+            return
 
         # If theres a connection
         if read_list:
@@ -364,16 +375,15 @@ class ApplicationEntity(object):
         When running as an SCP, calling stop() will kill all associations,
         close the listen socket and quit
         """
+        self._quit = True
+        
         for assoc in self.active_associations:
             assoc.kill()
 
         if self.local_socket:
             self.local_socket.close()
 
-        self._quit = True
-
-        while True:
-            sys.exit(0)
+        sys.exit(0)
 
     def quit(self):
         """Stop the SCP."""
@@ -408,10 +418,10 @@ class ApplicationEntity(object):
             The Association thread
         """
         if not isinstance(addr, str):
-            raise ValueError("ip_address must be a valid IPv4 string")
+            raise TypeError("ip_address must be a valid IPv4 string")
 
         if not isinstance(port, int):
-            raise ValueError("port must be a valid port number")
+            raise TypeError("port must be a valid port number")
 
         peer_ae = {'AET' : validate_ae_title(ae_title),
                    'Address' : addr,
@@ -704,45 +714,51 @@ class ApplicationEntity(object):
 
     @scu_supported_sop.setter
     def scu_supported_sop(self, sop_list):
-        """
-        A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
-        valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an
-        exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID
-        attribute(ie VerificationSOPClass)
+        """Set the AE's supported SCU SOP classes.
+
+        Examples of the `sop_list` items:
+        - '1.2.3.4'
+        - b'1.2.3.4.5'
+        - pydicom.uid.UID('1.2.3')
+        - pynetdicom3.SOPclass.VerificationSOPClass
+
+        Parameters
+        ----------
+        sop_list : list of str, bytes, UID, pynetdicom3.SOPclass.ServiceClass
+            The supported SCU SOP classes.
         """
         # pylint: disable=attribute-defined-outside-init
         self._scu_supported_sop = []
 
+        if not isinstance(sop_list, list):
+            raise ValueError("scu_supported_sop must be a list of SOP " \
+                               "classes.")
+
         try:
             for sop_class in sop_list:
-                try:
-                    if isinstance(sop_class, str):
-                        sop_uid = UID(sop_class)
-                        sop_uid.is_valid()
-                    elif isinstance(sop_class, UID):
-                        sop_uid = sop_class
-                        sop_uid.is_valid()
-                    elif 'UID' in sop_class.__dict__.keys():
+                if isinstance(sop_class, str):
+                    sop_uid = UID(sop_class)
+                elif isinstance(sop_class, UID):
+                    sop_uid = sop_class
+                elif isclass(sop_class):
+                    if 'UID' in sop_class.__dict__.keys():
                         sop_uid = UID(sop_class.UID)
-                        sop_uid.is_valid()
-                    else:
-                        raise ValueError("SCU SOP class must be a UID str, "
-                                         "UID or ServiceClass subclass")
+                elif isinstance(sop_class, bytes):
+                    sop_uid = UID(sop_class.decode('utf-8'))
+                else:
+                    continue
 
-                    self._scu_supported_sop.append(sop_uid)
-
+                try:
+                    sop_uid.is_valid()
                 except InvalidUID:
-                    raise ValueError("SCU SOP classes contained an invalid "
-                                     "UID string")
-                except Exception:
-                    LOGGER.warning("Invalid SCU SOP class '%s'", sop_class)
+                    continue
+
+                self._scu_supported_sop.append(sop_uid)
 
             if sop_list != [] and self._scu_supported_sop == []:
                 raise ValueError("No valid SCU SOP classes were supplied")
         except TypeError:
             raise ValueError("scu_sop_class must be a list")
-        except:
-            raise ValueError("scu_sop_class must be a list of SOP Classes")
 
     @property
     def scp_supported_sop(self):
@@ -751,46 +767,53 @@ class ApplicationEntity(object):
 
     @scp_supported_sop.setter
     def scp_supported_sop(self, sop_list):
-        """
-        A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
-        valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an
-        exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID
-        attribute(ie VerificationSOPClass)
+        """Set the AE's supported SCP SOP classes.
+
+        Examples of the `sop_list` items:
+        - '1.2.3.4'
+        - b'1.2.3.4.5'
+        - pydicom.uid.UID('1.2.3')
+        - pynetdicom3.SOPclass.VerificationSOPClass
+
+        Parameters
+        ----------
+        sop_list : list of str, bytes, UID, pynetdicom3.SOPclass.ServiceClass
+            The supported SCP SOP classes.
         """
         # pylint: disable=attribute-defined-outside-init
         self._scp_supported_sop = []
+        if not isinstance(sop_list, list):
+            raise ValueError("scp_supported_sop must be a list of SOP " \
+                               "classes.")
 
         try:
             for sop_class in sop_list:
-                try:
-
-                    if isinstance(sop_class, str):
-                        sop_uid = UID(sop_class)
-                    elif isinstance(sop_class, UID):
-                        sop_uid = sop_class
-                    elif isinstance(sop_class, bytes):
-                        sop_uid = UID(sop_uid.decode('utf-8'))
-                    elif 'UID' in sop_class.__dict__.keys():
+                if isinstance(sop_class, str):
+                    sop_uid = UID(sop_class)
+                elif isinstance(sop_class, UID):
+                    sop_uid = sop_class
+                elif isinstance(sop_class, bytes):
+                    sop_uid = UID(sop_class.decode('utf-8'))
+                elif isclass(sop_class):
+                    if 'UID' in sop_class.__dict__.keys():
                         sop_uid = UID(sop_class.UID)
-                    else:
-                        raise ValueError("SCU SOP class must be a UID str, "
-                                         "UID or ServiceClass subclass")
+                elif isinstance(sop_class, bytes):
+                    sop_uid = UID(sop_class.decode('utf-8'))
+                else:
+                    continue
 
+                try:
                     sop_uid.is_valid()
-                    self._scp_supported_sop.append(sop_uid)
-
                 except InvalidUID:
-                    raise ValueError("scp_sop_class must be a list of "
-                                     "SOP Classes")
-                except Exception:
-                    LOGGER.warning("Invalid SCP SOP class '%s'", sop_class)
+                    continue
+
+                self._scp_supported_sop.append(sop_uid)
 
             if sop_list != [] and self._scp_supported_sop == []:
                 raise ValueError("No valid SCP SOP classes were supplied")
+
         except TypeError:
             raise ValueError("scp_sop_class must be a list")
-        except:
-            raise ValueError("scp_sop_class must be a list of SOP Classes")
 
     @property
     def transfer_syntaxes(self):
@@ -802,40 +825,34 @@ class ApplicationEntity(object):
         """Set the supported transfer syntaxes."""
         # pylint: disable=attribute-defined-outside-init
         self._transfer_syntaxes = []
+        if not isinstance(transfer_syntaxes, list):
+            raise ValueError("Transfer syntax must be a list of SOP classes.")
 
-        try:
-            for syntax in transfer_syntaxes:
-                try:
-                    if isinstance(syntax, str):
-                        sop_uid = UID(syntax)
-                        sop_uid.is_valid()
-                    elif isinstance(syntax, UID):
-                        sop_uid = syntax
-                        sop_uid.is_valid()
-                    # FIXME: sop_class -> syntax?
-                    #elif 'UID' in sop_class.__dict__.keys():
-                    #    sop_uid = UID(syntax.UID)
-                    #    sop_uid.is_valid()
-                    else:
-                        raise ValueError("Transfer syntax SOP class must be a "
-                                         "UID str, UID or ServiceClass "
-                                         "subclass")
+        for syntax in transfer_syntaxes:
+            if isinstance(syntax, str):
+                sop_uid = UID(syntax)
+            elif isinstance(syntax, UID):
+                sop_uid = syntax
+            elif isinstance(syntax, bytes):
+                sop_uid = UID(syntax.decode('utf-8'))
+            else:
+                raise ValueError("Transfer syntax SOP class must be a "
+                                 "UID str, UID bytes or UID.")
+            try:
+                sop_uid.is_valid()
+            except InvalidUID:
+                raise ValueError("Transfer syntax contained an "
+                                 "invalid UID string")
+            
+            if sop_uid.is_transfer_syntax:
+                self._transfer_syntaxes.append(sop_uid)
+            else:
+                LOGGER.warning("Attempted to add a non-transfer syntax "
+                               "UID '%s'", syntax)
 
-                    if sop_uid.is_transfer_syntax:
-                        self._transfer_syntaxes.append(sop_uid)
-                    else:
-                        LOGGER.warning("Attempted to add a non-transfer syntax "
-                                       "UID '%s'", syntax)
-
-                except InvalidUID:
-                    raise ValueError("Transfer syntax contained an invalid "
-                                     "UID string")
-            if self._transfer_syntaxes == []:
-                raise ValueError("Transfer syntax must be a list of SOP "
-                                 "Classes")
-        except:
-            raise ValueError("Transfer syntax SOP class must be a "
-                             "UID str, UID or ServiceClass subclass")
+        if self._transfer_syntaxes == []:
+            raise ValueError("Transfer syntax must be a list of SOP "
+                             "Classes")
 
 
     # Association negotiation callbacks
