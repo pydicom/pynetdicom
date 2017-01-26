@@ -211,12 +211,11 @@ class PresentationContext(object):
         transfer_syntax : pydicom.uid.UID, bytes or str
             The transfer syntax to add to the Presentation Context
         """
+        # UID is a subclass of str
         if isinstance(transfer_syntax, str):
             transfer_syntax = UID(transfer_syntax)
         elif isinstance(transfer_syntax, bytes):
             transfer_syntax = UID(transfer_syntax.decode('utf-8'))
-        elif isinstance(transfer_syntax, UID):
-            pass
         else:
             raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
@@ -226,8 +225,10 @@ class PresentationContext(object):
                 transfer_syntax.is_valid()
             except InvalidUID:
                 raise ValueError('Presentation Context attempted to add a '
-                                 'non-transfer syntax UID ')
-
+                                 'invalid UID')
+            if not transfer_syntax.is_transfer_syntax:
+                raise ValueError('Presentation Context attempted to add a '
+                                 'non-transfer syntax UID')
             self.TransferSyntax.append(transfer_syntax)
 
     def __eq__(self, other):
@@ -430,8 +431,8 @@ class PresentationContextManager(object):
                 if isinstance(ii, PresentationContext):
                     self._requestor_contexts.append(ii)
         except:
-            raise ValueError("requestor_contexts must be a list of "
-                             "PresentationContext items")
+            raise TypeError("requestor_contexts must be a list of "
+                            "PresentationContext items")
 
     @property
     def acceptor_contexts(self):
@@ -465,18 +466,21 @@ class PresentationContextManager(object):
             user wants the contexts evaluated
         """
         if self.requestor_contexts == []:
-            raise ValueError("You can only set the Acceptor's presentation "
-                             "contexts after the Requestor's")
+            raise RuntimeError("You can only set the Acceptor's presentation "
+                               "contexts after the Requestor's")
+
+        if not isinstance(contexts, list):
+            raise TypeError("acceptor_contexts must be a list of "
+                            "PresentationContext items")
 
         # Validate the supplied contexts
         self._acceptor_contexts = []
-        try:
-            for ii in contexts:
-                if isinstance(ii, PresentationContext):
-                    self._acceptor_contexts.append(ii)
-        except:
-            raise ValueError("acceptor_contexts must be a list of "
-                             "PresentationContext items")
+        for ii in contexts:
+            if isinstance(ii, PresentationContext):
+                self._acceptor_contexts.append(ii)
+            else:
+                raise TypeError("acceptor_contexts must be a list of "
+                                "PresentationContext items")
 
         # Generate accepted_contexts and rejected_contexts
         self.accepted = []
@@ -493,7 +497,7 @@ class PresentationContextManager(object):
                     #   if we are the Acceptor, otherwise we have to match
                     #   using the IDs
 
-                    # If we are the Requestor then the Acceptor context's
+                    # If we are the Requestor then the Acceptor contexts
                     #   will have no AbstractSyntax
                     if ii_acc.AbstractSyntax != None:
                         if ii_acc.AbstractSyntax == ii_req.AbstractSyntax:

@@ -185,6 +185,12 @@ class TestPresentationContext(unittest.TestCase):
         with self.assertRaises(TypeError):
             pc.add_transfer_syntax([])
 
+        with self.assertRaises(ValueError):
+            pc.add_transfer_syntax('1.2.3.')
+
+        with self.assertRaises(ValueError):
+            pc.add_transfer_syntax('1.2.840.10008.1.1')
+
     def test_equality(self):
         """Test presentation context equality"""
         pc_a = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
@@ -260,6 +266,81 @@ class TestPresentationContext(unittest.TestCase):
         for status, result in zip(statuses, results):
             pc.Result = status
             self.assertEqual(pc.status, result)
+
+
+class TestPresentationContextManager(unittest.TestCase):
+    """Test the PresentationContextManager class"""
+    def test_good_init(self):
+        """Test the presentation context manager init"""
+        req = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        acc = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+
+        pcm = PresentationContextManager()
+        self.assertEqual(pcm.requestor_contexts, [])
+        self.assertEqual(pcm.acceptor_contexts, [])
+
+        pcm = PresentationContextManager([req], [acc])
+        self.assertEqual(pcm.requestor_contexts, [req])
+        self.assertEqual(pcm.acceptor_contexts, [acc])
+
+    def test_bad_init(self):
+        """Test breaking the presentation context manager init"""
+        req = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        acc = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+
+        pcm = PresentationContextManager()
+        self.assertEqual(pcm.requestor_contexts, [])
+        self.assertEqual(pcm.acceptor_contexts, [])
+
+        with self.assertRaises(TypeError):
+            pcm = PresentationContextManager(req, [acc])
+        #with self.assertRaises(TypeError):
+        #    pcm = PresentationContextManager([req], acc)
+
+    @unittest.skip
+    def test_property_setters(self):
+        """Test the property setters"""
+        # Requestor
+        req = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        acc = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2.1'])
+
+        # No matching abstract syntax
+        pcm = PresentationContextManager([req])
+        acc = PresentationContext(1, '1.1.2', ['1.2.840.10008.1.2'])
+        pcm.acceptor_contexts = [acc]
+        self.assertEqual(pcm.accepted, [])
+        acc.Result = 0x03
+        #print(acc, pcm.rejected)
+        self.assertEqual(pcm.rejected, [acc])
+
+        pcm = PresentationContextManager()
+        with self.assertRaises(RuntimeError):
+            pcm.acceptor_contexts = [acc]
+        pcm.requestor_contexts = [req]
+        self.assertEqual(pcm.requestor_contexts, [req])
+        with self.assertRaises(TypeError):
+            pcm.requestor_contexts = req
+
+        # Acceptor
+        # No matching transfer syntax
+        pcm.requestor_contexts = [req]
+        pcm.acceptor_contexts = [acc]
+        self.assertEqual(pcm.accepted, [])
+        acc.Result = 0x04
+        self.assertEqual(pcm.rejected, [acc])
+
+
+
+        # Accepted
+        pcm = PresentationContextManager()
+        pcm.requestor_contexts = [req]
+        acc = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        pcm.acceptor_contexts = [acc]
+        self.assertEqual(pcm.rejected, [])
+        acc.Result = 0x01
+        self.assertEqual(pcm.accepted, [acc])
+
+
 
 
 if __name__ == "__main__":

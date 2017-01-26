@@ -560,6 +560,11 @@ class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
         primitive.primary_field = b'test'
         item = primitive.from_primitive()
 
+        primitive.user_identity_type = 2
+        primitive.secondary_field = None
+        with self.assertRaises(ValueError):
+            item = primitive.from_primitive()
+
         # -AC
         primitive = UserIdentityNegotiation()
         primitive.server_response = b'Test'
