@@ -10,6 +10,7 @@ import unittest
 
 from pydicom.uid import UID
 
+from encoded_pdu_items import a_associate_rq
 from pynetdicom3.utils import validate_ae_title, wrap_list, \
                               PresentationContext, PresentationContextManager
 
@@ -90,7 +91,45 @@ class TestWrapList(unittest.TestCase):
     """Test wrap_list() function"""
     def test_parameters(self):
         """Test parameters are correct."""
-        pass
+        # Default
+        bytestream = a_associate_rq
+        result = wrap_list(bytestream)
+        self.assertEqual(len(result), 14)
+        self.assertTrue(isinstance(result[0], str))
+
+        # prefix
+        result = wrap_list(bytestream, prefix='\\x')
+        for line in result:
+            self.assertTrue(line[:2] == '\\x')
+
+        # delimiter
+        result = wrap_list(bytestream, prefix='', delimiter=',')
+        for line in result:
+            self.assertTrue(line[2] == ',')
+
+        # items_per_line
+        result = wrap_list(bytestream, prefix='', delimiter='',
+                           items_per_line=10)
+        self.assertEqual(len(result[0]), 20)
+
+        # max_size
+        result = wrap_list(bytestream, prefix='', delimiter='',
+                           items_per_line=10, max_size=100)
+        self.assertEqual(len(result), 11) # 10 plus the cutoff line
+        result = wrap_list(bytestream, max_size=None)
+
+        # suffix
+        result = wrap_list(bytestream, suffix='xxx')
+        for line in result:
+            self.assertTrue(line[-3:] == 'xxx')
+
+    def test_bytesio(self):
+        """Test wrap list using bytesio"""
+        bytestream = BytesIO()
+        bytestream.write(a_associate_rq)
+        result = wrap_list(bytestream, prefix='', delimiter='',
+                           items_per_line=10)
+        self.assertTrue(isinstance(result[0], str))
 
 
 class TestPresentationContext(unittest.TestCase):
@@ -135,6 +174,92 @@ class TestPresentationContext(unittest.TestCase):
             PresentationContext(1, abstract_syntax=['1.1.1.'])
         with self.assertRaises(TypeError):
             PresentationContext(1, abstract_syntax=1234)
+
+    def test_add_transfer_syntax(self):
+        """Test adding transfer syntaxes"""
+        pc = PresentationContext(1)
+        pc.add_transfer_syntax('1.2.840.10008.1.2')
+        pc.add_transfer_syntax(b'1.2.840.10008.1.2.1')
+        pc.add_transfer_syntax(UID('1.2.840.10008.1.2.2'))
+
+        with self.assertRaises(TypeError):
+            pc.add_transfer_syntax([])
+
+    def test_equality(self):
+        """Test presentation context equality"""
+        pc_a = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        pc_b = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        self.assertTrue(pc_a == pc_a)
+        self.assertTrue(pc_a == pc_b)
+        self.assertFalse(pc_a != pc_b)
+        self.assertFalse(pc_a != pc_a)
+        pc_a.SCP = True
+        self.assertFalse(pc_a == pc_b)
+        pc_b.SCP = True
+        self.assertTrue(pc_a == pc_b)
+        pc_a.SCU = True
+        self.assertFalse(pc_a == pc_b)
+        pc_b.SCU = True
+        self.assertTrue(pc_a == pc_b)
+        self.assertFalse('a' == pc_b)
+
+    def test_string_output(self):
+        """Test string output"""
+        pc = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        pc.SCP = True
+        pc.SCU = False
+        pc.Result = 0x0002
+        self.assertTrue('1.1.1' in pc.__str__())
+        self.assertTrue('Implicit' in pc.__str__())
+        self.assertTrue('Provider Rejected' in pc.__str__())
+
+    def test_abstract_syntax(self):
+        """Test abstract syntax setter"""
+        pc = PresentationContext(1)
+        pc.AbstractSyntax = '1.1.1'
+        self.assertEqual(pc.AbstractSyntax, UID('1.1.1'))
+        self.assertTrue(isinstance(pc.AbstractSyntax, UID))
+        pc.AbstractSyntax = b'1.2.1'
+        self.assertEqual(pc.AbstractSyntax, UID('1.2.1'))
+        self.assertTrue(isinstance(pc.AbstractSyntax, UID))
+        pc.AbstractSyntax = UID('1.3.1')
+        self.assertEqual(pc.AbstractSyntax, UID('1.3.1'))
+        self.assertTrue(isinstance(pc.AbstractSyntax, UID))
+
+        pc.AbstractSyntax = UID('1.4.1.')
+        self.assertEqual(pc.AbstractSyntax, UID('1.3.1'))
+        self.assertTrue(isinstance(pc.AbstractSyntax, UID))
+
+    def test_transfer_syntax(self):
+        """Test transfer syntax setter"""
+        pc = PresentationContext(1)
+        pc.TransferSyntax = ['1.2.840.10008.1.2']
+        self.assertEqual(pc.TransferSyntax[0], UID('1.2.840.10008.1.2'))
+        self.assertTrue(isinstance(pc.TransferSyntax[0], UID))
+        pc.TransferSyntax = [b'1.2.840.10008.1.2.1']
+        self.assertEqual(pc.TransferSyntax[0], UID('1.2.840.10008.1.2.1'))
+        self.assertTrue(isinstance(pc.TransferSyntax[0], UID))
+        pc.TransferSyntax = [UID('1.2.840.10008.1.2.2')]
+        self.assertEqual(pc.TransferSyntax[0], UID('1.2.840.10008.1.2.2'))
+        self.assertTrue(isinstance(pc.TransferSyntax[0], UID))
+
+        with self.assertRaises(TypeError):
+            pc.TransferSyntax = UID('1.4.1')
+
+        pc.TransferSyntax = ['1.4.1.', '1.2.840.10008.1.2']
+        self.assertEqual(pc.TransferSyntax[0], UID('1.2.840.10008.1.2'))
+
+    def test_status(self):
+        """Test presentation context status"""
+        pc = PresentationContext(1)
+        statuses = [None, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05]
+        results = ['Pending', 'Accepted', 'User Rejected', 'Provider Rejected',
+                   'Abstract Syntax Not Supported',
+                   'Transfer Syntax(es) Not Supported', 'Unknown']
+
+        for status, result in zip(statuses, results):
+            pc.Result = status
+            self.assertEqual(pc.status, result)
 
 
 if __name__ == "__main__":

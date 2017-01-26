@@ -216,11 +216,11 @@ class PresentationContext(object):
         elif isinstance(transfer_syntax, bytes):
             transfer_syntax = UID(transfer_syntax.decode('utf-8'))
         else:
-            raise ValueError('transfer_syntax must be a pydicom.uid.UID,' \
+            raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
 
-        if isinstance(transfer_syntax, UID):
-            if transfer_syntax not in self.TransferSyntax:
+        if transfer_syntax not in self.TransferSyntax and \
+                                                transfer_syntax.is_valid():
                 self.TransferSyntax.append(transfer_syntax)
 
     def __eq__(self, other):
@@ -228,7 +228,11 @@ class PresentationContext(object):
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
 
-        return False
+        return NotImplemented
+
+    def __ne__(self, other):
+        """Return inequality"""
+        return not self == other
 
     def __str__(self):
         """String representation of the Presentation Context."""
@@ -240,8 +244,6 @@ class PresentationContext(object):
         s += 'Transfer Syntax(es):\n'
         for syntax in self.TransferSyntax:
             s += '\t={0!s}\n'.format(syntax)
-
-        #s += 'SCP/SCU: %s/%s'
 
         if self.Result is not None:
             s += 'Result: {0!s}\n'.format(self.status)
@@ -388,13 +390,6 @@ class PresentationContextManager(object):
         self.requestor_contexts = request_contexts or []
         # The list of PresentationContext objects sent by the acceptor
         self._acceptor_contexts = response_contexts or []
-        self.accepted = []
-        self.rejected = []
-
-    def reset(self):
-        """Reset the PresentationContextManager."""
-        self.acceptor_contexts = []
-        self.requestor_contexts = []
         self.accepted = []
         self.rejected = []
 
