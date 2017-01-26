@@ -7,7 +7,7 @@ from io import BytesIO
 import logging
 import unicodedata
 
-from pydicom.uid import UID
+from pydicom.uid import UID, InvalidUID
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
 
@@ -260,12 +260,14 @@ class PresentationContext(object):
         FIXME: Add Parameters section
         """
         # pylint: disable=attribute-defined-outside-init
-        if 1 <= value <= 255:
-            if value % 2 == 0:
-                raise ValueError("Presentation Context ID must be an odd "
-                                 "integer between 1 and 255 inclusive")
-            else:
-                self._id = value
+        if value < 0 or value > 255:
+            raise ValueError("Presentation Context ID must be an odd "
+                             "integer between 1 and 255 inclusive")
+        elif value % 2 == 0:
+            raise ValueError("Presentation Context ID must be an odd "
+                             "integer between 1 and 255 inclusive")
+        else:
+            self._id = value
 
     @property
     def AbstractSyntax(self):
@@ -273,25 +275,35 @@ class PresentationContext(object):
         return self._abstract_syntax
 
     @AbstractSyntax.setter
-    def AbstractSyntax(self, value):
+    def AbstractSyntax(self, uid):
         """Set the Presentation Context's Abstract Syntax parameter.
 
-        FIXME: Add Parameters section
-        `value` must be a pydicom.uid.UID, a string UID or a byte string UID
+        Parameters
+        ----------
+        uid : str or bytes or pydicom.uid.UID
+            The abstract syntax UIDs
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
-        elif isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise ValueError("PresentationContext(): Invalid abstract syntax")
+        if uid is None:
+            self._abstract_syntax = None
+            return
 
-        self._abstract_syntax = value
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(uid, bytes):
+            uid = UID(uid.decode('utf-8'))
+        elif isinstance(uid, UID):
+            pass
+        elif isinstance(uid, str):
+            uid = UID(uid)
+        else:
+            raise TypeError("Presentation Context invalid type for abstract "
+                            "syntax")
+
+        try:
+            uid.is_valid()
+            self._abstract_syntax = uid
+        except InvalidUID:
+            LOGGER.info('Presentation Context attempted to set an invalid '
+                        'abstract syntax UID')
 
     @property
     def TransferSyntax(self):
@@ -299,26 +311,39 @@ class PresentationContext(object):
         return self._transfer_syntax
 
     @TransferSyntax.setter
-    def TransferSyntax(self, value):
+    def TransferSyntax(self, uid_list):
         """Set the Presentation Context's Transfer Syntax parameter.
 
-        FIXME: Add Parameters section
-        `value` must be a list of pydicom.uid.UIDs, string UIDs or byte string
-        UIDs
+        Parameters
+        ----------
+        uid_list : list of str or bytes or pydicom.uid.UID
+            The transfer syntax UIDs
         """
         # pylint: disable=attribute-defined-outside-init
         self._transfer_syntax = []
-        for ii in value:
-            if isinstance(value, bytes):
-                ii = UID(ii.decode('utf-8'))
-            elif isinstance(ii, UID):
+        if not isinstance(uid_list, list):
+            raise TypeError("transfer_syntaxes must be a list.")
+
+        for uid in uid_list:
+            if isinstance(uid, bytes):
+                uid = UID(uid.decode('utf-8'))
+            elif isinstance(uid, UID):
                 pass
-            elif isinstance(ii, str):
-                ii = UID(ii)
+            elif isinstance(uid, str):
+                uid = UID(uid)
             else:
                 raise ValueError("PresentationContext(): Invalid transfer "
                                  "syntax item")
-            self._transfer_syntax.append(ii)
+
+            try:
+                uid.is_valid()
+            except InvalidUID:
+                LOGGER.info('Presentation Context attempted to set an invalid '
+                            'transfer syntax UID')
+                continue
+
+            if uid.is_transfer_syntax:
+                self._transfer_syntax.append(uid)
 
     @property
     def status(self):

@@ -8,7 +8,10 @@ from io import BytesIO
 import logging
 import unittest
 
-from pynetdicom3.utils import validate_ae_title, wrap_list
+from pydicom.uid import UID
+
+from pynetdicom3.utils import validate_ae_title, wrap_list, \
+                              PresentationContext, PresentationContextManager
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
@@ -88,6 +91,50 @@ class TestWrapList(unittest.TestCase):
     def test_parameters(self):
         """Test parameters are correct."""
         pass
+
+
+class TestPresentationContext(unittest.TestCase):
+    """Test the PresentationContext class"""
+    def test_good_init(self):
+        """Test the presentation context class init"""
+        pc = PresentationContext(1)
+        self.assertEqual(pc.ID, 1)
+        self.assertEqual(pc.AbstractSyntax, None)
+        self.assertEqual(pc.TransferSyntax, [])
+
+        pc = PresentationContext(1, '1.1.1', ['1.2.840.10008.1.2'])
+        self.assertEqual(pc.ID, 1)
+        self.assertEqual(pc.AbstractSyntax, '1.1.1')
+        self.assertTrue(isinstance(pc.AbstractSyntax, UID))
+        self.assertEqual(pc.TransferSyntax, ['1.2.840.10008.1.2'])
+        self.assertTrue(isinstance(pc.TransferSyntax[0], UID))
+
+        pc = PresentationContext(1, transfer_syntaxes=['1.2.840.10008.1.2'])
+        self.assertEqual(pc.ID, 1)
+        self.assertEqual(pc.AbstractSyntax, None)
+        self.assertEqual(pc.TransferSyntax, ['1.2.840.10008.1.2'])
+        self.assertTrue(isinstance(pc.TransferSyntax[0], UID))
+
+        pc = PresentationContext(1, abstract_syntax='1.1.1')
+        self.assertEqual(pc.ID, 1)
+        self.assertEqual(pc.AbstractSyntax, '1.1.1')
+        self.assertTrue(isinstance(pc.AbstractSyntax, UID))
+        self.assertEqual(pc.TransferSyntax, [])
+
+    def test_bad_init(self):
+        """Test the presentation context class init"""
+        with self.assertRaises(ValueError):
+            PresentationContext(0)
+        with self.assertRaises(ValueError):
+            PresentationContext(256)
+        with self.assertRaises(TypeError):
+            PresentationContext(1, transfer_syntaxes='1.1.1')
+        with self.assertRaises(ValueError):
+            PresentationContext(1, transfer_syntaxes=[1234])
+        with self.assertRaises(TypeError):
+            PresentationContext(1, abstract_syntax=['1.1.1.'])
+        with self.assertRaises(TypeError):
+            PresentationContext(1, abstract_syntax=1234)
 
 
 if __name__ == "__main__":
