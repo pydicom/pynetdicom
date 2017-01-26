@@ -252,7 +252,7 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        pdata : pynetdicom3.DULparameters.P_DATA_ServiceParameters
+        pdata : pynetdicom3.primitives.P_DATA
             The P-DATA service primitive to be decoded into a DIMSE message
 
         Returns
@@ -344,7 +344,7 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        primitive : pynetdicom3.DIMSEparameters DIMSE service parameter
+        primitive : pynetdicom3.primitives DIMSE service parameter
             The primitive to convert to the current DIMSE Message object
         """
         ## Command Set

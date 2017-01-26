@@ -27,6 +27,7 @@ c_store_ds = b'\x02\x10\x00\x10\x00\x0a\x00\x00\x00\x54' \
              b'\x75\x62\x65\x5e\x48\x65\x4e\x65\x20\x10' \
              b'\x00\x20\x00\x08\x00\x00\x00\x54\x65\x73' \
              b'\x74\x31\x31\x30\x31'
+
 c_store_rq_cmd_b = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\xae' \
                    b'\x00\x00\x00\x00\x00\x02\x00\x1a\x00\x00' \
                    b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
@@ -61,6 +62,12 @@ c_store_rsp_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4c' \
                   b'\x2e\x34\x2e\x35\x2e\x37\x2e\x38\x00'
 
 #################################### C-ECHO ####################################
+#(0000, 0000) Command Group Length                UL: 56
+#(0000, 0002) Affected SOP Class UID              UI: Verification SOP Class
+#(0000, 0100) Command Field                       US: 48
+#(0000, 0110) Message ID                          US: 7
+#(0000, 0800) Command Data Set Type               US: 257
+#(0000, 0000) Command Group Length                UL: 66
 c_echo_rq_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38' \
                 b'\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00' \
                 b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
@@ -68,6 +75,13 @@ c_echo_rq_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38' \
                 b'\x00\x00\x01\x02\x00\x00\x00\x30\x00\x00' \
                 b'\x00\x10\x01\x02\x00\x00\x00\x07\x00\x00' \
                 b'\x00\x00\x08\x02\x00\x00\x00\x01\x01'
+
+# (0000, 0000) Command Group Length                UL: 66
+# (0000, 0002) Affected SOP Class UID              UI: Verification SOP Class
+# (0000, 0100) Command Field                       US: 32816
+# (0000, 0120) Message ID Being Responded To       US: 8
+# (0000, 0800) Command Data Set Type               US: 257
+# (0000, 0900) Status                              US: 0
 c_echo_rsp_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42' \
                  b'\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00' \
                  b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
@@ -152,6 +166,12 @@ c_move_rsp_ds = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50' \
                 b'\x00\x02\x00\x00\x00\x2a\x20'
 
 ##################################### C-GET ####################################
+# (0000, 0000) Command Group Length                UL: 74
+# (0000, 0002) Affected SOP Class UID              UI: CT Image Storage
+# (0000, 0100) Command Field                       US: 16
+# (0000, 0110) Message ID                          US: 7
+# (0000, 0700) Priority                            US: 2
+# (0000, 0800) Command Data Set Type               US: 1
 c_get_rq_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a' \
                b'\x00\x00\x00\x00\x00\x02\x00\x1a\x00\x00' \
                b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \

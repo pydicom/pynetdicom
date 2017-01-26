@@ -120,7 +120,29 @@ def validate_ae_title(ae_title):
 
 def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
               max_size=512, suffix=''):
-    """Given a bytestring `lst` turn it into a list of nicely formatted str."""
+    """Given a bytestring `lst` turn it into a list of nicely formatted str.
+
+    Parameters
+    ----------
+    bytestream : bytes or io.BytesIO
+        The bytes to convert to a nicely formatted string list
+    prefix : str
+        Insert `prefix` at the start of every item in the output string list
+    delimiter : str
+        Delimit each of the bytes in `lst` using `delimiter`
+    items_per_line : int
+        The number of bytes in each item of the output string list.
+    max_size : int or None
+        The maximum number of bytes to add to the output string list. A value
+        of None indicates that all of `bytestream` should be output.
+    suffix : str
+        Append `suffix` to the end of every item in the output string list
+
+    Returns
+    -------
+    list of str
+        The output string list
+    """
     lines = []
     if isinstance(lst, BytesIO):
         lst = lst.getvalue()
@@ -131,13 +153,12 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
         chunk = lst[ii:ii + items_per_line]
         byte_count += len(chunk)
 
-        if max_size is not None:
-            if byte_count <= max_size:
-                line = prefix + delimiter.join(format(x, '02x') for x in chunk)
-                lines.append(line)
-            else:
-                cutoff_output = True
-                break
+        if max_size is not None and byte_count <= max_size:
+            line = prefix + delimiter.join(format(x, '02x') for x in chunk)
+            lines.append(line + suffix)
+        elif max_size is not None and byte_count > max_size:
+            cutoff_output = True
+            break
         else:
             line = prefix + delimiter.join(format(x, '02x') for x in chunk)
             lines.append(line + suffix)
