@@ -262,7 +262,6 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 
         new_item = PresentationContextItemRQ()
         new_item.FromParams(context)
-
         self.assertEqual(orig_item, new_item)
 
 

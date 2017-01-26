@@ -215,13 +215,20 @@ class PresentationContext(object):
             transfer_syntax = UID(transfer_syntax)
         elif isinstance(transfer_syntax, bytes):
             transfer_syntax = UID(transfer_syntax.decode('utf-8'))
+        elif isinstance(transfer_syntax, UID):
+            pass
         else:
             raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
 
-        if transfer_syntax not in self.TransferSyntax and \
-                                                transfer_syntax.is_valid():
-                self.TransferSyntax.append(transfer_syntax)
+        if transfer_syntax not in self.TransferSyntax:
+            try:
+                transfer_syntax.is_valid()
+            except InvalidUID:
+                raise ValueError('Presentation Context attempted to add a '
+                                 'non-transfer syntax UID ')
+
+            self.TransferSyntax.append(transfer_syntax)
 
     def __eq__(self, other):
         """Return True if `self` is equal to `other`."""
