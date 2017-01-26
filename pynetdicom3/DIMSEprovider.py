@@ -268,7 +268,7 @@ class DIMSEServiceProvider(object):
         if wait:
             # Loop until complete DIMSE message is received
             #   message may be split into 1 or more fragments
-            while 1:
+            while True:
                 time.sleep(0.001)
 
                 nxt = self.DUL.Peek()

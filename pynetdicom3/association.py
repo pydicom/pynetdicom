@@ -19,21 +19,21 @@ from pynetdicom3.dsutils import decode, encode, correct_ambiguous_vr
 from pynetdicom3.DULprovider import DULServiceProvider
 #from pynetdicom3.SOPclass import *
 from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
-                        StorageServiceClass, \
-                        QueryRetrieveGetServiceClass, \
-                        QueryRetrieveFindServiceClass, \
-                        QueryRetrieveMoveServiceClass, \
-                        ModalityWorklistInformationFind, \
-                        ModalityWorklistServiceSOPClass, \
-                        PatientRootQueryRetrieveInformationModelFind, \
-                        StudyRootQueryRetrieveInformationModelFind, \
-                        PatientStudyOnlyQueryRetrieveInformationModelFind, \
-                        PatientRootQueryRetrieveInformationModelMove, \
-                        StudyRootQueryRetrieveInformationModelMove, \
-                        PatientStudyOnlyQueryRetrieveInformationModelMove, \
-                        PatientRootQueryRetrieveInformationModelGet, \
-                        StudyRootQueryRetrieveInformationModelGet, \
-                        PatientStudyOnlyQueryRetrieveInformationModelGet
+                         StorageServiceClass, \
+                         QueryRetrieveGetServiceClass, \
+                         QueryRetrieveFindServiceClass, \
+                         QueryRetrieveMoveServiceClass, \
+                         ModalityWorklistInformationFind, \
+                         ModalityWorklistServiceSOPClass, \
+                         PatientRootQueryRetrieveInformationModelFind, \
+                         StudyRootQueryRetrieveInformationModelFind, \
+                         PatientStudyOnlyQueryRetrieveInformationModelFind, \
+                         PatientRootQueryRetrieveInformationModelMove, \
+                         StudyRootQueryRetrieveInformationModelMove, \
+                         PatientStudyOnlyQueryRetrieveInformationModelMove, \
+                         PatientRootQueryRetrieveInformationModelGet, \
+                         StudyRootQueryRetrieveInformationModelGet, \
+                         PatientStudyOnlyQueryRetrieveInformationModelGet
 from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT

@@ -14,7 +14,7 @@ import socket
 import sys
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+                        ExplicitVRBigEndian
 
 from pynetdicom3 import AE, VerificationSOPClass
 

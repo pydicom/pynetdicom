@@ -11,30 +11,6 @@ from pydicom.uid import UID
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
 
-def fragment(max_pdu, byte_str):
-    """Convert the given str into fragments, each of maximum size `max_pdu`
-
-    FIXME: Add Parameters section
-
-    Returns
-    -------
-    fragments : list of str
-        The fragmented string
-    """
-    if isinstance(byte_str, BytesIO):
-        byte_str = byte_str.getvalue()
-    s = byte_str
-    fragments = []
-    maxsize = max_pdu - 6
-
-    while 1:
-        fragments.append(s[:maxsize])
-        s = s[maxsize:]
-        if len(s) <= maxsize:
-            if len(s) > 0:
-                fragments.append(s)
-
-            return fragments
 
 def validate_ae_title(ae_title):
     """Return a valid AE title from `ae_title`, if possible.

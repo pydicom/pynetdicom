@@ -24,7 +24,7 @@ from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
                                         N_DELETE_ServiceParameters
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.primitives import P_DATA
-from pynetdicom3.utils import fragment
+from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
@@ -194,7 +194,7 @@ class DIMSEMessage(object):
 
         ## COMMAND SET
         # Split the command set into framents with maximum size max_pdu
-        pdvs = fragment(max_pdu, encoded_command_set)
+        pdvs = self._fragment_pdv(encoded_command_set, max_pdu)
 
         # First to (n - 1)th command data fragment - b XXXXXX01
         for ii in pdvs[:-1]:
@@ -217,7 +217,7 @@ class DIMSEMessage(object):
             pass
         elif self.data_set.getvalue() != b'':
             # Technically these are APDUs, not PDVs
-            pdvs = fragment(max_pdu, self.data_set)
+            pdvs = self._fragment_pdv(self.data_set, max_pdu)
 
             # First to (n - 1)th dataset fragment - b XXXXXX00
             for ii in pdvs[:-1]:
@@ -336,6 +336,49 @@ class DIMSEMessage(object):
         # Add the CommandGroupLength element back to the dataset with the
         #   correct value
         self.command_set.CommandGroupLength = length
+
+    @staticmethod
+    def _fragment_pdv(bytestream, fragment_length):
+        """Fragment `bytestream`, each `max_size` long.
+
+        Fragments bytestream data for use in PDVs.
+
+        Parameters
+        ----------
+        bytestream : bytes or io.BytesIO or str
+            The data to be fragmented
+        fragment_length : int
+            The maximum size of each fragment
+
+        Returns
+        -------
+        fragments : list of bytes
+            The fragmented `bytestream`
+        """
+        if not isinstance(bytestream, (BytesIO, bytes, str)):
+            raise TypeError
+
+        if fragment_length < 1:
+            raise ValueError('Max bytes per PDV must be at least 1.')
+
+        # Convert bytestream to bytes
+        if isinstance(bytestream, BytesIO):
+            bytestream = bytestream.getvalue()
+        if isinstance(bytestream, str):
+            bytestream = bytes(bytestream, 'utf-8')
+
+        # Why is this reduced?
+        #fragment_length = fragment_length - 6
+
+        fragments = []
+        while len(bytestream) > 0:
+            # Add the fragment
+            fragments.append(bytestream[:fragment_length])
+            # Remove the fragment from the bytestream
+            bytestream = bytestream[fragment_length:]
+
+        return fragments
+
 
     def primitive_to_message(self, primitive):
         """

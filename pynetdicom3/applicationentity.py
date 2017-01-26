@@ -11,8 +11,12 @@ from struct import pack
 import sys
 import time
 
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian, UID, InvalidUID
+try:
+    from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+                            ExplicitVRBigEndian, UID, InvalidUID
+except ImportError as ex:
+    print('pydicom not installed')
+    raise ex
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
@@ -376,7 +380,7 @@ class ApplicationEntity(object):
         close the listen socket and quit
         """
         self._quit = True
-        
+
         for assoc in self.active_associations:
             assoc.kill()
 
@@ -843,7 +847,7 @@ class ApplicationEntity(object):
             except InvalidUID:
                 raise ValueError("Transfer syntax contained an "
                                  "invalid UID string")
-            
+
             if sop_uid.is_transfer_syntax:
                 self._transfer_syntaxes.append(sop_uid)
             else:

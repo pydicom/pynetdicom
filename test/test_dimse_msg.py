@@ -33,7 +33,6 @@ from pynetdicom3.utils import wrap_list
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
-
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
     str_list = wrap_list(bytestream, prefix="b'\\x", delimiter='\\x',
@@ -44,6 +43,37 @@ def print_nice_bytes(bytestream):
 
 class TestDIMSEMessage(unittest.TestCase):
     """Test DIMSEMessage class"""
+    def test_fragment_pdv(self):
+        """Test that the PDV fragmenter is working correctly."""
+        dimse_msg = C_STORE_RQ()
+        frag = dimse_msg._fragment_pdv
+
+        result = frag(c_echo_rsp_cmd, 1000)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], c_echo_rsp_cmd)
+        self.assertTrue(isinstance(result[0], bytes))
+        self.assertTrue(result[-1] != b'')
+
+        result = frag(c_echo_rsp_cmd, 10)
+        self.assertEqual(len(result), 8)
+        self.assertEqual(result[0], c_echo_rsp_cmd[:10])
+        self.assertTrue(isinstance(result[0], bytes))
+        self.assertTrue(result[-1] != b'')
+
+        byteio = BytesIO()
+        byteio.write(c_echo_rsp_cmd)
+        result = frag(byteio, 1000)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], c_echo_rsp_cmd)
+        self.assertTrue(isinstance(result[0], bytes))
+
+        with self.assertRaises(TypeError):
+            frag([], 10)
+        with self.assertRaises(TypeError):
+            frag(c_echo_rsp_cmd, 'test')
+        with self.assertRaises(ValueError):
+            frag(c_echo_rsp_cmd, 0)
+
     def test_encode(self):
         """Test encoding of a DIMSE message."""
         primitive = C_STORE_ServiceParameters()
@@ -71,7 +101,7 @@ class TestDIMSEMessage(unittest.TestCase):
 
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
-        p_data_list = dimse_msg.Encode(13, 16)
+        p_data_list = dimse_msg.Encode(13, 10)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0], 1)
         self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0], 2)
         self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0], 0)
@@ -99,7 +129,7 @@ class TestDIMSEMessage(unittest.TestCase):
         dimse_msg.primitive_to_message(primitive)
 
         # CMD: (1x4, 3x1), DS: (0x1, 2x1)
-        p_data_list = dimse_msg.Encode(12, 30)
+        p_data_list = dimse_msg.Encode(12, 24)
 
         # Command set decoding
         for pdv in p_data_list[:4]:
