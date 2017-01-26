@@ -3,6 +3,7 @@
 import logging
 import unittest
 
+from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters
 from pynetdicom3.SOPclass import Status, uid_to_sop_class, \
                                  VerificationServiceClass, \
                                  StorageServiceClass, \
@@ -10,10 +11,61 @@ from pynetdicom3.SOPclass import Status, uid_to_sop_class, \
                                  QueryRetrieveFindServiceClass, \
                                  QueryRetrieveMoveServiceClass, \
                                  ModalityWorklistServiceSOPClass, \
-                                 RTMachineVerificationServiceClass
+                                 RTMachineVerificationServiceClass, \
+                                 VerificationSOPClass
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
+
+
+class DummyAE(object):
+    """Dummy class for testing callback errors"""
+    @staticmethod
+    def on_c_echo():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_store():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_find():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_cancel_find():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_get():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_cancel_get():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_move():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+    @staticmethod
+    def on_c_cancel_move():
+        """Dummy method to test callback errors"""
+        raise ValueError
+
+
+class DummyDIMSE(object):
+    """Dummy DIMSE provider"""
+    def Send(self, msg, context_id, length):
+        """Dummy Send method"""
+        pass
 
 
 class TestServiceClass(unittest.TestCase):
@@ -22,6 +74,23 @@ class TestServiceClass(unittest.TestCase):
         sop = VerificationServiceClass()
         with self.assertRaises(ValueError):
             sop.code_to_status(0x0001)
+
+
+class TestVerificationServiceClass(unittest.TestCase):
+    """Test the VerifictionSOPClass"""
+    def test_scp_callback_exception(self):
+        """Test errors in on_c_echo are caught"""
+        sop = VerificationSOPClass()
+        sop.ae = DummyAE()
+        sop.DIMSE = DummyDIMSE()
+        sop.pcid = 1
+        sop.maxpdulength = 10
+
+        msg = C_ECHO_ServiceParameters()
+        msg.MessageID = 12
+        with self.assertLogs('pynetdicom3') as log:
+            sop.SCP(msg)
+        self.assertTrue("Exception in the AE.on_c_echo() callback" in log.output[0])
 
 
 class TestStorageServiceClass(unittest.TestCase):
