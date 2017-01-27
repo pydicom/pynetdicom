@@ -345,7 +345,7 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        bytestream : bytes or io.BytesIO or str
+        bytestream : bytes or io.BytesIO
             The data to be fragmented
         fragment_length : int
             The maximum size of each fragment
@@ -355,7 +355,7 @@ class DIMSEMessage(object):
         fragments : list of bytes
             The fragmented `bytestream`
         """
-        if not isinstance(bytestream, (BytesIO, bytes, str)):
+        if not isinstance(bytestream, (BytesIO, bytes)):
             raise TypeError
 
         if fragment_length < 1:
@@ -364,11 +364,6 @@ class DIMSEMessage(object):
         # Convert bytestream to bytes
         if isinstance(bytestream, BytesIO):
             bytestream = bytestream.getvalue()
-        if isinstance(bytestream, str):
-            bytestream = bytes(bytestream, 'utf-8')
-
-        # Why is this reduced?
-        #fragment_length = fragment_length - 6
 
         fragments = []
         while len(bytestream) > 0:

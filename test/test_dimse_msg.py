@@ -66,9 +66,7 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(isinstance(result[0], bytes))
         self.assertTrue(result[-1] != b'')
 
-        bytestream = BytesIO()
-        bytestream.write(c_echo_rsp_cmd)
-        result = frag(bytestream, 10)
+        result = frag(c_echo_rsp_cmd, 10)
         self.assertEqual(len(result), 8)
         self.assertEqual(result[0], c_echo_rsp_cmd[:10])
         self.assertTrue(isinstance(result[0], bytes))
