@@ -429,11 +429,6 @@ class DIMSEMessage(object):
         for value in MESSAGE_TYPE:
             rev_type[MESSAGE_TYPE[value]] = value
 
-        # Check class type is valid
-        if not cls_type_name in rev_type:
-            raise ValueError("Can't convert primitive to message for unknown "
-                             "DIMSE message type '{}'".format(cls_type_name))
-
         self.command_set.CommandField = rev_type[cls_type_name]
 
         ## Data Set

@@ -418,6 +418,8 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.DataSet = BytesIO()
         # CT + no dataset
         self.dimse.Send(primitive, 1, 30000)
+        primitive.AffectedSOPClassUID = '1.1.1'
+        # No UID type, no dataset
         # MR + dataset
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.4' # MR
         bytestream = BytesIO()
@@ -743,6 +745,10 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         msg.primitive_to_message(primitive)
         # Dataset
         msg.data_set = BytesIO(encode(ref_ds, True, True))
+        self.dimse.debug_receive_c_find_rsp(msg)
+        
+        # Non-pending status
+        msg.data_set.Status = 0x0001
         self.dimse.debug_receive_c_find_rsp(msg)
         
         # C-CANCEL-FIND-RQ

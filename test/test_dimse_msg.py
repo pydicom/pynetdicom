@@ -20,12 +20,24 @@ from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage, \
                                       C_ECHO_RQ, C_ECHO_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
-                                      C_GET_RQ, C_GET_RSP
+                                      C_GET_RQ, C_GET_RSP,\
+                                      N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, \
+                                      N_SET_RQ, N_SET_RSP, \
+                                      N_GET_RQ, N_GET_RSP, \
+                                      N_ACTION_RQ, N_ACTION_RSP, \
+                                      N_CREATE_RQ, N_CREATE_RSP, \
+                                      N_DELETE_RQ, N_DELETE_RSP
 from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
                                         C_ECHO_ServiceParameters, \
                                         C_GET_ServiceParameters, \
                                         C_MOVE_ServiceParameters, \
-                                        C_FIND_ServiceParameters
+                                        C_FIND_ServiceParameters, \
+                                        N_EVENT_REPORT_ServiceParameters, \
+                                        N_GET_ServiceParameters, \
+                                        N_SET_ServiceParameters, \
+                                        N_ACTION_ServiceParameters, \
+                                        N_CREATE_ServiceParameters, \
+                                        N_DELETE_ServiceParameters
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.primitives import P_DATA
 from pynetdicom3.utils import wrap_list
@@ -54,7 +66,9 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(isinstance(result[0], bytes))
         self.assertTrue(result[-1] != b'')
 
-        result = frag(c_echo_rsp_cmd, 10)
+        bytestream = BytesIO()
+        bytestream.write(c_echo_rsp_cmd)
+        result = frag(bytestream, 10)
         self.assertEqual(len(result), 8)
         self.assertEqual(result[0], c_echo_rsp_cmd[:10])
         self.assertTrue(isinstance(result[0], bytes))
@@ -177,8 +191,8 @@ class TestDIMSEMessage(unittest.TestCase):
         
         # Reset name to avoid errors in other tests
         msg.__class__.__name__ = 'C_STORE_RQ'
-        
 
+    # DIMSE-C
     def test_message_to_primitive_c_store(self):
         """Test converting C_STORE_RQ and _RSP to C_STORE primitive."""
         msg = C_STORE_RQ()
@@ -343,6 +357,79 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertEqual(ds.RetrieveAETitle, 'FINDSCP        ')
 
         self.assertEqual(ds.PatientName, 'ANON^A^B^C^D')
+
+    # DIMSE-N
+    def test_message_to_primitive_n_event_report(self):
+        """Test converting N_EVENT_REPORT_RQ and _RSP to primitive."""
+        # N-EVENT-REPORT-RQ
+        msg = N_EVENT_REPORT_RQ()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_EVENT_REPORT_ServiceParameters))
+
+        # N-EVENT-REPORT-RSP
+        msg = N_EVENT_REPORT_RSP()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_EVENT_REPORT_ServiceParameters))
+
+    def test_message_to_primitive_n_get(self):
+        """Test converting N_GET_RQ and _RSP to primitive."""
+        # N-GET-RQ
+        msg = N_GET_RQ()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_GET_ServiceParameters))
+
+        # N-GET-RSP
+        msg = N_GET_RSP()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_GET_ServiceParameters))
+
+    def test_message_to_primitive_n_set(self):
+        """Test converting N_SET_RQ and _RSP to primitive."""
+        # N-SET-RQ
+        msg = N_SET_RQ()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_SET_ServiceParameters))
+
+        # N-SET-RSP
+        msg = N_SET_RSP()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_SET_ServiceParameters))
+
+    def test_message_to_primitive_n_action(self):
+        """Test converting N_ACTION_RQ and _RSP to primitive."""
+        # N-ACTION-RQ
+        msg = N_ACTION_RQ()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_ACTION_ServiceParameters))
+
+        # N-ACTION-RSP
+        msg = N_ACTION_RSP()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_ACTION_ServiceParameters))
+
+    def test_message_to_primitive_n_create(self):
+        """Test converting N_CREATE_RQ and _RSP to primitive."""
+        # N-CREATE-RQ
+        msg = N_CREATE_RQ()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_CREATE_ServiceParameters))
+
+        # N-CREATE-RSP
+        msg = N_CREATE_RSP()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_CREATE_ServiceParameters))
+
+    def test_message_to_primitive_n_delete(self):
+        """Test converting N_DELETE_RQ and _RSP to primitive."""
+        # N-DELETE-RQ
+        msg = N_DELETE_RQ()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_DELETE_ServiceParameters))
+
+        # N-DELETE-RSP
+        msg = N_DELETE_RSP()
+        primitive = msg.message_to_primitive()
+        self.assertTrue(isinstance(primitive, N_DELETE_ServiceParameters))
 
 
 if __name__ == "__main__":
