@@ -379,7 +379,6 @@ class DIMSEMessage(object):
 
         return fragments
 
-
     def primitive_to_message(self, primitive):
         """
         Convert a DIMSE service parameters primitive to the current DIMSE
@@ -391,6 +390,26 @@ class DIMSEMessage(object):
             The primitive to convert to the current DIMSE Message object
         """
         ## Command Set
+        # Due to the del self.command_set[elem.tag] line below this may
+        #   end up permanently removing the element from the DIMSE message class
+        #   so we refresh the command set elements
+        cls_type_name = self.__class__.__name__.replace('_', '-')
+        command_set_tags = [elem.tag for elem in self.command_set]
+        
+        if cls_type_name not in COMMAND_SET_ELEM:
+            raise ValueError("Can't convert primitive to message for unknown "
+                             "DIMSE message type '{}'".format(cls_type_name))
+        
+        for tag in COMMAND_SET_ELEM[cls_type_name]:
+            if tag not in command_set_tags:
+                tag = Tag(tag)
+                vr = dcm_dict[tag][0]
+                try:
+                    self.command_set.add_new(tag, vr, None)
+                except TypeError:
+                    self.command_set.add_new(tag, vr, '')
+        
+        # Convert the message command set to the primitive attributes
         for elem in self.command_set:
             # Use the short version of the element names as these should
             #   match the parameter names in the primitive
@@ -398,18 +417,17 @@ class DIMSEMessage(object):
                 # If value hasn't been set for a parameter then delete
                 #   the corresponding element
                 attr = getattr(primitive, elem.keyword)
+                
                 if attr is not None:
                     elem.value = attr
                 else:
-                    del self.command_set[elem.tag]
+                    del self.command_set[elem.tag] # Careful!
 
         # Theres a one-to-one relationship in the MESSAGE_TYPE dict, so invert
         #   it for convenience
         rev_type = {}
         for value in MESSAGE_TYPE:
             rev_type[MESSAGE_TYPE[value]] = value
-
-        cls_type_name = self.__class__.__name__.replace('_', '-')
 
         # Check class type is valid
         if not cls_type_name in rev_type:
@@ -433,7 +451,8 @@ class DIMSEMessage(object):
                                'C_MOVE_RQ', 'C_MOVE_RSP']:
             self.data_set = primitive.Identifier
             self.command_set.CommandDataSetType = 0x0001
-        # C-FIND-RSP only has a Data Set when the Status is pending (0x0001)
+        # C-FIND-RSP only has a Data Set when the Status is pending (0xFF00) or
+        #   Pending Warning (0xFF01)
         elif cls_type_name == 'C_FIND_RSP' and \
                         self.command_set.Status in [0xFF00, 0xFF01]:
             self.data_set = primitive.Identifier
@@ -510,9 +529,8 @@ class DIMSEMessage(object):
         ## Datasets
         if cls_type_name == 'C_STORE_RQ':
             setattr(primitive, 'DataSet', self.data_set)
-        elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP',
-                               'C_GET_RQ', 'C_GET_RSP',
-                               'C_MOVE_RQ', 'C_MOVE_RSP']:
+        elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP', 'C_GET_RQ', 
+                                'C_GET_RSP', 'C_MOVE_RQ', 'C_MOVE_RSP']:
             setattr(primitive, 'Identifier', self.data_set)
         elif cls_type_name == 'N_EVENT_REPORT_RQ':
             setattr(primitive, 'EventInformation', self.data_set)
@@ -597,6 +615,7 @@ def _build_message_classes(message_name):
 for msg_type in COMMAND_SET_ELEM:
     _build_message_classes(msg_type)
 
+# Values from PS3.5
 MESSAGE_TYPE_CLASS = {0x0001 : C_STORE_RQ, 0x8001 : C_STORE_RSP,
                       0x0020 : C_FIND_RQ, 0x8020 : C_FIND_RSP,
                       0x0FFF : C_CANCEL_RQ,

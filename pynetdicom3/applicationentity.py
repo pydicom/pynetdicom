@@ -11,12 +11,8 @@ from struct import pack
 import sys
 import time
 
-try:
-    from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                            ExplicitVRBigEndian, UID, InvalidUID
-except ImportError as ex:
-    print('pydicom not installed')
-    raise ex
+from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+                        ExplicitVRBigEndian, UID, InvalidUID
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title

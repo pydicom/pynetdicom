@@ -174,6 +174,10 @@ class TestDIMSEMessage(unittest.TestCase):
         msg.__class__.__name__ = 'TestClass'
         with self.assertRaises(ValueError):
             msg.primitive_to_message(primitive)
+        
+        # Reset name to avoid errors in other tests
+        msg.__class__.__name__ = 'C_STORE_RQ'
+        
 
     def test_message_to_primitive_c_store(self):
         """Test converting C_STORE_RQ and _RSP to C_STORE primitive."""

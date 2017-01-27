@@ -278,22 +278,22 @@ class DIMSEServiceProvider(object):
                 if nxt.__class__ is not P_DATA:
                     return None, None
 
-                primitive = self.DUL.Receive(wait, dimse_timeout)
+                msg = self.DUL.Receive(wait, dimse_timeout)
 
-                if self.message.Decode(primitive):
+                if self.message.Decode(msg):
                     # Callback
                     self.on_receive_dimse_message(self.message)
-                    dimse_msg = self.message
-
-                    context_id = dimse_msg.ID
-                    dimse_msg = dimse_msg.message_to_primitive()
+                    
+                    context_id = self.message.ID
+                    primitive = self.message.message_to_primitive()
 
                     # Fix for memory leak, Issue #41
+                    #   Reset the DIMSEMessage, ready for the next message
                     self.message.encoded_command_set = BytesIO()
                     self.message.data_set = BytesIO()
                     self.message = None
 
-                    return dimse_msg, context_id
+                    return primitive, context_id
                 else:
                     return None, None
 
@@ -314,9 +314,9 @@ class DIMSEServiceProvider(object):
                 dimse_msg = dimse_msg.message_to_primitive()
 
                 # Fix for memory leak, Issue #41
+                #   Reset the DIMSEMessage, ready for the next message
                 self.message.encoded_command_set = BytesIO()
                 self.message.data_set = BytesIO()
-                # FIXME: Does this actually do anything?
                 self.dimse_msg = None
 
                 return dimse_msg, context_id
@@ -562,26 +562,26 @@ class DIMSEServiceProvider(object):
         dimse_msg : pydicom.DIMSEmessages.C_GET_RQ
             The C-GET-RQ DIMSE Message to be sent
         """
-        ds = dimse_msg.command_set
+        cs = dimse_msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
         if dimse_msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        LOGGER.info("Sending Get Request: MsgID %s", ds.MessageID)
+        LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -785,14 +785,12 @@ class DIMSEServiceProvider(object):
             status += ': Warning - Dataset does not match SOP Class'
         elif '0xb006' in status:
             status += ': Warning - Elements discarded'
-        elif '0xa7' in status:
+        elif ds.Status in range(0xA700, 0xA7FF + 1):
             status += ': Failure - Out of resources'
-        elif '0xa9' in status:
+        elif ds.Status in range(0xA900, 0xA9FF + 1):
             status += ': Failure - Dataset does not match SOP Class'
-        elif '0xc' in status or status == '0x0001':
+        elif ds.Status in range(0xC000, 0xCFFF + 1):
             status += ': Failure - Cannot understand'
-        else:
-            pass
 
         LOGGER.info('Received Store Response')
         s = []
@@ -1045,7 +1043,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RQ
             The N-EVENT-REPORT-RQ DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_event_report_rsp(dimse_msg):
@@ -1055,7 +1053,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RSP
             The N-EVENT-REPORT-RSP DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_get_rq(dimse_msg):
@@ -1065,7 +1063,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RQ
             The N-GET-RQ DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_get_rsp(dimse_msg):
@@ -1075,7 +1073,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RSP
             The N-GET-RSP DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_set_rq(dimse_msg):
@@ -1085,7 +1083,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RQ
             The N-SET-RQ DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_set_rsp(dimse_msg):
@@ -1095,7 +1093,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RSP
             The N-SET-RSP DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_action_rq(dimse_msg):
@@ -1105,7 +1103,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RQ
             The N-ACTION-RQ DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_action_rsp(dimse_msg):
@@ -1115,7 +1113,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RSP
             The N-ACTION-RSP DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_create_rq(dimse_msg):
@@ -1125,7 +1123,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RQ
             The N-CREATE-RQ DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_create_rsp(dimse_msg):
@@ -1135,7 +1133,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RSP
             The N-CREATE-RSP DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_delete_rq(dimse_msg):
@@ -1145,7 +1143,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RQ
             The N-DELETE-RQ DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_send_n_delete_rsp(dimse_msg):
@@ -1155,7 +1153,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RSP
             The N-DELETE-RSP DIMSE Message to be sent
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_event_report_rq(dimse_msg):
@@ -1165,7 +1163,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RQ
             The received N-EVENT-REPORT-RQ DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_event_report_rsp(dimse_msg):
@@ -1175,7 +1173,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RSP
             The received N-EVENT-REPORT-RSP DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_get_rq(dimse_msg):
@@ -1185,7 +1183,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RQ
             The received N-GET-RQ DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_get_rsp(dimse_msg):
@@ -1195,7 +1193,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RSP
             The received N-GET-RSP DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_set_rq(dimse_msg):
@@ -1205,7 +1203,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RQ
             The received N-SET-RQ DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_set_rsp(dimse_msg):
@@ -1215,7 +1213,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RSP
             The received N-SET-RSP DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_action_rq(dimse_msg):
@@ -1225,7 +1223,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RQ
             The received N-ACTION-RQ DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_action_rsp(dimse_msg):
@@ -1235,7 +1233,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RSP
             The received N-ACTION-RSP DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_create_rq(dimse_msg):
@@ -1245,7 +1243,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RQ
             The received N-CREATE-RQ DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_create_rsp(dimse_msg):
@@ -1255,7 +1253,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RSP
             The received N-CREATE-RSP DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_delete_rq(dimse_msg):
@@ -1265,7 +1263,7 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RQ
             The received N-DELETE-RQ DIMSE Message
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def debug_receive_n_delete_rsp(dimse_msg):
@@ -1275,4 +1273,4 @@ class DIMSEServiceProvider(object):
         dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RSP
             The received N-DELETE-RSP DIMSE Message
         """
-        raise NotImplementedError
+        pass
