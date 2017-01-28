@@ -23,10 +23,14 @@ from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, Status, \
                                  ModalityWorklistInformationFind, \
                                  PatientStudyOnlyQueryRetrieveInformationModelFind, \
                                  PatientRootQueryRetrieveInformationModelGet, \
-                                 PatientRootQueryRetrieveInformationModelMove
+                                 PatientStudyOnlyQueryRetrieveInformationModelGet, \
+                                 StudyRootQueryRetrieveInformationModelGet, \
+                                 PatientRootQueryRetrieveInformationModelMove, \
+                                 PatientStudyOnlyQueryRetrieveInformationModelMove, \
+                                 StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -415,6 +419,20 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc.release()
         scp.stop()
 
+    @unittest.skip # Depends on issue #39
+    def test_receive_failure(self):
+        """Test receiving a failure response"""
+        scp = DummyFindSCP()
+        scp.status = scp.out_of_resources
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
+            self.assertEqual(int(status), 0xA700)
+        assoc.release()
+        scp.stop()
+
 
 class TestAssociationSendCCancelFind(unittest.TestCase):
     """Run tests on Assocation send_c_cancel_find."""
@@ -429,20 +447,6 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_c_cancel_find(1, 'P')
-        scp.stop()
-
-    @unittest.skip # Depends on issue #39
-    def test_receive_failure(self):
-        """Test receiving a failure response"""
-        scp = DummyFindSCP()
-        scp.status = scp.out_of_resources
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11113)
-        self.assertTrue(assoc.is_established)
-        for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
-            self.assertEqual(int(status), 0xA700)
-        assoc.release()
         scp.stop()
 
     @unittest.skip # Depends on issue #40
@@ -466,17 +470,23 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
 
 class TestAssociationSendCGet(unittest.TestCase):
     """Run tests on Assocation send_c_get."""
+    def setUp(self):
+        """Run prior to each test"""
+        self.ds = Dataset()
+        self.ds.PatientsName = '*'
+        self.ds.QueryRetrieveLevel = "PATIENT"
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
+        scp = DummyGetSCP()
         scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11113)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
-            assoc.send_c_echo()
+            next(assoc.send_c_get(self.ds))
         scp.stop()
 
     def test_no_abstract_syntax_match(self):
@@ -486,8 +496,71 @@ class TestAssociationSendCGet(unittest.TestCase):
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11113)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_echo()
-        self.assertTrue(result is None)
+        for (status, ds) in assoc.send_c_get(self.ds):
+            self.assertEqual(int(status), 0xa900)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyGetSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(ValueError):
+            next(assoc.send_c_get(self.ds, query_model='X'))
+        assoc.release()
+        scp.stop()
+
+    @unittest.skip
+    def test_good_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyGetSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               StudyRootQueryRetrieveInformationModelGet,
+                               PatientStudyOnlyQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0x0000)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='S'):
+            self.assertEqual(int(status), 0x0000)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='O'):
+            self.assertEqual(int(status), 0x0000)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCCancelGet(unittest.TestCase):
+    """Run tests on Assocation send_c_cancel_find."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyGetSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_cancel_get(1, 'P')
+        scp.stop()
+
+    @unittest.skip # Depends on issue #40
+    def test_cancel(self):
+        """Test sending C-CANCEL-RQ"""
+        scp = DummyGetSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               StudyRootQueryRetrieveInformationModelGet,
+                               PatientStudyOnlyQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        assoc.send_c_cancel_get(1, query_model='P')
+        assoc.send_c_cancel_get(1, query_model='S')
+        assoc.send_c_cancel_get(1, query_model='O')
         assoc.release()
         scp.stop()
 
@@ -516,6 +589,40 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCCancelMove(unittest.TestCase):
+    """Run tests on Assocation send_c_cancel_move."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_cancel_move(1, 'P')
+        scp.stop()
+
+    @unittest.skip # Depends on issue #40
+    def test_cancel(self):
+        """Test sending C-CANCEL-RQ"""
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove,
+                               ModalityWorklistInformationMove])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        assoc.send_c_cancel_move(1, query_model='P')
+        assoc.send_c_cancel_move(1, query_model='S')
+        assoc.send_c_cancel_move(1, query_model='O')
+        assoc.send_c_cancel_move(1, query_model='W')
         assoc.release()
         scp.stop()
 

@@ -1336,6 +1336,7 @@ class Association(threading.Thread):
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
+            return
 
 
         # Build C-GET primitive

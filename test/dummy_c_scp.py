@@ -18,7 +18,11 @@ from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, \
                                  ModalityWorklistInformationFind, \
                                  PatientStudyOnlyQueryRetrieveInformationModelFind, \
                                  PatientRootQueryRetrieveInformationModelGet, \
+                                 StudyRootQueryRetrieveInformationModelGet, \
+                                 PatientStudyOnlyQueryRetrieveInformationModelGet, \
                                  PatientRootQueryRetrieveInformationModelMove, \
+                                 StudyRootQueryRetrieveInformationModelMove, \
+                                 PatientStudyOnlyQueryRetrieveInformationModelMove, \
                                  Status
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -195,14 +199,57 @@ class DummyFindSCP(DummyBaseSCP):
 
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
+    out_of_resources_no_matches = Status('Failure',
+                                           'Refused: Out of resources - Unable '
+                                           'to calcultate number of matches',
+                                           range(0xA701, 0xA701 + 1))
+    out_of_resources_unable = Status('Failure',
+                                           'Refused: Out of resources - Unable '
+                                           'to perform sub-operations',
+                                           range(0xA702, 0xA702 + 1))
+    identifier_doesnt_match_sop = Status('Failure',
+                                            'Identifier does not match SOP '
+                                            'Class',
+                                            range(0xA900, 0xA900 + 1))
+    unable = Status('Failure',
+                             'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    cancel = Status('Cancel',
+                    'Sub-operations terminated due to Cancel indication',
+                    range(0xFE00, 0xFE00 + 1))
+    warning = Status('Warning',
+                     'Sub-operations Complete - One or more Failures or '
+                     'Warnings',
+                     range(0xB000, 0xB000 + 1))
+    success = Status('Success',
+                     'Sub-operations Complete - No Failure or Warnings',
+                     range(0x0000, 0x0000 + 1))
+    pending = Status('Pending',
+                     'Sub-operations are continuing',
+                     range(0xFF00, 0xFF00 + 1))
     def __init__(self):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet],
+        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                                    StudyRootQueryRetrieveInformationModelGet,
+                                    PatientStudyOnlyQueryRetrieveInformationModelFind],
                      port=11113)
         DummyBaseSCP.__init__(self)
+        self.status = self.success
 
     def on_c_get(self, ds):
-        """Callback for ae.on_c_find"""
+        """Callback for ae.on_c_get"""
         time.sleep(self.delay)
+        ds = Dataset()
+        ds.PatientsName = '*'
+        ds.QueryRetrieveLevel = "PATIENT"
+
+        #if self.status.status_type == 'Failure':
+        #    yield self.status, None
+
+        yield 0
+
+    def on_c_cancel_get(self):
+        """Callback for ae.on_c_cancel_get"""
+        pass
 
 
 class DummyMoveSCP(DummyBaseSCP):
