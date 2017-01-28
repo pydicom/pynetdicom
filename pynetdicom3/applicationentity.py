@@ -279,12 +279,12 @@ class ApplicationEntity(object):
                                "have been supplied.")
 
         # Bind the local_socket to the specified listen port
-        try:
-            self._bind_socket()
-        except OSError:
-            self._quit = True
-            self.stop()
-            return
+        #try:
+        self._bind_socket()
+        #except OSError:
+        #    self._quit = True
+        #    self.stop()
+        #    return
 
         no_loops = 0
         while True:
@@ -437,6 +437,7 @@ class ApplicationEntity(object):
         # Endlessly loops while the Association negotiation is taking place
         while (not assoc.is_established and not assoc.is_rejected and
                not assoc.is_aborted and not assoc.dul.kill):
+            # Program loops here endlessly sometimes
             time.sleep(0.1)
 
         # If the Association was established

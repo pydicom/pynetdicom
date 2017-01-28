@@ -156,7 +156,6 @@ class ACSEServiceProvider(object):
         LOGGER.info("Requesting Association")
         self.DUL.Send(assoc_rq)
 
-
         ## Receive the response from the peer
         #   This may be an A-ASSOCIATE confirmation primitive or an
         #   A-ABORT or A-P-ABORT request primitive
@@ -293,9 +292,7 @@ class ACSEServiceProvider(object):
                                         self.presentation_contexts_accepted
 
         assoc_primitive.result = 0
-
         self.DUL.Send(assoc_primitive)
-
         return assoc_primitive
 
     def Release(self):

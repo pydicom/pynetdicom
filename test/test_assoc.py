@@ -30,7 +30,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -43,7 +43,6 @@ class TestAssociation(unittest.TestCase):
     #             dimse_timout, max_pdu, ext_neg)
     def setUp(self):
         """This function runs prior to all test methods"""
-        self.ae = AE(scu_sop_class=[VerificationSOPClass])
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(('', 0))
@@ -56,30 +55,30 @@ class TestAssociation(unittest.TestCase):
     def tearDown(self):
         """This function runs after all test methods"""
         self.socket.close()
-        self.ae.stop()
 
     def test_init_errors(self):
         """Test bad parameters on init raise errors"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(TypeError, msg="must have client_socket or peer_ae"):
-            Association(self.ae)
+            Association(ae)
         with self.assertRaises(TypeError, msg="must have client_socket or peer_ae"):
-            Association(self.ae, client_socket=self.socket, peer_ae=self.peer)
+            Association(ae, client_socket=self.socket, peer_ae=self.peer)
         with self.assertRaises(TypeError, msg="wrong client_socket type"):
-            Association(self.ae, client_socket=123)
+            Association(ae, client_socket=123)
         with self.assertRaises(TypeError, msg="wrong peer_ae type"):
-            Association(self.ae, peer_ae=123)
+            Association(ae, peer_ae=123)
         with self.assertRaises(KeyError, msg="missing keys in peer_ae"):
-            Association(self.ae, peer_ae={})
+            Association(ae, peer_ae={})
         with self.assertRaises(TypeError, msg="wrong local_ae type"):
             Association(12345, peer_ae=self.peer)
         with self.assertRaises(TypeError, msg="wrong dimse_timeout type"):
-            Association(self.ae, peer_ae=self.peer, dimse_timeout='a')
+            Association(ae, peer_ae=self.peer, dimse_timeout='a')
         with self.assertRaises(TypeError, msg="wrong acse_timeout type"):
-            Association(self.ae, peer_ae=self.peer, acse_timeout='a')
+            Association(ae, peer_ae=self.peer, acse_timeout='a')
         with self.assertRaises(TypeError, msg="wrong max_pdu type"):
-            Association(self.ae, peer_ae=self.peer, max_pdu='a')
+            Association(ae, peer_ae=self.peer, max_pdu='a')
         with self.assertRaises(TypeError, msg="wrong ext_neg type"):
-            Association(self.ae, peer_ae=self.peer, ext_neg='a')
+            Association(ae, peer_ae=self.peer, ext_neg='a')
 
     def test_run_acceptor(self):
         """Test running as an Association acceptor (SCP)"""
@@ -91,8 +90,8 @@ class TestAssociation(unittest.TestCase):
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.presentation_contexts_scu = []
-        assoc = ae.associate('localhost', 11113)
-        self.assertFalse(assoc.is_established, msg="assoc.kill if no SCU presentation contexts")
+        assoc = ae.associate('localhost', 11112)
+        self.assertFalse(assoc.is_established)
         self.assertRaises(SystemExit, ae.quit)
         scp.stop()
 
@@ -100,7 +99,7 @@ class TestAssociation(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         assoc.release()
         self.assertFalse(assoc.is_established)
@@ -111,7 +110,7 @@ class TestAssociation(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_aborted)
         self.assertFalse(assoc.is_established)
         self.assertRaises(SystemExit, ae.quit)
@@ -121,7 +120,7 @@ class TestAssociation(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         scp.release()
         self.assertFalse(assoc.is_established)
@@ -133,7 +132,7 @@ class TestAssociation(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         scp.abort()
         self.assertFalse(assoc.is_established)
@@ -146,7 +145,7 @@ class TestAssociation(unittest.TestCase):
         scp.ae.require_calling_aet = b'HAHA NOPE'
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_rejected)
         self.assertFalse(assoc.is_established)
         self.assertRaises(SystemExit, ae.quit)
@@ -157,7 +156,7 @@ class TestAssociation(unittest.TestCase):
         scp.ae.require_called_aet = b'HAHA NOPE'
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_rejected)
         self.assertFalse(assoc.is_established)
         self.assertRaises(SystemExit, ae.quit)
@@ -184,7 +183,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -196,7 +195,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertTrue(result is None)
@@ -208,7 +207,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertEqual(int(result), 0x0000)
@@ -223,7 +222,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.dimse_timeout = 0.01
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertTrue(result is None)
@@ -239,7 +238,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -251,7 +250,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertEqual(int(result), 0xc000)
@@ -263,7 +262,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[MRImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(COMP_DATASET)
         self.assertEqual(int(result), 0x0000)
@@ -275,7 +274,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertEqual(int(result), 0x0000)
@@ -287,7 +286,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[RTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET, priority=0x0003)
         self.assertEqual(int(result), 0x0000)
@@ -300,7 +299,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp.start()
         ae = AE(scu_sop_class=[RTImageStorage],
                 transfer_syntax=[ExplicitVRLittleEndian])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         DATASET.PerimeterValue = b'\x00\x01'
         result = assoc.send_c_store(DATASET)
@@ -317,7 +316,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
         ae.dimse_timeout = 0.01
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertTrue(result is None)
@@ -351,7 +350,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         scp = DummyFindSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -363,7 +362,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds_pr):
             self.assertEqual(int(status), 0xa900)
@@ -375,7 +374,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         scp = DummyFindSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_find(self.ds_pr, query_model='X'))
@@ -390,7 +389,7 @@ class TestAssociationSendCFind(unittest.TestCase):
                                StudyRootQueryRetrieveInformationModelFind,
                                PatientStudyOnlyQueryRetrieveInformationModelFind,
                                ModalityWorklistInformationFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
             self.assertEqual(int(status), 0x0000)
@@ -410,7 +409,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         scp.status = scp.out_of_resources
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
             self.assertEqual(int(status), 0xA700)
@@ -426,7 +425,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         scp = DummyFindSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -438,7 +437,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         scp = DummyFindSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_cancel_find(1, 'X'))
@@ -454,7 +453,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
                                StudyRootQueryRetrieveInformationModelFind,
                                PatientStudyOnlyQueryRetrieveInformationModelFind,
                                ModalityWorklistInformationFind])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         assoc.send_c_cancel_find(1, query_model='P')
         assoc.send_c_cancel_find(1, query_model='S')
@@ -478,7 +477,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp = DummyGetSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -490,7 +489,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds):
             self.assertEqual(int(status), 0xa900)
@@ -502,7 +501,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp = DummyGetSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_get(self.ds, query_model='X'))
@@ -517,7 +516,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                StudyRootQueryRetrieveInformationModelGet,
                                PatientStudyOnlyQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0x0000)
@@ -537,7 +536,7 @@ class TestAssociationSendCCancelGet(unittest.TestCase):
         scp = DummyGetSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -549,7 +548,7 @@ class TestAssociationSendCCancelGet(unittest.TestCase):
         scp = DummyGetSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_cancel_get(1, 'X'))
@@ -564,7 +563,7 @@ class TestAssociationSendCCancelGet(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                StudyRootQueryRetrieveInformationModelGet,
                                PatientStudyOnlyQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         assoc.send_c_cancel_get(1, query_model='P')
         assoc.send_c_cancel_get(1, query_model='S')
@@ -581,7 +580,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -593,7 +592,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertTrue(result is None)
@@ -609,7 +608,7 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
         scp = DummyMoveSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -621,7 +620,7 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
         scp = DummyMoveSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_cancel_move(1, 'X'))
@@ -637,7 +636,7 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove,
                                ModalityWorklistInformationMove])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         assoc.send_c_cancel_move(1, query_model='P')
         assoc.send_c_cancel_move(1, query_model='S')
@@ -655,7 +654,7 @@ class TestAssociationSendNEventReport(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -668,7 +667,7 @@ class TestAssociationSendNEventReport(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_event_report()
@@ -684,7 +683,7 @@ class TestAssociationSendNGet(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -697,7 +696,7 @@ class TestAssociationSendNGet(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_get()
@@ -713,7 +712,7 @@ class TestAssociationSendNSet(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -726,7 +725,7 @@ class TestAssociationSendNSet(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_set()
@@ -742,7 +741,7 @@ class TestAssociationSendNAction(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -755,7 +754,7 @@ class TestAssociationSendNAction(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_action()
@@ -771,7 +770,7 @@ class TestAssociationSendNCreate(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -784,7 +783,7 @@ class TestAssociationSendNCreate(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_create()
@@ -800,7 +799,7 @@ class TestAssociationSendNDelete(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
@@ -813,7 +812,7 @@ class TestAssociationSendNDelete(unittest.TestCase):
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11113)
+        assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_delete()

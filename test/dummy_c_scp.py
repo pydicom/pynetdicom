@@ -26,7 +26,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
                                  Status
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 
 class DummyBaseSCP(threading.Thread):
@@ -97,7 +97,7 @@ class DummyBaseSCP(threading.Thread):
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""
     def __init__(self):
-        self.ae = AE(scp_sop_class=[VerificationSOPClass], port=11113)
+        self.ae = AE(scp_sop_class=[VerificationSOPClass], port=11112)
         DummyBaseSCP.__init__(self)
 
     def on_c_echo(self):
@@ -132,7 +132,7 @@ class DummyStorageSCP(DummyBaseSCP):
 
     def __init__(self):
         self.ae = AE(scp_sop_class=[CTImageStorage,
-                                    RTImageStorage, MRImageStorage], port=11113)
+                                    RTImageStorage, MRImageStorage], port=11112)
         DummyBaseSCP.__init__(self)
         self.status = self.success
 
@@ -176,7 +176,7 @@ class DummyFindSCP(DummyBaseSCP):
                                     StudyRootQueryRetrieveInformationModelFind,
                                     ModalityWorklistInformationFind,
                                     PatientStudyOnlyQueryRetrieveInformationModelFind],
-                     port=11113)
+                     port=11112)
         DummyBaseSCP.__init__(self)
         self.status = self.success
 
@@ -230,7 +230,7 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                     StudyRootQueryRetrieveInformationModelGet,
                                     PatientStudyOnlyQueryRetrieveInformationModelFind],
-                     port=11113)
+                     port=11112)
         DummyBaseSCP.__init__(self)
         self.status = self.success
 
@@ -285,7 +285,7 @@ class DummyMoveSCP(DummyBaseSCP):
                      range(0xFF00, 0xFF00 + 1))
     def __init__(self):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove],
-                     port=11113)
+                     port=11112)
         DummyBaseSCP.__init__(self)
 
     def on_c_move(self, ds):
