@@ -11,17 +11,17 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
 
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
+from pynetdicom3.dimse_primitives import C_STORE, \
+                                        C_FIND, \
+                                        C_GET, \
+                                        C_MOVE, \
+                                        C_ECHO, \
+                                        N_EVENT_REPORT, \
+                                        N_GET, \
+                                        N_SET, \
+                                        N_ACTION, \
+                                        N_CREATE, \
+                                        N_DELETE
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.primitives import P_DATA
 from pynetdicom3.utils import wrap_list
@@ -481,34 +481,34 @@ class DIMSEMessage(object):
 
         Returns
         -------
-        primitive : pynetdicom3.DIMSEparameters DIMSE service primitive
+        primitive : pynetdicom3.dimse_primitives DIMSE service primitive
             The primitive generated from the current DIMSE Message
         """
         cls_type_name = self.__class__.__name__
         if 'C_ECHO' in cls_type_name:
-            primitive = C_ECHO_ServiceParameters()
+            primitive = C_ECHO()
         elif 'C_STORE' in cls_type_name:
-            primitive = C_STORE_ServiceParameters()
+            primitive = C_STORE()
         elif 'C_FIND' in cls_type_name:
-            primitive = C_FIND_ServiceParameters()
+            primitive = C_FIND()
         elif 'C_GET' in cls_type_name:
-            primitive = C_GET_ServiceParameters()
+            primitive = C_GET()
         elif 'C_MOVE' in cls_type_name:
-            primitive = C_MOVE_ServiceParameters()
+            primitive = C_MOVE()
         elif 'N_EVENT' in cls_type_name:
-            primitive = N_EVENT_REPORT_ServiceParameters()
+            primitive = N_EVENT_REPORT()
         elif 'N_GET' in cls_type_name:
-            primitive = N_GET_ServiceParameters()
+            primitive = N_GET()
         elif 'N_SET' in cls_type_name:
-            primitive = N_SET_ServiceParameters()
+            primitive = N_SET()
         elif 'N_ACTION' in cls_type_name:
-            primitive = N_ACTION_ServiceParameters()
+            primitive = N_ACTION()
         elif 'N_CREATE' in cls_type_name:
-            primitive = N_CREATE_ServiceParameters()
+            primitive = N_CREATE()
         elif 'N_DELETE' in cls_type_name:
-            primitive = N_DELETE_ServiceParameters()
+            primitive = N_DELETE()
         #elif 'C_CANCEL' in cls_type_name:
-        #    primitive = C_FIND_ServiceParameters()
+        #    primitive = C_FIND()
 
         ## Command Set
         # For each parameter in the primitive, set the appropriate value

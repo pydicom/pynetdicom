@@ -8,17 +8,17 @@ import sys
 import time
 
 from pynetdicom3.dsutils import decode, encode
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
+from pynetdicom3.dimse_primitives import C_STORE, \
+                                        C_ECHO, \
+                                        C_MOVE, \
+                                        C_GET, \
+                                        C_FIND, \
+                                        N_EVENT_REPORT, \
+                                        N_GET, \
+                                        N_SET, \
+                                        N_CREATE, \
+                                        N_ACTION, \
+                                        N_DELETE
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
@@ -32,7 +32,7 @@ def _class_factory(name, uid, base_cls):
         The name of the SOP class
     uid : str
         The UID of the SOP class
-    base_cls : pynetdicom3.SOPclass.ServiceClass subclass
+    base_cls : pynetdicom3.sop_class.ServiceClass subclass
         One of the following Service classes:
             VerificationServiceClass
             StorageServiceClass
@@ -139,7 +139,7 @@ class ServiceClass(object):
 
         Returns
         -------
-        obj : pynetdicom3.SOPclass.Status
+        obj : pynetdicom3.sop_class.Status
             The Status object for the `code`.
 
         Raises
@@ -174,11 +174,11 @@ class VerificationServiceClass(ServiceClass):
 
         Parameters
         ----------
-        msg : pynetdicom3.DIMSEparameters.C_ECHO_ServiceParameters
+        msg : pynetdicom3.dimse_primitives.C_ECHO
             The C-ECHO request primitive sent by the peer
         """
         # Create C-ECHO response primitive
-        rsp = C_ECHO_ServiceParameters()
+        rsp = C_ECHO()
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.Status = int(self.Success)
@@ -233,7 +233,7 @@ class StorageServiceClass(ServiceClass):
             LOGGER.error("StorageServiceClass failed to decode the dataset")
 
         # Create C-STORE response primitive
-        rsp = C_STORE_ServiceParameters()
+        rsp = C_STORE()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
@@ -521,7 +521,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                          self.transfersyntax.is_little_endian)
 
         # Build C-FIND response primitive
-        c_find_rsp = C_FIND_ServiceParameters()
+        c_find_rsp = C_FIND()
         c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
@@ -610,7 +610,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                             self.transfersyntax.is_little_endian)
 
         # Build C-MOVE response primitive
-        c_move_rsp = C_MOVE_ServiceParameters()
+        c_move_rsp = C_MOVE()
         c_move_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_move_rsp.Identifier = msg.Identifier
@@ -746,7 +746,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                             self.transfersyntax.is_little_endian)
 
         # Build C-GET response primitive
-        c_get_rsp = C_GET_ServiceParameters()
+        c_get_rsp = C_GET()
         c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_get_rsp.Identifier = msg.Identifier
@@ -853,7 +853,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
                     self.transfersyntax.is_little_endian)
 
         # make response
-        rsp = C_FIND_ServiceParameters()
+        rsp = C_FIND()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
@@ -870,7 +870,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
                 self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
         except StopIteration:
             # send final response
-            rsp = C_FIND_ServiceParameters()
+            rsp = C_FIND()
             rsp.MessageIDBeingRespondedTo = msg.MessageID.value
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
             rsp.Status = int(self.Success)
@@ -906,15 +906,15 @@ class RTMachineVerificationServiceClass(ServiceClass):
         """SCP"""
         print('RTMachineVerification SCP', msg)
 
-        if msg.__class__ == N_CREATE_ServiceParameters:
+        if msg.__class__ == N_CREATE:
             pass
-        elif msg.__class__ == N_SET_ServiceParameters:
+        elif msg.__class__ == N_SET:
             pass
-        elif msg.__class__ == N_ACTION_ServiceParameters:
+        elif msg.__class__ == N_ACTION:
             pass
-        elif msg.__class__ == N_DELETE_ServiceParameters:
+        elif msg.__class__ == N_DELETE:
             pass
-        elif msg.__class__ == N_EVENT_REPORT_ServiceParameters:
+        elif msg.__class__ == N_EVENT_REPORT:
             pass
         else:
             pass

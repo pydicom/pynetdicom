@@ -4,9 +4,9 @@ The DUL's finite state machine representation.
 import logging
 import socket
 
-from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_RJ_PDU, \
-                            A_ASSOCIATE_AC_PDU, P_DATA_TF_PDU, \
-                            A_RELEASE_RQ_PDU, A_RELEASE_RP_PDU, A_ABORT_PDU
+from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, \
+                            A_ASSOCIATE_AC, P_DATA_TF, \
+                            A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 from pynetdicom3.primitives import A_ABORT
 
 LOGGER = logging.getLogger('pynetdicom3.sm')
@@ -23,7 +23,7 @@ class StateMachine(object):
     ----------
     current_state : str
         The current state of the state machine, 'Sta1' to 'Sta13'.
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer service instance for the local AE
     """
     def __init__(self, dul):
@@ -31,7 +31,7 @@ class StateMachine(object):
 
         Parameters
         ---------
-        dul : pynetdicom3.DULprovider.DULServiceProvider
+        dul : pynetdicom3.dul.DULServiceProvider
             The DICOM Upper Layer Service instance for the local AE.
         """
         self.current_state = 'Sta1'
@@ -115,7 +115,7 @@ def AE_1(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -154,7 +154,7 @@ def AE_2(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -163,7 +163,7 @@ def AE_2(dul):
         'Sta5', the next state of the state machine.
     """
     # Send A-ASSOCIATE-RQ PDU
-    dul.pdu = A_ASSOCIATE_RQ_PDU()
+    dul.pdu = A_ASSOCIATE_RQ()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -186,7 +186,7 @@ def AE_3(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -212,7 +212,7 @@ def AE_4(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -242,7 +242,7 @@ def AE_5(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -276,7 +276,7 @@ def AE_6(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -300,7 +300,7 @@ def AE_6(dul):
         dul.primitive.result_source = 0x02
         dul.primitive.diagnostic = 0x02
 
-        dul.pdu = A_ASSOCIATE_RJ_PDU()
+        dul.pdu = A_ASSOCIATE_RJ()
         dul.pdu.FromParams(dul.primitive)
 
         # Callback
@@ -330,7 +330,7 @@ def AE_7(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -339,7 +339,7 @@ def AE_7(dul):
         Sta6, the next state of the state machine
     """
     # Send A-ASSOCIATE-AC PDU
-    dul.pdu = A_ASSOCIATE_AC_PDU()
+    dul.pdu = A_ASSOCIATE_AC()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -362,7 +362,7 @@ def AE_8(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -371,7 +371,7 @@ def AE_8(dul):
         Sta13, the next state of the state machine
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-    dul.pdu = A_ASSOCIATE_RJ_PDU()
+    dul.pdu = A_ASSOCIATE_RJ()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -396,7 +396,7 @@ def DT_1(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -405,7 +405,7 @@ def DT_1(dul):
         Sta6, the next state of the state machine
     """
     # Send P-DATA-TF PDU
-    dul.pdu = P_DATA_TF_PDU()
+    dul.pdu = P_DATA_TF()
     dul.pdu.FromParams(dul.primitive)
     dul.primitive = None # Why this?
 
@@ -429,7 +429,7 @@ def DT_2(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -455,7 +455,7 @@ def AR_1(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -464,7 +464,7 @@ def AR_1(dul):
         Sta7, the next state of the state machine
     """
     # Send A-RELEASE-RQ PDU
-    dul.pdu = A_RELEASE_RQ_PDU()
+    dul.pdu = A_RELEASE_RQ()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -487,7 +487,7 @@ def AR_2(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -513,7 +513,7 @@ def AR_3(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -540,7 +540,7 @@ def AR_4(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -549,7 +549,7 @@ def AR_4(dul):
         Sta13, the next state of the state machine
     """
     # Issue A-RELEASE-RP PDU and start ARTIM timer
-    dul.pdu = A_RELEASE_RP_PDU()
+    dul.pdu = A_RELEASE_RP()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -573,7 +573,7 @@ def AR_5(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -599,7 +599,7 @@ def AR_6(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -625,7 +625,7 @@ def AR_7(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -634,7 +634,7 @@ def AR_7(dul):
         Sta8, the next state of the state machine
     """
     # Issue P-DATA-TF PDU
-    dul.pdu = P_DATA_TF_PDU()
+    dul.pdu = P_DATA_TF()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -658,7 +658,7 @@ def AR_8(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -685,7 +685,7 @@ def AR_9(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -694,7 +694,7 @@ def AR_9(dul):
         Sta11, the next state of the state machine
     """
     # Send A-RELEASE-RP PDU
-    dul.pdu = A_RELEASE_RP_PDU()
+    dul.pdu = A_RELEASE_RP()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -716,7 +716,7 @@ def AR_10(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -744,7 +744,7 @@ def AA_1(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -754,7 +754,7 @@ def AA_1(dul):
     """
     # Send A-ABORT PDU (service-user source) and start (or restart
     # if already started) ARTIM timer.
-    dul.pdu = A_ABORT_PDU()
+    dul.pdu = A_ABORT_RQ()
     dul.pdu.source = 0x00
 
     # The reason for the abort should really be roughly defined by the
@@ -790,7 +790,7 @@ def AA_2(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -819,7 +819,7 @@ def AA_3(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -852,7 +852,7 @@ def AA_4(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -879,7 +879,7 @@ def AA_5(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -904,7 +904,7 @@ def AA_6(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -930,7 +930,7 @@ def AA_7(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -939,7 +939,7 @@ def AA_7(dul):
         Sta13, the next state of the state machine
     """
     # Send A-ABORT PDU.
-    dul.pdu = A_ABORT_PDU()
+    dul.pdu = A_ABORT_RQ()
     dul.pdu.FromParams(dul.primitive)
 
     # Callback
@@ -965,7 +965,7 @@ def AA_8(dul):
 
     Parameters
     ----------
-    dul : pynetdicom3.DULprovider.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer Service instance for the local AE
 
     Returns
@@ -975,7 +975,7 @@ def AA_8(dul):
     """
     # Send A-ABORT PDU (service-dul source), issue A-P-ABORT
     # indication, and start ARTIM timer.
-    dul.pdu = A_ABORT_PDU()
+    dul.pdu = A_ABORT_RQ()
     dul.pdu.abort_source = 0x02
     dul.pdu.reason_diagnostic = 0x00
 

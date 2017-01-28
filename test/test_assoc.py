@@ -16,7 +16,7 @@ from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, \
                         DummyFindSCP, DummyGetSCP, DummyMoveSCP
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
-from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, Status, \
+from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  RTImageStorage, \
                                  PatientRootQueryRetrieveInformationModelFind, \
                                  StudyRootQueryRetrieveInformationModelFind, \
@@ -35,22 +35,6 @@ LOGGER.setLevel(logging.CRITICAL)
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
-
-
-class DummyVerificationSCU(threading.Thread):
-    """A threaded dummy verification SCU used for testing"""
-    def __init__(self):
-        self.ae = AE(scu_sop_class=[VerificationSOPClass])
-        threading.Thread.__init__(self)
-        self.daemon = True
-
-    def run(self):
-        """The thread run method"""
-        self.ae.start()
-
-    def stop(self):
-        """Stop the SCU thread"""
-        self.ae.stop()
 
 
 class TestAssociation(unittest.TestCase):
@@ -346,19 +330,19 @@ class TestAssociationSendCFind(unittest.TestCase):
     def setUp(self):
         """Run prior to each test"""
         self.ds_pr = Dataset()
-        self.ds_pr.PatientsName = '*'
+        self.ds_pr.PatientName = '*'
         self.ds_pr.QueryRetrieveLevel = "PATIENT"
 
         self.ds_mw = Dataset()
-        self.ds_mw.PatientsName = '*'
+        self.ds_mw.PatientName = '*'
         self.ds_mw.QueryRetrieveLevel = "PATIENT"
 
         self.ds_sr = Dataset()
-        self.ds_sr.PatientsName = '*'
+        self.ds_sr.PatientName = '*'
         self.ds_sr.QueryRetrieveLevel = "PATIENT"
 
         self.ds_pso = Dataset()
-        self.ds_pso.PatientsName = '*'
+        self.ds_pso.PatientName = '*'
         self.ds_pso.QueryRetrieveLevel = "PATIENT"
 
     def test_must_be_associated(self):
@@ -449,6 +433,18 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
             assoc.send_c_cancel_find(1, 'P')
         scp.stop()
 
+    def test_bad_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(ValueError):
+            next(assoc.send_c_cancel_find(1, 'X'))
+        assoc.release()
+        scp.stop()
+
     @unittest.skip # Depends on issue #40
     def test_cancel(self):
         """Test sending C-CANCEL-RQ"""
@@ -473,7 +469,7 @@ class TestAssociationSendCGet(unittest.TestCase):
     def setUp(self):
         """Run prior to each test"""
         self.ds = Dataset()
-        self.ds.PatientsName = '*'
+        self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
 
     def test_must_be_associated(self):
@@ -548,6 +544,18 @@ class TestAssociationSendCCancelGet(unittest.TestCase):
             assoc.send_c_cancel_get(1, 'P')
         scp.stop()
 
+    def test_bad_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyGetSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(ValueError):
+            next(assoc.send_c_cancel_get(1, 'X'))
+        assoc.release()
+        scp.stop()
+
     @unittest.skip # Depends on issue #40
     def test_cancel(self):
         """Test sending C-CANCEL-RQ"""
@@ -608,6 +616,18 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
             assoc.send_c_cancel_move(1, 'P')
         scp.stop()
 
+    def test_bad_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(ValueError):
+            next(assoc.send_c_cancel_move(1, 'X'))
+        assoc.release()
+        scp.stop()
+
     @unittest.skip # Depends on issue #40
     def test_cancel(self):
         """Test sending C-CANCEL-RQ"""
@@ -627,9 +647,178 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
         scp.stop()
 
 
-class TestAssociationSendDIMSEN(unittest.TestCase):
-    """Run tests on Assocation send_n_* methods."""
-    pass
+class TestAssociationSendNEventReport(unittest.TestCase):
+    """Run tests on Assocation send_n_event_report."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_n_event_report()
+        scp.stop()
+
+    def test_not_implemented(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(NotImplementedError):
+            assoc.send_n_event_report()
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendNGet(unittest.TestCase):
+    """Run tests on Assocation send_n_get."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_n_get()
+        scp.stop()
+
+    def test_not_implemented(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(NotImplementedError):
+            assoc.send_n_get()
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendNSet(unittest.TestCase):
+    """Run tests on Assocation send_n_set."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_n_set()
+        scp.stop()
+
+    def test_not_implemented(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(NotImplementedError):
+            assoc.send_n_set()
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendNAction(unittest.TestCase):
+    """Run tests on Assocation send_n_action."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_n_action()
+        scp.stop()
+
+    def test_not_implemented(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(NotImplementedError):
+            assoc.send_n_action()
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendNCreate(unittest.TestCase):
+    """Run tests on Assocation send_n_create."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_n_create()
+        scp.stop()
+
+    def test_not_implemented(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(NotImplementedError):
+            assoc.send_n_create()
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendNDelete(unittest.TestCase):
+    """Run tests on Assocation send_n_delete."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_n_delete()
+        scp.stop()
+
+    def test_not_implemented(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(NotImplementedError):
+            assoc.send_n_delete()
+        assoc.release()
+        scp.stop()
 
 
 class TestAssociationCallbacks(unittest.TestCase):

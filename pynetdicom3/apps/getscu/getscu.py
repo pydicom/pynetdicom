@@ -147,7 +147,7 @@ assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
 
 # Create query dataset
 d = Dataset()
-d.PatientsName = '*'
+d.PatientName = '*'
 d.QueryRetrieveLevel = "PATIENT"
 
 if args.worklist:
@@ -173,7 +173,7 @@ def on_c_store(dataset):
 
     Returns
     -------
-    status : pynetdicom.SOPclass.Status or int
+    status : pynetdicom.sop_class.Status or int
         A valid return status code, see PS3.4 Annex B.2.3 or the
         StorageServiceClass implementation for the available statuses
     """

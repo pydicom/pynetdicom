@@ -15,14 +15,14 @@ from pydicom.uid import UID
 
 from pynetdicom3.utils import validate_ae_title
 
-LOGGER = logging.getLogger('pynetdicom3.DIMSEparameters')
+LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
 
 # pylint: disable=invalid-name
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
 
 # DIMSE-C Services
-class C_STORE_ServiceParameters(object):
+class C_STORE(object):
     """Represents a C-STORE primitive.
 
     The C-STORE service is used by a DIMSE user to store a composite SOP
@@ -313,7 +313,7 @@ class C_STORE_ServiceParameters(object):
             raise TypeError("Status must be an int")
 
 
-class C_FIND_ServiceParameters(object):
+class C_FIND(object):
     """Represents a C-FIND primitive.
 
     PS3.4 Annex C.4.1.1
@@ -551,7 +551,7 @@ class C_FIND_ServiceParameters(object):
             raise TypeError("Status must be an int")
 
 
-class C_GET_ServiceParameters(object):
+class C_GET(object):
     """Represents a C-GET primitive.
 
     The C-GET service is used
@@ -871,7 +871,7 @@ class C_GET_ServiceParameters(object):
             raise TypeError("Number of Warning Suboperations must be an int")
 
 
-class C_MOVE_ServiceParameters(object):
+class C_MOVE(object):
     """Represents a C-MOVE primitive.
 
     The C-MOVE service is used
@@ -1218,7 +1218,7 @@ class C_MOVE_ServiceParameters(object):
             raise TypeError("Number of Warning Suboperations must be an int")
 
 
-class C_ECHO_ServiceParameters(object):
+class C_ECHO(object):
     """Represents a C-ECHO primitive.
 
     C-ECHO Service Procedure
@@ -1354,8 +1354,50 @@ class C_ECHO_ServiceParameters(object):
             raise ValueError("Status must be 0x0000")
 
 
+class C_CANCEL(object):
+    """Represents a C-CANCEL primitive.
+
+    PS3.7 Section 9.3.2.3-4 (C-CANCEL-FIND-RQ)
+    PS3.7 Section 9.3.3.3-4 (C-CANCEL-GET-RQ)
+    PS3.7 Section 9.3.4.3-4 (C-CANCEL-MOVE-RQ)
+
+    Attributes
+    ----------
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    """
+    def __init__(self):
+        """Initialise the C_CANCEL"""
+        # Variable names need to match the corresponding DICOM Element keywords
+        #   in order for the DIMSE Message classes to be built correctly.
+        # Changes to the variable names can be made provided the DIMSEMessage()
+        #   class' message_to_primitive() and primitive_to_message() methods
+        #   are also changed
+        self.MessageIDBeingRespondedTo = None
+
+    @property
+    def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responded To parameter."""
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responded To parameter."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id_being_responded_to = value
+            else:
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id_being_responded_to = value
+        else:
+            raise TypeError("Message ID Being Responded To must be an int")
+
+
 # DIMSE-N Services
-class N_EVENT_REPORT_ServiceParameters(object):
+class N_EVENT_REPORT(object):
     """Represents a N-EVENT-REPORT primitive.
 
     PS3.7 10.1.1.1
@@ -1371,7 +1413,7 @@ class N_EVENT_REPORT_ServiceParameters(object):
         self.Status = None
 
 
-class N_GET_ServiceParameters(object):
+class N_GET(object):
     """Represents a N-GET primitive.
 
     PS3.7 10.1.2.1
@@ -1388,7 +1430,7 @@ class N_GET_ServiceParameters(object):
         self.Status = None
 
 
-class N_SET_ServiceParameters(object):
+class N_SET(object):
     """Represents a N-SET primitive.
 
     PS3.7 10.1.3.1
@@ -1405,7 +1447,7 @@ class N_SET_ServiceParameters(object):
         self.Status = None
 
 
-class N_ACTION_ServiceParameters(object):
+class N_ACTION(object):
     """Represents a N-ACTION primitive.
 
     PS3.7 10.1.4.1
@@ -1423,7 +1465,7 @@ class N_ACTION_ServiceParameters(object):
         self.Status = None
 
 
-class N_CREATE_ServiceParameters(object):
+class N_CREATE(object):
     """Represents a N-CREATE primitive.
 
     PS3.7 10.1.5.1
@@ -1437,7 +1479,7 @@ class N_CREATE_ServiceParameters(object):
         self.Status = None
 
 
-class N_DELETE_ServiceParameters(object):
+class N_DELETE(object):
     """Represents a N-DELETE primitive.
 
     PS3.7 10.1.6.1

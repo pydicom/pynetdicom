@@ -37,7 +37,7 @@ class ACSEServiceProvider(object):
     ----------
     assoc : pynetdicom3.association.Association
         The parent Association that owns the ACSE provider
-    DUL : pynetdicom3.DULprovider.DULServiceProvider
+    DUL : pynetdicom3.dul.DULServiceProvider
         The DICOM UL service provider instance that will handle the transport of
         the association primitives sent/received by the ACSE provider
     acse_timeout : int, optional
@@ -419,7 +419,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rq - pynetdicom3.PDU.A_ASSOCIATE_RQ_PDU
+        a_associate_rq - pynetdicom3.pdu.A_ASSOCIATE_RQ
             The A-ASSOCIATE-RQ PDU instance to be encoded and sent
         """
         # Shorthand
@@ -551,7 +551,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_ac - pynetdicom3.PDU.A_ASSOCIATE_AC_PDU
+        a_associate_ac - pynetdicom3.pdu.A_ASSOCIATE_AC
             The A-ASSOCIATE-AC PDU instance
         """
         LOGGER.info("Association Acknowledged")
@@ -621,7 +621,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rj - pynetdicom3.PDU.A_ASSOCIATE_RJ_PDU
+        a_associate_rj - pynetdicom3.pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance
         """
         pass
@@ -634,7 +634,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.PDU.P_DATA_TF_PDU
+        a_release_rq - pynetdicom3.pdu.P_DATA_TF
             The P-DATA-TF PDU instance
         """
         pass
@@ -647,7 +647,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.PDU.A_RELEASE_RQ_PDU
+        a_release_rq - pynetdicom3.pdu.A_RELEASE_RQ
             The A-RELEASE-RQ PDU instance
         """
         pass
@@ -660,7 +660,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rp - pynetdicom3.PDU.A_RELEASE_RP_PDU
+        a_release_rp - pynetdicom3.pdu.A_RELEASE_RP
             The A-RELEASE-RP PDU instance
         """
         pass
@@ -673,7 +673,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_abort - pynetdicom3.PDU.A_ABORT_PDU
+        a_abort - pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
         '''
@@ -703,7 +703,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rq - pynetdicom3.PDU.A_ASSOCIATE_RQ_PDU
+        a_associate_rq - pynetdicom3.pdu.A_ASSOCIATE_RQ
             The A-ASSOCIATE-RQ PDU instance
         """
         LOGGER.info("Association Received")
@@ -849,7 +849,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_ac - pynetdicom3.PDU.A_ASSOCIATE_AC_PDU
+        a_associate_ac - pynetdicom3.pdu.A_ASSOCIATE_AC
             The A-ASSOCIATE-AC PDU instance
         """
         # Shorthand
@@ -939,7 +939,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rj - pynetdicom3.PDU.A_ASSOCIATE_RJ_PDU
+        a_associate_rj - pynetdicom3.pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance
         """
         # Shorthand
@@ -964,7 +964,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.PDU.P_DATA_TF_PDU
+        a_release_rq - pynetdicom3.pdu.P_DATA_TF
             The P-DATA-TF PDU instance
         """
         '''
@@ -998,7 +998,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.PDU.A_RELEASE_RQ_PDU
+        a_release_rq - pynetdicom3.pdu.A_RELEASE_RQ
             The A-RELEASE-RQ PDU instance
         """
         pass
@@ -1011,7 +1011,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rp - pynetdicom3.PDU.A_RELEASE_RP_PDU
+        a_release_rp - pynetdicom3.pdu.A_RELEASE_RP
             The A-RELEASE-RP PDU instance
         """
         pass
@@ -1024,7 +1024,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_abort - pynetdicom3.PDU.A_ABORT_PDU
+        a_abort - pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
         s = ['Abort Parameters:']

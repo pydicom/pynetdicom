@@ -5,7 +5,7 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.PDU import MaximumLengthSubItem, \
+from pynetdicom3.pdu import MaximumLengthSubItem, \
                             ImplementationClassUIDSubItem, \
                             ImplementationVersionNameSubItem, \
                             AsynchronousOperationsWindowSubItem, \
@@ -985,7 +985,7 @@ class MaximumLengthNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.MaximumLengthSubItem
+        item : pynetdicom3.pdu.MaximumLengthSubItem
         """
         item = MaximumLengthSubItem()
         item.FromParams(self)
@@ -1073,7 +1073,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.ImplementationClassUIDSubItem
+        item : pynetdicom3.pdu.ImplementationClassUIDSubItem
 
         Raises
         ------
@@ -1166,7 +1166,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.ImplementationVersionNameSubItem
+        item : pynetdicom3.pdu.ImplementationVersionNameSubItem
 
         Raises
         ------
@@ -1260,7 +1260,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.AsynchronousOperationsWindowSubItem
+        item : pynetdicom3.pdu.AsynchronousOperationsWindowSubItem
         """
         item = AsynchronousOperationsWindowSubItem()
         item.FromParams(self)
@@ -1391,7 +1391,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.SCP_SCU_RoleSelectionSubItem
+        item : pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem
 
         Raises
         ------
@@ -1556,7 +1556,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.SOPClassExtendedNegotiationSubItem
+        item : pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1686,7 +1686,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.SOPClassCommonExtendedNegotiationSubItem
+        item : pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1920,8 +1920,8 @@ class UserIdentityNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.UserIdentitySubItemRQ or
-            pynetdicom3.PDU.UserIdentitySubItemAC
+        item : pynetdicom3.pdu.UserIdentitySubItemRQ or
+            pynetdicom3.pdu.UserIdentitySubItemAC
 
         Raises
         ------

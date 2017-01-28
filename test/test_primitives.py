@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from pydicom.uid import UID
 
-from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ABORT_PDU, P_DATA_TF_PDU
+from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ABORT_RQ, P_DATA_TF
 from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    MaximumLengthNegotiation, \
@@ -791,7 +791,7 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         assoc.presentation_context_definition_list = \
             [PresentationContext(1, '1.2.840.10008.1.1', ['1.2.840.10008.1.2'])]
 
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.FromParams(assoc)
         data = pdu.encode()
 
@@ -857,7 +857,7 @@ class TestPrimitive_A_ABORT(unittest.TestCase):
         primitive = A_ABORT()
         primitive.abort_source = 0
 
-        pdu = A_ABORT_PDU()
+        pdu = A_ABORT_RQ()
         pdu.FromParams(primitive)
         data = pdu.encode()
 
@@ -895,7 +895,7 @@ class TestPrimitive_A_P_ABORT(unittest.TestCase):
         primitive = A_P_ABORT()
         primitive.provider_reason = 4
 
-        pdu = A_ABORT_PDU()
+        pdu = A_ABORT_RQ()
         pdu.FromParams(primitive)
         data = pdu.encode()
 
@@ -936,7 +936,7 @@ class TestPrimitive_P_DATA(unittest.TestCase):
               b"\x00\x00\x01\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
         primitive.presentation_data_value_list = [[1, pdv]]
 
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.FromParams(primitive)
         data = pdu.encode()
 

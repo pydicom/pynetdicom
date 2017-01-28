@@ -3,8 +3,8 @@
 import logging
 import unittest
 
-from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters
-from pynetdicom3.SOPclass import Status, uid_to_sop_class, \
+from pynetdicom3.dimse_primitives import C_ECHO
+from pynetdicom3.sop_class import Status, uid_to_sop_class, \
                                  VerificationServiceClass, \
                                  StorageServiceClass, \
                                  QueryRetrieveGetServiceClass, \
@@ -86,7 +86,7 @@ class TestVerificationServiceClass(unittest.TestCase):
         sop.pcid = 1
         sop.maxpdulength = 10
 
-        msg = C_ECHO_ServiceParameters()
+        msg = C_ECHO()
         msg.MessageID = 12
         # compatibility error python3.3
         #with self.assertLogs('pynetdicom3') as log:

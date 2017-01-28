@@ -17,16 +17,16 @@ from encoded_dimse_msg import c_echo_rq_cmd, c_echo_rsp_cmd, \
                               c_get_rsp_cmd, c_get_rsp_ds, \
                               c_move_rq_cmd, c_move_rq_ds, \
                               c_move_rsp_cmd, c_move_rsp_ds
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
+from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
                                       C_ECHO_RQ, C_ECHO_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_GET_RQ, C_GET_RSP
-from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_STORE_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_FIND_ServiceParameters
+from pynetdicom3.dimse_primitives import C_ECHO, \
+                                        C_MOVE, \
+                                        C_STORE, \
+                                        C_GET, \
+                                        C_FIND
 #from pynetdicom3.utils import wrap_list
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
@@ -40,7 +40,7 @@ class TestPrimitive_C_STORE(unittest.TestCase):
     """Test DIMSE C-STORE operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -95,7 +95,7 @@ class TestPrimitive_C_STORE(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -204,7 +204,7 @@ class TestPrimitive_C_STORE(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -230,7 +230,7 @@ class TestPrimitive_C_STORE(unittest.TestCase):
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.4.10'
         primitive.AffectedSOPInstanceUID = '1.2.4.5.7.8'
@@ -248,7 +248,7 @@ class TestPrimitive_C_FIND(unittest.TestCase):
     """Test DIMSE C-FIND operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -285,7 +285,7 @@ class TestPrimitive_C_FIND(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -358,7 +358,7 @@ class TestPrimitive_C_FIND(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
@@ -380,7 +380,7 @@ class TestPrimitive_C_FIND(unittest.TestCase):
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
@@ -406,7 +406,7 @@ class TestPrimitive_C_GET(unittest.TestCase):
     """Test DIMSE C-GET operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -454,7 +454,7 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -559,7 +559,7 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
@@ -581,7 +581,7 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
@@ -610,7 +610,7 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
     """Test DIMSE C-MOVE operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -649,7 +649,7 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -767,7 +767,7 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
@@ -791,7 +791,7 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
@@ -820,7 +820,7 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
     """Test DIMSE C-ECHO operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -844,7 +844,7 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -891,7 +891,7 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.1.1'
 
@@ -904,7 +904,7 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageIDBeingRespondedTo = 8
         primitive.AffectedSOPClassUID = '1.2.840.10008.1.1'
         primitive.Status = 0x0000

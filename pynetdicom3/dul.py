@@ -17,12 +17,12 @@ from threading import Thread
 import time
 
 from pynetdicom3.fsm import StateMachine
-from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
-                            A_ASSOCIATE_RJ_PDU, \
-                            P_DATA_TF_PDU, \
-                            A_RELEASE_RQ_PDU, \
-                            A_RELEASE_RP_PDU, \
-                            A_ABORT_PDU
+from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
+                            A_ASSOCIATE_RJ, \
+                            P_DATA_TF, \
+                            A_RELEASE_RQ, \
+                            A_RELEASE_RP, \
+                            A_ABORT_RQ
 from pynetdicom3.timer import Timer
 from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 
@@ -572,7 +572,7 @@ def Socket2PDU(data, dul):
     ----------
     data -
         The incoming data stream
-    dul - pynetdicom3.DULprovider.DUL
+    dul - pynetdicom3.dul.DUL
         The DUL instance
 
     Returns
@@ -584,25 +584,25 @@ def Socket2PDU(data, dul):
     acse = dul.association.acse
 
     if pdutype == 0x01:
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         acse_callback = acse.debug_receive_associate_rq
     elif pdutype == 0x02:
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         acse_callback = acse.debug_receive_associate_ac
     elif pdutype == 0x03:
-        pdu = A_ASSOCIATE_RJ_PDU()
+        pdu = A_ASSOCIATE_RJ()
         acse_callback = acse.debug_receive_associate_rj
     elif pdutype == 0x04:
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         acse_callback = acse.debug_receive_data_tf
     elif pdutype == 0x05:
-        pdu = A_RELEASE_RQ_PDU()
+        pdu = A_RELEASE_RQ()
         acse_callback = acse.debug_receive_release_rq
     elif pdutype == 0x06:
-        pdu = A_RELEASE_RP_PDU()
+        pdu = A_RELEASE_RP()
         acse_callback = acse.debug_receive_release_rp
     elif pdutype == 0x07:
-        pdu = A_ABORT_PDU()
+        pdu = A_ABORT_RQ()
         acse_callback = acse.debug_receive_abort
     else:
         #"Unrecognized or invalid PDU"
@@ -629,19 +629,19 @@ def PDU2Event(pdu):
     str
         The event str associated with the PDU
     """
-    if pdu.__class__ == A_ASSOCIATE_RQ_PDU:
+    if pdu.__class__ == A_ASSOCIATE_RQ:
         event_str = 'Evt6'
-    elif pdu.__class__ == A_ASSOCIATE_AC_PDU:
+    elif pdu.__class__ == A_ASSOCIATE_AC:
         event_str = 'Evt3'
-    elif pdu.__class__ == A_ASSOCIATE_RJ_PDU:
+    elif pdu.__class__ == A_ASSOCIATE_RJ:
         event_str = 'Evt4'
-    elif pdu.__class__ == P_DATA_TF_PDU:
+    elif pdu.__class__ == P_DATA_TF:
         event_str = 'Evt10'
-    elif pdu.__class__ == A_RELEASE_RQ_PDU:
+    elif pdu.__class__ == A_RELEASE_RQ:
         event_str = 'Evt12'
-    elif pdu.__class__ == A_RELEASE_RP_PDU:
+    elif pdu.__class__ == A_RELEASE_RP:
         event_str = 'Evt13'
-    elif pdu.__class__ == A_ABORT_PDU:
+    elif pdu.__class__ == A_ABORT_RQ:
         event_str = 'Evt16'
     else:
         #"Unrecognized or invalid PDU"

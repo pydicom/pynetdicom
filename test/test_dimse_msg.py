@@ -16,7 +16,7 @@ from encoded_dimse_msg import c_echo_rq_cmd, c_echo_rsp_cmd, \
                               c_get_rsp_cmd, c_get_rsp_ds, \
                               c_move_rq_cmd, c_move_rq_ds, \
                               c_move_rsp_cmd, c_move_rsp_ds
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage, \
+from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage, \
                                       C_ECHO_RQ, C_ECHO_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
@@ -27,17 +27,17 @@ from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage, \
                                       N_ACTION_RQ, N_ACTION_RSP, \
                                       N_CREATE_RQ, N_CREATE_RSP, \
                                       N_DELETE_RQ, N_DELETE_RSP
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
+from pynetdicom3.dimse_primitives import C_STORE, \
+                                        C_ECHO, \
+                                        C_GET, \
+                                        C_MOVE, \
+                                        C_FIND, \
+                                        N_EVENT_REPORT, \
+                                        N_GET, \
+                                        N_SET, \
+                                        N_ACTION, \
+                                        N_CREATE, \
+                                        N_DELETE
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.primitives import P_DATA
 from pynetdicom3.utils import wrap_list
@@ -88,7 +88,7 @@ class TestDIMSEMessage(unittest.TestCase):
 
     def test_encode(self):
         """Test encoding of a DIMSE message."""
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.AffectedSOPInstanceUID = '1.2.1'
@@ -126,7 +126,7 @@ class TestDIMSEMessage(unittest.TestCase):
 
     def test_decode(self):
         """Test decoding of a DIMSE message."""
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.AffectedSOPInstanceUID = '1.2.1'
@@ -172,7 +172,7 @@ class TestDIMSEMessage(unittest.TestCase):
 
     def test_primitive_to_message(self):
         """Test converting a DIMSE primitive to a DIMSE message."""
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.AffectedSOPInstanceUID = '1.2.1'
@@ -199,7 +199,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_STORE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_STORE))
         self.assertTrue(isinstance(primitive.DataSet, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.1.1'))
         self.assertTrue(primitive.AffectedSOPInstanceUID == UID('1.2.1'))
@@ -216,7 +216,7 @@ class TestDIMSEMessage(unittest.TestCase):
         p_data.presentation_data_value_list.append([0, c_store_rsp_cmd])
         msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_STORE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_STORE))
         self.assertEqual(primitive.DataSet, None)
         for elem in msg.command_set:
             if hasattr(primitive, elem.keyword):
@@ -230,7 +230,7 @@ class TestDIMSEMessage(unittest.TestCase):
         p_data.presentation_data_value_list.append([0, c_echo_rq_cmd])
         msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_ECHO_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_ECHO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.1.1'))
         self.assertTrue(primitive.MessageID == 7)
 
@@ -239,7 +239,7 @@ class TestDIMSEMessage(unittest.TestCase):
         p_data.presentation_data_value_list.append([0, c_echo_rsp_cmd])
         msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_ECHO_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_ECHO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.1.1'))
         self.assertTrue(primitive.MessageIDBeingRespondedTo == 8)
         self.assertTrue(primitive.Status == 0)
@@ -252,7 +252,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_GET_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_GET))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertTrue(primitive.Priority == 2)
@@ -268,7 +268,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_GET_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_GET))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertTrue(primitive.Status == 65280)
@@ -290,7 +290,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_MOVE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_MOVE))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertTrue(primitive.Priority == 2)
@@ -307,7 +307,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_MOVE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_MOVE))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertTrue(primitive.Status == 65280)
@@ -329,7 +329,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_FIND_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_FIND))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertTrue(primitive.Priority == 2)
@@ -345,7 +345,7 @@ class TestDIMSEMessage(unittest.TestCase):
             p_data.presentation_data_value_list.append([0, data])
             msg.Decode(p_data)
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, C_FIND_ServiceParameters))
+        self.assertTrue(isinstance(primitive, C_FIND))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2'))
         self.assertTrue(primitive.Status == 65280)
@@ -362,72 +362,72 @@ class TestDIMSEMessage(unittest.TestCase):
         # N-EVENT-REPORT-RQ
         msg = N_EVENT_REPORT_RQ()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_EVENT_REPORT_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_EVENT_REPORT))
 
         # N-EVENT-REPORT-RSP
         msg = N_EVENT_REPORT_RSP()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_EVENT_REPORT_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_EVENT_REPORT))
 
     def test_message_to_primitive_n_get(self):
         """Test converting N_GET_RQ and _RSP to primitive."""
         # N-GET-RQ
         msg = N_GET_RQ()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_GET_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_GET))
 
         # N-GET-RSP
         msg = N_GET_RSP()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_GET_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_GET))
 
     def test_message_to_primitive_n_set(self):
         """Test converting N_SET_RQ and _RSP to primitive."""
         # N-SET-RQ
         msg = N_SET_RQ()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_SET_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_SET))
 
         # N-SET-RSP
         msg = N_SET_RSP()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_SET_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_SET))
 
     def test_message_to_primitive_n_action(self):
         """Test converting N_ACTION_RQ and _RSP to primitive."""
         # N-ACTION-RQ
         msg = N_ACTION_RQ()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_ACTION_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_ACTION))
 
         # N-ACTION-RSP
         msg = N_ACTION_RSP()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_ACTION_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_ACTION))
 
     def test_message_to_primitive_n_create(self):
         """Test converting N_CREATE_RQ and _RSP to primitive."""
         # N-CREATE-RQ
         msg = N_CREATE_RQ()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_CREATE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_CREATE))
 
         # N-CREATE-RSP
         msg = N_CREATE_RSP()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_CREATE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_CREATE))
 
     def test_message_to_primitive_n_delete(self):
         """Test converting N_DELETE_RQ and _RSP to primitive."""
         # N-DELETE-RQ
         msg = N_DELETE_RQ()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_DELETE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_DELETE))
 
         # N-DELETE-RSP
         msg = N_DELETE_RSP()
         primitive = msg.message_to_primitive()
-        self.assertTrue(isinstance(primitive, N_DELETE_ServiceParameters))
+        self.assertTrue(isinstance(primitive, N_DELETE))
 
 
 if __name__ == "__main__":

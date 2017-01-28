@@ -8,7 +8,7 @@ import unittest
 from pydicom.dataset import Dataset
 
 from encoded_dimse_msg import c_store_ds
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
+from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_GET_RQ, C_GET_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
@@ -20,18 +20,18 @@ from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
                                       N_ACTION_RQ, N_ACTION_RSP, \
                                       N_CREATE_RQ, N_CREATE_RSP, \
                                       N_DELETE_RQ, N_DELETE_RSP
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
-from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
+from pynetdicom3.dimse_primitives import C_STORE, \
+                                        C_ECHO, \
+                                        C_GET, \
+                                        C_MOVE, \
+                                        C_FIND, \
+                                        N_EVENT_REPORT, \
+                                        N_SET, \
+                                        N_GET, \
+                                        N_ACTION, \
+                                        N_CREATE, \
+                                        N_DELETE
+from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dsutils import encode
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -60,7 +60,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_c_echo(self):
         """Check sending DIMSE C-ECHO messages."""
         # C-ECHO-RQ
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -71,7 +71,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-ECHO-RSP
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -83,7 +83,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_c_store(self):
         """Check sending DIMSE C-STORE messages."""
         # C-STORE-RQ
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -94,7 +94,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-STORE-RSP
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -106,7 +106,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_c_find(self):
         """Check sending DIMSE C-FIND messages."""
         # C-FIND-RQ
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -117,7 +117,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-FIND-RSP
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -127,7 +127,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
         
         # C-CANCEL-FIND
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 1
         def test_callback(msg):
             """Callback"""
@@ -138,7 +138,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_c_get(self):
         """Check sending DIMSE C-GET messages."""
         # C-GET-RQ
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -149,7 +149,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-GET-RSP
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -159,7 +159,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
         
         # C-GET-FIND
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 1
         def test_callback(msg):
             """Callback"""
@@ -170,7 +170,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_c_move(self):
         """Check sending DIMSE C-MOVE messages."""
         # C-MOVE-RQ
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -181,7 +181,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-MOVE-RSP
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -191,7 +191,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
         
         # C-MOVE-FIND
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 1
         def test_callback(msg):
             """Callback"""
@@ -202,7 +202,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_n_event_report(self):
         """Check sending DIMSE N-EVENT-REPORT messages."""
         # N-EVENT-REPORT-RQ
-        primitive = N_EVENT_REPORT_ServiceParameters()
+        primitive = N_EVENT_REPORT()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -213,7 +213,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # N-EVENT-REPORT-RSP
-        primitive = N_EVENT_REPORT_ServiceParameters()
+        primitive = N_EVENT_REPORT()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -225,7 +225,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_n_get(self):
         """Check sending DIMSE N-GET messages."""
         # N-GET-RQ
-        primitive = N_GET_ServiceParameters()
+        primitive = N_GET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -236,7 +236,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # N-GET-RSP
-        primitive = N_GET_ServiceParameters()
+        primitive = N_GET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -248,7 +248,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_n_set(self):
         """Check sending DIMSE N-SET messages."""
         # N-SET-RQ
-        primitive = N_SET_ServiceParameters()
+        primitive = N_SET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -259,7 +259,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # N-SET-RSP
-        primitive = N_SET_ServiceParameters()
+        primitive = N_SET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -271,7 +271,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_n_action(self):
         """Check sending DIMSE N-ACTION messages."""
         # N-ACTION-RQ
-        primitive = N_ACTION_ServiceParameters()
+        primitive = N_ACTION()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -282,7 +282,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # N-ACTION-RSP
-        primitive = N_ACTION_ServiceParameters()
+        primitive = N_ACTION()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -294,7 +294,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_n_create(self):
         """Check sending DIMSE N-CREATE messages."""
         # N-CREATE-RQ
-        primitive = N_CREATE_ServiceParameters()
+        primitive = N_CREATE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -305,7 +305,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # N-CREATE-RSP
-        primitive = N_CREATE_ServiceParameters()
+        primitive = N_CREATE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -317,7 +317,7 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_send_n_delete(self):
         """Check sending DIMSE N-DELETE messages."""
         # N-DELETE-RQ
-        primitive = N_DELETE_ServiceParameters()
+        primitive = N_DELETE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         
@@ -328,7 +328,7 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # N-DELETE-RSP
-        primitive = N_DELETE_ServiceParameters()
+        primitive = N_DELETE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         def test_callback(msg):
@@ -396,13 +396,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_c_echo(self):
         """Check callback for sending DIMSE C-ECHO messages."""
         # C-ECHO-RQ
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
         
         # C-ECHO-RSP
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -410,7 +410,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_c_store(self):
         """Check callback for sending DIMSE C-STORE messages."""
         # C-STORE-RQ
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2' # CT
         primitive.AffectedSOPInstanceUID = '1.1.2'
@@ -428,7 +428,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-STORE-RSP
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -436,7 +436,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_c_find(self):
         """Check callback for sending DIMSE C-FIND messages."""
         # C-FIND-RQ
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.Priority = 0x02
@@ -450,7 +450,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-FIND-RSP
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         primitive.AffectedSOPClassUID = '1.1.1'
@@ -464,14 +464,14 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
         
         # C-CANCEL-FIND
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 1
         self.dimse.Send(primitive, 1, 30000)
         
     def test_callback_send_c_get(self):
         """Check callback for sending DIMSE C-GET messages."""
         # C-GET-RQ
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.Identifier = BytesIO()
@@ -484,7 +484,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-GET-RSP
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         primitive.Identifier = BytesIO()
@@ -497,14 +497,14 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
         
         # C-GET-FIND
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 1
         self.dimse.Send(primitive, 1, 30000)
         
     def test_callback_send_c_move(self):
         """Check callback for sending DIMSE C-MOVE messages."""
         # C-MOVE-RQ
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.MoveDestination = b'TESTSCP'
@@ -518,7 +518,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
 
         # C-MOVE-RSP
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         # No dataset
@@ -531,20 +531,20 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.Send(primitive, 1, 30000)
         
         # C-MOVE-FIND
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 1
         self.dimse.Send(primitive, 1, 30000)
 
     def test_callback_send_n_event_report(self):
         """Check callback for sending DIMSE N-EVENT-REPORT messages."""
         # N-EVENT-REPORT-RQ
-        primitive = N_EVENT_REPORT_ServiceParameters()
+        primitive = N_EVENT_REPORT()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
 
         # N-EVENT-REPORT-RSP
-        primitive = N_EVENT_REPORT_ServiceParameters()
+        primitive = N_EVENT_REPORT()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -552,13 +552,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_n_get(self):
         """Check callback for sending DIMSE N-GET messages."""
         # N-GET-RQ
-        primitive = N_GET_ServiceParameters()
+        primitive = N_GET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
 
         # N-GET-RSP
-        primitive = N_GET_ServiceParameters()
+        primitive = N_GET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -566,13 +566,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_n_set(self):
         """Check callback for sending DIMSE N-SET messages."""
         # N-SET-RQ
-        primitive = N_SET_ServiceParameters()
+        primitive = N_SET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
 
         # N-SET-RSP
-        primitive = N_SET_ServiceParameters()
+        primitive = N_SET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -580,13 +580,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_n_action(self):
         """Check callback for sending DIMSE N-ACTION messages."""
         # N-ACTION-RQ
-        primitive = N_ACTION_ServiceParameters()
+        primitive = N_ACTION()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
 
         # N-ACTION-RSP
-        primitive = N_ACTION_ServiceParameters()
+        primitive = N_ACTION()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -594,13 +594,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_n_create(self):
         """Check callback for sending DIMSE N-CREATE messages."""
         # N-CREATE-RQ
-        primitive = N_CREATE_ServiceParameters()
+        primitive = N_CREATE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
 
         # N-CREATE-RSP
-        primitive = N_CREATE_ServiceParameters()
+        primitive = N_CREATE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -608,13 +608,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_send_n_delete(self):
         """Check callback for sending DIMSE N-DELETE messages."""
         # N-DELETE-RQ
-        primitive = N_DELETE_ServiceParameters()
+        primitive = N_DELETE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
 
         # N-DELETE-RSP
-        primitive = N_DELETE_ServiceParameters()
+        primitive = N_DELETE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
@@ -623,7 +623,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_receive_c_echo(self):
         """Check callback for receiving DIMSE C-ECHO messages."""
         # C-ECHO-RQ
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = 7
         primitive.Priority = 0x02
         msg = C_ECHO_RQ()
@@ -638,7 +638,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_receive_c_store(self):
         """Check callback for sending DIMSE C-STORE messages."""
         # C-STORE-RQ
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -666,7 +666,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.debug_receive_c_store_rq(msg)
         
         # C-STORE-RSP
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageIDBeingRespondedTo = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -696,7 +696,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_receive_c_find(self):
         """Check callback for receiving DIMSE C-FIND messages."""
         # C-FIND-RQ
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -724,7 +724,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.debug_receive_c_find_rq(msg)
         
         # C-FIND-RSP
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -757,7 +757,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_receive_c_get(self):
         """Check callback for receiving DIMSE C-GET messages."""
         # C-GET-RQ
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -785,7 +785,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.debug_receive_c_get_rq(msg)
         
         # C-GET-RSP
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -827,7 +827,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.debug_receive_c_move_rq(msg)
         
         # C-MOVE-RSP
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \

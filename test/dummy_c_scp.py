@@ -11,7 +11,7 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom3 import AE, VerificationSOPClass
-from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, \
+from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
                                  RTImageStorage, \
                                  PatientRootQueryRetrieveInformationModelFind, \
                                  StudyRootQueryRetrieveInformationModelFind, \
@@ -92,7 +92,6 @@ class DummyBaseSCP(threading.Thread):
     def on_c_cancel_move(self):
         """Callback for ae.on_c_cancel_move"""
         raise RuntimeError("You should not have been able to get here.")
-
 
 
 class DummyVerificationSCP(DummyBaseSCP):
@@ -185,7 +184,7 @@ class DummyFindSCP(DummyBaseSCP):
         """Callback for ae.on_c_find"""
         time.sleep(self.delay)
         ds = Dataset()
-        ds.PatientsName = '*'
+        ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         if self.status.status_type == 'Failure':
             yield self.status, None
@@ -239,7 +238,7 @@ class DummyGetSCP(DummyBaseSCP):
         """Callback for ae.on_c_get"""
         time.sleep(self.delay)
         ds = Dataset()
-        ds.PatientsName = '*'
+        ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
 
         #if self.status.status_type == 'Failure':
@@ -254,6 +253,36 @@ class DummyGetSCP(DummyBaseSCP):
 
 class DummyMoveSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
+    out_of_resources_match = \
+            Status('Failure',
+                   'Refused: Out of resources - Unable to calcultate number ' \
+                   'of matches',
+                   range(0xA701, 0xA701 + 1))
+    out_of_resources_unable = \
+            Status('Failure',
+                   'Refused: Out of resources - Unable to perform ' \
+                   'sub-operations',
+                   range(0xA702, 0xA702 + 1))
+    move_destination_unknown = Status('Failure',
+                                    'Refused: Move destination unknown',
+                                    range(0xA801, 0xA801 + 1))
+    identifier_doesnt_match_sop = \
+            Status('Failure', 'Identifier does not match SOP Class',
+                   range(0xA900, 0xA900 + 1))
+    unable_to_process = Status('Failure', 'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    cancel = Status('Cancel',
+                    'Sub-operations terminated due to Cancel indication',
+                    range(0xFE00, 0xFE00 + 1))
+    warning = Status('Warning',
+                     'Sub-operations Complete - One or more Failures or ' \
+                     'Warnings',
+                     range(0xB000, 0xB000 + 1))
+    success = Status('Success',
+                     'Sub-operations Complete - No Failure or Warnings',
+                     range(0x0000, 0x0000 + 1))
+    pending = Status('Pending', 'Sub-operations are continuing',
+                     range(0xFF00, 0xFF00 + 1))
     def __init__(self):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove],
                      port=11113)
@@ -262,3 +291,7 @@ class DummyMoveSCP(DummyBaseSCP):
     def on_c_move(self, ds):
         """Callback for ae.on_c_find"""
         time.sleep(self.delay)
+
+    def on_c_cancel_find(self):
+        """Callback for ae.on_c_cancel_move"""
+        pass

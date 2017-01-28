@@ -164,7 +164,7 @@ if assoc.is_established:
 
     # Create query dataset
     dataset = Dataset()
-    dataset.PatientsName = '*'
+    dataset.PatientName = '*'
     dataset.QueryRetrieveLevel = "PATIENT"
 
     # Query/Retrieve Information Models

@@ -9,16 +9,16 @@ import time
 
 from pydicom.uid import UID
 
-from pynetdicom3.ACSEprovider import ACSEServiceProvider
-from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_STORE_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_FIND_ServiceParameters
+from pynetdicom3.acse import ACSEServiceProvider
+from pynetdicom3.dimse import DIMSEServiceProvider
+from pynetdicom3.dimse_primitives import C_ECHO, \
+                                        C_MOVE, \
+                                        C_STORE, \
+                                        C_GET, \
+                                        C_FIND
 from pynetdicom3.dsutils import decode, encode
-from pynetdicom3.DULprovider import DULServiceProvider
-from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
+from pynetdicom3.dul import DULServiceProvider
+from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
                          StorageServiceClass, \
                          QueryRetrieveGetServiceClass, \
                          QueryRetrieveFindServiceClass, \
@@ -48,7 +48,7 @@ class Association(threading.Thread):
     """Manages Associations with peer AEs.
 
     The actual low level work done for Associations is performed by
-    pynetdicom3.ACSEprovider.ACSEServiceProvider.
+    pynetdicom3.acse.ACSEServiceProvider.
 
     When the local AE is acting as an SCP, initialise the Association using
     the socket to listen on for incoming Association requests. When the local
@@ -87,9 +87,9 @@ class Association(threading.Thread):
         The peer Application Entity details, keys: 'Port', 'Address', 'Title'.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
-    scu_supported_sop : list of pynetdicom3.SOPclass.ServiceClass
+    scu_supported_sop : list of pynetdicom3.sop_class.ServiceClass
         A list of the supported SOP classes when acting as an SCU.
-    scp_supported_sop : list of pynetdicom3.SOPclass.ServiceClass
+    scp_supported_sop : list of pynetdicom3.sop_class.ServiceClass
         A list of the supported SOP classes when acting as an SCP.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
@@ -628,7 +628,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.SOPclass.Status or None
+        status : pynetdicom3.sop_class.Status or None
             Returns None if no valid presentation context or no response
             from the peer, Success (0x0000) otherwise.
         """
@@ -655,7 +655,7 @@ class Association(threading.Thread):
             return None
 
         # Build C-STORE request primitive
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
 
@@ -749,7 +749,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.SOPclass.Status or None
+        status : pynetdicom3.sop_class.Status or None
             The status for the requested C-STORE operation (see PS3.4 Annex
             B.2.3), should be one of the following Status objects/codes
             (separate causes for each status can be identified through the use
@@ -810,7 +810,7 @@ class Association(threading.Thread):
             return service_class.CannotUnderstand
 
         # Build C-STORE request primitive
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = dataset.SOPClassUID
         primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
@@ -840,7 +840,7 @@ class Association(threading.Thread):
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
         # Wait for C-STORE response primitive
-        #   returns a C_STORE_ServiceParameters primitive
+        #   returns a C_STORE primitive
         rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
 
         status = None
@@ -879,7 +879,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.SOPclass.Status
+        status : pynetdicom3.sop_class.Status
             The resulting status(es) from the C-FIND operation.
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-FIND operation. Yields None if
@@ -925,7 +925,7 @@ class Association(threading.Thread):
             return
 
         # Build C-FIND primitive
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.Priority = priority
@@ -1015,7 +1015,7 @@ class Association(threading.Thread):
         service_class = QueryRetrieveFindServiceClass()
 
         # Build C-FIND primitive
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.CommandField = 0x0fff
         primitive.MessageIDBeingRespondedTo = msg_id
         primitive.CommandDataSetType = 0x0101
@@ -1134,7 +1134,7 @@ class Association(threading.Thread):
             yield service_class.IdentifierDoesNotMatchSOPClass, None
 
         # Build C-MOVE primitive
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.MoveDestination = move_aet
@@ -1161,7 +1161,7 @@ class Association(threading.Thread):
             rsp, context_id = self.dimse.Receive(False,
                                                  self.dimse.dimse_timeout)
 
-            if rsp.__class__ == C_MOVE_ServiceParameters:
+            if rsp.__class__ == C_MOVE:
                 status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
@@ -1234,7 +1234,7 @@ class Association(threading.Thread):
         service_class = QueryRetrieveMoveServiceClass()
 
         # Build C-MOVE primitive
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.CommandField = 0x0fff
         primitive.MessageIDBeingRespondedTo = msg_id
         primitive.CommandDataSetType = 0x0101
@@ -1297,7 +1297,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.SOPclass.Status
+        status : pynetdicom3.sop_class.Status
             The resulting status(es) from the C-GET operation
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-GET operation. Yields None if
@@ -1340,7 +1340,7 @@ class Association(threading.Thread):
 
 
         # Build C-GET primitive
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.Priority = priority
@@ -1364,7 +1364,7 @@ class Association(threading.Thread):
                                                  self.dimse.dimse_timeout)
 
             # Received a C-GET response
-            if rsp.__class__ == C_GET_ServiceParameters:
+            if rsp.__class__ == C_GET:
 
                 status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
@@ -1422,9 +1422,9 @@ class Association(threading.Thread):
                     break
 
             # Received a C-STORE request in response to the C-GET
-            elif rsp.__class__ == C_STORE_ServiceParameters:
+            elif rsp.__class__ == C_STORE:
 
-                c_store_rsp = C_STORE_ServiceParameters()
+                c_store_rsp = C_STORE()
                 c_store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
                 c_store_rsp.AffectedSOPInstanceUID = \
                                                 rsp.AffectedSOPInstanceUID
@@ -1469,7 +1469,7 @@ class Association(threading.Thread):
         service_class = QueryRetrieveGetServiceClass()
 
         # Build C-GET primitive
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.CommandField = 0x0fff
         primitive.MessageIDBeingRespondedTo = msg_id
         primitive.CommandDataSetType = 0x0101
@@ -1541,7 +1541,7 @@ class Association(threading.Thread):
 
 
         # Build N-GET primitive
-        primitive = N_GET_ServiceParameters()
+        primitive = N_GET()
         primitive.MessageID = msg_id
         # The SOP Class for which Attribute Values are to be retrieved
         primitive.RequestedSOPClassUID = None

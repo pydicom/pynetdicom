@@ -4,13 +4,13 @@ Dicom Upper Layer Protocol for TCP/IP
 Data Unit Structure
 
 There are seven different PDUs
-    A_ASSOCIATE_RQ_PDU
-    A_ASSOCIATE_AC_PDU
-    A_ASSOCIATE_RJ_PDU
-    P_DATA_TF_PDU
-    A_RELEASE_RQ_PDU
-    A_RELEASE_RP_PDU
-    A_ABORT_PDU
+    A_ASSOCIATE_RQ
+    A_ASSOCIATE_AC
+    A_ASSOCIATE_RJ
+    P_DATA_TF
+    A_RELEASE_RQ
+    A_RELEASE_RP
+    A_ABORT_RQ
 
     All PDU classes implement the following methods:
 
@@ -192,7 +192,7 @@ class PDU(object):
 
         Returns
         -------
-        PDU : pynetdicom3.PDU.PDU subclass
+        PDU : pynetdicom3.pdu.PDU subclass
             A PDU subclass instance corresponding to the next item in the stream
         None
             If the stream is empty
@@ -208,13 +208,13 @@ class PDU(object):
         if item_type is None:
             return None
 
-        item_types = {0x01 : A_ASSOCIATE_RQ_PDU,
-                      0x02 : A_ASSOCIATE_AC_PDU,
-                      0x03 : A_ASSOCIATE_RJ_PDU,
-                      0x04 : P_DATA_TF_PDU,
-                      0x05 : A_RELEASE_RQ_PDU,
-                      0x06 : A_RELEASE_RP_PDU,
-                      0x07 : A_ABORT_PDU,
+        item_types = {0x01 : A_ASSOCIATE_RQ,
+                      0x02 : A_ASSOCIATE_AC,
+                      0x03 : A_ASSOCIATE_RJ,
+                      0x04 : P_DATA_TF,
+                      0x05 : A_RELEASE_RQ,
+                      0x06 : A_RELEASE_RP,
+                      0x07 : A_ABORT_RQ,
                       0x10 : ApplicationContextItem,
                       0x20 : PresentationContextItemRQ,
                       0x21 : PresentationContextItemAC,
@@ -244,7 +244,7 @@ class PDU(object):
 
 
 # PDU Classes
-class A_ASSOCIATE_RQ_PDU(PDU):
+class A_ASSOCIATE_RQ(PDU):
     """Represents an A-ASSOCIATE-RQ PDU.
 
     When encoded, is received from/sent to the peer AE.
@@ -298,9 +298,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         The source AE title as a 16-byte bytestring.
     length : int
         The length of the encoded PDU in bytes
-    presentation_context : list of pynetdicom3.PDU.PresentationContextItemRQ
+    presentation_context : list of pynetdicom3.pdu.PresentationContextItemRQ
         The A-ASSOCIATE-RQ's Presentation Context items
-    user_information : pynetdicom3.PDU.UserInformationItem
+    user_information : pynetdicom3.pdu.UserInformationItem
         The A-ASSOCIATE-RQ's User Information item. See PS3.8 9.3.2, 7.1.1.6
     """
     def __init__(self):
@@ -568,7 +568,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
         Returns
         -------
-        list of pynetdicom3.PDU.PresentationContextItemRQ
+        list of pynetdicom3.pdu.PresentationContextItemRQ
             The Requestor AE's Presentation Context objects
         """
         contexts = []
@@ -629,7 +629,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         return s
 
 
-class A_ASSOCIATE_AC_PDU(PDU):
+class A_ASSOCIATE_AC(PDU):
     """
     Represents the A-ASSOCIATE-AC PDU that, when encoded, is received from/sent
     to the peer AE
@@ -680,9 +680,9 @@ class A_ASSOCIATE_AC_PDU(PDU):
         guaranteed to be the actual title and shall not be tested.
     length : int
         The length of the encoded PDU in bytes
-    presentation_context : list of pynetdicom3.PDU.PresentationContextItemAC
+    presentation_context : list of pynetdicom3.pdu.PresentationContextItemAC
         The A-ASSOCIATE-AC's Presentation Context items
-    user_information : pynetdicom3.PDU.UserInformationItem
+    user_information : pynetdicom3.pdu.UserInformationItem
         The A-ASSOCIATE-AC's User Information item. See PS3.8 9.3.2, 7.1.1.6
     """
     def __init__(self):
@@ -909,7 +909,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
         Returns
         -------
-        list of pynetdicom3.PDU.PresentationContextItemAC
+        list of pynetdicom3.pdu.PresentationContextItemAC
             The Acceptor AE's Presentation Context objects. Each of the
             Presentation Context items instances in the list has been extended
             with two variables for tracking if SCP/SCU role negotiation has been
@@ -943,7 +943,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.PDU.UserInformationItem
+        pynetdicom3.pdu.UserInformationItem
             The Acceptor AE's User Information object
         """
         for ii in self.variable_items:
@@ -1025,7 +1025,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return s
 
 
-class A_ASSOCIATE_RJ_PDU(PDU):
+class A_ASSOCIATE_RJ(PDU):
     """
     Represents the A-ASSOCIATE-RJ PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1287,7 +1287,7 @@ class A_ASSOCIATE_RJ_PDU(PDU):
         return s
 
 
-class P_DATA_TF_PDU(PDU):
+class P_DATA_TF(PDU):
     """
     Represents the P-DATA-TF PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1307,7 +1307,7 @@ class P_DATA_TF_PDU(PDU):
     ----------
     length : int
         The length of the encoded PDU in bytes
-    PDVs : list of pynetdicom3.PDU.PresentationDataValueItem
+    PDVs : list of pynetdicom3.pdu.PresentationDataValueItem
         The presentation data value items
     """
     def __init__(self):
@@ -1454,7 +1454,7 @@ class P_DATA_TF_PDU(PDU):
         return s
 
 
-class A_RELEASE_RQ_PDU(PDU):
+class A_RELEASE_RQ(PDU):
     """
     Represents the A-RELEASE-RQ PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1567,7 +1567,7 @@ class A_RELEASE_RQ_PDU(PDU):
         return s
 
 
-class A_RELEASE_RP_PDU(PDU):
+class A_RELEASE_RP(PDU):
     """
     Represents the A-RELEASE-RP PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1681,7 +1681,7 @@ class A_RELEASE_RP_PDU(PDU):
         return s
 
 
-class A_ABORT_PDU(PDU):
+class A_ABORT_RQ(PDU):
     """
     Represents the A-ABORT PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1895,8 +1895,8 @@ class ApplicationContextItem(PDU):
     See PS3.8 Section 9.3.2.1 for the structure of the PDU, especially
     Table 9-12.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items
-    Used in A_ASSOCIATE_AC_PDU - Variable items
+    Used in A_ASSOCIATE_RQ - Variable items
+    Used in A_ASSOCIATE_AC - Variable items
 
     Attributes
     ----------
@@ -2048,7 +2048,7 @@ class PresentationContextItemRQ(PDU):
     See PS3.8 Section 9.3.2.2 for the structure of the item, especially
     Table 9-13.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items
+    Used in A_ASSOCIATE_RQ - Variable items
 
     Attributes
     ----------
@@ -2286,7 +2286,7 @@ class PresentationContextItemAC(PDU):
     See PS3.8 Section 9.3.3.2 for the structure of the item, especially
     Table 9-18.
 
-    Used in A_ASSOCIATE_AC_PDU - Variable items
+    Used in A_ASSOCIATE_AC - Variable items
 
     Attributes
     ----------
@@ -2487,7 +2487,7 @@ class AbstractSyntaxSubItem(PDU):
     See PS3.8 Section 9.3.2.2.1 for the structure of the item, especially
     Table 9-14.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - Presentation Context items -
+    Used in A_ASSOCIATE_RQ - Variable items - Presentation Context items -
     Abstract/Transfer Syntax sub-items
 
     Attributes
@@ -2642,9 +2642,9 @@ class TransferSyntaxSubItem(PDU):
     See PS3.8 Section 9.3.2.2.2 for the structure of the item, especially
     Table 9-15.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - Presentation Context items -
+    Used in A_ASSOCIATE_RQ - Variable items - Presentation Context items -
     Abstract/Transfer Syntax sub-items
-    Used in A_ASSOCIATE_AC_PDU - Variable items - Presentation Context items -
+    Used in A_ASSOCIATE_AC - Variable items - Presentation Context items -
     Transfer Syntax sub-item
 
     Attributes
@@ -2798,7 +2798,7 @@ class PresentationDataValueItem(PDU):
     See PS3.8 Section 9.3.5.1 for the structure of the item, especially
     Table 9-23.
 
-    Used in P_DATA_TF_PDU - Presentation data value items
+    Used in P_DATA_TF - Presentation data value items
 
     Attributes
     ----------
@@ -2940,8 +2940,8 @@ class UserInformationItem(PDU):
     See PS3.8 Section 9.3.2.3 for the structure of the PDU, especially
     Table 9-16.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items
-    Used in A_ASSOCIATE_AC_PDU - Variable items
+    Used in A_ASSOCIATE_RQ - Variable items
+    Used in A_ASSOCIATE_AC - Variable items
 
     Attributes
     ----------
@@ -3208,8 +3208,8 @@ class MaximumLengthSubItem(PDU):
     See PS3.8 Annex D.1.1 for the structure of the item, especially
     Table D.1-1.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3327,8 +3327,8 @@ class ImplementationClassUIDSubItem(PDU):
     See PS3.7 Annex D.3.3.2.1-2 for the structure of the item, especially
     Tables D.3-1 and D.3-2.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3472,8 +3472,8 @@ class ImplementationVersionNameSubItem(PDU):
     See PS3.7 Annex D.3.3.2.3-4 for the structure of the item, especially
     Tables D.3-3 and D.3-4.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3607,8 +3607,8 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     See PS3.7 Annex D.3.3.4.1-2 for the structure of the item, especially
     Tables D.3-9 and D.3-10.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3824,8 +3824,8 @@ class AsynchronousOperationsWindowSubItem(PDU):
     See PS3.7 Annex D.3.3.3.1-2 for the structure of the item, especially
     Tables D.3-7 and D.3-8.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3979,7 +3979,7 @@ class UserIdentitySubItemRQ(PDU):
     See PS3.7 Annex D.3.3.7.1 for the structure of the item, especially
     Table D.3-14.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4195,7 +4195,7 @@ class UserIdentitySubItemAC(PDU):
     See PS3.7 Annex D.3.3.7.2 for the structure of the item, especially
     Table D.3-15.
 
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4343,8 +4343,8 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     See PS3.7 Annex D.3.3.5.1-2 for the structure of the item, especially
     Tables D.3-11.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4540,7 +4540,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     No response is necessary and the Common Extended Negotiation items shall be
     omitted in the A-ASSOCIATE response.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
 
     Attributes
     ----------

@@ -29,8 +29,8 @@ from encoded_pdu_items import a_associate_rq, a_associate_ac, \
                               common_extended_negotiation, \
                               p_data_tf
 from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3.PDU import A_ASSOCIATE_RQ_PDU, A_ASSOCIATE_AC_PDU, \
-                            P_DATA_TF_PDU, \
+from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
+                            P_DATA_TF, \
                             MaximumLengthSubItem, \
                             ImplementationClassUIDSubItem, \
                             ImplementationVersionNameSubItem, \
@@ -78,7 +78,7 @@ def bytes_to_bytesio(bytestream):
 
 def create_encoded_pdu():
     """Function to create a PDU for testing"""
-    pdu = A_ASSOCIATE_AC_PDU()
+    pdu = A_ASSOCIATE_AC()
     pdu.Decode(a_associate_ac)
     ui = pdu.user_information
     data = ui.user_data
@@ -94,7 +94,7 @@ def create_encoded_pdu():
 class TestPDUItem_ApplicationContext(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
@@ -102,7 +102,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_stream_decode_assoc_rq(self):
         """ Check decoding an assoc_rq produces the correct application context """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         app_context = pdu.variable_items[0]
@@ -119,7 +119,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_stream_decode_assoc_ac(self):
         """ Check decoding an assoc_ac produces the correct application context """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
 
         app_context = pdu.variable_items[0]
@@ -136,7 +136,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -147,7 +147,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -159,7 +159,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -169,7 +169,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_update(self):
         """ Test that changing the item's parameters correctly updates the length """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -180,7 +180,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 
     def test_properties(self):
         """ Test the item's property setters and getters """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -197,7 +197,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
 class TestPDUItem_PresentationContextRQ(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
         pdu.presentation_context
         for item in pdu.variable_items:
@@ -209,7 +209,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         pres_context = pdu.variable_items[1]
@@ -223,7 +223,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -234,7 +234,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for item in pdu.variable_items:
@@ -248,7 +248,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         for ii in pdu.variable_items:
@@ -268,7 +268,7 @@ class TestPDUItem_PresentationContextRQ(unittest.TestCase):
 class TestPDUItem_PresentationContextAC(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemAC):
@@ -277,7 +277,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
 
         pres_context = pdu.variable_items[1]
@@ -291,7 +291,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
 
         for item in pdu.variable_items:
@@ -302,7 +302,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
 
         for item in pdu.variable_items:
@@ -316,7 +316,7 @@ class TestPDUItem_PresentationContextAC(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
 
         for ii in pdu.variable_items:
@@ -345,7 +345,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -358,7 +358,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -370,7 +370,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -382,7 +382,7 @@ class TestPDUItem_AbstractSyntax(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -421,7 +421,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -434,7 +434,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -446,7 +446,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -458,7 +458,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         contexts = pdu.presentation_context
@@ -489,7 +489,7 @@ class TestPDUItem_TransferSyntax(unittest.TestCase):
 class TestPDUItem_PresentationDataValue(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.Decode(p_data_tf)
         pdvs = pdu.PDVs
         item = pdvs[0]
@@ -498,7 +498,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation data value """
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.Decode(p_data_tf)
 
         pdvs = pdu.PDVs
@@ -508,7 +508,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.Decode(p_data_tf)
 
         pdvs = pdu.PDVs
@@ -519,7 +519,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.Decode(p_data_tf)
 
         pdvs = pdu.PDVs
@@ -530,7 +530,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.Decode(p_data_tf)
 
         pdvs = pdu.PDVs
@@ -543,7 +543,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 
     def test_properies(self):
         """ Check property setters and getters """
-        pdu = P_DATA_TF_PDU()
+        pdu = P_DATA_TF()
         pdu.Decode(p_data_tf)
 
         pdvs = pdu.PDVs
@@ -558,7 +558,7 @@ class TestPDUItem_PresentationDataValue(unittest.TestCase):
 class TestPDUItem_UserInformation(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
         item = pdu.user_information
         self.assertTrue('Implementation Class UID Sub-item' in item.__str__())
@@ -567,7 +567,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
 
         user_info = pdu.user_information
@@ -577,7 +577,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         user_info = pdu.user_information
@@ -591,7 +591,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         ui = pdu.user_information
@@ -613,7 +613,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         orig = pdu.user_information
@@ -626,12 +626,12 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_usr_id(self):
         """ Check user id properties are OK """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         ui = pdu.user_information
         self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
 
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac)
         ui = pdu.user_information
         ui.user_data.append(UserIdentitySubItemAC())
@@ -640,7 +640,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
     def test_properties_ext_neg(self):
         """ Check extended neg properties are OK """
         '''
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information
@@ -651,7 +651,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_role(self):
         """ Check user id properties are OK """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
 
         ui = pdu.user_information
@@ -661,7 +661,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_async(self):
         """ Check async window ops properties are OK """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information
@@ -679,7 +679,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_max_pdu(self):
         """ Check max receive properties are OK """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
 
         ui = pdu.user_information
@@ -693,7 +693,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
     def test_properties_implementation(self):
         """ Check async window ops properties are OK """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
         ui = pdu.user_information
 
@@ -709,14 +709,14 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
         item = pdu.user_information.user_data[0]
         self.assertTrue('16382' in item.__str__())
 
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         max_length = pdu.user_information.user_data[0]
@@ -727,7 +727,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         max_length = pdu.user_information.user_data[0]
@@ -738,7 +738,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
         max_length = pdu.user_information.user_data[0]
         result = max_length.ToParams()
@@ -748,7 +748,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
         orig_max_length = pdu.user_information.user_data[0]
         params = orig_max_length.ToParams()
@@ -760,14 +760,14 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
 class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
         item = pdu.user_information.user_data[1]
         self.assertTrue('1.2.826.0.1.3680043' in item.__str__())
 
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         uid = pdu.user_information.user_data[1]
@@ -778,7 +778,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         uid = pdu.user_information.user_data[1]
@@ -789,7 +789,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         uid = pdu.user_information.user_data[1]
@@ -802,7 +802,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         orig_uid = pdu.user_information.user_data[1]
@@ -833,14 +833,14 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
 class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
         item = pdu.user_information.user_data[2]
         self.assertTrue('PYNETDICOM_090' in item.__str__())
 
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         version = pdu.user_information.user_data[2]
@@ -851,7 +851,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         version = pdu.user_information.user_data[2]
@@ -863,7 +863,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         version = pdu.user_information.user_data[2]
@@ -876,7 +876,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq)
 
         orig_version = pdu.user_information.user_data[2]
@@ -904,7 +904,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
 class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
@@ -913,7 +913,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         for item in pdu.user_information.user_data:
@@ -927,7 +927,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
@@ -942,7 +942,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
@@ -957,7 +957,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         for item in pdu.user_information.user_data:
@@ -972,7 +972,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 
     def test_properies(self):
         """ Check property setters and getters """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         for item in pdu.user_information.user_data:
@@ -986,7 +986,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
         item = pdu.user_information.role_selection[0]
         self.assertTrue('CT Image Storage' in item.__str__())
@@ -994,7 +994,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 
     def test_stream_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
 
         rs = pdu.user_information.role_selection
@@ -1009,7 +1009,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
         rs = pdu.user_information.role_selection
         s = rs[0].encode()
@@ -1019,7 +1019,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
 
         rs = pdu.user_information.role_selection
@@ -1035,7 +1035,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_role)
 
         rs = pdu.user_information.role_selection
@@ -1094,7 +1094,7 @@ class TestPDUItem_UserInformation_RoleSelection(unittest.TestCase):
 class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         item = pdu.user_information.user_identity
         self.assertTrue('type: 1' in item.__str__())
@@ -1103,7 +1103,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
 
     def test_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information.user_identity
@@ -1119,7 +1119,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         ui = pdu.user_information.user_identity
         s = ui.encode()
@@ -1127,7 +1127,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
         ui = pdu.user_information.user_identity
         result = ui.ToParams()
@@ -1140,7 +1140,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         orig = pdu.user_information.user_identity
@@ -1153,7 +1153,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
 
     def test_properies(self):
         """ Check property setters and getters """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_async)
 
         ui = pdu.user_information.user_identity
@@ -1168,7 +1168,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
 class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_user_pass)
         item = pdu.user_information.user_identity
         self.assertTrue('type: 2' in item.__str__())
@@ -1178,7 +1178,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
 
     def test_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_user_pass)
 
         ui = pdu.user_information.user_identity
@@ -1195,7 +1195,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_user_pass)
 
         ui = pdu.user_information.user_identity
@@ -1206,7 +1206,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_user_pass)
 
         ui = pdu.user_information.user_identity
@@ -1223,7 +1223,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_user_pass)
 
         orig = pdu.user_information.user_identity
@@ -1236,7 +1236,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
 
     def test_properies(self):
         """ Check property setters and getters """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_user_pass)
 
         ui = pdu.user_information.user_identity
@@ -1261,14 +1261,14 @@ class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(unittest.TestCase):
 class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
         item = pdu.user_information.user_identity
         self.assertTrue("Server response: b'Accepted'" in item.__str__())
 
     def test_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
 
         ui = pdu.user_information.user_identity
@@ -1281,7 +1281,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
 
         ui = pdu.user_information.user_identity
@@ -1293,7 +1293,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
 
         ui = pdu.user_information.user_identity
@@ -1304,7 +1304,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
         orig = pdu.user_information.user_identity
         params = orig.ToParams()
@@ -1316,7 +1316,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
     def test_properies(self):
         """ Check property setters and getters """
-        pdu = A_ASSOCIATE_AC_PDU()
+        pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
         ui = pdu.user_information.user_identity
         self.assertEqual(ui.response, b'Accepted')
@@ -1336,7 +1336,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_KerberosResponse(unittest.TestC
 class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_ext_neg)
         item = pdu.user_information.ext_neg[0]
         self.assertTrue('CT Image Storage' in item.__str__())
@@ -1344,7 +1344,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
     def test_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_ext_neg)
 
         item = pdu.user_information.ext_neg[0]
@@ -1358,7 +1358,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_ext_neg)
 
         item = pdu.user_information.ext_neg[0]
@@ -1371,7 +1371,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_ext_neg)
 
         item = pdu.user_information.ext_neg[0]
@@ -1387,7 +1387,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_ext_neg)
 
         orig = pdu.user_information.ext_neg[0]
@@ -1421,7 +1421,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         with self.assertRaises(TypeError):
             item.sop_class_uid = 10002
 
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_user_id_ext_neg)
 
         item = pdu.user_information.ext_neg[0]
@@ -1432,7 +1432,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
 class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_com_ext_neg)
         item = pdu.user_information.common_ext_neg[0]
         self.assertTrue('MR Image Storage' in item.__str__())
@@ -1440,7 +1440,7 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
 
     def test_decode(self):
         """ Check decoding produces the correct values """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_com_ext_neg)
 
         item = pdu.user_information.common_ext_neg[0]
@@ -1455,7 +1455,7 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_com_ext_neg)
 
         item = pdu.user_information.common_ext_neg[0]
@@ -1468,7 +1468,7 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
 
     def test_to_primitive(self):
         """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_com_ext_neg)
 
         item = pdu.user_information.common_ext_neg[0]
@@ -1485,7 +1485,7 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(unittest.TestCase):
 
     def test_from_primitive(self):
         """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ_PDU()
+        pdu = A_ASSOCIATE_RQ()
         pdu.Decode(a_associate_rq_com_ext_neg)
 
         orig = pdu.user_information.common_ext_neg[0]

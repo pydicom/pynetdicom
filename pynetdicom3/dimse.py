@@ -7,7 +7,7 @@ from io import BytesIO
 import logging
 import time
 
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
+from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_GET_RQ, C_GET_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
@@ -20,17 +20,17 @@ from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
                                       N_CREATE_RQ, N_CREATE_RSP, \
                                       N_DELETE_RQ, N_DELETE_RSP, \
                                       DIMSEMessage
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
+from pynetdicom3.dimse_primitives import C_STORE, \
+                                        C_FIND, \
+                                        C_GET, \
+                                        C_MOVE, \
+                                        C_ECHO, \
+                                        N_EVENT_REPORT, \
+                                        N_GET, \
+                                        N_SET, \
+                                        N_ACTION, \
+                                        N_CREATE, \
+                                        N_DELETE
 from pynetdicom3.primitives import P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
@@ -77,17 +77,17 @@ class DIMSEServiceProvider(object):
 
     Service Primitive Classes
     ~~~~~~~~~~~~~~~~~~~~~~~~~
-    C_ECHO_ServiceParameters
-    C_STORE_ServiceParameters
-    C_GET_ServiceParameters
-    C_FIND_ServiceParameters
-    C_MOVE_ServiceParameters
-    N_EVENT_REPORT_ServiceParameters
-    N_GET_ServiceParameters
-    N_GET_ServiceParameters
-    N_ACTION_ServiceParameters
-    N_CREATE_ServiceParameters
-    N_DELETE_ServiceParameters
+    C_ECHO
+    C_STORE
+    C_GET
+    C_FIND
+    C_MOVE
+    N_EVENT_REPORT
+    N_GET
+    N_GET
+    N_ACTION
+    N_CREATE
+    N_DELETE
 
     Protocol Machine
     ----------------
@@ -151,26 +151,26 @@ class DIMSEServiceProvider(object):
 
         Parameters
         ----------
-        primitive : pynetdicom3.DIMSEparameters
+        primitive : pynetdicom3.dimse_primitives
             The DIMSE service primitive to send to the peer
         context_id : int
             The ID of the presentation context to be sent under
         max_pdu : int
             The maximum send PDV size acceptable by the peer AE
         """
-        if primitive.__class__ == C_ECHO_ServiceParameters:
+        if primitive.__class__ == C_ECHO:
             if primitive.MessageID is not None:
                 dimse_msg = C_ECHO_RQ()
             else:
                 dimse_msg = C_ECHO_RSP()
 
-        elif primitive.__class__ == C_STORE_ServiceParameters:
+        elif primitive.__class__ == C_STORE:
             if primitive.MessageID is not None:
                 dimse_msg = C_STORE_RQ()
             else:
                 dimse_msg = C_STORE_RSP()
 
-        elif primitive.__class__ == C_FIND_ServiceParameters:
+        elif primitive.__class__ == C_FIND:
             if primitive.MessageID is not None:
                 dimse_msg = C_FIND_RQ()
             elif primitive.Status is not None:
@@ -178,7 +178,7 @@ class DIMSEServiceProvider(object):
             else:
                 dimse_msg = C_CANCEL_RQ()
 
-        elif primitive.__class__ == C_GET_ServiceParameters:
+        elif primitive.__class__ == C_GET:
             if primitive.MessageID is not None:
                 dimse_msg = C_GET_RQ()
             elif primitive.Status is not None:
@@ -186,7 +186,7 @@ class DIMSEServiceProvider(object):
             else:
                 dimse_msg = C_CANCEL_RQ()
 
-        elif primitive.__class__ == C_MOVE_ServiceParameters:
+        elif primitive.__class__ == C_MOVE:
             if primitive.MessageID is not None:
                 dimse_msg = C_MOVE_RQ()
             elif primitive.Status is not None:
@@ -194,37 +194,37 @@ class DIMSEServiceProvider(object):
             else:
                 dimse_msg = C_CANCEL_RQ()
 
-        elif primitive.__class__ == N_EVENT_REPORT_ServiceParameters:
+        elif primitive.__class__ == N_EVENT_REPORT:
             if primitive.MessageID is not None:
                 dimse_msg = N_EVENT_REPORT_RQ()
             else:
                 dimse_msg = N_EVENT_REPORT_RSP()
 
-        elif primitive.__class__ == N_GET_ServiceParameters:
+        elif primitive.__class__ == N_GET:
             if primitive.MessageID is not None:
                 dimse_msg = N_GET_RQ()
             else:
                 dimse_msg = N_GET_RSP()
 
-        elif primitive.__class__ == N_SET_ServiceParameters:
+        elif primitive.__class__ == N_SET:
             if primitive.MessageID is not None:
                 dimse_msg = N_SET_RQ()
             else:
                 dimse_msg = N_SET_RSP()
 
-        elif primitive.__class__ == N_ACTION_ServiceParameters:
+        elif primitive.__class__ == N_ACTION:
             if primitive.MessageID is not None:
                 dimse_msg = N_ACTION_RQ()
             else:
                 dimse_msg = N_ACTION_RSP()
 
-        elif primitive.__class__ == N_CREATE_ServiceParameters:
+        elif primitive.__class__ == N_CREATE:
             if primitive.MessageID is not None:
                 dimse_msg = N_CREATE_RQ()
             else:
                 dimse_msg = N_CREATE_RSP()
 
-        elif primitive.__class__ == N_DELETE_ServiceParameters:
+        elif primitive.__class__ == N_DELETE:
             if primitive.MessageID is not None:
                 dimse_msg = N_DELETE_RQ()
             else:
@@ -370,7 +370,7 @@ class DIMSEServiceProvider(object):
 
         Parameters
         ----------
-        sop_class - pynetdicom3.SOPclass.SOPClass
+        sop_class - pynetdicom3.sop_class.SOPClass
             A SOP Class instance of the type referred to by the message
         message - pydicom.Dataset
             The DIMSE message that was received as a Dataset
@@ -408,7 +408,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_ECHO_RQ
+        dimse_msg : pynetdicom3.dimse_messages.C_ECHO_RQ
             The C-ECHO-RQ DIMSE Message to be sent
         """
         ds = dimse_msg.command_set
@@ -419,7 +419,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_ECHO_RSP
+        dimse_msg : pynetdicom3.dimse_messages.C_ECHO_RSP
             The C-ECHO-RSP DIMSE Message to be sent
         """
         pass
@@ -429,7 +429,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_STORE_RQ
+        dimse_msg : pynetdicom3.dimse_messages.C_STORE_RQ
             The C-STORE-RQ DIMSE Message to be sent
         """
         ds = dimse_msg.command_set
@@ -474,7 +474,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_STORE_RSP
+        dimse_msg : pynetdicom3.dimse_messages.C_STORE_RSP
             The C-STORE-RSP DIMSE Message to be sent
         """
         pass
@@ -484,7 +484,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_FIND_RQ
+        dimse_msg : pynetdicom3.dimse_messages.C_FIND_RQ
             The C-FIND-RQ DIMSE Message to be sent
         """
         ds = dimse_msg.command_set
@@ -550,7 +550,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_CANCEL_RQ
+        dimse_msg : pynetdicom3.dimse_messages.C_CANCEL_RQ
             The C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ or C-CANCEL-MOVE-RQ DIMSE
             Message to be sent
         """
@@ -561,7 +561,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_GET_RQ
+        dimse_msg : pynetdicom3.dimse_messages.C_GET_RQ
             The C-GET-RQ DIMSE Message to be sent
         """
         cs = dimse_msg.command_set
@@ -626,7 +626,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_MOVE_RQ
+        dimse_msg : pynetdicom3.dimse_messages.C_MOVE_RQ
             The C-MOVE-RQ DIMSE Message to be sent
         """
         ds = dimse_msg.command_set
@@ -664,7 +664,7 @@ class DIMSEServiceProvider(object):
         """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_MOVE_RSP
+        dimse_msg : pynetdicom3.dimse_messages.C_MOVE_RSP
             The C-MOVE-RSP DIMSE Message to be sent
         """
         ds = dimse_msg.command_set

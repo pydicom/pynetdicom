@@ -154,15 +154,15 @@ class ApplicationEntity(object):
             The port number to listen for connections on when acting as an SCP
             (default: the first available port)
         scu_sop_class : list of pydicom.uid.UID or list of str or list of
-        pynetdicom3.SOPclass.ServiceClass subclasses, optional
+        pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.
             Either `scu_sop_class` or `scp_sop_class` must have values
         scp_sop_class : list of pydicom.uid.UID or list of UID strings or list
-        of pynetdicom3.SOPclass.ServiceClass subclasses, optional
+        of pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCP.
             Either scu_`sop_class` or `scp_sop_class` must have values
         transfer_syntax : list of pydicom.uid.UID or list of str or list of
-        pynetdicom3.SOPclass.ServiceClass subclasses, optional
+        pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of supported Transfer Syntax UIDs (default: Explicit VR Little
             Endian, Implicit VR Little Endian, Explicit VR Big Endian)
         """
@@ -719,11 +719,11 @@ class ApplicationEntity(object):
         - '1.2.3.4'
         - b'1.2.3.4.5'
         - pydicom.uid.UID('1.2.3')
-        - pynetdicom3.SOPclass.VerificationSOPClass
+        - pynetdicom3.sop_class.VerificationSOPClass
 
         Parameters
         ----------
-        sop_list : list of str, bytes, UID, pynetdicom3.SOPclass.ServiceClass
+        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
             The supported SCU SOP classes.
         """
         # pylint: disable=attribute-defined-outside-init
@@ -772,11 +772,11 @@ class ApplicationEntity(object):
         - '1.2.3.4'
         - b'1.2.3.4.5'
         - pydicom.uid.UID('1.2.3')
-        - pynetdicom3.SOPclass.VerificationSOPClass
+        - pynetdicom3.sop_class.VerificationSOPClass
 
         Parameters
         ----------
-        sop_list : list of str, bytes, UID, pynetdicom3.SOPclass.ServiceClass
+        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
             The supported SCP SOP classes.
         """
         # pylint: disable=attribute-defined-outside-init
@@ -891,7 +891,7 @@ class ApplicationEntity(object):
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling AE.start()
 
-        Called during pynetdicom3.SOPclass.VerificationServiceClass::SCP() after
+        Called during pynetdicom3.sop_class.VerificationServiceClass::SCP() after
         receiving a C-ECHO request and immediately prior to sending the
         response. As the status for a C-ECHO response is always Success no
         return value is required.
@@ -918,7 +918,7 @@ class ApplicationEntity(object):
 
         Must be defined by the user prior to calling AE.start() and must return
         a valid C-STORE status integer value or the corresponding
-        pynetdicom3.SOPclass.Status object.
+        pynetdicom3.sop_class.Status object.
 
         Example
         -------
@@ -940,7 +940,7 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        status : pynetdicom3.SOPclass.Status or int
+        status : pynetdicom3.sop_class.Status or int
             A valid return status for the C-STORE operation (see PS3.4 Annex
             B.2.3), must be one of the following Status objects or the
             corresponding integer value:
@@ -976,7 +976,7 @@ class ApplicationEntity(object):
         """Callback for when a dataset is received following a C-FIND.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.SOPclass.Status object. In addition,the
+        a valid pynetdicom3.sop_class.Status object. In addition,the
         AE.on_c_find_cancel() callback must also be defined
 
         Called by QueryRetrieveFindSOPClass subclasses in SCP()
@@ -988,7 +988,7 @@ class ApplicationEntity(object):
 
         Yields
         ------
-        status : pynetdicom3.SOPclass.Status or int
+        status : pynetdicom3.sop_class.Status or int
             A valid return status for the C-FIND operation (see PS3.4 Annex
             C.4.1.1.4), must be one of the following Status objects or the
             corresponding integer value:
@@ -1031,7 +1031,7 @@ class ApplicationEntity(object):
         """Callback for when a dataset is received following a C-STORE.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.SOPclass.Status object. In addition,the
+        a valid pynetdicom3.sop_class.Status object. In addition,the
         AE.on_c_get_cancel() callback must also be defined
 
         Parameters
@@ -1174,7 +1174,7 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        associate_rq_pdu : pynetdicom3.PDU.A_ASSOCIATE_RJ_PDU
+        associate_rq_pdu : pynetdicom3.pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
         pass
