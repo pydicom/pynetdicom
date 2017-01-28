@@ -20,9 +20,6 @@ from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, \
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
 
-TEST_DIR = os.path.dirname(__file__)
-DATASET = read_file(os.path.join('dicom_files', 'RTImageStorage.dcm'))
-
 
 class DummyBaseSCP(threading.Thread):
     """Base class for the Dummy SCP classes"""
