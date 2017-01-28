@@ -158,7 +158,7 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(cs.CommandDataSetType == 1)
         self.assertTrue(cs.CommandField == 1)
         # Bug in pydicom -> AEs not stripped of trailing spaces
-        self.assertTrue(cs.MoveOriginatorApplicationEntityTitle == 'UNITTEST       ')
+        self.assertTrue(cs.MoveOriginatorApplicationEntityTitle == 'UNITTEST')
         self.assertTrue(cs.MoveOriginatorMessageID == 3)
 
         # Test decoded dataset
@@ -186,7 +186,7 @@ class TestDIMSEMessage(unittest.TestCase):
         msg.__class__.__name__ = 'TestClass'
         with self.assertRaises(ValueError):
             msg.primitive_to_message(primitive)
-        
+
         # Reset name to avoid errors in other tests
         msg.__class__.__name__ = 'C_STORE_RQ'
 
@@ -352,7 +352,7 @@ class TestDIMSEMessage(unittest.TestCase):
 
         ds = decode(primitive.Identifier, True, True)
         self.assertEqual(ds.QueryRetrieveLevel, 'PATIENT')
-        self.assertEqual(ds.RetrieveAETitle, 'FINDSCP        ')
+        self.assertEqual(ds.RetrieveAETitle, 'FINDSCP')
 
         self.assertEqual(ds.PatientName, 'ANON^A^B^C^D')
 
