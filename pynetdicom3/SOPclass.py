@@ -533,12 +533,15 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         LOGGER.info('')
 
         # Callback
+        # FIXME: this needs to handle (status, ds) from the callback
+        #   otherwise how do we handle failure/etc?
         try:
             matches = self.AE.on_c_find(dataset)
         except:
             LOGGER.exception('Exception in on_c_find()')
             matches = []
 
+        # if status is pending...
         for ii, instance in enumerate(matches):
             c_find_rsp.Identifier = \
                     BytesIO(encode(instance,

@@ -390,11 +390,11 @@ class DIMSEMessage(object):
         #   so we refresh the command set elements
         cls_type_name = self.__class__.__name__.replace('_', '-')
         command_set_tags = [elem.tag for elem in self.command_set]
-        
+
         if cls_type_name not in COMMAND_SET_ELEM:
             raise ValueError("Can't convert primitive to message for unknown "
                              "DIMSE message type '{}'".format(cls_type_name))
-        
+
         for tag in COMMAND_SET_ELEM[cls_type_name]:
             if tag not in command_set_tags:
                 tag = Tag(tag)
@@ -403,7 +403,7 @@ class DIMSEMessage(object):
                     self.command_set.add_new(tag, vr, None)
                 except TypeError:
                     self.command_set.add_new(tag, vr, '')
-        
+
         # Convert the message command set to the primitive attributes
         for elem in self.command_set:
             # Use the short version of the element names as these should
@@ -412,7 +412,7 @@ class DIMSEMessage(object):
                 # If value hasn't been set for a parameter then delete
                 #   the corresponding element
                 attr = getattr(primitive, elem.keyword)
-                
+
                 if attr is not None:
                     elem.value = attr
                 else:
@@ -507,6 +507,8 @@ class DIMSEMessage(object):
             primitive = N_CREATE_ServiceParameters()
         elif 'N_DELETE' in cls_type_name:
             primitive = N_DELETE_ServiceParameters()
+        #elif 'C_CANCEL' in cls_type_name:
+        #    primitive = C_FIND_ServiceParameters()
 
         ## Command Set
         # For each parameter in the primitive, set the appropriate value
@@ -519,7 +521,7 @@ class DIMSEMessage(object):
         ## Datasets
         if cls_type_name == 'C_STORE_RQ':
             setattr(primitive, 'DataSet', self.data_set)
-        elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP', 'C_GET_RQ', 
+        elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP', 'C_GET_RQ',
                                 'C_GET_RSP', 'C_MOVE_RQ', 'C_MOVE_RSP']:
             setattr(primitive, 'Identifier', self.data_set)
         elif cls_type_name == 'N_EVENT_REPORT_RQ':

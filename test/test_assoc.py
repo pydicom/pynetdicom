@@ -8,15 +8,22 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 from pydicom import read_file
+from pydicom.dataset import Dataset
+from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
 from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, \
                         DummyFindSCP, DummyGetSCP, DummyMoveSCP
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
 from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, Status, \
-                                 RTImageStorage
+                                 RTImageStorage, \
+                                 PatientRootQueryRetrieveInformationModelFind, \
+                                 StudyRootQueryRetrieveInformationModelFind, \
+                                 ModalityWorklistInformationFind, \
+                                 PatientStudyOnlyQueryRetrieveInformationModelFind, \
+                                 PatientRootQueryRetrieveInformationModelGet, \
+                                 PatientRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
@@ -149,6 +156,17 @@ class TestAssociation(unittest.TestCase):
         # Test peer rejects assoc
         scp = DummyVerificationSCP()
         scp.ae.require_calling_aet = b'HAHA NOPE'
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_rejected)
+        self.assertFalse(assoc.is_established)
+        self.assertRaises(SystemExit, ae.quit)
+        scp.stop() # Important!
+
+        # Test peer rejects assoc
+        scp = DummyVerificationSCP()
+        scp.ae.require_called_aet = b'HAHA NOPE'
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11113)
@@ -321,28 +339,127 @@ class TestAssociationSendCStore(unittest.TestCase):
 
 class TestAssociationSendCFind(unittest.TestCase):
     """Run tests on Assocation send_c_find."""
+    def setUp(self):
+        """Run prior to each test"""
+        self.ds_pr = Dataset()
+        self.ds_pr.PatientsName = '*'
+        self.ds_pr.QueryRetrieveLevel = "PATIENT"
+
+        self.ds_mw = Dataset()
+        self.ds_mw.PatientsName = '*'
+        self.ds_mw.QueryRetrieveLevel = "PATIENT"
+
+        self.ds_sr = Dataset()
+        self.ds_sr.PatientsName = '*'
+        self.ds_sr.QueryRetrieveLevel = "PATIENT"
+
+        self.ds_pso = Dataset()
+        self.ds_pso.PatientsName = '*'
+        self.ds_pso.QueryRetrieveLevel = "PATIENT"
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
+        scp = DummyFindSCP()
         scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11113)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
-            assoc.send_c_echo()
+            next(assoc.send_c_find(self.ds_pr))
         scp.stop()
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
-        scp = DummyStorageSCP()
+        scp = DummyVerificationSCP()
         scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11113)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_echo()
-        self.assertTrue(result is None)
+        for (status, ds) in assoc.send_c_find(self.ds_pr):
+            self.assertEqual(int(status), 0xa900)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(ValueError):
+            next(assoc.send_c_find(self.ds_pr, query_model='X'))
+        assoc.release()
+        scp.stop()
+
+    def test_good_query_model(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind,
+                               StudyRootQueryRetrieveInformationModelFind,
+                               PatientStudyOnlyQueryRetrieveInformationModelFind,
+                               ModalityWorklistInformationFind])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
+            self.assertEqual(int(status), 0x0000)
+        for (status, ds) in assoc.send_c_find(self.ds_sr, query_model='S'):
+            self.assertEqual(int(status), 0x0000)
+        for (status, ds) in assoc.send_c_find(self.ds_pso, query_model='O'):
+            self.assertEqual(int(status), 0x0000)
+        for (status, ds) in assoc.send_c_find(self.ds_mw, query_model='W'):
+            self.assertEqual(int(status), 0x0000)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCCancelFind(unittest.TestCase):
+    """Run tests on Assocation send_c_cancel_find."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_cancel_find(1, 'P')
+        scp.stop()
+
+    @unittest.skip # Depends on issue #39
+    def test_receive_failure(self):
+        """Test receiving a failure response"""
+        scp = DummyFindSCP()
+        scp.status = scp.out_of_resources
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
+            self.assertEqual(int(status), 0xA700)
+        assoc.release()
+        scp.stop()
+
+    @unittest.skip # Depends on issue #40
+    def test_cancel(self):
+        """Test sending C-CANCEL-RQ"""
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind,
+                               StudyRootQueryRetrieveInformationModelFind,
+                               PatientStudyOnlyQueryRetrieveInformationModelFind,
+                               ModalityWorklistInformationFind])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        assoc.send_c_cancel_find(1, query_model='P')
+        assoc.send_c_cancel_find(1, query_model='S')
+        assoc.send_c_cancel_find(1, query_model='O')
+        assoc.send_c_cancel_find(1, query_model='W')
         assoc.release()
         scp.stop()
 

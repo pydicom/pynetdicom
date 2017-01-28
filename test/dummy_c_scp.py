@@ -6,13 +6,17 @@ import socket
 import time
 import threading
 
-from pydicom.uid import UID, ImplicitVRLittleEndian
 from pydicom import read_file
+from pydicom.dataset import Dataset
+from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, \
                                  RTImageStorage, \
                                  PatientRootQueryRetrieveInformationModelFind, \
+                                 StudyRootQueryRetrieveInformationModelFind, \
+                                 ModalityWorklistInformationFind, \
+                                 PatientStudyOnlyQueryRetrieveInformationModelFind, \
                                  PatientRootQueryRetrieveInformationModelGet, \
                                  PatientRootQueryRetrieveInformationModelMove, \
                                  Status
@@ -65,13 +69,26 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_find"""
         raise RuntimeError("You should not have been able to get here.")
 
+    def on_c_cancel_find(self):
+        """Callback for ae.on_c_cancel_find"""
+        raise RuntimeError("You should not have been able to get here.")
+
     def on_c_get(self, ds):
         """Callback for ae.on_c_get"""
+        raise RuntimeError("You should not have been able to get here.")
+
+    def on_c_cancel_get(self):
+        """Callback for ae.on_c_cancel_get"""
         raise RuntimeError("You should not have been able to get here.")
 
     def on_c_move(self, ds, move_aet):
         """Callback for ae.on_c_move"""
         raise RuntimeError("You should not have been able to get here.")
+
+    def on_c_cancel_move(self):
+        """Callback for ae.on_c_cancel_move"""
+        raise RuntimeError("You should not have been able to get here.")
+
 
 
 class DummyVerificationSCP(DummyBaseSCP):
@@ -124,14 +141,56 @@ class DummyStorageSCP(DummyBaseSCP):
 
 class DummyFindSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
+    out_of_resources = Status('Failure',
+                            'Refused: Out of resources',
+                            range(0xA700, 0xA700 + 1))
+    identifier_doesnt_match_sop = Status('Failure',
+                                            "Identifier does not match SOP "
+                                            "Class",
+                                            range(0xA900, 0xA900 + 1))
+    unable_to_process = Status('Failure',
+                             'Unable to process',
+                             range(0xC000, 0xCFFF + 1))
+    matching_terminated_cancel = Status('Cancel',
+                                                  "Matching terminated due to "
+                                                  "Cancel request",
+                                                  range(0xFE00, 0xFE00 + 1))
+    success = Status('Success',
+                     'Matching is complete - No final Identifier is supplied',
+                     range(0x0000, 0x0000 + 1))
+    pending = Status('Pending',
+                     "Matches are continuing - Current Match is supplied "
+                     "and any Optional Keys were supported in the same manner "
+                     "as 'Required Keys'",
+                     range(0xFF00, 0xFF00 + 1))
+    pending_warning = Status("Pending",
+                            "Matches are continuing - Warning that one or more "
+                            "Optional Keys were not supported for existence "
+                            "and/or matching for this identifier",
+                            range(0xFF01, 0xFF01 + 1))
     def __init__(self):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelFind],
+        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelFind,
+                                    StudyRootQueryRetrieveInformationModelFind,
+                                    ModalityWorklistInformationFind,
+                                    PatientStudyOnlyQueryRetrieveInformationModelFind],
                      port=11113)
         DummyBaseSCP.__init__(self)
+        self.status = self.success
 
     def on_c_find(self, ds):
         """Callback for ae.on_c_find"""
         time.sleep(self.delay)
+        ds = Dataset()
+        ds.PatientsName = '*'
+        ds.QueryRetrieveLevel = "PATIENT"
+        if self.status.status_type == 'Failure':
+            yield self.status, None
+
+        yield self.status, ds
+
+    def on_c_cancel_find(self):
+        """Callback for ae.on_c_cancel_find"""
+        pass
 
 
 class DummyGetSCP(DummyBaseSCP):
