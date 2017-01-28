@@ -21,9 +21,9 @@ from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, Status, \
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
 
-TEST_DIR = os.path.dirname(__file__)
-DATASET = read_file(os.path.join('dicom_files', 'RTImageStorage.dcm'))
-COMP_DATASET = read_file(os.path.join('dicom_files', 'MRImageStorage_JPG2000_Lossless.dcm'))
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
+DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
+COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
 class DummyVerificationSCU(threading.Thread):
