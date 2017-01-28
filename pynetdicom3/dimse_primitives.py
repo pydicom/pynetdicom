@@ -305,7 +305,7 @@ class C_STORE(object):
                     found_valid = True
                     self._status = value
             if not found_valid:
-                raise ValueError("Invalid Status value")
+                raise ValueError("Invalid Status value {}".format(value))
 
         elif value is None:
             self._status = value
