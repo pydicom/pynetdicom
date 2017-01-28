@@ -1,48 +1,32 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import socket
+import time
 import threading
 import unittest
 from unittest.mock import patch
 
-from pydicom.uid import UID, ImplicitVRLittleEndian
+from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
+from pydicom import read_file
 
+from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, \
+                        DummyFindSCP, DummyGetSCP, DummyMoveSCP
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
-from pynetdicom3.SOPclass import CTImageStorage
+from pynetdicom3.SOPclass import CTImageStorage, MRImageStorage, Status, \
+                                 RTImageStorage
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+
+TEST_DIR = os.path.dirname(__file__)
+DATASET = read_file(os.path.join('dicom_files', 'RTImageStorage.dcm'))
+COMP_DATASET = read_file(os.path.join('dicom_files', 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
-class DummySCP(threading.Thread):
-    """A threaded dummy verification SCP used for testing"""
-    def __init__(self):
-        self.ae = AE(scp_sop_class=[VerificationSOPClass], port=11113)
-        threading.Thread.__init__(self)
-        self.daemon = True
-
-    def run(self):
-        """The thread run method"""
-        self.ae.start()
-
-    def stop(self):
-        """Stop the SCP thread"""
-        self.ae.stop()
-
-    def abort(self):
-        """Abort any associations"""
-        for assoc in self.ae.active_associations:
-            assoc.abort()
-
-    def release(self):
-        """Release any associations"""
-        for assoc in self.ae.active_associations:
-            assoc.release()
-
-
-class DummySCU(threading.Thread):
+class DummyVerificationSCU(threading.Thread):
     """A threaded dummy verification SCU used for testing"""
     def __init__(self):
         self.ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -56,7 +40,6 @@ class DummySCU(threading.Thread):
     def stop(self):
         """Stop the SCU thread"""
         self.ae.stop()
-
 
 
 class TestAssociation(unittest.TestCase):
@@ -91,7 +74,9 @@ class TestAssociation(unittest.TestCase):
         with self.assertRaises(TypeError, msg="wrong peer_ae type"):
             Association(self.ae, peer_ae=123)
         with self.assertRaises(KeyError, msg="missing keys in peer_ae"):
-            Association(self.ae, client_socket=self.socket, peer_ae={})
+            Association(self.ae, peer_ae={})
+        with self.assertRaises(TypeError, msg="wrong local_ae type"):
+            Association(12345, peer_ae=self.peer)
         with self.assertRaises(TypeError, msg="wrong dimse_timeout type"):
             Association(self.ae, peer_ae=self.peer, dimse_timeout='a')
         with self.assertRaises(TypeError, msg="wrong acse_timeout type"):
@@ -107,7 +92,7 @@ class TestAssociation(unittest.TestCase):
 
     def test_run_requestor(self):
         """Test running as an Association requestor (SCU)"""
-        scp = DummySCP()
+        scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.presentation_contexts_scu = []
@@ -117,7 +102,7 @@ class TestAssociation(unittest.TestCase):
         scp.stop()
 
         # Test good request and assoc accepted by peer
-        scp = DummySCP()
+        scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11113)
@@ -128,7 +113,7 @@ class TestAssociation(unittest.TestCase):
         scp.stop()
 
         # Test rejection due to no acceptable presentation contexts
-        scp = DummySCP()
+        scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11113)
@@ -138,7 +123,7 @@ class TestAssociation(unittest.TestCase):
         scp.stop()
 
         # Test peer releases assoc
-        scp = DummySCP()
+        scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11113)
@@ -150,7 +135,7 @@ class TestAssociation(unittest.TestCase):
         scp.stop() # Important!
 
         # Test peer aborts assoc
-        scp = DummySCP()
+        scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11113)
@@ -162,7 +147,7 @@ class TestAssociation(unittest.TestCase):
         scp.stop() # Important!
 
         # Test peer rejects assoc
-        scp = DummySCP()
+        scp = DummyVerificationSCP()
         scp.ae.require_calling_aet = b'HAHA NOPE'
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -185,9 +170,237 @@ class TestAssociation(unittest.TestCase):
         pass
 
 
-class TestAssociationSendDIMSEC(unittest.TestCase):
-    """Run tests on Assocation send_c_* methods."""
-    pass
+class TestAssociationSendCEcho(unittest.TestCase):
+    """Run tests on Assocation send_c_echo."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_echo()
+        scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
+
+    def test_good_response(self):
+        """Test successful c-echo"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertEqual(int(result), 0x0000)
+        assoc.release()
+        scp.stop()
+
+    @unittest.skip # dimse_timeout broken
+    def test_no_response(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyVerificationSCP()
+        scp.delay = 0.1
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.dimse_timeout = 0.01
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCStore(unittest.TestCase):
+    """Run tests on Assocation send_c_store."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_store(DATASET)
+        scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(int(result), 0xc000)
+        assoc.release()
+        scp.stop()
+
+    def test_compressed_ds(self):
+        """Test when ds is compressed"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[MRImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_store(COMP_DATASET)
+        self.assertEqual(int(result), 0x0000)
+        assoc.release()
+        scp.stop()
+
+    def test_good_response(self):
+        """Test successful c-store"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(int(result), 0x0000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_priority(self):
+        """Test successful c-echo"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_store(DATASET, priority=0x0003)
+        self.assertEqual(int(result), 0x0000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_dataset(self):
+        """Test failure if unable to encode dataset"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[RTImageStorage],
+                transfer_syntax=[ExplicitVRLittleEndian])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        DATASET.PerimeterValue = b'\x00\x01'
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(int(result), 0xC000)
+        assoc.release()
+        del DATASET.PerimeterValue # Fix up our changes
+        scp.stop()
+
+    @unittest.skip # dimse_timeout broken
+    def test_no_response(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyVerificationSCP()
+        scp.delay = 0.1
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae.dimse_timeout = 0.01
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_store(DATASET)
+        self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCFind(unittest.TestCase):
+    """Run tests on Assocation send_c_find."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_echo()
+        scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCGet(unittest.TestCase):
+    """Run tests on Assocation send_c_get."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_echo()
+        scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
+
+
+class TestAssociationSendCMove(unittest.TestCase):
+    """Run tests on Assocation send_c_move."""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11113)
+        assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_echo()
+        scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11113)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertTrue(result is None)
+        assoc.release()
+        scp.stop()
 
 
 class TestAssociationSendDIMSEN(unittest.TestCase):

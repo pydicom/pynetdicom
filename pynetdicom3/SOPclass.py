@@ -217,7 +217,7 @@ class StorageServiceClass(ServiceClass):
                                                 'Data Set does not match ' \
                                                 'SOP Class',
                                                 range(0xB007, 0xB007 + 1))
-    ElementDisgarded = Status('Warning',
+    ElementDiscarded = Status('Warning',
                               'Element Discarded',
                               range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
@@ -252,7 +252,7 @@ class StorageServiceClass(ServiceClass):
             status = self.DataSetDoesNotMatchSOPClassFailure
             LOGGER.info("Store request's dataset UID does not match the "
                         "presentation context")
-
+        print(status)
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 

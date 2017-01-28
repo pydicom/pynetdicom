@@ -262,6 +262,8 @@ class DIMSEServiceProvider(object):
             Returns the complete DIMSE message and its presentation context ID
             or None, None if
         """
+        dimse_timeout = self.dimse_timeout
+
         if self.message is None:
             self.message = DIMSEMessage()
 
@@ -283,7 +285,7 @@ class DIMSEServiceProvider(object):
                 if self.message.Decode(msg):
                     # Callback
                     self.on_receive_dimse_message(self.message)
-                    
+
                     context_id = self.message.ID
                     primitive = self.message.message_to_primitive()
 

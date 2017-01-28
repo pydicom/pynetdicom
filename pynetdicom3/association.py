@@ -16,7 +16,7 @@ from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
                                         C_STORE_ServiceParameters, \
                                         C_GET_ServiceParameters, \
                                         C_FIND_ServiceParameters
-from pynetdicom3.dsutils import decode, encode, correct_ambiguous_vr
+from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.DULprovider import DULServiceProvider
 from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
                          StorageServiceClass, \
@@ -529,6 +529,7 @@ class Association(threading.Thread):
                 if self.acse.presentation_contexts_accepted == []:
                     LOGGER.error("No Acceptable Presentation Contexts")
                     self.is_aborted = True
+                    self.is_established = False
                     self.acse.Abort(0x02, 0x00)
                     self.kill()
 
@@ -555,6 +556,7 @@ class Association(threading.Thread):
                     # Check for release request
                     if self.acse.CheckRelease():
                         self.is_released = True
+                        self.is_established = False
                         # Callback trigger
                         self.ae.on_association_released()
                         self.debug_association_released()
@@ -564,6 +566,7 @@ class Association(threading.Thread):
                     # Check for abort
                     if self.acse.CheckAbort():
                         self.is_aborted = True
+                        self.is_established = False
                         # Callback trigger
                         self.ae.on_association_aborted()
                         self.debug_association_aborted()
@@ -586,8 +589,8 @@ class Association(threading.Thread):
             else:
                 self.ae.on_association_rejected(assoc_rsp)
                 self.debug_association_rejected(assoc_rsp)
-
                 self.is_rejected = True
+                self.is_established = False
                 self.dul.Kill()
                 return
 
@@ -595,7 +598,7 @@ class Association(threading.Thread):
         elif isinstance(assoc_rsp, A_ABORT):
             self.ae.on_association_aborted(assoc_rsp)
             self.debug_association_aborted(assoc_rsp)
-
+            self.is_established = False
             self.is_aborted = True
             self.dul.Kill()
             return
@@ -603,11 +606,13 @@ class Association(threading.Thread):
         # Association was aborted by DUL provider
         elif isinstance(assoc_rsp, A_P_ABORT):
             self.is_aborted = True
+            self.is_established = False
             self.dul.Kill()
             return
 
         # Association failed for any other reason (No peer, etc)
         else:
+            self.is_established = False
             self.dul.Kill()
             return
 
@@ -772,12 +777,13 @@ class Association(threading.Thread):
             Returns None if the DIMSE service timed out before receiving a
             response.
         """
+        # No longer true?
         # pydicom can only handle uncompressed transfer syntaxes for conversion
-        if not dataset._is_uncompressed_transfer_syntax():
-            LOGGER.warning("Unable to send the dataset due to pydicom not "
-                           "supporting compressed datasets")
-            LOGGER.error('Sending file failed')
-            return 0xC000
+        #if not dataset._is_uncompressed_transfer_syntax():
+        #    LOGGER.warning("Unable to send the dataset due to pydicom not "
+        #                   "supporting compressed datasets")
+        #    LOGGER.error('Sending file failed')
+        #    return 0xC000
 
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -803,10 +809,6 @@ class Association(threading.Thread):
                          "presentation context for the current dataset")
             return service_class.CannotUnderstand
 
-        # Set the correct VR for ambiguous elements
-        dataset = correct_ambiguous_vr(dataset,
-                                       transfer_syntax.is_little_endian)
-
         # Build C-STORE request primitive
         primitive = C_STORE_ServiceParameters()
         primitive.MessageID = msg_id
@@ -819,9 +821,11 @@ class Association(threading.Thread):
         else:
             LOGGER.warning("C-STORE SCU: Invalid priority value '%s'",
                            priority)
-            primitive.Priorty = 0x0000
+            primitive.Priorty = 0x0002
 
         # Encode the dataset using the agreed transfer syntax
+        # Correcting ambiguous VR is handled by pydicom
+        # Will return None if failed to encode
         ds = encode(dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian)
