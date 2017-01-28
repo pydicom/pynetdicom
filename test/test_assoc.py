@@ -280,7 +280,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         """Test successful c-echo"""
         scp = DummyStorageSCP()
         scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE(scu_sop_class=[RTImageStorage])
         assoc = ae.associate('localhost', 11113)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET, priority=0x0003)

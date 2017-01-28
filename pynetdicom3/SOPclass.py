@@ -252,7 +252,7 @@ class StorageServiceClass(ServiceClass):
             status = self.DataSetDoesNotMatchSOPClassFailure
             LOGGER.info("Store request's dataset UID does not match the "
                         "presentation context")
-        print(status)
+
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
 
