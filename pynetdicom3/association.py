@@ -3,6 +3,7 @@ Defines the Association class
 """
 from io import BytesIO
 import logging
+import socket
 import threading
 import time
 
@@ -17,7 +18,6 @@ from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
                                         C_FIND_ServiceParameters
 from pynetdicom3.dsutils import decode, encode, correct_ambiguous_vr
 from pynetdicom3.DULprovider import DULServiceProvider
-#from pynetdicom3.SOPclass import *
 from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
                          StorageServiceClass, \
                          QueryRetrieveGetServiceClass, \
@@ -36,6 +36,7 @@ from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
                          PatientStudyOnlyQueryRetrieveInformationModelGet
 from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
+                                   SOPClassCommonExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
 from pynetdicom3.utils import PresentationContextManager
 #from pynetdicom3.utils import wrap_list
@@ -126,26 +127,39 @@ class Association(threading.Thread):
         #   As SCP: supply port number to listen on (listen_port != None)
         #   As SCU: supply addr/port to make connection on (peer_ae != None)
         if [client_socket, peer_ae] == [None, None]:
-            raise ValueError("Association must be initialised with either "
-                             "the client_socket or peer_ae parameters")
+            raise TypeError("Association must be initialised with either "
+                            "the client_socket or peer_ae parameters")
 
         if client_socket and peer_ae:
-            raise ValueError("Association must be initialised with either "
-                             "client_socket or peer_ae parameter not both")
+            raise TypeError("Association must be initialised with either "
+                            "client_socket or peer_ae parameter not both")
 
         # Received a connection from a peer AE
-        if client_socket:
-            self.mode = 'Acceptor'
+        if isinstance(client_socket, socket.socket):
+            self._mode = 'Acceptor'
+        elif client_socket is not None:
+            raise TypeError("client_socket must be a socket.socket")
 
         # Initiated a connection to a peer AE
-        if peer_ae:
-            self.mode = 'Requestor'
+        if isinstance(peer_ae, dict):
+            self._mode = 'Requestor'
+
+            for key in ['AET', 'Port', 'Address']:
+                if key not in peer_ae:
+                    raise KeyError("peer_ae must contain 'AET', 'Port' and "
+                                   "'Address' entries")
+        elif peer_ae is not None:
+            raise TypeError("peer_ae must be a dict")
 
         # The socket.socket used for connections
         self.client_socket = client_socket
 
         # The parent AE object
-        self.ae = local_ae
+        from pynetdicom3 import AE # Imported here to avoid circular import
+        if isinstance(local_ae, AE):
+            self.ae = local_ae
+        else:
+            raise TypeError("local_ae must be a pynetdicom3.AE")
 
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
@@ -172,15 +186,29 @@ class Association(threading.Thread):
         self.is_released = False
 
         # Timeouts for the DIMSE and ACSE service providers
-        self.dimse_timeout = dimse_timeout
-        self.acse_timeout = acse_timeout
+        if isinstance(dimse_timeout, (int, float)):
+            self.dimse_timeout = dimse_timeout
+        else:
+            raise TypeError("dimse_timeout must be numeric")
+        if isinstance(acse_timeout, (int, float)):
+            self.acse_timeout = acse_timeout
+        else:
+            raise TypeError("acse_timeout must be numeric")
 
         # Maximum PDU sizes (in bytes) for the local and peer AE
-        self.local_max_pdu = max_pdu
+        if isinstance(max_pdu, int):
+            self.local_max_pdu = max_pdu
+        else:
+            raise TypeError("max_pdu must be an int")
         self.peer_max_pdu = None
 
         # A list of extended negotiation objects
-        self.ext_neg = ext_neg
+        ext_neg = ext_neg or []
+        if isinstance(ext_neg, list):
+            self.ext_neg = ext_neg
+        else:
+            raise TypeError("ext_neg must be a list of Extended "
+                            "Negotiation items or None")
 
         # Kills the thread loop in run()
         self._kill = False
@@ -230,10 +258,10 @@ class Association(threading.Thread):
         self.dul.start()
 
         # When the AE is acting as an SCP (Association Acceptor)
-        if self.mode == 'Acceptor':
+        if self._mode == 'Acceptor':
             self._run_as_acceptor()
         # If the local AE initiated the Association
-        elif self.mode == 'Requestor':
+        elif self._mode == 'Requestor':
             self._run_as_requestor()
 
     def _run_as_acceptor(self):
@@ -348,6 +376,8 @@ class Association(threading.Thread):
         #        user_item.maximum_length_received = self.local_max_pdu
 
         # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
+        # FIXME: Is this correct? Do we send Accept then Abort if no
+        #   presentation contexts?
         assoc_ac = self.acse.Accept(assoc_rq)
 
         # Callbacks/Logging
@@ -498,8 +528,10 @@ class Association(threading.Thread):
                 # No acceptable presentation contexts
                 if self.acse.presentation_contexts_accepted == []:
                     LOGGER.error("No Acceptable Presentation Contexts")
+                    self.is_aborted = True
                     self.acse.Abort(0x02, 0x00)
                     self.kill()
+
                     return
 
                 # Build supported SOP Classes for the Association
@@ -522,6 +554,7 @@ class Association(threading.Thread):
 
                     # Check for release request
                     if self.acse.CheckRelease():
+                        self.is_released = True
                         # Callback trigger
                         self.ae.on_association_released()
                         self.debug_association_released()
@@ -530,6 +563,7 @@ class Association(threading.Thread):
 
                     # Check for abort
                     if self.acse.CheckAbort():
+                        self.is_aborted = True
                         # Callback trigger
                         self.ae.on_association_aborted()
                         self.debug_association_aborted()
@@ -1469,6 +1503,7 @@ class Association(threading.Thread):
 
 
     # DIMSE-N services provided by the Association
+    # TODO: Implement DIMSE-N services
     def send_n_event_report(self):
         """Send an N-EVENT-REPORT request message to the peer AE."""
         # Can't send an N-EVENT-REPORT without an Association
@@ -1478,7 +1513,7 @@ class Association(threading.Thread):
                                "request")
         raise NotImplementedError
 
-    def send_n_get(self, msg_id, dataset=None):
+    def send_n_get(self):
         """Send an N-GET request message to the peer AE."""
         '''
         service_class = QueryRetrieveGetServiceClass()

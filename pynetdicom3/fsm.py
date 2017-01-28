@@ -46,13 +46,13 @@ class StateMachine(object):
             The event to be processed, 'Evt1' to 'Evt19'
         """
         # Check (event + state) is valid
-        if (event, self.current_state) not in TRANSITION_TABLE.keys():
+        if (event, self.current_state) not in TRANSITION_TABLE:
             LOGGER.error("DUL State Machine received an invalid event '%s' "
                          "for the current state '%s'",
                          event, self.current_state)
             raise KeyError("DUL State Machine received an invalid event "
-                           "'%s' for the current state '%s'",
-                           event, self.current_state)
+                           "'%s' for the current state '%s'"
+                           %(event, self.current_state))
 
         action_name = TRANSITION_TABLE[(event, self.current_state)]
 

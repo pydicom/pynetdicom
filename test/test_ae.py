@@ -18,35 +18,45 @@ LOGGER.setLevel(logging.CRITICAL)
 
 
 class AEVerificationSCP(threading.Thread):
+    """Test C-ECHO SCP"""
     def __init__(self):
+        """A verification SCP"""
         self.ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
         threading.Thread.__init__(self)
         self.daemon = True
 
     def start_scp(self):
+        """Start the verification SCP"""
         self.start()
 
     def run(self):
+        """The thread run method"""
         self.ae.start()
 
     def stop(self):
+        """Stop the verification SCP"""
         self.ae.stop()
 
     def quit(self):
+        """Quit the verification SCP"""
         self.ae.quit()
 
 
 class AEStorageSCP(threading.Thread):
+    """Test C-STORE SCP"""
     def __init__(self):
+        """SCP initialisation"""
         self.ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
         threading.Thread.__init__(self)
         self.daemon = True
         self.start()
 
     def run(self):
+        """Thread's run method"""
         self.ae.start()
 
     def stop(self):
+        """Stop the SCP"""
         self.ae.stop()
 
 
@@ -57,6 +67,7 @@ class TestAEVerificationSCU(unittest.TestCase):
     * Check no matching abstract syntax
     """
     def setUp(self):
+        """Called prior to running test methods"""
         self.ae = AEVerificationSCP()
         self.ae.start()
 
@@ -70,7 +81,8 @@ class TestAEVerificationSCU(unittest.TestCase):
 
         assoc.release()
 
-        self.assertRaises(SystemExit, self.ae.stop)
+        #self.assertRaises(SystemExit, self.ae.stop)
+        self.ae.stop()
 
 
 class TestAEVerificationSCP(unittest.TestCase):
@@ -78,7 +90,8 @@ class TestAEVerificationSCP(unittest.TestCase):
     def tearDown(self):
         for thread in threading.enumerate():
             if thread.name != 'MainThread':
-                self.assertRaises(SystemExit, thread.stop)
+                thread.stop()
+                #self.assertRaises(SystemExit, thread.stop)
 
     def test_bad_start(self):
         """Test bad startup"""
@@ -86,7 +99,7 @@ class TestAEVerificationSCP(unittest.TestCase):
         with self.assertRaises(ValueError):
             ae.start()
 
-        self.assertRaises(SystemExit, ae.stop)
+        ae.stop()
 
     def test_string_output(self):
         """Test string output"""
@@ -132,7 +145,8 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         assoc.release()
 
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
     def test_on_c_store_called(self):
         """ Check that SCP AE.on_c_store(dataset) was called """
@@ -147,7 +161,8 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         assoc.release()
 
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
     def test_on_c_find_called(self): pass
     def test_on_c_get_called(self): pass
@@ -194,7 +209,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         assoc.release()
         self.assertTrue(assoc.is_established == False)
 
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
     def test_associate_max_pdu(self):
         """ Check Association has correct max PDUs on either end """
@@ -218,7 +234,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 0)
 
         assoc.release()
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
     def test_association_acse_timeout(self):
         """ Check that the Association timeouts are being set correctly """
@@ -249,7 +266,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         self.assertTrue(assoc.dimse_timeout == 32)
         assoc.release()
 
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
 
 class TestAEBadAssociation(unittest.TestCase):
@@ -264,7 +282,8 @@ class TestAEBadAssociation(unittest.TestCase):
         with self.assertRaises(TypeError):
             ae.associate('localhost', '1.2.3.4')
 
-        self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
+        #self.assertRaises(SystemExit, scp.stop)
 
 
 class TestAEGoodTimeoutSetters(unittest.TestCase):
@@ -654,7 +673,8 @@ class TestAE_GoodRelease(unittest.TestCase):
                 #self.assertTrue(ae.active_associations == [])
 
         # Kill Verification SCP (important!)
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
 
 class TestAE_GoodAbort(unittest.TestCase):
@@ -680,7 +700,8 @@ class TestAE_GoodAbort(unittest.TestCase):
                 #self.assertTrue(ae.active_associations == [])
 
         # Kill Verification SCP (important!)
-        self.assertRaises(SystemExit, scp.stop)
+        #self.assertRaises(SystemExit, scp.stop)
+        scp.stop()
 
 
 if __name__ == "__main__":

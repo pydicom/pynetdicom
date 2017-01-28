@@ -291,6 +291,7 @@ class ACSEServiceProvider(object):
         assoc_primitive.presentation_context_definition_list = []
         assoc_primitive.presentation_context_definition_results_list = \
                                         self.presentation_contexts_accepted
+
         assoc_primitive.result = 0
 
         self.DUL.Send(assoc_primitive)
