@@ -30,7 +30,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -448,6 +448,20 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc.release()
         scp.stop()
 
+    def test_bad_user_on_c_find(self):
+        """Test receiving a failure response"""
+        scp = DummyFindSCP()
+        def on_c_find(ds): raise RuntimeError
+        scp.ae.on_c_find = on_c_find
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
+
 
 class TestAssociationSendCCancelFind(unittest.TestCase):
     """Run tests on Assocation send_c_cancel_find."""
@@ -540,7 +554,6 @@ class TestAssociationSendCGet(unittest.TestCase):
         assoc.release()
         scp.stop()
 
-    @unittest.skip
     def test_good_query_model(self):
         """Test when no accepted abstract syntax"""
         scp = DummyGetSCP()
@@ -556,6 +569,179 @@ class TestAssociationSendCGet(unittest.TestCase):
             self.assertEqual(int(status), 0x0000)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='O'):
             self.assertEqual(int(status), 0x0000)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_failure(self):
+        """Test receiving a failure response"""
+        scp = DummyGetSCP()
+        scp.status = scp.out_of_resources_match
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        def on_c_store(ds): return 0x0000
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xA701)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_pending_send_success(self):
+        """Test receiving a pending response and sending success"""
+        scp = DummyGetSCP()
+        scp.status = scp.pending
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               RTImageStorage],
+                scp_sop_class=[RTImageStorage])
+        def on_c_store(ds): return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.ds, query_model='P')
+        # We have 2 status, ds and 1 success
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        self.assertTrue(ds is None)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_success(self):
+        """Test receiving a success response"""
+        scp = DummyGetSCP()
+        scp.status = scp.success
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0x0000)
+            self.assertTrue(ds is None)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_pending_send_failure(self):
+        """Test receiving a pending response and sending a failure"""
+        scp = DummyGetSCP()
+        scp.status = scp.pending
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               RTImageStorage],
+                scp_sop_class=[RTImageStorage])
+        def on_c_store(ds): return 0xA700
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.ds, query_model='P')
+        # We have 2 status, ds and 1 success
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        self.assertTrue(ds is None)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_pending_send_warning(self):
+        """Test receiving a pending response and sending a warning"""
+        scp = DummyGetSCP()
+        scp.status = scp.pending
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               RTImageStorage],
+                scp_sop_class=[RTImageStorage])
+        def on_c_store(ds): return 0xB007
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.ds, query_model='P')
+        # We have 2 status, ds and 1 success
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        self.assertTrue(ds is None)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_cancel(self):
+        """Test receiving a cancel response"""
+        scp = DummyGetSCP()
+        scp.status = scp.cancel_status
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xFE00)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_warning(self):
+        """Test receiving a warning response"""
+        scp = DummyGetSCP()
+        scp.status = scp.warning
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               RTImageStorage],
+                scp_sop_class=[RTImageStorage])
+        def on_c_store(ds): return 0xB007
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        # We have 2 status, ds and 1 success
+        result = assoc.send_c_get(self.ds, query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        self.assertTrue(ds is None)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_user_on_c_get(self):
+        """Test bad user on_c_get causes a failure response"""
+        scp = DummyGetSCP()
+        def on_c_get(ds): raise RuntimeError
+        scp.ae.on_c_get = on_c_get
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_user_on_c_get_yield(self):
+        """Test receiving a failure response"""
+        scp = DummyGetSCP()
+        def on_c_get(ds): yield 0x0000, None
+        scp.ae.on_c_get = on_c_get
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xC000)
         assoc.release()
         scp.stop()
 

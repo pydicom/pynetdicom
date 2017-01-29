@@ -539,8 +539,11 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             result = self.AE.on_c_find(dataset)
         except:
             LOGGER.exception('Exception in user\'s on_c_find implementation.')
-            matches = []
-            status = self.UnableToProcess
+            c_find_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Find SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
 
         # Iterate through the results
         for ii, (status, matching_ds) in enumerate(result):
@@ -731,7 +734,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the QR Get Service Class."""
     OutOfResourcesNumberOfMatches = Status('Failure',
                                            'Refused: Out of resources - Unable '
-                                           'to calcultate number of matches',
+                                           'to calculate number of matches',
                                            range(0xA701, 0xA701 + 1))
     OutOfResourcesUnableToPerform = Status('Failure',
                                            'Refused: Out of resources - Unable '
@@ -796,50 +799,92 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         # The user is responsible for returning the matching Instances
         try:
-            matches = self.AE.on_c_get(attributes)
+            result = self.AE.on_c_get(attributes)
         except:
-            LOGGER.error('Exception in on_c_get')
+            LOGGER.exception('Exception in user\'s on_c_get implementation.')
             c_get_rsp.Status = int(self.UnableToProcess)
-            # FIXME: ii indexing?
-            #LOGGER.info('Get SCP Response %s (Failure)', ii)
-            LOGGER.info('Get SCP Response (Failure)')
-            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+            c_get_rsp.NumberOfRemainingSuboperations = 0
+            c_get_rsp.NumberOfCompletedSuboperations = 0
+            c_get_rsp.NumberOfFailedSuboperations = 0
+            c_get_rsp.NumberOfWarningSuboperations = 0
+            LOGGER.info('Get SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
             return
 
-        c_get_rsp.NumberOfRemainingSuboperations = next(matches)
+        try:
+            c_get_rsp.NumberOfRemainingSuboperations = next(result)
+        except TypeError:
+            LOGGER.exception('You must yield the number of sub-operations '
+                             'in ae.on_c_get before yielding (status, '
+                             'dataset) pairs')
+            c_get_rsp.Status = int(self.UnableToProcess)
+            c_get_rsp.NumberOfRemainingSuboperations = 0
+            c_get_rsp.NumberOfCompletedSuboperations = 0
+            c_get_rsp.NumberOfFailedSuboperations = 0
+            c_get_rsp.NumberOfWarningSuboperations = 0
+            LOGGER.info('Get SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
+
         c_get_rsp.NumberOfCompletedSuboperations = 0
         c_get_rsp.NumberOfFailedSuboperations = 0
         c_get_rsp.NumberOfWarningSuboperations = 0
 
-        ii = 1
-        for dataset in matches:
-            # Send C-STORE-RQ and Pending C-GET-RSP to peer
-            # Send each matching dataset via C-STORE
-            LOGGER.info('Store SCU RQ: MsgID %s', ii)
+        # Iterate through the results
+        for ii, (status, matching_ds) in enumerate(result):
+            # Convert int status to Status
+            if isinstance(status, int):
+                status = self.code_to_status(status)
 
-            store_status = self.ACSE.parent.send_c_store(dataset,
-                                                         msg.MessageID,
-                                                         priority)
-            store_status = store_status.status_type
+            if status.status_type == 'Cancel' :
+                LOGGER.info('Received C-CANCEL-GET RQ from peer')
+                c_get_rsp.Status = int(self.Cancel)
+                LOGGER.info('Get SCP Response: (Cancel)')
+                # Send C-CANCEL confirmation
+                self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
+                return
+            elif status.status_type == 'Failure':
+                # Pass along the status from the user
+                c_get_rsp.Status = int(status)
+                LOGGER.info('Get SCP Response: (Failure - %s)',
+                            status.description)
+                self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
+                return
+            elif status.status_type == 'Success':
+                # User isn't supposed to send these, but handle anyway
+                c_get_rsp.Status = int(status)
+                LOGGER.info('Get SCP Response: (Success)')
+                self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
+                return
+            else:
+                # Send C-STORE-RQ and Pending C-GET-RSP to peer
+                # Send each matching dataset via C-STORE
+                LOGGER.info('Store SCU RQ: MsgID %s', ii + 1)
 
-            LOGGER.info('Get SCU: Received Store SCU RSP (%s)', store_status)
+                status = self.ACSE.parent.send_c_store(matching_ds,
+                                                       msg.MessageID,
+                                                       priority)
 
-            if store_status == 'Failure':
-                c_get_rsp.NumberOfFailedSuboperations += 1
-            elif store_status == 'Warning':
-                c_get_rsp.NumberOfWarningSuboperations += 1
-            elif store_status == 'Success':
-                c_get_rsp.NumberOfCompletedSuboperations += 1
+                if isinstance(status, int):
+                    status = self.code_to_status(status)
 
-            c_get_rsp.NumberOfRemainingSuboperations -= 1
+                LOGGER.info('Get SCU: Received Store SCU RSP (%s)',
+                            status.status_type)
 
-            c_get_rsp.Status = int(self.Pending)
+                if status.status_type == 'Failure':
+                    c_get_rsp.NumberOfFailedSuboperations += 1
+                elif status.status_type == 'Warning':
+                    c_get_rsp.NumberOfWarningSuboperations += 1
+                elif status.status_type == 'Success':
+                    c_get_rsp.NumberOfCompletedSuboperations += 1
 
-            LOGGER.info('Get SCP Response %s (Pending)', ii)
+                c_get_rsp.NumberOfRemainingSuboperations -= 1
 
-            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
-
-            ii += 1
+                c_get_rsp.Status = int(self.Pending)
+                LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
+                self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
 
         # Send Success C-GET-RSP to peer
         c_get_rsp.Status = int(self.Success)

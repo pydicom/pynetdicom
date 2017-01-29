@@ -1046,10 +1046,40 @@ class ApplicationEntity(object):
 
         Yields
         ------
-        int, pydicom.dataset.Dataset
-            The first yielded value should be the number of matching Instances
-            that will be returned, all subsequent yielded values should be the
-            matching Dataset(s)
+        int
+            The first yielded value should be the total number of matches, after
+            that user should yield a status, dataset pair.
+        status : pynetdicom3.sop_class.Status or int
+            A valid return status for the C-GET operation (see PS3.4 Annex
+            C.4.3.1.4), must be one of the following Status objects or the
+            corresponding integer value. A Status of Success (0x0000) will be
+            automatically sent once all matches are processing if no Cancel or
+            Failure statuses are yielded:
+            Failure statuses
+                QueryRetrieveGetSOPClass.OutOfResourcesNumberOfMatches
+                    Refused: Out of Resources, unable to calculate the number
+                    of matches - 0xA701
+                QueryRetrieveGetSOPClass.OutOfResourcesUnableToPerform
+                    Refused: Out of Resources, unable to perform sub-operations
+                    - 0xA702
+                QueryRetrieveGetSOPClass.IdentifierDoesNotMatchSOPClass
+                    Identifier does not match SOP Class - 0xA900
+                QueryRetrieveFindSOPClass.UnableToProcess
+                    Unable to process - 0xCxxx
+            Cancel status
+                QueryRetrieveGetSOPClass.Cancel
+                    Sub-operations terminated due to Cancel request - 0xFE00
+            Warning status
+                QueryRetrieveGetSOPClass.Warning
+                    Sub-operations complete, one or more failures or warnings
+                    - 0xB000
+            Pending status
+                QueryRetrieveGetSOPClass.Pending
+                    Matches are continuing - Current Match is supplied and
+                    any Optional Keys were supported in the same manner as
+                    Required Keys - 0xFF00
+        dataset : pydicom.dataset.Dataset or None
+            A matching dataset if the status is Pending, None otherwise.
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")

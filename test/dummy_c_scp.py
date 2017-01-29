@@ -28,6 +28,10 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
+DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
+COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
+
 
 class DummyBaseSCP(threading.Thread):
     """Base class for the Dummy SCP classes"""
@@ -202,7 +206,7 @@ class DummyFindSCP(DummyBaseSCP):
 
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
-    out_of_resources_no_matches = Status('Failure',
+    out_of_resources_match = Status('Failure',
                                            'Refused: Out of resources - Unable '
                                            'to calcultate number of matches',
                                            range(0xA701, 0xA701 + 1))
@@ -217,7 +221,7 @@ class DummyGetSCP(DummyBaseSCP):
     unable = Status('Failure',
                              'Unable to process',
                              range(0xC000, 0xCFFF + 1))
-    cancel = Status('Cancel',
+    cancel_status = Status('Cancel',
                     'Sub-operations terminated due to Cancel indication',
                     range(0xFE00, 0xFE00 + 1))
     warning = Status('Warning',
@@ -233,10 +237,13 @@ class DummyGetSCP(DummyBaseSCP):
     def __init__(self):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                     StudyRootQueryRetrieveInformationModelGet,
-                                    PatientStudyOnlyQueryRetrieveInformationModelFind],
+                                    PatientStudyOnlyQueryRetrieveInformationModelGet,
+                                    RTImageStorage],
+                     scu_sop_class=[RTImageStorage],
                      port=11112)
         DummyBaseSCP.__init__(self)
         self.status = self.success
+        self.cancel = False
 
     def on_c_get(self, ds):
         """Callback for ae.on_c_get"""
@@ -244,15 +251,21 @@ class DummyGetSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
+        if self.status.status_type not in ['Pending', 'Warning']:
+            yield 1
+            yield self.status, None
 
-        #if self.status.status_type == 'Failure':
-        #    yield self.status, None
+        if self.cancel:
+            yield 1
+            yield self.cancel, None
 
-        yield 0
+        yield 2
+        for ii in range(2):
+            yield self.status, DATASET
 
     def on_c_cancel_get(self):
         """Callback for ae.on_c_cancel_get"""
-        pass
+        self.cancel = True
 
 
 class DummyMoveSCP(DummyBaseSCP):

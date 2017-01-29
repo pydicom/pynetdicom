@@ -799,9 +799,16 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if dataset.SOPClassUID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            try:
+                if dataset.SOPClassUID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+            except AttributeError:
+                LOGGER.error("Unable to determine Presentation Context as "
+                             "Dataset has no 'SOP Class UID' element")
+                LOGGER.error("Store SCU failed due to there being no valid "
+                             "presentation context for the current dataset")
+                return service_class.CannotUnderstand
 
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'",
@@ -1235,7 +1242,7 @@ class Association(threading.Thread):
             The query model SOP class to use (needed to identify context ID).
             Should match that of the C-MOVE operation to cancel.
 
-        FIXME: Add Returns section
+        FIXME: Add returns
         """
         # Can't send a C-CANCEL-MOVE without an Association
         if not self.is_established:
@@ -1404,6 +1411,7 @@ class Association(threading.Thread):
                 # If the Status is "Success" then processing is complete
                 elif status.status_type == "Success":
                     status = service_class.Success
+                    dataset = None
                     break
 
                 # All other possible responses
@@ -1421,6 +1429,7 @@ class Association(threading.Thread):
                     LOGGER.debug('')
                     LOGGER.info('Find Response: %s (Cancel)', ii)
                     LOGGER.info('    %s', status.description)
+                    dataset = None
                     break
                 elif status.status_type == "Warning":
                     LOGGER.debug('')

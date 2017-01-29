@@ -159,11 +159,11 @@ def on_c_find(dataset):
     for dcm in dcm_files:
         data = read_file(dcm, force=True)
 
-        d = Dataset()
-        d.QueryRetrieveLevel = dataset.QueryRetrieveLevel
-        d.RetrieveAETitle = args.aetitle
-        d.PatientName = data.PatientName
-        yield d
+        ds = Dataset()
+        ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
+        ds.RetrieveAETitle = args.aetitle
+        ds.PatientName = data.PatientName
+        yield 0xff00, ds
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,
