@@ -26,7 +26,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
                                  Status
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -134,9 +134,9 @@ class DummyStorageSCP(DummyBaseSCP):
                           range(0xB006, 0xB006 + 1))
     success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
-    def __init__(self):
+    def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[CTImageStorage,
-                                    RTImageStorage, MRImageStorage], port=11112)
+                                    RTImageStorage, MRImageStorage], port=port)
         DummyBaseSCP.__init__(self)
         self.status = self.success
 
@@ -208,7 +208,7 @@ class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
     out_of_resources_match = Status('Failure',
                                            'Refused: Out of resources - Unable '
-                                           'to calcultate number of matches',
+                                           'to calculate number of matches',
                                            range(0xA701, 0xA701 + 1))
     out_of_resources_unable = Status('Failure',
                                            'Refused: Out of resources - Unable '
@@ -272,7 +272,7 @@ class DummyMoveSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
     out_of_resources_match = \
             Status('Failure',
-                   'Refused: Out of resources - Unable to calcultate number ' \
+                   'Refused: Out of resources - Unable to calculate number ' \
                    'of matches',
                    range(0xA701, 0xA701 + 1))
     out_of_resources_unable = \
@@ -288,7 +288,7 @@ class DummyMoveSCP(DummyBaseSCP):
                    range(0xA900, 0xA900 + 1))
     unable_to_process = Status('Failure', 'Unable to process',
                              range(0xC000, 0xCFFF + 1))
-    cancel = Status('Cancel',
+    cancel_status = Status('Cancel',
                     'Sub-operations terminated due to Cancel indication',
                     range(0xFE00, 0xFE00 + 1))
     warning = Status('Warning',
@@ -300,15 +300,43 @@ class DummyMoveSCP(DummyBaseSCP):
                      range(0x0000, 0x0000 + 1))
     pending = Status('Pending', 'Sub-operations are continuing',
                      range(0xFF00, 0xFF00 + 1))
-    def __init__(self):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove],
-                     port=11112)
+    def __init__(self, port=11112):
+        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                                    StudyRootQueryRetrieveInformationModelMove,
+                                    PatientStudyOnlyQueryRetrieveInformationModelMove,
+                                    RTImageStorage],
+                     scu_sop_class=[RTImageStorage],
+                     port=port)
         DummyBaseSCP.__init__(self)
+        self.status = self.pending
+        self.cancel = False
 
-    def on_c_move(self, ds):
+    def on_c_move(self, ds, move_aet):
         """Callback for ae.on_c_find"""
         time.sleep(self.delay)
+        ds = Dataset()
+        ds.PatientName = '*'
+        ds.QueryRetrieveLevel = "PATIENT"
+
+        # Check move_aet first
+        if move_aet != b'TESTMOVE        ':
+            print('AET unknown')
+            yield 1
+            yield None, None
+
+        if self.status.status_type not in ['Pending', 'Warning']:
+            yield 1
+            yield self.status, None
+
+        if self.cancel:
+            yield 1
+            yield self.cancel, None
+
+        yield 2
+        yield 'localhost', 11113
+        for ii in range(2):
+            yield self.status, ds
 
     def on_c_cancel_find(self):
         """Callback for ae.on_c_cancel_move"""
-        pass
+        self.cancel = True

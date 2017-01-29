@@ -233,9 +233,10 @@ class Association(threading.Thread):
 
     def release(self):
         """Release the association."""
-        _ = self.acse.Release()
-        self.kill()
-        self.is_released = True
+        if self.is_established:
+            _ = self.acse.Release()
+            self.kill()
+            self.is_released = True
 
     def abort(self):
         """Abort the association.
@@ -245,9 +246,10 @@ class Association(threading.Thread):
 
         See PS3.8, 7.3-4 and 9.3.8.
         """
-        self.acse.Abort(source=0x00, reason=0x00)
-        self.kill()
-        self.is_aborted = True
+        if not self.is_released:
+            self.acse.Abort(source=0x00, reason=0x00)
+            self.kill()
+            self.is_aborted = True
 
     def run(self):
         """The main Association control."""
@@ -1119,7 +1121,11 @@ class Association(threading.Thread):
                 'O' - Patient Study Only Information Model - MOVE
                     1.2.840.10008.5.1.4.1.2.3.2
 
-        FIXME: Add Yields section
+        Yields
+        ------
+        status : int
+
+        dataset : pydicom.dataset.Dataset
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1149,8 +1155,9 @@ class Association(threading.Thread):
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
+                         "presentation context\n   for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
+            return
 
         # Build C-MOVE primitive
         primitive = C_MOVE()
@@ -1169,7 +1176,7 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send C-MOVE request to peer
+        # Send C-MOVE primitive to peer
         self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
         # Get the responses from peer
@@ -1203,8 +1210,18 @@ class Association(threading.Thread):
                     ii += 1
 
                     yield status, dataset
+
                 # If the Status is "Success" then processing is complete
+                # PS3.4 Section C.4.2.2
+                # Success indicates all sub-ops were successfully completed
+                #   interpreted as final response
+                # Warning indicates one or more sub-ops were unsuccessful or
+                #   had a status of warning, interpreted as final response
+                # Failure indicates all sub-ops were unsuccessful
+                #   intrepreted as final response
                 elif status.status_type == "Success":
+                    status = service_class.Success
+                    dataset = None
                     break
                 # All other possible responses
                 elif status.status_type == "Failure":
@@ -1216,6 +1233,7 @@ class Association(threading.Thread):
                     LOGGER.debug('')
                     LOGGER.info('Move Response: %s (Cancel)', ii)
                     LOGGER.info('    %s', status.description)
+                    dataset = None
                     break
                 elif status.status_type == "Warning":
                     LOGGER.debug('')
@@ -1367,15 +1385,15 @@ class Association(threading.Thread):
             BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
                            transfer_syntax.is_little_endian))
 
-        # Send primitive to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
-
         LOGGER.info('Get SCU Request Identifiers:')
         LOGGER.info('')
         LOGGER.info('# DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
+
+        # Send primitive to peer
+        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
         ii = 1
         while True:
@@ -1435,11 +1453,7 @@ class Association(threading.Thread):
                     LOGGER.debug('')
                     LOGGER.warning('Find Response: %s (Warning)', ii)
                     LOGGER.warning('    %s', status.description)
-
-                    # Print out the status information
-                    for elem in dataset:
-                        LOGGER.warning('%s: %s', elem.name, elem.value)
-
+                    dataset = None
                     break
 
             # Received a C-STORE request in response to the C-GET
