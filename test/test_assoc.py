@@ -241,6 +241,11 @@ class TestAssociation(unittest.TestCase):
         assoc.abort()
         scp.stop()
 
+    # test SCP removal of user information
+    # test SCP removal of extended negotiation
+    # test SCP removal of common ext negotiation
+    # test reached association limit
+
 
 class TestAssociationSendCEcho(unittest.TestCase):
     """Run tests on Assocation send_c_echo."""
@@ -280,6 +285,8 @@ class TestAssociationSendCEcho(unittest.TestCase):
         self.assertEqual(int(result), 0x0000)
         assoc.release()
         scp.stop()
+
+    # test exception in on_c_echo
 
 
 class TestAssociationSendCStore(unittest.TestCase):
@@ -375,6 +382,12 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc.release()
         del DATASET.PerimeterValue # Fix up our changes
         scp.stop()
+
+    # test bad dataset decoding
+
+    # test exception in on_c_store
+
+    # test dataset not matching negotiated sop class
 
 
 class TestAssociationSendCFind(unittest.TestCase):
@@ -514,6 +527,8 @@ class TestAssociationSendCFind(unittest.TestCase):
             self.assertEqual(int(status), 0xC000)
         assoc.release()
         scp.stop()
+
+    # test user returned invalid int as status
 
 
 class TestAssociationSendCCancelFind(unittest.TestCase):
@@ -799,6 +814,10 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp.stop()
 
     # test bad user second yield
+    # test user returned invalid status int
+    # test user returned non-int as status from on_c_get
+    # remove status int check from send_c_store or return int
+
 
 class TestAssociationSendCCancelGet(unittest.TestCase):
     """Run tests on Assocation send_c_cancel_find."""
@@ -904,6 +923,10 @@ class TestAssociationSendCMove(unittest.TestCase):
         scp.stop()
 
     # test receive failure
+    # test unknown move destination
+    # test failed to associate with move destination
+    # test move destination failed store
+    # test move destination warning store
     # test receive pending send failure
     # test receive pending send warning
     # test receive pending send success
