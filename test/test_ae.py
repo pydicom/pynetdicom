@@ -95,6 +95,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_c_find_called(self):
         """ Check that SCP AE.on_c_find(dataset) was called """
         scp = DummyFindSCP()
+        scp.status = scp.success
         scp.start()
 
         ds = Dataset()

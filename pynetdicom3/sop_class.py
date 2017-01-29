@@ -532,41 +532,74 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Callback
+        # Callback - C-FIND
         # FIXME: this needs to handle (status, ds) from the callback
         #   otherwise how do we handle failure/etc?
         try:
-            matches = self.AE.on_c_find(dataset)
+            result = self.AE.on_c_find(dataset)
         except:
-            LOGGER.exception('Exception in on_c_find()')
+            LOGGER.exception('Exception in user\'s on_c_find implementation.')
             matches = []
+            status = self.UnableToProcess
 
-        # if status is pending...
-        for ii, instance in enumerate(matches):
-            c_find_rsp.Identifier = \
-                    BytesIO(encode(instance,
-                                   self.transfersyntax.is_implicit_VR,
-                                   self.transfersyntax.is_little_endian))
+        # Iterate through the results
+        for ii, (status, matching_ds) in enumerate(result):
+            # Convert int status to Status
+            if isinstance(status, int):
+                status = self.code_to_status(status)
 
-            # Send response
-            c_find_rsp.Status = int(self.Pending)
+            # Callback - C-CANCEL-FIND
+            #received_cancel_msg = False
+            # Need to ensure we received a C-CANCEL-FIND-RQ
+            #try:
+            #    received_cancel_msg = self.AE.on_c_cancel_find()
+            #except:
+            #    LOGGER.exception('Exception in user\'s on_c_cancel_find '
+            #                     'implementation.')
 
-            LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
+            if status.status_type == 'Cancel' :
+                LOGGER.info('Received C-CANCEL-FIND RQ from peer')
+                c_find_rsp.Status = int(self.MatchingTerminatedDueToCancelRequest)
+                LOGGER.info('Find SCP Response: (Cancel)')
+                # Send C-CANCEL confirmation
+                self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+                return
+            elif status.status_type == 'Failure':
+                # Pass along the status from the user
+                c_find_rsp.Status = int(status)
+                LOGGER.info('Find SCP Response: (Failure - %s)', status.description)
+                self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+                return
+            elif status.status_type == 'Success':
+                # User isn't supposed to send these, but handle anyway
+                c_find_rsp.Status = int(status)
+                LOGGER.info('Find SCP Response: (Success)')
+                self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+                return
+            else:
+                # Pending
+                c_find_rsp.Identifier = \
+                        BytesIO(encode(matching_ds,
+                                       self.transfersyntax.is_implicit_VR,
+                                       self.transfersyntax.is_little_endian))
 
-            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+                # Send response
+                c_find_rsp.Status = int(self.Pending)
 
-            LOGGER.debug('Find SCP Response Identifiers:')
-            LOGGER.debug('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in instance:
-                LOGGER.debug(elem)
-            LOGGER.debug('')
+                LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
 
-        # Send final response
+                self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+
+                LOGGER.debug('Find SCP Response Identifiers:')
+                LOGGER.debug('')
+                LOGGER.debug('# DICOM Dataset')
+                for elem in matching_ds:
+                    LOGGER.debug(elem)
+                LOGGER.debug('')
+
+        # Send final success response
         c_find_rsp.Status = int(self.Success)
-
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
-
         self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
 
 
@@ -661,16 +694,19 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             for dataset in matches:
                 # Send dataset via C-STORE over new association
                 status = assoc.send_c_store(dataset)
-                store_status = status.status_type
+
+                # Convert int status to Status
+                if isinstance(status, int):
+                    status = c_move_rsp.code_to_status(status)
 
                 LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
-                            store_status)
+                            status.status_type)
 
-                if store_status == 'Failure':
+                if status.status_type == 'Failure':
                     c_move_rsp.NumberOfFailedSuboperations += 1
-                elif store_status == 'Warning':
+                elif status.status_type == 'Warning':
                     c_move_rsp.NumberOfWarningSuboperations += 1
-                elif store_status == 'Success':
+                elif status.status_type == 'Success':
                     c_move_rsp.NumberOfCompletedSuboperations += 1
 
                 c_move_rsp.NumberOfRemainingSuboperations -= 1

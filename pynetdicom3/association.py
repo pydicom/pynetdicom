@@ -665,10 +665,11 @@ class Association(threading.Thread):
         #   then we hang here
         rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
 
-        if rsp is None:
-            return None
+        status = None
+        if rsp is not None:
+            status = service_class.code_to_status(rsp.Status)
 
-        return service_class.code_to_status(rsp.Status)
+        return status
 
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """Send a C-STORE request to the peer AE.
@@ -955,21 +956,32 @@ class Association(threading.Thread):
             if not rsp:
                 continue
 
+            # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
+            # A700 - Failure (out of resources)
+            # A900 - Failure (identifier doesn't match SOP class)
+            # Cxxx - Failure (unable to process)
+            # FE00 - Cancel (matching terminated due to cancel request)
+            # FF00 - Pending (matches are continuing, current match supplied)
+            # FF01 - Pending (matches are continuing, optional keys
+            #                 not supported)
+            # 0000 - Success (matching complete, no final identifier supplied)
+            status = service_class.code_to_status(rsp.Status)
+
+            LOGGER.debug('-' * 65)
+            LOGGER.debug('Find SCP Response: %s (%s)',
+                         ii, status.status_type)
+
+            # We want to exit the wait loop if we receive a Failure, Cancel or
+            #   Success status type
+            if status.status_type != 'Pending':
+                ds = None
+                break
+
             # Decode the dataset
             ds = decode(rsp.Identifier,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian)
 
-            # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-            status = service_class.code_to_status(rsp.Status)
-
-            # We want to exit the wait loop if we receive a Failure, Cancel or
-            #   Success status type
-            if status.status_type != 'Pending':
-                break
-
-            LOGGER.debug('-' * 65)
-            LOGGER.debug('Find Response: %s (%s)', ii, status.status_type)
             LOGGER.debug('')
             LOGGER.debug('# DICOM Dataset')
             for elem in ds:

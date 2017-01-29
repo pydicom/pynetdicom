@@ -992,11 +992,9 @@ class ApplicationEntity(object):
         status : pynetdicom3.sop_class.Status or int
             A valid return status for the C-FIND operation (see PS3.4 Annex
             C.4.1.1.4), must be one of the following Status objects or the
-            corresponding integer value:
-            Success status
-                QueryRetrieveFindSOPClass.Success
-                    Matching is complete - No final Identifier is
-                    supplied - 0x0000
+            corresponding integer value. A Status of Success (0x0000) will be
+            automatically sent once all matches are processing if no Cancel or
+            Failure statuses are yielded:
             Failure statuses
                 QueryRetrieveFindSOPClass.OutOfResources
                     Refused: Out of Resources - 0xA700
@@ -1023,7 +1021,13 @@ class ApplicationEntity(object):
                                   "function prior to calling AE.start()")
 
     def on_c_find_cancel(self):
-        """Callback for when a C-FIND-CANCEL is received."""
+        """Callback for when a C-FIND-CANCEL is received.
+
+        Returns
+        -------
+        bool
+            True if you want to stop the C-FIND operation, False otherwise.
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_c_find_cancel function prior to "
                                   "calling AE.start()")

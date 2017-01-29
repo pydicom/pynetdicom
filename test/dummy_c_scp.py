@@ -178,7 +178,8 @@ class DummyFindSCP(DummyBaseSCP):
                                     PatientStudyOnlyQueryRetrieveInformationModelFind],
                      port=11112)
         DummyBaseSCP.__init__(self)
-        self.status = self.success
+        self.status = self.pending
+        self.cancel = False
 
     def on_c_find(self, ds):
         """Callback for ae.on_c_find"""
@@ -186,14 +187,17 @@ class DummyFindSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
-        if self.status.status_type == 'Failure':
+        if self.status.status_type != 'Pending':
             yield self.status, None
+
+        if self.cancel:
+            yield self.matching_terminated_cancel, None
 
         yield self.status, ds
 
     def on_c_cancel_find(self):
         """Callback for ae.on_c_cancel_find"""
-        pass
+        self.cancel = True
 
 
 class DummyGetSCP(DummyBaseSCP):

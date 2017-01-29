@@ -328,21 +328,9 @@ class TestAssociationSendCFind(unittest.TestCase):
     """Run tests on Assocation send_c_find."""
     def setUp(self):
         """Run prior to each test"""
-        self.ds_pr = Dataset()
-        self.ds_pr.PatientName = '*'
-        self.ds_pr.QueryRetrieveLevel = "PATIENT"
-
-        self.ds_mw = Dataset()
-        self.ds_mw.PatientName = '*'
-        self.ds_mw.QueryRetrieveLevel = "PATIENT"
-
-        self.ds_sr = Dataset()
-        self.ds_sr.PatientName = '*'
-        self.ds_sr.QueryRetrieveLevel = "PATIENT"
-
-        self.ds_pso = Dataset()
-        self.ds_pso.PatientName = '*'
-        self.ds_pso.QueryRetrieveLevel = "PATIENT"
+        self.ds = Dataset()
+        self.ds.PatientName = '*'
+        self.ds.QueryRetrieveLevel = "PATIENT"
 
     def test_must_be_associated(self):
         """Test can't send without association."""
@@ -354,7 +342,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
-            next(assoc.send_c_find(self.ds_pr))
+            next(assoc.send_c_find(self.ds))
         scp.stop()
 
     def test_no_abstract_syntax_match(self):
@@ -364,7 +352,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        for (status, ds) in assoc.send_c_find(self.ds_pr):
+        for (status, ds) in assoc.send_c_find(self.ds):
             self.assertEqual(int(status), 0xa900)
         assoc.release()
         scp.stop()
@@ -377,13 +365,14 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
-            next(assoc.send_c_find(self.ds_pr, query_model='X'))
+            next(assoc.send_c_find(self.ds, query_model='X'))
         assoc.release()
         scp.stop()
 
     def test_good_query_model(self):
         """Test when no accepted abstract syntax"""
         scp = DummyFindSCP()
+        scp.status = scp.success
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind,
                                StudyRootQueryRetrieveInformationModelFind,
@@ -391,18 +380,17 @@ class TestAssociationSendCFind(unittest.TestCase):
                                ModalityWorklistInformationFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertEqual(int(status), 0x0000)
-        for (status, ds) in assoc.send_c_find(self.ds_sr, query_model='S'):
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='S'):
             self.assertEqual(int(status), 0x0000)
-        for (status, ds) in assoc.send_c_find(self.ds_pso, query_model='O'):
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='O'):
             self.assertEqual(int(status), 0x0000)
-        for (status, ds) in assoc.send_c_find(self.ds_mw, query_model='W'):
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='W'):
             self.assertEqual(int(status), 0x0000)
         assoc.release()
         scp.stop()
 
-    @unittest.skip # Depends on issue #39
     def test_receive_failure(self):
         """Test receiving a failure response"""
         scp = DummyFindSCP()
@@ -411,8 +399,52 @@ class TestAssociationSendCFind(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        for (status, ds) in assoc.send_c_find(self.ds_pr, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xA700)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_pending(self):
+        """Test receiving a failure response"""
+        scp = DummyFindSCP()
+        scp.status = scp.pending
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.ds, query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        self.assertTrue('PatientName' in ds)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        self.assertTrue(ds is None)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_success(self):
+        """Test receiving a failure response"""
+        scp = DummyFindSCP()
+        scp.status = scp.success
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0x0000)
+        assoc.release()
+        scp.stop()
+
+    def test_receive_cancel(self):
+        """Test receiving a failure response"""
+        scp = DummyFindSCP()
+        scp.status = scp.matching_terminated_cancel
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xFE00)
         assoc.release()
         scp.stop()
 
