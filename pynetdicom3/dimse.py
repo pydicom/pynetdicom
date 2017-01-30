@@ -954,11 +954,6 @@ class DIMSEServiceProvider(object):
         if dimse_msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        if 'NumberOfRemainingSuboperations' in ds:
-            no_remain = ds.NumberOfRemainingSuboperations
-        else:
-            no_remain = 0
-
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
@@ -968,13 +963,18 @@ class DIMSEServiceProvider(object):
                  .format(ds.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(ds.AffectedSOPClassUID))
-        s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
-        s.append('Completed Sub-operations      : {0!s}'
-                 .format(ds.NumberOfCompletedSuboperations))
-        s.append('Failed Sub-operations         : {0!s}'
-                 .format(ds.NumberOfFailedSuboperations))
-        s.append('Warning Sub-operations        : {0!s}'
-                 .format(ds.NumberOfWarningSuboperations))
+        if 'NumberOfRemainingSuboperations' in ds:
+            s.append('Remaining Sub-operations      : {0!s}'
+                     .format(ds.NumberOfRemainingSuboperations))
+        if 'NumberOfCompletedSuboperations' in ds:
+            s.append('Completed Sub-operations      : {0!s}'
+                     .format(ds.NumberOfCompletedSuboperations))
+        if 'NumberOfFailedSuboperations' in ds:
+            s.append('Failed Sub-operations         : {0!s}'
+                     .format(ds.NumberOfFailedSuboperations))
+        if 'NumberOfWarningSuboperations' in ds:
+            s.append('Warning Sub-operations        : {0!s}'
+                     .format(ds.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 
