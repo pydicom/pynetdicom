@@ -147,6 +147,9 @@ class ServiceClass(object):
         ValueError
             If the code is not valid for the Service class' Status code ranges.
         """
+        if not isinstance(code, int):
+            raise TypeError('Status code must be an int')
+        
         # For all the members in the class
         for member in dir(self):
             # If the member is a Status class object and `code` is in the
@@ -158,6 +161,29 @@ class ServiceClass(object):
 
         raise ValueError('Code 0x{0:04x} is not a valid Status code for the '
                          'current SOP class.'.format(code))
+    
+    def is_valid_status(self, status):
+        """Check if a status is valid for the service class.
+        
+        Parameters
+        ----------
+        status : pynetdicom3.sop_class.Status
+            The Status object to check for validity.
+
+        Returns
+        -------
+        bool
+            Whether or not the status is valid
+        """
+        # For all the members in the class
+        for member in dir(self):
+            # If the member is a Status class object and `code` is in the
+            #   Status' code range, return the Status object.
+            obj = getattr(self, member)
+            if isinstance(obj, Status):
+                if status.code in obj.code_range:
+                    return True
+        return False
 
 
 # Service Class types
@@ -224,19 +250,30 @@ class StorageServiceClass(ServiceClass):
 
     def SCP(self, msg):
         """Called when running as an SCP and receive a C-STORE request."""
-        try:
-            dataset = decode(msg.DataSet,
-                             self.transfersyntax.is_implicit_VR,
-                             self.transfersyntax.is_little_endian)
-        except:
-            status = self.CannotUnderstand
-            LOGGER.error("StorageServiceClass failed to decode the dataset")
-
         # Create C-STORE response primitive
         rsp = C_STORE()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+
+        # Check the dataset SOP Class UID matches the one agreed to 
+        if self.UID != self.sopclass:
+            LOGGER.error("Store request's dataset UID does not match the "
+                        "presentation context")
+            rsp.Status = int(self.DataSetDoesNotMatchSOPClassFailure)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
+
+        # Decode the dataset
+        try:
+            dataset = decode(msg.DataSet,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
+        except:
+            LOGGER.error("Failed to decode the received dataset")
+            rsp.Status = int(self.CannotUnderstand)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
 
         # ApplicationEntity's on_c_store callback
         try:
@@ -244,14 +281,23 @@ class StorageServiceClass(ServiceClass):
         except Exception:
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
-            status = self.CannotUnderstand
+            rsp.Status = int(self.CannotUnderstand)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
 
-        # Check that the supplied dataset UID matches the presentation context
-        #   ID
-        if self.UID != self.sopclass:
-            status = self.DataSetDoesNotMatchSOPClassFailure
-            LOGGER.info("Store request's dataset UID does not match the "
-                        "presentation context")
+        try:
+            if isinstance(status, (int, Status)):
+                status = self.code_to_status(status)
+                if not self.is_valid_status(status):
+                    raise ValueError
+            else:
+                raise TypeError
+        except (ValueError, TypeError):
+            LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
+                         "status value.")
+            rsp.Status = int(self.CannotUnderstand)
+            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
 
         rsp.Status = int(status)
         self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
@@ -516,25 +562,44 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
             The C_FIND request primitive received from the peer
         """
-        dataset = decode(msg.Identifier,
-                         self.transfersyntax.is_implicit_VR,
-                         self.transfersyntax.is_little_endian)
-
         # Build C-FIND response primitive
         c_find_rsp = C_FIND()
         c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        
+        # Check the identifier SOP Class UID matches the one agreed to 
+        if self.UID != self.sopclass:
+            LOGGER.error("Find request's identifier UID does not match the "
+                        "presentation context")
+            c_find_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
+            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
+        
+        try:
+            dataset = decode(msg.Identifier,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
+        except:
+            LOGGER.error("Failed to decode the received dataset")
+            c_find_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
 
-        LOGGER.info('Find SCP Request Identifiers:')
-        LOGGER.info('')
-        LOGGER.debug('# DICOM Data Set')
-        for elem in dataset:
-            LOGGER.info(elem)
-        LOGGER.info('')
+        # Log Identifier
+        try:
+            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in dataset:
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except (AttributeError, NotImplementedError):
+            LOGGER.error("Failed to decode the received dataset")
+            c_find_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            return
 
         # Callback - C-FIND
-        # FIXME: this needs to handle (status, ds) from the callback
-        #   otherwise how do we handle failure/etc?
         try:
             result = self.AE.on_c_find(dataset)
         except:
@@ -550,6 +615,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             # Convert int status to Status
             if isinstance(status, int):
                 status = self.code_to_status(status)
+            print(status)
 
             # Callback - C-CANCEL-FIND
             #received_cancel_msg = False

@@ -35,6 +35,7 @@ COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossl
 
 class DummyBaseSCP(threading.Thread):
     """Base class for the Dummy SCP classes"""
+    bad_status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
     def __init__(self):
         """Initialise the class"""
         self.ae.on_c_echo = self.on_c_echo
@@ -117,6 +118,7 @@ class DummyVerificationSCP(DummyBaseSCP):
 
 class DummyStorageSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
+
     out_of_resources = Status('Failure',
                               'Refused: Out of resources',
                               range(0xA700, 0xA7FF + 1))

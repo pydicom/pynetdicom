@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from io import BytesIO
 import logging
 import os
 import socket
@@ -16,6 +17,8 @@ from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, \
                         DummyFindSCP, DummyGetSCP, DummyMoveSCP
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
+from pynetdicom3.dimse_primitives import C_STORE
+from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  RTImageStorage, \
                                  PatientRootQueryRetrieveInformationModelFind, \
@@ -286,7 +289,18 @@ class TestAssociationSendCEcho(unittest.TestCase):
         assoc.release()
         scp.stop()
 
-    # test exception in on_c_echo
+    def test_bad_user_on_c_echo(self):
+        """Test no exception raised in on_c_echo"""
+        scp = DummyVerificationSCP()
+        def on_c_echo(): raise RuntimeError
+        scp.ae.on_c_echo = on_c_echo
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        assoc.send_c_echo()
+        assoc.release()
+        scp.stop()
 
 
 class TestAssociationSendCStore(unittest.TestCase):
@@ -383,11 +397,109 @@ class TestAssociationSendCStore(unittest.TestCase):
         del DATASET.PerimeterValue # Fix up our changes
         scp.stop()
 
-    # test bad dataset decoding
+    def test_bad_user_on_c_store(self):
+        """Test exception raised in on_c_store returns failure status"""
+        scp = DummyStorageSCP()
+        def on_c_store(ds): raise RuntimeError
+        scp.ae.on_c_store = on_c_store
+        scp.start()
+        ae = AE(scu_sop_class=[RTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        response = assoc.send_c_store(DATASET)
+        self.assertEqual(int(response), 0xc000)
+        assoc.release()
+        scp.stop()
 
-    # test exception in on_c_store
+    def test_ds_not_match_agreed_sop(self):
+        """Test returns failure status if dataset sop wasnt agreed on"""
+        scp = DummyStorageSCP()
+        scp.start()
 
-    # test dataset not matching negotiated sop class
+        ## Need to bypass the standard send_c_store checks
+        # Modify the DATASET SOPClassUID
+        orig = DATASET.SOPClassUID
+        DATASET.SOPClassUID = '1.2.840.10008.5.1.4.1.1.1'
+        
+        # Build C-STORE request primitive
+        primitive = C_STORE()
+        primitive.MessageID = 1
+        primitive.AffectedSOPClassUID = DATASET.SOPClassUID
+        primitive.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        primitive.Priorty = 0x0002
+        ds = encode(DATASET, True, True)
+        primitive.DataSet = BytesIO(ds)
+        
+        
+        ae = AE(scu_sop_class=[RTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        
+        # Send C-STORE request primitive to DIMSE and get response
+        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+
+        self.assertEqual(rsp.Status, 0xA900)
+        assoc.release()
+        
+        DATASET.SOPClassUID = orig
+        scp.stop()
+
+    @unittest.skip # Very difficult to test
+    def test_bad_ds(self):
+        """Test returns failure status if dataset cant be decoded by SCP"""
+        scp = DummyStorageSCP()
+        scp.start()
+
+        ## Need to bypass the standard send_c_store checks
+        # Build C-STORE request primitive
+        primitive = C_STORE()
+        primitive.MessageID = 1
+        primitive.AffectedSOPClassUID = DATASET.SOPClassUID
+        primitive.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        primitive.Priorty = 0x0002
+        primitive.DataSet = BytesIO(b'\x08\x00\x05\x00\x43\x53\x08\x00\x49\x53\x4f\x54\x45\x53\x54\x00')
+
+        ae = AE(scu_sop_class=[RTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        
+        # Send C-STORE request primitive to DIMSE and get response
+        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+
+        self.assertEqual(rsp.Status, 0xC000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_user_on_c_store_status(self):
+        """Test exception raised by invalid on_c_store status"""
+        scp = DummyStorageSCP()
+        scp.status = scp.bad_status
+        scp.start()
+        ae = AE(scu_sop_class=[RTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        status = assoc.send_c_store(DATASET)
+        self.assertEqual(int(status), 0xC000)
+        scp.status = 0x0111
+        status = assoc.send_c_store(DATASET)
+        self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_user_on_c_store_return(self):
+        """Test exception raised by bad on_c_store return"""
+        scp = DummyStorageSCP()
+        scp.status = 'testing'
+        scp.start()
+        ae = AE(scu_sop_class=[RTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        status = assoc.send_c_store(DATASET)
+        self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
 
 
 class TestAssociationSendCFind(unittest.TestCase):
@@ -515,10 +627,23 @@ class TestAssociationSendCFind(unittest.TestCase):
         scp.stop()
 
     def test_bad_user_on_c_find(self):
-        """Test receiving a failure response"""
+        """Test exception raised by bad on_c_find"""
         scp = DummyFindSCP()
         def on_c_find(ds): raise RuntimeError
         scp.ae.on_c_find = on_c_find
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_user_on_c_find_status(self):
+        """Test exception raised by bad on_c_find"""
+        scp = DummyFindSCP()
+        scp.status = scp.bad_status
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -937,8 +1062,6 @@ class TestAssociationSendCMove(unittest.TestCase):
     # test error bad first yield
     # test error bad second yield
     # test error bad third yield
-
-
 
 
 class TestAssociationSendCCancelMove(unittest.TestCase):

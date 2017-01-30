@@ -74,6 +74,16 @@ class TestServiceClass(unittest.TestCase):
         sop = VerificationServiceClass()
         with self.assertRaises(ValueError):
             sop.code_to_status(0x0001)
+            
+        with self.assertRaises(TypeError):
+            sop.code_to_status('test')
+
+    def test_is_valid_status(self):
+        """Test that is_valid_status returns correct values"""
+        sop = StorageServiceClass()
+        status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
+        self.assertFalse(sop.is_valid_status(status))
+        self.assertTrue(sop.is_valid_status(sop.Success))
 
 
 class TestVerificationServiceClass(unittest.TestCase):
