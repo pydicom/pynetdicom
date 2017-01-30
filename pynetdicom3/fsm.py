@@ -976,11 +976,11 @@ def AA_8(dul):
     # Send A-ABORT PDU (service-dul source), issue A-P-ABORT
     # indication, and start ARTIM timer.
     dul.pdu = A_ABORT_RQ()
-    dul.pdu.abort_source = 0x02
+    dul.pdu.source = 0x02
     dul.pdu.reason_diagnostic = 0x00
 
     dul.primitive = dul.pdu.ToParams()
-    dul.primitive.source = 0x02
+    dul.primitive.abort_source = 0x02
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
 
@@ -988,11 +988,16 @@ def AA_8(dul):
         # Callback
         dul.association.acse.debug_send_abort(dul.pdu)
 
-        # Encode and send A-ABORT to peer
-        dul.scu_socket.send(dul.pdu.Encode())
+        try:
+            # Encode and send A-ABORT to peer
+            dul.scu_socket.send(dul.pdu.Encode())
+        except ConnectionResetError:
+            pass
+
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
         dul.artim_timer.start()
+
 
     return 'Sta13'
 

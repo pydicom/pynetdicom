@@ -168,7 +168,6 @@ class Association(threading.Thread):
         self.dul = DULServiceProvider(client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       acse_timeout=acse_timeout,
-                                      local_ae=local_ae,
                                       assoc=self)
 
         # Dict containing the peer AE title, address and port
@@ -228,8 +227,7 @@ class Association(threading.Thread):
         while not self.dul.stop_dul():
             time.sleep(0.001)
 
-        # FIXME: make public
-        self.ae._cleanup_associations()
+        self.ae.cleanup_associations()
 
     def release(self):
         """Release the association."""
@@ -272,7 +270,7 @@ class Association(threading.Thread):
         time.sleep(0.1)
 
         # Get A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.receive_pdu(Wait=True)
+        assoc_rq = self.dul.receive_pdu(wait=True)
 
         if assoc_rq is None:
             self.kill()
@@ -432,14 +430,8 @@ class Association(threading.Thread):
                 # Convert the message's affected SOP class to a UID
                 uid = msg.AffectedSOPClassUID
 
-                # Use the UID to create a new SOP Class instance of the
-                #   corresponding value
-                # FIXME: avoid catch-all, why does uid sometimes have value
-                #   member?
-                try:
-                    sop_class = uid_to_sop_class(uid.value)()
-                except:
-                    sop_class = uid_to_sop_class(uid)()
+                # Use the UID to create a new SOP Class instance
+                sop_class = uid_to_sop_class(uid)()
 
                 # Check that the SOP Class is supported by the AE
                 matching_context = False
@@ -1562,7 +1554,7 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        # FIXME: broken
+
         for context in self.acse.context_manager.accepted:
             if sop_class.UID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
@@ -1642,118 +1634,40 @@ class Association(threading.Thread):
     # Association logging/debugging functions
     @staticmethod
     def debug_association_requested(primitive):
-        """
-        Called when an association is reuested by a peer AE, used for
-        logging/debugging information
+        """Debugging information when an A-ASSOCIATE request received.
 
         Parameters
         ----------
-        assoc_primitive - pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameter
-            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        primitive : pynetdicom3.primitives.A_ASSOCIATE
+            The A-ASSOCIATE (RQ) PDU received from the DICOM Upper Layer
         """
         pass
 
     @staticmethod
-    def debug_association_accepted(assoc):
-        """
-        Called when an association attempt is accepted by a peer AE, used for
-        logging/debugging information
+    def debug_association_accepted(primitive):
+        """Debugging information when an A-ASSOCIATE accept is received.
 
         Parameters
         ----------
-        assoc : pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameter
-            The Association parameters negotiated between the local and peer AEs
+        primitive : pynetdicom3.primitives.A_ASSOCIATE
+            The A-ASSOCIATE (AC) PDU received from the DICOM Upper Layer
         """
-        '''
-        #max_send_pdv = \
-        #   associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
-
-        #LOGGER.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
-
-        pynetdicom3_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-
-        # Shorthand
-        assoc_ac = a_associate_ac
-
-        # Needs some cleanup
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
-
-        responding_ae = 'resp. AP Title'
-        our_max_pdu_length = '[FIXME]'
-        their_class_uid = 'unknown'
-        their_version = 'unknown'
-
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
-
-        s = ['Association Parameters Negotiated:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
-
-        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
-        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
-        #s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %our_max_pdu_length)
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
-        s.append('Presentation Contexts:')
-
-        for item in pres_contexts:
-            context_id = item.PresentationContextID
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
-            s.append('    Abstract Syntax: =%s' %'FIXME')
-            s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
-
-            if item.ResultReason == 0:
-                s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
-                s.append('    Accepted Transfer Syntax: =%s'
-                                            %item.TransferSyntax)
-
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %'[FIXME]')
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
-
-        usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
-            usr_id = 'Yes'
-
-        s.append('Requested User Identity Negotiation: %s' %'[FIXME]')
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
-
-        for line in s:
-            LOGGER.debug(line)
-        '''
         pass
 
     @staticmethod
-    def debug_association_rejected(assoc_primitive):
-        """
-        Called when an association attempt is rejected by a peer AE, used for
-        logging/debugging information
+    def debug_association_rejected(primitive):
+        """Debugging information when an A-ASSOCIATE rejection received.
 
         Parameters
         ----------
         assoc_primitive : pynetdicom3.primitives.A_ASSOCIATE
-            The A-ASSOCIATE primitive instance (RJ) received from the peer AE
+            The A-ASSOCIATE (RJ) primitive received from the DICOM Upper Layer
         """
-
         # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
         #   for information on the result and diagnostic information
-        source = assoc_primitive.result_source
-        result = assoc_primitive.result
-        reason = assoc_primitive.diagnostic
+        source = primitive.result_source
+        result = primitive.result
+        reason = primitive.diagnostic
 
         source_str = {1 : 'Service User',
                       2 : 'Service Provider (ACSE)',
@@ -1789,11 +1703,23 @@ class Association(threading.Thread):
         LOGGER.error('Reason: %s', reason_str[source - 1][reason])
 
     @staticmethod
-    def debug_association_released():
-        """Logging for association release."""
+    def debug_association_released(primitive=None):
+        """Debugging information when an A-RELEASE request received.
+
+        Parameters
+        ----------
+        assoc_primitive : pynetdicom3.primitives.A_RELEASE
+            The A-RELEASE (RQ) primitive received from the DICOM Upper Layer
+        """
         LOGGER.info('Association Released')
 
     @staticmethod
-    def debug_association_aborted(abort_primitive=None):
-        """Logging for association abort."""
+    def debug_association_aborted(primitive=None):
+        """Debugging information when an A-ABORT request received.
+
+        Parameters
+        ----------
+        assoc_primitive : pynetdicom3.primitives.A_ABORT
+            The A-ABORT (RQ) primitive received from the DICOM Upper Layer
+        """
         LOGGER.error('Association Aborted')

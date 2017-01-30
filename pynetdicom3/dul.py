@@ -1,12 +1,5 @@
-"""
-This module implements the DUL service provider, allowing a
-DUL service user to send and receive DUL messages. The User and Provider
-talk to each other using a TCP socket. The DULServer runs in a thread,
-so that and implements an event loop whose events will drive the
-state machine.
+"""Implements the DICOM Upper Layer service provider."""
 
-TODO: change DULServiceProvider method names to lowercase
-"""
 import logging
 import os
 import queue
@@ -23,8 +16,8 @@ from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
                             A_RELEASE_RQ, \
                             A_RELEASE_RP, \
                             A_ABORT_RQ
-from pynetdicom3.timer import Timer
 from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dul')
 
@@ -61,7 +54,7 @@ class DULServiceProvider(Thread):
         The DICOM Upper Layer's State Machine
     """
     def __init__(self, socket=None, port=None, dul_timeout=None,
-                 acse_timeout=30, local_ae=None, assoc=None):
+                 acse_timeout=30, assoc=None):
         """
         Parameters
         ----------
@@ -72,8 +65,6 @@ class DULServiceProvider(Thread):
         dul_timeout : float, optional
             The maximum amount of time to wait for connection responses
             (in seconds)
-        local_ae : pynetdicom3.applicationentity.ApplicationEntity
-            The local AE instance
         assoc : pynetdicom3.association.Association
             The DUL's current Association
         """
@@ -81,8 +72,7 @@ class DULServiceProvider(Thread):
             raise ValueError("DULServiceProvider can't be instantiated with "
                              "both socket and port parameters")
 
-        # The local AE
-        self.local_ae = local_ae
+        # The association thread
         self.association = assoc
 
         Thread.__init__(self)
@@ -138,13 +128,9 @@ class DULServiceProvider(Thread):
                 try:
                     local_address = os.popen('hostname').read()[:-1]
                     self.scp_socket.bind((local_address, self.local_port))
-                except:
-                    # FIXME: Remove the catch-all
-                    #LOGGER.error("Already bound")
-                    # FIXME: If already bound then warn?
-                    #   Why would it already be bound?
-                    # A: Another process may be using it
-                    pass
+                except Exception as ex:
+                    LOGGER.exception(ex)
+
                 self.scp_socket.listen(1)
 
             else:
@@ -197,19 +183,19 @@ class DULServiceProvider(Thread):
         except (queue.Empty, IndexError):
             return None
 
-    def receive_pdu(self, Wait=False, Timeout=None):
+    def receive_pdu(self, wait=False, timeout=None):
         """
         Get the next item to be processed out of the queue of items sent
         from the DUL service provider to the service user
 
         Parameters
         ----------
-        Wait - bool, optional
-            If `Wait` is True and `Timeout` is None, blocks until an item
-            is available. If `Timeout` is a positive number, blocks at most
-            `Timeout` seconds. Otherwise returns an item if one is immediately
+        wait : bool, optional
+            If `wait` is True and `wimeout` is None, blocks until an item
+            is available. If `wimeout` is a positive number, blocks at most
+            `wimeout` seconds. Otherwise returns an item if one is immediately
             available.
-        Timeout - int, optional
+        timeout : int, optional
             See the definition of `Wait`
 
         Returns
@@ -220,7 +206,7 @@ class DULServiceProvider(Thread):
             If the queue is empty
         """
         try:
-            queue_item = self.to_user_queue.get(block=Wait, timeout=Timeout)
+            queue_item = self.to_user_queue.get(block=wait, timeout=timeout)
             return queue_item
         except queue.Empty:
             return None
@@ -341,11 +327,11 @@ class DULServiceProvider(Thread):
             # We do all this just to get the length of the PDU
             # Byte 1 is PDU type
             #   (value, )
-            pdu_type = unpack('B', bytestream)
+            pdu_type = unpack('B', bytestream)[0]
 
             # Unrecognised PDU type - Evt19 in the State Machine
-            if pdu_type[0] not in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
-                LOGGER.error("Unrecognised PDU type: 0x%s", pdu_type)
+            if pdu_type not in [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]:
+                LOGGER.error("Unrecognised PDU type: 0x%02x", pdu_type)
                 self.event_queue.put('Evt19')
                 return
 

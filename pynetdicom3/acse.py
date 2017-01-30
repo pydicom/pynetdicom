@@ -68,7 +68,8 @@ class ACSEServiceProvider(object):
         self.context_manager = PresentationContextManager()
 
     def Request(self, local_ae, peer_ae, max_pdu_size, pcdl, userspdu=None):
-        """
+        """Request an Association with a peer Application Entity SCP.
+
         Issues an A-ASSOCIATE request primitive to the DICOM UL service provider
 
         Requests an association with a remote AE and waits for association
@@ -222,21 +223,22 @@ class ACSEServiceProvider(object):
             raise ValueError("Unexpected response by the peer AE to the "
                              "ACSE association request")
 
-    def Reject(self, assoc_primitive, result, source, diagnostic):
-        """
+    def Reject(self, primitive, result, source, diagnostic):
+        """Reject an Association with a peer Application Entity SCU.
+
         Issues an A-ASSOCIATE response primitive to the DICOM UL service
         provider. The response will be that the association request is
         rejected
 
         Parameters
         ----------
-        assoc_primtive - pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters
+        assoc_primtive : pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters
             The Association request primitive to be rejected
-        result - int
+        result : int
             The association rejection: 0x01 or 0x02
-        source - int
+        source : int
             The source of the rejection: 0x01, 0x02, 0x03
-        diagnostic - int
+        diagnostic : int
             The reason for the rejection: 0x01 to 0x10
         """
         # Check valid Result and Source values
@@ -249,19 +251,20 @@ class ACSEServiceProvider(object):
                              "'{0!s}'".format(source))
 
         # Send an A-ASSOCIATE primitive, rejecting the association
-        assoc_primitive.presentation_context_definition_list = []
-        assoc_primitive.presentation_context_definition_results_list = []
-        assoc_primitive.result = result
-        assoc_primitive.result_source = source
-        assoc_primitive.diagnostic = diagnostic
-        assoc_primitive.user_information = []
+        primitive.presentation_context_definition_list = []
+        primitive.presentation_context_definition_results_list = []
+        primitive.result = result
+        primitive.result_source = source
+        primitive.diagnostic = diagnostic
+        primitive.user_information = []
 
-        self.DUL.send_pdu(assoc_primitive)
+        self.DUL.send_pdu(primitive)
 
-        return assoc_primitive
+        return primitive
 
-    def Accept(self, assoc_primitive):
-        """
+    def Accept(self, primitive):
+        """Accept an Association with a peer Application Entity SCU,
+
         Issues an A-ASSOCIATE response primitive to the DICOM UL service
         provider. The response will be that the association request is
         accepted
@@ -279,24 +282,25 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        assoc_primitive : pynetdicom3.primitives.A_ASSOCIATE
-            The A_ASSOCIATE primitive to convert and send to the peer
+        primitive : pynetdicom3.primitives.A_ASSOCIATE
+            The A_ASSOCIATE (AC) primitive to convert and send to the peer
         """
-        self.MaxPDULength = assoc_primitive.maximum_length_received
+        self.MaxPDULength = primitive.maximum_length_received
         self.local_max_pdu = self.MaxPDULength
         self.parent.local_max_pdu = self.MaxPDULength
 
         # Send response
-        assoc_primitive.presentation_context_definition_list = []
-        assoc_primitive.presentation_context_definition_results_list = \
+        primitive.presentation_context_definition_list = []
+        primitive.presentation_context_definition_results_list = \
                                         self.presentation_contexts_accepted
+        primitive.result = 0
 
-        assoc_primitive.result = 0
-        self.DUL.send_pdu(assoc_primitive)
-        return assoc_primitive
+        self.DUL.send_pdu(primitive)
+        return primitive
 
     def Release(self):
-        """
+        """Release the Association with the peer Application Entity.
+
         Issues an A-RELEASE request primitive to the DICOM UL service provider
 
         The graceful release of an association between two AEs shall be
@@ -309,19 +313,18 @@ class ACSEServiceProvider(object):
 
         Returns
         -------
-        response
-            The A-RELEASE-RSP
+        pynetdicom3.primitives.PDU
+            The A-RELEASE response primitive
         """
         LOGGER.info("Releasing Association")
+        primitive = A_RELEASE()
+        self.DUL.send_pdu(primitive)
 
-        assoc_release = A_RELEASE()
-        self.DUL.send_pdu(assoc_release)
-        response = self.DUL.receive_pdu(Wait=True)
-
-        return response
+        return self.DUL.receive_pdu(wait=True)
 
     def Abort(self, source=0x02, reason=0x00):
-        """
+        """Abort the Association with the peer Application Entity.
+
         ACSE issued A-ABORT request primitive to the DICOM UL service provider.
         The source may be either the DUL service user or provider.
 
@@ -329,11 +332,11 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        source - int, optional
+        source : int, optional
             The source of the abort request (default: 0x02 DUL provider)
                 0x00 - the DUL service user
                 0x02 - the DUL service provider
-        reason - int, optional
+        reason : int, optional
             The reason for aborting the association (default: 0x00 reason not
             specified).
             If source 0x00 (DUL user):
@@ -346,14 +349,14 @@ class ACSEServiceProvider(object):
                 0x05 - unexpected PDU parameter
                 0x06 - invalid PDU parameter value
         """
-        assoc_abort = A_ABORT()
+        primitive = A_ABORT()
 
         if source in [0x00, 0x02]:
-            assoc_abort.abort_source = source
+            primitive.abort_source = source
             if source == 0x00:
-                assoc_abort.reason = 0x00
+                primitive.reason = 0x00
             elif reason in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
-                assoc_abort.reason = reason
+                primitive.reason = reason
             else:
                 raise ValueError("ACSE.Abort() invalid reason "
                                  "'{0!s}'".format(reason))
@@ -362,7 +365,7 @@ class ACSEServiceProvider(object):
             raise ValueError("ACSE.Abort() invalid source "
                              "'{0!s}'".format(source))
 
-        self.DUL.send_pdu(assoc_abort)
+        self.DUL.send_pdu(primitive)
         time.sleep(0.5)
 
     def CheckRelease(self):
@@ -374,7 +377,7 @@ class ACSEServiceProvider(object):
             if rel.result == 'affirmative':
                 return False
 
-            self.DUL.receive_pdu(Wait=False)
+            self.DUL.receive_pdu(wait=False)
             release_rsp = A_RELEASE()
             release_rsp.result = "affirmative"
             self.DUL.send_pdu(release_rsp)
@@ -389,7 +392,7 @@ class ACSEServiceProvider(object):
         # Abort is a non-confirmed service no so need to worry if its a request
         #   primitive
         if rel.__class__ in (A_ABORT, A_P_ABORT):
-            self.DUL.receive_pdu(Wait=False)
+            self.DUL.receive_pdu(wait=False)
             return True
         else:
             return False
@@ -416,15 +419,15 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rq - pynetdicom3.pdu.A_ASSOCIATE_RQ
+        a_associate_rq : pynetdicom3.pdu.A_ASSOCIATE_RQ
             The A-ASSOCIATE-RQ PDU instance to be encoded and sent
         """
         # Shorthand
-        assoc_rq = a_associate_rq
+        pdu = a_associate_rq
 
-        app_context = assoc_rq.application_context_name.title()
-        pres_contexts = assoc_rq.presentation_context
-        user_info = assoc_rq.user_information
+        app_context = pdu.application_context_name.title()
+        pres_contexts = pdu.presentation_context
+        user_info = pdu.user_information
 
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
@@ -436,9 +439,9 @@ class ACSEServiceProvider(object):
                  '{0!s}'.format(user_info.implementation_version_name))
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    '
-                 '{0!s}'.format(assoc_rq.calling_ae_title.decode('utf-8')))
+                 '{0!s}'.format(pdu.calling_ae_title.decode('utf-8')))
         s.append('Called Application Name:     '
-                 '{0!s}'.format(assoc_rq.called_ae_title.decode('utf-8')))
+                 '{0!s}'.format(pdu.called_ae_title.decode('utf-8')))
         s.append('Our Max PDU Receive Size:    '
                  '{0!s}'.format(user_info.maximum_length))
 
@@ -470,10 +473,10 @@ class ACSEServiceProvider(object):
                 s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
-        if assoc_rq.user_information.ext_neg is not None:
+        if pdu.user_information.ext_neg is not None:
             s.append('Requested Extended Negotiation:')
 
-            for item in assoc_rq.user_information.ext_neg:
+            for item in pdu.user_information.ext_neg:
                 s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
@@ -487,10 +490,10 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation: None')
 
         ## Common Extended Negotiation
-        if assoc_rq.user_information.common_ext_neg is not None:
+        if pdu.user_information.common_ext_neg is not None:
             s.append('Requested Common Extended Negotiation:')
 
-            for item in assoc_rq.user_information.common_ext_neg:
+            for item in pdu.user_information.common_ext_neg:
 
                 s.append('  Abstract Syntax: ={0!s}'.format(item.sop_class_uid))
                 s.append('  Service Class:   ='
@@ -548,7 +551,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_ac - pynetdicom3.pdu.A_ASSOCIATE_AC
+        a_associate_ac : pynetdicom3.pdu.A_ASSOCIATE_AC
             The A-ASSOCIATE-AC PDU instance
         """
         LOGGER.info("Association Acknowledged")
@@ -618,7 +621,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rj - pynetdicom3.pdu.A_ASSOCIATE_RJ
+        a_associate_rj : pynetdicom3.pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance
         """
         pass
@@ -631,7 +634,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.pdu.P_DATA_TF
+        a_release_rq : pynetdicom3.pdu.P_DATA_TF
             The P-DATA-TF PDU instance
         """
         pass
@@ -644,7 +647,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.pdu.A_RELEASE_RQ
+        a_release_rq : pynetdicom3.pdu.A_RELEASE_RQ
             The A-RELEASE-RQ PDU instance
         """
         pass
@@ -657,20 +660,20 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rp - pynetdicom3.pdu.A_RELEASE_RP
+        a_release_rp : pynetdicom3.pdu.A_RELEASE_RP
             The A-RELEASE-RP PDU instance
         """
         pass
 
     @staticmethod
-    def debug_send_abort(a_abort):
+    def debug_send_abort(a_abort_rq):
         """
         Placeholder for a function callback. Function will be called
         immediately prior to encoding and sending an A-ABORT to a peer AE
 
         Parameters
         ----------
-        a_abort - pynetdicom3.pdu.A_ABORT_RQ
+        a_abort : pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
         '''
@@ -700,17 +703,17 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rq - pynetdicom3.pdu.A_ASSOCIATE_RQ
+        a_associate_rq : pynetdicom3.pdu.A_ASSOCIATE_RQ
             The A-ASSOCIATE-RQ PDU instance
         """
         LOGGER.info("Association Received")
 
         # Shorthand
-        assoc_rq = a_associate_rq
+        pdu = a_associate_rq
 
-        app_context = assoc_rq.application_context_name.title()
-        pres_contexts = assoc_rq.presentation_context
-        user_info = assoc_rq.user_information
+        app_context = pdu.application_context_name.title()
+        pres_contexts = pdu.presentation_context
+        user_info = pdu.user_information
 
         #responding_ae = 'resp. AP Title'
         their_class_uid = 'unknown'
@@ -731,9 +734,9 @@ class ACSEServiceProvider(object):
         s.append('Application Context Name:    {0!s}'
                  .format(app_context))
         s.append('Calling Application Name:    {0!s}'
-                 .format(assoc_rq.calling_ae_title.decode('utf-8')))
+                 .format(pdu.calling_ae_title.decode('utf-8')))
         s.append('Called Application Name:     {0!s}'
-                 .format(assoc_rq.called_ae_title.decode('utf-8')))
+                 .format(pdu.called_ae_title.decode('utf-8')))
         s.append('Their Max PDU Receive Size:  {0!s}'
                  .format(user_info.maximum_length))
 
@@ -754,10 +757,10 @@ class ACSEServiceProvider(object):
                 s.append('      ={0!s}'.format(ts))
 
         ## Extended Negotiation
-        if assoc_rq.user_information.ext_neg is not None:
+        if pdu.user_information.ext_neg is not None:
             s.append('Requested Extended Negotiation:')
 
-            for item in assoc_rq.user_information.ext_neg:
+            for item in pdu.user_information.ext_neg:
                 s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
@@ -771,10 +774,10 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation: None')
 
         ## Common Extended Negotiation
-        if assoc_rq.user_information.common_ext_neg is not None:
+        if pdu.user_information.common_ext_neg is not None:
             s.append('Requested Common Extended Negotiation:')
 
-            for item in assoc_rq.user_information.common_ext_neg:
+            for item in pdu.user_information.common_ext_neg:
 
                 s.append('  Abstract Syntax: ={0!s}'
                          .format(item.sop_class_uid))
@@ -793,7 +796,7 @@ class ACSEServiceProvider(object):
 
         ## Asynchronous Operations Window Negotiation
         #async_neg = 'None'
-        if assoc_rq.user_information.async_ops_window is not None:
+        if pdu.user_information.async_ops_window is not None:
             s.append('Requested Asynchronous Operations Window Negotiation:')
             # FIXME
         else:
@@ -846,7 +849,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_ac - pynetdicom3.pdu.A_ASSOCIATE_AC
+        a_associate_ac : pynetdicom3.pdu.A_ASSOCIATE_AC
             The A-ASSOCIATE-AC PDU instance
         """
         # Shorthand
@@ -936,7 +939,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_associate_rj - pynetdicom3.pdu.A_ASSOCIATE_RJ
+        a_associate_rj : pynetdicom3.pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance
         """
         # Shorthand
@@ -961,7 +964,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.pdu.P_DATA_TF
+        a_release_rq : pynetdicom3.pdu.P_DATA_TF
             The P-DATA-TF PDU instance
         """
         '''
@@ -995,7 +998,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq - pynetdicom3.pdu.A_RELEASE_RQ
+        a_release_rq : pynetdicom3.pdu.A_RELEASE_RQ
             The A-RELEASE-RQ PDU instance
         """
         pass
@@ -1008,7 +1011,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rp - pynetdicom3.pdu.A_RELEASE_RP
+        a_release_rp : pynetdicom3.pdu.A_RELEASE_RP
             The A-RELEASE-RP PDU instance
         """
         pass
@@ -1021,7 +1024,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_abort - pynetdicom3.pdu.A_ABORT_RQ
+        a_abort : pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
         s = ['Abort Parameters:']

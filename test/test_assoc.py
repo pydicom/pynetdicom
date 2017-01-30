@@ -64,6 +64,16 @@ class TestAssociation(unittest.TestCase):
         """This function runs after all test methods"""
         self.socket.close()
 
+    def test_bad_connection(self):
+        """Test connect to non-AE"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 22)
+
+    def test_connection_refused(self):
+        """Test connection refused"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11120)
+
     def test_init_errors(self):
         """Test bad parameters on init raise errors"""
         ae = AE(scu_sop_class=[VerificationSOPClass])

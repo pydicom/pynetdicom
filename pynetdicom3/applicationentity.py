@@ -301,7 +301,7 @@ class ApplicationEntity(object):
                 self._monitor_socket()
 
                 # Delete dead associations
-                self._cleanup_associations()
+                self.cleanup_associations()
 
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
@@ -357,7 +357,7 @@ class ApplicationEntity(object):
 
             self.active_associations.append(assoc)
 
-    def _cleanup_associations(self):
+    def cleanup_associations(self):
         """Remove dead associations.
 
         AE.start(): Removes any dead associations from self.active_associations

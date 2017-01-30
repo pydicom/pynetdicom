@@ -30,7 +30,7 @@ def validate_ae_title(ae_title):
 
     Parameters
     ----------
-    ae_title - str or bytes
+    ae_title : str or bytes
         The AE title to check
 
     Returns
@@ -76,7 +76,7 @@ def validate_ae_title(ae_title):
             else:
                 return significant_characters
 
-        # AE title too long - truncate
+        # AE title too long : truncate
         elif len(significant_characters.strip()) > 16:
             if is_bytes:
                 return bytes(significant_characters[:16], 'utf-8')
@@ -162,21 +162,21 @@ class PresentationContext(object):
 
     Attributes
     ----------
-    ID - int
+    ID : int
         The presentation context ID
-    AbstractSyntax - pydicom.uid.UID
+    AbstractSyntax : pydicom.uid.UID
         The abstract syntax
-    TransferSyntax - list of pydicom.uid.UID
+    TransferSyntax : list of pydicom.uid.UID
         The transfer syntax(es)
-    SCU - bool
+    SCU : bool
         True if...
-    SCP - bool
+    SCP : bool
         True if...
-    Result - int or None
+    Result : int or None
         If part of the A-ASSOCIATE request then None.
         If part of the A-ASSOCIATE resposne then one of:
             0x00, 0x01, 0x02, 0x03, 0x04
-    status - str
+    status : str
         The string representation of the Result:
             0x00 : 'acceptance',
             0x01 : 'user rejection',

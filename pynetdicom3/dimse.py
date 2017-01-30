@@ -334,7 +334,7 @@ class DIMSEServiceProvider(object):
 
         Parameters
         ----------
-        message - pynetdicom3.DIMSEmessage.DIMSEMessage
+        message : pynetdicom3.DIMSEmessage.DIMSEMessage
             The DIMSE message to be sent
         """
         callback = {C_ECHO_RQ  : self.debug_send_c_echo_rq,
@@ -370,9 +370,9 @@ class DIMSEServiceProvider(object):
 
         Parameters
         ----------
-        sop_class - pynetdicom3.sop_class.SOPClass
+        sop_class : pynetdicom3.sop_class.SOPClass
             A SOP Class instance of the type referred to by the message
-        message - pydicom.Dataset
+        message : pydicom.Dataset
             The DIMSE message that was received as a Dataset
         """
         callback = {C_ECHO_RQ  : self.debug_receive_c_echo_rq,
@@ -497,7 +497,7 @@ class DIMSEServiceProvider(object):
         dataset = 'None'
         if dimse_msg.data_set.getvalue() != b'':
             dataset = 'Present'
-        
+
         LOGGER.info("Sending Get Request: MsgID %s%s", ds.MessageID)
 
         s = []
