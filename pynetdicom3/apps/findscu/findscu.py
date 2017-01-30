@@ -28,6 +28,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The findscu application implements a Service Class User "

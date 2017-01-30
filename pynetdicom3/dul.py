@@ -234,8 +234,7 @@ class DULServiceProvider(Thread):
             # Check the connection for incoming data
             try:
                 # If local AE is SCU also calls _check_incoming_pdu()
-                if self._is_transport_event():
-                    if self._idle_timer is not None:
+                if self._is_transport_event() and self._idle_timer is not None:
                         self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass

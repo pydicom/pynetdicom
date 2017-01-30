@@ -270,7 +270,7 @@ class PresentationContext(object):
         FIXME: Add Parameters section
         """
         # pylint: disable=attribute-defined-outside-init
-        if value < 0 or value > 255:
+        if not (1 <= value <= 255):
             raise ValueError("Presentation Context ID must be an odd "
                              "integer between 1 and 255 inclusive")
         elif value % 2 == 0:
@@ -499,7 +499,7 @@ class PresentationContextManager(object):
 
                     # If we are the Requestor then the Acceptor contexts
                     #   will have no AbstractSyntax
-                    if ii_acc.AbstractSyntax != None:
+                    if ii_acc.AbstractSyntax is not None:
                         if ii_acc.AbstractSyntax == ii_req.AbstractSyntax:
                             acc_context = ii_acc
                     else:

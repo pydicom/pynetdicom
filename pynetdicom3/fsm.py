@@ -51,7 +51,7 @@ class StateMachine(object):
                          "for the current state '%s'",
                          event, self.current_state)
             raise KeyError("DUL State Machine received an invalid event "
-                           "'%s' for the current state '%s'"
+                           "'{}' for the current state '{}'"
                            %(event, self.current_state))
 
         action_name = TRANSITION_TABLE[(event, self.current_state)]

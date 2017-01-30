@@ -15,6 +15,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 from pynetdicom3 import AE, VerificationSOPClass
 
 def setup_logger():
+    """Setup the logging"""
     logger = logging.Logger('echoscu')
     stream_logger = logging.StreamHandler()
     formatter = logging.Formatter('%(levelname).1s: %(message)s')
@@ -27,6 +28,7 @@ def setup_logger():
 LOGGER = setup_logger()
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The echoscu application implements a Service Class User "

@@ -26,6 +26,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The findscp application implements a Service Class "
@@ -141,13 +142,11 @@ transfer_syntax = [ImplicitVRLittleEndian,
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
-if args.prefer_little:
-    if ExplicitVRLittleEndian in transfer_syntax:
+if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
         transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
-if args.prefer_big:
-    if ExplicitVRBigEndian in transfer_syntax:
+if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 

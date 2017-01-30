@@ -740,8 +740,7 @@ class ApplicationEntity(object):
                     sop_uid = UID(sop_class)
                 elif isinstance(sop_class, UID):
                     sop_uid = sop_class
-                elif isclass(sop_class):
-                    if 'UID' in sop_class.__dict__.keys():
+                elif isclass(sop_class) and 'UID' in sop_class.__dict__:
                         sop_uid = UID(sop_class.UID)
                 elif isinstance(sop_class, bytes):
                     sop_uid = UID(sop_class.decode('utf-8'))

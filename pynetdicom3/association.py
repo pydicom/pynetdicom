@@ -292,14 +292,14 @@ class Association(threading.Thread):
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        if self.ae.require_calling_aet != '':
-            if self.ae.require_calling_aet != assoc_rq.calling_ae_title:
-                reject_assoc_rsd = [(0x01, 0x01, 0x03)]
+        if self.ae.require_calling_aet != '' and \
+                    self.ae.require_calling_aet != assoc_rq.calling_ae_title:
+            reject_assoc_rsd = [(0x01, 0x01, 0x03)]
 
         # Called AE Title not recognised
-        if self.ae.require_called_aet != '':
-            if self.ae.require_called_aet != assoc_rq.called_ae_title:
-                reject_assoc_rsd = [(0x01, 0x01, 0x07)]
+        if self.ae.require_called_aet != '' and \
+                        self.ae.require_called_aet != assoc_rq.called_ae_title:
+            reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
         ## DUL ACSE Related Rejections
         #
@@ -533,9 +533,9 @@ class Association(threading.Thread):
                 self.scu_supported_sop = []
                 for context in self.acse.presentation_contexts_accepted:
                     self.scu_supported_sop.append(
-                        (context.ID,
-                         uid_to_sop_class(context.AbstractSyntax),
-                         context.TransferSyntax[0]))
+                            (context.ID,
+                             uid_to_sop_class(context.AbstractSyntax),
+                             context.TransferSyntax[0]))
 
                 # Assocation established OK
                 self.is_established = True

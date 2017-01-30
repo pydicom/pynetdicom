@@ -26,6 +26,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The echoscp application implements a Service Class "
@@ -182,13 +183,11 @@ transfer_syntax = [ImplicitVRLittleEndian,
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
-if args.prefer_little:
-    if ExplicitVRLittleEndian in transfer_syntax:
+if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
         transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
-if args.prefer_big:
-    if ExplicitVRBigEndian in transfer_syntax:
+if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
@@ -202,6 +201,7 @@ ae = AE(ae_title=args.aetitle,
 if args.abort_after:
     # Use the on_c_echo callback to send an A-ABORT
     def on_c_echo(dimse_msg):
+        """Use the on_c_echo callback to issue an abort"""
         # Issue A-ABORT request primitive for the association that received
         #   the C-ECHO-RQ
         assoc = dimse_msg.ACSE.parent
@@ -210,14 +210,14 @@ if args.abort_after:
     ae.on_c_echo = on_c_echo
 
 if args.abort_during:
-
     def on_receive_pdu(self):
+        """Issue an A-ABORT during association negotiation"""
         # Clear event queue and issue A-ABORT request primitive
         pass
 
 if args.refuse:
-
     def on_receive_associate_rq(self, a_associate_rq):
+        """Issue an A-ASSOCIATE rejection"""
         # Issue A-ASSOCIATE refusal primitive
         pass
 

@@ -136,7 +136,7 @@ class ServiceClass(object):
         ----------
         code : int or pynetdicom3.sop_class.Status
             The status code value from/for the (0000,0900) dataset element. If
-            `code` is a Status type, it will be checked for validity and 
+            `code` is a Status type, it will be checked for validity and
             returned.
 
         Returns
@@ -159,25 +159,24 @@ class ServiceClass(object):
                 raise ValueError('Code 0x{0:04x} is not a valid Status code '
                                    'for the current SOP class.'
                                    .format(code.code))
-        
+
         if not isinstance(code, int):
             raise TypeError('Status code must be an int')
-        
+
         # For all the members in the class
         for member in dir(self):
             # If the member is a Status class object and `code` is in the
             #   Status' code range, return the Status object.
             obj = getattr(self, member)
-            if isinstance(obj, Status):
-                if code in obj.code_range:
-                    return obj
+            if isinstance(obj, Status) and code in obj.code_range:
+                return obj
 
         raise ValueError('Code 0x{0:04x} is not a valid Status code for the '
                          'current SOP class.'.format(code))
-    
+
     def is_valid_status(self, status):
         """Check if a status is valid for the service class.
-        
+
         Parameters
         ----------
         status : pynetdicom3.sop_class.Status
@@ -193,9 +192,9 @@ class ServiceClass(object):
             # If the member is a Status class object and `code` is in the
             #   Status' code range, return the Status object.
             obj = getattr(self, member)
-            if isinstance(obj, Status):
-                if status.code in obj.code_range:
-                    return True
+            if isinstance(obj, Status) and status.code in obj.code_range:
+                return True
+
         return False
 
 
@@ -269,7 +268,7 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
-        # Check the dataset SOP Class UID matches the one agreed to 
+        # Check the dataset SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
             LOGGER.error("Store request's dataset UID does not match the "
                         "presentation context")
@@ -574,15 +573,15 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         c_find_rsp = C_FIND()
         c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        
-        # Check the identifier SOP Class UID matches the one agreed to 
+
+        # Check the identifier SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
             LOGGER.error("Find request's Identifier UID does not match the "
                         "presentation context")
             c_find_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
             self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
             return
-        
+
         try:
             dataset = decode(msg.Identifier,
                              self.transfersyntax.is_implicit_VR,
@@ -628,7 +627,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 c_find_rsp.Status = int(self.UnableToProcess)
                 self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
                 return
-            
+
             # Callback - C-CANCEL-FIND
             #received_cancel_msg = False
             # Need to ensure we received a C-CANCEL-FIND-RQ
@@ -756,16 +755,16 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         processing of the C-MOVE. The SCP shall interrupt all C-STORE
         sub-operation processing and return a status of Canceled in the C-MOVE
         response.
-        
+
         Pending: shall contain NoRemainingSubops, NoCompletedSubops,
             NoFailedSubops, NoWarningSubops
         Canceled: may contain NoRemainingSubops, NoCompletedSubops,
             NoFailedSubops, NoWarningSubops
-        Failed: shall NOT contain NoRemainingSubops, may contain 
+        Failed: shall NOT contain NoRemainingSubops, may contain
             NoCompletedSubops, NoFailedSubops, NoWarningSubops
-        Warning: shall NOT contain NoRemainingSubops, may contain 
+        Warning: shall NOT contain NoRemainingSubops, may contain
             NoCompletedSubops, NoFailedSubops, NoWarningSubops
-        Success: shall NOT contain NoRemainingSubops, may contain 
+        Success: shall NOT contain NoRemainingSubops, may contain
             NoCompletedSubops, NoFailedSubops, NoWarningSubops
 
         Parameters
@@ -773,27 +772,27 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         msg : pynetdicom3.dimse_messages.DIMSEMessage
             The DIMSE C-MOVE request (C_MOVE_RQ) message
         """
-        
+
         # Build C-MOVE response primitive
         c_move_rsp = C_MOVE()
         c_move_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_move_rsp.Identifier = msg.Identifier
-        
+
         # Number of suboperation trackers
         no_remaining = 0
         no_completed = 0
         no_failed = 0
         no_warning = 0
-        
-        # Check the identifier SOP Class UID matches the one agreed to 
+
+        # Check the identifier SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
             LOGGER.error("Move request's Identifier UID does not match the "
                         "presentation context")
             c_move_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
             self.DIMSE.Send(c_move_rsp, self.pcid, self.ACSE.MaxPDULength)
             return
-        
+
         # Decode the Identifier dataset
         try:
             dataset = decode(msg.Identifier,
@@ -894,8 +893,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     c_move_rsp.Status = int(self.UnableToProcess)
                     self.DIMSE.Send(c_move_rsp, self.pcid, self.ACSE.MaxPDULength)
                     return
-                
-                # If usr_status is Cancel, Failure or Success then generate a 
+
+                # If usr_status is Cancel, Failure or Success then generate a
                 #   final response
                 if usr_status.status_type == 'Cancel':
                     LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
@@ -930,7 +929,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     return
                 else:
                     ## USER RESPONSE IS PENDING
-                    # Send dataset(s) via C-STORE sub-operations over new 
+                    # Send dataset(s) via C-STORE sub-operations over new
                     #   association. While the sub-operations are being
                     #   performed send Pending statuses back to the peer
                     store_status = assoc.send_c_store(dataset)
@@ -1036,21 +1035,21 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_get_rsp.Identifier = msg.Identifier
-        
+
         # Number of suboperation trackers
         no_remaining = 0
         no_completed = 0
         no_failed = 0
         no_warning = 0
-        
-        # Check the identifier SOP Class UID matches the one agreed to 
+
+        # Check the identifier SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
             LOGGER.error("Get request's Identifier UID does not match the "
                         "presentation context")
             c_get_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
             self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
             return
-        
+
         try:
             dataset = decode(msg.Identifier,
                              self.transfersyntax.is_implicit_VR,
@@ -1172,7 +1171,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         else:
             c_get_rsp.Status = int(self.Warning)
             LOGGER.info('Get SCP Final Response (Warning)')
-        
+
         self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
 
 
@@ -1459,9 +1458,8 @@ def uid_to_sop_class(uid):
                     inspect.isclass(member) and member.__module__ == __name__)
 
     for obj in members:
-        if hasattr(obj[1], 'UID'):
-            if obj[1].UID == uid:
-                return obj[1]
+        if hasattr(obj[1], 'UID') and obj[1].UID == uid:
+            return obj[1]
 
     raise NotImplementedError("The SOP Class for UID '{}' has not been " \
                               "implemented".format(uid))

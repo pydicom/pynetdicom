@@ -26,6 +26,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The movescp application implements a Service Class "
@@ -141,17 +142,16 @@ transfer_syntax = [ImplicitVRLittleEndian,
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
-if args.prefer_little:
-    if ExplicitVRLittleEndian in transfer_syntax:
+if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
         transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
-if args.prefer_big:
-    if ExplicitVRBigEndian in transfer_syntax:
+if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 def on_c_move(dataset, move_aet):
+    """Implement the on_c_move callback"""
     basedir = '../test/dicom_files/'
     dcm_files = ['CTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]

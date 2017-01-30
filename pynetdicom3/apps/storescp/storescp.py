@@ -21,6 +21,7 @@ from pynetdicom3 import AE, StorageSOPClassList, VerificationSOPClass
 from pynetdicom3 import pynetdicom_uid_prefix
 
 def setup_logger():
+    """Setup the logger"""
     logger = logging.Logger('storescp')
     stream_logger = logging.StreamHandler()
     formatter = logging.Formatter('%(levelname).1s: %(message)s')
@@ -33,6 +34,7 @@ def setup_logger():
 LOGGER = setup_logger()
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The storescp application implements a Service Class "
@@ -181,13 +183,11 @@ transfer_syntax = [ImplicitVRLittleEndian,
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
-if args.prefer_little:
-    if ExplicitVRLittleEndian in transfer_syntax:
+if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
         transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
-if args.prefer_big:
-    if ExplicitVRBigEndian in transfer_syntax:
+if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 

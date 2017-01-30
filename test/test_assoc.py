@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Association testing"""
+"""Association testing
+
+TODO: Add tests to check raise NotImplemented if no user implementation
+of the DIMSE-C service callbacks
+"""
 
 from io import BytesIO
 import logging
@@ -64,12 +68,14 @@ class TestAssociation(unittest.TestCase):
         """This function runs after all test methods"""
         self.socket.close()
 
-    def test_bad_connection(self):
+    @staticmethod
+    def test_bad_connection():
         """Test connect to non-AE"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 22)
 
-    def test_connection_refused(self):
+    @staticmethod
+    def test_connection_refused():
         """Test connection refused"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11120)
@@ -124,7 +130,8 @@ class TestAssociation(unittest.TestCase):
         self.assertRaises(SystemExit, ae.quit)
         scp.stop()
 
-        # Test rejection due to no acceptable presentation contexts
+    def test_req_no_presentation_context(self):
+        """Test rejection due to no acceptable presentation contexts"""
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])

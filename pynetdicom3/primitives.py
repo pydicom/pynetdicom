@@ -1215,10 +1215,9 @@ class ImplementationVersionNameNotification(ServiceParameter):
             raise TypeError("Implementation Version Name must be a str " \
                             "or bytes")
 
-        if value is not None:
-            if len(value) < 1 or len(value) > 16:
-                raise ValueError("Implementation Version Name must be " \
-                                 "between 1 and 16 characters long")
+        if value is not None and not (1 < len(value) < 16):
+            raise ValueError("Implementation Version Name must be " \
+                             "between 1 and 16 characters long")
 
         self._implementation_version_name = value
 
