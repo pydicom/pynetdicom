@@ -242,7 +242,7 @@ class DIMSEServiceProvider(object):
 
         # Send each of the P-DATA to the peer via the DUL provider
         for pp in pdvs:
-            self.DUL.Send(pp)
+            self.DUL.send_pdu(pp)
 
     def Receive(self, wait=False, dimse_timeout=None):
         """
@@ -273,14 +273,14 @@ class DIMSEServiceProvider(object):
             while True:
                 time.sleep(0.001)
 
-                nxt = self.DUL.Peek()
+                nxt = self.DUL.peek_next_pdu()
                 if nxt is None:
                     continue
 
                 if nxt.__class__ is not P_DATA:
                     return None, None
 
-                msg = self.DUL.Receive(wait, dimse_timeout)
+                msg = self.DUL.receive_pdu(wait, dimse_timeout)
 
                 if self.message.Decode(msg):
                     # Callback
@@ -300,11 +300,11 @@ class DIMSEServiceProvider(object):
                     return None, None
 
         else:
-            cls = self.DUL.Peek().__class__
+            cls = self.DUL.peek_next_pdu().__class__
             if cls not in (type(None), P_DATA):
                 return None, None
 
-            primitive = self.DUL.Receive(wait, dimse_timeout)
+            primitive = self.DUL.receive_pdu(wait, dimse_timeout)
 
             if self.message.Decode(primitive):
                 # Callback

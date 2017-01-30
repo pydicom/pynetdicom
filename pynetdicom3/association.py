@@ -225,7 +225,7 @@ class Association(threading.Thread):
         """Kill the main association thread loop."""
         self._kill = True
         self.is_established = False
-        while not self.dul.Stop():
+        while not self.dul.stop_dul():
             time.sleep(0.001)
 
         # FIXME: make public
@@ -272,7 +272,7 @@ class Association(threading.Thread):
         time.sleep(0.1)
 
         # Get A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.Receive(Wait=True)
+        assoc_rq = self.dul.receive_pdu(Wait=True)
 
         if assoc_rq is None:
             self.kill()
@@ -578,7 +578,7 @@ class Association(threading.Thread):
                     # Check if the DULServiceProvider thread is
                     #   still running. DUL.is_alive() is inherited from
                     #   threading.thread
-                    if not self.dul.isAlive():
+                    if not self.dul.is_alive():
                         self.kill()
                         return
 
@@ -593,7 +593,7 @@ class Association(threading.Thread):
                 self.debug_association_rejected(assoc_rsp)
                 self.is_rejected = True
                 self.is_established = False
-                self.dul.Kill()
+                self.dul.kill_dul()
                 return
 
         # Association was aborted by peer
@@ -602,20 +602,20 @@ class Association(threading.Thread):
             self.debug_association_aborted(assoc_rsp)
             self.is_established = False
             self.is_aborted = True
-            self.dul.Kill()
+            self.dul.kill_dul()
             return
 
         # Association was aborted by DUL provider
         elif isinstance(assoc_rsp, A_P_ABORT):
             self.is_aborted = True
             self.is_established = False
-            self.dul.Kill()
+            self.dul.kill_dul()
             return
 
         # Association failed for any other reason (No peer, etc)
         else:
             self.is_established = False
-            self.dul.Kill()
+            self.dul.kill_dul()
             return
 
 

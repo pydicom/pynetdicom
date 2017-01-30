@@ -436,7 +436,7 @@ class ApplicationEntity(object):
 
         # Endlessly loops while the Association negotiation is taking place
         while (not assoc.is_established and not assoc.is_rejected and
-               not assoc.is_aborted and not assoc.dul.kill):
+               not assoc.is_aborted and not assoc.dul._kill_thread):
             # Program loops here endlessly sometimes
             time.sleep(0.1)
 

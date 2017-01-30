@@ -27,10 +27,10 @@ class DummyDUL(DULServiceProvider):
 
 class TestDUL(unittest.TestCase):
     """Run tests on DUL service provider."""
-    def test_pdu_to_event(self):
+    def test__pdu_to_event(self):
         """Test that good PDU paramters return expected results"""
         dul = DummyDUL()
-        p2e = dul.pdu_to_event
+        p2e = dul._pdu_to_event
 
         pdu_types = [A_ASSOCIATE_RQ(), A_ASSOCIATE_AC(), A_ASSOCIATE_RJ(),
                      P_DATA_TF(), A_RELEASE_RQ(), A_RELEASE_RP(),
@@ -42,15 +42,15 @@ class TestDUL(unittest.TestCase):
         for pdu, evt in zip(pdu_types, event_str):
             self.assertEqual(p2e(pdu), evt)
 
-    def test_socket_to_pdu(self):
+    def test__socket_to_pdu(self):
         """Test that good PDU paramters return expected results"""
         dul = DummyDUL()
-        self.assertEqual(dul.socket_to_pdu(b'\x99\x98'), None)
+        self.assertEqual(dul._socket_to_pdu(b'\x99\x98'), None)
 
-    def test_primitive_to_event(self):
+    def test__primitive_to_event(self):
         """Test that parameter returns expected results"""
         dul = DummyDUL()
-        p2e = dul.primitive_to_event
+        p2e = dul._primitive_to_event
 
         primitive = A_ASSOCIATE()
         primitive.result = None

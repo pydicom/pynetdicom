@@ -75,7 +75,7 @@ class StateMachine(object):
             LOGGER.error("DUL State Machine received an exception attempting "
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
-            self.dul.Kill()
+            self.dul.kill_dul()
             raise ex
 
     def transition(self, state):
@@ -835,7 +835,7 @@ def AA_3(dul):
     dul.to_user_queue.put(dul.primitive)
     dul.scu_socket.close()
     dul.peer_socket = None
-    dul.Kill()
+    dul.kill_dul()
 
     return 'Sta1'
 

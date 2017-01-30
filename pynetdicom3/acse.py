@@ -31,7 +31,7 @@ class ACSEServiceProvider(object):
     UL provider
      * sending to peer AE: DUL FSM converts primitive to PDU, encodes and sends
      * received from peer AE: DUL receives data, decodes into a PDU then
-        converts to primitive which is result of DUL.Receive()
+        converts to primitive which is result of DUL.receive_pdu()
 
     Parameters
     ----------
@@ -154,7 +154,7 @@ class ACSEServiceProvider(object):
         # Send the A-ASSOCIATE request primitive to the peer via the
         #   DICOM UL service
         LOGGER.info("Requesting Association")
-        self.DUL.Send(assoc_rq)
+        self.DUL.send_pdu(assoc_rq)
 
         ## Receive the response from the peer
         #   This may be an A-ASSOCIATE confirmation primitive or an
@@ -162,9 +162,9 @@ class ACSEServiceProvider(object):
         #
         if self.acse_timeout == 0:
             # No timeout
-            assoc_rsp = self.DUL.Receive(True, None)
+            assoc_rsp = self.DUL.receive_pdu(True, None)
         else:
-            assoc_rsp = self.DUL.Receive(True, self.acse_timeout)
+            assoc_rsp = self.DUL.receive_pdu(True, self.acse_timeout)
 
         # Association accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -256,7 +256,7 @@ class ACSEServiceProvider(object):
         assoc_primitive.diagnostic = diagnostic
         assoc_primitive.user_information = []
 
-        self.DUL.Send(assoc_primitive)
+        self.DUL.send_pdu(assoc_primitive)
 
         return assoc_primitive
 
@@ -292,7 +292,7 @@ class ACSEServiceProvider(object):
                                         self.presentation_contexts_accepted
 
         assoc_primitive.result = 0
-        self.DUL.Send(assoc_primitive)
+        self.DUL.send_pdu(assoc_primitive)
         return assoc_primitive
 
     def Release(self):
@@ -315,8 +315,8 @@ class ACSEServiceProvider(object):
         LOGGER.info("Releasing Association")
 
         assoc_release = A_RELEASE()
-        self.DUL.Send(assoc_release)
-        response = self.DUL.Receive(Wait=True)
+        self.DUL.send_pdu(assoc_release)
+        response = self.DUL.receive_pdu(Wait=True)
 
         return response
 
@@ -362,22 +362,22 @@ class ACSEServiceProvider(object):
             raise ValueError("ACSE.Abort() invalid source "
                              "'{0!s}'".format(source))
 
-        self.DUL.Send(assoc_abort)
+        self.DUL.send_pdu(assoc_abort)
         time.sleep(0.5)
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
         the request a confirmation is sent"""
-        rel = self.DUL.Peek()
+        rel = self.DUL.peek_next_pdu()
         if rel.__class__ == A_RELEASE:
             # Make sure this is a A-RELEASE request primitive
             if rel.result == 'affirmative':
                 return False
 
-            self.DUL.Receive(Wait=False)
+            self.DUL.receive_pdu(Wait=False)
             release_rsp = A_RELEASE()
             release_rsp.result = "affirmative"
-            self.DUL.Send(release_rsp)
+            self.DUL.send_pdu(release_rsp)
 
             return True
         else:
@@ -385,11 +385,11 @@ class ACSEServiceProvider(object):
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
-        rel = self.DUL.Peek()
+        rel = self.DUL.peek_next_pdu()
         # Abort is a non-confirmed service no so need to worry if its a request
         #   primitive
         if rel.__class__ in (A_ABORT, A_P_ABORT):
-            self.DUL.Receive(Wait=False)
+            self.DUL.receive_pdu(Wait=False)
             return True
         else:
             return False
@@ -400,7 +400,7 @@ class ACSEServiceProvider(object):
 
     def Kill(self):
         """Kill the ACSE service."""
-        self.DUL.Kill()
+        self.DUL.kill_dul()
 
 
     # ACSE logging/debugging functions

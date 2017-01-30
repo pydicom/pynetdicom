@@ -28,33 +28,6 @@ from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3.dul')
 
-def recvn(sock, n_bytes):
-    """Read `n_bytes` from a socket.
-
-    Parameters
-    ----------
-    sock - socket.socket
-        The socket to read from
-    n - int
-        The number of bytes to read
-    """
-    ret = b''
-    read_length = 0
-    while read_length < n_bytes:
-        tmp = sock.recv(n_bytes - read_length)
-
-        if len(tmp) == 0:
-            return ret
-
-        ret += tmp
-        read_length += len(tmp)
-
-    if read_length != n_bytes:
-        raise RuntimeError("recvn(socket, {}) - Error reading data from " \
-                           "socket.".format(n_bytes))
-
-    return ret
-
 
 class DULServiceProvider(Thread):
     """
@@ -87,17 +60,15 @@ class DULServiceProvider(Thread):
     state_machine : pynetdicom3.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
-    def __init__(self, Socket=None, Port=None, Name='', dul_timeout=None,
+    def __init__(self, socket=None, port=None, dul_timeout=None,
                  acse_timeout=30, local_ae=None, assoc=None):
         """
         Parameters
         ----------
-        Socket : socket.socket, optional
+        socket : socket.socket, optional
             The local AE's listen socket
-        Port : int, optional
+        port : int, optional
             The port number on which to wait for incoming connections
-        Name : str, optional
-            Used help identify the DUL service provider
         dul_timeout : float, optional
             The maximum amount of time to wait for connection responses
             (in seconds)
@@ -106,15 +77,15 @@ class DULServiceProvider(Thread):
         assoc : pynetdicom3.association.Association
             The DUL's current Association
         """
-        if Socket and Port:
+        if socket and port:
             raise ValueError("DULServiceProvider can't be instantiated with "
-                             "both Socket and Port parameters")
+                             "both socket and port parameters")
 
         # The local AE
         self.local_ae = local_ae
         self.association = assoc
 
-        Thread.__init__(self, name=Name)
+        Thread.__init__(self)
 
         # Current primitive and PDU
         self.primitive = None
@@ -145,15 +116,15 @@ class DULServiceProvider(Thread):
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
 
-        if Socket:
+        if socket:
             # A client socket has been given, so the local AE is acting as
             #   an SCP
             # generate an event 5
             self.event_queue.put('Evt5')
-            self.scu_socket = Socket
+            self.scu_socket = socket
             self.peer_address = None
             self.scp_socket = None
-        elif Port:
+        elif port:
             # A port number has been given, so the local AE is acting as an
             #   SCU. Create a new socket using the given port number
             self.scp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -162,7 +133,7 @@ class DULServiceProvider(Thread):
                                        1)
 
             # The port number for the local AE to listen on
-            self.local_port = Port
+            self.local_port = port
             if self.local_port:
                 try:
                     local_address = os.popen('hostname').read()[:-1]
@@ -187,47 +158,46 @@ class DULServiceProvider(Thread):
             self.scu_socket = None
             self.peer_address = None
 
-        self.kill = False
+        self._kill_thread = False
         self.daemon = False
 
         # Controls the minimum delay between loops in run()
         self._run_loop_delay = 0.001
 
-    def Kill(self):
-        """Immediately interrupts the thread"""
-        self.kill = True
-
-    def Stop(self):
+    def idle_timer_expired(self):
         """
-        Interrupts the thread if state is "Sta1"
+        Checks if the idle timer has expired
 
         Returns
         -------
         bool
-            True if Sta1, False otherwise
+            True if the idle timer has expired, False otherwise
         """
-        if self.state_machine.current_state == 'Sta1':
-            self.kill = True
-            # Fix for Issue 39
-            # Give the DUL thread time to exit
-            while self.is_alive():
-                time.sleep(0.001)
+        if self._idle_timer is None:
+            return False
 
+        if self._idle_timer.is_expired:
             return True
 
         return False
 
-    def Send(self, params):
-        """
+    def kill_dul(self):
+        """Immediately interrupts the thread"""
+        self._kill_thread = True
 
-        Parameters
-        ----------
-        params -
-            The parameters to put on FromServiceUser [FIXME]
+    def on_receive_pdu(self):
+        """Called after the first byte of an incoming PDU is read.
         """
-        self.to_provider_queue.put(params)
+        pass
 
-    def Receive(self, Wait=False, Timeout=None):
+    def peek_next_pdu(self):
+        """Check the next PDU to be processed."""
+        try:
+            return self.to_user_queue.queue[0]
+        except (queue.Empty, IndexError):
+            return None
+
+    def receive_pdu(self, Wait=False, Timeout=None):
         """
         Get the next item to be processed out of the queue of items sent
         from the DUL service provider to the service user
@@ -255,138 +225,83 @@ class DULServiceProvider(Thread):
         except queue.Empty:
             return None
 
-    def Peek(self):
-        """Look at next item to be returned by get"""
-        try:
-            return self.to_user_queue.queue[0]
-        # FIXME: this should be the queue exception rather than general
-        except:
-            return None
+    def run(self):
+        """
+        The main threading.Thread run loop. Runs constantly, checking the
+        connection for incoming data. When incoming data is received it
+        categorises it and add its to the `to_user_queue`.
 
-    @staticmethod
-    def primitive_to_event(primitive):
-        """Returns the state machine event associated with sending a primitive.
+        Ripping out this loop and replacing it with event-driven reactor would
+            be nice.
+        """
+        # Main DUL loop
+        while True:
+            if self._idle_timer is not None:
+                self._idle_timer.start()
+
+            # This effectively controls how often the DUL checks the network
+            time.sleep(self._run_loop_delay)
+
+            if self._kill_thread:
+                break
+
+            # Check the connection for incoming data
+            try:
+                # If local AE is SCU also calls _check_incoming_pdu()
+                if self._is_transport_event():
+                    if self._idle_timer is not None:
+                        self._idle_timer.restart()
+                elif self._check_incoming_primitive():
+                    pass
+
+                elif self._is_artim_expired():
+                    self._kill_thread = True
+
+            except:
+                # FIXME: This catch all should be removed
+                self._kill_thread = True
+                raise
+
+            # Check the event queue to see if there is anything to do
+            try:
+                event = self.event_queue.get(False)
+            # If the queue is empty, return to the start of the loop
+            except queue.Empty:
+                continue
+
+            self.state_machine.do_action(event)
+
+    def send_pdu(self, params):
+        """
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.ServiceParameter
-            The Association primitive
+        params -
+            The parameters to put on FromServiceUser [FIXME]
+        """
+        self.to_provider_queue.put(params)
+
+    def stop_dul(self):
+        """
+        Interrupts the thread if state is "Sta1"
 
         Returns
         -------
-        str
-            The event associated with the primitive
+        bool
+            True if Sta1, False otherwise
         """
-        if primitive.__class__ == A_ASSOCIATE:
-            if primitive.result is None:
-                # A-ASSOCIATE Request
-                event_str = 'Evt1'
-            elif primitive.result == 0x00:
-                # A-ASSOCIATE Response (accept)
-                event_str = 'Evt7'
-            else:
-                # A-ASSOCIATE Response (reject)
-                event_str = 'Evt8'
-        elif primitive.__class__ == A_RELEASE:
-            if primitive.result is None:
-                # A-Release Request
-                event_str = 'Evt11'
-            else:
-                # A-Release Response
-                # result is 'affirmative'
-                event_str = 'Evt14'
-        elif primitive.__class__ == A_ABORT:
-            event_str = 'Evt15'
-        elif primitive.__class__ == P_DATA:
-            event_str = 'Evt9'
-        else:
-            raise ValueError("primitive_to_event(): invalid primitive")
+        if self.state_machine.current_state == 'Sta1':
+            self._kill_thread = True
+            # Fix for Issue 39
+            # Give the DUL thread time to exit
+            while self.is_alive():
+                time.sleep(0.001)
 
-        return event_str
+            return True
 
-    def socket_to_pdu(self, data):
-        """Returns the PDU object associated with an incoming data stream.
+        return False
 
-        Parameters
-        ----------
-        data : bytes
-            The incoming data stream
-
-        Returns
-        -------
-        pdu : pynetdicom3.pdu.PDU
-            The decoded data as a PDU object
-        """
-        pdutype = unpack('B', data[0:1])[0]
-        acse = self.association.acse
-
-        if pdutype == 0x01:
-            pdu = A_ASSOCIATE_RQ()
-            acse_callback = acse.debug_receive_associate_rq
-        elif pdutype == 0x02:
-            pdu = A_ASSOCIATE_AC()
-            acse_callback = acse.debug_receive_associate_ac
-        elif pdutype == 0x03:
-            pdu = A_ASSOCIATE_RJ()
-            acse_callback = acse.debug_receive_associate_rj
-        elif pdutype == 0x04:
-            pdu = P_DATA_TF()
-            acse_callback = acse.debug_receive_data_tf
-        elif pdutype == 0x05:
-            pdu = A_RELEASE_RQ()
-            acse_callback = acse.debug_receive_release_rq
-        elif pdutype == 0x06:
-            pdu = A_RELEASE_RP()
-            acse_callback = acse.debug_receive_release_rp
-        elif pdutype == 0x07:
-            pdu = A_ABORT_RQ()
-            acse_callback = acse.debug_receive_abort
-        else:
-            #"Unrecognized or invalid PDU"
-            return None
-
-        pdu.Decode(data)
-
-        # Callback - AE must always be first
-        acse_callback(pdu)
-
-        return pdu
-
-    @staticmethod
-    def pdu_to_event(pdu):
-        """Returns the event associated with the PDU.
-
-        Parameters
-        ----------
-        pdu : pynetdicom3.pdu.PDU
-            The PDU
-
-        Returns
-        -------
-        str
-            The event str associated with the PDU
-        """
-        if pdu.__class__ == A_ASSOCIATE_RQ:
-            event_str = 'Evt6'
-        elif pdu.__class__ == A_ASSOCIATE_AC:
-            event_str = 'Evt3'
-        elif pdu.__class__ == A_ASSOCIATE_RJ:
-            event_str = 'Evt4'
-        elif pdu.__class__ == P_DATA_TF:
-            event_str = 'Evt10'
-        elif pdu.__class__ == A_RELEASE_RQ:
-            event_str = 'Evt12'
-        elif pdu.__class__ == A_RELEASE_RP:
-            event_str = 'Evt13'
-        elif pdu.__class__ == A_ABORT_RQ:
-            event_str = 'Evt16'
-        else:
-            #"Unrecognized or invalid PDU"
-            event_str = 'Evt19'
-
-        return event_str
-
-    def CheckIncomingPDU(self):
+    def _check_incoming_pdu(self):
         """
         Converts an incoming PDU from the peer AE back into a primitive (ie one
         of the following: A-ASSOCIATE, A-RELEASE, A-ABORT, P-DATA, A-P-ABORT)
@@ -435,35 +350,48 @@ class DULServiceProvider(Thread):
                 return
 
             # Byte 2 is Reserved
-            result = recvn(self.scu_socket, 1)
+            result = self._recvn(self.scu_socket, 1)
             bytestream += result
 
             # Bytes 3-6 is the PDU length
             result = unpack('B', result)
-            length = recvn(self.scu_socket, 4)
+            length = self._recvn(self.scu_socket, 4)
 
             bytestream += length
             length = unpack('>L', length)
 
             # Bytes 7-xxxx is the rest of the PDU
-            result = recvn(self.scu_socket, length[0])
+            result = self._recvn(self.scu_socket, length[0])
             bytestream += result
 
             # Determine the type of PDU coming on remote port, then decode
             # the raw bytestream to the corresponding PDU class
-            self.pdu = self.socket_to_pdu(bytestream)
+            self.pdu = self._socket_to_pdu(bytestream)
 
             # Put the event corresponding to the incoming PDU on the queue
-            self.event_queue.put(self.pdu_to_event(self.pdu))
+            self.event_queue.put(self._pdu_to_event(self.pdu))
 
             # Convert the incoming PDU to a corresponding ServiceParameters
             #   object
             self.primitive = self.pdu.ToParams()
 
-    def CheckTimer(self):
-        """
-        Check if the state machine's ARTIM timer has expired. If it has then
-        Evt18 is added to the event queue.
+    def _check_incoming_primitive(self):
+        """Check the incoming primitive."""
+        #LOGGER.debug('%s: checking incoming primitive' % (self.name))
+        # look at self.ReceivePrimitive for incoming primitives
+        try:
+            # Check the queue and see if there are any primitives
+            # If so then put the corresponding event on the event queue
+            self.primitive = self.to_provider_queue.get(False)
+            self.event_queue.put(self._primitive_to_event(self.primitive))
+            return True
+        except queue.Empty:
+            return False
+
+    def _is_artim_expired(self):
+        """Return if the state machine's ARTIM timer has expired.
+
+        If it has then 'Evt18' is added to the event queue.
 
         Returns
         -------
@@ -477,41 +405,7 @@ class DULServiceProvider(Thread):
 
         return False
 
-    def idle_timer_expired(self):
-        """
-        Checks if the idle timer has expired
-
-        Returns
-        -------
-        bool
-            True if the idle timer has expired, False otherwise
-        """
-        if self._idle_timer is None:
-            return False
-
-        if self._idle_timer.is_expired:
-            return True
-
-        return False
-
-    def CheckIncomingPrimitive(self):
-        """Check the incoming primitive."""
-        #LOGGER.debug('%s: checking incoming primitive' % (self.name))
-        # look at self.ReceivePrimitive for incoming primitives
-        try:
-            # Check the queue and see if there are any primitives
-            # If so then put the corresponding event on the event queue
-            self.primitive = self.to_provider_queue.get(False)
-            self.event_queue.put(self.primitive_to_event(self.primitive))
-            return True
-        except queue.Empty:
-            return False
-
-    def CheckNetwork(self):
-        """Check the network."""
-        return self.is_transport_connection_event()
-
-    def is_transport_connection_event(self):
+    def _is_transport_event(self):
         """Check to see if the transport connection has incoming data
 
         Returns
@@ -578,65 +472,159 @@ class DULServiceProvider(Thread):
                 return False
 
             if read_list:
-                self.CheckIncomingPDU()
+                self._check_incoming_pdu()
                 return True
 
         else:
             return False
 
-    def run(self):
+    @staticmethod
+    def _pdu_to_event(pdu):
+        """Returns the event associated with the PDU.
+
+        Parameters
+        ----------
+        pdu : pynetdicom3.pdu.PDU
+            The PDU
+
+        Returns
+        -------
+        str
+            The event str associated with the PDU
         """
-        The main threading.Thread run loop. Runs constantly, checking the
-        connection for incoming data. When incoming data is received it
-        categorises it and add its to the `to_user_queue`.
+        if pdu.__class__ == A_ASSOCIATE_RQ:
+            event_str = 'Evt6'
+        elif pdu.__class__ == A_ASSOCIATE_AC:
+            event_str = 'Evt3'
+        elif pdu.__class__ == A_ASSOCIATE_RJ:
+            event_str = 'Evt4'
+        elif pdu.__class__ == P_DATA_TF:
+            event_str = 'Evt10'
+        elif pdu.__class__ == A_RELEASE_RQ:
+            event_str = 'Evt12'
+        elif pdu.__class__ == A_RELEASE_RP:
+            event_str = 'Evt13'
+        elif pdu.__class__ == A_ABORT_RQ:
+            event_str = 'Evt16'
+        else:
+            #"Unrecognized or invalid PDU"
+            event_str = 'Evt19'
 
-        Ripping out this loop and replacing it with event-driven reactor would
-            be nice.
+        return event_str
+
+    @staticmethod
+    def _primitive_to_event(primitive):
+        """Returns the state machine event associated with sending a primitive.
+
+        Parameters
+        ----------
+        primitive : pynetdicom3.primitives.ServiceParameter
+            The Association primitive
+
+        Returns
+        -------
+        str
+            The event associated with the primitive
         """
-        #LOGGER.debug('Starting DICOM UL service "%s"' %self.name)
+        if primitive.__class__ == A_ASSOCIATE:
+            if primitive.result is None:
+                # A-ASSOCIATE Request
+                event_str = 'Evt1'
+            elif primitive.result == 0x00:
+                # A-ASSOCIATE Response (accept)
+                event_str = 'Evt7'
+            else:
+                # A-ASSOCIATE Response (reject)
+                event_str = 'Evt8'
+        elif primitive.__class__ == A_RELEASE:
+            if primitive.result is None:
+                # A-Release Request
+                event_str = 'Evt11'
+            else:
+                # A-Release Response
+                # result is 'affirmative'
+                event_str = 'Evt14'
+        elif primitive.__class__ == A_ABORT:
+            event_str = 'Evt15'
+        elif primitive.__class__ == P_DATA:
+            event_str = 'Evt9'
+        else:
+            raise ValueError("_primitive_to_event(): invalid primitive")
 
-        # Main DUL loop
-        while True:
-            if self._idle_timer is not None:
-                self._idle_timer.start()
+        return event_str
 
-            # This effectively controls how often the DUL checks the network
-            time.sleep(self._run_loop_delay)
+    @staticmethod
+    def _recvn(sock, n_bytes):
+        """Read `n_bytes` from a socket.
 
-            if self.kill:
-                break
-
-            # Check the connection for incoming data
-            try:
-                # If local AE is SCU also calls CheckIncomingPDU()
-                if self.CheckNetwork():
-                    if self._idle_timer is not None:
-                        self._idle_timer.restart()
-                elif self.CheckIncomingPrimitive():
-                    pass
-
-                elif self.CheckTimer():
-                    self.kill = True
-
-            except:
-                # FIXME: This catch all should be removed
-                self.kill = True
-                raise
-
-            # Check the event queue to see if there is anything to do
-            try:
-                event = self.event_queue.get(False)
-            # If the queue is empty, return to the start of the loop
-            except queue.Empty:
-                continue
-
-            self.state_machine.do_action(event)
-
-        #LOGGER.debug('DICOM UL service "%s" stopped' %self.name)
-
-    def on_receive_pdu(self):
+        Parameters
+        ----------
+        sock : socket.socket
+            The socket to read from
+        n_bytes : int
+            The number of bytes to read
         """
-        Callback function that is called after the first byte of an incoming
-        PDU is read
+        ret = b''
+        read_length = 0
+        while read_length < n_bytes:
+            tmp = sock.recv(n_bytes - read_length)
+
+            if len(tmp) == 0:
+                return ret
+
+            ret += tmp
+            read_length += len(tmp)
+
+        if read_length != n_bytes:
+            raise RuntimeError("_recvn(socket, {}) - Error reading data from " \
+                               "socket.".format(n_bytes))
+
+        return ret
+
+    def _socket_to_pdu(self, data):
+        """Returns the PDU object associated with an incoming data stream.
+
+        Parameters
+        ----------
+        data : bytes
+            The incoming data stream
+
+        Returns
+        -------
+        pdu : pynetdicom3.pdu.PDU
+            The decoded data as a PDU object
         """
-        pass
+        pdutype = unpack('B', data[0:1])[0]
+        acse = self.association.acse
+
+        if pdutype == 0x01:
+            pdu = A_ASSOCIATE_RQ()
+            acse_callback = acse.debug_receive_associate_rq
+        elif pdutype == 0x02:
+            pdu = A_ASSOCIATE_AC()
+            acse_callback = acse.debug_receive_associate_ac
+        elif pdutype == 0x03:
+            pdu = A_ASSOCIATE_RJ()
+            acse_callback = acse.debug_receive_associate_rj
+        elif pdutype == 0x04:
+            pdu = P_DATA_TF()
+            acse_callback = acse.debug_receive_data_tf
+        elif pdutype == 0x05:
+            pdu = A_RELEASE_RQ()
+            acse_callback = acse.debug_receive_release_rq
+        elif pdutype == 0x06:
+            pdu = A_RELEASE_RP()
+            acse_callback = acse.debug_receive_release_rp
+        elif pdutype == 0x07:
+            pdu = A_ABORT_RQ()
+            acse_callback = acse.debug_receive_abort
+        else:
+            #"Unrecognized or invalid PDU"
+            return None
+
+        pdu.Decode(data)
+
+        # Callback - AE must always be first
+        acse_callback(pdu)
+
+        return pdu

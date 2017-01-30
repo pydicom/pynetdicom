@@ -41,17 +41,17 @@ LOGGER.setLevel(logging.CRITICAL)
 class DummyDUL(object):
     """Dummy DUL class for testing DIMSE provider"""
     @staticmethod
-    def Send(pdv):
+    def send_pdu(pdv):
         """Dummy Send method to test DIMSEServiceProvider.Send"""
         pass
-        
+
     @staticmethod
-    def Receive():
+    def receive_pdu():
         """Dummy Receive method to test DIMSEServiceProvider.Receive"""
         pass
-        
+
     @staticmethod
-    def Peek():
+    def peek_next_pdu():
         return 0x01
 
 
@@ -71,7 +71,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = C_ECHO()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'C_ECHO_RQ')
@@ -87,14 +87,14 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_ECHO_RSP')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-    
+
     def test_send_c_store(self):
         """Check sending DIMSE C-STORE messages."""
         # C-STORE-RQ
         primitive = C_STORE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'C_STORE_RQ')
@@ -110,14 +110,14 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_STORE_RSP')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-        
+
     def test_send_c_find(self):
         """Check sending DIMSE C-FIND messages."""
         # C-FIND-RQ
         primitive = C_FIND()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'C_FIND_RQ')
@@ -133,7 +133,7 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_FIND_RSP')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-CANCEL-FIND
         primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 1
@@ -142,14 +142,14 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_CANCEL_RQ')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-        
+
     def test_send_c_get(self):
         """Check sending DIMSE C-GET messages."""
         # C-GET-RQ
         primitive = C_GET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'C_GET_RQ')
@@ -165,7 +165,7 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_GET_RSP')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-GET-FIND
         primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 1
@@ -174,14 +174,14 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_CANCEL_RQ')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-        
+
     def test_send_c_move(self):
         """Check sending DIMSE C-MOVE messages."""
         # C-MOVE-RQ
         primitive = C_MOVE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'C_MOVE_RQ')
@@ -197,7 +197,7 @@ class TestDIMSEProvider(unittest.TestCase):
             self.assertEqual(msg.__class__.__name__, 'C_MOVE_RSP')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-MOVE-FIND
         primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 1
@@ -213,7 +213,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = N_EVENT_REPORT()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'N_EVENT_REPORT_RQ')
@@ -236,7 +236,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = N_GET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'N_GET_RQ')
@@ -259,7 +259,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = N_SET()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'N_SET_RQ')
@@ -282,7 +282,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = N_ACTION()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'N_ACTION_RQ')
@@ -305,7 +305,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = N_CREATE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'N_CREATE_RQ')
@@ -328,7 +328,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive = N_DELETE()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
-        
+
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'N_DELETE_RQ')
@@ -349,23 +349,23 @@ class TestDIMSEProvider(unittest.TestCase):
     def test_receive_timeout(self):
         """Test the DIMSE timeout on Receive works"""
         pass
-    
+
     def test_receive_c_echo(self):
         """Check receiving DIMSE C-ECHO messages."""
         pass
-    
+
     def test_receive_c_store(self):
         """Check receiving DIMSE C-STORE messages."""
         pass
-        
+
     def test_receive_c_find(self):
         """Check receiving DIMSE C-FIND messages."""
         pass
-        
+
     def test_receive_c_get(self):
         """Check receiving DIMSE C-GET messages."""
         pass
-        
+
     def test_receive_c_move(self):
         """Check receiving DIMSE C-MOVE messages."""
         pass
@@ -408,13 +408,13 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-ECHO-RSP
         primitive = C_ECHO()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
-    
+
     def test_callback_send_c_store(self):
         """Check callback for sending DIMSE C-STORE messages."""
         # C-STORE-RQ
@@ -440,7 +440,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
         self.dimse.Send(primitive, 1, 30000)
-        
+
     def test_callback_send_c_find(self):
         """Check callback for sending DIMSE C-FIND messages."""
         # C-FIND-RQ
@@ -470,12 +470,12 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.Identifier = bytestream
         primitive.Status = 0xFF00 # Only has dataset when 0xFF00 or 0xFF01
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-CANCEL-FIND
         primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 1
         self.dimse.Send(primitive, 1, 30000)
-        
+
     def test_callback_send_c_get(self):
         """Check callback for sending DIMSE C-GET messages."""
         # C-GET-RQ
@@ -503,12 +503,12 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         bytestream.write(c_store_ds)
         primitive.Identifier = bytestream
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-GET-FIND
         primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 1
         self.dimse.Send(primitive, 1, 30000)
-        
+
     def test_callback_send_c_move(self):
         """Check callback for sending DIMSE C-MOVE messages."""
         # C-MOVE-RQ
@@ -537,7 +537,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         bytestream.write(c_store_ds)
         primitive.Identifier = bytestream
         self.dimse.Send(primitive, 1, 30000)
-        
+
         # C-MOVE-FIND
         primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 1
@@ -638,11 +638,11 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         msg.primitive_to_message(primitive)
         msg.ID = 1
         self.dimse.debug_receive_c_echo_rq(msg)
-        
+
         # C-ECHO-RSP
         msg = C_ECHO_RQ()
         self.dimse.debug_receive_c_echo_rsp(msg)
-    
+
     def test_callback_receive_c_store(self):
         """Check callback for sending DIMSE C-STORE messages."""
         # C-STORE-RQ
@@ -655,7 +655,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
         primitive.MoveOriginatorMessageID = 3
         primitive.DataSet = BytesIO()
-        
+
         # No dataset
         msg = C_STORE_RQ()
         msg.primitive_to_message(primitive)
@@ -672,7 +672,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         msg.primitive_to_message(primitive)
         # Dataset
         self.dimse.debug_receive_c_store_rq(msg)
-        
+
         # C-STORE-RSP
         primitive = C_STORE()
         primitive.MessageIDBeingRespondedTo = 7
@@ -682,7 +682,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
         primitive.MoveOriginatorMessageID = 3
         primitive.DataSet = BytesIO()
-        
+
         # Check statuses + no dataset
         for status in [0x0000, 0xb000, 0xb007, 0xb006, 0xa700, 0xa900, 0xc000]:
             primitive.Status = status
@@ -700,7 +700,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         # Dataset
         msg.data_set = BytesIO(encode(ref_ds, True, True))
         self.dimse.debug_receive_c_store_rsp(msg)
-    
+
     def test_callback_receive_c_find(self):
         """Check callback for receiving DIMSE C-FIND messages."""
         # C-FIND-RQ
@@ -713,7 +713,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
         primitive.MoveOriginatorMessageID = 3
         primitive.Identifier = BytesIO()
-        
+
         # No dataset
         msg = C_FIND_RQ()
         msg.primitive_to_message(primitive)
@@ -730,7 +730,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         msg.primitive_to_message(primitive)
         # Dataset
         self.dimse.debug_receive_c_find_rq(msg)
-        
+
         # C-FIND-RSP
         primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 7
@@ -740,10 +740,10 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
         primitive.MoveOriginatorMessageID = 3
         primitive.Identifier = BytesIO()
-        
+
         # No dataset
         primitive.Status = 0x0000 # Must be for pending
-        
+
         msg = C_FIND_RSP()
         msg.primitive_to_message(primitive)
         self.dimse.debug_receive_c_find_rsp(msg)
@@ -754,14 +754,14 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         # Dataset
         msg.data_set = BytesIO(encode(ref_ds, True, True))
         self.dimse.debug_receive_c_find_rsp(msg)
-        
+
         # Non-pending status
         msg.data_set.Status = 0x0001
         self.dimse.debug_receive_c_find_rsp(msg)
-        
+
         # C-CANCEL-FIND-RQ
         self.dimse.debug_receive_c_cancel_rq(msg)
-    
+
     def test_callback_receive_c_get(self):
         """Check callback for receiving DIMSE C-GET messages."""
         # C-GET-RQ
@@ -774,7 +774,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
         primitive.MoveOriginatorMessageID = 3
         primitive.Identifier = BytesIO()
-        
+
         # No dataset
         msg = C_GET_RQ()
         msg.primitive_to_message(primitive)
@@ -791,7 +791,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         msg.primitive_to_message(primitive)
         # Dataset
         self.dimse.debug_receive_c_get_rq(msg)
-        
+
         # C-GET-RSP
         primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 7
@@ -804,7 +804,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.NumberOfCompletedSuboperations = 1
         primitive.NumberOfWarningSuboperations = 3
         primitive.NumberOfFailedSuboperations = 4
-        
+
         # No dataset, remaining subops
         primitive.Status = 0x0000 # Must be for pending
         msg = C_GET_RSP()
@@ -819,21 +819,21 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.NumberOfRemainingSuboperations = 2
 
         msg = C_GET_RSP()
-        
+
         msg.primitive_to_message(primitive)
-        
+
         # Dataset
         self.dimse.debug_receive_c_get_rsp(msg)
-        
+
         # C-CANCEL-GET-RQ
         self.dimse.debug_receive_c_cancel_rq(msg)
-    
+
     def test_callback_receive_c_move(self):
         """Check callback for receiving DIMSE C-MOVE messages."""
         # C-MOVE-RQ
         msg = C_MOVE_RQ()
         self.dimse.debug_receive_c_move_rq(msg)
-        
+
         # C-MOVE-RSP
         primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 7
@@ -846,7 +846,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.NumberOfCompletedSuboperations = 1
         primitive.NumberOfWarningSuboperations = 3
         primitive.NumberOfFailedSuboperations = 4
-        
+
         # No dataset, remaining subops
         primitive.Status = 0x0000 # Must be for pending
         msg = C_MOVE_RSP()
@@ -861,15 +861,15 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.NumberOfRemainingSuboperations = 2
 
         msg = C_GET_RSP()
-        
+
         msg.primitive_to_message(primitive)
-        
+
         # Dataset
         self.dimse.debug_receive_c_move_rsp(msg)
-        
+
         # C-CANCEL-MOVE-RQ
         self.dimse.debug_receive_c_cancel_rq(msg)
-    
+
     def test_callback_receive_n_event_report(self):
         """Check callback for receiving DIMSE N-EVENT-REPORT messages."""
         # N-EVENT-REPORT-RQ
