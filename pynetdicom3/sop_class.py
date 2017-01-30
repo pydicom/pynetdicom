@@ -813,7 +813,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             for elem in dataset:
                 LOGGER.info(elem)
             LOGGER.info('')
-        except (AttributeError, NotImplementedError, TypeError):
+        except (AttributeError, NotImplementedError, TypeError, KeyError):
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_move_rsp.Status = int(self.UnableToProcess)
             self.DIMSE.Send(c_move_rsp, self.pcid, self.ACSE.MaxPDULength)
@@ -935,10 +935,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     #   performed send Pending statuses back to the peer
                     store_status = assoc.send_c_store(dataset)
 
-                    # Convert int status to Status
-                    if isinstance(store_status, int):
-                        store_status = \
-                                StorageServiceClass.code_to_status(store_status)
+                    store_status = \
+                            StorageServiceClass().code_to_status(store_status)
 
                     LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
                                 store_status.status_type)
@@ -1071,7 +1069,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             for elem in dataset:
                 LOGGER.info(elem)
             LOGGER.info('')
-        except (AttributeError, NotImplementedError, TypeError):
+        except (AttributeError, NotImplementedError, TypeError, KeyError):
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_get_rsp.Status = int(self.UnableToProcess)
             self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
@@ -1108,7 +1106,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             except (ValueError, TypeError):
                 LOGGER.error("ApplicationEntity.on_c_move() returned an "
                              "invalid status value.")
-                assoc.release()
                 c_get_rsp.Status = int(self.UnableToProcess)
                 self.DIMSE.Send(c_get_rsp, self.pcid, self.ACSE.MaxPDULength)
                 return
@@ -1145,9 +1142,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                                                              msg.MessageID,
                                                              priority)
 
-                if isinstance(store_status, int):
-                    store_status = \
-                                StorageServiceClass.code_to_status(store_status)
+                store_status = StorageServiceClass().code_to_status(store_status)
 
                 LOGGER.info('Get SCU: Received Store SCU RSP (%s)',
                             store_status.status_type)

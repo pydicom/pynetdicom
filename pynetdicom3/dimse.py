@@ -497,6 +497,8 @@ class DIMSEServiceProvider(object):
         dataset = 'None'
         if dimse_msg.data_set.getvalue() != b'':
             dataset = 'Present'
+        
+        LOGGER.info("Sending Get Request: MsgID %s%s", ds.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
@@ -640,7 +642,7 @@ class DIMSEServiceProvider(object):
         if dimse_msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        LOGGER.info("Sending Store Request: MsgID %s", ds.MessageID)
+        LOGGER.info("Sending Move Request: MsgID %s", ds.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
@@ -678,8 +680,12 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : none')
+                                        .format(ds.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClass' in ds:
+            s.append('Affected SOP Class UID        : {0!s}'
+                                        .format(ds.AffectedSOPClassUID))
+        else:
+            s.append('Affected SOP Class UID        : none')
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
 

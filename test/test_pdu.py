@@ -48,6 +48,12 @@ class TestPDU(unittest.TestCase):
         pdu.Decode(a_associate_ac)
 
         self.assertEqual(pdu.length, pdu.get_length())
+        
+    def test_decode(self):
+        """Check that encode raises not implemented"""
+        pdu = A_ASSOCIATE_AC()
+        with self.assertRaises(NotImplementedError):
+            pdu.decode(a_associate_ac)
 
 
 class TestPDU_NextItem(unittest.TestCase):
@@ -326,6 +332,7 @@ class TestPDU_A_ASSOC_RQ_ApplicationContext(unittest.TestCase):
         self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
         self.assertTrue(isinstance(app_context.application_context_name, UID))
 
+
 class TestPDU_A_ASSOC_RQ_PresentationContext(unittest.TestCase):
     def test_stream_decode_values_types(self):
         """ Check decoding an assoc_rq produces the correct presentation context """
@@ -370,6 +377,7 @@ class TestPDU_A_ASSOC_RQ_PresentationContext(unittest.TestCase):
         syntax = pdu.presentation_context[0].transfer_syntax[0]
         self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
 
+
 class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(unittest.TestCase):
     def test_decode_value_type(self):
         """ Check decoding an assoc_rq produces the correct abstract syntax """
@@ -386,6 +394,7 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(unittest.TestCase):
         self.assertTrue(isinstance(abstract_syntax.item_type, int))
         self.assertTrue(isinstance(abstract_syntax.item_length, int))
         self.assertTrue(isinstance(abstract_syntax.abstract_syntax_name, UID))
+
 
 class TestPDU_A_ASSOC_RQ_PresentationContext_TransferSyntax(unittest.TestCase):
     def test_decode_value_type(self):
@@ -407,6 +416,7 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_TransferSyntax(unittest.TestCase):
         # Check first transfer syntax is little endian implicit
         syntax = transfer_syntaxes[0]
         self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
+
 
 class TestPDU_A_ASSOC_RQ_UserInformation(unittest.TestCase):
     def test_decode_value_type(self):
@@ -471,8 +481,8 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         pdu.reserved_aet = b'TESTA'
         self.assertEqual(pdu.called_ae_title, b'TESTA')
         self.assertTrue(isinstance(pdu.called_ae_title, bytes))
-        pdu.reserved_aet = 'TESTA'
-        self.assertEqual(pdu.called_ae_title, b'TESTA')
+        pdu.reserved_aet = 'TESTB'
+        self.assertEqual(pdu.called_ae_title, b'TESTB')
         self.assertTrue(isinstance(pdu.called_ae_title, bytes))
 
         # calling_ae_title
@@ -480,8 +490,8 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
         pdu.reserved_aec = b'TESTA'
         self.assertEqual(pdu.calling_ae_title, b'TESTA')
         self.assertTrue(isinstance(pdu.calling_ae_title, bytes))
-        pdu.reserved_aec = 'TESTA'
-        self.assertEqual(pdu.calling_ae_title, b'TESTA')
+        pdu.reserved_aec = 'TESTB'
+        self.assertEqual(pdu.calling_ae_title, b'TESTB')
         self.assertTrue(isinstance(pdu.calling_ae_title, bytes))
 
     def test_string_output(self):
@@ -640,6 +650,7 @@ class TestPDU_A_ASSOC_AC(unittest.TestCase):
 
         self.assertEqual(s, t)
 
+
 class TestPDU_A_ASSOC_AC_ApplicationContext(unittest.TestCase):
     def test_stream_decode_values_types(self):
         """ Check decoding an assoc_ac produces the correct application context """
@@ -657,6 +668,7 @@ class TestPDU_A_ASSOC_AC_ApplicationContext(unittest.TestCase):
 
         self.assertEqual(app_context.application_context_name, '1.2.840.10008.3.1.1.1')
         self.assertTrue(isinstance(app_context.application_context_name, UID))
+
 
 class TestPDU_A_ASSOC_AC_PresentationContext(unittest.TestCase):
     def test_stream_decode_values_types(self):
@@ -697,6 +709,7 @@ class TestPDU_A_ASSOC_AC_PresentationContext(unittest.TestCase):
         self.assertTrue(isinstance(syntax, UID))
         self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
 
+
 class TestPDU_A_ASSOC_AC_PresentationContext_TransferSyntax(unittest.TestCase):
     def test_decode_value_type(self):
         """ Check decoding an assoc_ac produces the correct transfer syntax """
@@ -709,6 +722,7 @@ class TestPDU_A_ASSOC_AC_PresentationContext_TransferSyntax(unittest.TestCase):
         self.assertTrue(isinstance(syntax, UID))
         self.assertTrue(syntax.is_transfer_syntax)
         self.assertEqual(syntax, UID('1.2.840.10008.1.2'))
+
 
 class TestPDU_A_ASSOC_AC_UserInformation(unittest.TestCase):
     def test_decode_value_type(self):

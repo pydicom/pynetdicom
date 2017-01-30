@@ -4780,8 +4780,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
                 value = UID(value.decode('utf-8'))
             elif isinstance(value, str):
                 value = UID(value)
-            elif isinstance(value, UID):
-                pass
             else:
                 raise TypeError('related_general_sop_class_identification ' \
                                 'must be str, bytes or pydicom.uid.UID')

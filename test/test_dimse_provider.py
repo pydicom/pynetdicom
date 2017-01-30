@@ -49,6 +49,10 @@ class DummyDUL(object):
     def Receive():
         """Dummy Receive method to test DIMSEServiceProvider.Receive"""
         pass
+        
+    @staticmethod
+    def Peek():
+        return 0x01
 
 
 class TestDIMSEProvider(unittest.TestCase):
@@ -56,6 +60,10 @@ class TestDIMSEProvider(unittest.TestCase):
     def setUp(self):
         """Set up"""
         self.dimse = DIMSEServiceProvider(DummyDUL(), 1)
+
+    def test_receive_not_pdata(self):
+        """Test we get back None if not a P_DATA"""
+        self.assertEqual(self.dimse.Receive(True, None), (None, None))
 
     def test_send_c_echo(self):
         """Check sending DIMSE C-ECHO messages."""

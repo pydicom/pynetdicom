@@ -22,11 +22,8 @@ from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
                                       C_ECHO_RQ, C_ECHO_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_GET_RQ, C_GET_RSP
-from pynetdicom3.dimse_primitives import C_ECHO, \
-                                        C_MOVE, \
-                                        C_STORE, \
-                                        C_GET, \
-                                        C_FIND
+from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
+                                        C_FIND, C_CANCEL
 #from pynetdicom3.utils import wrap_list
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
@@ -35,6 +32,19 @@ from pynetdicom3.utils import validate_ae_title
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
+
+class TestPrimitive_C_CANCEL(unittest.TestCase):
+    """Test DIMSE C-CANCEL operations."""
+    def test_assignment(self):
+        """ Check assignment works correctly """
+        primitive = C_CANCEL()
+
+        primitive.MessageIDBeingRespondedTo = 13
+        self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
+        with self.assertRaises(ValueError):
+            primitive.MessageIDBeingRespondedTo = 100000
+        with self.assertRaises(TypeError):
+            primitive.MessageIDBeingRespondedTo = 'test'
 
 class TestPrimitive_C_STORE(unittest.TestCase):
     """Test DIMSE C-STORE operations."""
