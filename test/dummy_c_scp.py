@@ -29,7 +29,8 @@ LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
+BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
+DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
@@ -137,7 +138,10 @@ class DummyStorageSCP(DummyBaseSCP):
     success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
     def __init__(self, port=11112):
-        self.ae = AE(scp_sop_class=[CTImageStorage,
+        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                                    StudyRootQueryRetrieveInformationModelMove,
+                                    PatientStudyOnlyQueryRetrieveInformationModelMove,
+                                    CTImageStorage,
                                     RTImageStorage, MRImageStorage], port=port)
         DummyBaseSCP.__init__(self)
         self.status = self.success
@@ -193,6 +197,10 @@ class DummyFindSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
+        if not isinstance(self.status, Status):
+            yield self.status, None
+            return
+        
         if self.status.status_type != 'Pending':
             yield self.status, None
 
@@ -236,12 +244,13 @@ class DummyGetSCP(DummyBaseSCP):
     pending = Status('Pending',
                      'Sub-operations are continuing',
                      range(0xFF00, 0xFF00 + 1))
+    
     def __init__(self):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                     StudyRootQueryRetrieveInformationModelGet,
                                     PatientStudyOnlyQueryRetrieveInformationModelGet,
-                                    RTImageStorage],
-                     scu_sop_class=[RTImageStorage],
+                                    CTImageStorage],
+                     scu_sop_class=[CTImageStorage],
                      port=11112)
         DummyBaseSCP.__init__(self)
         self.status = self.success
@@ -302,12 +311,14 @@ class DummyMoveSCP(DummyBaseSCP):
                      range(0x0000, 0x0000 + 1))
     pending = Status('Pending', 'Sub-operations are continuing',
                      range(0xFF00, 0xFF00 + 1))
+    
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                     StudyRootQueryRetrieveInformationModelMove,
                                     PatientStudyOnlyQueryRetrieveInformationModelMove,
-                                    RTImageStorage],
-                     scu_sop_class=[RTImageStorage],
+                                    RTImageStorage, CTImageStorage],
+                     scu_sop_class=[RTImageStorage,
+                                    CTImageStorage],
                      port=port)
         DummyBaseSCP.__init__(self)
         self.status = self.pending
@@ -322,22 +333,23 @@ class DummyMoveSCP(DummyBaseSCP):
 
         # Check move_aet first
         if move_aet != b'TESTMOVE        ':
-            print('AET unknown')
             yield 1
             yield None, None
 
         if self.status.status_type not in ['Pending', 'Warning']:
             yield 1
+            yield 'localhost', 11113
             yield self.status, None
 
         if self.cancel:
             yield 1
+            yield 'localhost', 11113
             yield self.cancel, None
 
         yield 2
         yield 'localhost', 11113
         for ii in range(2):
-            yield self.status, ds
+            yield self.status, DATASET
 
     def on_c_cancel_find(self):
         """Callback for ae.on_c_cancel_move"""

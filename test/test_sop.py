@@ -74,7 +74,16 @@ class TestServiceClass(unittest.TestCase):
         sop = VerificationServiceClass()
         with self.assertRaises(ValueError):
             sop.code_to_status(0x0001)
+
+        status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
+        with self.assertRaises(ValueError):
+            sop.code_to_status(status)
             
+        with self.assertRaises(TypeError):
+            sop.code_to_status('test')
+        
+        self.assertEqual(sop.Success, sop.code_to_status(sop.Success))
+        
         with self.assertRaises(TypeError):
             sop.code_to_status('test')
 

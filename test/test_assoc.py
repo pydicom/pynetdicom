@@ -19,6 +19,9 @@ from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
 from pynetdicom3.dimse_primitives import C_STORE
 from pynetdicom3.dsutils import encode, decode
+from pynetdicom3.primitives import UserIdentityNegotiation, \
+                                   SOPClassExtendedNegotiation, \
+                                   SOPClassCommonExtendedNegotiation
 from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  RTImageStorage, \
                                  PatientRootQueryRetrieveInformationModelFind, \
@@ -33,10 +36,11 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
+BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
+DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
@@ -244,10 +248,61 @@ class TestAssociation(unittest.TestCase):
         assoc.abort()
         scp.stop()
 
-    # test SCP removal of user information
-    # test SCP removal of extended negotiation
-    # test SCP removal of common ext negotiation
-    # test reached association limit
+    def test_scp_removed_ui(self):
+        """Test SCP removes UI negotiation"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ui = UserIdentityNegotiation()
+        ui.user_identity_type = 0x01
+        ui.primary_field = b'pynetdicom'
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112, ext_neg=[ui])
+        self.assertTrue(assoc.is_established)
+        assoc.release()
+        scp.stop()
+
+    def test_scp_removed_ext_neg(self):
+        """Test SCP removes ex negotiation"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ext = SOPClassExtendedNegotiation()
+        ext.sop_class_uid = '1.1.1.1'
+        ext.service_class_application_information = b'\x01\x02'
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112, ext_neg=[ext])
+        self.assertTrue(assoc.is_established)
+        assoc.release()
+        scp.stop()
+
+    def test_scp_removed_com_ext_neg(self):
+        """Test SCP removes common ext negotiation"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ext = SOPClassCommonExtendedNegotiation()
+        self.related_general_sop_class_identification = ['1.2.1']
+        ext.sop_class_uid = '1.1.1.1'
+        ext.service_class_uid = '1.1.3'
+        
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112, ext_neg=[ext])
+        self.assertTrue(assoc.is_established)
+        assoc.release()
+        scp.stop()
+
+    def test_scp_assoc_limit(self):
+        """Test SCP limits associations"""
+        scp = DummyVerificationSCP()
+        scp.ae.maximum_associations = 1
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        assoc_2 = ae.associate('localhost', 11112)
+        self.assertFalse(assoc_2.is_established)
+        assoc.release()
+        scp.stop()
 
 
 class TestAssociationSendCEcho(unittest.TestCase):
@@ -305,31 +360,103 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
 class TestAssociationSendCStore(unittest.TestCase):
     """Run tests on Assocation send_c_store."""
-    def test_must_be_associated(self):
-        """Test can't send without association."""
-        # Test raise if assoc not established
+    def test_bad_dataset(self):
+        """Test failure if unable to encode dataset"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage],
+                transfer_syntax=[ExplicitVRLittleEndian])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        DATASET.PerimeterValue = b'\x00\x01'
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(int(result), 0xC000)
+        assoc.release()
+        del DATASET.PerimeterValue # Fix up our changes
+        scp.stop()
+
+    @unittest.skip # Very difficult to test
+    def test_bad_ds(self):
+        """Test returns failure status if dataset cant be decoded by SCP"""
+        scp = DummyStorageSCP()
+        scp.start()
+
+        ## Need to bypass the standard send_c_store checks
+        # Build C-STORE request primitive
+        primitive = C_STORE()
+        primitive.MessageID = 1
+        primitive.AffectedSOPClassUID = DATASET.SOPClassUID
+        primitive.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        primitive.Priorty = 0x0002
+        primitive.DataSet = BytesIO(b'\x08\x00\x05\x00\x43\x53\x08\x00\x49\x53\x4f\x54\x45\x53\x54\x00')
+
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        
+        # Send C-STORE request primitive to DIMSE and get response
+        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+
+        self.assertEqual(rsp.Status, 0xC000)
+        assoc.release()
+        scp.stop()
+
+    def test_bad_priority(self):
+        """Test bad priority gets reset"""
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_store(DATASET, priority=0x0003)
+        self.assertEqual(int(result), 0x0000)
         assoc.release()
-        self.assertFalse(assoc.is_established)
-        with self.assertRaises(RuntimeError):
-            assoc.send_c_store(DATASET)
         scp.stop()
 
-    def test_no_abstract_syntax_match(self):
-        """Test when no accepted abstract syntax"""
-        scp = DummyVerificationSCP()
+    def test_bad_user_on_c_store(self):
+        """Test exception raised in on_c_store returns failure status"""
+        scp = DummyStorageSCP()
+        def on_c_store(ds): raise RuntimeError
+        scp.ae.on_c_store = on_c_store
         scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_store(DATASET)
-        self.assertEqual(int(result), 0xc000)
+        response = assoc.send_c_store(DATASET)
+        self.assertEqual(int(response), 0xc000)
         assoc.release()
         scp.stop()
-
+    
+    def test_bad_user_on_c_store_return(self):
+        """Test exception raised by bad on_c_store return"""
+        scp = DummyStorageSCP()
+        scp.status = 'testing'
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        status = assoc.send_c_store(DATASET)
+        self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
+    
+    def test_bad_user_on_c_store_status(self):
+        """Test exception raised by invalid on_c_store status"""
+        scp = DummyStorageSCP()
+        scp.status = scp.bad_status
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        status = assoc.send_c_store(DATASET)
+        self.assertEqual(int(status), 0xC000)
+        scp.status = 0x0111
+        status = assoc.send_c_store(DATASET)
+        self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
+    
     def test_compressed_ds(self):
         """Test when ds is compressed"""
         scp = DummyStorageSCP()
@@ -338,30 +465,6 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(COMP_DATASET)
-        self.assertEqual(int(result), 0x0000)
-        assoc.release()
-        scp.stop()
-
-    def test_good_response(self):
-        """Test successful c-store"""
-        scp = DummyStorageSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        result = assoc.send_c_store(DATASET)
-        self.assertEqual(int(result), 0x0000)
-        assoc.release()
-        scp.stop()
-
-    def test_bad_priority(self):
-        """Test successful c-echo"""
-        scp = DummyStorageSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[RTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        result = assoc.send_c_store(DATASET, priority=0x0003)
         self.assertEqual(int(result), 0x0000)
         assoc.release()
         scp.stop()
@@ -379,35 +482,6 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(ds)
         self.assertEqual(int(result), 0xC000)
-        assoc.release()
-        scp.stop()
-
-    def test_bad_dataset(self):
-        """Test failure if unable to encode dataset"""
-        scp = DummyStorageSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[RTImageStorage],
-                transfer_syntax=[ExplicitVRLittleEndian])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        DATASET.PerimeterValue = b'\x00\x01'
-        result = assoc.send_c_store(DATASET)
-        self.assertEqual(int(result), 0xC000)
-        assoc.release()
-        del DATASET.PerimeterValue # Fix up our changes
-        scp.stop()
-
-    def test_bad_user_on_c_store(self):
-        """Test exception raised in on_c_store returns failure status"""
-        scp = DummyStorageSCP()
-        def on_c_store(ds): raise RuntimeError
-        scp.ae.on_c_store = on_c_store
-        scp.start()
-        ae = AE(scu_sop_class=[RTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        response = assoc.send_c_store(DATASET)
-        self.assertEqual(int(response), 0xc000)
         assoc.release()
         scp.stop()
 
@@ -430,8 +504,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         ds = encode(DATASET, True, True)
         primitive.DataSet = BytesIO(ds)
         
-        
-        ae = AE(scu_sop_class=[RTImageStorage])
+        ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         
@@ -445,59 +518,40 @@ class TestAssociationSendCStore(unittest.TestCase):
         DATASET.SOPClassUID = orig
         scp.stop()
 
-    @unittest.skip # Very difficult to test
-    def test_bad_ds(self):
-        """Test returns failure status if dataset cant be decoded by SCP"""
+    def test_good_response(self):
+        """Test successful c-store"""
         scp = DummyStorageSCP()
         scp.start()
-
-        ## Need to bypass the standard send_c_store checks
-        # Build C-STORE request primitive
-        primitive = C_STORE()
-        primitive.MessageID = 1
-        primitive.AffectedSOPClassUID = DATASET.SOPClassUID
-        primitive.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        primitive.Priorty = 0x0002
-        primitive.DataSet = BytesIO(b'\x08\x00\x05\x00\x43\x53\x08\x00\x49\x53\x4f\x54\x45\x53\x54\x00')
-
-        ae = AE(scu_sop_class=[RTImageStorage])
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        
-        # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
-        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
-
-        self.assertEqual(rsp.Status, 0xC000)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(int(result), 0x0000)
         assoc.release()
         scp.stop()
 
-    def test_bad_user_on_c_store_status(self):
-        """Test exception raised by invalid on_c_store status"""
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
         scp = DummyStorageSCP()
-        scp.status = scp.bad_status
         scp.start()
-        ae = AE(scu_sop_class=[RTImageStorage])
+        ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC000)
-        scp.status = 0x0111
-        status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC000)
         assoc.release()
+        self.assertFalse(assoc.is_established)
+        with self.assertRaises(RuntimeError):
+            assoc.send_c_store(DATASET)
         scp.stop()
 
-    def test_bad_user_on_c_store_return(self):
-        """Test exception raised by bad on_c_store return"""
-        scp = DummyStorageSCP()
-        scp.status = 'testing'
+    def test_no_abstract_syntax_match(self):
+        """Test when no accepted abstract syntax"""
+        scp = DummyVerificationSCP()
         scp.start()
-        ae = AE(scu_sop_class=[RTImageStorage])
+        ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC000)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(int(result), 0xc000)
         assoc.release()
         scp.stop()
 
@@ -653,7 +707,18 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc.release()
         scp.stop()
 
-    # test user returned invalid int as status
+    def test_bad_user_on_c_find_return(self):
+        """Test exception raised by bad on_c_find return"""
+        scp = DummyFindSCP()
+        scp.status = 'testing'
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+            self.assertEqual(int(status), 0xC000)
+        assoc.release()
+        scp.stop()
 
 
 class TestAssociationSendCCancelFind(unittest.TestCase):
@@ -785,8 +850,8 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp.status = scp.pending
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               RTImageStorage],
-                scp_sop_class=[RTImageStorage])
+                               CTImageStorage],
+                scp_sop_class=[CTImageStorage])
         def on_c_store(ds): return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -825,8 +890,8 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp.status = scp.pending
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               RTImageStorage],
-                scp_sop_class=[RTImageStorage])
+                               CTImageStorage],
+                scp_sop_class=[CTImageStorage])
         def on_c_store(ds): return 0xA700
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -851,8 +916,8 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp.status = scp.pending
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               RTImageStorage],
-                scp_sop_class=[RTImageStorage])
+                               CTImageStorage],
+                scp_sop_class=[CTImageStorage])
         def on_c_store(ds): return 0xB007
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -890,8 +955,8 @@ class TestAssociationSendCGet(unittest.TestCase):
         scp.status = scp.warning
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               RTImageStorage],
-                scp_sop_class=[RTImageStorage])
+                               CTImageStorage],
+                scp_sop_class=[CTImageStorage])
         def on_c_store(ds): return 0xB007
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -941,7 +1006,6 @@ class TestAssociationSendCGet(unittest.TestCase):
     # test bad user second yield
     # test user returned invalid status int
     # test user returned non-int as status from on_c_get
-    # remove status int check from send_c_store or return int
 
 
 class TestAssociationSendCCancelGet(unittest.TestCase):
@@ -1035,6 +1099,46 @@ class TestAssociationSendCMove(unittest.TestCase):
 
     def test_good_query_model(self):
         """Test all the query models"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='O')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+
+    def test_move_destination_no_assoc(self):
+        """Test move destination failed to assoc"""
         scp = DummyMoveSCP()
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
@@ -1046,22 +1150,247 @@ class TestAssociationSendCMove(unittest.TestCase):
             self.assertEqual(int(status), 0xa702)
         assoc.release()
         scp.stop()
+        
+    def test_move_destination_unknown(self):
+        """Test unknown move destination"""
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_move(self.ds, b'UNKNOWN', query_model='P'):
+            self.assertEqual(int(status), 0xa801)
+        assoc.release()
+        scp.stop()
 
-    # test receive failure
-    # test unknown move destination
-    # test failed to associate with move destination
-    # test move destination failed store
-    # test move destination warning store
-    # test receive pending send failure
-    # test receive pending send warning
-    # test receive pending send success
-    # test receive warning
-    # test receive cancel
-    # test receive success
-    # test error user on_c_move
-    # test error bad first yield
-    # test error bad second yield
-    # test error bad third yield
+    def test_move_destination_failed_store(self):
+        """Test the destination AE returning failed status"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.status = store_scp.out_of_resources
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xB000)
+
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+        
+    def test_move_destination_warning_store(self):
+        """Test the destination AE returning warning status"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.status = store_scp.coercion_of_elements
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFF00)
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xB000)
+
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+
+    def test_user_failed(self):
+        """Test the user on_c_move returning failure status"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.status = scp.unable_to_process
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xC000)
+
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+    
+    def test_user_warning(self):
+        """Test the user on_c_move returning warning status"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.status = scp.warning
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xB000)
+
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+    
+    def test_user_cancel(self):
+        """Test the user on_c_move returning cancel status"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.status = scp.cancel_status
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xFE00)
+
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+    
+    def test_user_success(self):
+        """Test the user on_c_move returning success status"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        scp.status = scp.success
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               StudyRootQueryRetrieveInformationModelMove,
+                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0x0000)
+
+        assoc.release()
+        scp.stop()
+        
+        store_scp.stop()
+
+    def test_bad_user_on_c_move(self):
+        """Test bad user on_c_move causes a failure response"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        def on_c_move(ds, aet): raise RuntimeError
+        scp.ae.on_c_move = on_c_move
+        scp.start()
+        
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xC000)
+        
+        assoc.release()
+        scp.stop()
+        store_scp.stop()
+
+    def test_bad_user_on_c_move_first_yield(self):
+        """Test exception raised by bad on_c_move first yield"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        def on_c_move(ds, aet): yield None
+        scp.ae.on_c_move = on_c_move
+        scp.start()
+        
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xC000)
+        
+        assoc.release()
+        scp.stop()
+        store_scp.stop()
+    
+    def test_bad_user_on_c_move_second_yield(self):
+        """Test exception raised by bad on_c_move second yield"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        def on_c_move(ds, aet): yield 1; yield 1234, 'test'
+        scp.ae.on_c_move = on_c_move
+        scp.start()
+        
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xA801)
+        
+        assoc.release()
+        scp.stop()
+        store_scp.stop()
+
+    def test_bad_user_on_c_move_nth_yield(self):
+        """Test exception raised by bad on_c_move third+ yield"""
+        store_scp = DummyStorageSCP(11113)
+        store_scp.start()
+        
+        scp = DummyMoveSCP()
+        def on_c_move(ds, aet): 
+            yield 1
+            yield 'localhost', 11113
+            yield 'test', DATASET
+        scp.ae.on_c_move = on_c_move
+        scp.start()
+        
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        (status, ds) = next(result)
+        self.assertEqual(int(status), 0xc000)
+        
+        assoc.release()
+        scp.stop()
+        store_scp.stop()
 
 
 class TestAssociationSendCCancelMove(unittest.TestCase):
