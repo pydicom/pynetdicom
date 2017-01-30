@@ -263,6 +263,129 @@ class DULServiceProvider(Thread):
         except:
             return None
 
+    @staticmethod
+    def primitive_to_event(primitive):
+        """Returns the state machine event associated with sending a primitive.
+
+        Parameters
+        ----------
+        primitive : pynetdicom3.primitives.ServiceParameter
+            The Association primitive
+
+        Returns
+        -------
+        str
+            The event associated with the primitive
+        """
+        if primitive.__class__ == A_ASSOCIATE:
+            if primitive.result is None:
+                # A-ASSOCIATE Request
+                event_str = 'Evt1'
+            elif primitive.result == 0x00:
+                # A-ASSOCIATE Response (accept)
+                event_str = 'Evt7'
+            else:
+                # A-ASSOCIATE Response (reject)
+                event_str = 'Evt8'
+        elif primitive.__class__ == A_RELEASE:
+            if primitive.result is None:
+                # A-Release Request
+                event_str = 'Evt11'
+            else:
+                # A-Release Response
+                # result is 'affirmative'
+                event_str = 'Evt14'
+        elif primitive.__class__ == A_ABORT:
+            event_str = 'Evt15'
+        elif primitive.__class__ == P_DATA:
+            event_str = 'Evt9'
+        else:
+            raise ValueError("primitive_to_event(): invalid primitive")
+
+        return event_str
+
+    def socket_to_pdu(self, data):
+        """Returns the PDU object associated with an incoming data stream.
+
+        Parameters
+        ----------
+        data : bytes
+            The incoming data stream
+
+        Returns
+        -------
+        pdu : pynetdicom3.pdu.PDU
+            The decoded data as a PDU object
+        """
+        pdutype = unpack('B', data[0:1])[0]
+        acse = self.association.acse
+
+        if pdutype == 0x01:
+            pdu = A_ASSOCIATE_RQ()
+            acse_callback = acse.debug_receive_associate_rq
+        elif pdutype == 0x02:
+            pdu = A_ASSOCIATE_AC()
+            acse_callback = acse.debug_receive_associate_ac
+        elif pdutype == 0x03:
+            pdu = A_ASSOCIATE_RJ()
+            acse_callback = acse.debug_receive_associate_rj
+        elif pdutype == 0x04:
+            pdu = P_DATA_TF()
+            acse_callback = acse.debug_receive_data_tf
+        elif pdutype == 0x05:
+            pdu = A_RELEASE_RQ()
+            acse_callback = acse.debug_receive_release_rq
+        elif pdutype == 0x06:
+            pdu = A_RELEASE_RP()
+            acse_callback = acse.debug_receive_release_rp
+        elif pdutype == 0x07:
+            pdu = A_ABORT_RQ()
+            acse_callback = acse.debug_receive_abort
+        else:
+            #"Unrecognized or invalid PDU"
+            return None
+
+        pdu.Decode(data)
+
+        # Callback - AE must always be first
+        acse_callback(pdu)
+
+        return pdu
+
+    @staticmethod
+    def pdu_to_event(pdu):
+        """Returns the event associated with the PDU.
+
+        Parameters
+        ----------
+        pdu : pynetdicom3.pdu.PDU
+            The PDU
+
+        Returns
+        -------
+        str
+            The event str associated with the PDU
+        """
+        if pdu.__class__ == A_ASSOCIATE_RQ:
+            event_str = 'Evt6'
+        elif pdu.__class__ == A_ASSOCIATE_AC:
+            event_str = 'Evt3'
+        elif pdu.__class__ == A_ASSOCIATE_RJ:
+            event_str = 'Evt4'
+        elif pdu.__class__ == P_DATA_TF:
+            event_str = 'Evt10'
+        elif pdu.__class__ == A_RELEASE_RQ:
+            event_str = 'Evt12'
+        elif pdu.__class__ == A_RELEASE_RP:
+            event_str = 'Evt13'
+        elif pdu.__class__ == A_ABORT_RQ:
+            event_str = 'Evt16'
+        else:
+            #"Unrecognized or invalid PDU"
+            event_str = 'Evt19'
+
+        return event_str
+
     def CheckIncomingPDU(self):
         """
         Converts an incoming PDU from the peer AE back into a primitive (ie one
@@ -328,10 +451,10 @@ class DULServiceProvider(Thread):
 
             # Determine the type of PDU coming on remote port, then decode
             # the raw bytestream to the corresponding PDU class
-            self.pdu = Socket2PDU(bytestream, self)
+            self.pdu = self.socket_to_pdu(bytestream)
 
             # Put the event corresponding to the incoming PDU on the queue
-            self.event_queue.put(PDU2Event(self.pdu))
+            self.event_queue.put(self.pdu_to_event(self.pdu))
 
             # Convert the incoming PDU to a corresponding ServiceParameters
             #   object
@@ -379,7 +502,7 @@ class DULServiceProvider(Thread):
             # Check the queue and see if there are any primitives
             # If so then put the corresponding event on the event queue
             self.primitive = self.to_provider_queue.get(False)
-            self.event_queue.put(primitive2event(self.primitive))
+            self.event_queue.put(self.primitive_to_event(self.primitive))
             return True
         except queue.Empty:
             return False
@@ -517,134 +640,3 @@ class DULServiceProvider(Thread):
         PDU is read
         """
         pass
-
-
-def primitive2event(primitive):
-    """
-    Returns the event associated with the primitive
-
-    Parameters
-    ----------
-    primitive -
-
-
-    Returns
-    -------
-    str
-        The event associated with the primitive
-
-    Raises
-    ------
-    ValueError
-        If the primitive is not valid
-    """
-    if primitive.__class__ == A_ASSOCIATE:
-        if primitive.result is None:
-            # A-ASSOCIATE Request
-            event_str = 'Evt1'
-        elif primitive.result == 0:
-            # A-ASSOCIATE Response (accept)
-            event_str = 'Evt7'
-        else:
-            # A-ASSOCIATE Response (reject)
-            event_str = 'Evt8'
-    elif primitive.__class__ == A_RELEASE:
-        if primitive.result is None:
-            # A-Release Request
-            event_str = 'Evt11'
-        else:
-            # A-Release Response
-            event_str = 'Evt14'
-    elif primitive.__class__ == A_ABORT:
-        event_str = 'Evt15'
-    elif primitive.__class__ == P_DATA:
-        event_str = 'Evt9'
-    else:
-        raise ValueError("primitive2event() - Invalid primitive")
-
-    return event_str
-
-def Socket2PDU(data, dul):
-    """
-    Returns the PDU object associated with an incoming data stream
-
-    Parameters
-    ----------
-    data -
-        The incoming data stream
-    dul - pynetdicom3.dul.DUL
-        The DUL instance
-
-    Returns
-    -------
-    pdu
-        The decoded data as a PDU object
-    """
-    pdutype = unpack('B', data[0:1])[0]
-    acse = dul.association.acse
-
-    if pdutype == 0x01:
-        pdu = A_ASSOCIATE_RQ()
-        acse_callback = acse.debug_receive_associate_rq
-    elif pdutype == 0x02:
-        pdu = A_ASSOCIATE_AC()
-        acse_callback = acse.debug_receive_associate_ac
-    elif pdutype == 0x03:
-        pdu = A_ASSOCIATE_RJ()
-        acse_callback = acse.debug_receive_associate_rj
-    elif pdutype == 0x04:
-        pdu = P_DATA_TF()
-        acse_callback = acse.debug_receive_data_tf
-    elif pdutype == 0x05:
-        pdu = A_RELEASE_RQ()
-        acse_callback = acse.debug_receive_release_rq
-    elif pdutype == 0x06:
-        pdu = A_RELEASE_RP()
-        acse_callback = acse.debug_receive_release_rp
-    elif pdutype == 0x07:
-        pdu = A_ABORT_RQ()
-        acse_callback = acse.debug_receive_abort
-    else:
-        #"Unrecognized or invalid PDU"
-        return None
-
-    pdu.Decode(data)
-
-    # Callback - AE must always be first
-    acse_callback(pdu)
-
-    return pdu
-
-def PDU2Event(pdu):
-    """
-    Returns the event associated with the PDU
-
-    Parameters
-    ----------
-    pdu
-        The PDU
-
-    Returns
-    -------
-    str
-        The event str associated with the PDU
-    """
-    if pdu.__class__ == A_ASSOCIATE_RQ:
-        event_str = 'Evt6'
-    elif pdu.__class__ == A_ASSOCIATE_AC:
-        event_str = 'Evt3'
-    elif pdu.__class__ == A_ASSOCIATE_RJ:
-        event_str = 'Evt4'
-    elif pdu.__class__ == P_DATA_TF:
-        event_str = 'Evt10'
-    elif pdu.__class__ == A_RELEASE_RQ:
-        event_str = 'Evt12'
-    elif pdu.__class__ == A_RELEASE_RP:
-        event_str = 'Evt13'
-    elif pdu.__class__ == A_ABORT_RQ:
-        event_str = 'Evt16'
-    else:
-        #"Unrecognized or invalid PDU"
-        event_str = 'Evt19'
-
-    return event_str
