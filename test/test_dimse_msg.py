@@ -58,7 +58,7 @@ class TestDIMSEMessage(unittest.TestCase):
     def test_fragment_pdv(self):
         """Test that the PDV fragmenter is working correctly."""
         dimse_msg = C_STORE_RQ()
-        frag = dimse_msg._fragment_pdv
+        frag = dimse_msg._bytestream_to_pdv
 
         result = frag(c_echo_rsp_cmd, 1000)
         self.assertEqual(len(result), 1)

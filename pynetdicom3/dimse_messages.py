@@ -1,30 +1,18 @@
-"""
-Define the DIMSE Message classes
+"""Define the DIMSE Message classes."""
 
-TODO: Rename Encode and Decode methods to lowercase
-"""
 from io import BytesIO
 import logging
-from struct import pack
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
 
-from pynetdicom3.dimse_primitives import C_STORE, \
-                                        C_FIND, \
-                                        C_GET, \
-                                        C_MOVE, \
-                                        C_ECHO, \
-                                        N_EVENT_REPORT, \
-                                        N_GET, \
-                                        N_SET, \
-                                        N_ACTION, \
-                                        N_CREATE, \
-                                        N_DELETE
+from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
+                                         C_ECHO, C_CANCEL, N_EVENT_REPORT, \
+                                         N_GET, N_SET, N_ACTION, N_CREATE, \
+                                         N_DELETE
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.primitives import P_DATA
-from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
@@ -120,18 +108,18 @@ COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
 
 
 class DIMSEMessage(object):
-    """Represents a DIMSE *Message*.
+    """Represents a DIMSE Message.
 
     Information is communicated across the DICOM network interface in a DICOM
-    *Message*. A *Message* is composed of a Command Set followed by a
+    Message. A Message is composed of a Command Set followed by a
     conditional Data Set. The Command Set is used to indicate the
-    operations/notifications to be performed on or with the Data Set.
-    (PS3.7 6.2-3)
+    operations/notifications to be performed on or with the Data Set (see
+    PS3.7 6.2-3).
 
                         primitive_to_message         Encode
     .----------------------.  ----->   .----------.  ----->  .---------------.
-    |   DIMSE parameters   |           |   DIMSE  |          |     P-DATA    |
-    |       primitive      |           |  message |          |   primitive   |
+    |        DIMSE         |           |   DIMSE  |          |    P-DATA     |
+    |      primitive       |           |  message |          |   primitive   |
     .----------------------.  <-----   .----------.  <-----  .---------------.
                         message_to_primitive         Decode
 
@@ -142,48 +130,54 @@ class DIMSEMessage(object):
     specified in the DIMSE protocol (PS3.7 9.2 and 10.2). Each Command Element
     is composed of an explicit Tag, Value Length and a Value field. The encoding
     of the Command Set shall be *Little Endian Implicit VR*.
+    
+    Message Types
+    -------------
+    The following message types are available: C_STORE_RQ, C_STORE_RSP,
+    C_ECHO_RQ, C_ECHO_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,
+    C_MOVE_RQ, C_MOVE_RSP, C_CANCEL_RQ, N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP,
+    N_SET_RQ, N_SET_RSP, N_GET_RQ, N_GET_RSP, N_ACTION_RQ, N_ACTION_RSP,
+    N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, N_DELETE_RSP.
 
     Attributes
     ----------
     command_set : pydicom.dataset.Dataset
-        The message Command Set information (PS3.7 6.3)
+        The message Command Set information (see PS3.7 6.3).
     data_set : pydicom.dataset.Dataset
-        The message Data Set (PS3.7 6.3)
+        The message Data Set (see PS3.7 6.3).
     encoded_command_set : BytesIO
         During decoding of an incoming P-DATA primitive this stores the
-        encoded Command Set data from the fragments
+        encoded Command Set data from the fragments.
     ID : int
-        The presentation context ID
+        The presentation context ID.
     """
     def __init__(self):
-        # Context ID - rename to context_id?
         self.ID = None
 
         # Required to save command set data from multiple fragments
         # self.command_set is added by _build_message_classes()
-        # and contains the elements required by the subclass
         self.encoded_command_set = BytesIO()
         self.data_set = BytesIO()
 
-    def Encode(self, context_id, max_pdu):
-        """
-        Encode the DIMSE Message as one or more P-DATA service primitives
+    def Encode(self, context_id, max_pdu_length):
+        """Encode the DIMSE Message as one or more P-DATA service primitives.
 
         PS3.7 6.3.1
-        The encoding of the Command Set shall be Little Endian Implicit VR
+        The encoding of the Command Set shall be Little Endian Implicit VR,
+        while the Data Set will be encoded as per the agreed presentation
+        context.
 
         Parameters
         ----------
         context_id : int
-            The ID of the presentation context agreed to under which we are
-            sending the data
+            The ID of the agreed presentation context.
         max_pdu_length : int
-            The maximum PDU length in bytes
+            The maximum PDV length in bytes.
 
         Returns
         -------
         p_data_list : list of pynetdicom3.primitives.P_DATA
-            A list of one or more P-DATA service primitives
+            A list of one or more P-DATA service primitives.
         """
         self.ID = context_id
         p_data_list = []
@@ -192,68 +186,56 @@ class DIMSEMessage(object):
         #   encode(dataset, is_implicit_VR, is_little_endian)
         encoded_command_set = encode(self.command_set, True, True)
 
-        ## COMMAND SET
-        # Split the command set into framents with maximum size max_pdu
-        pdvs = self._fragment_pdv(encoded_command_set, max_pdu)
+        ## COMMAND SET (always)
+        # Split the command set into framents with maximum size max_pdu_length
+        pdv_list = self._bytestream_to_pdv(encoded_command_set, max_pdu_length)
 
-        # First to (n - 1)th command data fragment - b XXXXXX01
-        for ii in pdvs[:-1]:
+        # First to (n - 1)th command data fragment - bits xxxxxx01
+        for pdv in pdv_list[:-1]:
             pdata = P_DATA()
-            pdata.presentation_data_value_list = [[self.ID, pack('b', 1) + ii]]
+            pdata.presentation_data_value_list = [[self.ID, b'\x01' + pdv]]
 
             p_data_list.append(pdata)
 
-        # Nth command data fragment - b XXXXXX11
+        # Last command data fragment - bits xxxxxx11
         pdata = P_DATA()
-        pdata.presentation_data_value_list = [[self.ID,
-                                               pack('b', 3) + pdvs[-1]]]
+        pdata.presentation_data_value_list = [[self.ID, b'\x03' + pdv_list[-1]]]
 
         p_data_list.append(pdata)
 
         ## DATASET (if available)
-        # Split out dataset up into fragment with maximum size of max_pdu
         #   Check that the Data Set is not empty
-        if self.data_set is None:
-            pass
-        elif self.data_set.getvalue() != b'':
-            # Technically these are APDUs, not PDVs
-            pdvs = self._fragment_pdv(self.data_set, max_pdu)
+        if self.data_set is not None and self.data_set.getvalue() != b'':
+            # Split the data set into fragments with maximum size max_pdu_length
+            pdv_list = self._bytestream_to_pdv(self.data_set, max_pdu_length)
 
-            # First to (n - 1)th dataset fragment - b XXXXXX00
-            for ii in pdvs[:-1]:
+            # First to (n - 1)th dataset fragment - bits xxxxxx00
+            for pdv in pdv_list[:-1]:
                 pdata = P_DATA()
-                pdata.presentation_data_value_list = [[self.ID,
-                                                       pack('b', 0) + ii]]
+                pdata.presentation_data_value_list = [[self.ID, b'\x00' + pdv]]
                 p_data_list.append(pdata)
 
-            # Nth dataset fragment - b XXXXXX10
+            # Last dataset fragment - bits xxxxxx10
             pdata = P_DATA()
             pdata.presentation_data_value_list = [[self.ID,
-                                                   pack('b', 2) + pdvs[-1]]]
+                                                   b'\x02' + pdv_list[-1]]]
 
             p_data_list.append(pdata)
 
         return p_data_list
 
     def Decode(self, pdata):
-        """ Converts a series of P-DATA primitives into data for the DIMSE
-        Message
+        """Converts P-DATA primitives into a DIMSEMessage sub-class.
 
         Decodes the data from the P-DATA service primitive (which
         may contain the results of one or more P-DATA-TF PDUs) into the
         `command_set` and `data_set` attributes. Also sets the `ID` and
-        `encoded_command_set` attributes
-
-        PS3.9 Section 9.3.1: The encoding of the DICOM UL PDUs is
-        big endian byte ordering, while the encoding of the PDV message
-        fragments is defined by the negotiated Transfer Syntax at association
-        establishment. A fragment is also known as an Application Protocol
-        Data Unit (APDU) using the OSI nomenclature (PS3.7 8.1).
+        `encoded_command_set` attributes of the DIMSEMessage sub-class object.
 
         Parameters
         ----------
         pdata : pynetdicom3.primitives.P_DATA
-            The P-DATA service primitive to be decoded into a DIMSE message
+            The P-DATA service primitive to be decoded into a DIMSE message.
 
         Returns
         -------
@@ -279,19 +261,22 @@ class DIMSEMessage(object):
             control_header_byte = pdv_item[1][0]
 
             ## COMMAND SET
-            # P-DATA fragment contains Command information
+            # P-DATA fragment contains Command Set information
             #   (control_header_byte is xxxxxx01 or xxxxxx11)
             if control_header_byte & 1:
                 # The command set may be spread out over a number
                 #   of fragments and we need to remember the elements
                 #   from previous fragments, hence the encoded_command_set
                 #   class attribute
+                # This adds all the command set data to the class object
                 self.encoded_command_set.write(pdv_item[1][1:])
 
-                # The P-DATA fragment is the last one (xxxxxx11)
+                # The final command set fragment (xxxxxx11) has been added
+                #   so decode the command set
                 if control_header_byte & 2:
                     # Command Set is always encoded Implicit VR Little Endian
                     #   decode(dataset, is_implicit_VR, is_little_endian)
+                    # pylint: disable=attribute-defined-outside-init
                     self.command_set = decode(self.encoded_command_set,
                                               True, True)
 
@@ -299,47 +284,46 @@ class DIMSEMessage(object):
                     self.__class__ = \
                         MESSAGE_TYPE_CLASS[self.command_set.CommandField]
 
-                    # (0000, 0800) CommandDataSetType US 1
-                    #   if value is 0101H no dataset present
-                    #   otherwise a dataset is included in the Message
+                    # Determine if a Data Set is present by checking for element
+                    #   (0000, 0800) CommandDataSetType US 1. If the value is
+                    #   0x0101 no dataset present, otherwise one is.
                     if self.command_set.CommandDataSetType == 0x0101:
                         return True
 
             ## DATA SET
-            # P-DATA fragment contains Message Dataset information
+            # P-DATA fragment contains Data Set information
             #   (control_header_byte is xxxxxx00 or xxxxxx10)
             else:
+                # Adds all the dataset data to the class object - still needs to
+                #   be decoded, however
                 self.data_set.write(pdv_item[1][1:])
 
-                # The P-DATA fragment is the last one (xxxxxx10)
+                # The final data set fragment (xxxxxx10) has been added
                 if control_header_byte & 2 != 0:
                     return True
 
         return False
 
     def _set_command_group_length(self):
-        """
+        """Reset the Command Group Length element value.
+
         Once the self.command_set Dataset has been built and filled with values,
         this should be called to set the CommandGroupLength element value
         correctly.
         """
+        # Remove CommandGroupLength to stop it messing up the length calculation
+        del self.command_set.CommandGroupLength
+
         length = 0
+        for elem in self.command_set:
+            # The Command Set is always Implicit VR Little Endian
+            length += len(encode_element(elem, True, True))
 
-        # Remove CommandGroupLength from dataset to prevent it from messing
-        #   with our length calculation.
-        # We have to use the tag value due to a bug in pydicom 1.0.0
-        del self.command_set[0x00000000]
-        for ii in list(self.command_set.values()):
-            #   encode_element(elem, is_implicit_VR, is_little_endian)
-            length += len(encode_element(ii, True, True))
-
-        # Add the CommandGroupLength element back to the dataset with the
-        #   correct value
         self.command_set.CommandGroupLength = length
 
     @staticmethod
-    def _fragment_pdv(bytestream, fragment_length):
-        """Fragment `bytestream`, each `max_size` long.
+    def _bytestream_to_pdv(bytestream, fragment_length):
+        """Fragment `bytestream` into chunks, each `max_size` long.
 
         Fragments bytestream data for use in PDVs.
 
@@ -359,7 +343,7 @@ class DIMSEMessage(object):
             raise TypeError
 
         if fragment_length < 1:
-            raise ValueError('Max bytes per PDV must be at least 1.')
+            raise ValueError('fragment_length must be at least 1.')
 
         # Convert bytestream to bytes
         if isinstance(bytestream, BytesIO):
@@ -367,23 +351,23 @@ class DIMSEMessage(object):
 
         fragments = []
         while len(bytestream) > 0:
-            # Add the fragment
+            # Add the fragment to the output
             fragments.append(bytestream[:fragment_length])
-            # Remove the fragment from the bytestream
+            # Remove the added fragment from the bytestream
             bytestream = bytestream[fragment_length:]
 
         return fragments
 
     def primitive_to_message(self, primitive):
-        """
-        Convert a DIMSE service parameters primitive to the current DIMSE
-        message object
+        """Convert a DIMSE primitive to the current DIMSEMessage object.
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives DIMSE service parameter
-            The primitive to convert to the current DIMSE Message object
+        primitive
+            The pynetdicom3.dimse_primitives DIMSE service primitive to convert
+            to the current DIMSEMessage object.
         """
+        # pylint: disable=too-many-branches,too-many-statements
         ## Command Set
         # Due to the del self.command_set[elem.tag] line below this may
         #   end up permanently removing the element from the DIMSE message class
@@ -431,8 +415,8 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set.CommandDataSetType = 0x0101
 
-        # These message types should (except for C-FIND-RSP) always have
-        #   a Data Set
+        # These message types should always have a Data Set
+        #   (except for C-FIND-RSP)
         cls_type_name = self.__class__.__name__
         if cls_type_name == 'C_STORE_RQ':
             self.data_set = primitive.DataSet
@@ -475,15 +459,15 @@ class DIMSEMessage(object):
         self._set_command_group_length()
 
     def message_to_primitive(self):
-        """Convert the DIMSEMessage class to a DIMSEServiceProvider subclass.
-
-        Convert `self` to a DIMSE service parameters primitive object.
+        """Convert the DIMSEMessage class to a DIMSE primitive.
 
         Returns
         -------
-        primitive : pynetdicom3.dimse_primitives DIMSE service primitive
-            The primitive generated from the current DIMSE Message
+        primitive
+            One of the pynetdicom3.dimse_primitives primitives generated from
+            the current DIMSEMessage.
         """
+        # pylint: disable=redefined-variable-type,too-many-branches
         cls_type_name = self.__class__.__name__
         if 'C_ECHO' in cls_type_name:
             primitive = C_ECHO()
@@ -508,21 +492,22 @@ class DIMSEMessage(object):
         elif 'N_DELETE' in cls_type_name:
             primitive = N_DELETE()
         #elif 'C_CANCEL' in cls_type_name:
-        #    primitive = C_FIND()
+        #    primitive = C_CANCEL()
 
         ## Command Set
         # For each parameter in the primitive, set the appropriate value
-        #   from the Message's Command Set
+        #   from the Message's Command Set elements
         for elem in self.command_set:
             if hasattr(primitive, elem.keyword):
                 setattr(primitive, elem.keyword,
                         self.command_set.__getattr__(elem.keyword))
 
         ## Datasets
+        # Set the primitive's DataSet/Identifier/etc attribute
         if cls_type_name == 'C_STORE_RQ':
             setattr(primitive, 'DataSet', self.data_set)
         elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP', 'C_GET_RQ',
-                                'C_GET_RSP', 'C_MOVE_RQ', 'C_MOVE_RSP']:
+                               'C_GET_RSP', 'C_MOVE_RQ', 'C_MOVE_RSP']:
             setattr(primitive, 'Identifier', self.data_set)
         elif cls_type_name == 'N_EVENT_REPORT_RQ':
             setattr(primitive, 'EventInformation', self.data_set)
