@@ -253,7 +253,8 @@ class Association(threading.Thread):
         """The main Association control."""
         # Set new ACSE and DIMSE providers
         self.acse = ACSEServiceProvider(self, self.dul, self.acse_timeout)
-        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
+        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout, 
+                                          self.local_max_pdu)
 
         self.dul.start()
 
@@ -365,12 +366,11 @@ class Association(threading.Thread):
                                 self.acse.context_manager.accepted
 
         # Set maximum PDU send length
-        #self.peer_max_pdu = \
-        #           assoc_rq.UserInformation[0].MaximumLengthReceived
-        self.peer_max_pdu = assoc_rq.maximum_length_received
+        self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
+        self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
 
         # Set maximum PDU receive length
-        assoc_rq.maximum_length_received = self.local_max_pdu
+        assoc_rq.maximum_length_received = self.local_max_pdu # TODO: Rename?
         #for user_item in assoc_rq.user_information:
         #    if isinstance(user_item, MaximumLengthNegotiation):
         #        user_item.maximum_length_received = self.local_max_pdu
@@ -422,31 +422,34 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.Receive(False,
-                                                     self.dimse_timeout)
+            msg, msg_context_id = self.dimse.Receive(False, self.dimse_timeout)
 
             # DIMSE message received
             if msg:
-                # Convert the message's affected SOP class to a UID
-                uid = msg.AffectedSOPClassUID
-
-                # Use the UID to create a new SOP Class instance
-                sop_class = uid_to_sop_class(uid)()
+                # Use the Message's Affected SOP Class UID to create a new 
+                #   SOP Class instance
+                sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
 
                 # Check that the SOP Class is supported by the AE
+                # New method
+                pc_accepted = self.acse.presentation_contexts_accepted
+                context = [pc for pc in pc_accepted if pc.ID == msg_context_id]
+                
+                # Matching context
+                if context:
+                    sop_class.presentation_context = context[0]
+                else: 
+                    # No matching presentation context
+                    pass
+                
+                # Old method
                 matching_context = False
                 for context in self.acse.presentation_contexts_accepted:
                     if context.ID == msg_context_id:
-                        # New method - what is this even used for?
-                        sop_class.presentation_context = context
-
-                        # Old method
                         sop_class.pcid = context.ID
                         sop_class.sopclass = context.AbstractSyntax
                         sop_class.transfersyntax = context.TransferSyntax[0]
-
                         matching_context = True
-
                 if matching_context:
                     # Most of these shouldn't be necessary
                     sop_class.maxpdulength = self.peer_max_pdu
@@ -653,7 +656,7 @@ class Association(threading.Thread):
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
 
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
         # FIXME: If Association is Aborted before we receive the response
         #   then we hang here
@@ -839,7 +842,7 @@ class Association(threading.Thread):
             return service_class.CannotUnderstand
 
         # Send C-STORE request primitive to DIMSE
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
         # Wait for C-STORE response primitive
         #   returns a C_STORE primitive
@@ -943,7 +946,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-FIND request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
         # Get the responses from the peer
         ii = 1
@@ -1066,7 +1069,7 @@ class Association(threading.Thread):
         LOGGER.info('Sending C-CANCEL-FIND')
 
         # send c-find request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
     def send_c_move(self, dataset, move_aet, msg_id=1,
                     priority=2, query_model='P'):
@@ -1169,7 +1172,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-MOVE primitive to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
         # Get the responses from peer
         ii = 1
@@ -1296,7 +1299,7 @@ class Association(threading.Thread):
         LOGGER.info('Sending C-CANCEL-MOVE')
 
         # Send C-CANCEL-MOVE request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request message to the peer AE.
@@ -1385,7 +1388,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send primitive to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
         ii = 1
         while True:
@@ -1466,9 +1469,7 @@ class Association(threading.Thread):
 
                 # Send C-STORE confirmation back to peer
                 c_store_rsp.Status = int(status)
-                self.dimse.Send(c_store_rsp,
-                                context_id,
-                                self.acse.MaxPDULength)
+                self.dimse.Send(c_store_rsp, context_id)
 
         yield status, dataset
 
@@ -1532,7 +1533,7 @@ class Association(threading.Thread):
         LOGGER.info('Sending C-CANCEL-GET')
 
         # Send c-cancel-get request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
 
 
     # DIMSE-N services provided by the Association
@@ -1585,7 +1586,7 @@ class Association(threading.Thread):
                     BytesIO(primitive.AttributeIdentifierList)
 
         # Send primitive to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.Send(primitive, context_id)
         '''
         # Can't send an N-GET without an Association
         if not self.is_established:

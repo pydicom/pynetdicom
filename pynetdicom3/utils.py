@@ -1,5 +1,4 @@
-
-"""Various utility functions
+"""Various utility functions.
 
 TODO: Rename wrap_list globally to pretty_bytes_string
 """
@@ -293,11 +292,11 @@ class PresentationContext(object):
         uid : str or bytes or pydicom.uid.UID
             The abstract syntax UIDs
         """
+        # pylint: disable=attribute-defined-outside-init
         if uid is None:
             self._abstract_syntax = None
             return
 
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(uid, bytes):
             uid = UID(uid.decode('utf-8'))
         elif isinstance(uid, UID):

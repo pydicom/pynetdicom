@@ -413,7 +413,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xC000)
@@ -527,7 +527,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xA900)
@@ -780,7 +780,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xA900)
@@ -807,7 +807,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xC000)
@@ -1207,7 +1207,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         while True:
             time.sleep(0.001)
             rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
@@ -1238,7 +1238,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-GET request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         while True:
             time.sleep(0.001)
             rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
@@ -1675,7 +1675,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         while True:
             time.sleep(0.001)
             rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
@@ -1718,7 +1718,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1, assoc.acse.MaxPDULength)
+        assoc.dimse.Send(primitive, 1)
         while True:
             time.sleep(0.001)
             rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)

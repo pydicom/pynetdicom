@@ -114,16 +114,18 @@ class DIMSEServiceProvider(object):
 
     Attributes
     ----------
-    DUL : pynetdicom3.dul.DULServiceProvider
-        The DICOM Upper Layer service provider.
-    message : pynetdicom3.dimse_messages.DIMSEMessage
-        The DIMSE message.
     dimse_timeout : int or float or None
         The number of seconds before the DIMSE service timeout. A value of None
         indicates no timeout.
+    DUL : pynetdicom3.dul.DULServiceProvider
+        The DICOM Upper Layer service provider.
+    maximum_pdu_size : int
+            The maximum PDU size when sending DIMSE messages
+    message : pynetdicom3.dimse_messages.DIMSEMessage
+        The DIMSE message
     """
     # pylint: disable=too-many-public-methods
-    def __init__(self, dul, dimse_timeout=None):
+    def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=31682):
         """Start the DIMSE service provider.
 
         Parameters
@@ -133,13 +135,16 @@ class DIMSEServiceProvider(object):
         dimse_timeout : int or float or None
             The number of seconds before the DIMSE service timeout. A value of
             None indicates no timeout.
+        maximum_pdu_size : int
+            The maximum PDU size when sending DIMSE messages, default 31682.
         """
-        self.DUL = dul
         self.dimse_timeout = dimse_timeout
+        self.DUL = dul
+        self.maximum_pdu_size = maximum_pdu_size
 
         self.message = None
 
-    def Send(self, primitive, context_id, max_pdu):
+    def Send(self, primitive, context_id):
         """Send a DIMSE-C or DIMSE-N message to the peer AE.
 
         Parameters
@@ -148,8 +153,6 @@ class DIMSEServiceProvider(object):
             The DIMSE service primitive to send to the peer.
         context_id : int
             The ID of the presentation context to be sent under.
-        max_pdu : int
-            The maximum send PDV size acceptable by the peer AE.
         """
         if primitive.__class__ == C_ECHO:
             if primitive.MessageID is not None:
@@ -231,11 +234,11 @@ class DIMSEServiceProvider(object):
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
-        pdvs = dimse_msg.Encode(context_id, max_pdu)
+        pdata_pdu_list = dimse_msg.Encode(context_id, self.maximum_pdu_size)
 
-        # Send each of the P-DATA to the peer via the DUL provider
-        for pp in pdvs:
-            self.DUL.send_pdu(pp)
+        # Send the P-DATA PDUs to the peer via the DUL provider
+        for pdata_pdu in pdata_pdu_list:
+            self.DUL.send_pdu(pdata_pdu)
 
     def Receive(self, wait=False, dimse_timeout=None):
         """Receive a DIMSE message from the peer.
@@ -274,9 +277,9 @@ class DIMSEServiceProvider(object):
                 if nxt.__class__ is not P_DATA:
                     return None, None
 
-                msg = self.DUL.receive_pdu(wait, dimse_timeout)
+                pdu = self.DUL.receive_pdu(wait, dimse_timeout)
 
-                if self.message.Decode(msg):
+                if self.message.Decode(pdu):
                     # Callback
                     self.on_receive_dimse_message(self.message)
 
@@ -284,7 +287,7 @@ class DIMSEServiceProvider(object):
                     primitive = self.message.message_to_primitive()
 
                     # Fix for memory leak, Issue #41
-                    #   Reset the DIMSEMessage, ready for the next message
+                    #   Reset the DIMSE message, ready for the next one
                     self.message.encoded_command_set = BytesIO()
                     self.message.data_set = BytesIO()
                     self.message = None
@@ -298,24 +301,22 @@ class DIMSEServiceProvider(object):
             if cls not in (type(None), P_DATA):
                 return None, None
 
-            primitive = self.DUL.receive_pdu(wait, dimse_timeout)
+            pdu = self.DUL.receive_pdu(wait, dimse_timeout)
 
-            if self.message.Decode(primitive):
+            if self.message.Decode(pdu):
                 # Callback
                 self.on_receive_dimse_message(self.message)
 
-                dimse_msg = self.message
-
-                context_id = dimse_msg.ID
-                dimse_msg = dimse_msg.message_to_primitive()
+                context_id = self.message.ID
+                primitive = self.message.message_to_primitive()
 
                 # Fix for memory leak, Issue #41
-                #   Reset the DIMSEMessage, ready for the next message
+                #   Reset the DIMSE message, ready for the next one
                 self.message.encoded_command_set = BytesIO()
                 self.message.data_set = BytesIO()
-                self.dimse_msg = None
+                self.message = None
 
-                return dimse_msg, context_id
+                return primitive, context_id
             else:
                 return None, None
 

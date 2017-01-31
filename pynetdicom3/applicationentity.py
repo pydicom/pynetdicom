@@ -500,7 +500,6 @@ class ApplicationEntity(object):
 
         return str_out
 
-
     @property
     def acse_timeout(self):
         """Get the ACSE timeout."""
@@ -787,6 +786,7 @@ class ApplicationEntity(object):
 
         try:
             for sop_class in sop_list:
+
                 if isinstance(sop_class, str):
                     sop_uid = UID(sop_class)
                 elif isinstance(sop_class, UID):
@@ -794,8 +794,10 @@ class ApplicationEntity(object):
                 elif isinstance(sop_class, bytes):
                     sop_uid = UID(sop_class.decode('utf-8'))
                 elif isclass(sop_class):
-                    if 'UID' in sop_class.__dict__.keys():
-                        sop_uid = UID(sop_class.UID)
+                    if 'UID' in sop_class.__dict__:
+                        sop_uid = sop_class.UID
+                    else:
+                        continue
                 elif isinstance(sop_class, bytes):
                     sop_uid = UID(sop_class.decode('utf-8'))
                 else:
