@@ -144,7 +144,7 @@ class DIMSEServiceProvider(object):
 
         self.message = None
 
-    def Send(self, primitive, context_id):
+    def send_msg(self, primitive, context_id):
         """Send a DIMSE-C or DIMSE-N message to the peer AE.
 
         Parameters
@@ -234,13 +234,13 @@ class DIMSEServiceProvider(object):
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
-        pdata_pdu_list = dimse_msg.Encode(context_id, self.maximum_pdu_size)
+        pdata_pdu_list = dimse_msg.encode_msg(context_id, self.maximum_pdu_size)
 
         # Send the P-DATA PDUs to the peer via the DUL provider
         for pdata_pdu in pdata_pdu_list:
             self.DUL.send_pdu(pdata_pdu)
 
-    def Receive(self, wait=False, dimse_timeout=None):
+    def receive_msg(self, wait=False, dimse_timeout=None):
         """Receive a DIMSE message from the peer.
 
         Set the DIMSE provider in a mode ready to receive a response from the
@@ -279,7 +279,7 @@ class DIMSEServiceProvider(object):
 
                 pdu = self.DUL.receive_pdu(wait, dimse_timeout)
 
-                if self.message.Decode(pdu):
+                if self.message.decode_msg(pdu):
                     # Callback
                     self.on_receive_dimse_message(self.message)
 
@@ -303,7 +303,7 @@ class DIMSEServiceProvider(object):
 
             pdu = self.DUL.receive_pdu(wait, dimse_timeout)
 
-            if self.message.Decode(pdu):
+            if self.message.decode_msg(pdu):
                 # Callback
                 self.on_receive_dimse_message(self.message)
 

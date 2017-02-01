@@ -136,6 +136,7 @@ def AE_1(dul):
         LOGGER.error("Peer aborted Association (or never connected)")
         LOGGER.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
+        dul.scu_socket.close()
 
     return 'Sta4'
 
@@ -992,7 +993,7 @@ def AA_8(dul):
             # Encode and send A-ABORT to peer
             dul.scu_socket.send(dul.pdu.Encode())
         except ConnectionResetError:
-            pass
+            dul.scu_socket.close()
 
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)

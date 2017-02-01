@@ -99,7 +99,7 @@ class TestDIMSEMessage(unittest.TestCase):
         # Test encode without dataset
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
-        p_data_list = dimse_msg.Encode(12, 16)
+        p_data_list = dimse_msg.encode_msg(12, 16)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0], 1)
         self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0], 3)
         self.assertEqual(dimse_msg.ID, 12)
@@ -113,14 +113,14 @@ class TestDIMSEMessage(unittest.TestCase):
 
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
-        p_data_list = dimse_msg.Encode(13, 10)
+        p_data_list = dimse_msg.encode_msg(13, 10)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0], 1)
         self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0], 2)
         self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0], 0)
         self.assertEqual(p_data_list[-5].presentation_data_value_list[0][1][0], 3)
         self.assertEqual(dimse_msg.ID, 13)
 
-        p_data_list = dimse_msg.Encode(1, 31682)
+        p_data_list = dimse_msg.encode_msg(1, 31682)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1], c_store_rq_cmd)
         self.assertEqual(p_data_list[1].presentation_data_value_list[0][1], c_store_ds)
 
@@ -141,12 +141,12 @@ class TestDIMSEMessage(unittest.TestCase):
         dimse_msg.primitive_to_message(primitive)
 
         # CMD: (1x4, 3x1), DS: (0x1, 2x1)
-        p_data_list = dimse_msg.Encode(12, 24)
+        p_data_list = dimse_msg.encode_msg(12, 24)
 
         # Command set decoding
         for pdv in p_data_list[:4]:
-            dimse_msg.Decode(pdv) # MCHB 1
-        dimse_msg.Decode(p_data_list[4]) # MCHB 3 - end of command set
+            dimse_msg.decode_msg(pdv) # MCHB 1
+        dimse_msg.decode_msg(p_data_list[4]) # MCHB 3 - end of command set
         self.assertEqual(dimse_msg.__class__, C_STORE_RQ)
 
         # Test decoded command set
@@ -162,13 +162,13 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(cs.MoveOriginatorMessageID == 3)
 
         # Test decoded dataset
-        dimse_msg.Decode(p_data_list[5]) # MCHB 0
-        dimse_msg.Decode(p_data_list[6]) # MCHB 2
+        dimse_msg.decode_msg(p_data_list[5]) # MCHB 0
+        dimse_msg.decode_msg(p_data_list[6]) # MCHB 2
         self.assertTrue(dimse_msg.data_set.getvalue() == c_store_ds[1:])
 
         # Test returns false
         msg = C_STORE_RSP()
-        self.assertFalse(msg.Decode(c_store_rsp_cmd))
+        self.assertFalse(msg.decode_msg(c_store_rsp_cmd))
 
     def test_primitive_to_message(self):
         """Test converting a DIMSE primitive to a DIMSE message."""
@@ -197,7 +197,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_store_rq_cmd, c_store_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_STORE))
         self.assertTrue(isinstance(primitive.DataSet, BytesIO))
@@ -214,7 +214,7 @@ class TestDIMSEMessage(unittest.TestCase):
         msg = C_STORE_RSP()
         p_data = P_DATA()
         p_data.presentation_data_value_list.append([0, c_store_rsp_cmd])
-        msg.Decode(p_data)
+        msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_STORE))
         self.assertEqual(primitive.DataSet, None)
@@ -228,7 +228,7 @@ class TestDIMSEMessage(unittest.TestCase):
         msg = C_ECHO_RQ()
         p_data = P_DATA()
         p_data.presentation_data_value_list.append([0, c_echo_rq_cmd])
-        msg.Decode(p_data)
+        msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_ECHO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.1.1'))
@@ -237,7 +237,7 @@ class TestDIMSEMessage(unittest.TestCase):
         msg = C_ECHO_RSP()
         p_data = P_DATA()
         p_data.presentation_data_value_list.append([0, c_echo_rsp_cmd])
-        msg.Decode(p_data)
+        msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_ECHO))
         self.assertTrue(primitive.AffectedSOPClassUID == UID('1.2.840.10008.1.1'))
@@ -250,7 +250,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_get_rq_cmd, c_get_rq_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_GET))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
@@ -266,7 +266,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_get_rsp_cmd, c_get_rsp_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_GET))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
@@ -288,7 +288,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_move_rq_cmd, c_move_rq_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_MOVE))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
@@ -305,7 +305,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_move_rsp_cmd, c_move_rsp_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_MOVE))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
@@ -327,7 +327,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_find_rq_cmd, c_find_rq_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_FIND))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))
@@ -343,7 +343,7 @@ class TestDIMSEMessage(unittest.TestCase):
         for data in [c_find_rsp_cmd, c_find_rsp_ds]:
             p_data = P_DATA()
             p_data.presentation_data_value_list.append([0, data])
-            msg.Decode(p_data)
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         self.assertTrue(isinstance(primitive, C_FIND))
         self.assertTrue(isinstance(primitive.Identifier, BytesIO))

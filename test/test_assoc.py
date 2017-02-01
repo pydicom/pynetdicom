@@ -43,7 +43,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -267,7 +267,8 @@ class TestAssociation(unittest.TestCase):
         self.assertRaises(SystemExit, ae.quit)
         scp.stop()
 
-        # Test peer releases assoc
+    def test_peer_releases_assoc(self):
+        """Test peer releases assoc"""
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -279,7 +280,8 @@ class TestAssociation(unittest.TestCase):
         self.assertRaises(SystemExit, ae.quit)
         scp.stop() # Important!
 
-        # Test peer aborts assoc
+    def test_peer_aborts_assoc(self):
+        """Test peer aborts assoc"""
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
@@ -288,23 +290,12 @@ class TestAssociation(unittest.TestCase):
         scp.abort()
         self.assertFalse(assoc.is_established)
         self.assertTrue(assoc.is_aborted)
-        self.assertRaises(SystemExit, ae.quit)
         scp.stop() # Important!
 
-        # Test peer rejects assoc
+    def test_peer_rejects_assoc(self):
+        """Test peer rejects assoc"""
         scp = DummyVerificationSCP()
         scp.ae.require_calling_aet = b'HAHA NOPE'
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_rejected)
-        self.assertFalse(assoc.is_established)
-        self.assertRaises(SystemExit, ae.quit)
-        scp.stop() # Important!
-
-        # Test peer rejects assoc
-        scp = DummyVerificationSCP()
-        scp.ae.require_called_aet = b'HAHA NOPE'
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -539,8 +530,8 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
-        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+        assoc.dimse.send_msg(primitive, 1)
+        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xC000)
         assoc.release()
@@ -653,8 +644,8 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
-        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+        assoc.dimse.send_msg(primitive, 1)
+        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xA900)
         assoc.release()
@@ -906,8 +897,8 @@ class TestAssociationSendCFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
-        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+        assoc.dimse.send_msg(primitive, 1)
+        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xA900)
         assoc.release()
@@ -933,8 +924,8 @@ class TestAssociationSendCFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
-        rsp, _ = assoc.dimse.Receive(True, assoc.dimse_timeout)
+        assoc.dimse.send_msg(primitive, 1)
+        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
 
         self.assertEqual(rsp.Status, 0xC000)
         assoc.release()
@@ -953,37 +944,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
-            assoc.send_c_cancel_find(1, 'P')
-        scp.stop()
-
-    def test_bad_query_model(self):
-        """Test when no accepted abstract syntax"""
-        scp = DummyFindSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        with self.assertRaises(ValueError):
-            next(assoc.send_c_cancel_find(1, 'X'))
-        assoc.release()
-        scp.stop()
-
-    @unittest.skip # Depends on issue #40
-    def test_cancel(self):
-        """Test sending C-CANCEL-RQ"""
-        scp = DummyFindSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind,
-                               StudyRootQueryRetrieveInformationModelFind,
-                               PatientStudyOnlyQueryRetrieveInformationModelFind,
-                               ModalityWorklistInformationFind])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        assoc.send_c_cancel_find(1, query_model='P')
-        assoc.send_c_cancel_find(1, query_model='S')
-        assoc.send_c_cancel_find(1, query_model='O')
-        assoc.send_c_cancel_find(1, query_model='W')
-        assoc.release()
+            assoc.send_c_cancel_find(1)
         scp.stop()
 
 
@@ -1333,10 +1294,10 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
+        assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
 
             if rsp.__class__ == C_GET:
                 self.assertEqual(rsp.Status, 0xA900)
@@ -1364,10 +1325,10 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-GET request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
+        assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
 
             if rsp.__class__ == C_GET:
                 self.assertEqual(rsp.Status, 0xc000)
@@ -1389,35 +1350,7 @@ class TestAssociationSendCCancelGet(unittest.TestCase):
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
-            assoc.send_c_cancel_get(1, 'P')
-        scp.stop()
-
-    def test_bad_query_model(self):
-        """Test when no accepted abstract syntax"""
-        scp = DummyGetSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        with self.assertRaises(ValueError):
-            next(assoc.send_c_cancel_get(1, 'X'))
-        assoc.release()
-        scp.stop()
-
-    @unittest.skip # Depends on issue #40
-    def test_cancel(self):
-        """Test sending C-CANCEL-RQ"""
-        scp = DummyGetSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               StudyRootQueryRetrieveInformationModelGet,
-                               PatientStudyOnlyQueryRetrieveInformationModelGet])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        assoc.send_c_cancel_get(1, query_model='P')
-        assoc.send_c_cancel_get(1, query_model='S')
-        assoc.send_c_cancel_get(1, query_model='O')
-        assoc.release()
+            assoc.send_c_cancel_get(1)
         scp.stop()
 
 
@@ -1801,10 +1734,10 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
+        assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
 
             if rsp.__class__ == C_MOVE:
                 self.assertEqual(rsp.Status, 0xA900)
@@ -1844,10 +1777,10 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertTrue(assoc.is_established)
 
         # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.Send(primitive, 1)
+        assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.Receive(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
 
             if rsp.__class__ == C_MOVE:
                 self.assertEqual(rsp.Status, 0xc000)
@@ -1871,37 +1804,7 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
-            assoc.send_c_cancel_move(1, 'P')
-        scp.stop()
-
-    def test_bad_query_model(self):
-        """Test when no accepted abstract syntax"""
-        scp = DummyMoveSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        with self.assertRaises(ValueError):
-            next(assoc.send_c_cancel_move(1, 'X'))
-        assoc.release()
-        scp.stop()
-
-    @unittest.skip # Depends on issue #40
-    def test_cancel(self):
-        """Test sending C-CANCEL-RQ"""
-        scp = DummyMoveSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove,
-                               ModalityWorklistInformationMove])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        assoc.send_c_cancel_move(1, query_model='P')
-        assoc.send_c_cancel_move(1, query_model='S')
-        assoc.send_c_cancel_move(1, query_model='O')
-        assoc.send_c_cancel_move(1, query_model='W')
-        assoc.release()
+            assoc.send_c_cancel_move(1)
         scp.stop()
 
 

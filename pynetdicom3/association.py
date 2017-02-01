@@ -36,7 +36,6 @@ from pynetdicom3.primitives import UserIdentityNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
 from pynetdicom3.utils import PresentationContextManager
-#from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
@@ -221,6 +220,11 @@ class Association(threading.Thread):
         self._a_p_abort_assoc_rq = False
         # Disconnect from the peer when an association request is received
         self._disconnect_assoc_rq = False
+
+        # Point the public send_c_cancel_* functions to the actual function
+        self.send_c_cancel_find = self._send_c_cancel
+        self.send_c_cancel_move = self._send_c_cancel
+        self.send_c_cancel_get = self._send_c_cancel
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -433,7 +437,7 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.Receive(False, self.dimse_timeout)
+            msg, msg_context_id = self.dimse.receive_msg(False, self.dimse_timeout)
 
             # DIMSE message received
             if msg:
@@ -667,11 +671,11 @@ class Association(threading.Thread):
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
 
-        self.dimse.Send(primitive, context_id)
+        self.dimse.send_msg(primitive, context_id)
 
         # FIXME: If Association is Aborted before we receive the response
         #   then we hang here
-        rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
+        rsp, _ = self.dimse.receive_msg(True, self.dimse_timeout)
 
         status = None
         if rsp is not None:
@@ -853,11 +857,11 @@ class Association(threading.Thread):
             return service_class.CannotUnderstand
 
         # Send C-STORE request primitive to DIMSE
-        self.dimse.Send(primitive, context_id)
+        self.dimse.send_msg(primitive, context_id)
 
         # Wait for C-STORE response primitive
         #   returns a C_STORE primitive
-        rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
+        rsp, _ = self.dimse.receive_msg(True, self.dimse_timeout)
 
         status = None
         if rsp is not None:
@@ -957,7 +961,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-FIND request
-        self.dimse.Send(primitive, context_id)
+        self.dimse.send_msg(primitive, context_id)
 
         # Get the responses from the peer
         ii = 1
@@ -965,7 +969,7 @@ class Association(threading.Thread):
             time.sleep(0.001)
 
             # Wait for C-FIND responses
-            rsp, _ = self.dimse.Receive(False, self.dimse.dimse_timeout)
+            rsp, _ = self.dimse.receive_msg(False, self.dimse.dimse_timeout)
 
             # If no response received, start loop again
             if not rsp:
@@ -1008,79 +1012,6 @@ class Association(threading.Thread):
             yield status, ds
 
         yield status, ds
-
-    def send_c_cancel_find(self, msg_id, query_model):
-        """Send a DIMSE C-CANCEL-FIND request to a peer AE.
-
-        See PS3.7 9.3.2.3
-
-        Parameters
-        ----------
-        msg_id : int
-            The message ID of the C-FIND operation we want to cancel
-        query_model : str
-            The Query/Retrieve Information Model to use, which must match the
-            QR Information Model of the C-FIND operation we want to cancel.
-            Must be one of the following:
-                'W' - Modality Worklist Information - FIND
-                    1.2.840.10008.5.1.4.31
-                'P' - Patient Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.1.1
-                'S' - Study Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.2.1
-                'O' - Patient Study Only Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.3.1
-
-        FIXME: Add Returns section
-        """
-        # Can't send a C-CANCEL-FIND without an Association
-        if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL-FIND "
-                               "request")
-
-        service_class = QueryRetrieveFindServiceClass()
-
-        # Build C-FIND primitive
-        primitive = C_FIND()
-        primitive.CommandField = 0x0fff
-        primitive.MessageIDBeingRespondedTo = msg_id
-        primitive.CommandDataSetType = 0x0101
-
-        # We need the Context ID unfortunately...
-        if query_model == 'W':
-            sop_class = ModalityWorklistInformationFind()
-        elif query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
-            sop_class = PatientRootQueryRetrieveInformationModelFind()
-        elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
-            sop_class = StudyRootQueryRetrieveInformationModelFind()
-        elif query_model == "O":
-            # Retired
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
-        else:
-            raise ValueError("Association.send_c_cancel_find() "
-                             "query_model must be one of ['W'|'P'|'S'|'O']")
-
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Find SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-        LOGGER.info('Sending C-CANCEL-FIND')
-
-        # send c-find request
-        self.dimse.Send(primitive, context_id)
 
     def send_c_move(self, dataset, move_aet, msg_id=1,
                     priority=2, query_model='P'):
@@ -1183,14 +1114,14 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-MOVE primitive to peer
-        self.dimse.Send(primitive, context_id)
+        self.dimse.send_msg(primitive, context_id)
 
         # Get the responses from peer
         ii = 1
         while True:
             time.sleep(0.001)
 
-            rsp, context_id = self.dimse.Receive(False,
+            rsp, context_id = self.dimse.receive_msg(False,
                                                  self.dimse.dimse_timeout)
 
             if rsp.__class__ == C_MOVE:
@@ -1252,65 +1183,6 @@ class Association(threading.Thread):
                     break
 
         yield status, dataset
-
-    def send_c_cancel_move(self, msg_id, query_model):
-        """Send a C-CANCEL-MOVE request to the peer AE.
-
-        See PS3.7 9.3.2.3
-
-        Parameters
-        ----------
-        msg_id : int
-            The message ID of the C-MOVE operation we want to cancel.
-        query_model : str
-            The query model SOP class to use (needed to identify context ID).
-            Should match that of the C-MOVE operation to cancel.
-
-        FIXME: Add returns
-        """
-        # Can't send a C-CANCEL-MOVE without an Association
-        if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL-MOVE "
-                               "request")
-
-        service_class = QueryRetrieveMoveServiceClass()
-
-        # Build C-MOVE primitive
-        primitive = C_MOVE()
-        primitive.CommandField = 0x0fff
-        primitive.MessageIDBeingRespondedTo = msg_id
-        primitive.CommandDataSetType = 0x0101
-
-        # We need the Context ID unfortunately...
-        if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelMove()
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelMove()
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
-        else:
-            raise ValueError("Association.send_c_cancel_move() " \
-                             "query_model must be one of ['P'|'S'|'O']")
-
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Move SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-        LOGGER.info('Sending C-CANCEL-MOVE')
-
-        # Send C-CANCEL-MOVE request
-        self.dimse.Send(primitive, context_id)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request message to the peer AE.
@@ -1399,11 +1271,11 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send primitive to peer
-        self.dimse.Send(primitive, context_id)
+        self.dimse.send_msg(primitive, context_id)
 
         ii = 1
         while True:
-            rsp, context_id = self.dimse.Receive(True,
+            rsp, context_id = self.dimse.receive_msg(True,
                                                  self.dimse.dimse_timeout)
 
             # Received a C-GET response
@@ -1480,71 +1352,39 @@ class Association(threading.Thread):
 
                 # Send C-STORE confirmation back to peer
                 c_store_rsp.Status = int(status)
-                self.dimse.Send(c_store_rsp, context_id)
+                self.dimse.send_msg(c_store_rsp, context_id)
 
         yield status, dataset
 
-    def send_c_cancel_get(self, msg_id, query_model):
-        """Send a C-CANCEL-GET request to the peer AE.
+    def _send_c_cancel(self, msg_id):
+        """Send a C-CANCEL-* request to the peer AE.
 
         See PS3.7 9.3.2.3
 
         Parameters
         ----------
         msg_id : int
-            The message ID of the C-GET operation we want to cancel
-        query_model : str
-            The query model SOP class to use (needed to identify context ID).
-            Should match that of the C-GET operation to cancel.
-
-        FIXME: Add Returns section
+            The message ID of the C-GET/MOVE/FIND operation we want to cancel.
         """
-        # Can't send a C-CANCEL-GET without an Association
+        # Can't send a C-CANCEL without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL-GET "
-                               "request")
+                               "established before sending a C-CANCEL request.")
 
-        service_class = QueryRetrieveGetServiceClass()
+        if not isinstance(msg_id, int):
+            # FIXME: Add more detail to exception
+            raise TypeError("msg_id must be an integer.")
 
-        # Build C-GET primitive
-        primitive = C_GET()
-        primitive.CommandField = 0x0fff
+        # FIXME: Add validity checks to msg_id value
+
+        # Build C-CANCEL primitive
+        primitive = C_CANCEL()
         primitive.MessageIDBeingRespondedTo = msg_id
-        primitive.CommandDataSetType = 0x0101
 
-        # We need the Context ID unfortunately...
-        if query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
-            sop_class = PatientRootQueryRetrieveInformationModelGet()
-        elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
-            sop_class = StudyRootQueryRetrieveInformationModelGet()
-        elif query_model == "O":
-            # Retired
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
-        else:
-            raise ValueError("Association.send_c_cancel_get() query_model "
-                             "must be one of ['P'|'S'|'O']")
+        LOGGER.info('Sending C-CANCEL')
 
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Find SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-        LOGGER.info('Sending C-CANCEL-GET')
-
-        # Send c-cancel-get request
-        self.dimse.Send(primitive, context_id)
+        # Send C-CANCEL request
+        self.dimse.send_msg(primitive, context_id)
 
 
     # DIMSE-N services provided by the Association
@@ -1597,7 +1437,7 @@ class Association(threading.Thread):
                     BytesIO(primitive.AttributeIdentifierList)
 
         # Send primitive to peer
-        self.dimse.Send(primitive, context_id)
+        self.dimse.send_msg(primitive, context_id)
         '''
         # Can't send an N-GET without an Association
         if not self.is_established:

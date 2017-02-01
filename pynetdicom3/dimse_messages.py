@@ -16,7 +16,7 @@ from pynetdicom3.primitives import P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
-MESSAGE_TYPE = {0x0001 : 'C-STORE-RQ', 0x8001 : 'C-STORE-RSP',
+_MESSAGE_TYPES = {0x0001 : 'C-STORE-RQ', 0x8001 : 'C-STORE-RSP',
                 0x0020 : 'C-FIND-RQ', 0x8020 : 'C-FIND-RSP',
                 0x0010 : 'C-GET-RQ', 0x8010 : 'C-GET-RSP',
                 0x0021 : 'C-MOVE-RQ', 0x8021 : 'C-MOVE-RSP',
@@ -30,7 +30,7 @@ MESSAGE_TYPE = {0x0001 : 'C-STORE-RQ', 0x8001 : 'C-STORE-RSP',
                 0x0150 : 'N-DELETE-RQ', 0x8150 : 'N-DELETE-RSP'}
 
 # PS3.7 Section 9.3
-COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
+_COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                                    0x00000002,  # AffectedSOPClassUID
                                    0x00000100,  # CommandField
                                    0x00000110,  # MessageID
@@ -130,7 +130,7 @@ class DIMSEMessage(object):
     specified in the DIMSE protocol (PS3.7 9.2 and 10.2). Each Command Element
     is composed of an explicit Tag, Value Length and a Value field. The encoding
     of the Command Set shall be *Little Endian Implicit VR*.
-    
+
     Message Types
     -------------
     The following message types are available: C_STORE_RQ, C_STORE_RSP,
@@ -159,7 +159,7 @@ class DIMSEMessage(object):
         self.encoded_command_set = BytesIO()
         self.data_set = BytesIO()
 
-    def Encode(self, context_id, max_pdu_length):
+    def encode_msg(self, context_id, max_pdu_length):
         """Encode the DIMSE Message as one or more P-DATA service primitives.
 
         PS3.7 6.3.1
@@ -224,7 +224,7 @@ class DIMSEMessage(object):
 
         return p_data_list
 
-    def Decode(self, pdata):
+    def decode_msg(self, pdata):
         """Converts P-DATA primitives into a DIMSEMessage sub-class.
 
         Decodes the data from the P-DATA service primitive (which
@@ -282,7 +282,7 @@ class DIMSEMessage(object):
 
                     # Determine which DIMSE Message class to use
                     self.__class__ = \
-                        MESSAGE_TYPE_CLASS[self.command_set.CommandField]
+                        _MESSAGE_CLASS_TYPES[self.command_set.CommandField]
 
                     # Determine if a Data Set is present by checking for element
                     #   (0000, 0800) CommandDataSetType US 1. If the value is
@@ -375,11 +375,11 @@ class DIMSEMessage(object):
         cls_type_name = self.__class__.__name__.replace('_', '-')
         command_set_tags = [elem.tag for elem in self.command_set]
 
-        if cls_type_name not in COMMAND_SET_ELEM:
+        if cls_type_name not in _COMMAND_SET_ELEM:
             raise ValueError("Can't convert primitive to message for unknown "
                              "DIMSE message type '{}'".format(cls_type_name))
 
-        for tag in COMMAND_SET_ELEM[cls_type_name]:
+        for tag in _COMMAND_SET_ELEM[cls_type_name]:
             if tag not in command_set_tags:
                 tag = Tag(tag)
                 vr = dcm_dict[tag][0]
@@ -402,11 +402,11 @@ class DIMSEMessage(object):
                 else:
                     del self.command_set[elem.tag] # Careful!
 
-        # Theres a one-to-one relationship in the MESSAGE_TYPE dict, so invert
+        # Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so invert
         #   it for convenience
         rev_type = {}
-        for value in MESSAGE_TYPE:
-            rev_type[MESSAGE_TYPE[value]] = value
+        for value in _MESSAGE_TYPES:
+            rev_type[_MESSAGE_TYPES[value]] = value
 
         self.command_set.CommandField = rev_type[cls_type_name]
 
@@ -570,7 +570,7 @@ def _build_message_classes(message_name):
 
     # Create a new Dataset object for the command_set attributes
     ds = Dataset()
-    for elem_tag in COMMAND_SET_ELEM[message_name]:
+    for elem_tag in _COMMAND_SET_ELEM[message_name]:
         tag = Tag(elem_tag)
         vr = dcm_dict[elem_tag][0]
 
@@ -589,11 +589,11 @@ def _build_message_classes(message_name):
 
     return cls
 
-for msg_type in COMMAND_SET_ELEM:
+for msg_type in _COMMAND_SET_ELEM:
     _build_message_classes(msg_type)
 
 # Values from PS3.5
-MESSAGE_TYPE_CLASS = {0x0001 : C_STORE_RQ, 0x8001 : C_STORE_RSP,
+_MESSAGE_CLASS_TYPES = {0x0001 : C_STORE_RQ, 0x8001 : C_STORE_RSP,
                       0x0020 : C_FIND_RQ, 0x8020 : C_FIND_RSP,
                       0x0FFF : C_CANCEL_RQ,
                       0x0010 : C_GET_RQ, 0x8010 : C_GET_RSP,
