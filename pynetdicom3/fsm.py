@@ -52,7 +52,7 @@ class StateMachine(object):
                          event, self.current_state)
             raise KeyError("DUL State Machine received an invalid event "
                            "'{}' for the current state '{}'"
-                           %(event, self.current_state))
+                           .format(event, self.current_state))
 
         action_name = TRANSITION_TABLE[(event, self.current_state)]
 

@@ -731,33 +731,28 @@ class ApplicationEntity(object):
         self._scu_supported_sop = []
 
         if not isinstance(sop_list, list):
-            raise ValueError("scu_supported_sop must be a list of SOP " \
+            raise TypeError("scu_supported_sop must be a list of SOP " \
                                "classes.")
 
-        try:
-            for sop_class in sop_list:
-                if isinstance(sop_class, str):
-                    sop_uid = UID(sop_class)
-                elif isinstance(sop_class, UID):
-                    sop_uid = sop_class
-                elif isclass(sop_class) and 'UID' in sop_class.__dict__:
-                        sop_uid = UID(sop_class.UID)
-                elif isinstance(sop_class, bytes):
-                    sop_uid = UID(sop_class.decode('utf-8'))
-                else:
-                    continue
+        for sop_class in sop_list:
+            if isinstance(sop_class, str):
+                sop_uid = UID(sop_class)
+            elif isclass(sop_class) and 'UID' in sop_class.__dict__:
+                    sop_uid = UID(sop_class.UID)
+            elif isinstance(sop_class, bytes):
+                sop_uid = UID(sop_class.decode('utf-8'))
+            else:
+                continue
 
-                try:
-                    sop_uid.is_valid()
-                except InvalidUID:
-                    continue
+            try:
+                sop_uid.is_valid()
+            except InvalidUID:
+                continue
 
-                self._scu_supported_sop.append(sop_uid)
+            self._scu_supported_sop.append(sop_uid)
 
-            if sop_list != [] and self._scu_supported_sop == []:
-                raise ValueError("No valid SCU SOP classes were supplied")
-        except TypeError:
-            raise ValueError("scu_sop_class must be a list")
+        if sop_list != [] and self._scu_supported_sop == []:
+            raise TypeError("No valid SCU SOP classes were supplied")
 
     @property
     def scp_supported_sop(self):
@@ -782,40 +777,31 @@ class ApplicationEntity(object):
         # pylint: disable=attribute-defined-outside-init
         self._scp_supported_sop = []
         if not isinstance(sop_list, list):
-            raise ValueError("scp_supported_sop must be a list of SOP " \
+            raise TypeError("scp_supported_sop must be a list of SOP " \
                                "classes.")
 
-        try:
-            for sop_class in sop_list:
-
-                if isinstance(sop_class, str):
-                    sop_uid = UID(sop_class)
-                elif isinstance(sop_class, UID):
-                    sop_uid = sop_class
-                elif isinstance(sop_class, bytes):
-                    sop_uid = UID(sop_class.decode('utf-8'))
-                elif isclass(sop_class):
-                    if 'UID' in sop_class.__dict__:
-                        sop_uid = sop_class.UID
-                    else:
-                        continue
-                elif isinstance(sop_class, bytes):
-                    sop_uid = UID(sop_class.decode('utf-8'))
+        for sop_class in sop_list:
+            if isinstance(sop_class, str):
+                sop_uid = UID(sop_class)
+            elif isinstance(sop_class, bytes):
+                sop_uid = UID(sop_class.decode('utf-8'))
+            elif isclass(sop_class):
+                if 'UID' in sop_class.__dict__:
+                    sop_uid = sop_class.UID
                 else:
                     continue
+            else:
+                continue
 
-                try:
-                    sop_uid.is_valid()
-                except InvalidUID:
-                    continue
+            try:
+                sop_uid.is_valid()
+            except InvalidUID:
+                continue
 
-                self._scp_supported_sop.append(sop_uid)
+            self._scp_supported_sop.append(sop_uid)
 
-            if sop_list != [] and self._scp_supported_sop == []:
-                raise ValueError("No valid SCP SOP classes were supplied")
-
-        except TypeError:
-            raise ValueError("scp_sop_class must be a list")
+        if sop_list != [] and self._scp_supported_sop == []:
+            raise TypeError("No valid SCP SOP classes were supplied")
 
     @property
     def transfer_syntaxes(self):
@@ -833,8 +819,6 @@ class ApplicationEntity(object):
         for syntax in transfer_syntaxes:
             if isinstance(syntax, str):
                 sop_uid = UID(syntax)
-            elif isinstance(syntax, UID):
-                sop_uid = syntax
             elif isinstance(syntax, bytes):
                 sop_uid = UID(syntax.decode('utf-8'))
             else:
@@ -873,7 +857,8 @@ class ApplicationEntity(object):
         primary_field : bytes
             The value of the Primary Field
         secondary_field : bytes or None
-            The value of the Secondary Field. Only used when `user_id_type` is 2
+            The value of the Secondary Field. Will be None unless the
+            `user_id_type` is 2
 
         Returns
         -------
@@ -1216,7 +1201,7 @@ class ApplicationEntity(object):
         """
         pass
 
-    def on_association_released(self):
+    def on_association_released(self, primitive=None):
         """Callback for when an association is released."""
         pass
 

@@ -391,13 +391,13 @@ class Association(threading.Thread):
         #   presentation contexts?
         assoc_ac = self.acse.Accept(assoc_rq)
 
-        # Callbacks/Logging
-        self.debug_association_accepted(assoc_ac)
-        self.ae.on_association_accepted(assoc_ac)
-
         if assoc_ac is None:
             self.kill()
             return
+
+        # Callbacks/Logging
+        self.debug_association_accepted(assoc_ac)
+        self.ae.on_association_accepted(assoc_ac)
 
         # No valid presentation contexts, abort the association
         if self.acse.presentation_contexts_accepted == []:
@@ -437,7 +437,7 @@ class Association(threading.Thread):
 
             # DIMSE message received
             if msg:
-                # Use the Message's Affected SOP Class UID to create a new 
+                # Use the Message's Affected SOP Class UID to create a new
                 #   SOP Class instance
                 sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
 
@@ -445,14 +445,14 @@ class Association(threading.Thread):
                 # New method
                 pc_accepted = self.acse.presentation_contexts_accepted
                 context = [pc for pc in pc_accepted if pc.ID == msg_context_id]
-                
+
                 # Matching context
                 if context:
                     sop_class.presentation_context = context[0]
-                else: 
+                else:
                     # No matching presentation context
                     pass
-                
+
                 # Old method
                 matching_context = False
                 for context in self.acse.presentation_contexts_accepted:
