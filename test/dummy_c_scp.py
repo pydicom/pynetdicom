@@ -102,8 +102,8 @@ class DummyBaseSCP(threading.Thread):
 
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""
-    def __init__(self):
-        self.ae = AE(scp_sop_class=[VerificationSOPClass], port=11112)
+    def __init__(self, port=11112):
+        self.ae = AE(scp_sop_class=[VerificationSOPClass], port=port)
         DummyBaseSCP.__init__(self)
 
     def on_c_echo(self):
@@ -181,12 +181,12 @@ class DummyFindSCP(DummyBaseSCP):
                             "Optional Keys were not supported for existence "
                             "and/or matching for this identifier",
                             range(0xFF01, 0xFF01 + 1))
-    def __init__(self):
+    def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelFind,
                                     StudyRootQueryRetrieveInformationModelFind,
                                     ModalityWorklistInformationFind,
                                     PatientStudyOnlyQueryRetrieveInformationModelFind],
-                     port=11112)
+                     port=port)
         DummyBaseSCP.__init__(self)
         self.status = self.pending
         self.cancel = False
@@ -245,13 +245,13 @@ class DummyGetSCP(DummyBaseSCP):
                      'Sub-operations are continuing',
                      range(0xFF00, 0xFF00 + 1))
     
-    def __init__(self):
+    def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                     StudyRootQueryRetrieveInformationModelGet,
                                     PatientStudyOnlyQueryRetrieveInformationModelGet,
                                     CTImageStorage],
                      scu_sop_class=[CTImageStorage],
-                     port=11112)
+                     port=port)
         DummyBaseSCP.__init__(self)
         self.status = self.success
         self.cancel = False

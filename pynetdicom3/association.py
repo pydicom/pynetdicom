@@ -11,11 +11,8 @@ from pydicom.uid import UID
 
 from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
-from pynetdicom3.dimse_primitives import C_ECHO, \
-                                        C_MOVE, \
-                                        C_STORE, \
-                                        C_GET, \
-                                        C_FIND
+from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
+                                         C_FIND
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
@@ -209,16 +206,25 @@ class Association(threading.Thread):
             raise TypeError("ext_neg must be a list of Extended "
                             "Negotiation items or None")
 
+        # Set new ACSE and DIMSE providers
+        self.acse = ACSEServiceProvider(self, self.dul, self.acse_timeout)
+        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout,
+                                          self.local_max_pdu)
+
         # Kills the thread loop in run()
         self._kill = False
         self._is_running = False
 
+        # Send an A-ABORT when an association request is received
+        self._a_abort_assoc_rq = False
+        # Send an A-P-ABORT when an association request is received
+        self._a_p_abort_assoc_rq = False
+        # Disconnect from the peer when an association request is received
+        self._disconnect_assoc_rq = False
+
         # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
-
-        # Start the thread
-        self.start()
 
     def kill(self):
         """Kill the main association thread loop."""
@@ -251,11 +257,6 @@ class Association(threading.Thread):
 
     def run(self):
         """The main Association control."""
-        # Set new ACSE and DIMSE providers
-        self.acse = ACSEServiceProvider(self, self.dul, self.acse_timeout)
-        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout, 
-                                          self.local_max_pdu)
-
         self.dul.start()
 
         # When the AE is acting as an SCP (Association Acceptor)
@@ -270,10 +271,20 @@ class Association(threading.Thread):
         # FIXME: needed because of some thread-related problem
         time.sleep(0.1)
 
-        # Get A-ASSOCIATE request primitive from the DICOM UL
+        # Got an A-ASSOCIATE request primitive from the DICOM UL
         assoc_rq = self.dul.receive_pdu(wait=True)
 
         if assoc_rq is None:
+            self.kill()
+            return
+
+        # (Optionally) send an A-ABORT/A-P-ABORT in response
+        if self._a_abort_assoc_rq:
+            self.acse.Abort(0x00, 0x00)
+            self.kill()
+            return
+        elif self._a_p_abort_assoc_rq:
+            self.acse.Abort(0x02, 0x00)
             self.kill()
             return
 

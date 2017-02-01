@@ -354,7 +354,7 @@ class ApplicationEntity(object):
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
                                 dimse_timeout=self.dimse_timeout)
-
+            assoc.start()
             self.active_associations.append(assoc)
 
     def cleanup_associations(self):
@@ -433,6 +433,7 @@ class ApplicationEntity(object):
                             dimse_timeout=self.dimse_timeout,
                             max_pdu=max_pdu,
                             ext_neg=ext_neg)
+        assoc.start()
 
         # Endlessly loops while the Association negotiation is taking place
         while (not assoc.is_established and not assoc.is_rejected and
