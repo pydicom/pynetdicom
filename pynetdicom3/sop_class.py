@@ -244,7 +244,7 @@ class VerificationServiceClass(ServiceClass):
             LOGGER.exception("Exception in the AE.on_c_echo() callback")
 
         # Send primitive
-        self.DIMSE.Send(rsp, self.pcid)
+        self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class StorageServiceClass(ServiceClass):
@@ -289,7 +289,7 @@ class StorageServiceClass(ServiceClass):
             LOGGER.error("Store request's dataset UID does not match the "
                          "presentation context")
             rsp.Status = int(self.DataSetDoesNotMatchSOPClassFailure)
-            self.DIMSE.Send(rsp, self.pcid)
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Decode the dataset
@@ -300,7 +300,7 @@ class StorageServiceClass(ServiceClass):
         except:
             LOGGER.error("Failed to decode the received dataset")
             rsp.Status = int(self.CannotUnderstand)
-            self.DIMSE.Send(rsp, self.pcid)
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # ApplicationEntity's on_c_store callback
@@ -310,7 +310,7 @@ class StorageServiceClass(ServiceClass):
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
             rsp.Status = int(self.CannotUnderstand)
-            self.DIMSE.Send(rsp, self.pcid)
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         try:
@@ -319,11 +319,11 @@ class StorageServiceClass(ServiceClass):
             LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
                          "status value.")
             rsp.Status = int(self.CannotUnderstand)
-            self.DIMSE.Send(rsp, self.pcid)
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         rsp.Status = int(status)
-        self.DIMSE.Send(rsp, self.pcid)
+        self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class QueryRetrieveFindServiceClass(ServiceClass):
@@ -595,7 +595,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.error("Find request's Identifier UID does not match the "
                          "presentation context")
             c_find_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
-            self.DIMSE.Send(c_find_rsp, self.pcid)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
             return
 
         try:
@@ -605,7 +605,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         except:
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_find_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.Send(c_find_rsp, self.pcid)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
             return
 
         # Log Identifier
@@ -619,7 +619,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         except (AttributeError, NotImplementedError, TypeError):
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_find_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.Send(c_find_rsp, self.pcid)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
             return
 
         # Callback - C-FIND
@@ -630,7 +630,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             c_find_rsp.Status = int(self.UnableToProcess)
             LOGGER.info('Find SCP Response: (Failure - %s)',
                         self.UnableToProcess.description)
-            self.DIMSE.Send(c_find_rsp, self.pcid)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
             return
 
         # Iterate through the results
@@ -641,7 +641,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.error("ApplicationEntity.on_c_find() returned an "
                              "invalid status value.")
                 c_find_rsp.Status = int(self.UnableToProcess)
-                self.DIMSE.Send(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
                 return
 
             # Callback - C-CANCEL-FIND
@@ -658,20 +658,20 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 c_find_rsp.Status = \
                                 int(self.MatchingTerminatedDueToCancelRequest)
                 LOGGER.info('Find SCP Response: (Cancel)')
-                self.DIMSE.Send(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
                 return
             elif status.status_type == 'Failure':
                 # Pass along the status from the user
                 c_find_rsp.Status = int(status)
                 LOGGER.info('Find SCP Response: (Failure - %s)',
                             status.description)
-                self.DIMSE.Send(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
                 return
             elif status.status_type == 'Success':
                 # User isn't supposed to send these, but handle anyway
                 c_find_rsp.Status = int(status)
                 LOGGER.info('Find SCP Response: (Success)')
-                self.DIMSE.Send(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
                 return
             else:
                 # Pending
@@ -683,7 +683,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                     LOGGER.error("Failed to decode the received Identifier "
                                  "dataset")
                     c_find_rsp.Status = int(self.UnableToProcess)
-                    self.DIMSE.Send(c_find_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_find_rsp, self.pcid)
                     return
 
                 c_find_rsp.Identifier = ds
@@ -693,7 +693,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
 
-                self.DIMSE.Send(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
 
                 LOGGER.debug('Find SCP Response Identifiers:')
                 LOGGER.debug('')
@@ -705,7 +705,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         # Send final success response
         c_find_rsp.Status = int(self.Success)
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
-        self.DIMSE.Send(c_find_rsp, self.pcid)
+        self.DIMSE.send_msg(c_find_rsp, self.pcid)
 
 
 class QueryRetrieveMoveServiceClass(ServiceClass):
@@ -809,7 +809,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             LOGGER.error("Move request's Identifier UID does not match the "
                          "presentation context")
             c_move_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         # Decode the Identifier dataset
@@ -820,7 +820,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         except:
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_move_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         # Log Identifier
@@ -834,7 +834,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         except (AttributeError, NotImplementedError, TypeError, KeyError):
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_move_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         ## GET USER ON_C_MOVE GENERATOR
@@ -846,7 +846,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             c_move_rsp.Status = int(self.UnableToProcess)
             LOGGER.info('Move SCP Response: (Failure - %s)',
                         self.UnableToProcess.description)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         # USER YIELD NUMBER OF OPERATIONS
@@ -861,7 +861,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             c_move_rsp.Status = int(self.UnableToProcess)
             LOGGER.info('Move SCP Response: (Failure - %s)',
                         self.UnableToProcess.description)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         ## USER YIELD MOVE DESTINATION ADDR, PORT
@@ -877,7 +877,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             c_move_rsp.Status = int(self.UnableToProcess)
             LOGGER.info('Move SCP Response: (Failure - %s)',
                         self.UnableToProcess.description)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         if None in [addr, port]:
@@ -885,7 +885,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                          msg.MoveDestination.decode('utf-8'))
             c_move_rsp.Status = int(self.MoveDestinationUnknown)
             LOGGER.info('Move SCP Response (Failure)')
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         if not isinstance(addr, str) or not isinstance(port, int):
@@ -894,7 +894,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                              'dataset) pairs.')
             c_move_rsp.Status = int(self.MoveDestinationUnknown)
             LOGGER.info('Move SCP Response (Failure)')
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         # Request new association with move destination
@@ -910,7 +910,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                                  "invalid status value.")
                     assoc.release()
                     c_move_rsp.Status = int(self.UnableToProcess)
-                    self.DIMSE.Send(c_move_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
                     return
 
                 # If usr_status is Cancel, Failure or Success then generate a
@@ -925,26 +925,26 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     c_move_rsp.NumberOfWarningSuboperations = no_warning
                     c_move_rsp.NumberOfCompletedSuboperations = no_completed
                     c_move_rsp.Status = int(self.Cancel)
-                    self.DIMSE.Send(c_move_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
                     return
                 elif usr_status.status_type == 'Failure':
                     LOGGER.info('Move SCP Response: (Failure - %s)',
                                 usr_status.description)
                     assoc.release()
                     c_move_rsp.Status = int(usr_status)
-                    self.DIMSE.Send(c_move_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
                     return
                 elif usr_status.status_type == 'Success':
                     LOGGER.info('Move SCP Response: (Success)')
                     assoc.release()
                     c_move_rsp.Status = int(self.Success)
-                    self.DIMSE.Send(c_move_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
                     return
                 elif usr_status.status_type == 'Warning':
                     LOGGER.info('Move SCP Response: (Warning)')
                     assoc.release()
                     c_move_rsp.Status = int(self.Warning)
-                    self.DIMSE.Send(c_move_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
                     return
                 else:
                     ## USER RESPONSE IS PENDING
@@ -974,7 +974,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     c_move_rsp.NumberOfCompletedSuboperations = no_completed
                     c_move_rsp.Status = int(self.Pending)
                     LOGGER.info('Move SCP Response %s (Pending)', ii)
-                    self.DIMSE.Send(c_move_rsp, self.pcid)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
 
             assoc.release()
 
@@ -986,7 +986,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             LOGGER.info('Move SCP Response: (Failure - Peer refused '
                         'association)')
             c_move_rsp.Status = int(self.OutOfResourcesUnableToPerform)
-            self.DIMSE.Send(c_move_rsp, self.pcid)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         # Send final C-MOVE-RSP to peer
@@ -996,7 +996,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         else:
             c_move_rsp.Status = int(self.Warning)
             LOGGER.info('Move SCP Response: (Warning)')
-        self.DIMSE.Send(c_move_rsp, self.pcid)
+        self.DIMSE.send_msg(c_move_rsp, self.pcid)
 
 
 class QueryRetrieveGetServiceClass(ServiceClass):
@@ -1066,7 +1066,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             LOGGER.error("Get request's Identifier UID does not match the "
                          "presentation context")
             c_get_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
-            self.DIMSE.Send(c_get_rsp, self.pcid)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
             return
 
         try:
@@ -1076,7 +1076,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         except:
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_get_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.Send(c_get_rsp, self.pcid)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
             return
 
         # Log Identifier
@@ -1090,7 +1090,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         except (AttributeError, NotImplementedError, TypeError, KeyError):
             LOGGER.error("Failed to decode the received Identifier dataset")
             c_get_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.Send(c_get_rsp, self.pcid)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
             return
 
         # The user is responsible for returning the matching Instances
@@ -1101,7 +1101,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             c_get_rsp.Status = int(self.UnableToProcess)
             LOGGER.info('Get SCP Response: (Failure - %s)',
                         self.UnableToProcess.description)
-            self.DIMSE.Send(c_get_rsp, self.pcid)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
             return
 
         try:
@@ -1113,7 +1113,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             c_get_rsp.Status = int(self.UnableToProcess)
             LOGGER.info('Get SCP Response: (Failure - %s)',
                         self.UnableToProcess.description)
-            self.DIMSE.Send(c_get_rsp, self.pcid)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
             return
 
         # Iterate through the results
@@ -1125,7 +1125,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 LOGGER.error("ApplicationEntity.on_c_move() returned an "
                              "invalid status value.")
                 c_get_rsp.Status = int(self.UnableToProcess)
-                self.DIMSE.Send(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
                 return
 
             if usr_status.status_type == 'Cancel':
@@ -1136,20 +1136,20 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 c_get_rsp.NumberOfWarningSuboperations = no_warning
                 c_get_rsp.NumberOfCompletedSuboperations = no_completed
                 # Send C-CANCEL confirmation
-                self.DIMSE.Send(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
                 return
             elif usr_status.status_type == 'Failure':
                 # Pass along the status from the user
                 c_get_rsp.Status = int(usr_status)
                 LOGGER.info('Get SCP Response: (Failure - %s)',
                             usr_status.description)
-                self.DIMSE.Send(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
                 return
             elif usr_status.status_type == 'Success':
                 # User isn't supposed to send these, but handle anyway
                 c_get_rsp.Status = int(self.Success)
                 LOGGER.info('Get SCP Response: (Success)')
-                self.DIMSE.Send(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
                 return
             else:
                 # Send C-STORE-RQ and Pending C-GET-RSP to peer
@@ -1182,7 +1182,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
                 LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
                 c_get_rsp.Status = int(self.Pending)
-                self.DIMSE.Send(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
 
         # Send final C-GET-RSP to peer
         if no_warning == 0 and no_failed == 0:
@@ -1192,7 +1192,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             c_get_rsp.Status = int(self.Warning)
             LOGGER.info('Get SCP Final Response (Warning)')
 
-        self.DIMSE.Send(c_get_rsp, self.pcid)
+        self.DIMSE.send_msg(c_get_rsp, self.pcid)
 
 
 # WORKLIST SOP Classes
@@ -1251,14 +1251,14 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
                                         self.transfersyntax.is_implicit_VR,
                                         self.transfersyntax.is_little_endian)
                 # send response
-                self.DIMSE.Send(rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
         except StopIteration:
             # send final response
             rsp = C_FIND()
             rsp.MessageIDBeingRespondedTo = msg.MessageID.value
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
             rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid)
+            self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class RTMachineVerificationServiceClass(ServiceClass):

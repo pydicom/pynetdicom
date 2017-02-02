@@ -22,7 +22,7 @@ from pynetdicom3.sop_class import RTImageStorage, \
                                   PatientRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -145,23 +145,131 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         scp.stop()
 
-    def test_on_n_event_report_called(self): pass
-    def test_on_n_get_called(self): pass
-    def test_on_n_set_called(self): pass
-    def test_on_n_action_called(self): pass
-    def test_on_n_create_called(self): pass
-    def test_on_n_delete_called(self): pass
-    def test_on_receive_connection_called(self): pass
-    def test_on_make_connection_called(self): pass
-    def test_on_association_req_called(self): pass
-    def test_on_association_acc_called(self): pass
-    def test_on_association_rej_called(self): pass
-    def test_on_association_rel_called(self): pass
-    def test_on_association_abort_called(self): pass
-
     def test_on_user_identity_negotiation(self):
-        """ Check that SCP AE.on_user_identity_negotiation() was called """
-        pass
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_user_identity_negotiation(None, None, None)
+
+    def test_on_c_echo(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.on_c_echo()
+
+    def test_on_c_store(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_store(None)
+
+    def test_on_c_find(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_find(None)
+
+    def test_on_c_find_cancel(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_find_cancel()
+
+    def test_on_c_get(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_get(None)
+
+    def test_on_c_get_cancel(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_get_cancel()
+
+    def test_on_c_move(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_move(None, None)
+
+    def test_on_c_move_cancel(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_c_move_cancel()
+
+    def test_on_n_event_report(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_n_event_report()
+
+    def test_on_n_get(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_n_get()
+
+    def test_on_n_set(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_n_set()
+
+    def test_on_n_action(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_n_action()
+
+    def test_on_n_create(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_n_create()
+
+    def test_on_n_delete(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_n_delete()
+
+    def test_on_receive_connection(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_receive_connection()
+
+    def test_on_make_connection(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        with self.assertRaises(NotImplementedError):
+            ae.on_make_connection()
+
+    def test_association_requested(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.on_association_requested(None)
+
+    def test_association_accepted(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.on_association_accepted(None)
+
+    def test_association_rejected(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.on_association_rejected(None)
+
+    def test_association_released(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.on_association_released(None)
+
+    def test_association_aborted(self):
+        """Test default callback raises exception"""
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.on_association_aborted(None)
 
 
 class TestAEGoodAssociation(unittest.TestCase):
@@ -459,11 +567,11 @@ class TestAEGoodInitialisation(unittest.TestCase):
         self.assertTrue(isinstance(ab_syn, UID))
 
         # If not str, bytes, UID, serviceclass raise
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             ae = AE(scu_sop_class=[12345], transfer_syntax=['1.2.840.10008.1.2'])
 
         # If not valid UID raise
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             ae = AE(scu_sop_class=['1.3.'], transfer_syntax=['1.2.840.10008.1.2'])
 
         ## SCP SOP Classes
@@ -492,11 +600,11 @@ class TestAEGoodInitialisation(unittest.TestCase):
         self.assertTrue(isinstance(ab_syn, UID))
 
         # If not str, bytes, UID, serviceclass raise
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             ae = AE(scp_sop_class=[12345], transfer_syntax=['1.2.840.10008.1.2'])
 
         # If not valid UID raise
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             ae = AE(scp_sop_class=['1.3.'], transfer_syntax=['1.2.840.10008.1.2'])
 
     def test_presentation_context_transfer(self):
@@ -574,13 +682,13 @@ class TestAEBadInitialisation(unittest.TestCase):
 
     def test_sop_classes_not_list(self):
         """ AE should fail if scu_sop_class or scp_sop_class are not lists """
-        self.assertRaises(ValueError, AE, 'TEST', 0, VerificationSOPClass, [])
-        self.assertRaises(ValueError, AE, 'TEST', 0, [], VerificationSOPClass)
+        self.assertRaises(TypeError, AE, 'TEST', 0, VerificationSOPClass, [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [], VerificationSOPClass)
 
     def test_sop_classes_not_list_of_sop_class(self):
         """ AE should fail if scu_sop_class or scp_sop_class are not lists of SOP classes """
-        self.assertRaises(ValueError, AE, 'TEST', 0, [1, 2, 'a'], [])
-        self.assertRaises(ValueError, AE, 'TEST', 0, [], [1, 'a', 3])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [1, 2, 'a'], [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [], [1, 'a', 3])
 
     def test_sop_classes_too_many(self):
         """Presentation context list should be cutoff after 126 sop classes"""
@@ -590,12 +698,12 @@ class TestAEBadInitialisation(unittest.TestCase):
 
     def test_sop_classes_bad_class(self):
         """ AE should fail if given bad sop classes """
-        self.assertRaises(ValueError, AE, 'TEST', 0, ['1.2.840.10008.1.1.'], [])
-        self.assertRaises(ValueError, AE, 'TEST', 0, ['1.2.840.10008.1.1.', 1, 'abst'], [])
-        self.assertRaises(ValueError, AE, 'TEST', 0, [UID('1.2.840.10008.1.1.')], [])
-        self.assertRaises(ValueError, AE, 'TEST', 0, [], ['1.2.840.10008.1.1.'])
-        self.assertRaises(ValueError, AE, 'TEST', 0, [], ['1.2.840.10008.1.1.', 1, 'abst'])
-        self.assertRaises(ValueError, AE, 'TEST', 0, [], [UID('1.2.840.10008.1.1.')])
+        self.assertRaises(TypeError, AE, 'TEST', 0, ['1.2.840.10008.1.1.'], [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, ['1.2.840.10008.1.1.', 1, 'abst'], [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [UID('1.2.840.10008.1.1.')], [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [], ['1.2.840.10008.1.1.'])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [], ['1.2.840.10008.1.1.', 1, 'abst'])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [], [UID('1.2.840.10008.1.1.')])
 
     def test_no_transfer_syntax(self):
         """ AE should fail if empty transfer_syntax """
