@@ -304,16 +304,7 @@ class ApplicationEntity(object):
             for ii, sop_class in enumerate(sop_input):
                 # Must be an odd integer between 1 and 255
                 presentation_context_id = ii * 2 + 1
-                abstract_syntax = None
-
-                # If supplied SOP Class is already a pydicom.UID class
-                #   str UID or SOPClass instance
-                if isinstance(sop_class, UID):
-                    abstract_syntax = sop_class
-                elif isinstance(sop_class, str):
-                    abstract_syntax = UID(sop_class)
-                else:
-                    abstract_syntax = UID(sop_class.UID)
+                abstract_syntax = sop_class
 
                 # Add the Presentation Context Definition Item
                 # If we have too many Items, warn and skip the rest
@@ -520,7 +511,7 @@ class ApplicationEntity(object):
         elif isinstance(value, (int, float)) and value >= 0:
             self._acse_timeout = value
         else:
-            LOGGER.warning("acse_timeout set to 0")
+            LOGGER.warning("acse_timeout set to never expire")
             self._acse_timeout = 0
 
     @property
@@ -551,7 +542,7 @@ class ApplicationEntity(object):
         elif isinstance(value, (int, float)) and value >= 0:
             self._dimse_timeout = value
         else:
-            LOGGER.warning("dimse_timeout set to 0")
+            LOGGER.warning("dimse_timeout set to never expire")
             self._dimse_timeout = 0
 
     @property

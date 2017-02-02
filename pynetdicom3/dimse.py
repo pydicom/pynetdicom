@@ -257,7 +257,10 @@ class DIMSEServiceProvider(object):
             Returns the complete DIMSE message and its presentation context ID
             or None, None.
         """
-        dimse_timeout = self.dimse_timeout
+        # FIXME: dimse timeout needs to be fixed
+        #dimse_timeout = self.dimse_timeout
+        dimse_timeout = None
+        
 
         if self.message is None:
             self.message = DIMSEMessage()
@@ -296,6 +299,7 @@ class DIMSEServiceProvider(object):
 
         else:
             cls = self.dul.peek_next_pdu().__class__
+
             if cls not in (type(None), P_DATA):
                 return None, None
 
@@ -674,7 +678,7 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        if 'AffectedSOPClass' in cs:
+        if 'AffectedSOPClassUID' in cs:
             s.append('Affected SOP Class UID        : {0!s}'
                      .format(cs.AffectedSOPClassUID))
         else:
@@ -913,7 +917,20 @@ class DIMSEServiceProvider(object):
         msg : pynetdicom3.DIMSEmessage.C_CANCEL_RQ
             The received C-CANCEL-RQ message.
         """
-        pass
+        cs = msg.command_set
+
+        s = []
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('C-CANCEL RQ'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+        
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+
+        for line in s:
+            LOGGER.info(line)
 
     @staticmethod
     def debug_receive_c_get_rq(msg):

@@ -439,6 +439,27 @@ class TestAssociation(unittest.TestCase):
         assoc.release()
         scp.stop()
 
+    def test_require_called_aet(self):
+        """SCP requires matching called AET"""
+        scp = DummyVerificationSCP()
+        scp.ae.require_called_aet = b'TESTSCU'
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertFalse(assoc.is_established)
+        self.assertTrue(assoc.is_rejected)
+        scp.stop()
+    
+    def test_require_called_aet(self):
+        """SCP requires matching called AET"""
+        scp = DummyVerificationSCP()
+        scp.ae.require_calling_aet = b'TESTSCP'
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertFalse(assoc.is_established)
+        self.assertTrue(assoc.is_rejected)
+        scp.stop()
 
 class TestAssociationSendCEcho(unittest.TestCase):
     """Run tests on Assocation send_c_echo."""
@@ -946,6 +967,29 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             assoc.send_c_cancel_find(1)
         scp.stop()
+
+    def test_good_send(self):
+        """Test send_c_cancel_move"""
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        assoc.send_c_cancel_find(1)
+        scp.stop()
+        
+    def test_bad_send(self):
+        """Test send_c_cancel_move"""
+        scp = DummyFindSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        with self.assertRaises(TypeError):
+            assoc.send_c_cancel_find('a')
+        assoc.release()
+        scp.stop()
+        
 
 
 class TestAssociationSendCGet(unittest.TestCase):

@@ -437,13 +437,19 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.receive_msg(False,
+            msg, msg_context_id = self.dimse.receive_msg(True,
                                                          self.dimse_timeout)
 
             # DIMSE message received
             if msg:
                 # Use the Message's Affected SOP Class UID to create a new
-                #   SOP Class instance
+                #   SOP Class instance, if there's no AffectedSOPClassUID
+                #   then we received a C-CANCEL request
+                # FIXME
+                if not hasattr(msg, 'AffectedSOPClassUID'):
+                    self.abort()
+                    return
+
                 sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
 
                 # Check that the SOP Class is supported by the AE
@@ -1385,8 +1391,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending C-CANCEL')
 
         # Send C-CANCEL request
-        # FIXME: need context ID?
-        self.dimse.send_msg(primitive, context_id)
+        # FIXME: need context ID, not msg ID. maybe
+        self.dimse.send_msg(primitive, msg_id)
 
 
     # DIMSE-N services provided by the Association
