@@ -85,13 +85,15 @@ def validate_ae_title(ae_title):
         # AE title empty str
         else:
             raise ValueError("Invalid value for an AE title; must be a "
-                             "non-empty string")
-
+                             "non-empty string or bytes.")
+    except AttributeError:
+        raise TypeError("Invalid value for an AE title; must be a "
+                        "non-empty string or bytes.")
     except ValueError:
         raise
     except:
         raise TypeError("Invalid value for an AE title; must be a "
-                        "non-empty string")
+                        "non-empty string or bytes.")
 
 def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
               max_size=512, suffix=''):

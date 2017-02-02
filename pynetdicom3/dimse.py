@@ -140,7 +140,7 @@ class DIMSEServiceProvider(object):
             The maximum PDU size when sending DIMSE messages, default 31682.
         """
         self.dimse_timeout = dimse_timeout
-        self.DUL = dul
+        self.dul = dul
         self.maximum_pdu_size = maximum_pdu_size
 
         self.message = None
@@ -236,7 +236,7 @@ class DIMSEServiceProvider(object):
 
         # Send the P-DATA PDUs to the peer via the DUL provider
         for pdata_pdu in pdata_pdu_list:
-            self.DUL.send_pdu(pdata_pdu)
+            self.dul.send_pdu(pdata_pdu)
 
     def receive_msg(self, wait=False, dimse_timeout=None):
         """Receive a DIMSE message from the peer.
@@ -268,14 +268,14 @@ class DIMSEServiceProvider(object):
             while True:
                 time.sleep(0.001)
 
-                nxt = self.DUL.peek_next_pdu()
+                nxt = self.dul.peek_next_pdu()
                 if nxt is None:
                     continue
 
                 if nxt.__class__ is not P_DATA:
                     return None, None
 
-                pdu = self.DUL.receive_pdu(wait, dimse_timeout)
+                pdu = self.dul.receive_pdu(wait, dimse_timeout)
 
                 if self.message.decode_msg(pdu):
                     # Callback
@@ -295,11 +295,11 @@ class DIMSEServiceProvider(object):
                     return None, None
 
         else:
-            cls = self.DUL.peek_next_pdu().__class__
+            cls = self.dul.peek_next_pdu().__class__
             if cls not in (type(None), P_DATA):
                 return None, None
 
-            pdu = self.DUL.receive_pdu(wait, dimse_timeout)
+            pdu = self.dul.receive_pdu(wait, dimse_timeout)
 
             if self.message.decode_msg(pdu):
                 # Callback

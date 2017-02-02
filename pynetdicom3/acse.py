@@ -11,7 +11,8 @@ from pynetdicom3 import pynetdicom_version
 from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
                                    ImplementationClassUIDNotification, \
                                    ImplementationVersionNameNotification
-from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
+from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, \
+                                       A_P_ABORT
 from pynetdicom3.utils import PresentationContextManager
 from pynetdicom3.utils import wrap_list
 
@@ -33,41 +34,40 @@ class ACSEServiceProvider(object):
      * received from peer AE: DUL receives data, decodes into a PDU then
         converts to primitive which is result of DUL.receive_pdu()
 
-    Parameters
+    Attributes
     ----------
-    assoc : pynetdicom3.association.Association
-        The parent Association that owns the ACSE provider
-    DUL : pynetdicom3.dul.DULServiceProvider
-        The DICOM UL service provider instance that will handle the transport of
-        the association primitives sent/received by the ACSE provider
-    acse_timeout : int, optional
-        The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs from
-        the peer (default: 30)
-
-    References
-    ----------
-    DICOM Standard PS3.8
-    ISO/IEC 8649
+    dul : pynetdicom.dul.DULServiceProvider
     """
-    def __init__(self, assoc, DUL, acse_timeout=30):
-        # The DICOM Upper Layer service provider, see PS3.8
-        self.DUL = DUL
-        # DICOM Application Context Name, see PS3.7 Annex A.2.1
-        #   UID for the DICOM Application Context Name
-        self.ApplicationContextName = b'1.2.840.10008.3.1.1.1'
+    def __init__(self, assoc, acse_timeout=30):
+        """Create the ACSE provider.
+
+        Parameters
+        ----------
+        assoc : pynetdicom3.association.Association
+            The parent Association that owns the ACSE provider
+        acse_timeout : int, optional
+            The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
+            from the peer (default: 30)
+        """
+        self.parent = assoc
+        self.dul = assoc.dul
+
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
 
-        self.parent = assoc
-
         self.local_ae = None
-        self.peer_ae = None
+        self.remote_ae = None
         self.local_max_pdu = None
         self.peer_max_pdu = None
 
+        # The accepted/rejected presentation contexts
+        self.accepted_contexts = None
+        self.rejected_contexts = None
+
         self.context_manager = PresentationContextManager()
 
-    def Request(self, local_ae, peer_ae, max_pdu_size, pcdl, userspdu=None):
+    def request_assoc(self, local_ae, peer_ae, max_pdu_size, pcdl,
+                      userspdu=None):
         """Request an Association with a peer Application Entity SCP.
 
         Issues an A-ASSOCIATE request primitive to the DICOM UL service provider
@@ -97,10 +97,10 @@ class ACSEServiceProvider(object):
         bool
             True if the Association was accepted, False if rejected or aborted
         """
-        self.LocalAE = local_ae
-        self.RemoteAE = peer_ae
+        self.local_ae = local_ae
+        self.remote_ae = peer_ae
 
-        self.MaxPDULength = max_pdu_size
+        self.local_max_pdu = max_pdu_size
 
         ## Build an A-ASSOCIATE request primitive
         #
@@ -115,9 +115,9 @@ class ACSEServiceProvider(object):
         #   CalledPresentationAddress
         #   PresentationContextDefinitionList
         assoc_rq = A_ASSOCIATE()
-        assoc_rq.application_context_name = self.ApplicationContextName
-        assoc_rq.calling_ae_title = self.LocalAE['AET']
-        assoc_rq.called_ae_title = self.RemoteAE['AET']
+        assoc_rq.application_context_name = self.application_context_name
+        assoc_rq.calling_ae_title = self.local_ae['AET']
+        assoc_rq.called_ae_title = self.remote_ae['AET']
 
         # Build User Information - PS3.7 Annex D.3.3
         #
@@ -143,10 +143,10 @@ class ACSEServiceProvider(object):
         if userspdu is not None:
             assoc_rq.user_information += userspdu
 
-        assoc_rq.calling_presentation_address = (self.LocalAE['Address'],
-                                                 self.LocalAE['Port'])
-        assoc_rq.called_presentation_address = (self.RemoteAE['Address'],
-                                                self.RemoteAE['Port'])
+        assoc_rq.calling_presentation_address = (self.local_ae['Address'],
+                                                 self.local_ae['Port'])
+        assoc_rq.called_presentation_address = (self.remote_ae['Address'],
+                                                self.remote_ae['Port'])
         assoc_rq.presentation_context_definition_list = pcdl
         #
         ## A-ASSOCIATE request primitive is now complete
@@ -155,7 +155,7 @@ class ACSEServiceProvider(object):
         # Send the A-ASSOCIATE request primitive to the peer via the
         #   DICOM UL service
         LOGGER.info("Requesting Association")
-        self.DUL.send_pdu(assoc_rq)
+        self.dul.send_pdu(assoc_rq)
 
         ## Receive the response from the peer
         #   This may be an A-ASSOCIATE confirmation primitive or an
@@ -163,9 +163,9 @@ class ACSEServiceProvider(object):
         #
         if self.acse_timeout == 0:
             # No timeout
-            assoc_rsp = self.DUL.receive_pdu(True, None)
+            assoc_rsp = self.dul.receive_pdu(True, None)
         else:
-            assoc_rsp = self.DUL.receive_pdu(True, self.acse_timeout)
+            assoc_rsp = self.dul.receive_pdu(True, self.acse_timeout)
 
         # Association accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -180,9 +180,8 @@ class ACSEServiceProvider(object):
                 # return True, assoc_info
 
                 # Get maximum pdu length from answer
-                self.MaxPDULength = assoc_rsp.maximum_length_received
-                self.peer_max_pdu = self.MaxPDULength
-                self.parent.peer_max_pdu = self.MaxPDULength
+                self.peer_max_pdu = assoc_rsp.maximum_length_received
+                self.parent.peer_max_pdu = assoc_rsp.maximum_length_received
 
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl
@@ -191,9 +190,9 @@ class ACSEServiceProvider(object):
 
                 # Once the context manager gets both sets of contexts it
                 #   automatically determines which are accepted and refused
-                self.presentation_contexts_accepted = \
+                self.accepted_contexts = \
                     self.context_manager.accepted
-                self.presentation_contexts_rejected = \
+                self.rejected_contexts = \
                     self.context_manager.rejected
 
                 return True, assoc_rsp
@@ -223,7 +222,7 @@ class ACSEServiceProvider(object):
             raise ValueError("Unexpected response by the peer AE to the "
                              "ACSE association request")
 
-    def Reject(self, primitive, result, source, diagnostic):
+    def reject_assoc(self, primitive, result, source, diagnostic):
         """Reject an Association with a peer Application Entity SCU.
 
         Issues an A-ASSOCIATE response primitive to the DICOM UL service
@@ -258,11 +257,11 @@ class ACSEServiceProvider(object):
         primitive.diagnostic = diagnostic
         primitive.user_information = []
 
-        self.DUL.send_pdu(primitive)
+        self.dul.send_pdu(primitive)
 
         return primitive
 
-    def Accept(self, primitive):
+    def accept_assoc(self, primitive):
         """Accept an Association with a peer Application Entity SCU,
 
         Issues an A-ASSOCIATE response primitive to the DICOM UL service
@@ -285,20 +284,19 @@ class ACSEServiceProvider(object):
         primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The A_ASSOCIATE (AC) primitive to convert and send to the peer
         """
-        self.MaxPDULength = primitive.maximum_length_received
-        self.local_max_pdu = self.MaxPDULength
-        self.parent.local_max_pdu = self.MaxPDULength
+        self.local_max_pdu = primitive.maximum_length_received
+        self.parent.local_max_pdu = primitive.maximum_length_received
 
         # Send response
         primitive.presentation_context_definition_list = []
         primitive.presentation_context_definition_results_list = \
-                                        self.presentation_contexts_accepted
+                                        self.accepted_contexts
         primitive.result = 0
 
-        self.DUL.send_pdu(primitive)
+        self.dul.send_pdu(primitive)
         return primitive
 
-    def Release(self):
+    def release_assoc(self):
         """Release the Association with the peer Application Entity.
 
         Issues an A-RELEASE request primitive to the DICOM UL service provider
@@ -318,11 +316,11 @@ class ACSEServiceProvider(object):
         """
         LOGGER.info("Releasing Association")
         primitive = A_RELEASE()
-        self.DUL.send_pdu(primitive)
+        self.dul.send_pdu(primitive)
 
-        return self.DUL.receive_pdu(wait=True)
+        return self.dul.receive_pdu(wait=True)
 
-    def Abort(self, source=0x02, reason=0x00):
+    def abort_assoc(self, source=0x02, reason=0x00):
         """Abort the Association with the peer Application Entity.
 
         ACSE issued A-ABORT request primitive to the DICOM UL service provider.
@@ -358,29 +356,29 @@ class ACSEServiceProvider(object):
             elif reason in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
                 primitive.reason = reason
             else:
-                raise ValueError("ACSE.Abort() invalid reason "
+                raise ValueError("acse.abort_assoc() invalid reason "
                                  "'{0!s}'".format(reason))
 
         else:
-            raise ValueError("ACSE.Abort() invalid source "
+            raise ValueError("acse.abort_assoc() invalid source "
                              "'{0!s}'".format(source))
 
-        self.DUL.send_pdu(primitive)
+        self.dul.send_pdu(primitive)
         time.sleep(0.5)
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
         the request a confirmation is sent"""
-        rel = self.DUL.peek_next_pdu()
+        rel = self.dul.peek_next_pdu()
         if rel.__class__ == A_RELEASE:
             # Make sure this is a A-RELEASE request primitive
             if rel.result == 'affirmative':
                 return False
 
-            self.DUL.receive_pdu(wait=False)
+            self.dul.receive_pdu(wait=False)
             release_rsp = A_RELEASE()
             release_rsp.result = "affirmative"
-            self.DUL.send_pdu(release_rsp)
+            self.dul.send_pdu(release_rsp)
 
             return True
         else:
@@ -388,23 +386,29 @@ class ACSEServiceProvider(object):
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
-        rel = self.DUL.peek_next_pdu()
+        rel = self.dul.peek_next_pdu()
         # Abort is a non-confirmed service no so need to worry if its a request
         #   primitive
         if rel.__class__ in (A_ABORT, A_P_ABORT):
-            self.DUL.receive_pdu(wait=False)
+            self.dul.receive_pdu(wait=False)
             return True
         else:
             return False
 
     def Status(self):
         """Return the current state of the DUL's state machine"""
-        return self.DUL.state_machine.current_state()
+        return self.dul.state_machine.current_state()
 
     def Kill(self):
         """Kill the ACSE service."""
-        self.DUL.kill_dul()
+        self.dul.kill_dul()
 
+    @property
+    def application_context_name(self):
+        """Return the application context name UID"""
+        # DICOM Application Context Name, see PS3.7 Annex A.2.1
+        #   UID for the DICOM Application Context Name
+        return UID('1.2.840.10008.3.1.1.1')
 
     # ACSE logging/debugging functions
     # Local AE sending PDU to peer AE
@@ -676,21 +680,6 @@ class ACSEServiceProvider(object):
         a_abort : pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
-        '''
-        LOGGER.info("Aborting Association")
-
-        s = ['Abort Parameters:']
-        s.append('========================== BEGIN A-ABORT ===================='
-                 '=====')
-        s.append('Abort Source: %s' %a_abort.source_str)
-        s.append('Abort Reason: %s' %a_abort.reason_str)
-        s.append('=========================== END A-ABORT ====================='
-                 '====')
-
-        for line in s:
-            #LOGGER.debug(line)
-            pass
-        '''
         pass
 
 
@@ -964,30 +953,9 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        a_release_rq : pynetdicom3.pdu.P_DATA_TF
+        p_data_tf : pynetdicom3.pdu.P_DATA_TF
             The P-DATA-TF PDU instance
         """
-        '''
-        # Shorthand
-        p_data = p_data_tf
-
-        s = ['Data Parameters:']
-        s.append('========================= BEGIN P-DATA-TF ==================='
-                 '=====')
-        s.append('Number of PDVs Received: %d' %len(p_data.PDVs))
-
-        for ii, pdv in enumerate(p_data.PDVs):
-            s.append('PDV %d' %(ii + 1))
-            s.append('  Presentation context ID: %s' %pdv.ID)
-            s.append('  Message control header byte: %s'
-                     %pdv.MessageControlHeader)
-            s.append('  Size: %s bytes' %pdv.Length)
-
-        s.append('========================== END P-DATA-TF ===================='
-                 '====')
-        for line in s:
-            LOGGER.debug(line)
-        '''
         pass
 
     @staticmethod

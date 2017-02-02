@@ -12,7 +12,7 @@ from pydicom.uid import UID
 from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
-                                         C_FIND
+                                         C_FIND, C_CANCEL
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
@@ -206,7 +206,7 @@ class Association(threading.Thread):
                             "Negotiation items or None")
 
         # Set new ACSE and DIMSE providers
-        self.acse = ACSEServiceProvider(self, self.dul, self.acse_timeout)
+        self.acse = ACSEServiceProvider(self, self.acse_timeout)
         self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout,
                                           self.local_max_pdu)
 
@@ -242,7 +242,7 @@ class Association(threading.Thread):
     def release(self):
         """Release the association."""
         if self.is_established:
-            _ = self.acse.Release()
+            _ = self.acse.release_assoc()
             self.kill()
             self.is_released = True
 
@@ -255,7 +255,7 @@ class Association(threading.Thread):
         See PS3.8, 7.3-4 and 9.3.8.
         """
         if not self.is_released:
-            self.acse.Abort(source=0x00, reason=0x00)
+            self.acse.abort_assoc(source=0x00, reason=0x00)
             self.kill()
             self.is_aborted = True
 
@@ -284,11 +284,11 @@ class Association(threading.Thread):
 
         # (Optionally) send an A-ABORT/A-P-ABORT in response
         if self._a_abort_assoc_rq:
-            self.acse.Abort(0x00, 0x00)
+            self.acse.abort_assoc(0x00, 0x00)
             self.kill()
             return
         elif self._a_p_abort_assoc_rq:
-            self.acse.Abort(0x02, 0x00)
+            self.acse.abort_assoc(0x02, 0x00)
             self.kill()
             return
 
@@ -364,7 +364,7 @@ class Association(threading.Thread):
             reject_assoc_rsd = [(0x02, 0x03, 0x02)]
 
         for (result, src, diag) in reject_assoc_rsd:
-            assoc_rj = self.acse.Reject(assoc_rq, result, src, diag)
+            assoc_rj = self.acse.reject_assoc(assoc_rq, result, src, diag)
             self.debug_association_rejected(assoc_rj)
             self.ae.on_association_rejected(assoc_rj)
             self.kill()
@@ -377,7 +377,7 @@ class Association(threading.Thread):
         self.acse.context_manager.acceptor_contexts = \
                                 self.ae.presentation_contexts_scp
 
-        self.acse.presentation_contexts_accepted = \
+        self.acse.accepted_contexts = \
                                 self.acse.context_manager.accepted
 
         # Set maximum PDU send length
@@ -393,7 +393,7 @@ class Association(threading.Thread):
         # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
         # FIXME: Is this correct? Do we send Accept then Abort if no
         #   presentation contexts?
-        assoc_ac = self.acse.Accept(assoc_rq)
+        assoc_ac = self.acse.accept_assoc(assoc_rq)
 
         if assoc_ac is None:
             self.kill()
@@ -404,8 +404,8 @@ class Association(threading.Thread):
         self.ae.on_association_accepted(assoc_ac)
 
         # No valid presentation contexts, abort the association
-        if self.acse.presentation_contexts_accepted == []:
-            self.acse.Abort(0x02, 0x00)
+        if self.acse.accepted_contexts == []:
+            self.acse.abort_assoc(0x02, 0x00)
             self.kill()
             return
 
@@ -437,7 +437,8 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.receive_msg(False, self.dimse_timeout)
+            msg, msg_context_id = self.dimse.receive_msg(False,
+                                                         self.dimse_timeout)
 
             # DIMSE message received
             if msg:
@@ -447,7 +448,7 @@ class Association(threading.Thread):
 
                 # Check that the SOP Class is supported by the AE
                 # New method
-                pc_accepted = self.acse.presentation_contexts_accepted
+                pc_accepted = self.acse.accepted_contexts
                 context = [pc for pc in pc_accepted if pc.ID == msg_context_id]
 
                 # Matching context
@@ -459,7 +460,7 @@ class Association(threading.Thread):
 
                 # Old method
                 matching_context = False
-                for context in self.acse.presentation_contexts_accepted:
+                for context in self.acse.accepted_contexts:
                     if context.ID == msg_context_id:
                         sop_class.pcid = context.ID
                         sop_class.sopclass = context.AbstractSyntax
@@ -525,10 +526,10 @@ class Association(threading.Thread):
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = \
-                self.acse.Request(local_ae, self.peer_ae,
-                                  self.local_max_pdu,
-                                  self.ae.presentation_contexts_scu,
-                                  userspdu=self.ext_neg)
+                self.acse.request_assoc(local_ae, self.peer_ae,
+                                        self.local_max_pdu,
+                                        self.ae.presentation_contexts_scu,
+                                        userspdu=self.ext_neg)
 
         # Association was accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -538,22 +539,22 @@ class Association(threading.Thread):
                 self.ae.on_association_accepted(assoc_rsp)
 
                 # No acceptable presentation contexts
-                if self.acse.presentation_contexts_accepted == []:
+                if self.acse.accepted_contexts == []:
                     LOGGER.error("No Acceptable Presentation Contexts")
                     self.is_aborted = True
                     self.is_established = False
-                    self.acse.Abort(0x02, 0x00)
+                    self.acse.abort_assoc(0x02, 0x00)
                     self.kill()
 
                     return
 
                 # Build supported SOP Classes for the Association
                 self.scu_supported_sop = []
-                for context in self.acse.presentation_contexts_accepted:
+                for context in self.acse.accepted_contexts:
                     self.scu_supported_sop.append(
-                            (context.ID,
-                             uid_to_sop_class(context.AbstractSyntax),
-                             context.TransferSyntax[0]))
+                        (context.ID,
+                         uid_to_sop_class(context.AbstractSyntax),
+                         context.TransferSyntax[0]))
 
                 # Assocation established OK
                 self.is_established = True
@@ -1122,7 +1123,7 @@ class Association(threading.Thread):
             time.sleep(0.001)
 
             rsp, context_id = self.dimse.receive_msg(False,
-                                                 self.dimse.dimse_timeout)
+                                                     self.dimse.dimse_timeout)
 
             if rsp.__class__ == C_MOVE:
                 status = service_class.code_to_status(rsp.Status)
@@ -1276,7 +1277,7 @@ class Association(threading.Thread):
         ii = 1
         while True:
             rsp, context_id = self.dimse.receive_msg(True,
-                                                 self.dimse.dimse_timeout)
+                                                     self.dimse.dimse_timeout)
 
             # Received a C-GET response
             if rsp.__class__ == C_GET:
@@ -1384,6 +1385,7 @@ class Association(threading.Thread):
         LOGGER.info('Sending C-CANCEL')
 
         # Send C-CANCEL request
+        # FIXME: need context ID?
         self.dimse.send_msg(primitive, context_id)
 
 

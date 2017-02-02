@@ -209,50 +209,7 @@ class ApplicationEntity(object):
         # List of active association objects
         self.active_associations = []
 
-        # Build presentation context list to be:
-        #   * sent to remote AE when requesting association
-        #       (presentation_contexts_scu)
-        #   * used to decide whether to accept or reject when remote AE
-        #       requests association (presentation_contexts_scp)
-        #
-        #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
-        # TODO: Split this out into its own function
-        self.presentation_contexts_scu = []
-        self.presentation_contexts_scp = []
-        for [pc_output, sop_input] in \
-                    [[self.presentation_contexts_scu, self.scu_supported_sop],
-                     [self.presentation_contexts_scp, self.scp_supported_sop]]:
-
-            for ii, sop_class in enumerate(sop_input):
-                # Must be an odd integer between 1 and 255
-                presentation_context_id = ii * 2 + 1
-                abstract_syntax = None
-
-                # If supplied SOP Class is already a pydicom.UID class
-                #   str UID or SOPClass instance
-                if isinstance(sop_class, UID):
-                    abstract_syntax = sop_class
-                elif isinstance(sop_class, str):
-                    abstract_syntax = UID(sop_class)
-                else:
-                    abstract_syntax = UID(sop_class.UID)
-
-                # Add the Presentation Context Definition Item
-                # If we have too many Items, warn and skip the rest
-                if presentation_context_id < 255:
-                    pc_item = PresentationContext(presentation_context_id,
-                                                  abstract_syntax,
-                                                  self.transfer_syntaxes[:])
-
-                    pc_output.append(pc_item)
-                else:
-                    LOGGER.warning("More than 126 supported SOP Classes have "
-                                   "been supplied to the Application Entity, "
-                                   "but the Presentation Context Definition ID "
-                                   "can only be an odd integer between 1 and "
-                                   "255. The remaining SOP Classes will not be "
-                                   "included")
-                    break
+        self._build_presentation_contexts()
 
         self.local_socket = None
 
@@ -276,7 +233,7 @@ class ApplicationEntity(object):
                          "ApplicationEntity initialisation or by setting the "
                          "scp_supported_sop attribute")
             raise ValueError("AE is running as an SCP but no SCP SOP classes "
-                               "have been supplied.")
+                             "have been supplied.")
 
         # Bind the local_socket to the specified listen port
         #try:
@@ -326,6 +283,54 @@ class ApplicationEntity(object):
         # Listen for connections made to the socket, the backlog argument
         #   specifies the maximum number of queued connections.
         self.local_socket.listen(1)
+
+    def _build_presentation_contexts(self):
+        """Build the presentation context list.
+
+        Build presentation context list to be:
+        * sent to remote AE when requesting association
+          (presentation_contexts_scu)
+        * used to decide whether to accept or reject when remote AE
+          requests association (presentation_contexts_scp)
+
+        See PS3.8 Sections 7.1.1.13 and 9.3.2.2
+        """
+        self.presentation_contexts_scu = []
+        self.presentation_contexts_scp = []
+        for [pc_output, sop_input] in \
+                    [[self.presentation_contexts_scu, self.scu_supported_sop],
+                     [self.presentation_contexts_scp, self.scp_supported_sop]]:
+
+            for ii, sop_class in enumerate(sop_input):
+                # Must be an odd integer between 1 and 255
+                presentation_context_id = ii * 2 + 1
+                abstract_syntax = None
+
+                # If supplied SOP Class is already a pydicom.UID class
+                #   str UID or SOPClass instance
+                if isinstance(sop_class, UID):
+                    abstract_syntax = sop_class
+                elif isinstance(sop_class, str):
+                    abstract_syntax = UID(sop_class)
+                else:
+                    abstract_syntax = UID(sop_class.UID)
+
+                # Add the Presentation Context Definition Item
+                # If we have too many Items, warn and skip the rest
+                if presentation_context_id < 255:
+                    pc_item = PresentationContext(presentation_context_id,
+                                                  abstract_syntax,
+                                                  self.transfer_syntaxes[:])
+
+                    pc_output.append(pc_item)
+                else:
+                    LOGGER.warning("More than 126 supported SOP Classes have "
+                                   "been supplied to the Application Entity, "
+                                   "but the Presentation Context Definition ID "
+                                   "can only be an odd integer between 1 and "
+                                   "255. The remaining SOP Classes will not be "
+                                   "included")
+                    break
 
     def _monitor_socket(self):
         """Monitor the local socket for connections.
@@ -510,18 +515,13 @@ class ApplicationEntity(object):
     def acse_timeout(self, value):
         """Set the ACSE timeout."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 0:
-                self._acse_timeout = value
-            else:
-                self._acse_timeout = 0
-
-            return
-        except:
-            LOGGER.warning("ACSE timeout must be a numeric value greater than"
-                           "or equal to 0. Defaulting to 0 (no timeout)")
-
-        self._acse_timeout = 0
+        if value is None:
+            self._acse_timeout = 0
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._acse_timeout = value
+        else:
+            LOGGER.warning("acse_timeout set to 0")
+            self._acse_timeout = 0
 
     @property
     def ae_title(self):
@@ -546,19 +546,13 @@ class ApplicationEntity(object):
     def dimse_timeout(self, value):
         """Get the DIMSE timeout."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 0:
-                self._dimse_timeout = value
-            else:
-                self._dimse_timeout = 0
-
-            return
-        except:
-            LOGGER.warning("ApplicationEntity DIMSE timeout must be a numeric "
-                           "value greater than or equal to 0. Defaulting to 0 "
-                           "(no timeout)")
-
-        self._dimse_timeout = 0
+        if value is None:
+            self._dimse_timeout = 0
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._dimse_timeout = value
+        else:
+            LOGGER.warning("dimse_timeout set to 0")
+            self._dimse_timeout = 0
 
     @property
     def network_timeout(self):
@@ -569,19 +563,13 @@ class ApplicationEntity(object):
     def network_timeout(self, value):
         """Set the network timeout."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 0:
-                self._network_timeout = value
-            else:
-                self._network_timeout = 60
-
-            return
-        except:
-            LOGGER.warning("ApplicationEntity network timeout must be a "
-                           "numeric value greater than or equal to 0. "
-                           "Defaulting to 60 seconds")
-
-        self._network_timeout = 60
+        if value is None:
+            self._network_timeout = 60
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._network_timeout = value
+        else:
+            LOGGER.warning("network_timeout set to 60")
+            self._network_timeout = 60
 
     @property
     def maximum_associations(self):
@@ -592,19 +580,11 @@ class ApplicationEntity(object):
     def maximum_associations(self, value):
         """Set the number of maximum associations."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 1:
-                self._maximum_associations = value
-                return
-            else:
-                LOGGER.warning("AE maximum associations must be greater than "
-                               "or equal to 1")
-                self._maximum_associations = 1
-        except:
-            LOGGER.warning("AE maximum associations must be a numerical value "
-                           "greater than or equal to 1. Defaulting to 1")
-
-        self._maximum_associations = 1
+        if isinstance(value, int) and value >= 1:
+            self._maximum_associations = value
+        else:
+            LOGGER.warning("maximum_associations set to 1")
+            self._maximum_associations = 1
 
     @property
     def maximum_pdu_size(self):
@@ -619,15 +599,10 @@ class ApplicationEntity(object):
         #   variable field of P-DATA-TF PDUs (in bytes)
         #   * Must be numerical, greater than or equal to 0 (0 indicates
         #       no maximum length (PS3.8 Annex D.1.1)
-        try:
-            if value >= 0:
-                self._maximum_pdu_size = value
-                return
-        except:
-            LOGGER.warning("ApplicationEntity failed to set maximum PDU size "
-                           "of '%s', defaulting to 16832 bytes", value)
-
-        self._maximum_pdu_size = 16382
+        if value >= 0:
+            self._maximum_pdu_size = value
+        else:
+            LOGGER.warning("maximum_pdu_size set to 16382")
 
     @property
     def port(self):
@@ -638,19 +613,11 @@ class ApplicationEntity(object):
     def port(self, value):
         """Set the port number."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if isinstance(value, int):
-                if value >= 0:
-                    self._port = value
-                    return
-                else:
-                    raise ValueError("AE port number must be greater than or "
-                                     "equal to 0")
-            else:
-                raise TypeError("AE port number must be an integer greater "
-                                "than or equal to 0")
-        except Exception as ex:
-            raise ex
+        if isinstance(value, int) and value >= 0:
+            self._port = value
+        else:
+            raise ValueError("AE port number must be an integer greater then "
+                             "or equal to 0")
 
     @property
     def require_calling_aet(self):
@@ -661,24 +628,9 @@ class ApplicationEntity(object):
     def require_calling_aet(self, value):
         """Set the required calling AE title."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if 0 < len(value.strip()) <= 16:
-                self._require_calling_aet = value.strip()
-            elif len(value.strip()) > 16:
-                self._require_calling_aet = value.strip()[:16]
-                LOGGER.warning("ApplicationEntity tried to set required "
-                               "calling AE title with more than 16 characters; "
-                               "title will be truncated to '%s'", value)
-            else:
-                self._require_calling_aet = ''
-            return
-
-        except:
-            LOGGER.warning("ApplicationEntity failed to set required calling "
-                           "AE title, defaulting to empty string (i.e. calling "
-                           "AE title not required to match)")
-
-        self._require_calling_aet = ''
+        if len(value) > 16:
+            value = value[:16]
+        self._require_calling_aet = value.strip()
 
     @property
     def require_called_aet(self):
@@ -689,23 +641,9 @@ class ApplicationEntity(object):
     def require_called_aet(self, value):
         """Set the required called AE title."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if 0 < len(value.strip()) <= 16:
-                self._require_called_aet = value.strip()
-            elif len(value.strip()) > 16:
-                self._require_called_aet = value.strip()[:16]
-                LOGGER.warning("ApplicationEntity tried to set required "
-                               "called AE title with more than 16 characters; "
-                               "title will be truncated to '%s'", value)
-            else:
-                self._require_called_aet = ''
-            return
-        except:
-            LOGGER.warning("ApplicationEntity failed to set required called AE "
-                           "title, defaulting to empty string (i.e. called AE "
-                           "title not required to match)")
-
-        self._require_called_aet = ''
+        if len(value) > 16:
+            value = value[:16]
+        self._require_called_aet = value.strip()
 
     @property
     def scu_supported_sop(self):
@@ -738,7 +676,7 @@ class ApplicationEntity(object):
             if isinstance(sop_class, str):
                 sop_uid = UID(sop_class)
             elif isclass(sop_class) and 'UID' in sop_class.__dict__:
-                    sop_uid = UID(sop_class.UID)
+                sop_uid = UID(sop_class.UID)
             elif isinstance(sop_class, bytes):
                 sop_uid = UID(sop_class.decode('utf-8'))
             else:
@@ -879,24 +817,10 @@ class ApplicationEntity(object):
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling AE.start()
 
-        Called during pynetdicom3.sop_class.VerificationServiceClass::SCP() after
-        receiving a C-ECHO request and immediately prior to sending the
+        Called during by pynetdicom3.sop_class.VerificationServiceClass.SCP()
+        after receiving a C-ECHO request and immediately prior to sending the
         response. As the status for a C-ECHO response is always Success no
         return value is required.
-
-        Example
-        -------
-        .. code-block:: python
-
-                from pynetdicom3 import AE, VerificationSOPClass
-
-                def on_c_echo():
-                    print('Received C-ECHO from peer')
-
-                ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
-                ae.on_c_echo = on_c_echo
-
-                ae.start()
         """
         # User implementation of on_c_echo is optional
         pass
@@ -907,19 +831,6 @@ class ApplicationEntity(object):
         Must be defined by the user prior to calling AE.start() and must return
         a valid C-STORE status integer value or the corresponding
         pynetdicom3.sop_class.Status object.
-
-        Example
-        -------
-        from pynetdicom3 import AE, StorageSOPClassList
-
-        def on_c_store(dataset):
-            print(dataset.SOPInstanceUID)
-            return 0x0000
-
-        ae = AE(11112, scp_sop_class=StorageSOPClassList)
-        ae.on_c_store = on_c_store
-
-        ae.start()
 
         Parameters
         ----------
@@ -1105,12 +1016,17 @@ class ApplicationEntity(object):
         Yields
         ------
         number_matches : int
-            The number of matching Instances
+            The field yield should be the number of matching Instances.
         addr, port : str, int
-            The TCP/IP address and port number of the destination AE (if known)
-            None, None if unknown
-        match : pydicom.dataset.Dataset
-            The matching Instance dataset
+            The second yield should be the TCP/IP address and port number of the
+            destination AE (if known) or None, None if unknown.
+        status : pynetdicom3.sop_class.Status or int
+            The remaining yields should be a status, dataset pair, where status
+            is a valid status:
+
+        dataset : pydicom.dataset.Dataset or None
+            If the status is 'Pending' then you can (optionally) return a
+            Dataset containing the identifiers or None.
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")

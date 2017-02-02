@@ -235,7 +235,7 @@ class DULServiceProvider(Thread):
             try:
                 # If local AE is SCU also calls _check_incoming_pdu()
                 if self._is_transport_event() and self._idle_timer is not None:
-                        self._idle_timer.restart()
+                    self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass
 

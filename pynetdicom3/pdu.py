@@ -39,7 +39,7 @@ TODO: Make encoding/decoding more generic
 
 from io import BytesIO
 import logging
-from struct import pack, unpack, calcsize
+from struct import pack, unpack
 
 from pydicom.uid import UID
 
@@ -607,7 +607,8 @@ class A_ASSOCIATE_RQ(PDU):
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    - Context name: ={0!s}\n'.format(self.application_context_name)
+        s += '    - Context name: ={0!s}\n'.format( \
+                                        self.application_context_name)
 
         s += '  * Presentation Context Item(s):\n'
 
@@ -1003,7 +1004,8 @@ class A_ASSOCIATE_AC(PDU):
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    -  Context name: ={0!s}\n'.format(self.application_context_name)
+        s += '    -  Context name: ={0!s}\n'.format( \
+                                            self.application_context_name)
 
         s += '  * Presentation Context Item(s):\n'
 
@@ -1992,7 +1994,7 @@ class ApplicationContextItem(PDU):
 
     def __str__(self):
         s = '{0!s} ({1!s})\n'.format(self.application_context_name,
-                          self.application_context_name.title())
+                                     self.application_context_name.title())
         return s
 
     @property
@@ -2746,7 +2748,8 @@ class TransferSyntaxSubItem(PDU):
         s = "Transfer syntax sub item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += '  Transfer syntax name: ={0!s}\n'.format(self.transfer_syntax_name)
+        s += '  Transfer syntax name: ={0!s}\n'.format( \
+                                            self.transfer_syntax_name)
 
         return s
 
@@ -3309,7 +3312,8 @@ class MaximumLengthSubItem(PDU):
         s = "Maximum length Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Maximum length received: {0:d}\n".format(self.maximum_length_received)
+        s += "  Maximum length received: {0:d}\n".format( \
+                                        self.maximum_length_received)
         return s
 
 
@@ -3354,7 +3358,8 @@ class ImplementationClassUIDSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
+        primitive : pynetdicom3.pdu_primitives
+                                .ImplementationClassUIDNotification
             The primitive to use when setting up the Item
         """
         self.implementation_class_uid = primitive.implementation_class_uid
@@ -3371,7 +3376,8 @@ class ImplementationClassUIDSubItem(PDU):
         pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
             The primitive to convert to
         """
-        from pynetdicom3.pdu_primitives import ImplementationClassUIDNotification
+        from pynetdicom3.pdu_primitives import \
+                                        ImplementationClassUIDNotification
 
         primitive = ImplementationClassUIDNotification()
         primitive.implementation_class_uid = self.implementation_class_uid
@@ -3422,7 +3428,8 @@ class ImplementationClassUIDSubItem(PDU):
         s = "Implementation Class UID Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Implementation class UID: '{0!s}'\n".format(self.implementation_class_uid)
+        s += "  Implementation class UID: '{0!s}'\n".format( \
+                                            self.implementation_class_uid)
 
         return s
 
@@ -3499,10 +3506,12 @@ class ImplementationVersionNameSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
+        primitive : pynetdicom3.pdu_primitives
+                                    .ImplementationVersionNameNotification
             The primitive to use when setting up the Item
         """
-        self.implementation_version_name = primitive.implementation_version_name
+        self.implementation_version_name = \
+                                    primitive.implementation_version_name
 
         self._update_parameters()
 
@@ -3514,7 +3523,8 @@ class ImplementationVersionNameSubItem(PDU):
         pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
             The primitive to convert to
         """
-        from pynetdicom3.pdu_primitives import ImplementationVersionNameNotification
+        from pynetdicom3.pdu_primitives import \
+                                        ImplementationVersionNameNotification
 
         tmp = ImplementationVersionNameNotification()
         tmp.implementation_version_name = self.implementation_version_name
@@ -4013,13 +4023,14 @@ class UserIdentitySubItemRQ(PDU):
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  User identity type: {0:d}\n".format(self.user_identity_type)
         s += "  Positive response requested: {0:d}\n".format( \
-            self.positive_response_requested)
-        s += "  Primary field length: {0:d} bytes\n".format(self.primary_field_length)
+                                        self.positive_response_requested)
+        s += "  Primary field length: {0:d} bytes\n".format( \
+                                                self.primary_field_length)
         s += "  Primary field: {0!s}\n".format(self.primary_field)
 
         if self.user_identity_type == 0x02:
             s += "  Secondary field length: {0:d} bytes\n".format( \
-                self.secondary_field_length)
+                                                self.secondary_field_length)
             s += "  Secondary field: {0!s}\n".format(self.secondary_field)
         else:
             s += "  Secondary field length: (not used)\n"
@@ -4470,10 +4481,11 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         s = "SOP Class Extended Negotiation Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  SOP class UID length: {0:d} bytes\n".format(self.sop_class_uid_length)
+        s += "  SOP class UID length: {0:d} bytes\n".format( \
+                                                self.sop_class_uid_length)
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
         s += "  Service class application information: {0!s}\n".format( \
-            self.service_class_application_information)
+                                self.service_class_application_information)
 
         return s
 
@@ -4690,8 +4702,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             self.related_general_sop_class_identification_length += len(item)
 
         self.item_length = 2 + self.sop_class_uid_length + \
-                           2 + self.service_class_uid_length + \
-                           2 + self.related_general_sop_class_identification_length
+                    2 + self.service_class_uid_length + \
+                    2 + self.related_general_sop_class_identification_length
 
 
 
@@ -4701,13 +4713,14 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         s = "SOP Class Common Extended Negotiation Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  SOP class UID length: {0:d} bytes\n".format(self.sop_class_uid_length)
+        s += "  SOP class UID length: {0:d} bytes\n".format( \
+                                            self.sop_class_uid_length)
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
         s += "  Service class UID length: {0:d} bytes\n".format( \
-            self.service_class_uid_length)
+                                            self.service_class_uid_length)
         s += "  Service class UID: ={0!s}\n".format(self.service_class_uid)
         s += "  Related general SOP class ID length: {0:d} bytes\n".format( \
-            self.related_general_sop_class_identification_length)
+                        self.related_general_sop_class_identification_length)
         s += "  Related general SOP class ID(s):\n"
 
         for ii in self.related_general_sop_class_identification:

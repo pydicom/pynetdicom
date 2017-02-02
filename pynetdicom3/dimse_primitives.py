@@ -82,7 +82,8 @@ class C_STORE(object):
         one of the following values:
         Storage Service Class Specific (PS3.4 Annex B.2.3):
             * 0xA700 to 0xA7FF: Failure (Refused: Out of resources)
-            * 0xA900 to 0xA9FF: Failure (Error: Data Set does not match SOP Class)
+            * 0xA900 to 0xA9FF: Failure (Error: Data Set does not match SOP
+                                Class)
             * 0xC000 to 0xCFFF: Failure (Error: Cannot understand)
             * 0xB000: Warning (Coercion of Data Elements)
             * 0xB007: Warning (Data Set does not match SOP Class)
@@ -114,7 +115,7 @@ class C_STORE(object):
 
         # Optional Command Set elements used in with specific Status values
         # For Warning statuses 0xB000, 0xB006, 0xB007
-        # For Failure statuses 0xCxxx, 0xA9xx, 
+        # For Failure statuses 0xCxxx, 0xA9xx,
         self.OffendingElement = None
         # For Warning statuses 0xB000, 0xB006, 0xB007
         # For Failure statuses 0xCxxx, 0xA9xx, 0xA7xx, 0x0122, 0x0124
@@ -981,7 +982,8 @@ class C_MOVE(object):
             * 0xA801: Failure (Refused: Move destination unknown)
             * 0xA900: Failure (Identifier does not match SOP Class)
             * 0xC000 to 0xCFFF: Failure (Unable to process)
-            * 0xFE00: Cancel (Sub-operations terminated due to Cancel indication)
+            * 0xFE00: Cancel (Sub-operations terminated due to Cancel
+                      indication)
             * 0xB000: Warning (Sub-operations complete - one or more failures)
             * 0x0000: Success (Sub-operations complete - no failures)
             * 0xFF00: Pending (Sub-operations are continuing)
@@ -991,7 +993,7 @@ class C_MOVE(object):
             * 0x0212: Failure (Refused: Mistyped argument)
             * 0x0211: Failure (Refused: Unrecognised operation)
             * 0x0124: Failure (Refused: Not authorised)
-        
+
     NumberOfRemainingSuboperations : int
         [-, C, -] The number of remaining C-STORE sub-operations to be invoked
         by this C-MOVE operation. It may be included in any response and shall
@@ -1026,7 +1028,7 @@ class C_MOVE(object):
         self.NumberOfCompletedSuboperations = None
         self.NumberOfFailedSuboperations = None
         self.NumberOfWarningSuboperations = None
-        
+
         # Optional Command Set elements used in with specific Status values
         # For Failure statuses 0xA900
         self.OffendingElement = None
@@ -1449,7 +1451,7 @@ class N_EVENT_REPORT(object):
     """Represents a N-EVENT-REPORT primitive.
 
     PS3.7 10.1.1.1
-    
+
     Attributes
     ----------
     MessageID : int
@@ -1468,19 +1470,19 @@ class N_EVENT_REPORT(object):
         [M, U(=)] For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    EventTypeID : 
+    EventTypeID :
         [M, C(=)] FIXME, PS3.4 Service Class Specifications
-    EventInformation : 
+    EventInformation :
         [U, -] FIXME, PS3.4 Service Class Specifications
-    EventReply : 
+    EventReply :
         [-, C] FIXME, PS3.4 Service Class Specifications
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
             FIXME: Add the status values
-            
+
     10.1.1.1.8 Status
-    
+
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
         duplicate invocation 0x0210 PS3.7 Annex C.5.9
@@ -1527,7 +1529,7 @@ class N_GET(object):
         [M, -] FIXME
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
         [M, -] FIXME
-    AttributeIdentifierList : 
+    AttributeIdentifierList :
         [U, -] FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         [-, U] For the request/indication this specifies the SOP Class for
@@ -1537,7 +1539,7 @@ class N_GET(object):
         [-, U] For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AttributeList : 
+    AttributeList :
         [-, C] FIXME
     Status : int
         [-, M] The error or success notification of the operation. It shall be
@@ -1595,7 +1597,7 @@ class N_SET(object):
         [M, -] FIXME
     ModificationList :
         [M, -] FIXME
-    AttributeList : 
+    AttributeList :
         [-, U] FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         [-, U] For the request/indication this specifies the SOP Class for
@@ -1664,7 +1666,7 @@ class N_ACTION(object):
         [M, -] FIXME
     ActionTypeID :
         [M, C(=)] FIXME
-    ActionInformation : 
+    ActionInformation :
         [U, -] FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         [-, U] For the request/indication this specifies the SOP Class for
@@ -1681,7 +1683,7 @@ class N_ACTION(object):
         one of the following values:
             FIXME: Add the status values
 
-    10.1.4.1.10 Status 
+    10.1.4.1.10 Status
 
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
@@ -1743,7 +1745,7 @@ class N_CREATE(object):
         one of the following values:
             FIXME: Add the status values
 
-    10.1.5.1.6 Status 
+    10.1.5.1.6 Status
 
     Failure
         duplicate SOP instance 0x0111 PS3.7 Annex C.5.8
@@ -1806,7 +1808,7 @@ class N_DELETE(object):
         one of the following values:
             FIXME: Add the status values
 
-    10.1.6.1.7 Status 
+    10.1.6.1.7 Status
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
         duplicate invocation 0x0210 PS3.7 Annex C.5.9
         invalid SOP instance 0x0117 PS3.7 Annex C.5.12

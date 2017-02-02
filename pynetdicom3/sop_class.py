@@ -123,7 +123,7 @@ class ServiceClass(object):
     FIXME: Perhaps define some class attributes such as self.AE = None
         self.UID = None,
         then call ServiceClass.__init__() in the subclasses?
-        
+
     Attributes
     ----------
     AE : pynetdicom3.applicationentity.ApplicationEntity
@@ -139,7 +139,7 @@ class ServiceClass(object):
         self.sopclass = None
         self.maxpdulength = None
         self.transfersyntax = None
-        
+
         # Assigned by class builder, this will override
         #self.UID = None
 
@@ -1474,7 +1474,7 @@ def uid_to_sop_class(uid):
         The SOP class corresponding to `uid`
     """
     # Get a list of all the class members of the current module
-    members = inspect.getmembers(sys.modules[__name__], 
+    members = inspect.getmembers(sys.modules[__name__],
                                  lambda member: inspect.isclass(member) and \
                                                 member.__module__ == __name__)
 

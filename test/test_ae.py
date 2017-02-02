@@ -428,10 +428,6 @@ class TestAEGoodMiscSetters(unittest.TestCase):
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.maximum_pdu_size = -10
         self.assertTrue(ae.maximum_pdu_size == 16382)
-        ae.maximum_pdu_size = ['a']
-        self.assertTrue(ae.maximum_pdu_size == 16382)
-        ae.maximum_pdu_size = '10'
-        self.assertTrue(ae.maximum_pdu_size == 16382)
         ae.maximum_pdu_size = 0
         self.assertTrue(ae.maximum_pdu_size == 0)
         ae.maximum_pdu_size = 5000
@@ -440,36 +436,24 @@ class TestAEGoodMiscSetters(unittest.TestCase):
     def test_req_calling_aet(self):
         """ Check AE require calling aet change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
-        ae.require_calling_aet = -10
-        self.assertTrue(ae.require_calling_aet == '')
-        ae.require_calling_aet = ['a']
-        self.assertTrue(ae.require_calling_aet == '')
         ae.require_calling_aet = '10'
         self.assertTrue(ae.require_calling_aet == '10')
         ae.require_calling_aet = '     TEST     '
         self.assertTrue(ae.require_calling_aet == 'TEST')
-        ae.require_calling_aet = '            TEST'
-        self.assertTrue(ae.require_calling_aet == 'TEST')
-        ae.require_calling_aet = '                 TEST'
-        self.assertTrue(ae.require_calling_aet == 'TEST')
+        ae.require_calling_aet = '           TESTB'
+        self.assertTrue(ae.require_calling_aet == 'TESTB')
         ae.require_calling_aet = 'a            TEST'
         self.assertTrue(ae.require_calling_aet == 'a            TES')
 
     def test_req_called_aet(self):
         """ Check AE require called aet change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
-        ae.require_called_aet = -10
-        self.assertTrue(ae.require_called_aet == '')
-        ae.require_called_aet = ['a']
-        self.assertTrue(ae.require_called_aet == '')
         ae.require_called_aet = '10'
         self.assertTrue(ae.require_called_aet == '10')
-        ae.require_called_aet = '     TEST     '
-        self.assertTrue(ae.require_called_aet == 'TEST')
-        ae.require_called_aet = '            TEST'
-        self.assertTrue(ae.require_called_aet == 'TEST')
-        ae.require_called_aet = '                 TEST'
-        self.assertTrue(ae.require_called_aet == 'TEST')
+        ae.require_called_aet = '     TESTA    '
+        self.assertTrue(ae.require_called_aet == 'TESTA')
+        ae.require_called_aet = '           TESTB'
+        self.assertTrue(ae.require_called_aet == 'TESTB')
         ae.require_called_aet = 'a            TEST'
         self.assertTrue(ae.require_called_aet == 'a            TES')
 
@@ -666,11 +650,11 @@ class TestAEBadInitialisation(unittest.TestCase):
 
     def test_port_not_numeric(self):
         """ AE should fail if port is not numeric """
-        self.assertRaises(TypeError, AE, 'TESTSCU', 'a', [VerificationSOPClass])
+        self.assertRaises(ValueError, AE, 'TESTSCU', 'a', [VerificationSOPClass])
 
     def test_port_not_int(self):
         """ AE should fail if port is not a int """
-        self.assertRaises(TypeError, AE, 'TESTSCU', 100.8, [VerificationSOPClass])
+        self.assertRaises(ValueError, AE, 'TESTSCU', 100.8, [VerificationSOPClass])
 
     def test_port_not_positive(self):
         """ AE should fail if port is not >= 0 """
