@@ -31,7 +31,7 @@ from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
                          PatientRootQueryRetrieveInformationModelGet, \
                          StudyRootQueryRetrieveInformationModelGet, \
                          PatientStudyOnlyQueryRetrieveInformationModelGet
-from pynetdicom3.primitives import UserIdentityNegotiation, \
+from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
@@ -1490,7 +1490,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The A-ASSOCIATE (RQ) PDU received from the DICOM Upper Layer
         """
         pass
@@ -1501,7 +1501,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The A-ASSOCIATE (AC) PDU received from the DICOM Upper Layer
         """
         pass
@@ -1512,7 +1512,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        assoc_primitive : pynetdicom3.primitives.A_ASSOCIATE
+        assoc_primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The A-ASSOCIATE (RJ) primitive received from the DICOM Upper Layer
         """
         # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
@@ -1560,7 +1560,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        assoc_primitive : pynetdicom3.primitives.A_RELEASE
+        assoc_primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The A-RELEASE (RQ) primitive received from the DICOM Upper Layer
         """
         LOGGER.info('Association Released')
@@ -1571,7 +1571,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        assoc_primitive : pynetdicom3.primitives.A_ABORT
+        assoc_primitive : pynetdicom3.pdu_primitives.A_ABORT
             The A-ABORT (RQ) primitive received from the DICOM Upper Layer
         """
         LOGGER.error('Association Aborted')

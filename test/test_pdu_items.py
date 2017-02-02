@@ -47,7 +47,7 @@ from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
                             TransferSyntaxSubItem, \
                             PresentationDataValueItem, \
                             AbstractSyntaxSubItem
-from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
+from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    MaximumLengthNegotiation, \
                                    ImplementationClassUIDNotification, \

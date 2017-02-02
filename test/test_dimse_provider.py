@@ -22,7 +22,8 @@ from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, \
                                       N_DELETE_RSP
 from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_GET, C_MOVE, \
                                         C_FIND, N_EVENT_REPORT, N_SET, \
-                                        N_GET, N_ACTION, N_CREATE, N_DELETE
+                                        N_GET, N_ACTION, N_CREATE, N_DELETE, \
+                                        C_CANCEL
 from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dsutils import encode
 
@@ -126,15 +127,6 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
-        # C-CANCEL-FIND
-        primitive = C_FIND()
-        primitive.MessageIDBeingRespondedTo = 1
-        def test_callback(msg):
-            """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_CANCEL_RQ')
-        self.dimse.on_send_dimse_message = test_callback
-        self.dimse.send_msg(primitive, 1)
-
     def test_send_c_get(self):
         """Check sending DIMSE C-GET messages."""
         # C-GET-RQ
@@ -155,15 +147,6 @@ class TestDIMSEProvider(unittest.TestCase):
         def test_callback(msg):
             """Callback"""
             self.assertEqual(msg.__class__.__name__, 'C_GET_RSP')
-        self.dimse.on_send_dimse_message = test_callback
-        self.dimse.send_msg(primitive, 1)
-
-        # C-GET-FIND
-        primitive = C_GET()
-        primitive.MessageIDBeingRespondedTo = 1
-        def test_callback(msg):
-            """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_CANCEL_RQ')
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -190,8 +173,10 @@ class TestDIMSEProvider(unittest.TestCase):
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
-        # C-MOVE-FIND
-        primitive = C_MOVE()
+    def test_send_c_cancel_move(self):
+        """Test sending c_cancel"""
+        # C-MOVE-CANCEL
+        primitive = C_CANCEL()
         primitive.MessageIDBeingRespondedTo = 1
         def test_callback(msg):
             """Callback"""
@@ -463,11 +448,6 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive.Status = 0xFF00 # Only has dataset when 0xFF00 or 0xFF01
         self.dimse.send_msg(primitive, 1)
 
-        # C-CANCEL-FIND
-        primitive = C_FIND()
-        primitive.MessageIDBeingRespondedTo = 1
-        self.dimse.send_msg(primitive, 1)
-
     def test_callback_send_c_get(self):
         """Check callback for sending DIMSE C-GET messages."""
         # C-GET-RQ
@@ -494,11 +474,6 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         bytestream = BytesIO()
         bytestream.write(c_store_ds)
         primitive.Identifier = bytestream
-        self.dimse.send_msg(primitive, 1)
-
-        # C-GET-FIND
-        primitive = C_GET()
-        primitive.MessageIDBeingRespondedTo = 1
         self.dimse.send_msg(primitive, 1)
 
     def test_callback_send_c_move(self):
@@ -528,11 +503,6 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         bytestream = BytesIO()
         bytestream.write(c_store_ds)
         primitive.Identifier = bytestream
-        self.dimse.send_msg(primitive, 1)
-
-        # C-MOVE-FIND
-        primitive = C_MOVE()
-        primitive.MessageIDBeingRespondedTo = 1
         self.dimse.send_msg(primitive, 1)
 
     def test_callback_send_n_event_report(self):

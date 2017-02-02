@@ -20,8 +20,8 @@ from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, \
 # pylint: enable=no-name-in-module
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                         C_ECHO, N_EVENT_REPORT, N_GET, N_SET, \
-                                        N_ACTION, N_CREATE, N_DELETE
-from pynetdicom3.primitives import P_DATA
+                                        N_ACTION, N_CREATE, N_DELETE, C_CANCEL
+from pynetdicom3.pdu_primitives import P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
@@ -99,6 +99,7 @@ class DIMSEServiceProvider(object):
              Cancel request/indication - C_CANCEL_RQ
     C-ECHO:  Request/indication    - C_ECHO_RQ
              Response/confirmation - C_ECHO_RSP
+    C-CANCEL: Request/indication - C_CANCEL_RQ
     N-EVENT-REPORT: Request/indication    - N_EVENT_REPORT_RQ
                     Response/confirmation - N_EVENT_REPORT_RSP
     N-GET:    Request/indication    - N_GET_RQ
@@ -169,26 +170,23 @@ class DIMSEServiceProvider(object):
         elif primitive.__class__ == C_FIND:
             if primitive.MessageID is not None:
                 dimse_msg = C_FIND_RQ()
-            elif primitive.Status is not None:
-                dimse_msg = C_FIND_RSP()
             else:
-                dimse_msg = C_CANCEL_RQ()
+                dimse_msg = C_FIND_RSP()
 
         elif primitive.__class__ == C_GET:
             if primitive.MessageID is not None:
                 dimse_msg = C_GET_RQ()
-            elif primitive.Status is not None:
-                dimse_msg = C_GET_RSP()
             else:
-                dimse_msg = C_CANCEL_RQ()
+                dimse_msg = C_GET_RSP()
 
         elif primitive.__class__ == C_MOVE:
             if primitive.MessageID is not None:
                 dimse_msg = C_MOVE_RQ()
-            elif primitive.Status is not None:
-                dimse_msg = C_MOVE_RSP()
             else:
-                dimse_msg = C_CANCEL_RQ()
+                dimse_msg = C_MOVE_RSP()
+
+        elif primitive.__class__ == C_CANCEL:
+            dimse_msg = C_CANCEL_RQ()
 
         elif primitive.__class__ == N_EVENT_REPORT:
             if primitive.MessageID is not None:

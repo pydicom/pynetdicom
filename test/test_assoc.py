@@ -26,7 +26,7 @@ from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import encode, decode
-from pynetdicom3.primitives import UserIdentityNegotiation, \
+from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation
 from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \

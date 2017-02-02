@@ -18,7 +18,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3.primitives import SCP_SCU_RoleSelectionNegotiation
+from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 logger = logging.Logger('movescu')
 stream_logger = logging.StreamHandler()

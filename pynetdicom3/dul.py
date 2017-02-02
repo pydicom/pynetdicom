@@ -16,7 +16,7 @@ from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
                             A_RELEASE_RQ, \
                             A_RELEASE_RP, \
                             A_ABORT_RQ
-from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dul')
@@ -503,7 +503,7 @@ class DULServiceProvider(Thread):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.ServiceParameter
+        primitive : pynetdicom3.pdu_primitives.ServiceParameter
             The Association primitive
 
         Returns

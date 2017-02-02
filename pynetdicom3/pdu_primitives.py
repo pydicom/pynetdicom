@@ -17,7 +17,7 @@ from pynetdicom3.pdu import MaximumLengthSubItem, \
 from pynetdicom3.utils import validate_ae_title, PresentationContext
 #from pynetdicom3.utils import wrap_list
 
-LOGGER = logging.getLogger('pynetdicom3.primitives')
+LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
 
 class ServiceParameter(object):

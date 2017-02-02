@@ -338,7 +338,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
         self.calling_ae_title = primitive.calling_ae_title
@@ -373,7 +373,7 @@ class A_ASSOCIATE_RQ(PDU):
         pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ASSOCIATE
+        from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
         primitive = A_ASSOCIATE()
 
@@ -723,7 +723,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
         self.reserved_aet = primitive.called_ae_title
@@ -755,10 +755,10 @@ class A_ASSOCIATE_AC(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_ASSOCIATE
+        pynetdicom3.pdu_primitives.A_ASSOCIATE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ASSOCIATE
+        from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
         primitive = A_ASSOCIATE()
 
@@ -1086,7 +1086,7 @@ class A_ASSOCIATE_RJ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
         self.result = primitive.result
@@ -1101,10 +1101,10 @@ class A_ASSOCIATE_RJ(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_ASSOCIATE
+        pynetdicom3.pdu_primitives.A_ASSOCIATE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ASSOCIATE
+        from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
         primitive = A_ASSOCIATE()
         primitive.result = self.result
@@ -1327,7 +1327,7 @@ class P_DATA_TF(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.P_DATA
+        primitive : pynetdicom3.pdu_primitives.P_DATA
             The parameters to use for setting up the PDU
         """
         for ii in primitive.presentation_data_value_list:
@@ -1344,10 +1344,10 @@ class P_DATA_TF(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.P_DATA
+        pynetdicom3.pdu_primitives.P_DATA
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import P_DATA
+        from pynetdicom3.pdu_primitives import P_DATA
 
         primitive = P_DATA()
 
@@ -1489,7 +1489,7 @@ class A_RELEASE_RQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_RELEASE
+        primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The parameters to use for setting up the PDU
         """
         self._update_parameters()
@@ -1500,10 +1500,10 @@ class A_RELEASE_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_RELEASE
+        pynetdicom3.pdu_primitives.A_RELEASE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_RELEASE
+        from pynetdicom3.pdu_primitives import A_RELEASE
         primitive = A_RELEASE()
 
         return primitive
@@ -1602,7 +1602,7 @@ class A_RELEASE_RP(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_RELEASE
+        primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The parameters to use for setting up the PDU
         """
         self._update_parameters()
@@ -1613,10 +1613,10 @@ class A_RELEASE_RP(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_RELEASE
+        pynetdicom3.pdu_primitives.A_RELEASE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_RELEASE
+        from pynetdicom3.pdu_primitives import A_RELEASE
         primitive = A_RELEASE()
         primitive.result = 'affirmative'
 
@@ -1728,11 +1728,11 @@ class A_ABORT_RQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ABORT or
-        pynetdicom3.primitives.A_P_ABORT
+        primitive : pynetdicom3.pdu_primitives.A_ABORT or
+        pynetdicom3.pdu_primitives.A_P_ABORT
             The parameters to use for setting up the PDU
         """
-        from pynetdicom3.primitives import A_ABORT, A_P_ABORT
+        from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
 
         # User initiated abort
         if primitive.__class__ == A_ABORT:
@@ -1753,11 +1753,11 @@ class A_ABORT_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_ABORT_ServiceParameters or
-        pynetdicom3.primitives.A_P_ABORT_ServiceParameters
+        pynetdicom3.pdu_primitives.A_ABORT_ServiceParameters or
+        pynetdicom3.pdu_primitives.A_P_ABORT_ServiceParameters
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ABORT, A_P_ABORT
+        from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
 
         # User initiated abort
         if self.source == 0x00:
@@ -3233,7 +3233,7 @@ class MaximumLengthSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.MaximumLengthNegotiation
+        primitive : pynetdicom3.pdu_primitives.MaximumLengthNegotiation
             The primitive to use when setting up the Item
         """
         self.maximum_length_received = primitive.maximum_length_received
@@ -3246,10 +3246,10 @@ class MaximumLengthSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.MaximumLengthNegotiation
+        pynetdicom3.pdu_primitives.MaximumLengthNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import MaximumLengthNegotiation
+        from pynetdicom3.pdu_primitives import MaximumLengthNegotiation
 
         primitive = MaximumLengthNegotiation()
         primitive.maximum_length_received = self.maximum_length_received
@@ -3354,7 +3354,7 @@ class ImplementationClassUIDSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.ImplementationClassUIDNotification
+        primitive : pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
             The primitive to use when setting up the Item
         """
         self.implementation_class_uid = primitive.implementation_class_uid
@@ -3368,10 +3368,10 @@ class ImplementationClassUIDSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.ImplementationClassUIDNotification
+        pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
             The primitive to convert to
         """
-        from pynetdicom3.primitives import ImplementationClassUIDNotification
+        from pynetdicom3.pdu_primitives import ImplementationClassUIDNotification
 
         primitive = ImplementationClassUIDNotification()
         primitive.implementation_class_uid = self.implementation_class_uid
@@ -3499,7 +3499,7 @@ class ImplementationVersionNameSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.ImplementationVersionNameNotification
+        primitive : pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
             The primitive to use when setting up the Item
         """
         self.implementation_version_name = primitive.implementation_version_name
@@ -3511,10 +3511,10 @@ class ImplementationVersionNameSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.ImplementationVersionNameNotification
+        pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
             The primitive to convert to
         """
-        from pynetdicom3.primitives import ImplementationVersionNameNotification
+        from pynetdicom3.pdu_primitives import ImplementationVersionNameNotification
 
         tmp = ImplementationVersionNameNotification()
         tmp.implementation_version_name = self.implementation_version_name
@@ -3644,7 +3644,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.SCP_SCU_RoleSelectionNegotiation
+        primitive : pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
@@ -3662,10 +3662,10 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.SCP_SCU_RoleSelectionNegotiation
+        pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import SCP_SCU_RoleSelectionNegotiation
+        from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
         primitive.sop_class_uid = self.sop_class_uid
@@ -3856,7 +3856,7 @@ class AsynchronousOperationsWindowSubItem(PDU):
         Parameters
         ----------
         primitive :
-        pynetdicom3.primitives.AsynchronousOperationsWindowNegotiation
+        pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation
             The primitive to use when setting up the Item
         """
         self.maximum_number_operations_invoked = \
@@ -3872,10 +3872,10 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.AsynchronousOperationsWindowNegotiation
+        pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import \
+        from pynetdicom3.pdu_primitives import \
             AsynchronousOperationsWindowNegotiation
 
         primitive = AsynchronousOperationsWindowNegotiation()
@@ -4033,7 +4033,7 @@ class UserIdentitySubItemRQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.UserIdentityParameters
+        primitive : pynetdicom3.pdu_primitives.UserIdentityParameters
             The primitive to use when setting up the Item
         """
         self.user_identity_type = primitive.user_identity_type
@@ -4057,10 +4057,10 @@ class UserIdentitySubItemRQ(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.UseIdentityParameters
+        pynetdicom3.pdu_primitives.UseIdentityParameters
             The primitive to convert to
         """
-        from pynetdicom3.primitives import UserIdentityNegotiation
+        from pynetdicom3.pdu_primitives import UserIdentityNegotiation
 
         primitive = UserIdentityNegotiation()
         primitive.user_identity_type = self.user_identity_type
@@ -4240,7 +4240,7 @@ class UserIdentitySubItemAC(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.UserIdentityParameters
+        primitive : pynetdicom3.pdu_primitives.UserIdentityParameters
             The primitive to use when setting up the Item
         """
         self.server_response = primitive.server_response
@@ -4256,10 +4256,10 @@ class UserIdentitySubItemAC(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.UseIdentityParameters
+        pynetdicom3.pdu_primitives.UseIdentityParameters
             The primitive to convert to
         """
-        from pynetdicom3.primitives import UserIdentityNegotiation
+        from pynetdicom3.pdu_primitives import UserIdentityNegotiation
 
         primitive = UserIdentityNegotiation()
         primitive.server_response = self.server_response
@@ -4377,7 +4377,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.SOPClassExtendedNegotiation
+        primitive : pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
@@ -4395,10 +4395,10 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.SOPClassExtendedNegotiation
+        pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import SOPClassExtendedNegotiation
+        from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation
 
         primitive = SOPClassExtendedNegotiation()
         primitive.sop_class_uid = self.sop_class_uid
@@ -4576,7 +4576,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.SOPClassCommonExtendedNegotiation
+        primitive : pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
@@ -4600,10 +4600,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.SOPClassCommonExtendedNegotiation
+        pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import SOPClassCommonExtendedNegotiation
+        from pynetdicom3.pdu_primitives import SOPClassCommonExtendedNegotiation
 
         primitive = SOPClassCommonExtendedNegotiation()
         primitive.sop_class_uid = self.sop_class_uid

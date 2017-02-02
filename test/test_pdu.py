@@ -31,7 +31,7 @@ from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
                             PresentationContextItemAC, \
                             PresentationContextItemRQ, \
                             UserInformationItem
-from pynetdicom3.primitives import MaximumLengthNegotiation, \
+from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
                                    ImplementationClassUIDNotification, \
                                    ImplementationVersionNameNotification, \
                                    A_P_ABORT, A_ABORT, A_ASSOCIATE, P_DATA

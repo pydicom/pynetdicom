@@ -39,7 +39,7 @@ from pynetdicom3.dimse_primitives import C_STORE, \
                                         N_CREATE, \
                                         N_DELETE
 from pynetdicom3.dsutils import encode, decode
-from pynetdicom3.primitives import P_DATA
+from pynetdicom3.pdu_primitives import P_DATA
 from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3')

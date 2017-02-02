@@ -8,10 +8,10 @@ from pydicom.uid import UID
 
 from pynetdicom3 import pynetdicom_uid_prefix
 from pynetdicom3 import pynetdicom_version
-from pynetdicom3.primitives import MaximumLengthNegotiation, \
+from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
                                    ImplementationClassUIDNotification, \
                                    ImplementationVersionNameNotification
-from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
+from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT
 from pynetdicom3.utils import PresentationContextManager
 from pynetdicom3.utils import wrap_list
 
@@ -282,7 +282,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The A_ASSOCIATE (AC) primitive to convert and send to the peer
         """
         self.MaxPDULength = primitive.maximum_length_received
@@ -313,7 +313,7 @@ class ACSEServiceProvider(object):
 
         Returns
         -------
-        pynetdicom3.primitives.PDU
+        pynetdicom3.pdu_primitives.PDU
             The A-RELEASE response primitive
         """
         LOGGER.info("Releasing Association")

@@ -8,7 +8,7 @@ from unittest.mock import patch
 from pydicom.uid import UID
 
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ABORT_RQ, P_DATA_TF
-from pynetdicom3.primitives import SOPClassExtendedNegotiation, \
+from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    MaximumLengthNegotiation, \
                                    ImplementationClassUIDNotification, \

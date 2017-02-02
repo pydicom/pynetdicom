@@ -12,7 +12,7 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                          N_GET, N_SET, N_ACTION, N_CREATE, \
                                          N_DELETE
 from pynetdicom3.dsutils import encode_element, encode, decode
-from pynetdicom3.primitives import P_DATA
+from pynetdicom3.pdu_primitives import P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
@@ -176,7 +176,7 @@ class DIMSEMessage(object):
 
         Returns
         -------
-        p_data_list : list of pynetdicom3.primitives.P_DATA
+        p_data_list : list of pynetdicom3.pdu_primitives.P_DATA
             A list of one or more P-DATA service primitives.
         """
         self.ID = context_id
@@ -234,7 +234,7 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        pdata : pynetdicom3.primitives.P_DATA
+        pdata : pynetdicom3.pdu_primitives.P_DATA
             The P-DATA service primitive to be decoded into a DIMSE message.
 
         Returns
@@ -479,6 +479,8 @@ class DIMSEMessage(object):
             primitive = C_GET()
         elif 'C_MOVE' in cls_type_name:
             primitive = C_MOVE()
+        elif 'C_CANCEL' in cls_type_name:
+            primitive = C_CANCEL()
         elif 'N_EVENT' in cls_type_name:
             primitive = N_EVENT_REPORT()
         elif 'N_GET' in cls_type_name:

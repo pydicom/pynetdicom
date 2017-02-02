@@ -8,7 +8,7 @@ import unittest
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, \
                             A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
-from pynetdicom3.primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
