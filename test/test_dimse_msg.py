@@ -67,8 +67,8 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(result[-1] != b'')
 
         result = frag(c_echo_rsp_cmd, 10)
-        self.assertEqual(len(result), 8)
-        self.assertEqual(result[0], c_echo_rsp_cmd[:10])
+        self.assertEqual(len(result), 20)
+        self.assertEqual(result[0], c_echo_rsp_cmd[:4])
         self.assertTrue(isinstance(result[0], bytes))
         self.assertTrue(result[-1] != b'')
 
@@ -117,7 +117,7 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0], 1)
         self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0], 2)
         self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0], 0)
-        self.assertEqual(p_data_list[-5].presentation_data_value_list[0][1][0], 3)
+        self.assertEqual(p_data_list[-10].presentation_data_value_list[0][1][0], 3)
         self.assertEqual(dimse_msg.ID, 13)
 
         p_data_list = dimse_msg.encode_msg(1, 31682)
@@ -158,7 +158,7 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(cs.CommandDataSetType == 1)
         self.assertTrue(cs.CommandField == 1)
         # Bug in pydicom -> AEs not stripped of trailing spaces
-        self.assertTrue(cs.MoveOriginatorApplicationEntityTitle == 'UNITTEST')
+        self.assertTrue(cs.MoveOriginatorApplicationEntityTitle == b'UNITTEST        ')
         self.assertTrue(cs.MoveOriginatorMessageID == 3)
 
         # Test decoded dataset

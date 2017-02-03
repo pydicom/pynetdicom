@@ -349,6 +349,10 @@ class DIMSEMessage(object):
         if isinstance(bytestream, BytesIO):
             bytestream = bytestream.getvalue()
 
+        # Note: Because the PDU includes an extra 6 bytes of data at the start
+        #       we need to decrease `fragment_length` by 6 bytes.
+        fragment_length -= 6
+
         fragments = []
         while len(bytestream) > 0:
             # Add the fragment to the output

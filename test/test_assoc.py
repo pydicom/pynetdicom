@@ -450,7 +450,7 @@ class TestAssociation(unittest.TestCase):
         self.assertTrue(assoc.is_rejected)
         scp.stop()
     
-    def test_require_called_aet(self):
+    def test_require_calling_aet(self):
         """SCP requires matching called AET"""
         scp = DummyVerificationSCP()
         scp.ae.require_calling_aet = b'TESTSCP'
@@ -460,6 +460,7 @@ class TestAssociation(unittest.TestCase):
         self.assertFalse(assoc.is_established)
         self.assertTrue(assoc.is_rejected)
         scp.stop()
+
 
 class TestAssociationSendCEcho(unittest.TestCase):
     """Run tests on Assocation send_c_echo."""
@@ -989,7 +990,6 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
             assoc.send_c_cancel_find('a')
         assoc.release()
         scp.stop()
-        
 
 
 class TestAssociationSendCGet(unittest.TestCase):
@@ -2028,7 +2028,15 @@ class TestAssociationSendNDelete(unittest.TestCase):
 
 class TestAssociationCallbacks(unittest.TestCase):
     """Run tests on Assocation callbacks."""
-    pass
+    def test_debug_assoc_rq(self):
+        """Test the callback"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        assoc.debug_association_requested(None)
+        assoc.release()
+        scp.stop()
 
 
 if __name__ == "__main__":

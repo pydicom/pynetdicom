@@ -470,6 +470,9 @@ class TestAEGoodMiscSetters(unittest.TestCase):
         ae.scp_supported_sop = StorageSOPClassList
         self.assertTrue('CT Image' in ae.__str__())
 
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.assertTrue('None' in ae.__str__())
+
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])

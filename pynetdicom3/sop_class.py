@@ -1261,49 +1261,6 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
 
 
-class RTMachineVerificationServiceClass(ServiceClass):
-    """Test implements of the RT Machine Verification Service Class."""
-    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE/N-SET/N-GET/N-ACTION
-    #   Slight differences in description text
-    Success = Status('Success',
-                     'Machine Verification successfully created',
-                     range(0x0000, 0x0000 + 1))
-
-    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE
-    fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
-    fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
-    fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
-    fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
-
-    # N-SET
-    fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
-    fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
-    fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
-
-    # N-GET
-    fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
-
-    # N-ACTION
-    fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
-
-    def SCP(self, msg):
-        """SCP"""
-        print('RTMachineVerification SCP', msg)
-
-        if msg.__class__ == N_CREATE:
-            pass
-        elif msg.__class__ == N_SET:
-            pass
-        elif msg.__class__ == N_ACTION:
-            pass
-        elif msg.__class__ == N_DELETE:
-            pass
-        elif msg.__class__ == N_EVENT_REPORT:
-            pass
-        else:
-            pass
-
-
 # Generate the various SOP classes
 _VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}
 
@@ -1439,16 +1396,14 @@ _QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840
                    'StudyRootQueryRetrieveInformationModelGet'        : '1.2.840.10008.5.1.4.1.2.2.3',
                    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
 
-_MACHINE_VERIFICATION_CLASSES = {'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8'}
-
 # pylint: enable=line-too-long
 _generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
 _generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
 _generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
 _generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
 _generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
-_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES,
-                              RTMachineVerificationServiceClass)
+#_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES,
+#                              RTMachineVerificationServiceClass)
 
 # pylint: disable=no-member
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
