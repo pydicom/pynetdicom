@@ -18,7 +18,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3 import pynetdicom_uid_prefix
-from pynetdicom3.primitives import SCP_SCU_RoleSelectionNegotiation
+from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 logger = logging.Logger('getscu')
 stream_logger = logging.StreamHandler()
@@ -28,6 +28,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The getscu application implements a Service Class User "
@@ -94,7 +95,7 @@ def _setup_argparser():
                           action="store_true")
     qr_model.add_argument("-P", "--patient",
                           help="use patient root information model",
-                          action="store_true")
+                          action="store_true", default=True)
     qr_model.add_argument("-S", "--study",
                           help="use study root information model",
                           action="store_true")
@@ -147,7 +148,7 @@ assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
 
 # Create query dataset
 d = Dataset()
-d.PatientsName = '*'
+d.PatientName = '*'
 d.QueryRetrieveLevel = "PATIENT"
 
 if args.worklist:
@@ -173,7 +174,7 @@ def on_c_store(dataset):
 
     Returns
     -------
-    status : pynetdicom.SOPclass.Status or int
+    status : pynetdicom.sop_class.Status or int
         A valid return status code, see PS3.4 Annex B.2.3 or the
         StorageServiceClass implementation for the available statuses
     """

@@ -8,6 +8,7 @@ providing useful debugging and logging information.
 import argparse
 import logging
 from logging.config import fileConfig
+import sys
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian
@@ -15,6 +16,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
 from pynetdicom3 import AE, VerificationSOPClass
 
 def setup_logger():
+    """Setup the logging"""
     logger = logging.Logger('echoscu')
     stream_logger = logging.StreamHandler()
     formatter = logging.Formatter('%(levelname).1s: %(message)s')
@@ -26,7 +28,10 @@ def setup_logger():
 
 LOGGER = setup_logger()
 
+VERSION = '0.5.2'
+
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The echoscu application implements a Service Class User "
@@ -78,9 +83,9 @@ def _setup_argparser():
     net_opts.add_argument("-pts", "--propose-ts", metavar='[n]umber',
                           help="propose n transfer syntaxes (1 - 3)",
                           type=int)
-    net_opts.add_argument("-ppc", "--propose-pc", metavar='[n]umber',
-                          help="propose n presentation contexts (1 - 128)",
-                          type=int)
+    #net_opts.add_argument("-ppc", "--propose-pc", metavar='[n]umber',
+    #                      help="propose n presentation contexts (1 - 128)",
+    #                      type=int)
     net_opts.add_argument("-to", "--timeout", metavar='[s]econds',
                           help="timeout for connection requests",
                           type=int,
@@ -227,18 +232,22 @@ try:
 except:
     transfer_syntaxes = [ImplicitVRLittleEndian]
 
-# Repeat presentation contexts
-try:
-    if 0 < args.propose_pc <= 128:
-        scu_sop_classes = [VerificationSOPClass] * args.propose_pc
-    else:
-        scu_sop_classes = [VerificationSOPClass]
-except:
-    scu_sop_classes = [VerificationSOPClass]
+# Repeat presentation contexts - broken as AE checks for duplicates
+#try:
+#    if 0 < args.propose_pc <= 128:
+#        scu_sop_classes = [VerificationSOPClass] * args.propose_pc
+#    else:
+#        scu_sop_classes = [VerificationSOPClass]
+#except:
+#    scu_sop_classes = [VerificationSOPClass]
 
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
-LOGGER.debug('$echoscu.py v%s %s $', '0.5.1', '2016-04-12')
+if args.version:
+    print('echoscu.py v%s %s $' %(VERSION, '2016-04-12'))
+    sys.exit()
+
+LOGGER.debug('echoscu.py v%s %s', VERSION, '2017-02-04')
 LOGGER.debug('')
 
 
@@ -250,15 +259,14 @@ ae = AE(ae_title=args.calling_aet,
         scp_sop_class=[],
         transfer_syntax=transfer_syntaxes)
 
-ae.maximum_pdu_size = args.max_pdu
-
 # Set timeouts
 ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
 # Request association with remote AE
-assoc = ae.associate(args.peer, args.port, args.called_aet)
+assoc = ae.associate(args.peer, args.port, args.called_aet,
+                     max_pdu=args.max_pdu)
 
 # If we successfully Associated then send N DIMSE C-ECHOs
 if assoc.is_established:
@@ -268,7 +276,6 @@ if assoc.is_established:
     if status is not None:
         # Abort or release association
         if args.abort:
-            # 0x00 - Reason not specified (PS3.8 Table 9.26)
             assoc.abort()
         else:
             assoc.release()

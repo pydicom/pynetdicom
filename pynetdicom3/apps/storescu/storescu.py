@@ -26,7 +26,10 @@ stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
+VERSION = '0.1.1'
+
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The storescu application implements a Service Class User "
@@ -50,9 +53,6 @@ def _setup_argparser():
     gen_opts = parser.add_argument_group('General Options')
     gen_opts.add_argument("--version",
                           help="print version information and exit",
-                          action="store_true")
-    gen_opts.add_argument("--arguments",
-                          help="print expanded command line arguments",
                           action="store_true")
     gen_opts.add_argument("-q", "--quiet",
                           help="quiet mode, print no warnings and errors",
@@ -110,7 +110,11 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$storescu.py v{0!s} {1!s} $'.format('0.1.0', '2016-02-10'))
+if args.version:
+    print('storescu.py v{0!s} {1!s} $'.format(VERSION, '2017-02-04'))
+    sys.exit()
+
+logger.debug('storescu.py v{0!s} {1!s}'.format(VERSION, '2017-02-04'))
 logger.debug('')
 
 # Check file exists and is readable and DICOM
@@ -121,9 +125,6 @@ try:
     f.close()
 except IOError:
     logger.error('Cannot read input file {0!s}'.format(args.dcmfile_in))
-    sys.exit()
-except:
-    logger.error('File may not be DICOM {0!s}'.format(args.dcmfile_in))
     sys.exit()
 
 # Set Transfer Syntax options
@@ -155,6 +156,3 @@ if assoc.is_established:
     status = assoc.send_c_store(dataset)
 
     assoc.release()
-
-# Quit
-ae.quit()

@@ -18,7 +18,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3.primitives import SCP_SCU_RoleSelectionNegotiation
+from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 logger = logging.Logger('movescu')
 stream_logger = logging.StreamHandler()
@@ -28,6 +28,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The movescu application implements a Service Class User "
@@ -151,7 +152,7 @@ assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
 
 # Create query dataset
 d = Dataset()
-d.PatientsName = '*'
+d.PatientName = '*'
 d.QueryRetrieveLevel = "PATIENT"
 
 if args.patient:
@@ -170,7 +171,7 @@ def on_c_store(sop_class, dataset):
 
     Parameters
     ----------
-    sop_class - pydicom.SOPclass.StorageServiceClass
+    sop_class - pydicom.sop_class.StorageServiceClass
         The StorageServiceClass representing the object
     dataset - pydicom.Dataset
         The DICOM dataset sent via the C-STORE

@@ -7,37 +7,28 @@ from io import BytesIO
 import logging
 import time
 
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
-                                      C_FIND_RQ, C_FIND_RSP, \
-                                      C_GET_RQ, C_GET_RSP, \
-                                      C_MOVE_RQ, C_MOVE_RSP, \
-                                      C_ECHO_RQ, C_ECHO_RSP, \
-                                      C_CANCEL_RQ, \
+# pylint: disable=no-name-in-module
+from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, \
+                                      C_FIND_RSP, C_GET_RQ, C_GET_RSP, \
+                                      C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, \
+                                      C_ECHO_RSP, C_CANCEL_RQ, \
                                       N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, \
-                                      N_GET_RQ, N_GET_RSP, \
-                                      N_SET_RQ, N_SET_RSP, \
-                                      N_ACTION_RQ, N_ACTION_RSP, \
-                                      N_CREATE_RQ, N_CREATE_RSP, \
-                                      N_DELETE_RQ, N_DELETE_RSP, \
-                                      DIMSEMessage
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
-from pynetdicom3.primitives import P_DATA
+                                      N_GET_RQ, N_GET_RSP, N_SET_RQ, \
+                                      N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, \
+                                      N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, \
+                                      N_DELETE_RSP, DIMSEMessage
+# pylint: enable=no-name-in-module
+from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
+                                        C_ECHO, N_EVENT_REPORT, N_GET, N_SET, \
+                                        N_ACTION, N_CREATE, N_DELETE, C_CANCEL
+from pynetdicom3.pdu_primitives import P_DATA
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
 
 class DIMSEServiceProvider(object):
-    """
+    """The DIMSE service provider.
+
     PS3.7 6.2
     The DICOM AE uses the services provided by the DICOM Message Service Element
     (DIMSE). DIMSE specifies two sets of services.
@@ -77,17 +68,8 @@ class DIMSEServiceProvider(object):
 
     Service Primitive Classes
     ~~~~~~~~~~~~~~~~~~~~~~~~~
-    C_ECHO_ServiceParameters
-    C_STORE_ServiceParameters
-    C_GET_ServiceParameters
-    C_FIND_ServiceParameters
-    C_MOVE_ServiceParameters
-    N_EVENT_REPORT_ServiceParameters
-    N_GET_ServiceParameters
-    N_GET_ServiceParameters
-    N_ACTION_ServiceParameters
-    N_CREATE_ServiceParameters
-    N_DELETE_ServiceParameters
+    DIMSE-C: C_ECHO, C_STORE, C_GET, C_FIND, C_MOVE
+    DIMSE-N: N_EVENT_REPORT, N_GET, N_GET, N_ACTION, N_CREATE, N_DELETE
 
     Protocol Machine
     ----------------
@@ -117,6 +99,7 @@ class DIMSEServiceProvider(object):
              Cancel request/indication - C_CANCEL_RQ
     C-ECHO:  Request/indication    - C_ECHO_RQ
              Response/confirmation - C_ECHO_RSP
+    C-CANCEL: Request/indication - C_CANCEL_RQ
     N-EVENT-REPORT: Request/indication    - N_EVENT_REPORT_RQ
                     Response/confirmation - N_EVENT_REPORT_RSP
     N-GET:    Request/indication    - N_GET_RQ
@@ -132,99 +115,110 @@ class DIMSEServiceProvider(object):
 
     Attributes
     ----------
-    DUL
-    message
     dimse_timeout : int or float or None
         The number of seconds before the DIMSE service timeout. A value of None
-        indicates no timeout
-    dimse_msg
-        ???
+        indicates no timeout.
+    DUL : pynetdicom3.dul.DULServiceProvider
+        The DICOM Upper Layer service provider.
+    maximum_pdu_size : int
+            The maximum PDU size when sending DIMSE messages
+    message : pynetdicom3.dimse_messages.DIMSEMessage
+        The DIMSE message
     """
-    def __init__(self, DUL, dimse_timeout=None):
-        self.DUL = DUL
-        self.message = None
-        self.dimse_timeout = dimse_timeout
-
-    def Send(self, primitive, context_id, max_pdu):
-        """
-        Send a DIMSE-C or DIMSE-N message to the peer AE
+    # pylint: disable=too-many-public-methods
+    def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
+        """Start the DIMSE service provider.
 
         Parameters
         ----------
-        primitive : pynetdicom3.DIMSEparameters
-            The DIMSE service primitive to send to the peer
-        context_id : int
-            The ID of the presentation context to be sent under
-        max_pdu : int
-            The maximum send PDV size acceptable by the peer AE
+        dul : pynetdicom3.dul.DULServiceProvider
+            The DICOM Upper Layer service provider.
+        dimse_timeout : int or float or None
+            The number of seconds before the DIMSE service timeout. A value of
+            None indicates no timeout.
+        maximum_pdu_size : int
+            The maximum PDU size when sending DIMSE messages, default 31682.
         """
-        if primitive.__class__ == C_ECHO_ServiceParameters:
+        self.dimse_timeout = dimse_timeout
+        self.dul = dul
+        self.maximum_pdu_size = maximum_pdu_size
+
+        self.message = None
+
+    def send_msg(self, primitive, context_id):
+        """Send a DIMSE-C or DIMSE-N message to the peer AE.
+
+        Parameters
+        ----------
+        primitive : pynetdicom3.dimse_primitives
+            The DIMSE service primitive to send to the peer.
+        context_id : int
+            The ID of the presentation context to be sent under.
+        """
+        if primitive.__class__ == C_ECHO:
             if primitive.MessageID is not None:
                 dimse_msg = C_ECHO_RQ()
             else:
                 dimse_msg = C_ECHO_RSP()
 
-        elif primitive.__class__ == C_STORE_ServiceParameters:
+        elif primitive.__class__ == C_STORE:
             if primitive.MessageID is not None:
                 dimse_msg = C_STORE_RQ()
             else:
                 dimse_msg = C_STORE_RSP()
 
-        elif primitive.__class__ == C_FIND_ServiceParameters:
+        elif primitive.__class__ == C_FIND:
             if primitive.MessageID is not None:
                 dimse_msg = C_FIND_RQ()
-            elif primitive.Status is not None:
-                dimse_msg = C_FIND_RSP()
             else:
-                dimse_msg = C_CANCEL_RQ()
+                dimse_msg = C_FIND_RSP()
 
-        elif primitive.__class__ == C_GET_ServiceParameters:
+        elif primitive.__class__ == C_GET:
             if primitive.MessageID is not None:
                 dimse_msg = C_GET_RQ()
-            elif primitive.Status is not None:
-                dimse_msg = C_GET_RSP()
             else:
-                dimse_msg = C_CANCEL_RQ()
+                dimse_msg = C_GET_RSP()
 
-        elif primitive.__class__ == C_MOVE_ServiceParameters:
+        elif primitive.__class__ == C_MOVE:
             if primitive.MessageID is not None:
                 dimse_msg = C_MOVE_RQ()
-            elif primitive.Status is not None:
-                dimse_msg = C_MOVE_RSP()
             else:
-                dimse_msg = C_CANCEL_RQ()
+                dimse_msg = C_MOVE_RSP()
 
-        elif primitive.__class__ == N_EVENT_REPORT_ServiceParameters:
+        elif primitive.__class__ == C_CANCEL:
+            dimse_msg = C_CANCEL_RQ()
+
+        elif primitive.__class__ == N_EVENT_REPORT:
             if primitive.MessageID is not None:
                 dimse_msg = N_EVENT_REPORT_RQ()
             else:
                 dimse_msg = N_EVENT_REPORT_RSP()
 
-        elif primitive.__class__ == N_GET_ServiceParameters:
+        elif primitive.__class__ == N_GET:
             if primitive.MessageID is not None:
                 dimse_msg = N_GET_RQ()
             else:
                 dimse_msg = N_GET_RSP()
 
-        elif primitive.__class__ == N_SET_ServiceParameters:
+        elif primitive.__class__ == N_SET:
             if primitive.MessageID is not None:
                 dimse_msg = N_SET_RQ()
             else:
                 dimse_msg = N_SET_RSP()
 
-        elif primitive.__class__ == N_ACTION_ServiceParameters:
+        elif primitive.__class__ == N_ACTION:
             if primitive.MessageID is not None:
                 dimse_msg = N_ACTION_RQ()
             else:
                 dimse_msg = N_ACTION_RSP()
 
-        elif primitive.__class__ == N_CREATE_ServiceParameters:
+        elif primitive.__class__ == N_CREATE:
             if primitive.MessageID is not None:
                 dimse_msg = N_CREATE_RQ()
             else:
                 dimse_msg = N_CREATE_RSP()
 
-        elif primitive.__class__ == N_DELETE_ServiceParameters:
+        elif primitive.__class__ == N_DELETE:
             if primitive.MessageID is not None:
                 dimse_msg = N_DELETE_RQ()
             else:
@@ -238,114 +232,120 @@ class DIMSEServiceProvider(object):
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
-        pdvs = dimse_msg.Encode(context_id, max_pdu)
+        pdata_pdu_list = dimse_msg.encode_msg(context_id, self.maximum_pdu_size)
 
-        # Send each of the P-DATA to the peer via the DUL provider
-        for pp in pdvs:
-            self.DUL.Send(pp)
+        # Send the P-DATA PDUs to the peer via the DUL provider
+        for pdata_pdu in pdata_pdu_list:
+            self.dul.send_pdu(pdata_pdu)
 
-    def Receive(self, wait=False, dimse_timeout=None):
-        """
+    def receive_msg(self, wait=False, dimse_timeout=None):
+        """Receive a DIMSE message from the peer.
+
         Set the DIMSE provider in a mode ready to receive a response from the
         peer
 
         Parameters
         ----------
         wait : bool, optional
-            Wait until a response has been received (default: False)
+            Wait until a response has been received (default: False).
         dimse_timeout : int, optional
-            Wait `dimse_timeout` seconds for a response (default: no timeout)
+            Wait `dimse_timeout` seconds for a response (default: no timeout).
 
         Returns
         -------
-        pynetdicom3.DIMSEmessage.DIMSEMessage, int or None, None
+        pynetdicom3.dimse_messages.DIMSEMessage, int or None, None
             Returns the complete DIMSE message and its presentation context ID
-            or None, None if
+            or None, None.
         """
+        # FIXME: dimse timeout needs to be fixed
+        #dimse_timeout = self.dimse_timeout
+        dimse_timeout = None
+
+
         if self.message is None:
             self.message = DIMSEMessage()
 
         if wait:
             # Loop until complete DIMSE message is received
             #   message may be split into 1 or more fragments
-            while 1:
+            while True:
                 time.sleep(0.001)
 
-                nxt = self.DUL.Peek()
+                nxt = self.dul.peek_next_pdu()
                 if nxt is None:
                     continue
 
                 if nxt.__class__ is not P_DATA:
                     return None, None
 
-                primitive = self.DUL.Receive(wait, dimse_timeout)
+                pdu = self.dul.receive_pdu(wait, dimse_timeout)
 
-                if self.message.Decode(primitive):
+                if self.message.decode_msg(pdu):
                     # Callback
                     self.on_receive_dimse_message(self.message)
-                    dimse_msg = self.message
 
-                    context_id = dimse_msg.ID
-                    dimse_msg = dimse_msg.message_to_primitive()
+                    context_id = self.message.ID
+                    primitive = self.message.message_to_primitive()
 
                     # Fix for memory leak, Issue #41
+                    #   Reset the DIMSE message, ready for the next one
                     self.message.encoded_command_set = BytesIO()
                     self.message.data_set = BytesIO()
                     self.message = None
 
-                    return dimse_msg, context_id
+                    return primitive, context_id
                 else:
                     return None, None
 
         else:
-            cls = self.DUL.Peek().__class__
+            cls = self.dul.peek_next_pdu().__class__
+
             if cls not in (type(None), P_DATA):
                 return None, None
 
-            primitive = self.DUL.Receive(wait, dimse_timeout)
+            pdu = self.dul.receive_pdu(wait, dimse_timeout)
 
-            if self.message.Decode(primitive):
+            if self.message.decode_msg(pdu):
                 # Callback
                 self.on_receive_dimse_message(self.message)
 
-                dimse_msg = self.message
-
-                context_id = dimse_msg.ID
-                dimse_msg = dimse_msg.message_to_primitive()
+                context_id = self.message.ID
+                primitive = self.message.message_to_primitive()
 
                 # Fix for memory leak, Issue #41
+                #   Reset the DIMSE message, ready for the next one
                 self.message.encoded_command_set = BytesIO()
                 self.message.data_set = BytesIO()
-                # FIXME: Does this actually do anything?
-                self.dimse_msg = None
+                self.message = None
 
-                return dimse_msg, context_id
+                return primitive, context_id
             else:
                 return None, None
 
 
     # Debugging and AE callbacks
     def on_send_dimse_message(self, message):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending a DIMSE message
+        """Controls which debugging function is called when sending.
+
+        Will be called immediately prior to encoding and sending a DIMSE
+        message.
 
         Parameters
         ----------
-        message - pynetdicom3.DIMSEmessage.DIMSEMessage
-            The DIMSE message to be sent
+        message : pynetdicom3.dimse_messages.DIMSEMessage
+            The DIMSE message to be sent.
         """
         callback = {C_ECHO_RQ  : self.debug_send_c_echo_rq,
                     C_ECHO_RSP : self.debug_send_c_echo_rsp,
                     C_FIND_RQ  : self.debug_send_c_find_rq,
                     C_FIND_RSP : self.debug_send_c_find_rsp,
-                    C_CANCEL_RQ : self.debug_send_c_cancel_rq,
                     C_GET_RQ  : self.debug_send_c_get_rq,
                     C_GET_RSP : self.debug_send_c_get_rsp,
                     C_MOVE_RQ  : self.debug_send_c_move_rq,
                     C_MOVE_RSP : self.debug_send_c_move_rsp,
                     C_STORE_RQ  : self.debug_send_c_store_rq,
                     C_STORE_RSP : self.debug_send_c_store_rsp,
+                    C_CANCEL_RQ : self.debug_send_c_cancel_rq,
                     N_EVENT_REPORT_RQ  : self.debug_send_n_event_report_rq,
                     N_EVENT_REPORT_RSP : self.debug_send_n_event_report_rsp,
                     N_SET_RQ  : self.debug_send_n_set_rq,
@@ -362,16 +362,15 @@ class DIMSEServiceProvider(object):
         callback[type(message)](message)
 
     def on_receive_dimse_message(self, message):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding a DIMSE message
+        """Controls which debugging function is called when receiving.
+
+        Function will be called immediately after receiving and decoding a
+        DIMSE message.
 
         Parameters
         ----------
-        sop_class - pynetdicom3.SOPclass.SOPClass
-            A SOP Class instance of the type referred to by the message
-        message - pydicom.Dataset
-            The DIMSE message that was received as a Dataset
+        message : pynetdicom3.dimse_messages.DIMSEMessage
+            The DIMSE message that was received.
         """
         callback = {C_ECHO_RQ  : self.debug_receive_c_echo_rq,
                     C_ECHO_RSP : self.debug_receive_c_echo_rsp,
@@ -400,66 +399,70 @@ class DIMSEServiceProvider(object):
         callback[type(message)](message)
 
 
-    # Mid-level DIMSE related logging/debugging
+    # Mid-level DIMSE Message related logging/debugging
+    # pylint: disable=unused-argument
     @staticmethod
-    def debug_send_c_echo_rq(dimse_msg):
-        """
+    def debug_send_c_echo_rq(msg):
+        """Debugging function when a C-ECHO-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_ECHO_RQ
-            The C-ECHO-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_ECHO_RQ
+            The C-ECHO-RQ message to be sent.
         """
-        ds = dimse_msg.command_set
-        LOGGER.info("Sending Echo Request: MsgID %s", ds.MessageID)
+        cs = msg.command_set
+        LOGGER.info("Sending Echo Request: MsgID %s", cs.MessageID)
 
     @staticmethod
-    def debug_send_c_echo_rsp(dimse_msg):
-        """
+    def debug_send_c_echo_rsp(msg):
+        """Debugging function when a C-ECHO-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_ECHO_RSP
-            The C-ECHO-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_ECHO_RSP
+            The C-ECHO-RSP message to be sent.
         """
         pass
 
     @staticmethod
-    def debug_send_c_store_rq(dimse_msg):
-        """
+    def debug_send_c_store_rq(msg):
+        """Debugging function when a C-STORE-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_STORE_RQ
-            The C-STORE-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_STORE_RQ
+            The C-STORE-RQ message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        if ds.AffectedSOPClassUID.name == 'CT Image Storage':
+        if cs.AffectedSOPClassUID.name == 'CT Image Storage':
             dataset_type = ', (CT)'
-        elif ds.AffectedSOPClassUID.name == 'MR Image Storage':
+        elif cs.AffectedSOPClassUID.name == 'MR Image Storage':
             dataset_type = ', (MR)'
         else:
             dataset_type = ''
 
         LOGGER.info("Sending Store Request: MsgID %s%s",
-                    ds.MessageID, dataset_type)
+                    cs.MessageID, dataset_type)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(ds.AffectedSOPInstanceUID))
+                 .format(cs.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -468,42 +471,46 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_c_store_rsp(dimse_msg):
-        """
+    def debug_send_c_store_rsp(msg):
+        """Debugging function when a C-STORE-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_STORE_RSP
-            The C-STORE-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_STORE_RSP
+            The C-STORE-RSP message to be sent.
         """
         pass
 
     @staticmethod
-    def debug_send_c_find_rq(dimse_msg):
-        """
+    def debug_send_c_find_rq(msg):
+        """Debugging function when a C-FIND-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_FIND_RQ
-            The C-FIND-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_FIND_RQ
+            The C-FIND-RQ message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
+
+        LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -513,17 +520,18 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_c_find_rsp(dimse_msg):
-        """
+    def debug_send_c_find_rsp(msg):
+        """Debugging function when a C-FIND-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_FIND_RSP
-            The sent C-FIND-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.C_FIND_RSP
+            The C-FIND-RSP message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -531,11 +539,11 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
+                 .format(cs.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -544,44 +552,34 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_c_cancel_rq(dimse_msg):
-        """
-        Parameters
-        ----------
-        dimse_msg : pydicom.DIMSEmessages.C_CANCEL_RQ
-            The C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ or C-CANCEL-MOVE-RQ DIMSE
-            Message to be sent
-        """
-        pass
+    def debug_send_c_get_rq(msg):
+        """Debugging function when a C-GET-RQ is sent.
 
-    @staticmethod
-    def debug_send_c_get_rq(dimse_msg):
-        """
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_GET_RQ
-            The C-GET-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_GET_RQ
+            The C-GET-RQ message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        LOGGER.info("Sending Get Request: MsgID %s", ds.MessageID)
+        LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -590,17 +588,18 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_c_get_rsp(dimse_msg):
-        """
+    def debug_send_c_get_rsp(msg):
+        """Debugging function when a C-GET-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_GET_RSP
-            The sent C-GET-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.C_GET_RSP
+            The C-GET-RSP message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -608,10 +607,10 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
+                 .format(cs.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : none')
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -620,35 +619,36 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_c_move_rq(dimse_msg):
-        """
+    def debug_send_c_move_rq(msg):
+        """Debugging function when a C-MOVE-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_MOVE_RQ
-            The C-MOVE-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_MOVE_RQ
+            The C-MOVE-RQ message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        LOGGER.info("Sending Store Request: MsgID %s", ds.MessageID)
+        LOGGER.info("Sending Move Request: MsgID %s", cs.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Move Destination              : {0!s}'
-                 .format(ds.MoveDestination.decode('utf-8')))
+                 .format(cs.MoveDestination.decode('utf-8')))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -658,17 +658,18 @@ class DIMSEServiceProvider(object):
         return None
 
     @staticmethod
-    def debug_send_c_move_rsp(dimse_msg):
-        """
+    def debug_send_c_move_rsp(msg):
+        """Debugging function when a C-MOVE-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pydicom.DIMSEmessages.C_MOVE_RSP
-            The C-MOVE-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.C_MOVE_RSP
+            The C-MOVE-RSP message to be sent.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -676,10 +677,14 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : none')
+                 .format(cs.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        else:
+            s.append('Affected SOP Class UID        : none')
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -688,23 +693,38 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_receive_c_echo_rq(dimse_msg):
-        """
+    def debug_send_c_cancel_rq(msg):
+        """Debugging function when a C-CANCEL-*-RQ is sent.
+
+        Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_ECHO_RQ
-            The received C-ECHO-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.C_CANCEL_RQ
+            The C-CANCEL-*-RQ message to be sent.
         """
-        ds = dimse_msg.command_set
+        pass
 
-        LOGGER.info('Received Echo Request (MsgID %s)', ds.MessageID)
+
+    @staticmethod
+    def debug_receive_c_echo_rq(msg):
+        """Debugging function when a C-ECHO-RQ is received.
+
+        Parameters
+        ----------
+        msg : pynetdicom3.DIMSEmessage.C_ECHO_RQ
+            The received C-ECHO-RQ message.
+        """
+        cs = msg.command_set
+
+        LOGGER.info('Received Echo Request (MsgID %s)', cs.MessageID)
 
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Data Set                      : {0!s}'.format('none'))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -713,33 +733,35 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_receive_c_echo_rsp(dimse_msg):
-        """
+    def debug_receive_c_echo_rsp(msg):
+        """Debugging function when a C-ECHO-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_ECHO_RSP
-            The received C-ECHO-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.C_ECHO_RSP
+            The received C-ECHO-RSP message.
         """
         # Status must always be Success for C_ECHO_RSP
         LOGGER.info("Received Echo Response (Status: Success)")
 
     @staticmethod
-    def debug_receive_c_store_rq(dimse_msg):
-        """
+    def debug_receive_c_store_rq(msg):
+        """Debugging function when a C-STORE-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_STORE_RQ
-            The received C-STORE-RQ DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_STORE_RQ
+            The received C-STORE-RQ message.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         LOGGER.info('Received Store Request')
@@ -748,12 +770,12 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(ds.AffectedSOPInstanceUID))
+                 .format(cs.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -762,21 +784,22 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_receive_c_store_rsp(dimse_msg):
-        """
+    def debug_receive_c_store_rsp(msg):
+        """Debugging function when a C-STORE-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_STORE_RSP
-            The received C-STORE-RSP DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_STORE_RSP
+            The received C-STORE-RSP message.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
-        status = '0x{0:04x}'.format(ds.Status)
+        status = '0x{0:04x}'.format(cs.Status)
         if status == '0x0000':
             status += ': Success'
         elif '0xb000' in status:
@@ -785,27 +808,25 @@ class DIMSEServiceProvider(object):
             status += ': Warning - Dataset does not match SOP Class'
         elif '0xb006' in status:
             status += ': Warning - Elements discarded'
-        elif '0xa7' in status:
+        elif cs.Status in range(0xA700, 0xA7FF + 1):
             status += ': Failure - Out of resources'
-        elif '0xa9' in status:
+        elif cs.Status in range(0xA900, 0xA9FF + 1):
             status += ': Failure - Dataset does not match SOP Class'
-        elif '0xc' in status or status == '0x0001':
+        elif cs.Status in range(0xC000, 0xCFFF + 1):
             status += ': Failure - Cannot understand'
-        else:
-            pass
 
         LOGGER.info('Received Store Response')
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
+                 .format(cs.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(ds.AffectedSOPInstanceUID))
+                 .format(cs.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : {0!s}'.format(status))
 
@@ -816,36 +837,32 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_receive_c_find_rq(dimse_msg):
-        """
-        Called on receiving a C-FIND-RQ from the peer AE.
-        The C-FIND service is used by a DIMSE to match a set of Attributes
-        against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user.
+    def debug_receive_c_find_rq(msg):
+        """Debugging function when a C-FIND-RQ is received.
 
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
-            The received C-FIND-RQ DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
+            The received C-FIND-RQ message.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
 
@@ -856,24 +873,20 @@ class DIMSEServiceProvider(object):
             LOGGER.info(line)
 
     @staticmethod
-    def debug_receive_c_find_rsp(dimse_msg):
-        """
-        Called on receiving a C-FIND-RSP from the peer AE.
-        The C-FIND service is used by a DIMSE to match a set of Attributes
-        against the Attributes of a set of composite SOP
-        Instances maintained by a peer DIMSE user.
+    def debug_receive_c_find_rsp(msg):
+        """Debugging function when a C-FIND-RSP is received.
 
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_FIND_RSP
-            The received C-FIND-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.C_FIND_RSP
+            The received C-FIND-RSP message.
         """
-        ds = dimse_msg.command_set
-        if ds.Status != 0x0000:
+        cs = msg.command_set
+        if cs.Status != 0x0000:
             return
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -881,11 +894,11 @@ class DIMSEServiceProvider(object):
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
+                 .format(cs.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -894,43 +907,58 @@ class DIMSEServiceProvider(object):
             LOGGER.info(line)
 
     @staticmethod
-    def debug_receive_c_cancel_rq(dimse_msg):
-        """
-        Placeholder for C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
+    def debug_receive_c_cancel_rq(msg):
+        """Debugging function when a C-CANCEL-*-RQ is received.
+
+        Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_CANCEL_RQ
-            The received C-CANCEL-RQ DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_CANCEL_RQ
+            The received C-CANCEL-RQ message.
         """
-        pass
+        cs = msg.command_set
+
+        s = []
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('C-CANCEL RQ'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+
+        for line in s:
+            LOGGER.info(line)
 
     @staticmethod
-    def debug_receive_c_get_rq(dimse_msg):
-        """
+    def debug_receive_c_get_rq(msg):
+        """Debugging function when a C-GET-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_GET_RQ
-            The received C-GET-RQ DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_GET_RQ
+            The received C-GET-RQ message.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         priority_str = {2 : 'Low',
                         0 : 'Medium',
                         1 : 'High'}
-        priority = priority_str[ds.Priority]
+        priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
-        s.append('Message ID                    : {0!s}'.format(ds.MessageID))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
 
@@ -941,42 +969,43 @@ class DIMSEServiceProvider(object):
             LOGGER.info(line)
 
     @staticmethod
-    def debug_receive_c_get_rsp(dimse_msg):
-        """
+    def debug_receive_c_get_rsp(msg):
+        """Debugging function when a C-GET-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_GET_RSP
-            The received C-GET-RSP DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_GET_RSP
+            The received C-GET-RSP message.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
-
-        if 'NumberOfRemainingSuboperations' in ds:
-            no_remain = ds.NumberOfRemainingSuboperations
-        else:
-            no_remain = 0
 
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(dimse_msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
+                 .format(cs.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
-        s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
-        s.append('Completed Sub-operations      : {0!s}'
-                 .format(ds.NumberOfCompletedSuboperations))
-        s.append('Failed Sub-operations         : {0!s}'
-                 .format(ds.NumberOfFailedSuboperations))
-        s.append('Warning Sub-operations        : {0!s}'
-                 .format(ds.NumberOfWarningSuboperations))
+                 .format(cs.AffectedSOPClassUID))
+        if 'NumberOfRemainingSuboperations' in cs:
+            s.append('Remaining Sub-operations      : {0!s}'
+                     .format(cs.NumberOfRemainingSuboperations))
+        if 'NumberOfCompletedSuboperations' in cs:
+            s.append('Completed Sub-operations      : {0!s}'
+                     .format(cs.NumberOfCompletedSuboperations))
+        if 'NumberOfFailedSuboperations' in cs:
+            s.append('Failed Sub-operations         : {0!s}'
+                     .format(cs.NumberOfFailedSuboperations))
+        if 'NumberOfWarningSuboperations' in cs:
+            s.append('Warning Sub-operations        : {0!s}'
+                     .format(cs.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -985,51 +1014,53 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_receive_c_move_rq(dimse_msg):
-        """
+    def debug_receive_c_move_rq(msg):
+        """Debugging function when a C-MOVE-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_MOVE_RQ
-            The received C-MOVE-RQ DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_MOVE_RQ
+            The received C-MOVE-RQ message.
         """
         pass
 
     @staticmethod
-    def debug_receive_c_move_rsp(dimse_msg):
-        """
+    def debug_receive_c_move_rsp(msg):
+        """Debugging function when a C-MOVE-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.C_MOVE_RSP
-            The received C-MOVE-RSP DIMSE Message
+        msg : pynetdicom3.DIMSEmessage.C_MOVE_RSP
+            The received C-MOVE-RSP message.
         """
-        ds = dimse_msg.command_set
+        cs = msg.command_set
 
         dataset = 'None'
-        if dimse_msg.data_set.getvalue() != b'':
+        if msg.data_set.getvalue() != b'':
             dataset = 'Present'
-
-        if 'NumberOfRemainingSuboperations' in ds:
-            no_remain = ds.NumberOfRemainingSuboperations
-        else:
-            no_remain = 0
 
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
-                 .format(ds.MessageIDBeingRespondedTo))
+                 .format(cs.MessageIDBeingRespondedTo))
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(ds.AffectedSOPClassUID))
-        s.append('Remaining Sub-operations      : {0!s}'.format(no_remain))
-        s.append('Completed Sub-operations      : {0!s}'
-                 .format(ds.NumberOfCompletedSuboperations))
-        s.append('Failed Sub-operations         : {0!s}'
-                 .format(ds.NumberOfFailedSuboperations))
-        s.append('Warning Sub-operations        : {0!s}'
-                 .format(ds.NumberOfWarningSuboperations))
+                 .format(cs.AffectedSOPClassUID))
+        if 'NumberOfRemainingSuboperations' in cs:
+            s.append('Remaining Sub-operations      : {0!s}'
+                     .format(cs.NumberOfRemainingSuboperations))
+        if 'NumberOfCompletedSuboperations' in cs:
+            s.append('Completed Sub-operations      : {0!s}'
+                     .format(cs.NumberOfCompletedSuboperations))
+        if 'NumberOfFailedSuboperations' in cs:
+            s.append('Failed Sub-operations         : {0!s}'
+                     .format(cs.NumberOfFailedSuboperations))
+        if 'NumberOfWarningSuboperations' in cs:
+            s.append('Warning Sub-operations        : {0!s}'
+                     .format(cs.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(ds.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1038,241 +1069,265 @@ class DIMSEServiceProvider(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_n_event_report_rq(dimse_msg):
-        """
+    def debug_send_n_event_report_rq(msg):
+        """Debugging function when an N-EVENT-REPORT-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RQ
-            The N-EVENT-REPORT-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RQ
+            The N-EVENT-REPORT-RQ message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_event_report_rsp(dimse_msg):
-        """
+    def debug_send_n_event_report_rsp(msg):
+        """Debugging function when an N-EVENT-REPORT-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RSP
-            The N-EVENT-REPORT-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RSP
+            The N-EVENT-REPORT-RSP message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_get_rq(dimse_msg):
-        """
+    def debug_send_n_get_rq(msg):
+        """Debugging function when an N-GET-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RQ
-            The N-GET-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_GET_RQ
+            The N-GET-RQ message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_get_rsp(dimse_msg):
-        """
+    def debug_send_n_get_rsp(msg):
+        """Debugging function when an N-GET-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RSP
-            The N-GET-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_GET_RSP
+            The N-GET-RSP message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_set_rq(dimse_msg):
-        """
+    def debug_send_n_set_rq(msg):
+        """Debugging function when an N-SET-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RQ
-            The N-SET-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_SET_RQ
+            The N-SET-RQ message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_set_rsp(dimse_msg):
-        """
+    def debug_send_n_set_rsp(msg):
+        """Debugging function when an N-SET-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RSP
-            The N-SET-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_SET_RSP
+            The N-SET-RSP message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_action_rq(dimse_msg):
-        """
+    def debug_send_n_action_rq(msg):
+        """Debugging function when an N-ACTION-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RQ
-            The N-ACTION-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_ACTION_RQ
+            The N-ACTION-RQ message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_action_rsp(dimse_msg):
-        """
+    def debug_send_n_action_rsp(msg):
+        """Debugging function when an N-ACTION-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RSP
-            The N-ACTION-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_ACTION_RSP
+            The N-ACTION-RSP message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_create_rq(dimse_msg):
-        """
+    def debug_send_n_create_rq(msg):
+        """Debugging function when an N-CREATE-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RQ
-            The N-CREATE-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_CREATE_RQ
+            The N-CREATE-RQ message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_create_rsp(dimse_msg):
-        """
+    def debug_send_n_create_rsp(msg):
+        """Debugging function when an N-CREATE-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RSP
-            The N-CREATE-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_CREATE_RSP
+            The N-CREATE-RSP message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_delete_rq(dimse_msg):
-        """
+    def debug_send_n_delete_rq(msg):
+        """Debugging function when an N-DELETE-RQ is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RQ
-            The N-DELETE-RQ DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_DELETE_RQ
+            The N-DELETE-RQ message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_send_n_delete_rsp(dimse_msg):
-        """
+    def debug_send_n_delete_rsp(msg):
+        """Debugging function when an N-DELETE-RSP is sent.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RSP
-            The N-DELETE-RSP DIMSE Message to be sent
+        msg : pynetdicom3.dimse_messages.N_DELETE_RSP
+            The N-DELETE-RSP message to be sent.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_event_report_rq(dimse_msg):
-        """
+    def debug_receive_n_event_report_rq(msg):
+        """Debugging function when an N-EVENT-REPORT-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RQ
-            The received N-EVENT-REPORT-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RQ
+            The received N-EVENT-REPORT-RQ message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_event_report_rsp(dimse_msg):
-        """
+    def debug_receive_n_event_report_rsp(msg):
+        """Debugging function when an N-EVENT-REPORT-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_EVENT_REPORT_RSP
-            The received N-EVENT-REPORT-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RSP
+            The received N-EVENT-REPORT-RSP message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_get_rq(dimse_msg):
-        """
+    def debug_receive_n_get_rq(msg):
+        """Debugging function when an N-GET-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RQ
-            The received N-GET-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_GET_RQ
+            The received N-GET-RQ message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_get_rsp(dimse_msg):
-        """
+    def debug_receive_n_get_rsp(msg):
+        """Debugging function when an N-GET-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_GET_RSP
-            The received N-GET-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_GET_RSP
+            The received N-GET-RSP message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_set_rq(dimse_msg):
-        """
+    def debug_receive_n_set_rq(msg):
+        """Debugging function when an N-SET-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RQ
-            The received N-SET-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_SET_RQ
+            The received N-SET-RQ message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_set_rsp(dimse_msg):
-        """
+    def debug_receive_n_set_rsp(msg):
+        """Debugging function when an N-SET-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_SET_RSP
-            The received N-SET-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_SET_RSP
+            The received N-SET-RSP message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_action_rq(dimse_msg):
-        """
+    def debug_receive_n_action_rq(msg):
+        """Debugging function when an N-ACTION-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RQ
-            The received N-ACTION-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_ACTION_RQ
+            The received N-ACTION-RQ message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_action_rsp(dimse_msg):
-        """
+    def debug_receive_n_action_rsp(msg):
+        """Debugging function when an N-ACTION-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_ACTION_RSP
-            The received N-ACTION-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_ACTION_RSP
+            The received N-ACTION-RSP message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_create_rq(dimse_msg):
-        """
+    def debug_receive_n_create_rq(msg):
+        """Debugging function when an N-CREATE-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RQ
-            The received N-CREATE-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_CREATE_RQ
+            The received N-CREATE-RQ message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_create_rsp(dimse_msg):
-        """
+    def debug_receive_n_create_rsp(msg):
+        """Debugging function when an N-CREATE-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_CREATE_RSP
-            The received N-CREATE-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_CREATE_RSP
+            The received N-CREATE-RSP message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_delete_rq(dimse_msg):
-        """
+    def debug_receive_n_delete_rq(msg):
+        """Debugging function when an N-DELETE-RQ is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RQ
-            The received N-DELETE-RQ DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_DELETE_RQ
+            The received N-DELETE-RQ message.
         """
-        raise NotImplementedError
+        pass
 
     @staticmethod
-    def debug_receive_n_delete_rsp(dimse_msg):
-        """
+    def debug_receive_n_delete_rsp(msg):
+        """Debugging function when an N-DELETE-RSP is received.
+
         Parameters
         ----------
-        dimse_msg : pynetdicom3.DIMSEmessage.N_DELETE_RSP
-            The received N-DELETE-RSP DIMSE Message
+        msg : pynetdicom3.dimse_messages.N_DELETE_RSP
+            The received N-DELETE-RSP message.
         """
-        raise NotImplementedError
+        pass

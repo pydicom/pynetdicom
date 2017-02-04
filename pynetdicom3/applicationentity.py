@@ -2,6 +2,7 @@
 The main user class, represents a DICOM Application Entity
 """
 import gc
+from inspect import isclass
 import logging
 import platform
 import select
@@ -11,7 +12,7 @@ import sys
 import time
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian, UID, InvalidUID
+                        ExplicitVRBigEndian, UID, InvalidUID
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
@@ -153,15 +154,15 @@ class ApplicationEntity(object):
             The port number to listen for connections on when acting as an SCP
             (default: the first available port)
         scu_sop_class : list of pydicom.uid.UID or list of str or list of
-        pynetdicom3.SOPclass.ServiceClass subclasses, optional
+        pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.
             Either `scu_sop_class` or `scp_sop_class` must have values
         scp_sop_class : list of pydicom.uid.UID or list of UID strings or list
-        of pynetdicom3.SOPclass.ServiceClass subclasses, optional
+        of pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCP.
             Either scu_`sop_class` or `scp_sop_class` must have values
         transfer_syntax : list of pydicom.uid.UID or list of str or list of
-        pynetdicom3.SOPclass.ServiceClass subclasses, optional
+        pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of supported Transfer Syntax UIDs (default: Explicit VR Little
             Endian, Implicit VR Little Endian, Explicit VR Big Endian)
         """
@@ -208,54 +209,7 @@ class ApplicationEntity(object):
         # List of active association objects
         self.active_associations = []
 
-        # Build presentation context list to be:
-        #   * sent to remote AE when requesting association
-        #       (presentation_contexts_scu)
-        #   * used to decide whether to accept or reject when remote AE
-        #       requests association (presentation_contexts_scp)
-        #
-        #   See PS3.8 Sections 7.1.1.13 and 9.3.2.2
-        self.presentation_contexts_scu = []
-        self.presentation_contexts_scp = []
-        for [pc_output, sop_input] in \
-                    [[self.presentation_contexts_scu, self.scu_supported_sop],
-                     [self.presentation_contexts_scp, self.scp_supported_sop]]:
-
-            for ii, sop_class in enumerate(sop_input):
-                # Must be an odd integer between 1 and 255
-                presentation_context_id = ii * 2 + 1
-                abstract_syntax = None
-
-                # If supplied SOP Class is already a pydicom.UID class
-                if isinstance(sop_class, UID):
-                    abstract_syntax = sop_class
-
-                # If supplied SOP Class is a UID string, try and see if we can
-                #   create a pydicom UID class from it
-                elif isinstance(sop_class, str):
-                    abstract_syntax = UID(sop_class)
-
-                # If the supplied SOP class is one of the pynetdicom3.SOPclass
-                #   SOP class instances, convert it to pydicom UID
-                else:
-                    abstract_syntax = UID(sop_class.UID)
-
-                # Add the Presentation Context Definition Item
-                # If we have too many Items, warn and skip the rest
-                if presentation_context_id < 255:
-                    pc_item = PresentationContext(presentation_context_id,
-                                                  abstract_syntax,
-                                                  self.transfer_syntaxes[:])
-
-                    pc_output.append(pc_item)
-                else:
-                    LOGGER.warning("More than 126 supported SOP Classes have "
-                                   "been supplied to the Application Entity, "
-                                   "but the Presentation Context Definition ID "
-                                   "can only be an odd integer between 1 and "
-                                   "255. The remaining SOP Classes will not be "
-                                   "included")
-                    break
+        self._build_presentation_contexts()
 
         self.local_socket = None
 
@@ -278,15 +232,23 @@ class ApplicationEntity(object):
                          "for use with the SCP have been included during"
                          "ApplicationEntity initialisation or by setting the "
                          "scp_supported_sop attribute")
-            return
+            raise ValueError("AE is running as an SCP but no SCP SOP classes "
+                             "have been supplied.")
 
         # Bind the local_socket to the specified listen port
+        #try:
         self._bind_socket()
+        #except OSError:
+        #    self._quit = True
+        #    self.stop()
+        #    return
 
         no_loops = 0
         while True:
             try:
-                time.sleep(0.1)
+                # This seems to be here to help alleviate socket issues
+                # FIXME: refactor so not needed
+                #time.sleep(0.5)
 
                 if self._quit:
                     break
@@ -296,7 +258,7 @@ class ApplicationEntity(object):
                 self._monitor_socket()
 
                 # Delete dead associations
-                self._cleanup_associations()
+                self.cleanup_associations()
 
                 # Every 50 loops run the garbage collection
                 if no_loops % 51 == 0:
@@ -318,7 +280,48 @@ class ApplicationEntity(object):
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.local_socket.bind(('', self.port))
+        # Listen for connections made to the socket, the backlog argument
+        #   specifies the maximum number of queued connections.
         self.local_socket.listen(1)
+
+    def _build_presentation_contexts(self):
+        """Build the presentation context list.
+
+        Build presentation context list to be:
+        * sent to remote AE when requesting association
+          (presentation_contexts_scu)
+        * used to decide whether to accept or reject when remote AE
+          requests association (presentation_contexts_scp)
+
+        See PS3.8 Sections 7.1.1.13 and 9.3.2.2
+        """
+        self.presentation_contexts_scu = []
+        self.presentation_contexts_scp = []
+        for [pc_output, sop_input] in \
+                    [[self.presentation_contexts_scu, self.scu_supported_sop],
+                     [self.presentation_contexts_scp, self.scp_supported_sop]]:
+
+            for ii, sop_class in enumerate(sop_input):
+                # Must be an odd integer between 1 and 255
+                presentation_context_id = ii * 2 + 1
+                abstract_syntax = sop_class
+
+                # Add the Presentation Context Definition Item
+                # If we have too many Items, warn and skip the rest
+                if presentation_context_id < 255:
+                    pc_item = PresentationContext(presentation_context_id,
+                                                  abstract_syntax,
+                                                  self.transfer_syntaxes[:])
+
+                    pc_output.append(pc_item)
+                else:
+                    LOGGER.warning("More than 126 supported SOP Classes have "
+                                   "been supplied to the Application Entity, "
+                                   "but the Presentation Context Definition ID "
+                                   "can only be an odd integer between 1 and "
+                                   "255. The remaining SOP Classes will not be "
+                                   "included")
+                    break
 
     def _monitor_socket(self):
         """Monitor the local socket for connections.
@@ -327,7 +330,11 @@ class ApplicationEntity(object):
         and if so, creates a new association. Separated out from start() to
         enable better unit testing
         """
-        read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        # FIXME: this needs to be dealt with properly
+        try:
+            read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        except ValueError:
+            return
 
         # If theres a connection
         if read_list:
@@ -343,10 +350,10 @@ class ApplicationEntity(object):
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
                                 dimse_timeout=self.dimse_timeout)
-
+            assoc.start()
             self.active_associations.append(assoc)
 
-    def _cleanup_associations(self):
+    def cleanup_associations(self):
         """Remove dead associations.
 
         AE.start(): Removes any dead associations from self.active_associations
@@ -364,20 +371,18 @@ class ApplicationEntity(object):
         When running as an SCP, calling stop() will kill all associations,
         close the listen socket and quit
         """
+        self._quit = True
+
         for assoc in self.active_associations:
             assoc.kill()
 
         if self.local_socket:
             self.local_socket.close()
 
-        self._quit = True
-
-        while True:
-            sys.exit(0)
-
     def quit(self):
         """Stop the SCP."""
         self.stop()
+        sys.exit(0)
 
     def associate(self, addr, port, ae_title='ANY-SCP',
                   max_pdu=16382, ext_neg=None):
@@ -408,10 +413,10 @@ class ApplicationEntity(object):
             The Association thread
         """
         if not isinstance(addr, str):
-            raise ValueError("ip_address must be a valid IPv4 string")
+            raise TypeError("ip_address must be a valid IPv4 string")
 
         if not isinstance(port, int):
-            raise ValueError("port must be a valid port number")
+            raise TypeError("port must be a valid port number")
 
         peer_ae = {'AET' : validate_ae_title(ae_title),
                    'Address' : addr,
@@ -424,10 +429,12 @@ class ApplicationEntity(object):
                             dimse_timeout=self.dimse_timeout,
                             max_pdu=max_pdu,
                             ext_neg=ext_neg)
+        assoc.start()
 
         # Endlessly loops while the Association negotiation is taking place
         while (not assoc.is_established and not assoc.is_rejected and
-               not assoc.is_aborted and not assoc.dul.kill):
+               not assoc.is_aborted and not assoc.dul._kill_thread):
+            # Program loops here endlessly sometimes
             time.sleep(0.1)
 
         # If the Association was established
@@ -490,7 +497,6 @@ class ApplicationEntity(object):
 
         return str_out
 
-
     @property
     def acse_timeout(self):
         """Get the ACSE timeout."""
@@ -500,18 +506,13 @@ class ApplicationEntity(object):
     def acse_timeout(self, value):
         """Set the ACSE timeout."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 0:
-                self._acse_timeout = value
-            else:
-                self._acse_timeout = 0
-
-            return
-        except:
-            LOGGER.warning("ACSE timeout must be a numeric value greater than"
-                           "or equal to 0. Defaulting to 0 (no timeout)")
-
-        self._acse_timeout = 0
+        if value is None:
+            self._acse_timeout = 0
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._acse_timeout = value
+        else:
+            LOGGER.warning("acse_timeout set to never expire")
+            self._acse_timeout = 0
 
     @property
     def ae_title(self):
@@ -536,19 +537,13 @@ class ApplicationEntity(object):
     def dimse_timeout(self, value):
         """Get the DIMSE timeout."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 0:
-                self._dimse_timeout = value
-            else:
-                self._dimse_timeout = 0
-
-            return
-        except:
-            LOGGER.warning("ApplicationEntity DIMSE timeout must be a numeric "
-                           "value greater than or equal to 0. Defaulting to 0 "
-                           "(no timeout)")
-
-        self._dimse_timeout = 0
+        if value is None:
+            self._dimse_timeout = 0
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._dimse_timeout = value
+        else:
+            LOGGER.warning("dimse_timeout set to never expire")
+            self._dimse_timeout = 0
 
     @property
     def network_timeout(self):
@@ -559,19 +554,13 @@ class ApplicationEntity(object):
     def network_timeout(self, value):
         """Set the network timeout."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 0:
-                self._network_timeout = value
-            else:
-                self._network_timeout = 60
-
-            return
-        except:
-            LOGGER.warning("ApplicationEntity network timeout must be a "
-                           "numeric value greater than or equal to 0. "
-                           "Defaulting to 60 seconds")
-
-        self._network_timeout = 60
+        if value is None:
+            self._network_timeout = 60
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._network_timeout = value
+        else:
+            LOGGER.warning("network_timeout set to 60")
+            self._network_timeout = 60
 
     @property
     def maximum_associations(self):
@@ -582,19 +571,11 @@ class ApplicationEntity(object):
     def maximum_associations(self, value):
         """Set the number of maximum associations."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if value >= 1:
-                self._maximum_associations = value
-                return
-            else:
-                LOGGER.warning("AE maximum associations must be greater than "
-                               "or equal to 1")
-                self._maximum_associations = 1
-        except:
-            LOGGER.warning("AE maximum associations must be a numerical value "
-                           "greater than or equal to 1. Defaulting to 1")
-
-        self._maximum_associations = 1
+        if isinstance(value, int) and value >= 1:
+            self._maximum_associations = value
+        else:
+            LOGGER.warning("maximum_associations set to 1")
+            self._maximum_associations = 1
 
     @property
     def maximum_pdu_size(self):
@@ -609,15 +590,10 @@ class ApplicationEntity(object):
         #   variable field of P-DATA-TF PDUs (in bytes)
         #   * Must be numerical, greater than or equal to 0 (0 indicates
         #       no maximum length (PS3.8 Annex D.1.1)
-        try:
-            if value >= 0:
-                self._maximum_pdu_size = value
-                return
-        except:
-            LOGGER.warning("ApplicationEntity failed to set maximum PDU size "
-                           "of '%s', defaulting to 16832 bytes", value)
-
-        self._maximum_pdu_size = 16382
+        if value >= 0:
+            self._maximum_pdu_size = value
+        else:
+            LOGGER.warning("maximum_pdu_size set to 16382")
 
     @property
     def port(self):
@@ -628,19 +604,11 @@ class ApplicationEntity(object):
     def port(self, value):
         """Set the port number."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if isinstance(value, int):
-                if value >= 0:
-                    self._port = value
-                    return
-                else:
-                    raise ValueError("AE port number must be greater than or "
-                                     "equal to 0")
-            else:
-                raise TypeError("AE port number must be an integer greater "
-                                "than or equal to 0")
-        except Exception as ex:
-            raise ex
+        if isinstance(value, int) and value >= 0:
+            self._port = value
+        else:
+            raise ValueError("AE port number must be an integer greater then "
+                             "or equal to 0")
 
     @property
     def require_calling_aet(self):
@@ -651,24 +619,9 @@ class ApplicationEntity(object):
     def require_calling_aet(self, value):
         """Set the required calling AE title."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if 0 < len(value.strip()) <= 16:
-                self._require_calling_aet = value.strip()
-            elif len(value.strip()) > 16:
-                self._require_calling_aet = value.strip()[:16]
-                LOGGER.warning("ApplicationEntity tried to set required "
-                               "calling AE title with more than 16 characters; "
-                               "title will be truncated to '%s'", value)
-            else:
-                self._require_calling_aet = ''
-            return
-
-        except:
-            LOGGER.warning("ApplicationEntity failed to set required calling "
-                           "AE title, defaulting to empty string (i.e. calling "
-                           "AE title not required to match)")
-
-        self._require_calling_aet = ''
+        if len(value) > 16:
+            value = value[:16]
+        self._require_calling_aet = value.strip()
 
     @property
     def require_called_aet(self):
@@ -679,23 +632,9 @@ class ApplicationEntity(object):
     def require_called_aet(self, value):
         """Set the required called AE title."""
         # pylint: disable=attribute-defined-outside-init
-        try:
-            if 0 < len(value.strip()) <= 16:
-                self._require_called_aet = value.strip()
-            elif len(value.strip()) > 16:
-                self._require_called_aet = value.strip()[:16]
-                LOGGER.warning("ApplicationEntity tried to set required "
-                               "called AE title with more than 16 characters; "
-                               "title will be truncated to '%s'", value)
-            else:
-                self._require_called_aet = ''
-            return
-        except:
-            LOGGER.warning("ApplicationEntity failed to set required called AE "
-                           "title, defaulting to empty string (i.e. called AE "
-                           "title not required to match)")
-
-        self._require_called_aet = ''
+        if len(value) > 16:
+            value = value[:16]
+        self._require_called_aet = value.strip()
 
     @property
     def scu_supported_sop(self):
@@ -704,45 +643,45 @@ class ApplicationEntity(object):
 
     @scu_supported_sop.setter
     def scu_supported_sop(self, sop_list):
-        """
-        A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
-        valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an
-        exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID
-        attribute(ie VerificationSOPClass)
+        """Set the AE's supported SCU SOP classes.
+
+        Examples of the `sop_list` items:
+        - '1.2.3.4'
+        - b'1.2.3.4.5'
+        - pydicom.uid.UID('1.2.3')
+        - pynetdicom3.sop_class.VerificationSOPClass
+
+        Parameters
+        ----------
+        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
+            The supported SCU SOP classes.
         """
         # pylint: disable=attribute-defined-outside-init
         self._scu_supported_sop = []
 
-        try:
-            for sop_class in sop_list:
-                try:
-                    if isinstance(sop_class, str):
-                        sop_uid = UID(sop_class)
-                        sop_uid.is_valid()
-                    elif isinstance(sop_class, UID):
-                        sop_uid = sop_class
-                        sop_uid.is_valid()
-                    elif 'UID' in sop_class.__dict__.keys():
-                        sop_uid = UID(sop_class.UID)
-                        sop_uid.is_valid()
-                    else:
-                        raise ValueError("SCU SOP class must be a UID str, "
-                                         "UID or ServiceClass subclass")
+        if not isinstance(sop_list, list):
+            raise TypeError("scu_supported_sop must be a list of SOP " \
+                               "classes.")
 
-                    self._scu_supported_sop.append(sop_uid)
+        for sop_class in sop_list:
+            if isinstance(sop_class, str):
+                sop_uid = UID(sop_class)
+            elif isclass(sop_class) and 'UID' in sop_class.__dict__:
+                sop_uid = UID(sop_class.UID)
+            elif isinstance(sop_class, bytes):
+                sop_uid = UID(sop_class.decode('utf-8'))
+            else:
+                continue
 
-                except InvalidUID:
-                    raise ValueError("SCU SOP classes contained an invalid "
-                                     "UID string")
-                except Exception:
-                    LOGGER.warning("Invalid SCU SOP class '%s'", sop_class)
+            try:
+                sop_uid.is_valid()
+            except InvalidUID:
+                continue
 
-            if sop_list != [] and self._scu_supported_sop == []:
-                raise ValueError("No valid SCU SOP classes were supplied")
-        except TypeError:
-            raise ValueError("scu_sop_class must be a list")
-        except:
-            raise ValueError("scu_sop_class must be a list of SOP Classes")
+            self._scu_supported_sop.append(sop_uid)
+
+        if sop_list != [] and self._scu_supported_sop == []:
+            raise TypeError("No valid SCU SOP classes were supplied")
 
     @property
     def scp_supported_sop(self):
@@ -751,46 +690,47 @@ class ApplicationEntity(object):
 
     @scp_supported_sop.setter
     def scp_supported_sop(self, sop_list):
-        """
-        A valid SOP is either a str UID (ie '1.2.840.10008.1.1') or a
-        valid pydicom.uid.UID object (UID.is_valid() shouldn't cause an
-        exception) or a pynetdicom3.SOPclass.ServiceClass subclass with a UID
-        attribute(ie VerificationSOPClass)
+        """Set the AE's supported SCP SOP classes.
+
+        Examples of the `sop_list` items:
+        - '1.2.3.4'
+        - b'1.2.3.4.5'
+        - pydicom.uid.UID('1.2.3')
+        - pynetdicom3.sop_class.VerificationSOPClass
+
+        Parameters
+        ----------
+        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
+            The supported SCP SOP classes.
         """
         # pylint: disable=attribute-defined-outside-init
         self._scp_supported_sop = []
+        if not isinstance(sop_list, list):
+            raise TypeError("scp_supported_sop must be a list of SOP " \
+                               "classes.")
 
-        try:
-            for sop_class in sop_list:
-                try:
+        for sop_class in sop_list:
+            if isinstance(sop_class, str):
+                sop_uid = UID(sop_class)
+            elif isinstance(sop_class, bytes):
+                sop_uid = UID(sop_class.decode('utf-8'))
+            elif isclass(sop_class):
+                if 'UID' in sop_class.__dict__:
+                    sop_uid = sop_class.UID
+                else:
+                    continue
+            else:
+                continue
 
-                    if isinstance(sop_class, str):
-                        sop_uid = UID(sop_class)
-                    elif isinstance(sop_class, UID):
-                        sop_uid = sop_class
-                    elif isinstance(sop_class, bytes):
-                        sop_uid = UID(sop_uid.decode('utf-8'))
-                    elif 'UID' in sop_class.__dict__.keys():
-                        sop_uid = UID(sop_class.UID)
-                    else:
-                        raise ValueError("SCU SOP class must be a UID str, "
-                                         "UID or ServiceClass subclass")
+            try:
+                sop_uid.is_valid()
+            except InvalidUID:
+                continue
 
-                    sop_uid.is_valid()
-                    self._scp_supported_sop.append(sop_uid)
+            self._scp_supported_sop.append(sop_uid)
 
-                except InvalidUID:
-                    raise ValueError("scp_sop_class must be a list of "
-                                     "SOP Classes")
-                except Exception:
-                    LOGGER.warning("Invalid SCP SOP class '%s'", sop_class)
-
-            if sop_list != [] and self._scp_supported_sop == []:
-                raise ValueError("No valid SCP SOP classes were supplied")
-        except TypeError:
-            raise ValueError("scp_sop_class must be a list")
-        except:
-            raise ValueError("scp_sop_class must be a list of SOP Classes")
+        if sop_list != [] and self._scp_supported_sop == []:
+            raise TypeError("No valid SCP SOP classes were supplied")
 
     @property
     def transfer_syntaxes(self):
@@ -802,40 +742,32 @@ class ApplicationEntity(object):
         """Set the supported transfer syntaxes."""
         # pylint: disable=attribute-defined-outside-init
         self._transfer_syntaxes = []
+        if not isinstance(transfer_syntaxes, list):
+            raise ValueError("Transfer syntax must be a list of SOP classes.")
 
-        try:
-            for syntax in transfer_syntaxes:
-                try:
-                    if isinstance(syntax, str):
-                        sop_uid = UID(syntax)
-                        sop_uid.is_valid()
-                    elif isinstance(syntax, UID):
-                        sop_uid = syntax
-                        sop_uid.is_valid()
-                    # FIXME: sop_class -> syntax?
-                    #elif 'UID' in sop_class.__dict__.keys():
-                    #    sop_uid = UID(syntax.UID)
-                    #    sop_uid.is_valid()
-                    else:
-                        raise ValueError("Transfer syntax SOP class must be a "
-                                         "UID str, UID or ServiceClass "
-                                         "subclass")
+        for syntax in transfer_syntaxes:
+            if isinstance(syntax, str):
+                sop_uid = UID(syntax)
+            elif isinstance(syntax, bytes):
+                sop_uid = UID(syntax.decode('utf-8'))
+            else:
+                raise ValueError("Transfer syntax SOP class must be a "
+                                 "UID str, UID bytes or UID.")
+            try:
+                sop_uid.is_valid()
+            except InvalidUID:
+                raise ValueError("Transfer syntax contained an "
+                                 "invalid UID string")
 
-                    if sop_uid.is_transfer_syntax:
-                        self._transfer_syntaxes.append(sop_uid)
-                    else:
-                        LOGGER.warning("Attempted to add a non-transfer syntax "
-                                       "UID '%s'", syntax)
+            if sop_uid.is_transfer_syntax:
+                self._transfer_syntaxes.append(sop_uid)
+            else:
+                LOGGER.warning("Attempted to add a non-transfer syntax "
+                               "UID '%s'", syntax)
 
-                except InvalidUID:
-                    raise ValueError("Transfer syntax contained an invalid "
-                                     "UID string")
-            if self._transfer_syntaxes == []:
-                raise ValueError("Transfer syntax must be a list of SOP "
-                                 "Classes")
-        except:
-            raise ValueError("Transfer syntax SOP class must be a "
-                             "UID str, UID or ServiceClass subclass")
+        if self._transfer_syntaxes == []:
+            raise ValueError("Transfer syntax must be a list of SOP "
+                             "Classes")
 
 
     # Association negotiation callbacks
@@ -854,7 +786,8 @@ class ApplicationEntity(object):
         primary_field : bytes
             The value of the Primary Field
         secondary_field : bytes or None
-            The value of the Secondary Field. Only used when `user_id_type` is 2
+            The value of the Secondary Field. Will be None unless the
+            `user_id_type` is 2
 
         Returns
         -------
@@ -875,24 +808,10 @@ class ApplicationEntity(object):
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling AE.start()
 
-        Called during pynetdicom3.SOPclass.VerificationServiceClass::SCP() after
-        receiving a C-ECHO request and immediately prior to sending the
+        Called during by pynetdicom3.sop_class.VerificationServiceClass.SCP()
+        after receiving a C-ECHO request and immediately prior to sending the
         response. As the status for a C-ECHO response is always Success no
         return value is required.
-
-        Example
-        -------
-        .. code-block:: python
-
-                from pynetdicom3 import AE, VerificationSOPClass
-
-                def on_c_echo():
-                    print('Received C-ECHO from peer')
-
-                ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
-                ae.on_c_echo = on_c_echo
-
-                ae.start()
         """
         # User implementation of on_c_echo is optional
         pass
@@ -902,20 +821,7 @@ class ApplicationEntity(object):
 
         Must be defined by the user prior to calling AE.start() and must return
         a valid C-STORE status integer value or the corresponding
-        pynetdicom3.SOPclass.Status object.
-
-        Example
-        -------
-        from pynetdicom3 import AE, StorageSOPClassList
-
-        def on_c_store(dataset):
-            print(dataset.SOPInstanceUID)
-            return 0x0000
-
-        ae = AE(11112, scp_sop_class=StorageSOPClassList)
-        ae.on_c_store = on_c_store
-
-        ae.start()
+        pynetdicom3.sop_class.Status object.
 
         Parameters
         ----------
@@ -924,7 +830,7 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        status : pynetdicom3.SOPclass.Status or int
+        status : pynetdicom3.sop_class.Status or int
             A valid return status for the C-STORE operation (see PS3.4 Annex
             B.2.3), must be one of the following Status objects or the
             corresponding integer value:
@@ -960,7 +866,7 @@ class ApplicationEntity(object):
         """Callback for when a dataset is received following a C-FIND.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.SOPclass.Status object. In addition,the
+        a valid pynetdicom3.sop_class.Status object. In addition,the
         AE.on_c_find_cancel() callback must also be defined
 
         Called by QueryRetrieveFindSOPClass subclasses in SCP()
@@ -972,14 +878,12 @@ class ApplicationEntity(object):
 
         Yields
         ------
-        status : pynetdicom3.SOPclass.Status or int
+        status : pynetdicom3.sop_class.Status or int
             A valid return status for the C-FIND operation (see PS3.4 Annex
             C.4.1.1.4), must be one of the following Status objects or the
-            corresponding integer value:
-            Success status
-                QueryRetrieveFindSOPClass.Success
-                    Matching is complete - No final Identifier is
-                    supplied - 0x0000
+            corresponding integer value. A Status of Success (0x0000) will be
+            automatically sent once all matches are processing if no Cancel or
+            Failure statuses are yielded:
             Failure statuses
                 QueryRetrieveFindSOPClass.OutOfResources
                     Refused: Out of Resources - 0xA700
@@ -1006,7 +910,13 @@ class ApplicationEntity(object):
                                   "function prior to calling AE.start()")
 
     def on_c_find_cancel(self):
-        """Callback for when a C-FIND-CANCEL is received."""
+        """Callback for when a C-FIND-CANCEL is received.
+
+        Returns
+        -------
+        bool
+            True if you want to stop the C-FIND operation, False otherwise.
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_c_find_cancel function prior to "
                                   "calling AE.start()")
@@ -1015,7 +925,7 @@ class ApplicationEntity(object):
         """Callback for when a dataset is received following a C-STORE.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.SOPclass.Status object. In addition,the
+        a valid pynetdicom3.sop_class.Status object. In addition,the
         AE.on_c_get_cancel() callback must also be defined
 
         Parameters
@@ -1025,10 +935,40 @@ class ApplicationEntity(object):
 
         Yields
         ------
-        int, pydicom.dataset.Dataset
-            The first yielded value should be the number of matching Instances
-            that will be returned, all subsequent yielded values should be the
-            matching Dataset(s)
+        int
+            The first yielded value should be the total number of matches, after
+            that user should yield a status, dataset pair.
+        status : pynetdicom3.sop_class.Status or int
+            A valid return status for the C-GET operation (see PS3.4 Annex
+            C.4.3.1.4), must be one of the following Status objects or the
+            corresponding integer value. A Status of Success (0x0000) will be
+            automatically sent once all matches are processing if no Cancel or
+            Failure statuses are yielded:
+            Failure statuses
+                QueryRetrieveGetSOPClass.OutOfResourcesNumberOfMatches
+                    Refused: Out of Resources, unable to calculate the number
+                    of matches - 0xA701
+                QueryRetrieveGetSOPClass.OutOfResourcesUnableToPerform
+                    Refused: Out of Resources, unable to perform sub-operations
+                    - 0xA702
+                QueryRetrieveGetSOPClass.IdentifierDoesNotMatchSOPClass
+                    Identifier does not match SOP Class - 0xA900
+                QueryRetrieveFindSOPClass.UnableToProcess
+                    Unable to process - 0xCxxx
+            Cancel status
+                QueryRetrieveGetSOPClass.Cancel
+                    Sub-operations terminated due to Cancel request - 0xFE00
+            Warning status
+                QueryRetrieveGetSOPClass.Warning
+                    Sub-operations complete, one or more failures or warnings
+                    - 0xB000
+            Pending status
+                QueryRetrieveGetSOPClass.Pending
+                    Matches are continuing - Current Match is supplied and
+                    any Optional Keys were supported in the same manner as
+                    Required Keys - 0xFF00
+        dataset : pydicom.dataset.Dataset or None
+            A matching dataset if the status is Pending, None otherwise.
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
@@ -1067,12 +1007,17 @@ class ApplicationEntity(object):
         Yields
         ------
         number_matches : int
-            The number of matching Instances
+            The first yield should be the number of matching Instances.
         addr, port : str, int
-            The TCP/IP address and port number of the destination AE (if known)
-            None, None if unknown
-        match : pydicom.dataset.Dataset
-            The matching Instance dataset
+            The second yield should be the TCP/IP address and port number of the
+            destination AE (if known) or None, None if unknown.
+        status : pynetdicom3.sop_class.Status or int
+            The remaining yields should be a status, dataset pair, where status
+            is a valid status:
+
+        dataset : pydicom.dataset.Dataset or None
+            If the status is 'Pending' then you can (optionally) return a
+            Dataset containing the identifiers or None.
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
@@ -1158,12 +1103,12 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        associate_rq_pdu : pynetdicom3.PDU.A_ASSOCIATE_RJ_PDU
+        associate_rq_pdu : pynetdicom3.pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance received from the peer AE
         """
         pass
 
-    def on_association_released(self):
+    def on_association_released(self, primitive=None):
         """Callback for when an association is released."""
         pass
 

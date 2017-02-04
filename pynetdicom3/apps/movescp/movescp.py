@@ -26,6 +26,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 def _setup_argparser():
+    """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
         description="The movescp application implements a Service Class "
@@ -141,19 +142,18 @@ transfer_syntax = [ImplicitVRLittleEndian,
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
-if args.prefer_little:
-    if ExplicitVRLittleEndian in transfer_syntax:
+if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRLittleEndian)
         transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
-if args.prefer_big:
-    if ExplicitVRBigEndian in transfer_syntax:
+if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 def on_c_move(dataset, move_aet):
-    basedir = '../test/dicom_files/'
-    dcm_files = ['CTImageStorage.dcm']
+    """Implement the on_c_move callback"""
+    basedir = '../../../test/dicom_files/'
+    dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
 
     # Number of matches
@@ -167,8 +167,8 @@ def on_c_move(dataset, move_aet):
 
     # Matching datasets to send
     for dcm in dcm_files:
-        data = read_file(dcm, force=True)
-        yield data
+        ds = read_file(dcm, force=True)
+        yield 0xff00, ds
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,

@@ -11,9 +11,9 @@ import logging
 
 from pynetdicom3.applicationentity import ApplicationEntity as AE
 from pynetdicom3.association import Association
-from pynetdicom3.ACSEprovider import ACSEServiceProvider as ACSE
-from pynetdicom3.DIMSEprovider import DIMSEServiceProvider as DIMSE
-from pynetdicom3.DULprovider import DULServiceProvider as DUL
-from pynetdicom3.SOPclass import STORAGE_CLASS_LIST as StorageSOPClassList
-from pynetdicom3.SOPclass import QR_CLASS_LIST as QueryRetrieveSOPClassList
-from pynetdicom3.SOPclass import VerificationSOPClass
+from pynetdicom3.acse import ACSEServiceProvider as ACSE
+from pynetdicom3.dimse import DIMSEServiceProvider as DIMSE
+from pynetdicom3.dul import DULServiceProvider as DUL
+from pynetdicom3.sop_class import STORAGE_CLASS_LIST as StorageSOPClassList
+from pynetdicom3.sop_class import QR_CLASS_LIST as QueryRetrieveSOPClassList
+from pynetdicom3.sop_class import VerificationSOPClass

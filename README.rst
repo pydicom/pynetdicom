@@ -86,7 +86,7 @@ Installation
 -----------
 Dependencies
 ~~~~~~~~~~~~
-`pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0
+`pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0a1
 
 Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~

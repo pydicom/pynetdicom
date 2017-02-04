@@ -1,11 +1,11 @@
 """
-Implementaion of the service parameter primitives
+Implementaion of the service parameter primitives.
 """
 import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.PDU import MaximumLengthSubItem, \
+from pynetdicom3.pdu import MaximumLengthSubItem, \
                             ImplementationClassUIDSubItem, \
                             ImplementationVersionNameSubItem, \
                             AsynchronousOperationsWindowSubItem, \
@@ -17,7 +17,7 @@ from pynetdicom3.PDU import MaximumLengthSubItem, \
 from pynetdicom3.utils import validate_ae_title, PresentationContext
 #from pynetdicom3.utils import wrap_list
 
-LOGGER = logging.getLogger('pynetdicom3.primitives')
+LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
 
 class ServiceParameter(object):
@@ -28,6 +28,10 @@ class ServiceParameter(object):
             return other.__dict__ == self.__dict__
 
         return False
+
+    def __ne__(self, other):
+        """Inequality of two ServiceParameters"""
+        return not self == other
 
     def from_primitive(self):
         """FIXME"""
@@ -931,21 +935,21 @@ class P_DATA(object):
             if header_byte & 1:
                 # xxxxxx11
                 if header_byte & 2:
-                    s += '  Command information, last fragment of the ' \
+                    s += '    Command information, last fragment of the ' \
                          'DIMSE message\n'
                 # xxxxxx01
                 else:
-                    s += '  Command information, not the last fragment of ' \
+                    s += '    Command information, not the last fragment of ' \
                          'the DIMSE message\n'
             # xxxxxx00, xxxxxxx10
             else:
                 # xxxxxx10
                 if header_byte & 2 != 0:
-                    s += '  Dataset information, last fragment of the ' \
+                    s += '    Dataset information, last fragment of the ' \
                          'DIMSE message\n'
                 # xxxxxx00
                 else:
-                    s += '  Dataset information, not the last fragment of ' \
+                    s += '    Dataset information, not the last fragment of ' \
                          'the DIMSE message\n'
 
             # Remaining data
@@ -981,7 +985,7 @@ class MaximumLengthNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.MaximumLengthSubItem
+        item : pynetdicom3.pdu.MaximumLengthSubItem
         """
         item = MaximumLengthSubItem()
         item.FromParams(self)
@@ -1069,7 +1073,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.ImplementationClassUIDSubItem
+        item : pynetdicom3.pdu.ImplementationClassUIDSubItem
 
         Raises
         ------
@@ -1162,7 +1166,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.ImplementationVersionNameSubItem
+        item : pynetdicom3.pdu.ImplementationVersionNameSubItem
 
         Raises
         ------
@@ -1211,10 +1215,9 @@ class ImplementationVersionNameNotification(ServiceParameter):
             raise TypeError("Implementation Version Name must be a str " \
                             "or bytes")
 
-        if value is not None:
-            if len(value) < 1 or len(value) > 16:
-                raise ValueError("Implementation Version Name must be " \
-                                 "between 1 and 16 characters long")
+        if value is not None and not (1 < len(value) < 16):
+            raise ValueError("Implementation Version Name must be " \
+                             "between 1 and 16 characters long")
 
         self._implementation_version_name = value
 
@@ -1256,7 +1259,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.AsynchronousOperationsWindowSubItem
+        item : pynetdicom3.pdu.AsynchronousOperationsWindowSubItem
         """
         item = AsynchronousOperationsWindowSubItem()
         item.FromParams(self)
@@ -1387,7 +1390,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.SCP_SCU_RoleSelectionSubItem
+        item : pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem
 
         Raises
         ------
@@ -1552,7 +1555,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.SOPClassExtendedNegotiationSubItem
+        item : pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1682,7 +1685,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.SOPClassCommonExtendedNegotiationSubItem
+        item : pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1916,8 +1919,8 @@ class UserIdentityNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.PDU.UserIdentitySubItemRQ or
-            pynetdicom3.PDU.UserIdentitySubItemAC
+        item : pynetdicom3.pdu.UserIdentitySubItemRQ or
+            pynetdicom3.pdu.UserIdentitySubItemAC
 
         Raises
         ------
@@ -2109,7 +2112,7 @@ class UserIdentityNegotiation(ServiceParameter):
             If `value` is not bytes or None
         """
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bool):
+        if isinstance(value, bytes):
             pass
         elif value is None:
             pass
@@ -2127,8 +2130,7 @@ class UserIdentityNegotiation(ServiceParameter):
             s += '  Positive response requested: {0!r}\n' \
                  .format(self.positive_response_requested)
             s += '  Primary field: {0!s}\n'.format(self.primary_field)
-            if self.secondary_field is not None:
-                s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
+            s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
         else:
             s += '  Server response: {0!s}\n'.format(self.server_response)
 

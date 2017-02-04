@@ -3,42 +3,39 @@ Defines the Association class
 """
 from io import BytesIO
 import logging
+import socket
 import threading
 import time
 
 from pydicom.uid import UID
 
-from pynetdicom3.ACSEprovider import ACSEServiceProvider
-from pynetdicom3.DIMSEprovider import DIMSEServiceProvider
-from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_STORE_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_FIND_ServiceParameters
-from pynetdicom3.dsutils import decode, encode, correct_ambiguous_vr
-from pynetdicom3.DULprovider import DULServiceProvider
-#from pynetdicom3.SOPclass import *
-from pynetdicom3.SOPclass import uid_to_sop_class, VerificationServiceClass, \
-                        StorageServiceClass, \
-                        QueryRetrieveGetServiceClass, \
-                        QueryRetrieveFindServiceClass, \
-                        QueryRetrieveMoveServiceClass, \
-                        ModalityWorklistInformationFind, \
-                        ModalityWorklistServiceSOPClass, \
-                        PatientRootQueryRetrieveInformationModelFind, \
-                        StudyRootQueryRetrieveInformationModelFind, \
-                        PatientStudyOnlyQueryRetrieveInformationModelFind, \
-                        PatientRootQueryRetrieveInformationModelMove, \
-                        StudyRootQueryRetrieveInformationModelMove, \
-                        PatientStudyOnlyQueryRetrieveInformationModelMove, \
-                        PatientRootQueryRetrieveInformationModelGet, \
-                        StudyRootQueryRetrieveInformationModelGet, \
-                        PatientStudyOnlyQueryRetrieveInformationModelGet
-from pynetdicom3.primitives import UserIdentityNegotiation, \
+from pynetdicom3.acse import ACSEServiceProvider
+from pynetdicom3.dimse import DIMSEServiceProvider
+from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
+                                         C_FIND, C_CANCEL
+from pynetdicom3.dsutils import decode, encode
+from pynetdicom3.dul import DULServiceProvider
+from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
+                         StorageServiceClass, \
+                         QueryRetrieveGetServiceClass, \
+                         QueryRetrieveFindServiceClass, \
+                         QueryRetrieveMoveServiceClass, \
+                         ModalityWorklistInformationFind, \
+                         ModalityWorklistServiceSOPClass, \
+                         PatientRootQueryRetrieveInformationModelFind, \
+                         StudyRootQueryRetrieveInformationModelFind, \
+                         PatientStudyOnlyQueryRetrieveInformationModelFind, \
+                         PatientRootQueryRetrieveInformationModelMove, \
+                         StudyRootQueryRetrieveInformationModelMove, \
+                         PatientStudyOnlyQueryRetrieveInformationModelMove, \
+                         PatientRootQueryRetrieveInformationModelGet, \
+                         StudyRootQueryRetrieveInformationModelGet, \
+                         PatientStudyOnlyQueryRetrieveInformationModelGet
+from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
+                                   SOPClassCommonExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
 from pynetdicom3.utils import PresentationContextManager
-#from pynetdicom3.utils import wrap_list
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
@@ -47,7 +44,7 @@ class Association(threading.Thread):
     """Manages Associations with peer AEs.
 
     The actual low level work done for Associations is performed by
-    pynetdicom3.ACSEprovider.ACSEServiceProvider.
+    pynetdicom3.acse.ACSEServiceProvider.
 
     When the local AE is acting as an SCP, initialise the Association using
     the socket to listen on for incoming Association requests. When the local
@@ -86,9 +83,9 @@ class Association(threading.Thread):
         The peer Application Entity details, keys: 'Port', 'Address', 'Title'.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
-    scu_supported_sop : list of pynetdicom3.SOPclass.ServiceClass
+    scu_supported_sop : list of pynetdicom3.sop_class.ServiceClass
         A list of the supported SOP classes when acting as an SCU.
-    scp_supported_sop : list of pynetdicom3.SOPclass.ServiceClass
+    scp_supported_sop : list of pynetdicom3.sop_class.ServiceClass
         A list of the supported SOP classes when acting as an SCP.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
@@ -126,26 +123,39 @@ class Association(threading.Thread):
         #   As SCP: supply port number to listen on (listen_port != None)
         #   As SCU: supply addr/port to make connection on (peer_ae != None)
         if [client_socket, peer_ae] == [None, None]:
-            raise ValueError("Association must be initialised with either "
-                             "the client_socket or peer_ae parameters")
+            raise TypeError("Association must be initialised with either "
+                            "the client_socket or peer_ae parameters")
 
         if client_socket and peer_ae:
-            raise ValueError("Association must be initialised with either "
-                             "client_socket or peer_ae parameter not both")
+            raise TypeError("Association must be initialised with either "
+                            "client_socket or peer_ae parameter not both")
 
         # Received a connection from a peer AE
-        if client_socket:
-            self.mode = 'Acceptor'
+        if isinstance(client_socket, socket.socket):
+            self._mode = 'Acceptor'
+        elif client_socket is not None:
+            raise TypeError("client_socket must be a socket.socket")
 
         # Initiated a connection to a peer AE
-        if peer_ae:
-            self.mode = 'Requestor'
+        if isinstance(peer_ae, dict):
+            self._mode = 'Requestor'
+
+            for key in ['AET', 'Port', 'Address']:
+                if key not in peer_ae:
+                    raise KeyError("peer_ae must contain 'AET', 'Port' and "
+                                   "'Address' entries")
+        elif peer_ae is not None:
+            raise TypeError("peer_ae must be a dict")
 
         # The socket.socket used for connections
         self.client_socket = client_socket
 
         # The parent AE object
-        self.ae = local_ae
+        from pynetdicom3 import AE # Imported here to avoid circular import
+        if isinstance(local_ae, AE):
+            self.ae = local_ae
+        else:
+            raise TypeError("local_ae must be a pynetdicom3.AE")
 
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
@@ -154,7 +164,6 @@ class Association(threading.Thread):
         self.dul = DULServiceProvider(client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       acse_timeout=acse_timeout,
-                                      local_ae=local_ae,
                                       assoc=self)
 
         # Dict containing the peer AE title, address and port
@@ -172,41 +181,71 @@ class Association(threading.Thread):
         self.is_released = False
 
         # Timeouts for the DIMSE and ACSE service providers
-        self.dimse_timeout = dimse_timeout
-        self.acse_timeout = acse_timeout
+        if isinstance(dimse_timeout, (int, float)):
+            self.dimse_timeout = dimse_timeout
+        else:
+            raise TypeError("dimse_timeout must be numeric")
+        if isinstance(acse_timeout, (int, float)):
+            self.acse_timeout = acse_timeout
+        else:
+            raise TypeError("acse_timeout must be numeric")
 
         # Maximum PDU sizes (in bytes) for the local and peer AE
-        self.local_max_pdu = max_pdu
+        if isinstance(max_pdu, int):
+            self.local_max_pdu = max_pdu
+        else:
+            raise TypeError("max_pdu must be an int")
         self.peer_max_pdu = None
 
         # A list of extended negotiation objects
-        self.ext_neg = ext_neg
+        ext_neg = ext_neg or []
+        if isinstance(ext_neg, list):
+            self.ext_neg = ext_neg
+        else:
+            raise TypeError("ext_neg must be a list of Extended "
+                            "Negotiation items or None")
+
+        # Set new ACSE and DIMSE providers
+        self.acse = ACSEServiceProvider(self, self.acse_timeout)
+        # FIXME: DIMSE max pdu should be the peer max
+        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout,
+                                          self.local_max_pdu)
 
         # Kills the thread loop in run()
         self._kill = False
+        self._is_running = False
+
+        # Send an A-ABORT when an association request is received
+        self._a_abort_assoc_rq = False
+        # Send an A-P-ABORT when an association request is received
+        self._a_p_abort_assoc_rq = False
+        # Disconnect from the peer when an association request is received
+        self._disconnect_assoc_rq = False
+
+        # Point the public send_c_cancel_* functions to the actual function
+        self.send_c_cancel_find = self._send_c_cancel
+        self.send_c_cancel_move = self._send_c_cancel
+        self.send_c_cancel_get = self._send_c_cancel
 
         # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
 
-        # Start the thread
-        self.start()
-
     def kill(self):
         """Kill the main association thread loop."""
         self._kill = True
         self.is_established = False
-        while not self.dul.Stop():
+        while not self.dul.stop_dul():
             time.sleep(0.001)
 
-        # FIXME: make public
-        self.ae._cleanup_associations()
+        self.ae.cleanup_associations()
 
     def release(self):
         """Release the association."""
-        _ = self.acse.Release()
-        self.kill()
-        self.is_released = True
+        if self.is_established:
+            _ = self.acse.release_assoc()
+            self.kill()
+            self.is_released = True
 
     def abort(self):
         """Abort the association.
@@ -216,23 +255,20 @@ class Association(threading.Thread):
 
         See PS3.8, 7.3-4 and 9.3.8.
         """
-        self.acse.Abort(source=0x00, reason=0x00)
-        self.kill()
-        self.is_aborted = True
+        if not self.is_released:
+            self.acse.abort_assoc(source=0x00, reason=0x00)
+            self.kill()
+            self.is_aborted = True
 
     def run(self):
         """The main Association control."""
-        # Set new ACSE and DIMSE providers
-        self.acse = ACSEServiceProvider(self, self.dul, self.acse_timeout)
-        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
-
         self.dul.start()
 
         # When the AE is acting as an SCP (Association Acceptor)
-        if self.mode == 'Acceptor':
+        if self._mode == 'Acceptor':
             self._run_as_acceptor()
         # If the local AE initiated the Association
-        elif self.mode == 'Requestor':
+        elif self._mode == 'Requestor':
             self._run_as_requestor()
 
     def _run_as_acceptor(self):
@@ -240,10 +276,20 @@ class Association(threading.Thread):
         # FIXME: needed because of some thread-related problem
         time.sleep(0.1)
 
-        # Get A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.Receive(Wait=True)
+        # Got an A-ASSOCIATE request primitive from the DICOM UL
+        assoc_rq = self.dul.receive_pdu(wait=True)
 
         if assoc_rq is None:
+            self.kill()
+            return
+
+        # (Optionally) send an A-ABORT/A-P-ABORT in response
+        if self._a_abort_assoc_rq:
+            self.acse.abort_assoc(0x00, 0x00)
+            self.kill()
+            return
+        elif self._a_p_abort_assoc_rq:
+            self.acse.abort_assoc(0x02, 0x00)
             self.kill()
             return
 
@@ -263,14 +309,14 @@ class Association(threading.Thread):
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        if self.ae.require_calling_aet != '':
-            if self.ae.require_calling_aet != assoc_rq.calling_ae_title:
-                reject_assoc_rsd = [(0x01, 0x01, 0x03)]
+        if self.ae.require_calling_aet != '' and \
+                    self.ae.require_calling_aet != assoc_rq.calling_ae_title:
+            reject_assoc_rsd = [(0x01, 0x01, 0x03)]
 
         # Called AE Title not recognised
-        if self.ae.require_called_aet != '':
-            if self.ae.require_called_aet != assoc_rq.called_ae_title:
-                reject_assoc_rsd = [(0x01, 0x01, 0x07)]
+        if self.ae.require_called_aet != '' and \
+                        self.ae.require_called_aet != assoc_rq.called_ae_title:
+            reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
         ## DUL ACSE Related Rejections
         #
@@ -319,7 +365,7 @@ class Association(threading.Thread):
             reject_assoc_rsd = [(0x02, 0x03, 0x02)]
 
         for (result, src, diag) in reject_assoc_rsd:
-            assoc_rj = self.acse.Reject(assoc_rq, result, src, diag)
+            assoc_rj = self.acse.reject_assoc(assoc_rq, result, src, diag)
             self.debug_association_rejected(assoc_rj)
             self.ae.on_association_rejected(assoc_rj)
             self.kill()
@@ -332,34 +378,37 @@ class Association(threading.Thread):
         self.acse.context_manager.acceptor_contexts = \
                                 self.ae.presentation_contexts_scp
 
-        self.acse.presentation_contexts_accepted = \
-                                self.acse.context_manager.accepted
+        self.acse.accepted_contexts = self.acse.context_manager.accepted
 
         # Set maximum PDU send length
-        #self.peer_max_pdu = \
-        #           assoc_rq.UserInformation[0].MaximumLengthReceived
-        self.peer_max_pdu = assoc_rq.maximum_length_received
+        self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
+        self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
+
+        # Set Responding AE title
+        assoc_rq.called_ae_title = self.ae.ae_title
 
         # Set maximum PDU receive length
-        assoc_rq.maximum_length_received = self.local_max_pdu
+        assoc_rq.maximum_length_received = self.local_max_pdu # TODO: Rename?
         #for user_item in assoc_rq.user_information:
         #    if isinstance(user_item, MaximumLengthNegotiation):
         #        user_item.maximum_length_received = self.local_max_pdu
 
         # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
-        assoc_ac = self.acse.Accept(assoc_rq)
-
-        # Callbacks/Logging
-        self.debug_association_accepted(assoc_ac)
-        self.ae.on_association_accepted(assoc_ac)
+        # FIXME: Is this correct? Do we send Accept then Abort if no
+        #   presentation contexts?
+        assoc_ac = self.acse.accept_assoc(assoc_rq)
 
         if assoc_ac is None:
             self.kill()
             return
 
+        # Callbacks/Logging
+        self.debug_association_accepted(assoc_ac)
+        self.ae.on_association_accepted(assoc_ac)
+
         # No valid presentation contexts, abort the association
-        if self.acse.presentation_contexts_accepted == []:
-            self.acse.Abort(0x02, 0x00)
+        if self.acse.accepted_contexts == []:
+            self.acse.abort_assoc(0x02, 0x00)
             self.kill()
             return
 
@@ -385,42 +434,47 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        self._is_running = True
         while not self._kill:
             time.sleep(0.001)
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.Receive(False,
-                                                     self.dimse_timeout)
+            msg, msg_context_id = self.dimse.receive_msg(True,
+                                                         self.dimse_timeout)
 
             # DIMSE message received
             if msg:
-                # Convert the message's affected SOP class to a UID
-                uid = msg.AffectedSOPClassUID
+                # Use the Message's Affected SOP Class UID to create a new
+                #   SOP Class instance, if there's no AffectedSOPClassUID
+                #   then we received a C-CANCEL request
+                # FIXME
+                if not hasattr(msg, 'AffectedSOPClassUID'):
+                    self.abort()
+                    return
 
-                # Use the UID to create a new SOP Class instance of the
-                #   corresponding value
-                # FIXME: avoid catch-all, why does uid sometimes have value
-                #   member?
-                try:
-                    sop_class = uid_to_sop_class(uid.value)()
-                except:
-                    sop_class = uid_to_sop_class(uid)()
+                sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
 
                 # Check that the SOP Class is supported by the AE
-                matching_context = False
-                for context in self.acse.presentation_contexts_accepted:
-                    if context.ID == msg_context_id:
-                        # New method - what is this even used for?
-                        sop_class.presentation_context = context
+                # New method
+                pc_accepted = self.acse.accepted_contexts
+                context = [pc for pc in pc_accepted if pc.ID == msg_context_id]
 
-                        # Old method
+                # Matching context
+                if context:
+                    sop_class.presentation_context = context[0]
+                else:
+                    # No matching presentation context
+                    pass
+
+                # Old method
+                matching_context = False
+                for context in self.acse.accepted_contexts:
+                    if context.ID == msg_context_id:
                         sop_class.pcid = context.ID
                         sop_class.sopclass = context.AbstractSyntax
                         sop_class.transfersyntax = context.TransferSyntax[0]
-
                         matching_context = True
-
                 if matching_context:
                     # Most of these shouldn't be necessary
                     sop_class.maxpdulength = self.peer_max_pdu
@@ -481,10 +535,10 @@ class Association(threading.Thread):
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = \
-                self.acse.Request(local_ae, self.peer_ae,
-                                  self.local_max_pdu,
-                                  self.ae.presentation_contexts_scu,
-                                  userspdu=self.ext_neg)
+                self.acse.request_assoc(local_ae, self.peer_ae,
+                                        self.local_max_pdu,
+                                        self.ae.presentation_contexts_scu,
+                                        userspdu=self.ext_neg)
 
         # Association was accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -494,15 +548,18 @@ class Association(threading.Thread):
                 self.ae.on_association_accepted(assoc_rsp)
 
                 # No acceptable presentation contexts
-                if self.acse.presentation_contexts_accepted == []:
+                if self.acse.accepted_contexts == []:
                     LOGGER.error("No Acceptable Presentation Contexts")
-                    self.acse.Abort(0x02, 0x00)
+                    self.is_aborted = True
+                    self.is_established = False
+                    self.acse.abort_assoc(0x02, 0x00)
                     self.kill()
+
                     return
 
                 # Build supported SOP Classes for the Association
                 self.scu_supported_sop = []
-                for context in self.acse.presentation_contexts_accepted:
+                for context in self.acse.accepted_contexts:
                     self.scu_supported_sop.append(
                         (context.ID,
                          uid_to_sop_class(context.AbstractSyntax),
@@ -520,6 +577,8 @@ class Association(threading.Thread):
 
                     # Check for release request
                     if self.acse.CheckRelease():
+                        self.is_released = True
+                        self.is_established = False
                         # Callback trigger
                         self.ae.on_association_released()
                         self.debug_association_released()
@@ -528,6 +587,8 @@ class Association(threading.Thread):
 
                     # Check for abort
                     if self.acse.CheckAbort():
+                        self.is_aborted = True
+                        self.is_established = False
                         # Callback trigger
                         self.ae.on_association_aborted()
                         self.debug_association_aborted()
@@ -537,7 +598,7 @@ class Association(threading.Thread):
                     # Check if the DULServiceProvider thread is
                     #   still running. DUL.is_alive() is inherited from
                     #   threading.thread
-                    if not self.dul.isAlive():
+                    if not self.dul.is_alive():
                         self.kill()
                         return
 
@@ -550,29 +611,31 @@ class Association(threading.Thread):
             else:
                 self.ae.on_association_rejected(assoc_rsp)
                 self.debug_association_rejected(assoc_rsp)
-
                 self.is_rejected = True
-                self.dul.Kill()
+                self.is_established = False
+                self.dul.kill_dul()
                 return
 
         # Association was aborted by peer
         elif isinstance(assoc_rsp, A_ABORT):
             self.ae.on_association_aborted(assoc_rsp)
             self.debug_association_aborted(assoc_rsp)
-
+            self.is_established = False
             self.is_aborted = True
-            self.dul.Kill()
+            self.dul.kill_dul()
             return
 
         # Association was aborted by DUL provider
         elif isinstance(assoc_rsp, A_P_ABORT):
             self.is_aborted = True
-            self.dul.Kill()
+            self.is_established = False
+            self.dul.kill_dul()
             return
 
         # Association failed for any other reason (No peer, etc)
         else:
-            self.dul.Kill()
+            self.is_established = False
+            self.dul.kill_dul()
             return
 
 
@@ -587,7 +650,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.SOPclass.Status or None
+        status : pynetdicom3.sop_class.Status or None
             Returns None if no valid presentation context or no response
             from the peer, Success (0x0000) otherwise.
         """
@@ -614,20 +677,21 @@ class Association(threading.Thread):
             return None
 
         # Build C-STORE request primitive
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
 
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.send_msg(primitive, context_id)
 
         # FIXME: If Association is Aborted before we receive the response
         #   then we hang here
-        rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
+        rsp, _ = self.dimse.receive_msg(True, self.dimse_timeout)
 
-        if rsp is None:
-            return None
+        status = None
+        if rsp is not None:
+            status = service_class.code_to_status(rsp.Status)
 
-        return service_class.code_to_status(rsp.Status)
+        return status
 
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """Send a C-STORE request to the peer AE.
@@ -708,7 +772,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.SOPclass.Status or None
+        status : pynetdicom3.sop_class.Status or None
             The status for the requested C-STORE operation (see PS3.4 Annex
             B.2.3), should be one of the following Status objects/codes
             (separate causes for each status can be identified through the use
@@ -736,12 +800,13 @@ class Association(threading.Thread):
             Returns None if the DIMSE service timed out before receiving a
             response.
         """
+        # No longer true?
         # pydicom can only handle uncompressed transfer syntaxes for conversion
-        if not dataset._is_uncompressed_transfer_syntax():
-            LOGGER.warning("Unable to send the dataset due to pydicom not "
-                           "supporting compressed datasets")
-            LOGGER.error('Sending file failed')
-            return 0xC000
+        #if not dataset._is_uncompressed_transfer_syntax():
+        #    LOGGER.warning("Unable to send the dataset due to pydicom not "
+        #                   "supporting compressed datasets")
+        #    LOGGER.error('Sending file failed')
+        #    return 0xC000
 
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -756,9 +821,16 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if dataset.SOPClassUID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            try:
+                if dataset.SOPClassUID == context.AbstractSyntax:
+                    transfer_syntax = context.TransferSyntax[0]
+                    context_id = context.ID
+            except AttributeError:
+                LOGGER.error("Unable to determine Presentation Context as "
+                             "Dataset has no 'SOP Class UID' element")
+                LOGGER.error("Store SCU failed due to there being no valid "
+                             "presentation context for the current dataset")
+                return service_class.CannotUnderstand
 
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'",
@@ -767,12 +839,8 @@ class Association(threading.Thread):
                          "presentation context for the current dataset")
             return service_class.CannotUnderstand
 
-        # Set the correct VR for ambiguous elements
-        dataset = correct_ambiguous_vr(dataset,
-                                       transfer_syntax.is_little_endian)
-
         # Build C-STORE request primitive
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = dataset.SOPClassUID
         primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
@@ -783,9 +851,11 @@ class Association(threading.Thread):
         else:
             LOGGER.warning("C-STORE SCU: Invalid priority value '%s'",
                            priority)
-            primitive.Priorty = 0x0000
+            primitive.Priorty = 0x0002
 
         # Encode the dataset using the agreed transfer syntax
+        # Correcting ambiguous VR is handled by pydicom
+        # Will return None if failed to encode
         ds = encode(dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian)
@@ -797,11 +867,11 @@ class Association(threading.Thread):
             return service_class.CannotUnderstand
 
         # Send C-STORE request primitive to DIMSE
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.send_msg(primitive, context_id)
 
         # Wait for C-STORE response primitive
-        #   returns a C_STORE_ServiceParameters primitive
-        rsp, _ = self.dimse.Receive(True, self.dimse_timeout)
+        #   returns a C_STORE primitive
+        rsp, _ = self.dimse.receive_msg(True, self.dimse_timeout)
 
         status = None
         if rsp is not None:
@@ -839,7 +909,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.SOPclass.Status
+        status : pynetdicom3.sop_class.Status
             The resulting status(es) from the C-FIND operation.
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-FIND operation. Yields None if
@@ -882,9 +952,10 @@ class Association(threading.Thread):
             LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
+            return
 
         # Build C-FIND primitive
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.Priority = priority
@@ -900,7 +971,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-FIND request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.send_msg(primitive, context_id)
 
         # Get the responses from the peer
         ii = 1
@@ -908,27 +979,38 @@ class Association(threading.Thread):
             time.sleep(0.001)
 
             # Wait for C-FIND responses
-            rsp, _ = self.dimse.Receive(False, self.dimse.dimse_timeout)
+            rsp, _ = self.dimse.receive_msg(False, self.dimse.dimse_timeout)
 
             # If no response received, start loop again
             if not rsp:
                 continue
+
+            # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
+            # A700 - Failure (out of resources)
+            # A900 - Failure (identifier doesn't match SOP class)
+            # Cxxx - Failure (unable to process)
+            # FE00 - Cancel (matching terminated due to cancel request)
+            # FF00 - Pending (matches are continuing, current match supplied)
+            # FF01 - Pending (matches are continuing, optional keys
+            #                 not supported)
+            # 0000 - Success (matching complete, no final identifier supplied)
+            status = service_class.code_to_status(rsp.Status)
+
+            LOGGER.debug('-' * 65)
+            LOGGER.debug('Find SCP Response: %s (%s)',
+                         ii, status.status_type)
+
+            # We want to exit the wait loop if we receive a Failure, Cancel or
+            #   Success status type
+            if status.status_type != 'Pending':
+                ds = None
+                break
 
             # Decode the dataset
             ds = decode(rsp.Identifier,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian)
 
-            # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-            status = service_class.code_to_status(rsp.Status)
-
-            # We want to exit the wait loop if we receive a Failure, Cancel or
-            #   Success status type
-            if status.status_type != 'Pending':
-                break
-
-            LOGGER.debug('-' * 65)
-            LOGGER.debug('Find Response: %s (%s)', ii, status.status_type)
             LOGGER.debug('')
             LOGGER.debug('# DICOM Dataset')
             for elem in ds:
@@ -940,79 +1022,6 @@ class Association(threading.Thread):
             yield status, ds
 
         yield status, ds
-
-    def send_c_cancel_find(self, msg_id, query_model):
-        """Send a DIMSE C-CANCEL-FIND request to a peer AE.
-
-        See PS3.7 9.3.2.3
-
-        Parameters
-        ----------
-        msg_id : int
-            The message ID of the C-FIND operation we want to cancel
-        query_model : str
-            The Query/Retrieve Information Model to use, which must match the
-            QR Information Model of the C-FIND operation we want to cancel.
-            Must be one of the following:
-                'W' - Modality Worklist Information - FIND
-                    1.2.840.10008.5.1.4.31
-                'P' - Patient Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.1.1
-                'S' - Study Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.2.1
-                'O' - Patient Study Only Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.3.1
-
-        FIXME: Add Returns section
-        """
-        # Can't send a C-CANCEL-FIND without an Association
-        if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL-FIND "
-                               "request")
-
-        service_class = QueryRetrieveFindServiceClass()
-
-        # Build C-FIND primitive
-        primitive = C_FIND_ServiceParameters()
-        primitive.CommandField = 0x0fff
-        primitive.MessageIDBeingRespondedTo = msg_id
-        primitive.CommandDataSetType = 0x0101
-
-        # We need the Context ID unfortunately...
-        if query_model == 'W':
-            sop_class = ModalityWorklistInformationFind()
-        elif query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
-            sop_class = PatientRootQueryRetrieveInformationModelFind()
-        elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
-            sop_class = StudyRootQueryRetrieveInformationModelFind()
-        elif query_model == "O":
-            # Retired
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
-        else:
-            raise ValueError("Association.send_c_cancel_find() "
-                             "query_model must be one of ['W'|'P'|'S'|'O']")
-
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Find SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-        LOGGER.info('Sending C-CANCEL-FIND')
-
-        # send c-find request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_move(self, dataset, move_aet, msg_id=1,
                     priority=2, query_model='P'):
@@ -1059,7 +1068,11 @@ class Association(threading.Thread):
                 'O' - Patient Study Only Information Model - MOVE
                     1.2.840.10008.5.1.4.1.2.3.2
 
-        FIXME: Add Yields section
+        Yields
+        ------
+        status : int
+
+        dataset : pydicom.dataset.Dataset
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1089,11 +1102,12 @@ class Association(threading.Thread):
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
+                         "presentation context\n   for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
+            return
 
         # Build C-MOVE primitive
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.MoveDestination = move_aet
@@ -1109,18 +1123,18 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send C-MOVE request to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        # Send C-MOVE primitive to peer
+        self.dimse.send_msg(primitive, context_id)
 
         # Get the responses from peer
         ii = 1
         while True:
             time.sleep(0.001)
 
-            rsp, context_id = self.dimse.Receive(False,
-                                                 self.dimse.dimse_timeout)
+            rsp, context_id = self.dimse.receive_msg(False,
+                                                     self.dimse.dimse_timeout)
 
-            if rsp.__class__ == C_MOVE_ServiceParameters:
+            if rsp.__class__ == C_MOVE:
                 status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
@@ -1143,8 +1157,18 @@ class Association(threading.Thread):
                     ii += 1
 
                     yield status, dataset
+
                 # If the Status is "Success" then processing is complete
+                # PS3.4 Section C.4.2.2
+                # Success indicates all sub-ops were successfully completed
+                #   interpreted as final response
+                # Warning indicates one or more sub-ops were unsuccessful or
+                #   had a status of warning, interpreted as final response
+                # Failure indicates all sub-ops were unsuccessful
+                #   intrepreted as final response
                 elif status.status_type == "Success":
+                    status = service_class.Success
+                    dataset = None
                     break
                 # All other possible responses
                 elif status.status_type == "Failure":
@@ -1156,6 +1180,7 @@ class Association(threading.Thread):
                     LOGGER.debug('')
                     LOGGER.info('Move Response: %s (Cancel)', ii)
                     LOGGER.info('    %s', status.description)
+                    dataset = None
                     break
                 elif status.status_type == "Warning":
                     LOGGER.debug('')
@@ -1168,65 +1193,6 @@ class Association(threading.Thread):
                     break
 
         yield status, dataset
-
-    def send_c_cancel_move(self, msg_id, query_model):
-        """Send a C-CANCEL-MOVE request to the peer AE.
-
-        See PS3.7 9.3.2.3
-
-        Parameters
-        ----------
-        msg_id : int
-            The message ID of the C-MOVE operation we want to cancel.
-        query_model : str
-            The query model SOP class to use (needed to identify context ID).
-            Should match that of the C-MOVE operation to cancel.
-
-        FIXME: Add Returns section
-        """
-        # Can't send a C-CANCEL-MOVE without an Association
-        if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL-MOVE "
-                               "request")
-
-        service_class = QueryRetrieveMoveServiceClass()
-
-        # Build C-MOVE primitive
-        primitive = C_MOVE_ServiceParameters()
-        primitive.CommandField = 0x0fff
-        primitive.MessageIDBeingRespondedTo = msg_id
-        primitive.CommandDataSetType = 0x0101
-
-        # We need the Context ID unfortunately...
-        if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelMove()
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelMove()
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
-        else:
-            raise ValueError("Association.send_c_cancel_move() " \
-                             "query_model must be one of ['P'|'S'|'O']")
-
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Move SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-        LOGGER.info('Sending C-CANCEL-MOVE')
-
-        # Send C-CANCEL-MOVE request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request message to the peer AE.
@@ -1256,7 +1222,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.SOPclass.Status
+        status : pynetdicom3.sop_class.Status
             The resulting status(es) from the C-GET operation
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-GET operation. Yields None if
@@ -1295,19 +1261,17 @@ class Association(threading.Thread):
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
             yield service_class.IdentifierDoesNotMatchSOPClass, None
+            return
 
 
         # Build C-GET primitive
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.Priority = priority
         primitive.Identifier = \
             BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
                            transfer_syntax.is_little_endian))
-
-        # Send primitive to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
 
         LOGGER.info('Get SCU Request Identifiers:')
         LOGGER.info('')
@@ -1316,13 +1280,16 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
+        # Send primitive to peer
+        self.dimse.send_msg(primitive, context_id)
+
         ii = 1
         while True:
-            rsp, context_id = self.dimse.Receive(True,
-                                                 self.dimse.dimse_timeout)
+            rsp, context_id = self.dimse.receive_msg(True,
+                                                     self.dimse.dimse_timeout)
 
             # Received a C-GET response
-            if rsp.__class__ == C_GET_ServiceParameters:
+            if rsp.__class__ == C_GET:
 
                 status = service_class.code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
@@ -1350,6 +1317,7 @@ class Association(threading.Thread):
                 # If the Status is "Success" then processing is complete
                 elif status.status_type == "Success":
                     status = service_class.Success
+                    dataset = None
                     break
 
                 # All other possible responses
@@ -1367,22 +1335,19 @@ class Association(threading.Thread):
                     LOGGER.debug('')
                     LOGGER.info('Find Response: %s (Cancel)', ii)
                     LOGGER.info('    %s', status.description)
+                    dataset = None
                     break
                 elif status.status_type == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Find Response: %s (Warning)', ii)
                     LOGGER.warning('    %s', status.description)
-
-                    # Print out the status information
-                    for elem in dataset:
-                        LOGGER.warning('%s: %s', elem.name, elem.value)
-
+                    dataset = None
                     break
 
             # Received a C-STORE request in response to the C-GET
-            elif rsp.__class__ == C_STORE_ServiceParameters:
+            elif rsp.__class__ == C_STORE:
 
-                c_store_rsp = C_STORE_ServiceParameters()
+                c_store_rsp = C_STORE()
                 c_store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
                 c_store_rsp.AffectedSOPInstanceUID = \
                                                 rsp.AffectedSOPInstanceUID
@@ -1397,76 +1362,44 @@ class Association(threading.Thread):
 
                 # Send C-STORE confirmation back to peer
                 c_store_rsp.Status = int(status)
-                self.dimse.Send(c_store_rsp,
-                                context_id,
-                                self.acse.MaxPDULength)
+                self.dimse.send_msg(c_store_rsp, context_id)
 
         yield status, dataset
 
-    def send_c_cancel_get(self, msg_id, query_model):
-        """Send a C-CANCEL-GET request to the peer AE.
+    def _send_c_cancel(self, msg_id):
+        """Send a C-CANCEL-* request to the peer AE.
 
         See PS3.7 9.3.2.3
 
         Parameters
         ----------
         msg_id : int
-            The message ID of the C-GET operation we want to cancel
-        query_model : str
-            The query model SOP class to use (needed to identify context ID).
-            Should match that of the C-GET operation to cancel.
-
-        FIXME: Add Returns section
+            The message ID of the C-GET/MOVE/FIND operation we want to cancel.
         """
-        # Can't send a C-CANCEL-GET without an Association
+        # Can't send a C-CANCEL without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL-GET "
-                               "request")
+                               "established before sending a C-CANCEL request.")
 
-        service_class = QueryRetrieveGetServiceClass()
+        if not isinstance(msg_id, int):
+            # FIXME: Add more detail to exception
+            raise TypeError("msg_id must be an integer.")
 
-        # Build C-GET primitive
-        primitive = C_GET_ServiceParameters()
-        primitive.CommandField = 0x0fff
+        # FIXME: Add validity checks to msg_id value
+
+        # Build C-CANCEL primitive
+        primitive = C_CANCEL()
         primitive.MessageIDBeingRespondedTo = msg_id
-        primitive.CommandDataSetType = 0x0101
 
-        # We need the Context ID unfortunately...
-        if query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
-            sop_class = PatientRootQueryRetrieveInformationModelGet()
-        elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
-            sop_class = StudyRootQueryRetrieveInformationModelGet()
-        elif query_model == "O":
-            # Retired
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
-        else:
-            raise ValueError("Association.send_c_cancel_get() query_model "
-                             "must be one of ['P'|'S'|'O']")
+        LOGGER.info('Sending C-CANCEL')
 
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Find SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-        LOGGER.info('Sending C-CANCEL-GET')
-
-        # Send c-cancel-get request
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        # Send C-CANCEL request
+        # FIXME: need context ID, not msg ID. maybe
+        self.dimse.send_msg(primitive, msg_id)
 
 
     # DIMSE-N services provided by the Association
+    # TODO: Implement DIMSE-N services
     def send_n_event_report(self):
         """Send an N-EVENT-REPORT request message to the peer AE."""
         # Can't send an N-EVENT-REPORT without an Association
@@ -1476,7 +1409,7 @@ class Association(threading.Thread):
                                "request")
         raise NotImplementedError
 
-    def send_n_get(self, msg_id, dataset=None):
+    def send_n_get(self):
         """Send an N-GET request message to the peer AE."""
         '''
         service_class = QueryRetrieveGetServiceClass()
@@ -1484,7 +1417,7 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        # FIXME: broken
+
         for context in self.acse.context_manager.accepted:
             if sop_class.UID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
@@ -1498,7 +1431,7 @@ class Association(threading.Thread):
 
 
         # Build N-GET primitive
-        primitive = N_GET_ServiceParameters()
+        primitive = N_GET()
         primitive.MessageID = msg_id
         # The SOP Class for which Attribute Values are to be retrieved
         primitive.RequestedSOPClassUID = None
@@ -1515,7 +1448,7 @@ class Association(threading.Thread):
                     BytesIO(primitive.AttributeIdentifierList)
 
         # Send primitive to peer
-        self.dimse.Send(primitive, context_id, self.acse.MaxPDULength)
+        self.dimse.send_msg(primitive, context_id)
         '''
         # Can't send an N-GET without an Association
         if not self.is_established:
@@ -1564,118 +1497,40 @@ class Association(threading.Thread):
     # Association logging/debugging functions
     @staticmethod
     def debug_association_requested(primitive):
-        """
-        Called when an association is reuested by a peer AE, used for
-        logging/debugging information
+        """Debugging information when an A-ASSOCIATE request received.
 
         Parameters
         ----------
-        assoc_primitive - pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameter
-            The A-ASSOCIATE-RJ PDU instance received from the peer AE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
+            The A-ASSOCIATE (RQ) PDU received from the DICOM Upper Layer
         """
         pass
 
     @staticmethod
-    def debug_association_accepted(assoc):
-        """
-        Called when an association attempt is accepted by a peer AE, used for
-        logging/debugging information
+    def debug_association_accepted(primitive):
+        """Debugging information when an A-ASSOCIATE accept is received.
 
         Parameters
         ----------
-        assoc : pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameter
-            The Association parameters negotiated between the local and peer AEs
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
+            The A-ASSOCIATE (AC) PDU received from the DICOM Upper Layer
         """
-        '''
-        #max_send_pdv = \
-        #   associate_ac_pdu.UserInformationItem[-1].MaximumLengthReceived
-
-        #LOGGER.info('Association Accepted (Max Send PDV: %s)' %max_send_pdv)
-
-        pynetdicom3_version = 'PYNETDICOM_' + ''.join(__version__.split('.'))
-
-        # Shorthand
-        assoc_ac = a_associate_ac
-
-        # Needs some cleanup
-        app_context   = assoc_ac.ApplicationContext.__repr__()[1:-1]
-        pres_contexts = assoc_ac.PresentationContext
-        user_info     = assoc_ac.UserInformation
-
-        responding_ae = 'resp. AP Title'
-        our_max_pdu_length = '[FIXME]'
-        their_class_uid = 'unknown'
-        their_version = 'unknown'
-
-        if user_info.ImplementationClassUID:
-            their_class_uid = user_info.ImplementationClassUID
-        if user_info.ImplementationVersionName:
-            their_version = user_info.ImplementationVersionName
-
-        s = ['Association Parameters Negotiated:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                '=====')
-
-        s.append('Our Implementation Class UID:      %s' %pynetdicom_uid_prefix)
-        s.append('Our Implementation Version Name:   %s' %pynetdicom_version)
-        s.append('Their Implementation Class UID:    %s' %their_class_uid)
-        s.append('Their Implementation Version Name: %s' %their_version)
-        s.append('Application Context Name:    %s' %app_context)
-        s.append('Calling Application Name:    %s' %assoc_ac.CallingAETitle)
-        s.append('Called Application Name:     %s' %assoc_ac.CalledAETitle)
-        #s.append('Responding Application Name: %s' %responding_ae)
-        s.append('Our Max PDU Receive Size:    %s' %our_max_pdu_length)
-        s.append('Their Max PDU Receive Size:  %s' %user_info.MaximumLength)
-        s.append('Presentation Contexts:')
-
-        for item in pres_contexts:
-            context_id = item.PresentationContextID
-            s.append('  Context ID:        %s (%s)' %(item.ID, item.Result))
-            s.append('    Abstract Syntax: =%s' %'FIXME')
-            s.append('    Proposed SCP/SCU Role: %s' %'[FIXME]')
-
-            if item.ResultReason == 0:
-                s.append('    Accepted SCP/SCU Role: %s' %'[FIXME]')
-                s.append('    Accepted Transfer Syntax: =%s'
-                                            %item.TransferSyntax)
-
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Requested Extended Negotiation: %s' %'[FIXME]')
-        s.append('Accepted Extended Negotiation: %s' %ext_nego)
-
-        usr_id = 'None'
-        if assoc_ac.UserInformation.UserIdentity is not None:
-            usr_id = 'Yes'
-
-        s.append('Requested User Identity Negotiation: %s' %'[FIXME]')
-        s.append('User Identity Negotiation Response:  %s' %usr_id)
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                '====')
-
-        for line in s:
-            LOGGER.debug(line)
-        '''
         pass
 
     @staticmethod
-    def debug_association_rejected(assoc_primitive):
-        """
-        Called when an association attempt is rejected by a peer AE, used for
-        logging/debugging information
+    def debug_association_rejected(primitive):
+        """Debugging information when an A-ASSOCIATE rejection received.
 
         Parameters
         ----------
-        assoc_primitive : pynetdicom3.primitives.A_ASSOCIATE
-            The A-ASSOCIATE primitive instance (RJ) received from the peer AE
+        assoc_primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
+            The A-ASSOCIATE (RJ) primitive received from the DICOM Upper Layer
         """
-
         # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
         #   for information on the result and diagnostic information
-        source = assoc_primitive.result_source
-        result = assoc_primitive.result
-        reason = assoc_primitive.diagnostic
+        source = primitive.result_source
+        result = primitive.result
+        reason = primitive.diagnostic
 
         source_str = {1 : 'Service User',
                       2 : 'Service Provider (ACSE)',
@@ -1711,11 +1566,23 @@ class Association(threading.Thread):
         LOGGER.error('Reason: %s', reason_str[source - 1][reason])
 
     @staticmethod
-    def debug_association_released():
-        """Logging for association release."""
+    def debug_association_released(primitive=None):
+        """Debugging information when an A-RELEASE request received.
+
+        Parameters
+        ----------
+        assoc_primitive : pynetdicom3.pdu_primitives.A_RELEASE
+            The A-RELEASE (RQ) primitive received from the DICOM Upper Layer
+        """
         LOGGER.info('Association Released')
 
     @staticmethod
-    def debug_association_aborted(abort_primitive=None):
-        """Logging for association abort."""
+    def debug_association_aborted(primitive=None):
+        """Debugging information when an A-ABORT request received.
+
+        Parameters
+        ----------
+        assoc_primitive : pynetdicom3.pdu_primitives.A_ABORT
+            The A-ABORT (RQ) primitive received from the DICOM Upper Layer
+        """
         LOGGER.error('Association Aborted')

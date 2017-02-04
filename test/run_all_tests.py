@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     runner = unittest.TextTestRunner(verbosity=verbosity)
 
-    test_dir = os.path.join(test_dir, 'dicom_files')
+    test_file_dir = os.path.join(test_dir, 'dicom_files')
     result = runner.run(suite)
 
     sys.exit(len(result.failures) + len(result.errors))

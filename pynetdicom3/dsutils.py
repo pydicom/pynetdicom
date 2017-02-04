@@ -265,8 +265,11 @@ def correct_ambiguous_vr(ds, is_little_endian):
             else:
                 raise NotImplementedError("Cannot set VR of {} as the"
                                           " correct method for doing "
-                                          "so is not known. Consider using a "
-                                          "transfer syntax with implicit VR."
+                                          "\n   so is not known. Consider "
+                                          "using a transfer syntax with "
+                                          "implicit VR\n   or "
+                                          "setting the VR manually prior to "
+                                          "sending."
                                           .format(elem.keyword))
 
             LOGGER.debug("Setting VR of (%04x, %04x) %s to "

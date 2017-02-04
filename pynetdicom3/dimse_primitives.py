@@ -1,7 +1,12 @@
 """
 Define the DIMSE-C and DIMSE-N service parameter primitives.
 
+Notes:
+* The class member names must match their corresponding DICOM element keyword
+    in order for the DIMSE messages/primitives to be created correctly.
+
 TODO: Implement properties for DIMSE-N parameters
+TODO: Add string output for the DIMSE-C classes
 """
 from io import BytesIO
 import logging
@@ -10,14 +15,14 @@ from pydicom.uid import UID
 
 from pynetdicom3.utils import validate_ae_title
 
-LOGGER = logging.getLogger('pynetdicom3.DIMSEparameters')
+LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
 
 # pylint: disable=invalid-name
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
 
 # DIMSE-C Services
-class C_STORE_ServiceParameters(object):
+class C_STORE(object):
     """Represents a C-STORE primitive.
 
     The C-STORE service is used by a DIMSE user to store a composite SOP
@@ -75,13 +80,22 @@ class C_STORE_ServiceParameters(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-        * 0xA700 to 0xA7FF: Failure (Refused: Out of resources)
-        * 0xA900 to 0xA9FF: Failure (Error: Data Set does not match SOP Class)
-        * 0xC000 to 0xCFFF: Failure (Error: Cannot understand)
-        * 0xB000: Warning (Coercion of Data Elements)
-        * 0xB007: Warning (Data Set does not match SOP Class)
-        * 0xB006: Warning (Element Discarded)
-        * 0x0000: Success
+        Storage Service Class Specific (PS3.4 Annex B.2.3):
+            * 0xA700 to 0xA7FF: Failure (Refused: Out of resources)
+            * 0xA900 to 0xA9FF: Failure (Error: Data Set does not match SOP
+                                Class)
+            * 0xC000 to 0xCFFF: Failure (Error: Cannot understand)
+            * 0xB000: Warning (Coercion of Data Elements)
+            * 0xB007: Warning (Data Set does not match SOP Class)
+            * 0xB006: Warning (Element Discarded)
+            * 0x0000: Success
+        General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
+            * 0x0122: Failure (Refused: SOP class not supported)
+            * 0x0210: Failure (Refused: Duplicate invocation)
+            * 0x0117: Failure (Refused: Invalid SOP instance)
+            * 0x0212: Failure (Refused: Mistyped argument)
+            * 0x0211: Failure (Refused: Unrecognised operation)
+            * 0x0124: Failure (Refused: Not authorised)
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -98,6 +112,16 @@ class C_STORE_ServiceParameters(object):
         self.MoveOriginatorMessageID = None
         self.DataSet = None
         self.Status = None
+
+        # Optional Command Set elements used in with specific Status values
+        # For Warning statuses 0xB000, 0xB006, 0xB007
+        # For Failure statuses 0xCxxx, 0xA9xx,
+        self.OffendingElement = None
+        # For Warning statuses 0xB000, 0xB006, 0xB007
+        # For Failure statuses 0xCxxx, 0xA9xx, 0xA7xx, 0x0122, 0x0124
+        self.ErrorComment = None
+        # For Failure statuses 0x0117, 0x0122
+        # self.AffectedSOPInstanceUID
 
     @property
     def MessageID(self):
@@ -300,7 +324,7 @@ class C_STORE_ServiceParameters(object):
                     found_valid = True
                     self._status = value
             if not found_valid:
-                raise ValueError("Invalid Status value")
+                raise ValueError("Invalid Status value {}".format(value))
 
         elif value is None:
             self._status = value
@@ -308,7 +332,7 @@ class C_STORE_ServiceParameters(object):
             raise TypeError("Status must be an int")
 
 
-class C_FIND_ServiceParameters(object):
+class C_FIND(object):
     """Represents a C-FIND primitive.
 
     PS3.4 Annex C.4.1.1
@@ -391,18 +415,21 @@ class C_FIND_ServiceParameters(object):
     Status : int
         [-, M, -] The error or success notification of the operation. It shall
         be one of the following values:
-        * 0xA700: Failure (Refused: Out of resources)
-        * 0xA900: Failure (Identifier does not match SOP Class)
-        * 0xC000 to 0xCFFF: Failure (Unable to process)
-        * 0xFE00: Cancel (Matching terminated due to Cancel request)
-        * 0x0000: Success (Matching is complete - no final Identifier is
-            supplied)
-        * 0xFF00: Pending (Matches are continuing - Current match is supplied
-            and any Optional Keys were supported in the same manner as Required
-            Keys)
-        * 0xFF01: Pending (Matches are continuing - Warning that one or more
-            Optional Keys were not supported for existence and/or matching for
-            this Identifier)
+        Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
+            * 0xA700: Failure (Refused: Out of resources)
+            * 0xA900: Failure (Identifier does not match SOP Class)
+            * 0xC000 to 0xCFFF: Failure (Unable to process)
+            * 0xFE00: Cancel (Matching terminated due to Cancel request)
+            * 0x0000: Success (Matching is complete - no final Identifier is
+                      supplied)
+            * 0xFF00: Pending (Matches are continuing - Current match is
+                      supplied and any Optional Keys were supported in the same
+                      manner as Required Keys)
+            * 0xFF01: Pending (Matches are continuing - Warning that one or more
+                      Optional Keys were not supported for existence and/or
+                      matching for this Identifier)
+        General C-FIND PS3.7 9.1.2.1.5 and Annex C
+            * 0x0122: Failure (Refused: SOP class not supported)
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -416,6 +443,15 @@ class C_FIND_ServiceParameters(object):
         self.Priority = 0x02
         self.Identifier = None
         self.Status = None
+
+        # Optional Command Set elements used in with specific Status values
+        # For Failure statuses 0xA900
+        self.OffendingElement = None
+        # For Failure statuses 0xA900, 0xA700, 0x0122, 0xC000
+        self.ErrorComment = None
+        # For Failure statuses 0xC000
+        self.AffectedSOPInstanceUID = None
+        self.ErrorID = None
 
     @property
     def MessageID(self):
@@ -546,7 +582,7 @@ class C_FIND_ServiceParameters(object):
             raise TypeError("Status must be an int")
 
 
-class C_GET_ServiceParameters(object):
+class C_GET(object):
     """Represents a C-GET primitive.
 
     The C-GET service is used
@@ -866,7 +902,7 @@ class C_GET_ServiceParameters(object):
             raise TypeError("Number of Warning Suboperations must be an int")
 
 
-class C_MOVE_ServiceParameters(object):
+class C_MOVE(object):
     """Represents a C-MOVE primitive.
 
     The C-MOVE service is used
@@ -938,17 +974,26 @@ class C_MOVE_ServiceParameters(object):
     Status : int
         [-, M, -] The error or success notification of the operation. It shall
         be one of the following values:
-        * 0xA701: Failure (Refused: Out of resources - unable to calculate
-            number of matches)
-        * 0xA702: Failure (Refused: Out of resources - unable to perform
-            sub-operations)
-        * 0xA801: Failure (Refused: Move destination unknown)
-        * 0xA900: Failure (Identifier does not match SOP Class)
-        * 0xC000 to 0xCFFF: Failure (Unable to process)
-        * 0xFE00: Cancel (Sub-operations terminated due to Cancel indication)
-        * 0xB000: Warning (Sub-operations complete - one or more failures)
-        * 0x0000: Success (Sub-operations complete - no failures)
-        * 0xFF00: Pending (Sub-operations are continuing)
+        Query/Retrieve Service Class Specific (PS3.4 Annex C.4.2.1.5):
+            * 0xA701: Failure (Refused: Out of resources - unable to calculate
+                      number of matches)
+            * 0xA702: Failure (Refused: Out of resources - unable to perform
+                      sub-operations)
+            * 0xA801: Failure (Refused: Move destination unknown)
+            * 0xA900: Failure (Identifier does not match SOP Class)
+            * 0xC000 to 0xCFFF: Failure (Unable to process)
+            * 0xFE00: Cancel (Sub-operations terminated due to Cancel
+                      indication)
+            * 0xB000: Warning (Sub-operations complete - one or more failures)
+            * 0x0000: Success (Sub-operations complete - no failures)
+            * 0xFF00: Pending (Sub-operations are continuing)
+        General C-MOVE PS3.7 9.1.4.1.7 and Annex C:
+            * 0x0122: Failure (Refused: SOP class not supported)
+            * 0x0111: Failure (Refused: Duplicate invocation)
+            * 0x0212: Failure (Refused: Mistyped argument)
+            * 0x0211: Failure (Refused: Unrecognised operation)
+            * 0x0124: Failure (Refused: Not authorised)
+
     NumberOfRemainingSuboperations : int
         [-, C, -] The number of remaining C-STORE sub-operations to be invoked
         by this C-MOVE operation. It may be included in any response and shall
@@ -983,6 +1028,16 @@ class C_MOVE_ServiceParameters(object):
         self.NumberOfCompletedSuboperations = None
         self.NumberOfFailedSuboperations = None
         self.NumberOfWarningSuboperations = None
+
+        # Optional Command Set elements used in with specific Status values
+        # For Failure statuses 0xA900
+        self.OffendingElement = None
+        # For Failure statuses 0xA801, 0xA701, 0xA702, 0x0122, 0xA900, 0xCxxx
+        #   0x0124
+        self.ErrorComment = None
+        # For Failure statuses 0xCxxx
+        self.AffectedSOPInstanceUID = None
+        self.ErrorID = None
 
     @property
     def MessageID(self):
@@ -1213,7 +1268,7 @@ class C_MOVE_ServiceParameters(object):
             raise TypeError("Number of Warning Suboperations must be an int")
 
 
-class C_ECHO_ServiceParameters(object):
+class C_ECHO(object):
     """Represents a C-ECHO primitive.
 
     C-ECHO Service Procedure
@@ -1349,11 +1404,100 @@ class C_ECHO_ServiceParameters(object):
             raise ValueError("Status must be 0x0000")
 
 
+class C_CANCEL(object):
+    """Represents a C-CANCEL primitive.
+
+    PS3.7 Section 9.3.2.3-4 (C-CANCEL-FIND-RQ)
+    PS3.7 Section 9.3.3.3-4 (C-CANCEL-GET-RQ)
+    PS3.7 Section 9.3.4.3-4 (C-CANCEL-MOVE-RQ)
+
+    Attributes
+    ----------
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    """
+    def __init__(self):
+        """Initialise the C_CANCEL"""
+        # Variable names need to match the corresponding DICOM Element keywords
+        #   in order for the DIMSE Message classes to be built correctly.
+        # Changes to the variable names can be made provided the DIMSEMessage()
+        #   class' message_to_primitive() and primitive_to_message() methods
+        #   are also changed
+        self.MessageIDBeingRespondedTo = None
+
+    @property
+    def MessageIDBeingRespondedTo(self):
+        """Return the Message ID Being Responded To parameter."""
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the Message ID Being Responded To parameter."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id_being_responded_to = value
+            else:
+                raise ValueError("Message ID Being Responded To must be " \
+                                 "between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id_being_responded_to = value
+        else:
+            raise TypeError("Message ID Being Responded To must be an int")
+
+
 # DIMSE-N Services
-class N_EVENT_REPORT_ServiceParameters(object):
+class N_EVENT_REPORT(object):
     """Represents a N-EVENT-REPORT primitive.
 
     PS3.7 10.1.1.1
+
+    Attributes
+    ----------
+    MessageID : int
+        [M, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, U(=)] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [M, U(=)] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    EventTypeID :
+        [M, C(=)] FIXME, PS3.4 Service Class Specifications
+    EventInformation :
+        [U, -] FIXME, PS3.4 Service Class Specifications
+    EventReply :
+        [-, C] FIXME, PS3.4 Service Class Specifications
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+            FIXME: Add the status values
+
+    10.1.1.1.8 Status
+
+    Failure
+        class-instance conflict 0x0119 PS3.7 Annex C.5.7
+        duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        invalid argument value 0x0115 PS3.7 Annex C.5.10
+        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        mistyped argument 0x0212 PS3.7 Annex C.5.15
+        no such argument 0x0114 PS3.7 Annex C.5.16
+        no such event type 0x0113 PS3.7 Annex C.5.18
+        no such SOP class 0x0118 PS3.7 Annex C.5.20
+        no such SOP instance 0x0112 PS3.7 Annex C.5.19
+        processing failure 0x0110 PS3.7 Annex C.5.21
+        resource limitation 0x213 PS3.7 Annex C.5.22
+        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+    Success
+        success 0x0000
     """
     def __init__(self):
         self.MessageID = None
@@ -1366,10 +1510,59 @@ class N_EVENT_REPORT_ServiceParameters(object):
         self.Status = None
 
 
-class N_GET_ServiceParameters(object):
+class N_GET(object):
     """Represents a N-GET primitive.
 
     PS3.7 10.1.2.1
+
+    Attributes
+    ----------
+    MessageID : int
+        [M, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    AttributeIdentifierList :
+        [U, -] FIXME
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AttributeList :
+        [-, C] FIXME
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+            FIXME: Add the status values
+
+    10.1.2.1.9 Status
+
+    Warning
+        attribute list error 0x0107 PS3.5 Annex C.4.2
+    Failure
+        class-instance conflict 0x0119 PS3.7 Annex C.5.7
+        duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        mistyped argument 0x0212 PS3.7 Annex C.5.15
+        no such SOP class 0x0118 PS3.7 Annex C.5.20
+        no such SOP instance 0x0112 PS3.7 Annex C.5.19
+        processing failure 0x0110 PS3.7 Annex C.5.21
+        resource limitation 0x213 PS3.7 Annex C.5.22
+        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        not authorised 0x0124 PS3.5 Annex C.5.25
+    Success
+        success 0x0000
     """
     def __init__(self):
         self.MessageID = None
@@ -1383,10 +1576,62 @@ class N_GET_ServiceParameters(object):
         self.Status = None
 
 
-class N_SET_ServiceParameters(object):
+class N_SET(object):
     """Represents a N-SET primitive.
 
     PS3.7 10.1.3.1
+
+    Attributes
+    ----------
+    MessageID : int
+        [M, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    ModificationList :
+        [M, -] FIXME
+    AttributeList :
+        [-, U] FIXME
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+            FIXME: Add the status values
+
+    10.1.3.1.9 Status
+
+    Failure
+        class-instance conflict 0x0119 PS3.7 Annex C.5.7
+        duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        invalid attribute value 0x0106 PS3.7 Annex C.5.11
+        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        no such attribute 0x0120 PS3.7 Annex C.5.13
+        missing attribute value 0x0121 PS3.7 Annex C.5.14
+        mistyped argument 0x0212 PS3.7 Annex C.5.15
+        no such SOP instance 0x0112 PS3.7 Annex C.5.19
+        no such SOP class 0x0118 PS3.7 Annex C.5.20
+        processing failure 0x0110 PS3.7 Annex C.5.21
+        resource limitation 0x213 PS3.7 Annex C.5.22
+        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        not authorised 0x0124 PS3.5 Annex C.5.25
+    Warning
+        attribute list error 0x0107 PS3.5 Annex C.4.2
+    Success
+        success 0x0000
     """
     def __init__(self):
         self.MessageID = None
@@ -1400,10 +1645,62 @@ class N_SET_ServiceParameters(object):
         self.Status = None
 
 
-class N_ACTION_ServiceParameters(object):
+class N_ACTION(object):
     """Represents a N-ACTION primitive.
 
     PS3.7 10.1.4.1
+
+    Attributes
+    ----------
+    MessageID : int
+        [M, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    ActionTypeID :
+        [M, C(=)] FIXME
+    ActionInformation :
+        [U, -] FIXME
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    ActionReply :
+        [-, C] FIXME
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+            FIXME: Add the status values
+
+    10.1.4.1.10 Status
+
+    Failure
+        class-instance conflict 0x0119 PS3.7 Annex C.5.7
+        duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        invalid argument value 0x0115 PS3.7 Annex C.5.10
+        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        mistyped argument 0x0212 PS3.7 Annex C.5.15
+        no such action type 0x0123 PS3.7 Annex C.5.24
+        no such argument 0x0114 PS3.7 Annex C.5.16
+        no such SOP instance 0x0112 PS3.7 Annex C.5.19
+        no such SOP class 0x0118 PS3.7 Annex C.5.20
+        processing failure 0x0110 PS3.7 Annex C.5.21
+        resource limitation 0x213 PS3.7 Annex C.5.22
+        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        not authorised 0x0124 PS3.5 Annex C.5.25
+    Success
+        success 0x0000 PS3.7 Annex C.1.1
     """
     def __init__(self):
         self.MessageID = None
@@ -1418,10 +1715,57 @@ class N_ACTION_ServiceParameters(object):
         self.Status = None
 
 
-class N_CREATE_ServiceParameters(object):
+class N_CREATE(object):
     """Represents a N-CREATE primitive.
 
     PS3.7 10.1.5.1
+
+    Attributes
+    ----------
+    MessageID : int
+        [M, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, U(=)] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [U, C] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AttributeList :
+        [U, U] FIXME
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+            FIXME: Add the status values
+
+    10.1.5.1.6 Status
+
+    Failure
+        duplicate SOP instance 0x0111 PS3.7 Annex C.5.8
+        duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        invalid attribute value 0x0106 PS3.7 Annex C.5.11
+        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        missing attribute 0x0120 PS3.7 Annex C.5.13
+        missing attribute value 0x0121 PS3.7 Annex C.5.14
+        mistyped argument 0x0212 PS3.7 Annex C.5.15
+        no such attribute 0x0105 PS3.6 Annex C.5.17
+        no such SOP class 0x0118 PS3.7 Annex C.5.20
+        processing failure 0x0110 PS3.7 Annex C.5.21
+        resource limitation 0x213 PS3.7 Annex C.5.22
+        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        not authorised 0x0124 PS3.5 Annex C.5.25
+    Warning
+        attribute list error 0x0107 PS3.7 Annex C.4.2
+        attribute value out of range 0x0116 PS3.7 Annex C.4.3
+    Success
+        success 0x0000 PS3.7 Annex C.1.1
     """
     def __init__(self):
         self.MessageID = None
@@ -1432,10 +1776,51 @@ class N_CREATE_ServiceParameters(object):
         self.Status = None
 
 
-class N_DELETE_ServiceParameters(object):
+class N_DELETE(object):
     """Represents a N-DELETE primitive.
 
     PS3.7 10.1.6.1
+
+    Attributes
+    ----------
+    MessageID : int
+        [M, -] Identifies the operation and is used to distinguish this
+        operation from other notifications or operations that may be in
+        progress. No two identical values for the Message ID shall be used for
+        outstanding operations.
+    MessageIDBeingRespondedTo : int
+        [-, M] The Message ID of the operation request/indication to which this
+        response/confirmation applies.
+    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [M, -] FIXME
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Class for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
+        [-, U] For the request/indication this specifies the SOP Instance for
+        storage. If included in the response/confirmation, it shall be equal
+        to the value in the request/indication
+    Status : int
+        [-, M] The error or success notification of the operation. It shall be
+        one of the following values:
+            FIXME: Add the status values
+
+    10.1.6.1.7 Status
+        class-instance conflict 0x0119 PS3.7 Annex C.5.7
+        duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        mistyped argument 0x0212 PS3.7 Annex C.5.15
+        no such SOP class 0x0118 PS3.7 Annex C.5.20
+        no such SOP instance 0x0112 PS3.7 Annex C.5.19
+        processing failure 0x0110 PS3.7 Annex C.5.21
+        resource limitation 0x213 PS3.7 Annex C.5.22
+        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        not authorised 0x0124 PS3.5 Annex C.5.25
+    Success
+        success 0x0000 PS3.7 Annex C.1.1
     """
     def __init__(self):
         self.MessageID = None

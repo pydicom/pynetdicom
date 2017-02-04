@@ -4,13 +4,13 @@ Dicom Upper Layer Protocol for TCP/IP
 Data Unit Structure
 
 There are seven different PDUs
-    A_ASSOCIATE_RQ_PDU
-    A_ASSOCIATE_AC_PDU
-    A_ASSOCIATE_RJ_PDU
-    P_DATA_TF_PDU
-    A_RELEASE_RQ_PDU
-    A_RELEASE_RP_PDU
-    A_ABORT_PDU
+    A_ASSOCIATE_RQ
+    A_ASSOCIATE_AC
+    A_ASSOCIATE_RJ
+    P_DATA_TF
+    A_RELEASE_RQ
+    A_RELEASE_RP
+    A_ABORT_RQ
 
     All PDU classes implement the following methods:
 
@@ -39,7 +39,7 @@ TODO: Make encoding/decoding more generic
 
 from io import BytesIO
 import logging
-from struct import pack, unpack, calcsize
+from struct import pack, unpack
 
 from pydicom.uid import UID
 
@@ -57,23 +57,13 @@ class PDU(object):
 
     def __eq__(self, other):
         """Equality of two PDUs"""
-        for ii in self.__dict__:
-            if ii not in other.__dict__.keys():
-                #print('Other missing', ii)
-                return False
+        if isinstance(other, self.__class__):
+            return other.__dict__ == self.__dict__
+        return False
 
-        for ii in other.__dict__:
-            if ii not in self.__dict__.keys():
-                #print('Self missing', ii)
-                return False
-
-        for ii in self.__dict__:
-            if not self.__dict__[ii] == other.__dict__[ii]:
-                #print(ii)
-                #print(self.__dict__[ii], other.__dict__[ii])
-                return False
-
-        return True
+    def __ne__(self, other):
+        """Inequality of two PDUs"""
+        return not self == other
 
     def encode(self):
         """
@@ -202,7 +192,7 @@ class PDU(object):
 
         Returns
         -------
-        PDU : pynetdicom3.PDU.PDU subclass
+        PDU : pynetdicom3.pdu.PDU subclass
             A PDU subclass instance corresponding to the next item in the stream
         None
             If the stream is empty
@@ -218,13 +208,13 @@ class PDU(object):
         if item_type is None:
             return None
 
-        item_types = {0x01 : A_ASSOCIATE_RQ_PDU,
-                      0x02 : A_ASSOCIATE_AC_PDU,
-                      0x03 : A_ASSOCIATE_RJ_PDU,
-                      0x04 : P_DATA_TF_PDU,
-                      0x05 : A_RELEASE_RQ_PDU,
-                      0x06 : A_RELEASE_RP_PDU,
-                      0x07 : A_ABORT_PDU,
+        item_types = {0x01 : A_ASSOCIATE_RQ,
+                      0x02 : A_ASSOCIATE_AC,
+                      0x03 : A_ASSOCIATE_RJ,
+                      0x04 : P_DATA_TF,
+                      0x05 : A_RELEASE_RQ,
+                      0x06 : A_RELEASE_RP,
+                      0x07 : A_ABORT_RQ,
                       0x10 : ApplicationContextItem,
                       0x20 : PresentationContextItemRQ,
                       0x21 : PresentationContextItemAC,
@@ -239,11 +229,11 @@ class PDU(object):
                       0x56 : SOPClassExtendedNegotiationSubItem,
                       0x57 : SOPClassCommonExtendedNegotiationSubItem,
                       0x58 : UserIdentitySubItemRQ,
-                      0x59 : UserIdentitySubItemRQ}
+                      0x59 : UserIdentitySubItemAC}
 
         if item_type not in item_types.keys():
             raise ValueError("During PDU decoding we received an invalid "
-                             "item type: {}".format(item_type))
+                             "item type: \\x{0:02x}".format(item_type))
 
         return item_types[item_type]()
 
@@ -254,7 +244,7 @@ class PDU(object):
 
 
 # PDU Classes
-class A_ASSOCIATE_RQ_PDU(PDU):
+class A_ASSOCIATE_RQ(PDU):
     """Represents an A-ASSOCIATE-RQ PDU.
 
     When encoded, is received from/sent to the peer AE.
@@ -308,9 +298,9 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         The source AE title as a 16-byte bytestring.
     length : int
         The length of the encoded PDU in bytes
-    presentation_context : list of pynetdicom3.PDU.PresentationContextItemRQ
+    presentation_context : list of pynetdicom3.pdu.PresentationContextItemRQ
         The A-ASSOCIATE-RQ's Presentation Context items
-    user_information : pynetdicom3.PDU.UserInformationItem
+    user_information : pynetdicom3.pdu.UserInformationItem
         The A-ASSOCIATE-RQ's User Information item. See PS3.8 9.3.2, 7.1.1.6
     """
     def __init__(self):
@@ -348,7 +338,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
         self.calling_ae_title = primitive.calling_ae_title
@@ -383,7 +373,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ASSOCIATE
+        from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
         primitive = A_ASSOCIATE()
 
@@ -578,7 +568,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
 
         Returns
         -------
-        list of pynetdicom3.PDU.PresentationContextItemRQ
+        list of pynetdicom3.pdu.PresentationContextItemRQ
             The Requestor AE's Presentation Context objects
         """
         contexts = []
@@ -589,13 +579,11 @@ class A_ASSOCIATE_RQ_PDU(PDU):
                 #   and if so we set the SCP and SCU attributes.
                 if self.user_information.role_selection is not None:
                     # Iterate through the role negotiations looking for a
-                    #   SOP Class match to the Abstract Syntaxes
-                    # FIXME: Remove joined loops
+                    #   SOP Class match to the Abstract Syntax
                     for role in self.user_information.role_selection:
-                        for sop_class in ii.abstract_syntax:
-                            if role.UID == sop_class:
-                                ii.SCP = role.SCP
-                                ii.SCU = role.SCU
+                        if role.UID == ii.abstract_syntax:
+                            ii.SCP = role.SCP
+                            ii.SCU = role.SCU
                 contexts.append(ii)
         return contexts
 
@@ -619,7 +607,8 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    - Context name: ={0!s}\n'.format(self.application_context_name)
+        s += '    - Context name: ={0!s}\n'.format( \
+                                        self.application_context_name)
 
         s += '  * Presentation Context Item(s):\n'
 
@@ -641,7 +630,7 @@ class A_ASSOCIATE_RQ_PDU(PDU):
         return s
 
 
-class A_ASSOCIATE_AC_PDU(PDU):
+class A_ASSOCIATE_AC(PDU):
     """
     Represents the A-ASSOCIATE-AC PDU that, when encoded, is received from/sent
     to the peer AE
@@ -692,9 +681,9 @@ class A_ASSOCIATE_AC_PDU(PDU):
         guaranteed to be the actual title and shall not be tested.
     length : int
         The length of the encoded PDU in bytes
-    presentation_context : list of pynetdicom3.PDU.PresentationContextItemAC
+    presentation_context : list of pynetdicom3.pdu.PresentationContextItemAC
         The A-ASSOCIATE-AC's Presentation Context items
-    user_information : pynetdicom3.PDU.UserInformationItem
+    user_information : pynetdicom3.pdu.UserInformationItem
         The A-ASSOCIATE-AC's User Information item. See PS3.8 9.3.2, 7.1.1.6
     """
     def __init__(self):
@@ -735,7 +724,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
         self.reserved_aet = primitive.called_ae_title
@@ -767,10 +756,10 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_ASSOCIATE
+        pynetdicom3.pdu_primitives.A_ASSOCIATE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ASSOCIATE
+        from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
         primitive = A_ASSOCIATE()
 
@@ -921,7 +910,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
         Returns
         -------
-        list of pynetdicom3.PDU.PresentationContextItemAC
+        list of pynetdicom3.pdu.PresentationContextItemAC
             The Acceptor AE's Presentation Context objects. Each of the
             Presentation Context items instances in the list has been extended
             with two variables for tracking if SCP/SCU role negotiation has been
@@ -939,13 +928,11 @@ class A_ASSOCIATE_AC_PDU(PDU):
                     # Iterate through the role negotiations looking for a
                     #   SOP Class match to the Abstract Syntaxes
                     for role in self.user_information.role_selection:
+                        # -AC has no Abstract Syntax, not sure how to indicate
+                        #   role selection
+                        # FIXME
                         pass
-                        # FIXME: Pretty sure -AC has no Abstract Syntax
-                        #   need to check against standard
-                        #for sop_class in ii.AbstractSyntax:
-                        #    if role.SOPClass == sop_class:
-                        #        ii.SCP = role.SCP
-                        #        ii.SCU = role.SCU
+
                 contexts.append(ii)
 
         return contexts
@@ -957,7 +944,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.PDU.UserInformationItem
+        pynetdicom3.pdu.UserInformationItem
             The Acceptor AE's User Information object
         """
         for ii in self.variable_items:
@@ -1017,7 +1004,8 @@ class A_ASSOCIATE_AC_PDU(PDU):
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    -  Context name: ={0!s}\n'.format(self.application_context_name)
+        s += '    -  Context name: ={0!s}\n'.format( \
+                                            self.application_context_name)
 
         s += '  * Presentation Context Item(s):\n'
 
@@ -1039,7 +1027,7 @@ class A_ASSOCIATE_AC_PDU(PDU):
         return s
 
 
-class A_ASSOCIATE_RJ_PDU(PDU):
+class A_ASSOCIATE_RJ(PDU):
     """
     Represents the A-ASSOCIATE-RJ PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1100,7 +1088,7 @@ class A_ASSOCIATE_RJ_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ASSOCIATE
+        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
         self.result = primitive.result
@@ -1115,10 +1103,10 @@ class A_ASSOCIATE_RJ_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_ASSOCIATE
+        pynetdicom3.pdu_primitives.A_ASSOCIATE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ASSOCIATE
+        from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
         primitive = A_ASSOCIATE()
         primitive.result = self.result
@@ -1301,7 +1289,7 @@ class A_ASSOCIATE_RJ_PDU(PDU):
         return s
 
 
-class P_DATA_TF_PDU(PDU):
+class P_DATA_TF(PDU):
     """
     Represents the P-DATA-TF PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1321,7 +1309,7 @@ class P_DATA_TF_PDU(PDU):
     ----------
     length : int
         The length of the encoded PDU in bytes
-    PDVs : list of pynetdicom3.PDU.PresentationDataValueItem
+    PDVs : list of pynetdicom3.pdu.PresentationDataValueItem
         The presentation data value items
     """
     def __init__(self):
@@ -1341,7 +1329,7 @@ class P_DATA_TF_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.P_DATA
+        primitive : pynetdicom3.pdu_primitives.P_DATA
             The parameters to use for setting up the PDU
         """
         for ii in primitive.presentation_data_value_list:
@@ -1358,10 +1346,10 @@ class P_DATA_TF_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.P_DATA
+        pynetdicom3.pdu_primitives.P_DATA
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import P_DATA
+        from pynetdicom3.pdu_primitives import P_DATA
 
         primitive = P_DATA()
 
@@ -1468,7 +1456,7 @@ class P_DATA_TF_PDU(PDU):
         return s
 
 
-class A_RELEASE_RQ_PDU(PDU):
+class A_RELEASE_RQ(PDU):
     """
     Represents the A-RELEASE-RQ PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1503,7 +1491,7 @@ class A_RELEASE_RQ_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_RELEASE
+        primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The parameters to use for setting up the PDU
         """
         self._update_parameters()
@@ -1514,10 +1502,10 @@ class A_RELEASE_RQ_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_RELEASE
+        pynetdicom3.pdu_primitives.A_RELEASE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_RELEASE
+        from pynetdicom3.pdu_primitives import A_RELEASE
         primitive = A_RELEASE()
 
         return primitive
@@ -1581,7 +1569,7 @@ class A_RELEASE_RQ_PDU(PDU):
         return s
 
 
-class A_RELEASE_RP_PDU(PDU):
+class A_RELEASE_RP(PDU):
     """
     Represents the A-RELEASE-RP PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1616,7 +1604,7 @@ class A_RELEASE_RP_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_RELEASE
+        primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The parameters to use for setting up the PDU
         """
         self._update_parameters()
@@ -1627,10 +1615,10 @@ class A_RELEASE_RP_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_RELEASE
+        pynetdicom3.pdu_primitives.A_RELEASE
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_RELEASE
+        from pynetdicom3.pdu_primitives import A_RELEASE
         primitive = A_RELEASE()
         primitive.result = 'affirmative'
 
@@ -1695,7 +1683,7 @@ class A_RELEASE_RP_PDU(PDU):
         return s
 
 
-class A_ABORT_PDU(PDU):
+class A_ABORT_RQ(PDU):
     """
     Represents the A-ABORT PDU that, when encoded, is received from/sent
     to the peer AE.
@@ -1742,11 +1730,11 @@ class A_ABORT_PDU(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.A_ABORT or
-        pynetdicom3.primitives.A_P_ABORT
+        primitive : pynetdicom3.pdu_primitives.A_ABORT or
+        pynetdicom3.pdu_primitives.A_P_ABORT
             The parameters to use for setting up the PDU
         """
-        from pynetdicom3.primitives import A_ABORT, A_P_ABORT
+        from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
 
         # User initiated abort
         if primitive.__class__ == A_ABORT:
@@ -1767,11 +1755,11 @@ class A_ABORT_PDU(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.A_ABORT_ServiceParameters or
-        pynetdicom3.primitives.A_P_ABORT_ServiceParameters
+        pynetdicom3.pdu_primitives.A_ABORT_ServiceParameters or
+        pynetdicom3.pdu_primitives.A_P_ABORT_ServiceParameters
             The primitive to convert the PDU to
         """
-        from pynetdicom3.primitives import A_ABORT, A_P_ABORT
+        from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
 
         # User initiated abort
         if self.source == 0x00:
@@ -1893,6 +1881,7 @@ class A_ABORT_PDU(PDU):
             return 'No reason given'
 
 
+
 # PDU Item Classes
 class ApplicationContextItem(PDU):
     """
@@ -1908,8 +1897,8 @@ class ApplicationContextItem(PDU):
     See PS3.8 Section 9.3.2.1 for the structure of the PDU, especially
     Table 9-12.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items
-    Used in A_ASSOCIATE_AC_PDU - Variable items
+    Used in A_ASSOCIATE_RQ - Variable items
+    Used in A_ASSOCIATE_AC - Variable items
 
     Attributes
     ----------
@@ -2005,7 +1994,7 @@ class ApplicationContextItem(PDU):
 
     def __str__(self):
         s = '{0!s} ({1!s})\n'.format(self.application_context_name,
-                          self.application_context_name.title())
+                                     self.application_context_name.title())
         return s
 
     @property
@@ -2038,6 +2027,7 @@ class ApplicationContextItem(PDU):
         # Update the item_length parameter to account fo the new value
         self.item_length = len(self.application_context_name)
 
+
 class PresentationContextItemRQ(PDU):
     """
     Represents a Presentation Context Item used in A-ASSOCIATE-RQ PDUs.
@@ -2060,7 +2050,7 @@ class PresentationContextItemRQ(PDU):
     See PS3.8 Section 9.3.2.2 for the structure of the item, especially
     Table 9-13.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items
+    Used in A_ASSOCIATE_RQ - Variable items
 
     Attributes
     ----------
@@ -2236,6 +2226,10 @@ class PresentationContextItemRQ(PDU):
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.length)
         s += "  Context ID: {0:d}\n".format(self.ID)
+        if self.SCP is not None:
+            s += "  SCP Role: {0:d}\n".format(self.SCP)
+        if self.SCU is not None:
+            s += "  SCU Role: {0:d}\n".format(self.SCU)
 
         for ii in self.abstract_transfer_syntax_sub_items:
             item_str = '{0!s}'.format(ii)
@@ -2275,6 +2269,7 @@ class PresentationContextItemRQ(PDU):
 
         return syntaxes
 
+
 class PresentationContextItemAC(PDU):
     """
     Represents a Presentation Context Item used in A-ASSOCIATE-AC PDUs.
@@ -2293,7 +2288,7 @@ class PresentationContextItemAC(PDU):
     See PS3.8 Section 9.3.3.2 for the structure of the item, especially
     Table 9-18.
 
-    Used in A_ASSOCIATE_AC_PDU - Variable items
+    Used in A_ASSOCIATE_AC - Variable items
 
     Attributes
     ----------
@@ -2480,6 +2475,7 @@ class PresentationContextItemAC(PDU):
         """Get the transfer syntax."""
         return self.transfer_syntax_sub_item.transfer_syntax_name
 
+
 class AbstractSyntaxSubItem(PDU):
     """
     Represents an Abstract Syntax Sub-item used in A-ASSOCIATE-RQ PDUs.
@@ -2493,7 +2489,7 @@ class AbstractSyntaxSubItem(PDU):
     See PS3.8 Section 9.3.2.2.1 for the structure of the item, especially
     Table 9-14.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - Presentation Context items -
+    Used in A_ASSOCIATE_RQ - Variable items - Presentation Context items -
     Abstract/Transfer Syntax sub-items
 
     Attributes
@@ -2633,6 +2629,7 @@ class AbstractSyntaxSubItem(PDU):
 
         self._abstract_syntax_name = value
 
+
 class TransferSyntaxSubItem(PDU):
     """
     Represents a Transfer Syntax Sub-item used in A-ASSOCIATE-RQ and
@@ -2647,9 +2644,9 @@ class TransferSyntaxSubItem(PDU):
     See PS3.8 Section 9.3.2.2.2 for the structure of the item, especially
     Table 9-15.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - Presentation Context items -
+    Used in A_ASSOCIATE_RQ - Variable items - Presentation Context items -
     Abstract/Transfer Syntax sub-items
-    Used in A_ASSOCIATE_AC_PDU - Variable items - Presentation Context items -
+    Used in A_ASSOCIATE_AC - Variable items - Presentation Context items -
     Transfer Syntax sub-item
 
     Attributes
@@ -2751,7 +2748,8 @@ class TransferSyntaxSubItem(PDU):
         s = "Transfer syntax sub item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += '  Transfer syntax name: ={0!s}\n'.format(self.transfer_syntax_name)
+        s += '  Transfer syntax name: ={0!s}\n'.format( \
+                                            self.transfer_syntax_name)
 
         return s
 
@@ -2789,6 +2787,7 @@ class TransferSyntaxSubItem(PDU):
 
         self._transfer_syntax_name = value
 
+
 class PresentationDataValueItem(PDU):
     """
     Represents a Presentation Data Value Item used in P-DATA-TF PDUs.
@@ -2802,7 +2801,7 @@ class PresentationDataValueItem(PDU):
     See PS3.8 Section 9.3.5.1 for the structure of the item, especially
     Table 9-23.
 
-    Used in P_DATA_TF_PDU - Presentation data value items
+    Used in P_DATA_TF - Presentation data value items
 
     Attributes
     ----------
@@ -2926,6 +2925,7 @@ class PresentationDataValueItem(PDU):
         """Get the message control header byte."""
         return "{:08b}".format(self.presentation_data_value[0])
 
+
 class UserInformationItem(PDU):
     """
     Represents the User Information Item used in A-ASSOCIATE-RQ and
@@ -2943,8 +2943,8 @@ class UserInformationItem(PDU):
     See PS3.8 Section 9.3.2.3 for the structure of the PDU, especially
     Table 9-16.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items
-    Used in A_ASSOCIATE_AC_PDU - Variable items
+    Used in A_ASSOCIATE_RQ - Variable items
+    Used in A_ASSOCIATE_AC - Variable items
 
     Attributes
     ----------
@@ -3083,6 +3083,7 @@ class UserInformationItem(PDU):
         return 4 + self.item_length
 
     def __str__(self):
+        # FIXME: Indent not applying correctly to user_data
         s = " User information item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d}\n".format(self.item_length)
@@ -3194,6 +3195,7 @@ class UserInformationItem(PDU):
         return None
 
 
+
 # PDU User Information Sub-item Classes
 class MaximumLengthSubItem(PDU):
     """
@@ -3209,8 +3211,8 @@ class MaximumLengthSubItem(PDU):
     See PS3.8 Annex D.1.1 for the structure of the item, especially
     Table D.1-1.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3234,7 +3236,7 @@ class MaximumLengthSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.MaximumLengthNegotiation
+        primitive : pynetdicom3.pdu_primitives.MaximumLengthNegotiation
             The primitive to use when setting up the Item
         """
         self.maximum_length_received = primitive.maximum_length_received
@@ -3247,10 +3249,10 @@ class MaximumLengthSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.MaximumLengthNegotiation
+        pynetdicom3.pdu_primitives.MaximumLengthNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import MaximumLengthNegotiation
+        from pynetdicom3.pdu_primitives import MaximumLengthNegotiation
 
         primitive = MaximumLengthNegotiation()
         primitive.maximum_length_received = self.maximum_length_received
@@ -3310,8 +3312,10 @@ class MaximumLengthSubItem(PDU):
         s = "Maximum length Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Maximum length received: {0:d}\n".format(self.maximum_length_received)
+        s += "  Maximum length received: {0:d}\n".format( \
+                                        self.maximum_length_received)
         return s
+
 
 class ImplementationClassUIDSubItem(PDU):
     """
@@ -3327,8 +3331,8 @@ class ImplementationClassUIDSubItem(PDU):
     See PS3.7 Annex D.3.3.2.1-2 for the structure of the item, especially
     Tables D.3-1 and D.3-2.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3354,7 +3358,8 @@ class ImplementationClassUIDSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.ImplementationClassUIDNotification
+        primitive : pynetdicom3.pdu_primitives
+                                .ImplementationClassUIDNotification
             The primitive to use when setting up the Item
         """
         self.implementation_class_uid = primitive.implementation_class_uid
@@ -3368,10 +3373,11 @@ class ImplementationClassUIDSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.ImplementationClassUIDNotification
+        pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
             The primitive to convert to
         """
-        from pynetdicom3.primitives import ImplementationClassUIDNotification
+        from pynetdicom3.pdu_primitives import \
+                                        ImplementationClassUIDNotification
 
         primitive = ImplementationClassUIDNotification()
         primitive.implementation_class_uid = self.implementation_class_uid
@@ -3422,7 +3428,8 @@ class ImplementationClassUIDSubItem(PDU):
         s = "Implementation Class UID Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Implementation class UID: '{0!s}'\n".format(self.implementation_class_uid)
+        s += "  Implementation class UID: '{0!s}'\n".format( \
+                                            self.implementation_class_uid)
 
         return s
 
@@ -3457,6 +3464,7 @@ class ImplementationClassUIDSubItem(PDU):
         if value is not None:
             self.item_length = len(self.implementation_class_uid)
 
+
 class ImplementationVersionNameSubItem(PDU):
     """
     Represents the Implementation Class UID Sub Item used in A-ASSOCIATE-RQ and
@@ -3471,8 +3479,8 @@ class ImplementationVersionNameSubItem(PDU):
     See PS3.7 Annex D.3.3.2.3-4 for the structure of the item, especially
     Tables D.3-3 and D.3-4.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3498,10 +3506,12 @@ class ImplementationVersionNameSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.ImplementationVersionNameNotification
+        primitive : pynetdicom3.pdu_primitives
+                                    .ImplementationVersionNameNotification
             The primitive to use when setting up the Item
         """
-        self.implementation_version_name = primitive.implementation_version_name
+        self.implementation_version_name = \
+                                    primitive.implementation_version_name
 
         self._update_parameters()
 
@@ -3510,10 +3520,11 @@ class ImplementationVersionNameSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.ImplementationVersionNameNotification
+        pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
             The primitive to convert to
         """
-        from pynetdicom3.primitives import ImplementationVersionNameNotification
+        from pynetdicom3.pdu_primitives import \
+                                        ImplementationVersionNameNotification
 
         tmp = ImplementationVersionNameNotification()
         tmp.implementation_version_name = self.implementation_version_name
@@ -3588,6 +3599,7 @@ class ImplementationVersionNameSubItem(PDU):
         if value is not None:
             self.item_length = len(self.implementation_version_name)
 
+
 class SCP_SCU_RoleSelectionSubItem(PDU):
     """
     Represents the SCP/SCU Role Selection Sub Item used in
@@ -3605,8 +3617,8 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     See PS3.7 Annex D.3.3.4.1-2 for the structure of the item, especially
     Tables D.3-9 and D.3-10.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3642,7 +3654,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.SCP_SCU_RoleSelectionNegotiation
+        primitive : pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
@@ -3660,10 +3672,10 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.SCP_SCU_RoleSelectionNegotiation
+        pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import SCP_SCU_RoleSelectionNegotiation
+        from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
         primitive.sop_class_uid = self.sop_class_uid
@@ -3751,12 +3763,11 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     def sop_class_uid(self, value):
         """Set the SOP class uid."""
         # pylint: disable=attribute-defined-outside-init
+        # UID is a str subclass
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -3807,6 +3818,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
         else:
             self._scp_role = value
 
+
 class AsynchronousOperationsWindowSubItem(PDU):
     """
     Represents the Asynchronous Operations Window Sub Item used in
@@ -3822,8 +3834,8 @@ class AsynchronousOperationsWindowSubItem(PDU):
     See PS3.7 Annex D.3.3.3.1-2 for the structure of the item, especially
     Tables D.3-7 and D.3-8.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -3854,7 +3866,7 @@ class AsynchronousOperationsWindowSubItem(PDU):
         Parameters
         ----------
         primitive :
-        pynetdicom3.primitives.AsynchronousOperationsWindowNegotiation
+        pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation
             The primitive to use when setting up the Item
         """
         self.maximum_number_operations_invoked = \
@@ -3870,10 +3882,10 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.AsynchronousOperationsWindowNegotiation
+        pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import \
+        from pynetdicom3.pdu_primitives import \
             AsynchronousOperationsWindowNegotiation
 
         primitive = AsynchronousOperationsWindowNegotiation()
@@ -3958,6 +3970,7 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
         return s
 
+
 class UserIdentitySubItemRQ(PDU):
     """
     Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
@@ -3976,7 +3989,7 @@ class UserIdentitySubItemRQ(PDU):
     See PS3.7 Annex D.3.3.7.1 for the structure of the item, especially
     Table D.3-14.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4010,13 +4023,14 @@ class UserIdentitySubItemRQ(PDU):
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  User identity type: {0:d}\n".format(self.user_identity_type)
         s += "  Positive response requested: {0:d}\n".format( \
-            self.positive_response_requested)
-        s += "  Primary field length: {0:d} bytes\n".format(self.primary_field_length)
+                                        self.positive_response_requested)
+        s += "  Primary field length: {0:d} bytes\n".format( \
+                                                self.primary_field_length)
         s += "  Primary field: {0!s}\n".format(self.primary_field)
 
         if self.user_identity_type == 0x02:
             s += "  Secondary field length: {0:d} bytes\n".format( \
-                self.secondary_field_length)
+                                                self.secondary_field_length)
             s += "  Secondary field: {0!s}\n".format(self.secondary_field)
         else:
             s += "  Secondary field length: (not used)\n"
@@ -4030,7 +4044,7 @@ class UserIdentitySubItemRQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.UserIdentityParameters
+        primitive : pynetdicom3.pdu_primitives.UserIdentityParameters
             The primitive to use when setting up the Item
         """
         self.user_identity_type = primitive.user_identity_type
@@ -4054,10 +4068,10 @@ class UserIdentitySubItemRQ(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.UseIdentityParameters
+        pynetdicom3.pdu_primitives.UseIdentityParameters
             The primitive to convert to
         """
-        from pynetdicom3.primitives import UserIdentityNegotiation
+        from pynetdicom3.pdu_primitives import UserIdentityNegotiation
 
         primitive = UserIdentityNegotiation()
         primitive.user_identity_type = self.user_identity_type
@@ -4177,6 +4191,7 @@ class UserIdentitySubItemRQ(PDU):
         """Get the secondary field"""
         return self.secondary_field
 
+
 class UserIdentitySubItemAC(PDU):
     """
     Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
@@ -4191,7 +4206,7 @@ class UserIdentitySubItemAC(PDU):
     See PS3.7 Annex D.3.3.7.2 for the structure of the item, especially
     Table D.3-15.
 
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4203,9 +4218,12 @@ class UserIdentitySubItemAC(PDU):
           * 2: b''
           * 3: the Kerberos server ticket, encoded as per RFC-1510
           * 4: the SAML response
+
+    TODO: Add user interface - setter for server_response, automatic length
+            determination
     """
     def __init__(self):
-        self.item_type = 0x58
+        self.item_type = 0x59
         self.item_length = None
         self.server_response_length = None
         self.server_response = None
@@ -4233,7 +4251,7 @@ class UserIdentitySubItemAC(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.UserIdentityParameters
+        primitive : pynetdicom3.pdu_primitives.UserIdentityParameters
             The primitive to use when setting up the Item
         """
         self.server_response = primitive.server_response
@@ -4249,12 +4267,12 @@ class UserIdentitySubItemAC(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.UseIdentityParameters
+        pynetdicom3.pdu_primitives.UseIdentityParameters
             The primitive to convert to
         """
-        from pynetdicom3.primitives import UserIdentityNegotiation
+        from pynetdicom3.pdu_primitives import UserIdentityNegotiation
 
-        primitive = UserIdentityParameters()
+        primitive = UserIdentityNegotiation()
         primitive.server_response = self.server_response
 
         return primitive
@@ -4319,6 +4337,7 @@ class UserIdentitySubItemAC(PDU):
         """Get the response"""
         return self.server_response
 
+
 class SOPClassExtendedNegotiationSubItem(PDU):
     """
     Represents the SOP Class Extended Negotiation Sub Item used in
@@ -4335,8 +4354,8 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     See PS3.7 Annex D.3.3.5.1-2 for the structure of the item, especially
     Tables D.3-11.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
-    Used in A_ASSOCIATE_AC_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4369,7 +4388,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.SOPClassExtendedNegotiation
+        primitive : pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
@@ -4387,10 +4406,10 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.SOPClassExtendedNegotiation
+        pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import SOPClassExtendedNegotiation
+        from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation
 
         primitive = SOPClassExtendedNegotiation()
         primitive.sop_class_uid = self.sop_class_uid
@@ -4462,10 +4481,11 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         s = "SOP Class Extended Negotiation Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  SOP class UID length: {0:d} bytes\n".format(self.sop_class_uid_length)
+        s += "  SOP class UID length: {0:d} bytes\n".format( \
+                                                self.sop_class_uid_length)
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
         s += "  Service class application information: {0!s}\n".format( \
-            self.service_class_application_information)
+                                self.service_class_application_information)
 
         return s
 
@@ -4487,8 +4507,6 @@ class SOPClassExtendedNegotiationSubItem(PDU):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -4504,6 +4522,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     def app_info(self):
         """Set the application information"""
         return self.service_class_application_information
+
 
 class SOPClassCommonExtendedNegotiationSubItem(PDU):
     """
@@ -4533,7 +4552,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     No response is necessary and the Common Extended Negotiation items shall be
     omitted in the A-ASSOCIATE response.
 
-    Used in A_ASSOCIATE_RQ_PDU - Variable items - User Information - User Data
+    Used in A_ASSOCIATE_RQ - Variable items - User Information - User Data
 
     Attributes
     ----------
@@ -4569,7 +4588,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.primitives.SOPClassCommonExtendedNegotiation
+        primitive : pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
@@ -4593,10 +4612,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         Returns
         -------
-        pynetdicom3.primitives.SOPClassCommonExtendedNegotiation
+        pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation
             The primitive to convert to
         """
-        from pynetdicom3.primitives import SOPClassCommonExtendedNegotiation
+        from pynetdicom3.pdu_primitives import SOPClassCommonExtendedNegotiation
 
         primitive = SOPClassCommonExtendedNegotiation()
         primitive.sop_class_uid = self.sop_class_uid
@@ -4676,8 +4695,17 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
     def get_length(self):
         """Get the item length"""
-        self.item_length = 4 + len(self.sop_class_uid)
         self.sop_class_uid_length = len(self.sop_class_uid)
+        self.service_class_uid_length = len(self.service_class_uid)
+        self.related_general_sop_class_identification_length = 0
+        for item in self.related_general_sop_class_identification:
+            self.related_general_sop_class_identification_length += len(item)
+
+        self.item_length = 2 + self.sop_class_uid_length + \
+                    2 + self.service_class_uid_length + \
+                    2 + self.related_general_sop_class_identification_length
+
+
 
         return 4 + self.item_length
 
@@ -4685,13 +4713,14 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         s = "SOP Class Common Extended Negotiation Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  SOP class UID length: {0:d} bytes\n".format(self.sop_class_uid_length)
+        s += "  SOP class UID length: {0:d} bytes\n".format( \
+                                            self.sop_class_uid_length)
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
         s += "  Service class UID length: {0:d} bytes\n".format( \
-            self.service_class_uid_length)
+                                            self.service_class_uid_length)
         s += "  Service class UID: ={0!s}\n".format(self.service_class_uid)
         s += "  Related general SOP class ID length: {0:d} bytes\n".format( \
-            self.related_general_sop_class_identification_length)
+                        self.related_general_sop_class_identification_length)
         s += "  Related general SOP class ID(s):\n"
 
         for ii in self.related_general_sop_class_identification:
@@ -4712,8 +4741,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -4738,8 +4765,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
             value = UID(value)
-        elif isinstance(value, UID):
-            pass
         elif value is None:
             pass
         else:
@@ -4768,8 +4793,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
                 value = UID(value.decode('utf-8'))
             elif isinstance(value, str):
                 value = UID(value)
-            elif isinstance(value, UID):
-                pass
             else:
                 raise TypeError('related_general_sop_class_identification ' \
                                 'must be str, bytes or pydicom.uid.UID')

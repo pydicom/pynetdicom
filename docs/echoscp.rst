@@ -5,19 +5,19 @@ echoscp
 
 Description
 ===========
-The ``echoscp`` application implements a Service Class Provider (SCP) for the 
-*Verification SOP Class* (UID 1.2.840.10008.1.1) [#]_. It establishes an 
-Association with peer Application Entities (AEs) and receives DICOM C-ECHO-RQ 
-[#]_ message to which it responds with a DICOM C-ECHO-RSP message. The 
+The ``echoscp`` application implements a Service Class Provider (SCP) for the
+*Verification SOP Class* (UID 1.2.840.10008.1.1) [#]_. It establishes an
+Association with peer Application Entities (AEs) and receives DICOM C-ECHO-RQ
+[#]_ message to which it responds with a DICOM C-ECHO-RSP message. The
 application can be used to verify basic DICOM connectivity.
 
 The following example shows what happens when it is started and receives
 a C-ECHO from a peer:
 ::
-    user@host: echoscp 11112 
-    
+    user@host: echoscp 11112
 
-More information is available when a connection is received while running with 
+
+More information is available when a connection is received while running with
 the ``-v`` option:
 ::
     user@host: echoscp 11112 -v
@@ -32,7 +32,7 @@ When a peer AE attempts to send non C-ECHO message:
     I: Association Received
     I: Association Acknowledged
     I: Association Aborted
-    
+
 Much more information is available when a connection is received while
 running with the ``-d`` option:
 ::
@@ -51,47 +51,39 @@ running with the ``-d`` option:
     ...
     I: Association Released
     D: DICOM UL service "Thread-1" stopped
-    
+
 
 Options
 =======
 Logging
 -------
-    ``-q    --quiet`` 
-              quiet mode, prints no warnings or errors 
-    ``-v    --verbose`` 
-              verbose mode, prints processing details 
-    ``-d    --debug`` 
-              debug mode, prints debugging information 
-    ``-ll   --log-level [l]evel (str)`` 
-              One of ['critical', 'error', 'warning', 'info', 'debug'], prints 
-              logging messages with corresponding level l or higher 
-    ``-lc   --log-config [f]ilename (str)`` 
-              use python logging config [#]_ file f for the logger 
-            
+    ``-q    --quiet``
+              quiet mode, prints no warnings or errors
+    ``-v    --verbose``
+              verbose mode, prints processing details
+    ``-d    --debug``
+              debug mode, prints debugging information
+    ``-ll   --log-level [l]evel (str)``
+              One of ['critical', 'error', 'warning', 'info', 'debug'], prints
+              logging messages with corresponding level l or higher
+    ``-lc   --log-config [f]ilename (str)``
+              use python logging config [#]_ file f for the logger
+
 Application Entity Titles
 -------------------------
-    ``-aet  --aetitle [a]etitle (str)`` 
-              set my AE title (default: ECHOSCP) 
-              
+    ``-aet  --aetitle [a]etitle (str)``
+              set my AE title (default: ECHOSCP)
+
 Miscellaneous DICOM
 -------------------
-    ``-to   --timeout [s]econds (int)`` 
-              timeout for connection requests (default: unlimited) 
-    ``-ta   --acse-timeout [s]econds (int)`` 
-              timeout for ACSE messages (default: 30) 
-    ``-td   --dimse-timeout [s]econdsr (int)`` 
-              timeout for DIMSE messages (default: unlimited) 
-    ``-pdu  --max-pdu [n]umber of bytes (int)`` 
+    ``-to   --timeout [s]econds (int)``
+              timeout for connection requests (default: unlimited)
+    ``-ta   --acse-timeout [s]econds (int)``
+              timeout for ACSE messages (default: 30)
+    ``-td   --dimse-timeout [s]econdsr (int)``
+              timeout for DIMSE messages (default: unlimited)
+    ``-pdu  --max-pdu [n]umber of bytes (int)``
               set maximum receive PDU bytes to n bytes (default: 16384) 
-    ``--refuse``
-              refuse association
-    ``--abort-after``
-              abort association after receiving a C-ECHO-RQ (but before sending
-              a response)
-    ``--abort-during``
-              abort association during receipt of a C-ECHO-RQ
-
 
 DICOM Conformance
 =================
@@ -101,9 +93,9 @@ The ``echoscp`` application supports the following SOP Class as an SCP:
 
 The supported Transfer Syntaxes [#]_ are:
 ::
-    Little Endian Implicit VR       1.2.840.10008.1.2 
-    Little Endian Explicit VR       1.2.840.10008.1.2.1 
-    Big Endian Explicit VR          1.2.840.10008.1.2.2 
+    Little Endian Implicit VR       1.2.840.10008.1.2
+    Little Endian Explicit VR       1.2.840.10008.1.2.1
+    Big Endian Explicit VR          1.2.840.10008.1.2.2
 
 .. rubric:: Footnotes
 

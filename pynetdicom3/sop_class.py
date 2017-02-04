@@ -7,18 +7,12 @@ import logging
 import sys
 import time
 
+from pydicom.uid import UID
+
 from pynetdicom3.dsutils import decode, encode
-from pynetdicom3.DIMSEparameters import C_STORE_ServiceParameters, \
-                                        C_ECHO_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_FIND_ServiceParameters, \
-                                        N_EVENT_REPORT_ServiceParameters, \
-                                        N_GET_ServiceParameters, \
-                                        N_SET_ServiceParameters, \
-                                        N_CREATE_ServiceParameters, \
-                                        N_ACTION_ServiceParameters, \
-                                        N_DELETE_ServiceParameters
+from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, \
+                                        C_FIND, N_EVENT_REPORT, N_GET, \
+                                        N_SET, N_CREATE, N_ACTION, N_DELETE
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
@@ -30,9 +24,9 @@ def _class_factory(name, uid, base_cls):
     ----------
     name : str
         The name of the SOP class
-    uid : str
+    uid : pydicom.uid.UID
         The UID of the SOP class
-    base_cls : pynetdicom3.SOPclass.ServiceClass subclass
+    base_cls : pynetdicom3.sop_class.ServiceClass subclass
         One of the following Service classes:
             VerificationServiceClass
             StorageServiceClass
@@ -55,8 +49,8 @@ def _class_factory(name, uid, base_cls):
 
 def _generate_service_sop_classes(sop_class_list, service_class):
     """Generate the SOP Classes."""
-    for name in sop_class_list.keys():
-        cls = _class_factory(name, sop_class_list[name], service_class)
+    for name in sop_class_list:
+        cls = _class_factory(name, UID(sop_class_list[name]), service_class)
         globals()[cls.__name__] = cls
 
 
@@ -129,35 +123,95 @@ class ServiceClass(object):
     FIXME: Perhaps define some class attributes such as self.AE = None
         self.UID = None,
         then call ServiceClass.__init__() in the subclasses?
+
+    Attributes
+    ----------
+    AE : pynetdicom3.applicationentity.ApplicationEntity
+        The local AE (needed for the callbacks).
+    DIMSE : pynetdicom3.dimse.DIMSEServiceProvider
+        The DIMSE service provider (needed to send/receive messages)
     """
+    def __init__(self):
+        self.AE = None
+        self.DIMSE = None
+        self.pcid = None
+        self.ACSE = None
+        self.sopclass = None
+        self.maxpdulength = None
+        self.transfersyntax = None
+
+        # Assigned by class builder, this will override
+        #self.UID = None
+
+        # New method?
+        self.presentation_context = None
+
     def code_to_status(self, code):
         """
         Parameters
         ----------
-        code : int
-            The status code value from/for the (0000,0900) dataset element.
+        code : int or pynetdicom3.sop_class.Status
+            The status code value from/for the (0000,0900) dataset element. If
+            `code` is a Status type, it will be checked for validity and
+            returned.
 
         Returns
         -------
-        obj : pynetdicom3.SOPclass.Status
+        obj : pynetdicom3.sop_class.Status
             The Status object for the `code`.
 
         Raises
         ------
         ValueError
-            If the code is not valid for the Service class' Status code ranges.
+            If `code` is not valid for the Service class' Status code ranges.
+        TypeError
+            If `code` is not an int or Status
+        """
+        # Passthrough for Status type
+        if isinstance(code, Status):
+            if self.is_valid_status(code):
+                return code
+            else:
+                raise ValueError('Code 0x{0:04x} is not a valid Status code '
+                                 'for the current SOP class.'
+                                 .format(code.code))
+
+        if not isinstance(code, int):
+            raise TypeError('Status code must be an int')
+
+        # For all the members in the class
+        for member in dir(self):
+            # If the member is a Status class object and `code` is in the
+            #   Status' code range, return the Status object.
+            obj = getattr(self, member)
+            if isinstance(obj, Status) and code in obj.code_range:
+                return obj
+
+        raise ValueError('Code 0x{0:04x} is not a valid Status code for the '
+                         'current SOP class.'.format(code))
+
+    def is_valid_status(self, status):
+        """Check if a status is valid for the service class.
+
+        Parameters
+        ----------
+        status : pynetdicom3.sop_class.Status
+            The Status object to check for validity.
+
+        Returns
+        -------
+        bool
+            Whether or not the status is valid
         """
         # For all the members in the class
         for member in dir(self):
             # If the member is a Status class object and `code` is in the
             #   Status' code range, return the Status object.
             obj = getattr(self, member)
-            if isinstance(obj, Status):
-                if code in obj.code_range:
-                    return obj
+            if isinstance(obj, Status) and status.code in obj.code_range:
+                return True
 
-        return ValueError('Code 0x{0:04x} is not a valid Status code for the '
-                          'current SOP class.'.format(code))
+        return False
 
 
 # Service Class types
@@ -174,11 +228,11 @@ class VerificationServiceClass(ServiceClass):
 
         Parameters
         ----------
-        msg : pynetdicom3.DIMSEparameters.C_ECHO_ServiceParameters
+        msg : pynetdicom3.dimse_primitives.C_ECHO
             The C-ECHO request primitive sent by the peer
         """
         # Create C-ECHO response primitive
-        rsp = C_ECHO_ServiceParameters()
+        rsp = C_ECHO()
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.Status = int(self.Success)
@@ -190,7 +244,7 @@ class VerificationServiceClass(ServiceClass):
             LOGGER.exception("Exception in the AE.on_c_echo() callback")
 
         # Send primitive
-        self.DIMSE.Send(rsp, self.pcid, self.maxpdulength)
+        self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class StorageServiceClass(ServiceClass):
@@ -217,26 +271,37 @@ class StorageServiceClass(ServiceClass):
                                                 'Data Set does not match ' \
                                                 'SOP Class',
                                                 range(0xB007, 0xB007 + 1))
-    ElementDisgarded = Status('Warning',
+    ElementDiscarded = Status('Warning',
                               'Element Discarded',
                               range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
     def SCP(self, msg):
         """Called when running as an SCP and receive a C-STORE request."""
+        # Create C-STORE response primitive
+        rsp = C_STORE()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+
+        # Check the dataset SOP Class UID matches the one agreed to
+        if self.UID != self.sopclass:
+            LOGGER.error("Store request's dataset UID does not match the "
+                         "presentation context")
+            rsp.Status = int(self.DataSetDoesNotMatchSOPClassFailure)
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
+
+        # Decode the dataset
         try:
             dataset = decode(msg.DataSet,
                              self.transfersyntax.is_implicit_VR,
                              self.transfersyntax.is_little_endian)
         except:
-            status = self.CannotUnderstand
-            LOGGER.error("StorageServiceClass failed to decode the dataset")
-
-        # Create C-STORE response primitive
-        rsp = C_STORE_ServiceParameters()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+            LOGGER.error("Failed to decode the received dataset")
+            rsp.Status = int(self.CannotUnderstand)
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
 
         # ApplicationEntity's on_c_store callback
         try:
@@ -244,17 +309,21 @@ class StorageServiceClass(ServiceClass):
         except Exception:
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
-            status = self.CannotUnderstand
+            rsp.Status = int(self.CannotUnderstand)
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
 
-        # Check that the supplied dataset UID matches the presentation context
-        #   ID
-        if self.UID != self.sopclass:
-            status = self.DataSetDoesNotMatchSOPClassFailure
-            LOGGER.info("Store request's dataset UID does not match the "
-                        "presentation context")
+        try:
+            status = self.code_to_status(status)
+        except (ValueError, TypeError):
+            LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
+                         "status value.")
+            rsp.Status = int(self.CannotUnderstand)
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
 
         rsp.Status = int(status)
-        self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+        self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class QueryRetrieveFindServiceClass(ServiceClass):
@@ -516,62 +585,137 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
             The C_FIND request primitive received from the peer
         """
-        dataset = decode(msg.Identifier,
-                         self.transfersyntax.is_implicit_VR,
-                         self.transfersyntax.is_little_endian)
-
         # Build C-FIND response primitive
-        c_find_rsp = C_FIND_ServiceParameters()
+        c_find_rsp = C_FIND()
         c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
-        LOGGER.info('Find SCP Request Identifiers:')
-        LOGGER.info('')
-        LOGGER.debug('# DICOM Data Set')
-        for elem in dataset:
-            LOGGER.info(elem)
-        LOGGER.info('')
+        # Check the identifier SOP Class UID matches the one agreed to
+        if self.UID != self.sopclass:
+            LOGGER.error("Find request's Identifier UID does not match the "
+                         "presentation context")
+            c_find_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            return
 
-        # Callback
         try:
-            matches = self.AE.on_c_find(dataset)
+            dataset = decode(msg.Identifier,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
         except:
-            LOGGER.exception('Exception in on_c_find()')
-            matches = []
+            LOGGER.error("Failed to decode the received Identifier dataset")
+            c_find_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            return
 
-        for ii, instance in enumerate(matches):
-            c_find_rsp.Identifier = \
-                    BytesIO(encode(instance,
-                                   self.transfersyntax.is_implicit_VR,
-                                   self.transfersyntax.is_little_endian))
+        # Log Identifier
+        try:
+            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in dataset:
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except (AttributeError, NotImplementedError, TypeError):
+            LOGGER.error("Failed to decode the received Identifier dataset")
+            c_find_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            return
 
-            # Send response
-            c_find_rsp.Status = int(self.Pending)
+        # Callback - C-FIND
+        try:
+            result = self.AE.on_c_find(dataset)
+        except:
+            LOGGER.exception('Exception in user\'s on_c_find implementation.')
+            c_find_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Find SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            return
 
-            LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
+        # Iterate through the results
+        for ii, (status, matching_ds) in enumerate(result):
+            try:
+                status = self.code_to_status(status)
+            except (ValueError, TypeError):
+                LOGGER.error("ApplicationEntity.on_c_find() returned an "
+                             "invalid status value.")
+                c_find_rsp.Status = int(self.UnableToProcess)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                return
 
-            self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+            # Callback - C-CANCEL-FIND
+            #received_cancel_msg = False
+            # Need to ensure we received a C-CANCEL-FIND-RQ
+            #try:
+            #    received_cancel_msg = self.AE.on_c_cancel_find()
+            #except:
+            #    LOGGER.exception('Exception in user\'s on_c_cancel_find '
+            #                     'implementation.')
 
-            LOGGER.debug('Find SCP Response Identifiers:')
-            LOGGER.debug('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in instance:
-                LOGGER.debug(elem)
-            LOGGER.debug('')
+            if status.status_type == 'Cancel':
+                LOGGER.info('Received C-CANCEL-FIND RQ from peer')
+                c_find_rsp.Status = \
+                                int(self.MatchingTerminatedDueToCancelRequest)
+                LOGGER.info('Find SCP Response: (Cancel)')
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                return
+            elif status.status_type == 'Failure':
+                # Pass along the status from the user
+                c_find_rsp.Status = int(status)
+                LOGGER.info('Find SCP Response: (Failure - %s)',
+                            status.description)
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                return
+            elif status.status_type == 'Success':
+                # User isn't supposed to send these, but handle anyway
+                c_find_rsp.Status = int(status)
+                LOGGER.info('Find SCP Response: (Success)')
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                return
+            else:
+                # Pending
+                ds = BytesIO(encode(matching_ds,
+                                    self.transfersyntax.is_implicit_VR,
+                                    self.transfersyntax.is_little_endian))
 
-        # Send final response
+                if ds.getvalue() == b'':
+                    LOGGER.error("Failed to decode the received Identifier "
+                                 "dataset")
+                    c_find_rsp.Status = int(self.UnableToProcess)
+                    self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                    return
+
+                c_find_rsp.Identifier = ds
+
+                # Send response
+                c_find_rsp.Status = int(self.Pending)
+
+                LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
+
+                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+
+                LOGGER.debug('Find SCP Response Identifiers:')
+                LOGGER.debug('')
+                LOGGER.debug('# DICOM Dataset')
+                for elem in matching_ds:
+                    LOGGER.debug(elem)
+                LOGGER.debug('')
+
+        # Send final success response
         c_find_rsp.Status = int(self.Success)
-
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
-
-        self.DIMSE.Send(c_find_rsp, self.pcid, self.ACSE.MaxPDULength)
+        self.DIMSE.send_msg(c_find_rsp, self.pcid)
 
 
 class QueryRetrieveMoveServiceClass(ServiceClass):
-    """Implements the QR Move Service Class."""
+    """Implements the QR Move Service Class.
+
+    PS3.4 Section C.4.2.2
+    """
     OutOfResourcesNumberOfMatches = \
             Status('Failure',
-                   'Refused: Out of resources - Unable to calcultate number ' \
+                   'Refused: Out of resources - Unable to calculate number ' \
                    'of matches',
                    range(0xA701, 0xA701 + 1))
     OutOfResourcesUnableToPerform = \
@@ -601,98 +745,265 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                      range(0xFF00, 0xFF00 + 1))
 
     def SCP(self, msg):
-        """SCP"""
-        attributes = decode(msg.Identifier,
-                            self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
+        """SCP
+
+        SCP Behaviour
+        -------------
+        The SCP shall identify a set of Entities at the level of the transfer
+        based on the values in the Unique Keys in the Identifier of the C-MOVE
+        request.
+
+        The SCP shall initiate C-STORE sub-operations for all stored SOP
+        Instances related to the Patient ID, List of Study Instance UIDs, List
+        of Series Instance UIDs or List of SOP Instance UIDs depending on the
+        QR level specified in the C-MOVE request.
+
+        A sub-operation is considered Failed if the SCP is unable to negotiate
+        an appropriate presentation context for a given stored SOP instance.
+
+        Optionally, the SCP may generate responses to the C-MOVE with status
+        equal to Pending during the processing of the C-STORE sub-operations.
+        These responses shall indicate the Remaining, Completed, Failed and
+        Warning C-STORE sub-operations.
+
+        When the number of Remaining sub-operations reaches zero, the SCP shall
+        generate a final response with a status equal to Success, Warning,
+        Failure or Refused.
+
+        The SCP may receive a C-MOVE-CANCEL request at any time during the
+        processing of the C-MOVE. The SCP shall interrupt all C-STORE
+        sub-operation processing and return a status of Canceled in the C-MOVE
+        response.
+
+        Pending: shall contain NoRemainingSubops, NoCompletedSubops,
+            NoFailedSubops, NoWarningSubops
+        Canceled: may contain NoRemainingSubops, NoCompletedSubops,
+            NoFailedSubops, NoWarningSubops
+        Failed: shall NOT contain NoRemainingSubops, may contain
+            NoCompletedSubops, NoFailedSubops, NoWarningSubops
+        Warning: shall NOT contain NoRemainingSubops, may contain
+            NoCompletedSubops, NoFailedSubops, NoWarningSubops
+        Success: shall NOT contain NoRemainingSubops, may contain
+            NoCompletedSubops, NoFailedSubops, NoWarningSubops
+
+        Parameters
+        ----------
+        msg : pynetdicom3.dimse_messages.DIMSEMessage
+            The DIMSE C-MOVE request (C_MOVE_RQ) message
+        """
 
         # Build C-MOVE response primitive
-        c_move_rsp = C_MOVE_ServiceParameters()
+        c_move_rsp = C_MOVE()
         c_move_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_move_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_move_rsp.Identifier = msg.Identifier
 
-        LOGGER.info('Move SCP Request Identifiers:')
-        LOGGER.info('')
-        LOGGER.info('# DICOM Data Set')
-        for elem in attributes:
-            LOGGER.info(elem)
-        LOGGER.info('')
+        # Number of suboperation trackers
+        no_remaining = 0
+        no_completed = 0
+        no_failed = 0
+        no_warning = 0
 
-        # The user is responsible for returning the matching Instances
-        try:
-            matches = self.AE.on_c_move(attributes, msg.MoveDestination)
-        except:
-            LOGGER.error('Exception in on_c_move')
-            c_move_rsp.Status = int(self.UnableToProcess)
-            # FIXME: index ii
-            #LOGGER.info('Move SCP Response %s (Failure)', ii)
-            LOGGER.info('Move SCP Response (Failure)')
-            self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+        # Check the identifier SOP Class UID matches the one agreed to
+        if self.UID != self.sopclass:
+            LOGGER.error("Move request's Identifier UID does not match the "
+                         "presentation context")
+            c_move_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
-        # First value is the number of matches
-        c_move_rsp.NumberOfRemainingSuboperations = next(matches)
-        c_move_rsp.NumberOfCompletedSuboperations = 0
-        c_move_rsp.NumberOfFailedSuboperations = 0
-        c_move_rsp.NumberOfWarningSuboperations = 0
+        # Decode the Identifier dataset
+        try:
+            dataset = decode(msg.Identifier,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
+        except:
+            LOGGER.error("Failed to decode the received Identifier dataset")
+            c_move_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
 
-        # Second value is the addr and port for the move destination if known
+        # Log Identifier
+        try:
+            LOGGER.info('Move SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in dataset:
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except (AttributeError, NotImplementedError, TypeError, KeyError):
+            LOGGER.error("Failed to decode the received Identifier dataset")
+            c_move_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
+
+        ## GET USER ON_C_MOVE GENERATOR
+        # The user is responsible for returning the matching Instances
+        try:
+            result = self.AE.on_c_move(dataset, msg.MoveDestination)
+        except:
+            LOGGER.exception('Exception in user\'s on_c_move implementation.')
+            c_move_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Move SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
+
+        # USER YIELD NUMBER OF OPERATIONS
+        # First yield is the number of sub-operations
+        try:
+            no_remaining = int(next(result))
+        except TypeError:
+            LOGGER.exception('You must yield the number of sub-operations in '
+                             'ae.on_c_move before yielding the (address, port) '
+                             'of the destination AE and then yield (status, '
+                             'dataset) pairs.')
+            c_move_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Move SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
+
+        ## USER YIELD MOVE DESTINATION ADDR, PORT
+        # Second yield is the addr and port for the move destination if known
         #   None, None if not known
-        addr, port = next(matches)
+        try:
+            addr, port = next(result)
+        except StopIteration:
+            LOGGER.exception('You must yield the number of sub-operations in '
+                             'ae.on_c_move before yielding the (address, port) '
+                             'of the destination AE and then yield (status, '
+                             'dataset) pairs.')
+            c_move_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Move SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
 
         if None in [addr, port]:
             LOGGER.error('Unknown Move Destination: %s',
                          msg.MoveDestination.decode('utf-8'))
             c_move_rsp.Status = int(self.MoveDestinationUnknown)
             LOGGER.info('Move SCP Response (Failure)')
-            self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
+
+        if not isinstance(addr, str) or not isinstance(port, int):
+            LOGGER.exception('You must yield the (address, port) '
+                             'of the destination AE and then yield (status, '
+                             'dataset) pairs.')
+            c_move_rsp.Status = int(self.MoveDestinationUnknown)
+            LOGGER.info('Move SCP Response (Failure)')
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
             return
 
         # Request new association with move destination
         #   need (addr, port, aet)
         assoc = self.AE.associate(addr, port, msg.MoveDestination)
-
-        ii = 1
         if assoc.is_established:
-            for dataset in matches:
-                # Send dataset via C-STORE over new association
-                status = assoc.send_c_store(dataset)
-                store_status = status.status_type
+            for ii, (usr_status, dataset) in enumerate(result):
+                # Check validity of usr_status
+                try:
+                    usr_status = self.code_to_status(usr_status)
+                except (ValueError, TypeError):
+                    LOGGER.error("ApplicationEntity.on_c_move() returned an "
+                                 "invalid status value.")
+                    assoc.release()
+                    c_move_rsp.Status = int(self.UnableToProcess)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
+                    return
 
-                LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
-                            store_status)
+                # If usr_status is Cancel, Failure or Success then generate a
+                #   final response
+                if usr_status.status_type == 'Cancel':
+                    LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
+                    assoc.release()
 
-                if store_status == 'Failure':
-                    c_move_rsp.NumberOfFailedSuboperations += 1
-                elif store_status == 'Warning':
-                    c_move_rsp.NumberOfWarningSuboperations += 1
-                elif store_status == 'Success':
-                    c_move_rsp.NumberOfCompletedSuboperations += 1
+                    # A Cancel response may include the number remaining, etc
+                    c_move_rsp.NumberOfRemainingSuboperations = no_remaining
+                    c_move_rsp.NumberOfFailedSuboperations = no_failed
+                    c_move_rsp.NumberOfWarningSuboperations = no_warning
+                    c_move_rsp.NumberOfCompletedSuboperations = no_completed
+                    c_move_rsp.Status = int(self.Cancel)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
+                    return
+                elif usr_status.status_type == 'Failure':
+                    LOGGER.info('Move SCP Response: (Failure - %s)',
+                                usr_status.description)
+                    assoc.release()
+                    c_move_rsp.Status = int(usr_status)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
+                    return
+                elif usr_status.status_type == 'Success':
+                    LOGGER.info('Move SCP Response: (Success)')
+                    assoc.release()
+                    c_move_rsp.Status = int(self.Success)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
+                    return
+                elif usr_status.status_type == 'Warning':
+                    LOGGER.info('Move SCP Response: (Warning)')
+                    assoc.release()
+                    c_move_rsp.Status = int(self.Warning)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
+                    return
+                else:
+                    ## USER RESPONSE IS PENDING
+                    # Send dataset(s) via C-STORE sub-operations over new
+                    #   association. While the sub-operations are being
+                    #   performed send Pending statuses back to the peer
+                    store_status = assoc.send_c_store(dataset)
 
-                c_move_rsp.NumberOfRemainingSuboperations -= 1
+                    store_status = \
+                            StorageServiceClass().code_to_status(store_status)
 
-                c_move_rsp.Status = int(self.Pending)
+                    LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
+                                store_status.status_type)
 
-                LOGGER.info('Move SCP Response %s (Pending)', ii)
+                    # Update the suboperation trackers
+                    if store_status.status_type == 'Failure':
+                        no_failed += 1
+                    elif store_status.status_type == 'Warning':
+                        no_warning += 1
+                    elif store_status.status_type == 'Success':
+                        no_completed += 1
+                    no_remaining -= 1
 
-                self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
-
-                ii += 1
+                    c_move_rsp.NumberOfRemainingSuboperations = no_remaining
+                    c_move_rsp.NumberOfFailedSuboperations = no_failed
+                    c_move_rsp.NumberOfWarningSuboperations = no_warning
+                    c_move_rsp.NumberOfCompletedSuboperations = no_completed
+                    c_move_rsp.Status = int(self.Pending)
+                    LOGGER.info('Move SCP Response %s (Pending)', ii)
+                    self.DIMSE.send_msg(c_move_rsp, self.pcid)
 
             assoc.release()
 
-        # Send Success C-GET-RSP to peer
-        c_move_rsp.Status = int(self.Success)
-        LOGGER.info('Move SCP Response %s (Success)', ii)
-        self.DIMSE.Send(c_move_rsp, self.pcid, self.maxpdulength)
+        else:
+            # Failed to associate
+            # Close socket
+            assoc.dul.scu_socket.close()
+
+            LOGGER.info('Move SCP Response: (Failure - Peer refused '
+                        'association)')
+            c_move_rsp.Status = int(self.OutOfResourcesUnableToPerform)
+            self.DIMSE.send_msg(c_move_rsp, self.pcid)
+            return
+
+        # Send final C-MOVE-RSP to peer
+        if no_warning == 0 and no_failed == 0:
+            c_move_rsp.Status = int(self.Success)
+            LOGGER.info('Move SCP Response: (Success)')
+        else:
+            c_move_rsp.Status = int(self.Warning)
+            LOGGER.info('Move SCP Response: (Warning)')
+        self.DIMSE.send_msg(c_move_rsp, self.pcid)
 
 
 class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the QR Get Service Class."""
     OutOfResourcesNumberOfMatches = Status('Failure',
                                            'Refused: Out of resources - Unable '
-                                           'to calcultate number of matches',
+                                           'to calculate number of matches',
                                            range(0xA701, 0xA701 + 1))
     OutOfResourcesUnableToPerform = Status('Failure',
                                            'Refused: Out of resources - Unable '
@@ -738,74 +1049,150 @@ class QueryRetrieveGetServiceClass(ServiceClass):
           performing DIMSE user issues a C-GET response with status set to
           either refused, failed or success
         """
-        attributes = decode(msg.Identifier,
-                            self.transfersyntax.is_implicit_VR,
-                            self.transfersyntax.is_little_endian)
-
         # Build C-GET response primitive
-        c_get_rsp = C_GET_ServiceParameters()
+        c_get_rsp = C_GET()
         c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
         c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
         c_get_rsp.Identifier = msg.Identifier
 
-        LOGGER.info('Get SCP Request Identifiers:')
-        LOGGER.info('')
-        LOGGER.debug('# DICOM Data Set')
-        for elem in attributes:
-            LOGGER.info(elem)
-        LOGGER.info('')
+        # Number of suboperation trackers
+        no_remaining = 0
+        no_completed = 0
+        no_failed = 0
+        no_warning = 0
+
+        # Check the identifier SOP Class UID matches the one agreed to
+        if self.UID != self.sopclass:
+            LOGGER.error("Get request's Identifier UID does not match the "
+                         "presentation context")
+            c_get_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+            return
+
+        try:
+            dataset = decode(msg.Identifier,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
+        except:
+            LOGGER.error("Failed to decode the received Identifier dataset")
+            c_get_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+            return
+
+        # Log Identifier
+        try:
+            LOGGER.info('Get SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in dataset:
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except (AttributeError, NotImplementedError, TypeError, KeyError):
+            LOGGER.error("Failed to decode the received Identifier dataset")
+            c_get_rsp.Status = int(self.UnableToProcess)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+            return
 
         # The user is responsible for returning the matching Instances
         try:
-            matches = self.AE.on_c_get(attributes)
+            result = self.AE.on_c_get(dataset)
         except:
-            LOGGER.error('Exception in on_c_get')
+            LOGGER.exception('Exception in user\'s on_c_get implementation.')
             c_get_rsp.Status = int(self.UnableToProcess)
-            # FIXME: ii indexing?
-            #LOGGER.info('Get SCP Response %s (Failure)', ii)
-            LOGGER.info('Get SCP Response (Failure)')
-            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+            LOGGER.info('Get SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
             return
 
-        c_get_rsp.NumberOfRemainingSuboperations = next(matches)
-        c_get_rsp.NumberOfCompletedSuboperations = 0
-        c_get_rsp.NumberOfFailedSuboperations = 0
-        c_get_rsp.NumberOfWarningSuboperations = 0
+        try:
+            no_remaining = int(next(result))
+        except TypeError:
+            LOGGER.exception('You must yield the number of sub-operations '
+                             'in ae.on_c_get before yielding (status, '
+                             'dataset) pairs')
+            c_get_rsp.Status = int(self.UnableToProcess)
+            LOGGER.info('Get SCP Response: (Failure - %s)',
+                        self.UnableToProcess.description)
+            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+            return
 
-        ii = 1
-        for dataset in matches:
-            # Send C-STORE-RQ and Pending C-GET-RSP to peer
-            # Send each matching dataset via C-STORE
-            LOGGER.info('Store SCU RQ: MsgID %s', ii)
+        # Iterate through the results
+        for ii, (usr_status, matching_ds) in enumerate(result):
+            # Check validity of usr_status
+            try:
+                usr_status = self.code_to_status(usr_status)
+            except (ValueError, TypeError):
+                LOGGER.error("ApplicationEntity.on_c_move() returned an "
+                             "invalid status value.")
+                c_get_rsp.Status = int(self.UnableToProcess)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                return
 
-            store_status = self.ACSE.parent.send_c_store(dataset,
-                                                         msg.MessageID,
-                                                         priority)
-            store_status = store_status.status_type
+            if usr_status.status_type == 'Cancel':
+                LOGGER.info('Received C-CANCEL-GET RQ from peer')
+                c_get_rsp.Status = int(self.Cancel)
+                c_get_rsp.NumberOfRemainingSuboperations = no_remaining
+                c_get_rsp.NumberOfFailedSuboperations = no_failed
+                c_get_rsp.NumberOfWarningSuboperations = no_warning
+                c_get_rsp.NumberOfCompletedSuboperations = no_completed
+                # Send C-CANCEL confirmation
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                return
+            elif usr_status.status_type == 'Failure':
+                # Pass along the status from the user
+                c_get_rsp.Status = int(usr_status)
+                LOGGER.info('Get SCP Response: (Failure - %s)',
+                            usr_status.description)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                return
+            elif usr_status.status_type == 'Success':
+                # User isn't supposed to send these, but handle anyway
+                c_get_rsp.Status = int(self.Success)
+                LOGGER.info('Get SCP Response: (Success)')
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                return
+            else:
+                # Send C-STORE-RQ and Pending C-GET-RSP to peer
+                # Send each matching dataset via C-STORE
+                LOGGER.info('Store SCU RQ: MsgID %s', ii + 1)
 
-            LOGGER.info('Get SCU: Received Store SCU RSP (%s)', store_status)
+                store_status = self.ACSE.parent.send_c_store(matching_ds,
+                                                             msg.MessageID,
+                                                             priority)
 
-            if store_status == 'Failure':
-                c_get_rsp.NumberOfFailedSuboperations += 1
-            elif store_status == 'Warning':
-                c_get_rsp.NumberOfWarningSuboperations += 1
-            elif store_status == 'Success':
-                c_get_rsp.NumberOfCompletedSuboperations += 1
+                store_status = \
+                            StorageServiceClass().code_to_status(store_status)
 
-            c_get_rsp.NumberOfRemainingSuboperations -= 1
+                LOGGER.info('Get SCU: Received Store SCU RSP (%s)',
+                            store_status.status_type)
 
-            c_get_rsp.Status = int(self.Pending)
+                # Update the suboperation trackers
+                if store_status.status_type == 'Failure':
+                    no_failed += 1
+                elif store_status.status_type == 'Warning':
+                    no_warning += 1
+                elif store_status.status_type == 'Success':
+                    no_completed += 1
+                no_remaining -= 1
 
-            LOGGER.info('Get SCP Response %s (Pending)', ii)
+                c_get_rsp.NumberOfRemainingSuboperations = no_remaining
+                c_get_rsp.NumberOfFailedSuboperations = no_failed
+                c_get_rsp.NumberOfWarningSuboperations = no_warning
+                c_get_rsp.NumberOfCompletedSuboperations = no_completed
 
-            self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+                LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
+                c_get_rsp.Status = int(self.Pending)
+                self.DIMSE.send_msg(c_get_rsp, self.pcid)
 
-            ii += 1
+        # Send final C-GET-RSP to peer
+        if no_warning == 0 and no_failed == 0:
+            c_get_rsp.Status = int(self.Success)
+            LOGGER.info('Get SCP Final Response (Success)')
+        else:
+            c_get_rsp.Status = int(self.Warning)
+            LOGGER.info('Get SCP Final Response (Warning)')
 
-        # Send Success C-GET-RSP to peer
-        c_get_rsp.Status = int(self.Success)
-        LOGGER.info('Get SCP Response %s (Success)', ii)
-        self.DIMSE.Send(c_get_rsp, self.pcid, self.maxpdulength)
+        self.DIMSE.send_msg(c_get_rsp, self.pcid)
 
 
 # WORKLIST SOP Classes
@@ -850,7 +1237,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
                     self.transfersyntax.is_little_endian)
 
         # make response
-        rsp = C_FIND_ServiceParameters()
+        rsp = C_FIND()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
@@ -864,57 +1251,14 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
                                         self.transfersyntax.is_implicit_VR,
                                         self.transfersyntax.is_little_endian)
                 # send response
-                self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
+                self.DIMSE.send_msg(rsp, self.pcid)
         except StopIteration:
             # send final response
-            rsp = C_FIND_ServiceParameters()
+            rsp = C_FIND()
             rsp.MessageIDBeingRespondedTo = msg.MessageID.value
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
             rsp.Status = int(self.Success)
-            self.DIMSE.Send(rsp, self.pcid, self.ACSE.MaxPDULength)
-
-
-class RTMachineVerificationServiceClass(ServiceClass):
-    """Test implements of the RT Machine Verification Service Class."""
-    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE/N-SET/N-GET/N-ACTION
-    #   Slight differences in description text
-    Success = Status('Success',
-                     'Machine Verification successfully created',
-                     range(0x0000, 0x0000 + 1))
-
-    # PS3.4 DD.3.2.1.2 RT Ion Machine Verification N-CREATE
-    fail_C227 = Status('Failure', '', range(0xC227, 0xC227 + 1))
-    fail_c221 = Status('Failure', '', range(0xC221, 0xC221 + 1))
-    fail_C222 = Status('Failure', '', range(0xC222, 0xC222 + 1))
-    fail_C223 = Status('Failure', '', range(0xC223, 0xC223 + 1))
-
-    # N-SET
-    fail_C224 = Status('Failure', '', range(0xC224, 0xC224 + 1))
-    fail_C225 = Status('Failure', '', range(0xC225, 0xC225 + 1))
-    fail_C226 = Status('Failure', '', range(0xC226, 0xC226 + 1))
-
-    # N-GET
-    fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1))
-
-    # N-ACTION
-    fail_C112 = Status('Failure', '', range(0xC112, 0xC112 + 1)) # oh noooooooo
-
-    def SCP(self, msg):
-        """SCP"""
-        print('RTMachineVerification SCP', msg)
-
-        if msg.__class__ == N_CREATE_ServiceParameters:
-            pass
-        elif msg.__class__ == N_SET_ServiceParameters:
-            pass
-        elif msg.__class__ == N_ACTION_ServiceParameters:
-            pass
-        elif msg.__class__ == N_DELETE_ServiceParameters:
-            pass
-        elif msg.__class__ == N_EVENT_REPORT_ServiceParameters:
-            pass
-        else:
-            pass
+            self.DIMSE.send_msg(rsp, self.pcid)
 
 
 # Generate the various SOP classes
@@ -1052,16 +1396,14 @@ _QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840
                    'StudyRootQueryRetrieveInformationModelGet'        : '1.2.840.10008.5.1.4.1.2.2.3',
                    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
 
-_MACHINE_VERIFICATION_CLASSES = {'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8'}
-
 # pylint: enable=line-too-long
 _generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
 _generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
 _generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
 _generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
 _generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
-_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES,
-                              RTMachineVerificationServiceClass)
+#_generate_service_sop_classes(_MACHINE_VERIFICATION_CLASSES,
+#                              RTMachineVerificationServiceClass)
 
 # pylint: disable=no-member
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
@@ -1087,13 +1429,13 @@ def uid_to_sop_class(uid):
         The SOP class corresponding to `uid`
     """
     # Get a list of all the class members of the current module
-    members = inspect.getmembers(sys.modules[__name__], lambda member: \
-                    inspect.isclass(member) and member.__module__ == __name__)
+    members = inspect.getmembers(sys.modules[__name__],
+                                 lambda member: inspect.isclass(member) and \
+                                                member.__module__ == __name__)
 
     for obj in members:
-        if hasattr(obj[1], 'UID'):
-            if obj[1].UID == uid:
-                return obj[1]
+        if hasattr(obj[1], 'UID') and obj[1].UID == uid:
+            return obj[1]
 
     raise NotImplementedError("The SOP Class for UID '{}' has not been " \
                               "implemented".format(uid))

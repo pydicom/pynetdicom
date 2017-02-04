@@ -1,37 +1,15 @@
+"""Various utility functions.
 
-"""Various utility functions"""
+TODO: Rename wrap_list globally to pretty_bytes_string
+"""
 from io import BytesIO
 import logging
 import unicodedata
 
-from pydicom.uid import UID
+from pydicom.uid import UID, InvalidUID
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
 
-def fragment(max_pdu, byte_str):
-    """Convert the given str into fragments, each of maximum size `max_pdu`
-
-    FIXME: Add Parameters section
-
-    Returns
-    -------
-    fragments : list of str
-        The fragmented string
-    """
-    if isinstance(byte_str, BytesIO):
-        byte_str = byte_str.getvalue()
-    s = byte_str
-    fragments = []
-    maxsize = max_pdu - 6
-
-    while 1:
-        fragments.append(s[:maxsize])
-        s = s[maxsize:]
-        if len(s) <= maxsize:
-            if len(s) > 0:
-                fragments.append(s)
-
-            return fragments
 
 def validate_ae_title(ae_title):
     """Return a valid AE title from `ae_title`, if possible.
@@ -51,7 +29,7 @@ def validate_ae_title(ae_title):
 
     Parameters
     ----------
-    ae_title - str or bytes
+    ae_title : str or bytes
         The AE title to check
 
     Returns
@@ -97,7 +75,7 @@ def validate_ae_title(ae_title):
             else:
                 return significant_characters
 
-        # AE title too long - truncate
+        # AE title too long : truncate
         elif len(significant_characters.strip()) > 16:
             if is_bytes:
                 return bytes(significant_characters[:16], 'utf-8')
@@ -107,17 +85,41 @@ def validate_ae_title(ae_title):
         # AE title empty str
         else:
             raise ValueError("Invalid value for an AE title; must be a "
-                             "non-empty string")
-
+                             "non-empty string or bytes.")
+    except AttributeError:
+        raise TypeError("Invalid value for an AE title; must be a "
+                        "non-empty string or bytes.")
     except ValueError:
         raise
     except:
         raise TypeError("Invalid value for an AE title; must be a "
-                        "non-empty string")
+                        "non-empty string or bytes.")
 
 def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
-              max_size=512):
-    """Given a bytestring `lst` turn it into a list of nicely formatted str."""
+              max_size=512, suffix=''):
+    """Given a bytestring `lst` turn it into a list of nicely formatted str.
+
+    Parameters
+    ----------
+    bytestream : bytes or io.BytesIO
+        The bytes to convert to a nicely formatted string list
+    prefix : str
+        Insert `prefix` at the start of every item in the output string list
+    delimiter : str
+        Delimit each of the bytes in `lst` using `delimiter`
+    items_per_line : int
+        The number of bytes in each item of the output string list.
+    max_size : int or None
+        The maximum number of bytes to add to the output string list. A value
+        of None indicates that all of `bytestream` should be output.
+    suffix : str
+        Append `suffix` to the end of every item in the output string list
+
+    Returns
+    -------
+    list of str
+        The output string list
+    """
     lines = []
     if isinstance(lst, BytesIO):
         lst = lst.getvalue()
@@ -128,16 +130,15 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
         chunk = lst[ii:ii + items_per_line]
         byte_count += len(chunk)
 
-        if max_size is not None:
-            if byte_count <= max_size:
-                line = prefix + delimiter.join(format(x, '02x') for x in chunk)
-                lines.append(line)
-            else:
-                cutoff_output = True
-                break
+        if max_size is not None and byte_count <= max_size:
+            line = prefix + delimiter.join(format(x, '02x') for x in chunk)
+            lines.append(line + suffix)
+        elif max_size is not None and byte_count > max_size:
+            cutoff_output = True
+            break
         else:
             line = prefix + delimiter.join(format(x, '02x') for x in chunk)
-            lines.append(line)
+            lines.append(line + suffix)
 
     if cutoff_output:
         lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))
@@ -162,21 +163,21 @@ class PresentationContext(object):
 
     Attributes
     ----------
-    ID - int
+    ID : int
         The presentation context ID
-    AbstractSyntax - pydicom.uid.UID
+    AbstractSyntax : pydicom.uid.UID
         The abstract syntax
-    TransferSyntax - list of pydicom.uid.UID
+    TransferSyntax : list of pydicom.uid.UID
         The transfer syntax(es)
-    SCU - bool
+    SCU : bool
         True if...
-    SCP - bool
+    SCP : bool
         True if...
-    Result - int or None
+    Result : int or None
         If part of the A-ASSOCIATE request then None.
         If part of the A-ASSOCIATE resposne then one of:
             0x00, 0x01, 0x02, 0x03, 0x04
-    status - str
+    status : str
         The string representation of the Result:
             0x00 : 'acceptance',
             0x01 : 'user rejection',
@@ -211,24 +212,36 @@ class PresentationContext(object):
         transfer_syntax : pydicom.uid.UID, bytes or str
             The transfer syntax to add to the Presentation Context
         """
+        # UID is a subclass of str
         if isinstance(transfer_syntax, str):
             transfer_syntax = UID(transfer_syntax)
         elif isinstance(transfer_syntax, bytes):
             transfer_syntax = UID(transfer_syntax.decode('utf-8'))
         else:
-            raise ValueError('transfer_syntax must be a pydicom.uid.UID,' \
+            raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
 
-        if isinstance(transfer_syntax, UID):
-            if transfer_syntax not in self.TransferSyntax:
-                self.TransferSyntax.append(transfer_syntax)
+        if transfer_syntax not in self.TransferSyntax:
+            try:
+                transfer_syntax.is_valid()
+            except InvalidUID:
+                raise ValueError('Presentation Context attempted to add a '
+                                 'invalid UID')
+            if not transfer_syntax.is_transfer_syntax:
+                raise ValueError('Presentation Context attempted to add a '
+                                 'non-transfer syntax UID')
+            self.TransferSyntax.append(transfer_syntax)
 
     def __eq__(self, other):
         """Return True if `self` is equal to `other`."""
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
 
-        return False
+        return NotImplemented
+
+    def __ne__(self, other):
+        """Return inequality"""
+        return not self == other
 
     def __str__(self):
         """String representation of the Presentation Context."""
@@ -240,8 +253,6 @@ class PresentationContext(object):
         s += 'Transfer Syntax(es):\n'
         for syntax in self.TransferSyntax:
             s += '\t={0!s}\n'.format(syntax)
-
-        #s += 'SCP/SCU: %s/%s'
 
         if self.Result is not None:
             s += 'Result: {0!s}\n'.format(self.status)
@@ -260,12 +271,14 @@ class PresentationContext(object):
         FIXME: Add Parameters section
         """
         # pylint: disable=attribute-defined-outside-init
-        if 1 <= value <= 255:
-            if value % 2 == 0:
-                raise ValueError("Presentation Context ID must be an odd "
-                                 "integer between 1 and 255 inclusive")
-            else:
-                self._id = value
+        if not (1 <= value <= 255):
+            raise ValueError("Presentation Context ID must be an odd "
+                             "integer between 1 and 255 inclusive")
+        elif value % 2 == 0:
+            raise ValueError("Presentation Context ID must be an odd "
+                             "integer between 1 and 255 inclusive")
+        else:
+            self._id = value
 
     @property
     def AbstractSyntax(self):
@@ -273,25 +286,35 @@ class PresentationContext(object):
         return self._abstract_syntax
 
     @AbstractSyntax.setter
-    def AbstractSyntax(self, value):
+    def AbstractSyntax(self, uid):
         """Set the Presentation Context's Abstract Syntax parameter.
 
-        FIXME: Add Parameters section
-        `value` must be a pydicom.uid.UID, a string UID or a byte string UID
+        Parameters
+        ----------
+        uid : str or bytes or pydicom.uid.UID
+            The abstract syntax UIDs
         """
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
-        elif isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise ValueError("PresentationContext(): Invalid abstract syntax")
+        if uid is None:
+            self._abstract_syntax = None
+            return
 
-        self._abstract_syntax = value
+        if isinstance(uid, bytes):
+            uid = UID(uid.decode('utf-8'))
+        elif isinstance(uid, UID):
+            pass
+        elif isinstance(uid, str):
+            uid = UID(uid)
+        else:
+            raise TypeError("Presentation Context invalid type for abstract "
+                            "syntax")
+
+        try:
+            uid.is_valid()
+            self._abstract_syntax = uid
+        except InvalidUID:
+            LOGGER.info('Presentation Context attempted to set an invalid '
+                        'abstract syntax UID')
 
     @property
     def TransferSyntax(self):
@@ -299,26 +322,39 @@ class PresentationContext(object):
         return self._transfer_syntax
 
     @TransferSyntax.setter
-    def TransferSyntax(self, value):
+    def TransferSyntax(self, uid_list):
         """Set the Presentation Context's Transfer Syntax parameter.
 
-        FIXME: Add Parameters section
-        `value` must be a list of pydicom.uid.UIDs, string UIDs or byte string
-        UIDs
+        Parameters
+        ----------
+        uid_list : list of str or bytes or pydicom.uid.UID
+            The transfer syntax UIDs
         """
         # pylint: disable=attribute-defined-outside-init
         self._transfer_syntax = []
-        for ii in value:
-            if isinstance(value, bytes):
-                ii = UID(ii.decode('utf-8'))
-            elif isinstance(ii, UID):
+        if not isinstance(uid_list, list):
+            raise TypeError("transfer_syntaxes must be a list.")
+
+        for uid in uid_list:
+            if isinstance(uid, bytes):
+                uid = UID(uid.decode('utf-8'))
+            elif isinstance(uid, UID):
                 pass
-            elif isinstance(ii, str):
-                ii = UID(ii)
+            elif isinstance(uid, str):
+                uid = UID(uid)
             else:
                 raise ValueError("PresentationContext(): Invalid transfer "
                                  "syntax item")
-            self._transfer_syntax.append(ii)
+
+            try:
+                uid.is_valid()
+            except InvalidUID:
+                LOGGER.info('Presentation Context attempted to set an invalid '
+                            'transfer syntax UID')
+                continue
+
+            if uid.is_transfer_syntax:
+                self._transfer_syntax.append(uid)
 
     @property
     def status(self):
@@ -366,13 +402,6 @@ class PresentationContextManager(object):
         self.accepted = []
         self.rejected = []
 
-    def reset(self):
-        """Reset the PresentationContextManager."""
-        self.acceptor_contexts = []
-        self.requestor_contexts = []
-        self.accepted = []
-        self.rejected = []
-
     @staticmethod
     def negotiate_scp_scu_role(request_context, result_context):
         """ Negotiates the SCP/SCU role """
@@ -403,8 +432,8 @@ class PresentationContextManager(object):
                 if isinstance(ii, PresentationContext):
                     self._requestor_contexts.append(ii)
         except:
-            raise ValueError("requestor_contexts must be a list of "
-                             "PresentationContext items")
+            raise TypeError("requestor_contexts must be a list of "
+                            "PresentationContext items")
 
     @property
     def acceptor_contexts(self):
@@ -438,18 +467,21 @@ class PresentationContextManager(object):
             user wants the contexts evaluated
         """
         if self.requestor_contexts == []:
-            raise ValueError("You can only set the Acceptor's presentation "
-                             "contexts after the Requestor's")
+            raise RuntimeError("You can only set the Acceptor's presentation "
+                               "contexts after the Requestor's")
+
+        if not isinstance(contexts, list):
+            raise TypeError("acceptor_contexts must be a list of "
+                            "PresentationContext items")
 
         # Validate the supplied contexts
         self._acceptor_contexts = []
-        try:
-            for ii in contexts:
-                if isinstance(ii, PresentationContext):
-                    self._acceptor_contexts.append(ii)
-        except:
-            raise ValueError("acceptor_contexts must be a list of "
-                             "PresentationContext items")
+        for ii in contexts:
+            if isinstance(ii, PresentationContext):
+                self._acceptor_contexts.append(ii)
+            else:
+                raise TypeError("acceptor_contexts must be a list of "
+                                "PresentationContext items")
 
         # Generate accepted_contexts and rejected_contexts
         self.accepted = []
@@ -466,9 +498,9 @@ class PresentationContextManager(object):
                     #   if we are the Acceptor, otherwise we have to match
                     #   using the IDs
 
-                    # If we are the Requestor then the Acceptor context's
+                    # If we are the Requestor then the Acceptor contexts
                     #   will have no AbstractSyntax
-                    if ii_acc.AbstractSyntax != None:
+                    if ii_acc.AbstractSyntax is not None:
                         if ii_acc.AbstractSyntax == ii_req.AbstractSyntax:
                             acc_context = ii_acc
                     else:

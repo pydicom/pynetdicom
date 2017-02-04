@@ -6,35 +6,51 @@ import logging
 import unittest
 
 from pydicom.dataset import Dataset
+from pydicom.uid import UID
 
-from pynetdicom3.DIMSEmessages import C_STORE_RQ, C_STORE_RSP, \
+from encoded_dimse_msg import c_echo_rq_cmd, c_echo_rsp_cmd, \
+                              c_store_rq_cmd_b, c_store_rq_ds_b, \
+                              c_store_rsp_cmd, \
+                              c_find_rq_cmd, c_find_rq_ds, \
+                              c_find_rsp_cmd, c_find_rsp_ds, \
+                              c_get_rq_cmd, c_get_rq_ds, \
+                              c_get_rsp_cmd, c_get_rsp_ds, \
+                              c_move_rq_cmd, c_move_rq_ds, \
+                              c_move_rsp_cmd, c_move_rsp_ds
+from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
                                       C_MOVE_RQ, C_MOVE_RSP, \
                                       C_ECHO_RQ, C_ECHO_RSP, \
                                       C_FIND_RQ, C_FIND_RSP, \
                                       C_GET_RQ, C_GET_RSP
-from pynetdicom3.DIMSEparameters import C_ECHO_ServiceParameters, \
-                                        C_MOVE_ServiceParameters, \
-                                        C_STORE_ServiceParameters, \
-                                        C_GET_ServiceParameters, \
-                                        C_FIND_ServiceParameters
+from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
+                                        C_FIND, C_CANCEL
 #from pynetdicom3.utils import wrap_list
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-handler = logging.NullHandler()
-for h in LOGGER.handlers:
-    LOGGER.removeHandler(h)
-LOGGER.addHandler(handler)
-LOGGER.setLevel(logging.ERROR)
+LOGGER.setLevel(logging.CRITICAL)
 
+
+class TestPrimitive_C_CANCEL(unittest.TestCase):
+    """Test DIMSE C-CANCEL operations."""
+    def test_assignment(self):
+        """ Check assignment works correctly """
+        primitive = C_CANCEL()
+
+        primitive.MessageIDBeingRespondedTo = 13
+        self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
+        with self.assertRaises(ValueError):
+            primitive.MessageIDBeingRespondedTo = 100000
+        with self.assertRaises(TypeError):
+            primitive.MessageIDBeingRespondedTo = 'test'
 
 class TestPrimitive_C_STORE(unittest.TestCase):
     """Test DIMSE C-STORE operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -42,18 +58,35 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
-        primitive.AffectedSOPInstanceUID = '1.2.4.5.7.8'
-        self.assertEqual(primitive.AffectedSOPInstanceUID, '1.2.4.5.7.8')
+        # AffectedSOPInstanceUID
+        primitive.AffectedSOPInstanceUID = b'1.2.1'
+        self.assertEqual(primitive.AffectedSOPInstanceUID, UID('1.2.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPInstanceUID = UID('1.2.2')
+        self.assertEqual(primitive.AffectedSOPInstanceUID, UID('1.2.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPInstanceUID = '1.2.3'
+        self.assertEqual(primitive.AffectedSOPInstanceUID, UID('1.2.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
 
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
-        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle,
-                         b'UNITTEST_SCP    ')
+        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle, b'UNITTEST_SCP    ')
+        primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST_SCP'
+        self.assertEqual(primitive.MoveOriginatorApplicationEntityTitle, b'UNITTEST_SCP    ')
 
         primitive.MoveOriginatorMessageID = 15
         self.assertEqual(primitive.MoveOriginatorMessageID, 15)
@@ -72,7 +105,7 @@ class TestPrimitive_C_STORE(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -181,7 +214,7 @@ class TestPrimitive_C_STORE(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48.' \
@@ -199,33 +232,15 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\xae\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x01\x00\x00\x00\x10' \
-              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00' \
-              b'\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00' \
-              b'\x10\x3a\x00\x00\x00\x31\x2e\x32\x2e\x33\x39\x32\x2e\x32\x30' \
-              b'\x30\x30\x33\x36\x2e\x39\x31\x31\x36\x2e\x32\x2e\x36\x2e\x31' \
-              b'\x2e\x34\x38\x2e\x31\x32\x31\x35\x37\x30\x39\x30\x34\x34\x2e' \
-              b'\x31\x34\x35\x39\x33\x31\x36\x32\x35\x34\x2e\x35\x32\x32\x34' \
-              b'\x34\x31\x00\x00\x00\x30\x10\x10\x00\x00\x00\x55\x4e\x49\x54' \
-              b'\x54\x45\x53\x54\x5f\x53\x43\x50\x20\x20\x20\x20\x00\x00\x31' \
-              b'\x10\x02\x00\x00\x00\x03\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        # Dataset
-        ref = b'\x02\x10\x00\x10\x00\x0a\x00\x00\x00\x54\x75\x62\x65\x20\x48' \
-              b'\x65\x4e\x65\x20\x10\x00\x20\x00\x08\x00\x00\x00\x54\x65\x73' \
-              b'\x74\x31\x31\x30\x31'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_store_rq_cmd_b)
+        self.assertEqual(ds_pdv, c_store_rq_ds_b)
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_STORE_ServiceParameters()
+        primitive = C_STORE()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.4.10'
         primitive.AffectedSOPInstanceUID = '1.2.4.5.7.8'
@@ -234,23 +249,16 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         dimse_msg = C_STORE_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4c\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x08\x00\x00\x00\x31\x2e\x32\x2e\x34\x2e\x31\x30\x00' \
-              b'\x00\x00\x01\x02\x00\x00\x00\x01\x80\x00\x00\x20\x01\x02\x00' \
-              b'\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01\x00' \
-              b'\x00\x00\x09\x02\x00\x00\x00\x00\x00\x00\x00\x00\x10\x0c\x00' \
-              b'\x00\x00\x31\x2e\x32\x2e\x34\x2e\x35\x2e\x37\x2e\x38\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_store_rsp_cmd)
 
 
 class TestPrimitive_C_FIND(unittest.TestCase):
     """Test DIMSE C-FIND operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -258,8 +266,16 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
@@ -279,7 +295,7 @@ class TestPrimitive_C_FIND(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -352,7 +368,7 @@ class TestPrimitive_C_FIND(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
@@ -366,55 +382,15 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         dimse_msg = C_FIND_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        ## Command Set
-        # \x03 Message Control Header Byte
-        #
-        # \x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00
-        # (0000, 0000) UL [74] # 4, 1 Command Group Length
-        #
-        # \x00\x00\x00\x02\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30
-        # \x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00
-        # (0000, 0002) UI [1.2.840.10008.5.1.4.1.1.2] #  26, 1
-        #       Affected SOP Class UID (if odd length, trailing 0x00)
-        #
-        # \x00\x00\x00\x01\x02\x00\x00\x00\x20\x00
-        # (0000, 0100) US [0x00, 0x20] #  2, 1 Command Field
-        #
-        # \x00\x00\x10\x01\x02\x00\x00\x00\x07\x00
-        # (0000, 0110) US [7] #  2, 1 Message ID
-        #
-        # \x00\x00\x00\x07\x02\x00\x00\x00\x02\x00
-        # (0000, 0700) US [2] #  2, 1 Priority
-        #
-        # \x00\x00\x00\x08\x02\x00\x00\x00\x01\x00
-        # (0000, 0800) US [1] #  2, 1 Command Data Set Type
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x20\x00\x00\x00\x10' \
-              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00' \
-              b'\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        ## Dataset
-        # \x02 Message Control Header Byte
-        #
-        # \x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e\x54\x20
-        # (0008, 0052) CS [PATIENT ] #  8, 1 Query/Retrieve Level
-        #                       (leading/trailing spaces non-significant)
-        #
-        # \x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20
-        # (0010, 0020) LO [* ] #  2, 1 Patient ID (may be padded with
-        #                                           leading/trailing spaces)
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
-              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_find_rq_cmd)
+        self.assertEqual(ds_pdv, c_find_rq_ds)
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_FIND_ServiceParameters()
+        primitive = C_FIND()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
@@ -429,30 +405,18 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         dimse_msg = C_FIND_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x20\x80\x00\x00\x20' \
-              b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00' \
-              b'\x01\x00\x00\x00\x00\x09\x02\x00\x00\x00\x00\xff'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
-              b'\x54\x20\x08\x00\x54\x00\x10\x00\x00\x00\x46\x49\x4e\x44\x53' \
-              b'\x43\x50\x20\x20\x20\x20\x20\x20\x20\x20\x20\x10\x00\x10\x00' \
-              b'\x0c\x00\x00\x00\x41\x4e\x4f\x4e\x5e\x41\x5e\x42\x5e\x43\x5e' \
-              b'\x44'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_find_rsp_cmd)
+        self.assertEqual(ds_pdv, c_find_rsp_ds)
 
 
 class TestPrimitive_C_GET(unittest.TestCase):
     """Test DIMSE C-GET operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -460,8 +424,16 @@ class TestPrimitive_C_GET(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
@@ -492,7 +464,7 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -519,6 +491,38 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = -1
+
+        # NumberOfRemainingSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfRemainingSuboperations = -1
+
+        # NumberOfCompletedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfCompletedSuboperations = -1
+
+        # NumberOfFailedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfFailedSuboperations = -1
+
+        # NumberOfWarningSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfWarningSuboperations = -1
 
         # AffectedSOPClassUID
         with self.assertRaises(TypeError):
@@ -565,7 +569,7 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
@@ -579,25 +583,15 @@ class TestPrimitive_C_GET(unittest.TestCase):
         dimse_msg = C_GET_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4a\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x10\x00\x00\x00\x10' \
-              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x07\x02\x00\x00\x00' \
-              b'\x02\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        # Dataset
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
-              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_get_rq_cmd)
+        self.assertEqual(ds_pdv, c_get_rq_ds)
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_GET_ServiceParameters()
+        primitive = C_GET()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
@@ -615,31 +609,18 @@ class TestPrimitive_C_GET(unittest.TestCase):
         dimse_msg = C_GET_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x10\x80\x00\x00\x20' \
-              b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00' \
-              b'\x01\x00\x00\x00\x00\x09\x02\x00\x00\x00\x00\xff\x00\x00\x20' \
-              b'\x10\x02\x00\x00\x00\x03\x00\x00\x00\x21\x10\x02\x00\x00\x00' \
-              b'\x01\x00\x00\x00\x22\x10\x02\x00\x00\x00\x02\x00\x00\x00\x23' \
-              b'\x10\x02\x00\x00\x00\x04\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        # Data Set
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
-              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_get_rsp_cmd)
+        self.assertEqual(ds_pdv, c_get_rsp_ds)
 
 
 class TestPrimitive_C_MOVE(unittest.TestCase):
     """Test DIMSE C-MOVE operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -647,8 +628,16 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Priority = 0x02
         self.assertEqual(primitive.Priority, 0x02)
@@ -670,7 +659,7 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -697,6 +686,38 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = -1
+
+        # NumberOfRemainingSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfRemainingSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfRemainingSuboperations = -1
+
+        # NumberOfCompletedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfCompletedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfCompletedSuboperations = -1
+
+        # NumberOfFailedSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfFailedSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfFailedSuboperations = -1
+
+        # NumberOfWarningSuboperations
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 'halp'
+        with self.assertRaises(TypeError):
+            primitive.NumberOfWarningSuboperations = 1.111
+        with self.assertRaises(ValueError):
+            primitive.NumberOfWarningSuboperations = -1
 
         # AffectedSOPClassUID
         with self.assertRaises(TypeError):
@@ -756,7 +777,7 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
@@ -771,27 +792,16 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         dimse_msg = C_MOVE_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
+        pdvs = dimse_msg.encode_msg(1, 16382)
 
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x62\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x21\x00\x00\x00\x10' \
-              b'\x01\x02\x00\x00\x00\x07\x00\x00\x00\x00\x06\x10\x00\x00\x00' \
-              b'\x4d\x4f\x56\x45\x5f\x53\x43\x50\x20\x20\x20\x20\x20\x20\x20' \
-              b'\x20\x00\x00\x00\x07\x02\x00\x00\x00\x02\x00\x00\x00\x00\x08' \
-              b'\x02\x00\x00\x00\x01\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        # Dataset
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
-              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_move_rq_cmd)
+        self.assertEqual(ds_pdv, c_move_rq_ds)
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
-        primitive = C_MOVE_ServiceParameters()
+        primitive = C_MOVE()
         primitive.MessageIDBeingRespondedTo = 5
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Status = 0xFF00
@@ -809,31 +819,18 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         dimse_msg = C_MOVE_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x1a\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e' \
-              b'\x32\x00\x00\x00\x00\x01\x02\x00\x00\x00\x21\x80\x00\x00\x20' \
-              b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00\x08\x02\x00\x00\x00' \
-              b'\x01\x00\x00\x00\x00\x09\x02\x00\x00\x00\x00\xff\x00\x00\x20' \
-              b'\x10\x02\x00\x00\x00\x03\x00\x00\x00\x21\x10\x02\x00\x00\x00' \
-              b'\x01\x00\x00\x00\x22\x10\x02\x00\x00\x00\x02\x00\x00\x00\x23' \
-              b'\x10\x02\x00\x00\x00\x04\x00'
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
-        # Data Set
-        ref = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50\x41\x54\x49\x45\x4e' \
-              b'\x54\x20\x10\x00\x20\x00\x02\x00\x00\x00\x2a\x20'
-        self.assertEqual(pdvs[1].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_move_rsp_cmd)
+        self.assertEqual(ds_pdv, c_move_rsp_ds)
 
 
 class TestPrimitive_C_ECHO(unittest.TestCase):
     """Test DIMSE C-ECHO operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
 
         primitive.MessageID = 11
         self.assertEqual(primitive.MessageID, 11)
@@ -841,15 +838,23 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 13
         self.assertEqual(primitive.MessageIDBeingRespondedTo, 13)
 
-        primitive.AffectedSOPClassUID = '1.2.4.10'
-        self.assertEqual(primitive.AffectedSOPClassUID, '1.2.4.10')
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.1'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.2'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
+        self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
 
         # MessageID
         with self.assertRaises(TypeError):
@@ -896,27 +901,20 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.1.1'
 
         dimse_msg = C_ECHO_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00' \
-              b'\x00\x00\x30\x00\x00\x00\x10\x01\x02\x00\x00\x00\x07\x00\x00' \
-              b'\x00\x00\x08\x02\x00\x00\x00\x01\x01'
-
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_echo_rq_cmd)
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RQ PDU produces the correct output """
-        primitive = C_ECHO_ServiceParameters()
+        primitive = C_ECHO()
         primitive.MessageIDBeingRespondedTo = 8
         primitive.AffectedSOPClassUID = '1.2.840.10008.1.1'
         primitive.Status = 0x0000
@@ -924,18 +922,9 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         dimse_msg = C_ECHO_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.Encode(1, 16382)
-
-        # Command Set
-        ref = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00' \
-              b'\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
-              b'\x30\x30\x30\x38\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00' \
-              b'\x00\x00\x30\x80\x00\x00\x20\x01\x02\x00\x00\x00\x08\x00\x00' \
-              b'\x00\x00\x08\x02\x00\x00\x00\x01\x01\x00\x00\x00\x09\x02\x00' \
-              b'\x00\x00\x00\x00'
-
-        self.assertEqual(pdvs[0].presentation_data_value_list[0][1], ref)
-
+        pdvs = dimse_msg.encode_msg(1, 16382)
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        self.assertEqual(cs_pdv, c_echo_rsp_cmd)
 
 if __name__ == "__main__":
     unittest.main()
