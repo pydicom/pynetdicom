@@ -152,7 +152,8 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 
 def on_c_find(dataset):
     """Implement the ae.on_c_find callback."""
-    basedir = '../../test/dicom_files/'
+
+    basedir = '../../../test/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
     for dcm in dcm_files:

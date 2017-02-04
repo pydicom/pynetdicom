@@ -152,8 +152,8 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 
 def on_c_move(dataset, move_aet):
     """Implement the on_c_move callback"""
-    basedir = '../test/dicom_files/'
-    dcm_files = ['CTImageStorage.dcm']
+    basedir = '../../../test/dicom_files/'
+    dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
 
     # Number of matches
@@ -167,8 +167,8 @@ def on_c_move(dataset, move_aet):
 
     # Matching datasets to send
     for dcm in dcm_files:
-        data = read_file(dcm, force=True)
-        yield data
+        ds = read_file(dcm, force=True)
+        yield 0xff00, ds
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,

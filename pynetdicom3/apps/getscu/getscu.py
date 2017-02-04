@@ -95,7 +95,7 @@ def _setup_argparser():
                           action="store_true")
     qr_model.add_argument("-P", "--patient",
                           help="use patient root information model",
-                          action="store_true")
+                          action="store_true", default=True)
     qr_model.add_argument("-S", "--study",
                           help="use study root information model",
                           action="store_true")

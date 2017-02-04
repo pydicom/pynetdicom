@@ -54,9 +54,6 @@ def _setup_argparser():
     gen_opts.add_argument("--version",
                           help="print version information and exit",
                           action="store_true")
-    gen_opts.add_argument("--arguments",
-                          help="print expanded command line arguments",
-                          action="store_true")
     gen_opts.add_argument("-q", "--quiet",
                           help="quiet mode, print no warnings and errors",
                           action="store_true")
@@ -180,6 +177,10 @@ transfer_syntax = [ImplicitVRLittleEndian,
                    DeflatedExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
+if args.prefer_uncompr and ImplicitVRLittleEndian in transfer_syntax:
+        transfer_syntax.remove(ImplicitVRLittleEndian)
+        transfer_syntax.append(ImplicitVRLittleEndian)
+
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
@@ -197,7 +198,7 @@ def on_c_store(dataset):
 
     Parameters
     ----------
-    dataset - pydicom.Dataset
+    dataset : pydicom.dataset.Dataset
         The DICOM dataset sent via the C-STORE
 
     Returns
