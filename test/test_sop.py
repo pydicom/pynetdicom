@@ -63,7 +63,7 @@ class DummyAE(object):
 
 class DummyDIMSE(object):
     """Dummy DIMSE provider"""
-    def Send(self, msg, context_id, length):
+    def send_msg(self, msg, context_id, length):
         """Dummy Send method"""
         pass
 
@@ -78,12 +78,12 @@ class TestServiceClass(unittest.TestCase):
         status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
         with self.assertRaises(ValueError):
             sop.code_to_status(status)
-            
+
         with self.assertRaises(TypeError):
             sop.code_to_status('test')
-        
+
         self.assertEqual(sop.Success, sop.code_to_status(sop.Success))
-        
+
         with self.assertRaises(TypeError):
             sop.code_to_status('test')
 
