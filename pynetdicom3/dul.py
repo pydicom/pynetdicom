@@ -362,8 +362,6 @@ class DULServiceProvider(Thread):
 
     def _check_incoming_primitive(self):
         """Check the incoming primitive."""
-        #LOGGER.debug('%s: checking incoming primitive' % (self.name))
-        # look at self.ReceivePrimitive for incoming primitives
         try:
             # Check the queue and see if there are any primitives
             # If so then put the corresponding event on the event queue

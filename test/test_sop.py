@@ -11,7 +11,6 @@ from pynetdicom3.sop_class import Status, uid_to_sop_class, \
                                  QueryRetrieveFindServiceClass, \
                                  QueryRetrieveMoveServiceClass, \
                                  ModalityWorklistServiceSOPClass, \
-                                 RTMachineVerificationServiceClass, \
                                  VerificationSOPClass
 
 LOGGER = logging.getLogger('pynetdicom3')

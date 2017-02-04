@@ -470,6 +470,19 @@ class TestAEGoodMiscSetters(unittest.TestCase):
         ae.scp_supported_sop = StorageSOPClassList
         self.assertTrue('CT Image' in ae.__str__())
 
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.assertTrue('None' in ae.__str__())
+
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        self.assertTrue('Explicit VR' in ae.__str__())
+        self.assertTrue('Peer' in ae.__str__())
+        assoc.release()
+        scp.stop()
+
 
 class TestAEGoodInitialisation(unittest.TestCase):
     def test_sop_classes_good_uid(self):
@@ -683,6 +696,8 @@ class TestAEBadInitialisation(unittest.TestCase):
     def test_sop_classes_bad_class(self):
         """ AE should fail if given bad sop classes """
         self.assertRaises(TypeError, AE, 'TEST', 0, ['1.2.840.10008.1.1.'], [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [[]], [])
+        self.assertRaises(TypeError, AE, 'TEST', 0, [], [[]])
         self.assertRaises(TypeError, AE, 'TEST', 0, ['1.2.840.10008.1.1.', 1, 'abst'], [])
         self.assertRaises(TypeError, AE, 'TEST', 0, [UID('1.2.840.10008.1.1.')], [])
         self.assertRaises(TypeError, AE, 'TEST', 0, [], ['1.2.840.10008.1.1.'])
