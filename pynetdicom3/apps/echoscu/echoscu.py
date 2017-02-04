@@ -247,7 +247,7 @@ if args.version:
     print('echoscu.py v%s %s $' %(VERSION, '2016-04-12'))
     sys.exit()
 
-LOGGER.debug('echoscu.py v%s %s $', VERSION, '2016-04-12')
+LOGGER.debug('echoscu.py v%s %s', VERSION, '2017-02-04')
 LOGGER.debug('')
 
 

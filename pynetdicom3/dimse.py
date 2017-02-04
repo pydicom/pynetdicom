@@ -126,7 +126,7 @@ class DIMSEServiceProvider(object):
         The DIMSE message
     """
     # pylint: disable=too-many-public-methods
-    def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=31682):
+    def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
         """Start the DIMSE service provider.
 
         Parameters
@@ -260,7 +260,7 @@ class DIMSEServiceProvider(object):
         # FIXME: dimse timeout needs to be fixed
         #dimse_timeout = self.dimse_timeout
         dimse_timeout = None
-        
+
 
         if self.message is None:
             self.message = DIMSEMessage()
@@ -925,7 +925,7 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-CANCEL RQ'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        
+
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
 

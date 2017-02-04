@@ -77,9 +77,9 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        local_ae : pynetdicom3.applicationentity.ApplicationEntity
-            The local AE instance
-            [FIXME] Change this back to a dict as the full instance isn't req'd
+        local_ae : dict
+            Contains information about the local AE, keys 'AET', 'Port',
+            'Address'.
         peer_ae : dict
             A dict containing the peer AE's IP/TCP address, port and title
         max_pdu_size : int

@@ -207,6 +207,7 @@ class Association(threading.Thread):
 
         # Set new ACSE and DIMSE providers
         self.acse = ACSEServiceProvider(self, self.acse_timeout)
+        # FIXME: DIMSE max pdu should be the peer max
         self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout,
                                           self.local_max_pdu)
 
@@ -383,6 +384,9 @@ class Association(threading.Thread):
         # Set maximum PDU send length
         self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
         self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
+
+        # Set Responding AE title
+        assoc_rq.called_ae_title = self.ae.ae_title
 
         # Set maximum PDU receive length
         assoc_rq.maximum_length_received = self.local_max_pdu # TODO: Rename?

@@ -25,6 +25,8 @@ stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
+VERSION = '0.2.1'
+
 def _setup_argparser():
     """Setup the command line arguments"""
     # Description
@@ -46,9 +48,6 @@ def _setup_argparser():
     gen_opts = parser.add_argument_group('General Options')
     gen_opts.add_argument("--version",
                           help="print version information and exit",
-                          action="store_true")
-    gen_opts.add_argument("--arguments",
-                          help="print expanded command line arguments",
                           action="store_true")
     gen_opts.add_argument("-q", "--quiet",
                           help="quiet mode, print no warnings and errors",
@@ -90,13 +89,13 @@ def _setup_argparser():
     net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes',
                           help="set max receive pdu to n bytes (4096..131072)",
                           type=int,
-                          default=16384)
+                          default=16382)
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
     ts_opts.add_argument("-x=", "--prefer-uncompr",
                          help="prefer explicit VR local byte order (default)",
-                         action="store_true")
+                         action="store_true", default=True)
     ts_opts.add_argument("-xe", "--prefer-little",
                          help="prefer explicit VR little endian TS",
                          action="store_true")
@@ -109,17 +108,17 @@ def _setup_argparser():
 
     # Association Options
     assoc_opts = parser.add_argument_group('Association Options')
-    assoc_opts.add_argument("--refuse",
-                            help="refuse all associations",
-                            action="store_true")
-    assoc_opts.add_argument("--abort-after",
-                            help="abort association after receiving a "
-                                "C-ECHO-RQ (but before sending response)",
-                            action="store_true")
-    assoc_opts.add_argument("--abort-during",
-                            help="abort association during receipt of a "
-                                "C-ECHO-RQ",
-                            action="store_true")
+    #assoc_opts.add_argument("--refuse",
+    #                        help="refuse all associations",
+    #                        action="store_true")
+    #assoc_opts.add_argument("--abort-after",
+    #                        help="abort association after receiving a "
+    #                            "C-ECHO-RQ (but before sending response)",
+    #                        action="store_true")
+    #assoc_opts.add_argument("--abort-during",
+    #                        help="abort association during receipt of a "
+    #                            "C-ECHO-RQ",
+    #                        action="store_true")
 
     return parser.parse_args()
 
@@ -161,7 +160,7 @@ if args.log_level:
 if args.log_config:
     fileConfig(args.log_config)
 
-logger.debug('$echoscp.py v{0!s} {1!s} $'.format('0.2.1', '2016-04-12'))
+logger.debug('echoscp.py v{0!s} {1!s}'.format(VERSION, '2017-02-04'))
 logger.debug('')
 
 # Validate port
@@ -180,16 +179,20 @@ transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
+if args.prefer_uncompr and ImplicitVRLittleEndian in transfer_syntax:
+    transfer_syntax.remove(ImplicitVRLittleEndian)
+    transfer_syntax.append(ImplicitVRLittleEndian)
+
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
 if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
-        transfer_syntax.remove(ExplicitVRLittleEndian)
-        transfer_syntax.insert(0, ExplicitVRLittleEndian)
+    transfer_syntax.remove(ExplicitVRLittleEndian)
+    transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
 if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
-        transfer_syntax.remove(ExplicitVRBigEndian)
-        transfer_syntax.insert(0, ExplicitVRBigEndian)
+    transfer_syntax.remove(ExplicitVRBigEndian)
+    transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,
@@ -197,29 +200,6 @@ ae = AE(ae_title=args.aetitle,
         scu_sop_class=[],
         scp_sop_class=[VerificationSOPClass],
         transfer_syntax=transfer_syntax)
-
-if args.abort_after:
-    # Use the on_c_echo callback to send an A-ABORT
-    def on_c_echo(dimse_msg):
-        """Use the on_c_echo callback to issue an abort"""
-        # Issue A-ABORT request primitive for the association that received
-        #   the C-ECHO-RQ
-        assoc = dimse_msg.ACSE.parent
-        assoc.abort()
-
-    ae.on_c_echo = on_c_echo
-
-if args.abort_during:
-    def on_receive_pdu(self):
-        """Issue an A-ABORT during association negotiation"""
-        # Clear event queue and issue A-ABORT request primitive
-        pass
-
-if args.refuse:
-    def on_receive_associate_rq(self, a_associate_rq):
-        """Issue an A-ASSOCIATE rejection"""
-        # Issue A-ASSOCIATE refusal primitive
-        pass
 
 ae.maximum_pdu_size = args.max_pdu
 
