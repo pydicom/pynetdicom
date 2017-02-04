@@ -378,8 +378,7 @@ class Association(threading.Thread):
         self.acse.context_manager.acceptor_contexts = \
                                 self.ae.presentation_contexts_scp
 
-        self.acse.accepted_contexts = \
-                                self.acse.context_manager.accepted
+        self.acse.accepted_contexts = self.acse.context_manager.accepted
 
         # Set maximum PDU send length
         self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?

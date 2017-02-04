@@ -1007,7 +1007,7 @@ class ApplicationEntity(object):
         Yields
         ------
         number_matches : int
-            The field yield should be the number of matching Instances.
+            The first yield should be the number of matching Instances.
         addr, port : str, int
             The second yield should be the TCP/IP address and port number of the
             destination AE (if known) or None, None if unknown.

@@ -190,10 +190,8 @@ class ACSEServiceProvider(object):
 
                 # Once the context manager gets both sets of contexts it
                 #   automatically determines which are accepted and refused
-                self.accepted_contexts = \
-                    self.context_manager.accepted
-                self.rejected_contexts = \
-                    self.context_manager.rejected
+                self.accepted_contexts = self.context_manager.accepted
+                self.rejected_contexts = self.context_manager.rejected
 
                 return True, assoc_rsp
 
