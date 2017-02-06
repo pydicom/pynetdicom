@@ -48,6 +48,7 @@ class DummyBaseSCP(threading.Thread):
         self.daemon = True
 
         self.delay = 0
+        self.send_abort = False
 
     def run(self):
         """The thread run method"""
@@ -115,6 +116,9 @@ class DummyVerificationSCP(DummyBaseSCP):
             Wait `delay` seconds before sending a response
         """
         time.sleep(self.delay)
+        
+        if self.send_abort:
+            self.ae.active_associations[0].abort()
 
 
 class DummyStorageSCP(DummyBaseSCP):

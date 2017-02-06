@@ -98,9 +98,9 @@ class ApplicationEntity(object):
 
     Attributes
     ----------
-    acse_timeout : int
+    acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of 0 means no timeout. (default: 0)
+        messages. A value of None means no timeout. (default: 60)
     active_associations : list of pynetdicom3.association.Association
         The currently active associations between the local and peer AEs
     address : str
@@ -109,12 +109,12 @@ class ApplicationEntity(object):
         The local AE's title
     client_socket : socket.socket
         The socket used for connections with peer AEs
-    dimse_timeout : int
+    dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of 0 means no timeout. (default: 0)
-    network_timeout : int
+        messages. A value of None means no timeout. (default: None)
+    network_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for network messages.
-        A value of 0 means no timeout. (default: 60)
+        A value of None means no timeout. (default: None)
     maximum_associations : int
         The maximum number of simultaneous associations (default: 2)
     maximum_pdu_size : int
@@ -191,23 +191,23 @@ class ApplicationEntity(object):
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
 
+        # List of active association objects
+        self.active_associations = []
+
         # Default maximum simultaneous associations
         self.maximum_associations = 2
 
         # Default maximum PDU receive size (in bytes)
         self.maximum_pdu_size = 16382
 
-        # Default timeouts - 0 means no timeout
-        self.acse_timeout = 0
-        self.network_timeout = 60
-        self.dimse_timeout = 0
+        # Default timeouts - None means no timeout
+        self.acse_timeout = 60
+        self.network_timeout = None
+        self.dimse_timeout = None
 
         # Require Calling/Called AE titles to match if value is non-empty str
         self.require_calling_aet = ''
         self.require_called_aet = ''
-
-        # List of active association objects
-        self.active_associations = []
 
         self._build_presentation_contexts()
 
@@ -507,12 +507,16 @@ class ApplicationEntity(object):
         """Set the ACSE timeout."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
-            self._acse_timeout = 0
+            self._acse_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
             self._acse_timeout = value
         else:
-            LOGGER.warning("acse_timeout set to never expire")
-            self._acse_timeout = 0
+            LOGGER.warning("acse_timeout set to 60 seconds")
+            self._acse_timeout = 60
+
+        for assoc in self.active_associations:
+            assoc.acse_timeout = self.acse_timeout
+            assoc.acse.acse_timeout = self.acse_timeout
 
     @property
     def ae_title(self):
@@ -538,12 +542,16 @@ class ApplicationEntity(object):
         """Get the DIMSE timeout."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
-            self._dimse_timeout = 0
+            self._dimse_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
             self._dimse_timeout = value
         else:
             LOGGER.warning("dimse_timeout set to never expire")
-            self._dimse_timeout = 0
+            self._dimse_timeout = None
+
+        for assoc in self.active_associations:
+            assoc.dimse_timeout = self.dimse_timeout
+            assoc.dimse.dimse_timeout = self.dimse_timeout
 
     @property
     def network_timeout(self):
@@ -555,12 +563,15 @@ class ApplicationEntity(object):
         """Set the network timeout."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
-            self._network_timeout = 60
+            self._network_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
             self._network_timeout = value
         else:
-            LOGGER.warning("network_timeout set to 60")
-            self._network_timeout = 60
+            LOGGER.warning("network_timeout set to never expire")
+            self._network_timeout = None
+
+        for assoc in self.active_associations:
+            assoc.dul.dul_timeout = self.network_timeout
 
     @property
     def maximum_associations(self):

@@ -362,7 +362,6 @@ class ACSEServiceProvider(object):
                              "'{0!s}'".format(source))
 
         self.dul.send_pdu(primitive)
-        time.sleep(0.5)
 
     def CheckRelease(self):
         """Checks for release request from the remote AE. Upon reception of
@@ -384,10 +383,10 @@ class ACSEServiceProvider(object):
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
-        rel = self.dul.peek_next_pdu()
-        # Abort is a non-confirmed service no so need to worry if its a request
+        # Abort is a non-confirmed service so no need to worry if its a request
         #   primitive
-        if rel.__class__ in (A_ABORT, A_P_ABORT):
+        primitive = self.dul.peek_next_pdu()
+        if primitive.__class__ in (A_ABORT, A_P_ABORT):
             self.dul.receive_pdu(wait=False)
             return True
         else:

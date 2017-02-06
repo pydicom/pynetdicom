@@ -22,6 +22,7 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                         C_ECHO, N_EVENT_REPORT, N_GET, N_SET, \
                                         N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 from pynetdicom3.pdu_primitives import P_DATA
+from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
@@ -238,7 +239,7 @@ class DIMSEServiceProvider(object):
         for pdata_pdu in pdata_pdu_list:
             self.dul.send_pdu(pdata_pdu)
 
-    def receive_msg(self, wait=False, dimse_timeout=None):
+    def receive_msg(self, wait=False):
         """Receive a DIMSE message from the peer.
 
         Set the DIMSE provider in a mode ready to receive a response from the
@@ -248,8 +249,6 @@ class DIMSEServiceProvider(object):
         ----------
         wait : bool, optional
             Wait until a response has been received (default: False).
-        dimse_timeout : int, optional
-            Wait `dimse_timeout` seconds for a response (default: no timeout).
 
         Returns
         -------
@@ -257,20 +256,31 @@ class DIMSEServiceProvider(object):
             Returns the complete DIMSE message and its presentation context ID
             or None, None.
         """
-        # FIXME: dimse timeout needs to be fixed
-        #dimse_timeout = self.dimse_timeout
-        dimse_timeout = None
-
-
         if self.message is None:
             self.message = DIMSEMessage()
+
+        timeout = Timer(self.dimse_timeout)
+        timeout.start()
 
         if wait:
             # Loop until complete DIMSE message is received
             #   message may be split into 1 or more fragments
             while True:
-                time.sleep(0.001)
+                
+                # Fix for issue #38
+                # Because we only progress once the next PDU arrives to be 
+                #   peeked at, the DIMSE timeout in receive_pdu() doesn't
+                #   actually do anything.
+                if timeout.is_expired:
+                    return None, None
+                
+                # Race condition: sometimes the DUL will be killed before the
+                #   loop exits
+                if not self.dul.is_alive():
+                    return None, None
 
+                time.sleep(0.001)
+                
                 nxt = self.dul.peek_next_pdu()
                 if nxt is None:
                     continue
@@ -278,7 +288,7 @@ class DIMSEServiceProvider(object):
                 if nxt.__class__ is not P_DATA:
                     return None, None
 
-                pdu = self.dul.receive_pdu(wait, dimse_timeout)
+                pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
 
                 if self.message.decode_msg(pdu):
                     # Callback
@@ -303,7 +313,7 @@ class DIMSEServiceProvider(object):
             if cls not in (type(None), P_DATA):
                 return None, None
 
-            pdu = self.dul.receive_pdu(wait, dimse_timeout)
+            pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
 
             if self.message.decode_msg(pdu):
                 # Callback

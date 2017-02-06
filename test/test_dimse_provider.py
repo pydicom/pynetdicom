@@ -34,6 +34,9 @@ LOGGER.setLevel(logging.CRITICAL)
 class DummyDUL(object):
     """Dummy DUL class for testing DIMSE provider"""
     @staticmethod
+    def is_alive(): return True
+    
+    @staticmethod
     def send_pdu(pdv):
         """Dummy Send method to test DIMSEServiceProvider.Send"""
         pass
@@ -56,7 +59,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
     def test_receive_not_pdata(self):
         """Test we get back None if not a P_DATA"""
-        self.assertEqual(self.dimse.receive_msg(True, None), (None, None))
+        self.assertEqual(self.dimse.receive_msg(True), (None, None))
 
     def test_send_c_echo(self):
         """Check sending DIMSE C-ECHO messages."""

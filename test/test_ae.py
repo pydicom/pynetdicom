@@ -354,12 +354,13 @@ class TestAEGoodTimeoutSetters(unittest.TestCase):
     def test_acse_timeout(self):
         """ Check AE ACSE timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
+        self.assertTrue(ae.acse_timeout == 60)
         ae.acse_timeout = None
-        self.assertTrue(ae.acse_timeout == 0)
+        self.assertTrue(ae.acse_timeout == None)
         ae.acse_timeout = -100
-        self.assertTrue(ae.acse_timeout == 0)
+        self.assertTrue(ae.acse_timeout == 60)
         ae.acse_timeout = 'a'
-        self.assertTrue(ae.acse_timeout == 0)
+        self.assertTrue(ae.acse_timeout == 60)
         ae.acse_timeout = 0
         self.assertTrue(ae.acse_timeout == 0)
         ae.acse_timeout = 30
@@ -368,12 +369,13 @@ class TestAEGoodTimeoutSetters(unittest.TestCase):
     def test_dimse_timeout(self):
         """ Check AE DIMSE timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
+        self.assertTrue(ae.dimse_timeout == None)
         ae.dimse_timeout = None
-        self.assertTrue(ae.dimse_timeout == 0)
+        self.assertTrue(ae.dimse_timeout == None)
         ae.dimse_timeout = -100
-        self.assertTrue(ae.dimse_timeout == 0)
+        self.assertTrue(ae.dimse_timeout == None)
         ae.dimse_timeout = 'a'
-        self.assertTrue(ae.dimse_timeout == 0)
+        self.assertTrue(ae.dimse_timeout == None)
         ae.dimse_timeout = 0
         self.assertTrue(ae.dimse_timeout == 0)
         ae.dimse_timeout = 30
@@ -382,12 +384,13 @@ class TestAEGoodTimeoutSetters(unittest.TestCase):
     def test_network_timeout(self):
         """ Check AE network timeout change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
+        self.assertTrue(ae.network_timeout == None)
         ae.network_timeout = None
-        self.assertTrue(ae.network_timeout == 60)
+        self.assertTrue(ae.network_timeout == None)
         ae.network_timeout = -100
-        self.assertTrue(ae.network_timeout == 60)
+        self.assertTrue(ae.network_timeout == None)
         ae.network_timeout = 'a'
-        self.assertTrue(ae.network_timeout == 60)
+        self.assertTrue(ae.network_timeout == None)
         ae.network_timeout = 0
         self.assertTrue(ae.network_timeout == 0)
         ae.network_timeout = 30
