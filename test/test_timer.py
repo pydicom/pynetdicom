@@ -17,11 +17,18 @@ class TestTimer(unittest.TestCase):
         timer = Timer(10)
         self.assertTrue(timer.timeout_seconds == 10)
         timer = Timer(0)
+        self.assertTrue(timer.timeout_seconds == 0)
+        timer = Timer(None)
         self.assertTrue(timer.timeout_seconds is None)
 
     def test_property_setters_getters(self):
         """Test Timer property setters and getters."""
         timer = Timer(0)
+        self.assertEqual(timer.timeout_seconds, 0)
+        self.assertFalse(timer.is_expired)
+        self.assertEqual(timer.time_remaining, 0)
+
+        timer = Timer(None)
         self.assertEqual(timer.timeout_seconds, None)
         self.assertFalse(timer.is_expired)
         self.assertEqual(timer.time_remaining, -1)
@@ -39,7 +46,7 @@ class TestTimer(unittest.TestCase):
         time.sleep(0.1)
         self.assertTrue(timer.is_expired)
 
-        timer.timeout_seconds = 0
+        timer.timeout_seconds = None
         self.assertEqual(timer.timeout_seconds, None)
 
     def test_start_stop(self):

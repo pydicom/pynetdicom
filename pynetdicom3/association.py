@@ -89,7 +89,8 @@ class Association(threading.Thread):
         A list of the supported SOP classes when acting as an SCP.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
-                 acse_timeout=30, dimse_timeout=0, max_pdu=16382, ext_neg=None):
+                 acse_timeout=60, dimse_timeout=None, max_pdu=16382, 
+                 ext_neg=None):
         """Create a new Association.
 
         Parameters
@@ -163,7 +164,6 @@ class Association(threading.Thread):
         # A. ARTIM timer
         self.dul = DULServiceProvider(client_socket,
                                       dul_timeout=self.ae.network_timeout,
-                                      acse_timeout=acse_timeout,
                                       assoc=self)
 
         # Dict containing the peer AE title, address and port
@@ -181,14 +181,19 @@ class Association(threading.Thread):
         self.is_released = False
 
         # Timeouts for the DIMSE and ACSE service providers
-        if isinstance(dimse_timeout, (int, float)):
+        if dimse_timeout is None:
+            self.dimse_timeout = None
+        elif isinstance(dimse_timeout, (int, float)):
             self.dimse_timeout = dimse_timeout
         else:
-            raise TypeError("dimse_timeout must be numeric")
-        if isinstance(acse_timeout, (int, float)):
+            raise TypeError("dimse_timeout must be numeric or None")
+        
+        if acse_timeout is None:
+            self.acse_timeout = None
+        elif isinstance(acse_timeout, (int, float)):
             self.acse_timeout = acse_timeout
         else:
-            raise TypeError("acse_timeout must be numeric")
+            raise TypeError("acse_timeout must be numeric or None")
 
         # Maximum PDU sizes (in bytes) for the local and peer AE
         if isinstance(max_pdu, int):
@@ -440,8 +445,7 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.receive_msg(True,
-                                                         self.dimse_timeout)
+            msg, msg_context_id = self.dimse.receive_msg(wait=True)
 
             # DIMSE message received
             if msg:
@@ -685,11 +689,15 @@ class Association(threading.Thread):
 
         # FIXME: If Association is Aborted before we receive the response
         #   then we hang here
-        rsp, _ = self.dimse.receive_msg(True, self.dimse_timeout)
+        # This occurs because we wait for a DIMSE response not an A-ABORT
+        rsp, _ = self.dimse.receive_msg(wait=True)
 
         status = None
         if rsp is not None:
             status = service_class.code_to_status(rsp.Status)
+        else:
+            # DIMSE service timed out
+            self.abort()
 
         return status
 
@@ -871,7 +879,7 @@ class Association(threading.Thread):
 
         # Wait for C-STORE response primitive
         #   returns a C_STORE primitive
-        rsp, _ = self.dimse.receive_msg(True, self.dimse_timeout)
+        rsp, _ = self.dimse.receive_msg(wait=True)
 
         status = None
         if rsp is not None:
@@ -979,7 +987,7 @@ class Association(threading.Thread):
             time.sleep(0.001)
 
             # Wait for C-FIND responses
-            rsp, _ = self.dimse.receive_msg(False, self.dimse.dimse_timeout)
+            rsp, _ = self.dimse.receive_msg(wait=False)
 
             # If no response received, start loop again
             if not rsp:
@@ -1131,8 +1139,7 @@ class Association(threading.Thread):
         while True:
             time.sleep(0.001)
 
-            rsp, context_id = self.dimse.receive_msg(False,
-                                                     self.dimse.dimse_timeout)
+            rsp, context_id = self.dimse.receive_msg(wait=False)
 
             if rsp.__class__ == C_MOVE:
                 status = service_class.code_to_status(rsp.Status)
@@ -1285,8 +1292,7 @@ class Association(threading.Thread):
 
         ii = 1
         while True:
-            rsp, context_id = self.dimse.receive_msg(True,
-                                                     self.dimse.dimse_timeout)
+            rsp, context_id = self.dimse.receive_msg(wait=True)
 
             # Received a C-GET response
             if rsp.__class__ == C_GET:

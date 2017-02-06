@@ -43,7 +43,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -449,7 +449,7 @@ class TestAssociation(unittest.TestCase):
         self.assertFalse(assoc.is_established)
         self.assertTrue(assoc.is_rejected)
         scp.stop()
-    
+
     def test_require_calling_aet(self):
         """SCP requires matching called AET"""
         scp = DummyVerificationSCP()
@@ -460,6 +460,30 @@ class TestAssociation(unittest.TestCase):
         self.assertFalse(assoc.is_established)
         self.assertTrue(assoc.is_rejected)
         scp.stop()
+
+    def test_acse_timeout(self):
+        """Test that the ACSE timeout works"""
+        pass
+
+    def test_dimse_timeout(self):
+        """Test that the DIMSE timeout works"""
+        scp = DummyVerificationSCP()
+        scp.delay = 0.2
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.dimse_timeout = 0.1
+        assoc = ae.associate('localhost', 11112)
+        self.assertEqual(assoc.dimse_timeout, 0.1)
+        self.assertEqual(assoc.dimse.dimse_timeout, 0.1)
+        self.assertTrue(assoc.is_established)
+        assoc.send_c_echo()
+        assoc.release()
+        self.assertTrue(assoc.is_aborted)
+        scp.stop()
+
+    def test_dul_timeout(self):
+        """Test that the DUL timeout (ARTIM) works"""
+        pass
 
 
 class TestAssociationSendCEcho(unittest.TestCase):
@@ -514,6 +538,20 @@ class TestAssociationSendCEcho(unittest.TestCase):
         assoc.release()
         scp.stop()
 
+    #@unittest.skip
+    def test_abort_during_c_echo(self):
+        """Test aborting the association during c-echo"""
+        scp = DummyVerificationSCP()
+        scp.send_abort = True
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertTrue(result is None)
+        self.assertTrue(assoc.is_aborted)
+        scp.stop()
+
 
 class TestAssociationSendCStore(unittest.TestCase):
     """Run tests on Assocation send_c_store."""
@@ -553,7 +591,7 @@ class TestAssociationSendCStore(unittest.TestCase):
 
         # Send C-STORE request primitive to DIMSE and get response
         assoc.dimse.send_msg(primitive, 1)
-        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
+        rsp, _ = assoc.dimse.receive_msg(True)
 
         self.assertEqual(rsp.Status, 0xC000)
         assoc.release()
@@ -667,7 +705,7 @@ class TestAssociationSendCStore(unittest.TestCase):
 
         # Send C-STORE request primitive to DIMSE and get response
         assoc.dimse.send_msg(primitive, 1)
-        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
+        rsp, _ = assoc.dimse.receive_msg(True)
 
         self.assertEqual(rsp.Status, 0xA900)
         assoc.release()
@@ -920,7 +958,7 @@ class TestAssociationSendCFind(unittest.TestCase):
 
         # Send C-STORE request primitive to DIMSE and get response
         assoc.dimse.send_msg(primitive, 1)
-        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
+        rsp, _ = assoc.dimse.receive_msg(True)
 
         self.assertEqual(rsp.Status, 0xA900)
         assoc.release()
@@ -947,7 +985,7 @@ class TestAssociationSendCFind(unittest.TestCase):
 
         # Send C-STORE request primitive to DIMSE and get response
         assoc.dimse.send_msg(primitive, 1)
-        rsp, _ = assoc.dimse.receive_msg(True, assoc.dimse_timeout)
+        rsp, _ = assoc.dimse.receive_msg(wait=True)
 
         self.assertEqual(rsp.Status, 0xC000)
         assoc.release()
@@ -1341,7 +1379,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False)
 
             if rsp.__class__ == C_GET:
                 self.assertEqual(rsp.Status, 0xA900)
@@ -1372,7 +1410,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False)
 
             if rsp.__class__ == C_GET:
                 self.assertEqual(rsp.Status, 0xc000)
@@ -1781,7 +1819,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False)
 
             if rsp.__class__ == C_MOVE:
                 self.assertEqual(rsp.Status, 0xA900)
@@ -1824,7 +1862,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         assoc.dimse.send_msg(primitive, 1)
         while True:
             time.sleep(0.001)
-            rsp, _ = assoc.dimse.receive_msg(False, assoc.dimse.dimse_timeout)
+            rsp, _ = assoc.dimse.receive_msg(False)
 
             if rsp.__class__ == C_MOVE:
                 self.assertEqual(rsp.Status, 0xc000)

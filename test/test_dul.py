@@ -14,15 +14,26 @@ LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
 
+class DummyACSE(object):
+    """Dummy ACSE class"""
+    def debug_receive_associate_rq(): pass
+    def debug_receive_associate_ac(): pass
+    def debug_receive_associate_rj(): pass
+    def debug_receive_data_tf(): pass
+    def debug_receive_release_rq(): pass
+    def debug_receive_release_rp(): pass
+    def debug_receive_abort(): pass
+
+
 class DummyAssociation(object):
     """Dummy Association class"""
-    acse = None
+    acse = DummyACSE()
 
 
 class DummyDUL(DULServiceProvider):
     """Dummy DUL class"""
     def __init__(self):
-        self.association = DummyAssociation()
+        self.assoc = DummyAssociation()
 
 
 class TestDUL(unittest.TestCase):

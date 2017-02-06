@@ -20,26 +20,20 @@ class Timer(object):
 
         Parameters
         ---------
-        max_number_seconds : int, float
-            The number of seconds before the timer expires. A value of 0 means
-            no timeout.
+        max_number_seconds : int or float or None
+            The number of seconds before the timer expires. A value of None
+            means no timeout.
         """
         self._start_time = None
-
-        if max_number_seconds == 0:
-            max_number_seconds = None
-
-        self._max_number_seconds = max_number_seconds
+        self.timeout_seconds = max_number_seconds
 
     def start(self):
         """Resets and starts the timer running."""
         self._start_time = time.time()
-        #LOGGER.debug("Timer started at %s" %time.ctime(self._start_time))
 
     def stop(self):
         """Stops the timer and resets it."""
         self._start_time = None
-        #LOGGER.debug("Timer stopped at %s" %time.ctime(time.time()))
 
     def restart(self):
         """Restart the timer.
@@ -75,13 +69,10 @@ class Timer(object):
 
         Parameters
         ----------
-        value : float or int
-            The number of seconds before the timer expires. A value of 0 means
-            no timeout.
+        value : float or int or None
+            The number of seconds before the timer expires. A value of None
+            means no timeout.
         """
-        if value == 0:
-            value = None
-
         self._max_number_seconds = value
 
     @property

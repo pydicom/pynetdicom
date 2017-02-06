@@ -53,8 +53,7 @@ class DULServiceProvider(Thread):
     state_machine : pynetdicom3.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
-    def __init__(self, socket=None, port=None, dul_timeout=None,
-                 acse_timeout=30, assoc=None):
+    def __init__(self, socket=None, port=None, dul_timeout=None, assoc=None):
         """
         Parameters
         ----------
@@ -73,7 +72,7 @@ class DULServiceProvider(Thread):
                              "both socket and port parameters")
 
         # The association thread
-        self.association = assoc
+        self.assoc = assoc
 
         Thread.__init__(self)
 
@@ -96,12 +95,11 @@ class DULServiceProvider(Thread):
         self.to_user_queue = queue.Queue()
 
         # Setup the idle timer, ARTIM timer and finite state machine
-        self._idle_timer = None
-        if dul_timeout is not None and dul_timeout > 0:
-            self._idle_timer = Timer(dul_timeout)
+        # FIXME: Why do we have an idle timer?
+        self._idle_timer = Timer(dul_timeout)
 
         # ARTIM timer
-        self.artim_timer = Timer(acse_timeout)
+        self.artim_timer = Timer(dul_timeout)
 
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
@@ -191,11 +189,11 @@ class DULServiceProvider(Thread):
         Parameters
         ----------
         wait : bool, optional
-            If `wait` is True and `wimeout` is None, blocks until an item
-            is available. If `wimeout` is a positive number, blocks at most
-            `wimeout` seconds. Otherwise returns an item if one is immediately
+            If `wait` is True and `timeout` is None, blocks until an item
+            is available. If `timeout` is a positive number, blocks at most
+            `timeout` seconds. Otherwise returns an item if one is immediately
             available.
-        timeout : int, optional
+        timeout : int or None
             See the definition of `Wait`
 
         Returns
@@ -206,6 +204,13 @@ class DULServiceProvider(Thread):
             If the queue is empty
         """
         try:
+            # Remove and return an item from the queue
+            #   If block is True and timeout is None then block until an item
+            #       is available.
+            #   If timeout is a positive number, blocks timeout seconds and
+            #       raises queue.Empty if no item was available in that time.
+            #   If block is False, return an item if one is immediately
+            #       available, otherwise raise queue.Empty
             queue_item = self.to_user_queue.get(block=wait, timeout=timeout)
             return queue_item
         except queue.Empty:
@@ -578,36 +583,23 @@ class DULServiceProvider(Thread):
             The decoded data as a PDU object
         """
         pdutype = unpack('B', data[0:1])[0]
-        acse = self.association.acse
+        acse = self.assoc.acse
 
-        if pdutype == 0x01:
-            pdu = A_ASSOCIATE_RQ()
-            acse_callback = acse.debug_receive_associate_rq
-        elif pdutype == 0x02:
-            pdu = A_ASSOCIATE_AC()
-            acse_callback = acse.debug_receive_associate_ac
-        elif pdutype == 0x03:
-            pdu = A_ASSOCIATE_RJ()
-            acse_callback = acse.debug_receive_associate_rj
-        elif pdutype == 0x04:
-            pdu = P_DATA_TF()
-            acse_callback = acse.debug_receive_data_tf
-        elif pdutype == 0x05:
-            pdu = A_RELEASE_RQ()
-            acse_callback = acse.debug_receive_release_rq
-        elif pdutype == 0x06:
-            pdu = A_RELEASE_RP()
-            acse_callback = acse.debug_receive_release_rp
-        elif pdutype == 0x07:
-            pdu = A_ABORT_RQ()
-            acse_callback = acse.debug_receive_abort
-        else:
-            #"Unrecognized or invalid PDU"
-            return None
+        pdu_types = {0x01 : (A_ASSOCIATE_RQ(), acse.debug_receive_associate_rq),
+                     0x02 : (A_ASSOCIATE_AC(), acse.debug_receive_associate_ac),
+                     0x03 : (A_ASSOCIATE_RJ(), acse.debug_receive_associate_rj),
+                     0x04 : (P_DATA_TF(), acse.debug_receive_data_tf),
+                     0x05 : (A_RELEASE_RQ(), acse.debug_receive_release_rq),
+                     0x06 : (A_RELEASE_RP(), acse.debug_receive_release_rp),
+                     0x07 : (A_ABORT_RQ(), acse.debug_receive_abort)}
 
-        pdu.Decode(data)
+        if pdutype in pdu_types:
+            pdu = pdu_types[pdutype][0]
+            pdu.Decode(data)
 
-        # Callback - AE must always be first
-        acse_callback(pdu)
+            # ACSE callbacks
+            pdu_types[pdutype][1](pdu)
 
-        return pdu
+            return pdu
+
+        return None
