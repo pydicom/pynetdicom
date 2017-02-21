@@ -2,13 +2,14 @@
 
 import logging
 import os
-import queue
+#import queue
 import select
 import socket
 from struct import unpack
 from threading import Thread
 import time
 
+from pynetdicom3.compatibility import queue
 from pynetdicom3.fsm import StateMachine
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
                             A_ASSOCIATE_RJ, \

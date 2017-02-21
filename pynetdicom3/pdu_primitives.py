@@ -1,6 +1,7 @@
 """
 Implementaion of the service parameter primitives.
 """
+import codecs
 import logging
 
 from pydicom.uid import UID
@@ -304,7 +305,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = bytes(value, 'utf-8')
+            value = codecs.decode(value, 'utf-8')
 
         if value is not None:
             self._calling_ae_title = validate_ae_title(value)
@@ -328,7 +329,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = bytes(value, 'utf-8')
+            value = codecs.decode(value, 'utf-8')
 
         if value is not None:
             self._called_ae_title = validate_ae_title(value)
@@ -1205,7 +1206,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = bytes(value, 'utf-8')
+            value = codecs.decode(value, 'utf-8')
         elif isinstance(value, bytes):
             pass
         elif value is None:

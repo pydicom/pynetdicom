@@ -127,17 +127,25 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
     cutoff_output = False
     byte_count = 0
     for ii in range(0, len(lst), items_per_line):
+        # chunk is a bytes in python3 and a str in python2
         chunk = lst[ii:ii + items_per_line]
         byte_count += len(chunk)
+        
+        # Python 2 compatibility
+        if isinstance(chunk, str):
+            gen = (format(ord(x), '02x') for x in chunk)
+        else:
+            gen = (format(x, '02x') for x in chunk)
+            
 
         if max_size is not None and byte_count <= max_size:
-            line = prefix + delimiter.join(format(x, '02x') for x in chunk)
+            line = prefix + delimiter.join(gen)
             lines.append(line + suffix)
         elif max_size is not None and byte_count > max_size:
             cutoff_output = True
             break
         else:
-            line = prefix + delimiter.join(format(x, '02x') for x in chunk)
+            line = prefix + delimiter.join(gen)
             lines.append(line + suffix)
 
     if cutoff_output:
