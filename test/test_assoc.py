@@ -646,7 +646,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         status = assoc.send_c_store(DATASET)
         self.assertEqual(int(status), 0xC000)
-        scp.status = 0x0111
+        scp.status = 0xCCCC
         status = assoc.send_c_store(DATASET)
         self.assertEqual(int(status), 0xC000)
         assoc.release()
@@ -1016,7 +1016,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         assoc.send_c_cancel_find(1)
         scp.stop()
-        
+
     def test_bad_send(self):
         """Test send_c_cancel_move"""
         scp = DummyFindSCP()

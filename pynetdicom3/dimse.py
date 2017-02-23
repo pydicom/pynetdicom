@@ -266,21 +266,21 @@ class DIMSEServiceProvider(object):
             # Loop until complete DIMSE message is received
             #   message may be split into 1 or more fragments
             while True:
-                
+
                 # Fix for issue #38
-                # Because we only progress once the next PDU arrives to be 
+                # Because we only progress once the next PDU arrives to be
                 #   peeked at, the DIMSE timeout in receive_pdu() doesn't
                 #   actually do anything.
                 if timeout.is_expired:
                     return None, None
-                
+
                 # Race condition: sometimes the DUL will be killed before the
                 #   loop exits
                 if not self.dul.is_alive():
                     return None, None
 
                 time.sleep(0.001)
-                
+
                 nxt = self.dul.peek_next_pdu()
                 if nxt is None:
                     continue
@@ -809,6 +809,7 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
+        # FIXME: This is a terrible way to do this
         status = '0x{0:04x}'.format(cs.Status)
         if status == '0x0000':
             status += ': Success'

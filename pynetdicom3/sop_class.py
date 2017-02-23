@@ -275,6 +275,9 @@ class StorageServiceClass(ServiceClass):
                               'Element Discarded',
                               range(0xB006, 0xB006 + 1))
     Success = Status('Success', '', range(0x0000, 0x0000 + 1))
+    # This doesn't appear to be an actual C-STORE status in the standard
+    DuplicateSOPInstance = Status('Failure', 'Duplicate SOP Instance',
+                                  range(0x0111, 0x0111 + 1))
 
     def SCP(self, msg):
         """Called when running as an SCP and receive a C-STORE request."""

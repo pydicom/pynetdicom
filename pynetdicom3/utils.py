@@ -210,7 +210,9 @@ class PresentationContext(object):
         Parameters
         ----------
         transfer_syntax : pydicom.uid.UID, bytes or str
-            The transfer syntax to add to the Presentation Context
+            The transfer syntax to add to the Presentation Context. For
+            Presentation contexts that are rejected the `transfer_syntax` may
+            be an empty UID.
         """
         # UID is a subclass of str
         if isinstance(transfer_syntax, str):
@@ -221,7 +223,8 @@ class PresentationContext(object):
             raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
 
-        if transfer_syntax not in self.TransferSyntax:
+        if transfer_syntax not in self.TransferSyntax and \
+                                                    transfer_syntax != '':
             try:
                 transfer_syntax.is_valid()
             except InvalidUID:

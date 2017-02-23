@@ -139,6 +139,11 @@ class TestPrimitive_ImplementationVersionNameNotification(unittest.TestCase):
         ## Check assignment
         reference_name = b'PYNETDICOM_090'
 
+        ## Check maximum length allowable
+        primitive.implementation_version_name = b'1234567890ABCDEF'
+        self.assertEqual(primitive.implementation_version_name,
+                         b'1234567890ABCDEF')
+
         # bytes
         primitive.implementation_version_name = b'PYNETDICOM_090'
         self.assertTrue(primitive.implementation_version_name == reference_name)

@@ -209,8 +209,9 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.Status = 19.4
 
-        with self.assertRaises(ValueError):
-            primitive.Status = 0x0010
+        # Behaviour changed, logs instead of raising if status unknown
+        #with self.assertRaises(ValueError):
+        #    primitive.Status = 0x0010
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
