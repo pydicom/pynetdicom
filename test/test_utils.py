@@ -181,6 +181,7 @@ class TestPresentationContext(unittest.TestCase):
         pc.add_transfer_syntax('1.2.840.10008.1.2')
         pc.add_transfer_syntax(b'1.2.840.10008.1.2.1')
         pc.add_transfer_syntax(UID('1.2.840.10008.1.2.2'))
+        pc.add_transfer_syntax(UID(''))
 
         with self.assertRaises(TypeError):
             pc.add_transfer_syntax([])
@@ -190,6 +191,8 @@ class TestPresentationContext(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             pc.add_transfer_syntax('1.2.840.10008.1.1')
+
+
 
     def test_equality(self):
         """Test presentation context equality"""
