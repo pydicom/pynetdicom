@@ -314,17 +314,32 @@ class C_STORE(object):
         """Set the Status parameter."""
         if isinstance(value, int):
             # Add value range checking
+            # Additional statuses needed
+            # Refused: Out of Resources
+            # Refused: SOP Class Not Supported 0x0122
+            # 0x0111 Duplicate SOP Instance
+            # Error: Cannot Understand
+            # Error: Dataset does not match SOP Class
+            # Warning
+            # Success
+            # Refused: Duplicate Invocation 0x0210
+            # Refused: Invalid SOP Instance 0x0117
+            # Refused: Mistyped Argument 0x0212
+            # Refused: Unrecognised Operation 0x0211
+            # Refused: Not Authorised 0x0124
             valid_values = [range(0xA700, 0xA7FF + 1),
                             range(0xA900, 0xA9FF + 1),
                             range(0xC000, 0xCFFF + 1),
-                            [0xB000, 0xB007, 0xB006, 0x0000]]
+                            [0xB000, 0xB007, 0xB006, 0x0000, 0x0122, 0x0111,
+                             0x0210, 0x0212, 0x0211, 0x0124, 0x0117]]
             found_valid = False
             for ii in valid_values:
                 if value in ii:
                     found_valid = True
-                    self._status = value
             if not found_valid:
-                raise ValueError("Invalid Status value {}".format(value))
+                LOGGER.debug("Unknown Status value 0x{0:04x}".format(value))
+
+            self._status = value
 
         elif value is None:
             self._status = value

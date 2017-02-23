@@ -223,9 +223,9 @@ class PresentationContext(object):
             raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
 
-        if transfer_syntax not in self.TransferSyntax: # and transfer_syntax != '':
+        if transfer_syntax not in self.TransferSyntax and \
+                                                    transfer_syntax != '':
             try:
-                print(transfer_syntax, type(transfer_syntax))
                 transfer_syntax.is_valid()
             except InvalidUID:
                 raise ValueError('Presentation Context attempted to add a '
