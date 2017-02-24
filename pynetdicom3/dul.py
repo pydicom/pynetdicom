@@ -2,14 +2,16 @@
 
 import logging
 import os
-#import queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue # Python 2 compatibility
 import select
 import socket
 from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom3.compatibility import queue
 from pynetdicom3.fsm import StateMachine
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
                             A_ASSOCIATE_RJ, \
