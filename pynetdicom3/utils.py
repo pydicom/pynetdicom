@@ -2,6 +2,7 @@
 
 TODO: Rename wrap_list globally to pretty_bytes_string
 """
+import codecs
 from io import BytesIO
 import logging
 import unicodedata
@@ -71,14 +72,14 @@ def validate_ae_title(ae_title):
                 significant_characters += ' '
 
             if is_bytes:
-                return bytes(significant_characters, 'utf-8')
+                return codecs.encode(significant_characters, 'utf-8')
             else:
                 return significant_characters
 
         # AE title too long : truncate
         elif len(significant_characters.strip()) > 16:
             if is_bytes:
-                return bytes(significant_characters[:16], 'utf-8')
+                return codecs.encode(significant_characters[:16], 'utf-8')
             else:
                 return significant_characters[:16]
 
@@ -130,13 +131,13 @@ def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
         # chunk is a bytes in python3 and a str in python2
         chunk = lst[ii:ii + items_per_line]
         byte_count += len(chunk)
-        
+
         # Python 2 compatibility
         if isinstance(chunk, str):
             gen = (format(ord(x), '02x') for x in chunk)
         else:
             gen = (format(x, '02x') for x in chunk)
-            
+
 
         if max_size is not None and byte_count <= max_size:
             line = prefix + delimiter.join(gen)
