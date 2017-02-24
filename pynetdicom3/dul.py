@@ -457,7 +457,7 @@ class DULServiceProvider(Thread):
             #   stopped by assoc.release()
             try:
                 read_list, _, _ = select.select([self.scu_socket], [], [], 0)
-            except ValueError:
+            except (socket.error, ValueError):
                 return False
 
             if read_list:

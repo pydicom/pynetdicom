@@ -14,7 +14,6 @@ from struct import pack
 import time
 import threading
 import unittest
-from unittest.mock import patch
 
 from pydicom import read_file
 from pydicom.dataset import Dataset
@@ -43,7 +42,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -101,7 +100,7 @@ class TestAssociation(unittest.TestCase):
                 """Override the normal method"""
                 try:
                     read_list, _, _ = select.select([self.local_socket], [], [], 0)
-                except ValueError:
+                except (socket.error, ValueError):
                     return
 
                 # If theres a connection
@@ -570,7 +569,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         del DATASET.PerimeterValue # Fix up our changes
         scp.stop()
 
-    @unittest.skip # Very difficult to test
+    @unittest.skip('Too difficult to test')
     def test_bad_ds(self):
         """Test returns failure status if dataset cant be decoded by SCP"""
         scp = DummyStorageSCP()
@@ -1016,7 +1015,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         assoc.send_c_cancel_find(1)
         scp.stop()
-        
+
     def test_bad_send(self):
         """Test send_c_cancel_move"""
         scp = DummyFindSCP()
