@@ -305,7 +305,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.decode(value, 'utf-8')
+            value = codecs.encode(value, 'utf-8')
 
         if value is not None:
             self._calling_ae_title = validate_ae_title(value)
@@ -329,7 +329,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.decode(value, 'utf-8')
+            value = codecs.encode(value, 'utf-8')
 
         if value is not None:
             self._called_ae_title = validate_ae_title(value)
@@ -930,6 +930,11 @@ class P_DATA(object):
             s += '  Context ID: {0!s}\n'.format(pdv[0])
             s += '  Value Length: {0!s} bytes\n'.format(len(pdv[1]))
             header_byte = pdv[1][0]
+
+            # Python 2 compatibility
+            if isinstance(header_byte, str):
+                header_byte = ord(header_byte)
+
             s += "  Message Control Header Byte: {:08b}\n".format(header_byte)
 
             # xxxxxx01 and xxxxxx011
@@ -1206,7 +1211,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.decode(value, 'utf-8')
+            value = codecs.encode(value, 'utf-8')
         elif isinstance(value, bytes):
             pass
         elif value is None:

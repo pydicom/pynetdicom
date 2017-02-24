@@ -83,7 +83,7 @@ class PDU(object):
             if ff == 's':
                 if isinstance(self.parameters[ii], UID):
                     self.parameters[ii] = \
-                        codecs.decode(self.parameters[ii].title(), 'utf-8')
+                        codecs.encode(self.parameters[ii].title(), 'utf-8')
 
                 self.formats[ii] = '{0:d}s'.format(len(self.parameters[ii]))
                 # Make sure the parameter is a bytes
@@ -513,7 +513,7 @@ class A_ASSOCIATE_RQ(PDU):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(s, str):
-            s = codecs.decode(s, 'utf-8')
+            s = codecs.encode(s, 'utf-8')
 
         self._called_aet = validate_ae_title(s)
 
@@ -533,7 +533,7 @@ class A_ASSOCIATE_RQ(PDU):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(s, str):
-            s = codecs.decode(s, 'utf-8')
+            s = codecs.encode(s, 'utf-8')
 
         self._calling_aet = validate_ae_title(s)
 
@@ -966,7 +966,7 @@ class A_ASSOCIATE_AC(PDU):
         """
         ae_title = self.reserved_aet
         if isinstance(ae_title, str):
-            ae_title = codecs.decode(self.reserved_aet, 'utf-8')
+            ae_title = codecs.encode(self.reserved_aet, 'utf-8')
         elif isinstance(ae_title, bytes):
             pass
 
@@ -986,7 +986,7 @@ class A_ASSOCIATE_AC(PDU):
         """
         ae_title = self.reserved_aec
         if isinstance(ae_title, str):
-            ae_title = codecs.decode(self.reserved_aec, 'utf-8')
+            ae_title = codecs.encode(self.reserved_aec, 'utf-8')
         elif isinstance(ae_title, bytes):
             pass
 
@@ -1959,7 +1959,7 @@ class ApplicationContextItem(PDU):
 
         bytestring = bytes()
         bytestring += pack(formats, *parameters)
-        bytestring += codecs.decode(self.application_context_name.title(), 'utf-8')
+        bytestring += codecs.encode(self.application_context_name.title(), 'utf-8')
 
         return bytestring
 
@@ -2552,7 +2552,7 @@ class AbstractSyntaxSubItem(PDU):
 
         bytestring = bytes()
         bytestring += pack(formats, *parameters)
-        bytestring += codecs.decode(self.abstract_syntax_name.title(), 'utf-8')
+        bytestring += codecs.encode(self.abstract_syntax_name.title(), 'utf-8')
 
         return bytestring
 
@@ -2709,7 +2709,7 @@ class TransferSyntaxSubItem(PDU):
 
         bytestring = bytes()
         bytestring += pack(formats, *parameters)
-        bytestring += codecs.decode(self.transfer_syntax_name.title(), 'utf-8')
+        bytestring += codecs.encode(self.transfer_syntax_name.title(), 'utf-8')
 
         return bytestring
 
@@ -2906,8 +2906,14 @@ class PresentationDataValueItem(PDU):
         s = "Presentation Value Data Item\n"
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
-        s += "  Data value: 0x{0!s} ...\n".format(' 0x'.join(
-            format(x, '02x') for x in self.presentation_data_value[:10]))
+
+        # Python 2 compatibility
+        pdv_sample = self.presentation_data_value[:10]
+        if isinstance(pdv_sample, str):
+            pdv_sample = (format(ord(x), '02x') for x in pdv_sample)
+        else:
+            pdv_sample = (format(x, '02x') for x in pdv_sample)
+        s += "  Data value: 0x{0!s} ...\n".format(' 0x'.join(pdv_sample))
 
         return s
 
@@ -2924,7 +2930,11 @@ class PresentationDataValueItem(PDU):
     @property
     def message_control_header_byte(self):
         """Get the message control header byte."""
-        return "{:08b}".format(self.presentation_data_value[0])
+        # Python 2 compatibility
+        if isinstance(self.presentation_data_value[0], str):
+            return "{:08b}".format(ord(self.presentation_data_value[0]))
+        else:
+            return "{:08b}".format(self.presentation_data_value[0])
 
 
 class UserInformationItem(PDU):
@@ -3391,7 +3401,7 @@ class ImplementationClassUIDSubItem(PDU):
         s += pack('B', self.item_type)
         s += pack('B', 0x00)
         s += pack('>H', self.item_length)
-        s += codecs.decode(self.implementation_class_uid.title(), 'utf-8')
+        s += codecs.encode(self.implementation_class_uid.title(), 'utf-8')
         return s
 
     def Decode(self, bytestream):
@@ -3594,7 +3604,7 @@ class ImplementationVersionNameSubItem(PDU):
         if isinstance(value, bytes):
             pass
         elif isinstance(value, str):
-            value = codecs.decode(value, 'utf-8')
+            value = codecs.encode(value, 'utf-8')
 
         self._implementation_version_name = value
         if value is not None:
@@ -3695,7 +3705,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
         bytestring = bytes()
         bytestring += pack(formats, *parameters)
-        bytestring += codecs.decode(self.sop_class_uid.title(), 'utf-8')
+        bytestring += codecs.encode(self.sop_class_uid.title(), 'utf-8')
         bytestring += pack('> B B', self.scu_role, self.scp_role)
 
         return bytestring
@@ -4436,7 +4446,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
         bytestring = bytes()
         bytestring += pack(formats, *parameters)
-        bytestring += codecs.decode(self.sop_class_uid.title(), 'utf-8')
+        bytestring += codecs.encode(self.sop_class_uid.title(), 'utf-8')
         bytestring += self.service_class_application_information
 
         return bytestring
@@ -4485,8 +4495,14 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         s += "  SOP class UID length: {0:d} bytes\n".format( \
                                                 self.sop_class_uid_length)
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
-        s += "  Service class application information: {0!s}\n".format( \
-                                self.service_class_application_information)
+
+        # Python 2 compatibility
+        app_info = self.service_class_application_information
+        if isinstance(app_info, str):
+            app_info = "\\x" + "\\x".join(
+                                ['{0:02x}'.format(ord(x)) for x in app_info])
+
+        s += "  Service class application information: {0!s}\n".format(app_info)
 
         return s
 
@@ -4647,15 +4663,15 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         bytestring = bytes()
         bytestring += pack(formats, *parameters)
-        bytestring += codecs.decode(self.sop_class_uid.title(), 'utf-8')
+        bytestring += codecs.encode(self.sop_class_uid.title(), 'utf-8')
         bytestring += pack('>H', self.service_class_uid_length)
-        bytestring += codecs.decode(self.service_class_uid, 'utf-8')
+        bytestring += codecs.encode(self.service_class_uid, 'utf-8')
         bytestring += \
             pack('>H', self.related_general_sop_class_identification_length)
 
         for sub_fields in self.related_general_sop_class_identification:
             bytestring += pack('>H', len(sub_fields))
-            bytestring += codecs.decode(sub_fields.title(), 'utf-8')
+            bytestring += codecs.encode(sub_fields.title(), 'utf-8')
 
         return bytestring
 

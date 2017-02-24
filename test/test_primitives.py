@@ -3,7 +3,6 @@
 
 import logging
 import unittest
-from unittest.mock import patch
 
 from pydicom.uid import UID
 
@@ -365,8 +364,9 @@ class TestPrimitive_SOPClassExtendedNegotiation(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.service_class_application_information = 45.2
 
-        with self.assertRaises(TypeError):
-            primitive.service_class_application_information = 'abc'
+        # Python 2 compatibility all bytes are str
+        #with self.assertRaises(TypeError):
+        #    primitive.service_class_application_information = 'abc'
 
         # No value set
         primitive = SOPClassExtendedNegotiation()
