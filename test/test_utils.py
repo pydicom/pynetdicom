@@ -300,7 +300,7 @@ class TestPresentationContextManager(unittest.TestCase):
         #with self.assertRaises(TypeError):
         #    pcm = PresentationContextManager([req], acc)
 
-    @unittest.skip
+    @unittest.skip('Skip this until we update PCM')
     def test_property_setters(self):
         """Test the property setters"""
         # Requestor

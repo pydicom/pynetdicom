@@ -260,6 +260,10 @@ class DIMSEMessage(object):
             # xxxxxx11 - Command information, the last fragment
             control_header_byte = pdv_item[1][0]
 
+            # Python 2 ompatibility
+            if isinstance(control_header_byte, str):
+                control_header_byte = ord(control_header_byte)
+
             ## COMMAND SET
             # P-DATA fragment contains Command Set information
             #   (control_header_byte is xxxxxx01 or xxxxxx11)

@@ -8,6 +8,7 @@ Notes:
 TODO: Implement properties for DIMSE-N parameters
 TODO: Add string output for the DIMSE-C classes
 """
+import codecs
 from io import BytesIO
 import logging
 
@@ -262,7 +263,7 @@ class C_STORE(object):
             an empty string and will be truncated to 16 characters long
         """
         if isinstance(value, str):
-            value = bytes(value, 'utf-8')
+            value = codecs.encode(value, 'utf-8')
 
         if value is not None:
             self._move_originator_application_entity_title = \
@@ -1158,7 +1159,7 @@ class C_MOVE(object):
             an empty string and will be truncated to 16 characters long
         """
         if isinstance(value, str):
-            value = bytes(value, 'utf-8')
+            value = codecs.encode(value, 'utf-8')
 
         if value is not None:
             self._move_destination = validate_ae_title(value)

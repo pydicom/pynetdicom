@@ -2,7 +2,10 @@
 
 import logging
 import os
-import queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue # Python 2 compatibility
 import select
 import socket
 from struct import unpack
@@ -456,7 +459,7 @@ class DULServiceProvider(Thread):
             #   stopped by assoc.release()
             try:
                 read_list, _, _ = select.select([self.scu_socket], [], [], 0)
-            except ValueError:
+            except (socket.error, ValueError):
                 return False
 
             if read_list:

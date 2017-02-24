@@ -100,8 +100,8 @@ class TestDIMSEMessage(unittest.TestCase):
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
         p_data_list = dimse_msg.encode_msg(12, 16)
-        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0], 1)
-        self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0], 3)
+        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0:1], b'\x01')
+        self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0:1], b'\x03')
         self.assertEqual(dimse_msg.ID, 12)
 
         # Test encode with dataset
@@ -114,10 +114,10 @@ class TestDIMSEMessage(unittest.TestCase):
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
         p_data_list = dimse_msg.encode_msg(13, 10)
-        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0], 1)
-        self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0], 2)
-        self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0], 0)
-        self.assertEqual(p_data_list[-10].presentation_data_value_list[0][1][0], 3)
+        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0:1], b'\x01')
+        self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0:1], b'\x02')
+        self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0:1], b'\x00')
+        self.assertEqual(p_data_list[-10].presentation_data_value_list[0][1][0:1], b'\x03')
         self.assertEqual(dimse_msg.ID, 13)
 
         p_data_list = dimse_msg.encode_msg(1, 31682)

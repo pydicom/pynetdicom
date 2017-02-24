@@ -333,7 +333,7 @@ class ApplicationEntity(object):
         # FIXME: this needs to be dealt with properly
         try:
             read_list, _, _ = select.select([self.local_socket], [], [], 0)
-        except ValueError:
+        except (socket.error, ValueError):
             return
 
         # If theres a connection

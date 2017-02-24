@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import codecs
 import logging
 import unittest
 
@@ -186,7 +187,7 @@ class TestPDUItem_ApplicationContext(unittest.TestCase):
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
                 uid = '1.2.840.10008.3.1.1.1'
-                for s in [bytes(uid, 'utf-8'), uid, UID(uid)]:
+                for s in [codecs.encode(uid, 'utf-8'), uid, UID(uid)]:
                     item.application_context_name = s
                     self.assertEqual(item.application_context_name, UID(uid))
                     self.assertTrue(isinstance(item.application_context_name, UID))
@@ -1099,7 +1100,8 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(unittest.TestCase):
         item = pdu.user_information.user_identity
         self.assertTrue('type: 1' in item.__str__())
         self.assertTrue('requested: 1' in item.__str__())
-        self.assertTrue("Primary field: b'pynetdicom'" in item.__str__())
+        self.assertTrue("Primary field: b'pynetdicom'" in item.__str__() or
+                        "Primary field: pynetdicom" in item.__str__())
 
     def test_decode(self):
         """ Check decoding produces the correct values """
@@ -1173,8 +1175,10 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(unittest.TestCase):
         item = pdu.user_information.user_identity
         self.assertTrue('type: 2' in item.__str__())
         self.assertTrue('requested: 0' in item.__str__())
-        self.assertTrue("Primary field: b'pynetdicom'" in item.__str__())
-        self.assertTrue("Secondary field: b'p4ssw0rd'" in item.__str__())
+        self.assertTrue("Primary field: b'pynetdicom'" in item.__str__() or
+                        "Primary field: pynetdicom" in item.__str__())
+        self.assertTrue("Secondary field: b'p4ssw0rd'" in item.__str__() or
+                        "Secondary field: p4ssw0rd" in item.__str__())
 
     def test_decode(self):
         """ Check decoding produces the correct values """
@@ -1264,7 +1268,8 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
         pdu = A_ASSOCIATE_AC()
         pdu.Decode(a_associate_ac_user)
         item = pdu.user_information.user_identity
-        self.assertTrue("Server response: b'Accepted'" in item.__str__())
+        self.assertTrue("Server response: b'Accepted'" in item.__str__() or
+                        "Server response: Accepted" in item.__str__())
 
     def test_decode(self):
         """ Check decoding produces the correct values """
@@ -1340,7 +1345,8 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(unittest.TestCase):
         pdu.Decode(a_associate_rq_user_id_ext_neg)
         item = pdu.user_information.ext_neg[0]
         self.assertTrue('CT Image Storage' in item.__str__())
-        self.assertTrue("information: b'\\x02\\x00" in item.__str__())
+        self.assertTrue("information: b'\\x02\\x00" in item.__str__() or
+                        "information: \\x02\\x00" in item.__str__())
 
     def test_decode(self):
         """ Check decoding produces the correct values """

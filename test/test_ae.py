@@ -6,7 +6,12 @@ import signal
 import threading
 import time
 import unittest
-from unittest.mock import patch
+
+try:
+    from unittest.mock import patch
+    PY2_SKIP = False
+except ImportError:
+    PY2_SKIP = True
 
 from pydicom import read_file
 from pydicom.dataset import Dataset
@@ -29,7 +34,7 @@ DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
-class TestAEAVerificationSCP(unittest.TestCase):
+class TestAEVerificationSCP(unittest.TestCase):
     """Check verification SCP"""
     def test_bad_start(self):
         """Test bad startup"""
@@ -40,7 +45,7 @@ class TestAEAVerificationSCP(unittest.TestCase):
         ae.stop()
 
     # Causing thread exiting issues
-    @unittest.skip
+    @unittest.skip('Causes threading issues')
     def test_stop_scp_keyboard(self):
         """Test stopping the SCP with keyboard"""
         scp = DummyVerificationSCP()
@@ -52,7 +57,7 @@ class TestAEAVerificationSCP(unittest.TestCase):
         scp.stop()
 
     # Causing thread exiting issues
-    @unittest.skip
+    @unittest.skip('Causes threading issues')
     def test_stop_scp_quit(self):
         """Test stopping the SCP with quit"""
         scp = DummyVerificationSCP()
@@ -63,6 +68,7 @@ class TestAEAVerificationSCP(unittest.TestCase):
 
 
 class TestAEGoodCallbacks(unittest.TestCase):
+    @unittest.skipUnless(not PY2_SKIP, "Python 2 compatibility")
     def test_on_c_echo_called(self):
         """ Check that SCP AE.on_c_echo() was called """
         scp = DummyVerificationSCP()
@@ -77,6 +83,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         scp.stop()
 
+    @unittest.skipUnless(not PY2_SKIP, "Python 2 compatibility")
     def test_on_c_store_called(self):
         """ Check that SCP AE.on_c_store(dataset) was called """
         scp = DummyStorageSCP()
@@ -127,7 +134,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         scp.stop()
 
-    @unittest.skip
+    @unittest.skip('')
     def test_on_c_move_called(self):
         """ Check that SCP AE.on_c_move(dataset) was called """
         scp = DummyMoveSCP()
@@ -780,4 +787,5 @@ class TestAE_GoodAbort(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(warnings='ignore')
+    #unittest.main(warnings='ignore')
+    unittest.main()

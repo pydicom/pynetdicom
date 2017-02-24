@@ -991,13 +991,14 @@ def AA_8(dul):
         try:
             # Encode and send A-ABORT to peer
             dul.scu_socket.send(dul.pdu.Encode())
+        except socket.error:
+            dul.scu_socket.close()
         except ConnectionResetError:
             dul.scu_socket.close()
 
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
         dul.artim_timer.start()
-
 
     return 'Sta13'
 

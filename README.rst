@@ -10,7 +10,7 @@
 pynetdicom3
 ===========
 
-A Python 3 implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol,
+A Python 2.7/3+ implementation of the `DICOM <http://dicom.nema.org>`_ networking protocol,
 originally based on `pynetdicom <https://github.com/patmun/pynetdicom>`_.
 
 Description
@@ -21,7 +21,7 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom3* is a pure Python (3+) program that implements the DICOM networking
+*pynetdicom3* is a pure Python (2.7/3+) program that implements the DICOM networking
 protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it
 allows the easy creation of DICOM clients (*Service Class Users* or SCUs) and
 servers (*Service Class Providers* or SCPs).
