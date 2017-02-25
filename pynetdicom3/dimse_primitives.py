@@ -14,7 +14,6 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.status import code_to_status
 from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
@@ -317,36 +316,7 @@ class C_STORE(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            # Additional statuses needed
-            # Refused: Out of Resources
-            # Refused: SOP Class Not Supported 0x0122
-            # 0x0111 Duplicate SOP Instance
-            # Error: Cannot Understand
-            # Error: Dataset does not match SOP Class
-            # Warning
-            # Success
-            # Refused: Duplicate Invocation 0x0210
-            # Refused: Invalid SOP Instance 0x0117
-            # Refused: Mistyped Argument 0x0212
-            # Refused: Unrecognised Operation 0x0211
-            # Refused: Not Authorised 0x0124
-            valid_values = [range(0xA700, 0xA7FF + 1),
-                            range(0xA900, 0xA9FF + 1),
-                            range(0xC000, 0xCFFF + 1),
-                            [0xB000, 0xB007, 0xB006, 0x0000, 0x0122, 0x0111,
-                             0x0210, 0x0212, 0x0211, 0x0124, 0x0117]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-            if not found_valid:
-                LOGGER.debug("Unknown Status value 0x{0:04x}".format(value))
-
-            self._status = value
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
             raise TypeError("Status must be an int")
@@ -436,20 +406,24 @@ class C_FIND(object):
         [-, M, -] The error or success notification of the operation. It shall
         be one of the following values:
         Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
-            * 0xA700: Failure (Refused: Out of resources)
-            * 0xA900: Failure (Identifier does not match SOP Class)
-            * 0xC000 to 0xCFFF: Failure (Unable to process)
-            * 0xFE00: Cancel (Matching terminated due to Cancel request)
-            * 0x0000: Success (Matching is complete - no final Identifier is
-                      supplied)
-            * 0xFF00: Pending (Matches are continuing - Current match is
-                      supplied and any Optional Keys were supported in the same
-                      manner as Required Keys)
-            * 0xFF01: Pending (Matches are continuing - Warning that one or more
-                      Optional Keys were not supported for existence and/or
-                      matching for this Identifier)
+            Failure
+                * 0xA700 - Refused: Out of resources
+                * 0xA900 - Identifier does not match SOP Class
+                * 0xCxxx - Unable to process
+            Pending
+                * 0xFF00 - Matches are continuing - Current match is supplied
+                           and any Optional Keys were supported in the same
+                           manner as Required Keys
+                * 0xFF01 - Matches are continuing - Warning that one or more
+                           Optional Keys were not supported for existence and/or
+                           matching for this Identifier)
         General C-FIND PS3.7 9.1.2.1.5 and Annex C
-            * 0x0122: Failure (Refused: SOP class not supported)
+            Cancel
+                * 0xFE00 - Matching terminated due to Cancel request
+            Success
+                * 0x0000 - Matching is complete, no final Identifier is supplied
+            Failure
+                * 0x0122 - Refused: SOP class not supported
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -584,19 +558,7 @@ class C_FIND(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            valid_values = [range(0xC000, 0xCFFF + 1),
-                            [0xA700, 0xA900, 0xFE00, 0xFF00, 0xFF01, 0x0000]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-                    self._status = value
-            if not found_valid:
-                raise ValueError("Invalid Status value")
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
             raise TypeError("Status must be an int")
@@ -827,20 +789,7 @@ class C_GET(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            valid_values = [range(0xC000, 0xCFFF + 1),
-                            [0xA701, 0xA702, 0xA900, 0xFE00,
-                             0xB000, 0x0000, 0xFF00]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-                    self._status = value
-            if not found_valid:
-                raise ValueError("Invalid Status value")
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
             raise TypeError("Status must be an int")
@@ -1193,20 +1142,7 @@ class C_MOVE(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            valid_values = [range(0xC000, 0xCFFF + 1),
-                            [0xA701, 0xA702, 0xA801, 0xA900,
-                             0xFE00, 0xFF00, 0xB000, 0x0000]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-                    self._status = value
-            if not found_valid:
-                raise ValueError("Invalid Status value")
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
             raise TypeError("Status must be an int")
@@ -1418,9 +1354,8 @@ class C_ECHO(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        status = code_to_status(value)
-        if status is not None or value is None:
-            self._status = status
+        if isinstance(value, int) or value is None:
+            self._status = value
         else:
             LOGGER.warning("Unknown C-ECHO Status 0x{0:04x}".format(value))
 
