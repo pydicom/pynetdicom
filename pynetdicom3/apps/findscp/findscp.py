@@ -163,7 +163,10 @@ def on_c_find(dataset):
         ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
         ds.RetrieveAETitle = args.aetitle
         ds.PatientName = data.PatientName
-        yield 0xff00, ds
+
+        status_ds = Dataset()
+        status_ds.Status = 0xFF00
+        yield status_ds, ds
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,

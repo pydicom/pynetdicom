@@ -23,7 +23,7 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                         N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 from pynetdicom3.pdu_primitives import P_DATA
 from pynetdicom3.sop_class import uid_to_sop_class
-from pynetdicom3.status import code_to_status, GENERAL_STATUS, Status
+from pynetdicom3.status import code_to_status, Status
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
@@ -831,8 +831,11 @@ class DIMSEServiceProvider(object):
         else:
             status = Status(cs.Status, '(unknown)', '')
 
-        status_str = '{}: {} {}'.format(status, status.status_type,
-                                          status.status_name)
+        if status.name == '':
+            status_str = '{}: {}'.format(status, status.category)
+        else:
+            status_str = '{}: {} - {}'.format(status, status.category,
+                                              status.name)
 
         LOGGER.info('Received Store Response')
         s = []

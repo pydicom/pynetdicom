@@ -14,7 +14,7 @@ from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, \
                                          C_FIND, N_EVENT_REPORT, N_GET, \
                                          N_SET, N_CREATE, N_ACTION, N_DELETE
-from pynetdicom3.status import GENERAL_STATUS
+from pynetdicom3.status import GENERAL_STATUS, Status
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
@@ -232,6 +232,8 @@ class VerificationServiceClass(ServiceClass):
         Refused: Mistyped Argument - 0x0212
         Refused: Unrecognised Operation - 0x0211
     """
+    statuses = GENERAL_STATUS
+
     def SCP(self, msg):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
@@ -349,7 +351,7 @@ class StorageServiceClass(ServiceClass):
                                  "invalid status value.")
                     # Failure: Cannot Understand - Invalid Status returned
                     #   by on_c_store callback
-                    rsp.Status = 0xC004
+                    rsp.Status = 0xC002
 
                 # For the elements in the status dataset, try and set the
                 #   corresponding response primitive attribute
@@ -365,13 +367,13 @@ class StorageServiceClass(ServiceClass):
                              "dataset without a Status element.")
                 # Failure: Cannot Understand - on_c_store callback returned
                 #   a pydicom.dataset.Dataset without a Status element
-                rsp.Status = 0xC002
+                rsp.Status = 0xC003
         else:
             LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
                          "status type (should be a pydicom Dataset).")
             # Failure: Cannot Understand - on_c_store callback didn't return
             #   a pydicom.dataset.Dataset
-            rsp.Status = 0xC003
+            rsp.Status = 0xC004
 
         self.DIMSE.send_msg(rsp, self.pcid)
 
@@ -459,36 +461,36 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     --------------------------------------------
     As for Patient Root QR Information Model
 
+    Status
+    ------
+    Based on PS3.7 Section 9.1.2.1.5 and PS3.4 Annex C.4.1.1.4
 
+    * Indicates service class specific status codes
+
+    Success
+        Success - 0x0000
+    Pending
+        *Pending: Matches are continuing, current match supplied - 0xFF00
+        *Pending: Matches are continuing, warning - 0xFF01
+    Cancel
+        Cancel - 0xFE00
+    Failure
+        *Refused: Out of Resources - 0xA700
+        Refused: SOP Class Not Supported - 0x0122
+        *Identifier Does Not Match SOP Class - 0xA900
+        *Unable to Process - 0xCxxx
     """
-    # PS3.4 Annex C.4.1.1.4
-    OutOfResources = Status('Failure',
-                            'Refused: Out of resources',
-                            range(0xA700, 0xA700 + 1))
-    IdentifierDoesNotMatchSOPClass = Status('Failure',
-                                            "Identifier does not match SOP "
-                                            "Class",
-                                            range(0xA900, 0xA900 + 1))
-    UnableToProcess = Status('Failure',
-                             'Unable to process',
-                             range(0xC000, 0xCFFF + 1))
-    MatchingTerminatedDueToCancelRequest = Status('Cancel',
-                                                  "Matching terminated due to "
-                                                  "Cancel request",
-                                                  range(0xFE00, 0xFE00 + 1))
-    Success = Status('Success',
-                     'Matching is complete - No final Identifier is supplied',
-                     range(0x0000, 0x0000 + 1))
-    Pending = Status('Pending',
-                     "Matches are continuing - Current Match is supplied "
-                     "and any Optional Keys were supported in the same manner "
-                     "as 'Required Keys'",
-                     range(0xFF00, 0xFF00 + 1))
-    PendingWarning = Status("Pending",
-                            "Matches are continuing - Warning that one or more "
-                            "Optional Keys were not supported for existence "
-                            "and/or matching for this identifier",
-                            range(0xFF01, 0xFF01 + 1))
+    # Service class specific status code values - PS3.4 Annex C.4.1.1.4
+    statuses = {
+        0xA700 : ('Failure', 'Refused: Out of Resources'),
+        0xA900 : ('Failure', 'Identifier Does Not Match SOP Class'),
+        range(0xC000, 0xCFFF + 1) : ('Failure', 'Unable to Process'),
+        0xFF00 : ('Pending', 'Matches are continuing, current match supplied'),
+        0xFF01 : ('Pending', 'Matches are continuing, warning')
+    }
+
+    # Add the General status code values - PS3.7 Annex C
+    statuses.update(GENERAL_STATUS)
 
     def SCP(self, msg):
         """
@@ -636,16 +638,17 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             The C_FIND request primitive received from the peer
         """
         # Build C-FIND response primitive
-        c_find_rsp = C_FIND()
-        c_find_rsp.MessageIDBeingRespondedTo = msg.MessageID
-        c_find_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        rsp = C_FIND()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
         # Check the identifier SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
             LOGGER.error("Find request's Identifier UID does not match the "
                          "presentation context")
-            c_find_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
-            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            # Failure - Identifier Does Not Match SOP Class
+            rsp.Status = 0xA900
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         try:
@@ -654,8 +657,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                              self.transfersyntax.is_little_endian)
         except:
             LOGGER.error("Failed to decode the received Identifier dataset")
-            c_find_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            # Failure - Unable to Process - Failed to decode Identifier
+            rsp.Status = 0xC000
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Log Identifier
@@ -668,8 +672,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.info('')
         except (AttributeError, NotImplementedError, TypeError):
             LOGGER.error("Failed to decode the received Identifier dataset")
-            c_find_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            # Failure - Unable to Process - Failed to decode Identifier
+            rsp.Status = 0xC000
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Callback - C-FIND
@@ -677,51 +682,63 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             result = self.AE.on_c_find(dataset)
         except:
             LOGGER.exception('Exception in user\'s on_c_find implementation.')
-            c_find_rsp.Status = int(self.UnableToProcess)
-            LOGGER.info('Find SCP Response: (Failure - %s)',
-                        self.UnableToProcess.description)
-            self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            # Failure - Unable to Process - Error in on_c_find callback
+            rsp.Status = 0xC001
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Iterate through the results
-        for ii, (status, matching_ds) in enumerate(result):
-            try:
-                status = self.code_to_status(status)
-            except (ValueError, TypeError):
-                LOGGER.error("ApplicationEntity.on_c_find() returned an "
-                             "invalid status value.")
-                c_find_rsp.Status = int(self.UnableToProcess)
-                self.DIMSE.send_msg(c_find_rsp, self.pcid)
-                return
+        for ii, (status_ds, matching_ds) in enumerate(result):
 
-            # Callback - C-CANCEL-FIND
-            #received_cancel_msg = False
-            # Need to ensure we received a C-CANCEL-FIND-RQ
-            #try:
-            #    received_cancel_msg = self.AE.on_c_cancel_find()
-            #except:
-            #    LOGGER.exception('Exception in user\'s on_c_cancel_find '
-            #                     'implementation.')
+            # Check the callback's returned Status dataset
+            if isinstance(status_ds, Dataset):
+                # Check that the returned status dataset contains
+                #   a Status element
+                if 'Status' in status_ds:
+                    # Check returned dataset Status element value is OK
+                    if status_ds.Status not in self.statuses:
+                        LOGGER.error("ApplicationEntity.on_c_find returned "
+                                     "an invalid status value.")
+                        # Failure: Unable to Process - Invalid Status returned
+                        #   by on_c_find callback
+                        rsp.Status = 0xC002
 
-            if status.status_type == 'Cancel':
+                    # For the elements in the status dataset, try and set the
+                    #   corresponding response primitive attribute
+                    for elem in status_ds:
+                        if hasattr(rsp, elem.keyword):
+                            setattr(rsp, elem.keyword, elem.value)
+                        else:
+                            LOGGER.warning("Status dataset returned by "
+                                           "on_c_find contained an unsupported "
+                                           "Element '{}'.".format(elem.keyword))
+                else:
+                    LOGGER.error("ApplicationEntity.on_c_find returned a "
+                                 "dataset without a Status element.")
+                    # Failure: Unable to Process - on_c_store callback returned
+                    #   a pydicom.dataset.Dataset without a Status element
+                    rsp.Status = 0xC003
+            else:
+                LOGGER.error("ApplicationEntity.on_c_find returned an invalid "
+                             "status type (should be a pydicom Dataset).")
+                # Failure: Unable to Process - on_c_store callback didn't return
+                #   a pydicom.dataset.Dataset
+                rsp.Status = 0xC004
+
+            status = Status(rsp.Status, *self.statuses[rsp.Status])
+            if status.category == 'Cancel':
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
-                c_find_rsp.Status = \
-                                int(self.MatchingTerminatedDueToCancelRequest)
                 LOGGER.info('Find SCP Response: (Cancel)')
-                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status.status_type == 'Failure':
-                # Pass along the status from the user
-                c_find_rsp.Status = int(status)
-                LOGGER.info('Find SCP Response: (Failure - %s)',
-                            status.description)
-                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+            elif status.category == 'Failure':
+                LOGGER.info('Find SCP Response: (Failure - %s)', status.name)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status.status_type == 'Success':
+            elif status.category == 'Success':
                 # User isn't supposed to send these, but handle anyway
-                c_find_rsp.Status = int(status)
                 LOGGER.info('Find SCP Response: (Success)')
-                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
             else:
                 # Pending
@@ -732,18 +749,20 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 if ds.getvalue() == b'':
                     LOGGER.error("Failed to decode the received Identifier "
                                  "dataset")
-                    c_find_rsp.Status = int(self.UnableToProcess)
-                    self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                    # Failure: Unable to Process - Can't decode dataset
+                    #   returned by on_c_find callback
+                    rsp.Status = 0xC005
+                    self.DIMSE.send_msg(rsp, self.pcid)
                     return
 
-                c_find_rsp.Identifier = ds
+                rsp.Identifier = ds
 
-                # Send response
-                c_find_rsp.Status = int(self.Pending)
+                # Send Pending response
+                rsp.Status = 0xFF00
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
 
-                self.DIMSE.send_msg(c_find_rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
 
                 LOGGER.debug('Find SCP Response Identifiers:')
                 LOGGER.debug('')
@@ -753,9 +772,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.debug('')
 
         # Send final success response
-        c_find_rsp.Status = int(self.Success)
+        rsp.Status = 0x0000
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
-        self.DIMSE.send_msg(c_find_rsp, self.pcid)
+        self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class QueryRetrieveMoveServiceClass(ServiceClass):

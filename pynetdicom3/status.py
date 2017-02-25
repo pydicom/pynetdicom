@@ -8,17 +8,7 @@ class Status(int):
     """
     """
     DIMSE-C Statuses
-    ----------------
-    C-FIND - PS3.7 Section 9.1.2.1.5 and PS3.4 Annex C.4.1.1.4
-    * Success - 0x0000
-    * Pending: Matches are Continuing, current match is supplied - 0xFF00
-    * Pending: Matches are Continuing, warning - 0xFF01
-    * Refused: Out of Resources - 0xA700
-    * Refused: SOP Class Not Supported
-    * Cancel - 0xFE00
-    * Failure: Identifier Does Not Match SOP Class - 0xA900
-    * Failure: Unable to Process - 0xCxxx
-
+    ----------------s
     C-GET - PS3.7 Section 9.1.3.1.6 and PS3.4 Annex C.4.3.1.4
     * Success - 0x0000
     * Pending - 0xFF00
