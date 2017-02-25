@@ -22,6 +22,8 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                         C_ECHO, N_EVENT_REPORT, N_GET, N_SET, \
                                         N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 from pynetdicom3.pdu_primitives import P_DATA
+from pynetdicom3.sop_class import uid_to_sop_class
+from pynetdicom3.status import code_to_status, GENERAL_STATUS, Status
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
@@ -751,8 +753,21 @@ class DIMSEServiceProvider(object):
         msg : pynetdicom3.dimse_messages.C_ECHO_RSP
             The received C-ECHO-RSP message.
         """
-        # Status must always be Success for C_ECHO_RSP
-        LOGGER.info("Received Echo Response (Status: Success)")
+        cs = msg.command_set
+        status = code_to_status(cs.Status)
+        # Status is one of the following:
+        #   0x0000 Success
+        #   0x0122 Refused: SOP Class Not Supported
+        #   0x0210 Refused: Duplicate Invocation
+        #   0x0212 Refused: Mistyped Argument
+        #   0x0211 Refused: Unrecognised Operation
+        if cs.Status == 0x0000:
+            status_str = '{}'.format(status.status_type)
+        else:
+            status_str = '{} - {} {}'.format(status,
+                                             status.status_type,
+                                             status.status_name)
+        LOGGER.info("Received Echo Response (Status: {})".format(status_str))
 
     @staticmethod
     def debug_receive_c_store_rq(msg):
@@ -809,22 +824,15 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
-        # FIXME: This is a terrible way to do this
-        status = '0x{0:04x}'.format(cs.Status)
-        if status == '0x0000':
-            status += ': Success'
-        elif '0xb000' in status:
-            status += ': Warning - Coercion of data elements'
-        elif '0xb007' in status:
-            status += ': Warning - Dataset does not match SOP Class'
-        elif '0xb006' in status:
-            status += ': Warning - Elements discarded'
-        elif cs.Status in range(0xA700, 0xA7FF + 1):
-            status += ': Failure - Out of resources'
-        elif cs.Status in range(0xA900, 0xA9FF + 1):
-            status += ': Failure - Dataset does not match SOP Class'
-        elif cs.Status in range(0xC000, 0xCFFF + 1):
-            status += ': Failure - Cannot understand'
+        # Try and get the status from the affected SOP class UID
+        sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
+        if cs.Status in sop_class.statuses:
+            status = Status(cs.Status, *sop_class.statuses[cs.Status])
+        else:
+            status = Status(cs.Status, '(unknown)', '')
+
+        status_str = '{}: {} {}'.format(status, status.status_type,
+                                          status.status_name)
 
         LOGGER.info('Received Store Response')
         s = []
@@ -839,7 +847,7 @@ class DIMSEServiceProvider(object):
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : {0!s}'.format(status))
+        s.append('DIMSE Status                  : {0!s}'.format(status_str))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')

@@ -841,29 +841,12 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        status : pynetdicom3.sop_class.Status or int
-            A valid return status for the C-STORE operation (see PS3.4 Annex
-            B.2.3), must be one of the following Status objects or the
-            corresponding integer value:
-                Success status
-                    StorageServiceClass.Success
-                        Success - 0x0000
-
-                Failure statuses
-                    StorageServiceClass.OutOfResources
-                        Refused: Out of Resources - 0xA7xx
-                    StorageServiceClass.DataSetDoesNotMatchingSOPClassFailure
-                        Error: Data Set does not match SOP Class - 0xA9xx
-                    StorageServiceClass.CannotUnderstand
-                        Error: Cannot understand - 0xCxxx
-
-                Warning statuses
-                    StorageServiceClass.CoercionOfDataElements
-                        Coercion of Data Elements - 0xB000
-                    StorageServiceClass.DataSetDoesNotMatchSOPClassWarning
-                        Data Set does not matching SOP Class - 0xB007
-                    StorageServiceClass.ElementsDiscarded
-                        Elements Discarded - 0xB006
+        status_ds : pydicom.dataset.Dataset
+            A Dataset object containing (at a minimum) a Status element with
+            a valid C-STORE/Storage Service Class status (see PS3.4 Annex
+            B.2.3 and PS3.7 Section 9.1.1.1.9 and Annex C). In addition, the
+            dataset may contain elements related to the Status (as in PS3.7
+            Annex C).
 
         Raises
         ------

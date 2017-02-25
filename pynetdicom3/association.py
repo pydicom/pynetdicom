@@ -35,6 +35,7 @@ from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
+from pynetdicom3.status import code_to_status
 from pynetdicom3.utils import PresentationContextManager
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
@@ -89,7 +90,7 @@ class Association(threading.Thread):
         A list of the supported SOP classes when acting as an SCP.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
-                 acse_timeout=60, dimse_timeout=None, max_pdu=16382, 
+                 acse_timeout=60, dimse_timeout=None, max_pdu=16382,
                  ext_neg=None):
         """Create a new Association.
 
@@ -187,7 +188,7 @@ class Association(threading.Thread):
             self.dimse_timeout = dimse_timeout
         else:
             raise TypeError("dimse_timeout must be numeric or None")
-        
+
         if acse_timeout is None:
             self.acse_timeout = None
         elif isinstance(acse_timeout, (int, float)):
@@ -686,15 +687,12 @@ class Association(threading.Thread):
         primitive.AffectedSOPClassUID = uid
 
         self.dimse.send_msg(primitive, context_id)
-
-        # FIXME: If Association is Aborted before we receive the response
-        #   then we hang here
-        # This occurs because we wait for a DIMSE response not an A-ABORT
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         status = None
         if rsp is not None:
-            status = service_class.code_to_status(rsp.Status)
+            # This is OK for C-ECHO
+            status = code_to_status(rsp.Status)
         else:
             # DIMSE service timed out
             self.abort()
@@ -808,14 +806,6 @@ class Association(threading.Thread):
             Returns None if the DIMSE service timed out before receiving a
             response.
         """
-        # No longer true?
-        # pydicom can only handle uncompressed transfer syntaxes for conversion
-        #if not dataset._is_uncompressed_transfer_syntax():
-        #    LOGGER.warning("Unable to send the dataset due to pydicom not "
-        #                   "supporting compressed datasets")
-        #    LOGGER.error('Sending file failed')
-        #    return 0xC000
-
         # Can't send a C-STORE without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
@@ -883,7 +873,7 @@ class Association(threading.Thread):
 
         status = None
         if rsp is not None:
-            status = service_class.code_to_status(rsp.Status)
+            status = rsp.Status
 
         return status
 

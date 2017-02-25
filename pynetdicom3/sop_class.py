@@ -7,12 +7,14 @@ import logging
 import sys
 import time
 
+from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, \
-                                        C_FIND, N_EVENT_REPORT, N_GET, \
-                                        N_SET, N_CREATE, N_ACTION, N_DELETE
+                                         C_FIND, N_EVENT_REPORT, N_GET, \
+                                         N_SET, N_CREATE, N_ACTION, N_DELETE
+from pynetdicom3.status import GENERAL_STATUS
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
@@ -217,9 +219,19 @@ class ServiceClass(object):
 # Service Class types
 class VerificationServiceClass(ServiceClass):
     """Represents the Verification Service Class.
-    """
-    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
 
+    Status
+    ------
+    Based on PS3.7 Section 9.1.5.1.4.
+
+    Success
+        Success - 0x0000
+    Failure
+        Refused: SOP Class Not Supported - 0x0122
+        Refused: Duplicate Invocation - 0x0210
+        Refused: Mistyped Argument - 0x0212
+        Refused: Unrecognised Operation - 0x0211
+    """
     def SCP(self, msg):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
@@ -235,7 +247,7 @@ class VerificationServiceClass(ServiceClass):
         rsp = C_ECHO()
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.Status = int(self.Success)
+        rsp.Status = 0x0000 # Success
 
         # Try and run the user on_c_echo callback
         try:
@@ -248,36 +260,44 @@ class VerificationServiceClass(ServiceClass):
 
 
 class StorageServiceClass(ServiceClass):
-    """Represents the Storage Service Class"""
-    # Storage Service specific status code values - PS3.4 Annex B.2.3
-    # General status code values - PS3.7 9.1.1.1.9 - not used?
-    #
-    # Note that the response/confirmation primitives do NOT contain a dataset
-    #   and hence only the Status parameter of the primitive is of interest
-    OutOfResources = Status('Failure',
-                            'Refused: Out of resources',
-                            range(0xA700, 0xA7FF + 1))
-    DataSetDoesNotMatchSOPClassFailure = Status('Failure',
-                                                'Error: Data Set does not ' \
-                                                'match SOP Class',
-                                                range(0xA900, 0xA9FF + 1))
-    CannotUnderstand = Status('Failure',
-                              'Error: Cannot understand',
-                              range(0xC000, 0xCFFF + 1))
-    CoercionOfDataElements = Status('Warning',
-                                    'Coercion of Data Elements',
-                                    range(0xB000, 0xB000 + 1))
-    DataSetDoesNotMatchSOPClassWarning = Status('Warning',
-                                                'Data Set does not match ' \
-                                                'SOP Class',
-                                                range(0xB007, 0xB007 + 1))
-    ElementDiscarded = Status('Warning',
-                              'Element Discarded',
-                              range(0xB006, 0xB006 + 1))
-    Success = Status('Success', '', range(0x0000, 0x0000 + 1))
-    # This doesn't appear to be an actual C-STORE status in the standard
-    DuplicateSOPInstance = Status('Failure', 'Duplicate SOP Instance',
-                                  range(0x0111, 0x0111 + 1))
+    """Represents the Storage Service Class.
+
+    Status
+    ------
+    Based on PS3.7 Section 9.1.1.1.9 and PS3.4 Annex B.2.3.
+
+    * Indicates service class specific status codes
+
+    Success
+        Success - 0x0000
+    Warning
+        *Warning: Coercion of Data Elements - 0xB000
+        *Warning: Data Set Does Not Match SOP Class - 0xB007
+        *Warning: Elements Discarded - 0xB006
+    Failure
+        *Refused: Out of Resources - 0xA7xx
+        Refused: SOP Class Not Supported - 0x0122
+        *Error: Cannot Understand - 0xCxxx
+        *Error: Data Set Does Not Match SOP Class - 0xA9xx
+        Refused: Duplicate Invocation - 0x0210
+        Refused: Invalid SOP Instance - 0x0117
+        Refused: Mistyped Argument - 0x0212
+        Refused: Unrecognised Operation - 0x0211
+        Refused: Not Authorised - 0x0124
+    """
+    # Service class specific status code values - PS3.4 Annex B.2.3
+    statuses = {
+        range(0xA700, 0xA7FF + 1) : ('Failure', 'Refused: Out of Resources'),
+        range(0xA900, 0xA9FF + 1) : ('Failure',
+                                     'Data Set Does Not Match SOP Class'),
+        range(0xC000, 0xCFFF + 1) : ('Failure', 'Cannot Understand'),
+        0xB000 : ('Warning', 'Coercion of Data Elements'),
+        0xB007 : ('Warning', 'Data Set Does Not Match SOP Class'),
+        0xB006 : ('Warning', 'Element Discarded')
+    }
+
+    # Add the General status code values - PS3.7 9.1.1.1.9 and Annex C
+    statuses.update(GENERAL_STATUS)
 
     def SCP(self, msg):
         """Called when running as an SCP and receive a C-STORE request."""
@@ -291,41 +311,68 @@ class StorageServiceClass(ServiceClass):
         if self.UID != self.sopclass:
             LOGGER.error("Store request's dataset UID does not match the "
                          "presentation context")
-            rsp.Status = int(self.DataSetDoesNotMatchSOPClassFailure)
+             # Failure: Data Set Does Not Match SOP Class
+            rsp.Status = 0xA900
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Decode the dataset
+        # Attempt to decode the dataset
         try:
-            dataset = decode(msg.DataSet,
-                             self.transfersyntax.is_implicit_VR,
-                             self.transfersyntax.is_little_endian)
+            ds = decode(msg.DataSet,
+                        self.transfersyntax.is_implicit_VR,
+                        self.transfersyntax.is_little_endian)
         except:
             LOGGER.error("Failed to decode the received dataset")
-            rsp.Status = int(self.CannotUnderstand)
+             # Failure: Cannot Understand - Dataset decoding error
+            rsp.Status = 0xC000
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # ApplicationEntity's on_c_store callback
+        # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.AE.on_c_store(dataset)
+            status_ds = self.AE.on_c_store(ds)
         except Exception:
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
-            rsp.Status = int(self.CannotUnderstand)
+             # Failure: Cannot Understand - Error in on_c_store callback
+            rsp.Status = 0xC001
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        try:
-            status = self.code_to_status(status)
-        except (ValueError, TypeError):
+        # Check the callback's returned Status dataset
+        if isinstance(status_ds, Dataset):
+            # Check that the returned status dataset contains a Status element
+            if 'Status' in status_ds:
+                # Check returned dataset Status element value is OK
+                if status_ds.Status not in self.statuses:
+                    LOGGER.error("ApplicationEntity.on_c_store() returned an "
+                                 "invalid status value.")
+                    # Failure: Cannot Understand - Invalid Status returned
+                    #   by on_c_store callback
+                    rsp.Status = 0xC004
+
+                # For the elements in the status dataset, try and set the
+                #   corresponding response primitive attribute
+                for elem in status_ds:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning("Status dataset returned by on_c_store "
+                                       "contained an unsupported Element "
+                                       "'{}'.".format(elem.keyword))
+            else:
+                LOGGER.error("ApplicationEntity.on_c_store() returned a "
+                             "dataset without a Status element.")
+                # Failure: Cannot Understand - on_c_store callback returned
+                #   a pydicom.dataset.Dataset without a Status element
+                rsp.Status = 0xC002
+        else:
             LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
-                         "status value.")
-            rsp.Status = int(self.CannotUnderstand)
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
+                         "status type (should be a pydicom Dataset).")
+            # Failure: Cannot Understand - on_c_store callback didn't return
+            #   a pydicom.dataset.Dataset
+            rsp.Status = 0xC003
 
-        rsp.Status = int(status)
         self.DIMSE.send_msg(rsp, self.pcid)
 
 

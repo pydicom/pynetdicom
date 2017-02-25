@@ -14,6 +14,7 @@ import logging
 
 from pydicom.uid import UID
 
+from pynetdicom3.status import code_to_status
 from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
@@ -82,21 +83,24 @@ class C_STORE(object):
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
         Storage Service Class Specific (PS3.4 Annex B.2.3):
-            * 0xA700 to 0xA7FF: Failure (Refused: Out of resources)
-            * 0xA900 to 0xA9FF: Failure (Error: Data Set does not match SOP
-                                Class)
-            * 0xC000 to 0xCFFF: Failure (Error: Cannot understand)
-            * 0xB000: Warning (Coercion of Data Elements)
-            * 0xB007: Warning (Data Set does not match SOP Class)
-            * 0xB006: Warning (Element Discarded)
-            * 0x0000: Success
+            Failure
+                * 0xA7xx - Refused: Out of resources
+                * 0xA9xx - Error: Data Set does not match SOP Class
+                * 0xCxxx - Error: Cannot understand
+            Warning
+                * 0xB000 - Coercion of Data Elements
+                * 0xB007 - Data Set does not match SOP Class
+                * 0xB006 - Element Discarded
         General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
-            * 0x0122: Failure (Refused: SOP class not supported)
-            * 0x0210: Failure (Refused: Duplicate invocation)
-            * 0x0117: Failure (Refused: Invalid SOP instance)
-            * 0x0212: Failure (Refused: Mistyped argument)
-            * 0x0211: Failure (Refused: Unrecognised operation)
-            * 0x0124: Failure (Refused: Not authorised)
+            Success
+                * 0x0000 - Success
+            Failure
+                * 0x0122 - Refused: SOP class not supported
+                * 0x0210 - Refused: Duplicate invocation
+                * 0x0117 - Refused: Invalid SOP instance
+                * 0x0212 - Refused: Mistyped argument
+                * 0x0211 - Refused: Unrecognised operation
+                * 0x0124 - Refused: Not authorised
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -114,7 +118,7 @@ class C_STORE(object):
         self.DataSet = None
         self.Status = None
 
-        # Optional Command Set elements used in with specific Status values
+        # Optional Command Set elements used with specific Status values
         # For Warning statuses 0xB000, 0xB006, 0xB007
         # For Failure statuses 0xCxxx, 0xA9xx,
         self.OffendingElement = None
@@ -1414,10 +1418,11 @@ class C_ECHO(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if value == 0x0000 or value is None:
-            self._status = value
+        status = code_to_status(value)
+        if status is not None or value is None:
+            self._status = status
         else:
-            raise ValueError("Status must be 0x0000")
+            LOGGER.warning("Unknown C-ECHO Status 0x{0:04x}".format(value))
 
 
 class C_CANCEL(object):
