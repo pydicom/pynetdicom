@@ -23,22 +23,6 @@ class Status(int):
     * Refused: Unrecognised Operation
     * Refused: Not Authorised
     * Warning: Sub-operations complete and one or more failures/warnings - 0xB000
-
-    C-MOVE - PS3.7 Section 9.1.4.1.7 and PS3.4 Annex C.4.2.1.5
-    * Success - 0x0000
-    * Pending - 0xFF00
-    * Refused: Out of Resources, unable to calculate number of matches - 0xA701
-    * Refused: Out of Resources, unable to perform sub-operations - 0xA702
-    * Refused: SOP Class Not Supported
-    * Refused: Move Destination Unknown - 0xA801
-    * Cancel - 0xFE00
-    * Failure: Identifier Does Not Match SOP Class - 0xA900
-    * Failure: Unable to Process - 0xCxxx
-    * Refused: Duplicate Invocation
-    * Refused: Mistyped Argument
-    * Refused: Unrecognised Operation
-    * Refused: Not Authorised
-    * Warning - 0xB000
     """
     """
     DIMSE-N Statuses

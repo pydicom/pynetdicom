@@ -1005,10 +1005,8 @@ class ApplicationEntity(object):
         addr, port : str, int
             The second yield should be the TCP/IP address and port number of the
             destination AE (if known) or None, None if unknown.
-        status : pynetdicom3.sop_class.Status or int
-            The remaining yields should be a status, dataset pair, where status
-            is a valid status:
-
+        status : pydiom.dataset.Dataset
+            A Dataset containing (at a minimum) a Status (0000, 0900) element.
         dataset : pydicom.dataset.Dataset or None
             If the status is 'Pending' then you can (optionally) return a
             Dataset containing the identifiers or None.
