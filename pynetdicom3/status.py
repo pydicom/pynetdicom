@@ -7,24 +7,6 @@ class Status(int):
     When sub-classing python built-ins you should only extend behaviour.
     """
     """
-    DIMSE-C Statuses
-    ----------------s
-    C-GET - PS3.7 Section 9.1.3.1.6 and PS3.4 Annex C.4.3.1.4
-    * Success - 0x0000
-    * Pending - 0xFF00
-    * Refused: Out of Resources, unable to calculate number of matches - 0xA701
-    * Refused: Out of Resources, unable to perform sub-operations - 0xA702
-    * Refused: SOP Class Not Supported
-    * Cancel - 0xFE00
-    * Failure: Identifier Does Not Match SOP Class - 0xA900
-    * Failure: Unable to Process - 0xCxxx
-    * Refused: Duplicate Invocation
-    * Refused: Mistyped Argument
-    * Refused: Unrecognised Operation
-    * Refused: Not Authorised
-    * Warning: Sub-operations complete and one or more failures/warnings - 0xB000
-    """
-    """
     DIMSE-N Statuses
     ----------------
 

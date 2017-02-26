@@ -379,7 +379,7 @@ class StorageServiceClass(ServiceClass):
 
 
 class QueryRetrieveFindServiceClass(ServiceClass):
-    """Implements the QR Move Service Class.
+    """Implements the QR Find Service Class.
     PS3.4 C.1.4 C-FIND Service Definition
     -------------------------------------
     - The SCU requests that the SCP perform a match of all the keys
@@ -479,6 +479,10 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         Refused: SOP Class Not Supported - 0x0122
         *Identifier Does Not Match SOP Class - 0xA900
         *Unable to Process - 0xCxxx
+
+
+    A QR C-FIND SCP may also support Instance Availability (0008,0056) element
+    in the Identifier (PS3.4 C.4.1.1.3)
     """
     # Service class specific status code values - PS3.4 Annex C.4.1.1.4
     statuses = {
@@ -1036,10 +1040,10 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         return True
 
-    def _decode_identifier(self, msg, rsp):
+    def _decode_identifier(self, rsp):
         """Decode the Identifier dataset."""
         try:
-            ds = decode(msg.Identifier,
+            ds = decode(rsp.Identifier,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
 
@@ -1188,36 +1192,49 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         return ds.encode(self.transfersyntax.is_implicit_VR,
                          self.transfersyntax.is_little_endian)
 
+
 class QueryRetrieveGetServiceClass(ServiceClass):
-    """Implements the QR Get Service Class."""
-    OutOfResourcesNumberOfMatches = Status('Failure',
-                                           'Refused: Out of resources - Unable '
-                                           'to calculate number of matches',
-                                           range(0xA701, 0xA701 + 1))
-    OutOfResourcesUnableToPerform = Status('Failure',
-                                           'Refused: Out of resources - Unable '
-                                           'to perform sub-operations',
-                                           range(0xA702, 0xA702 + 1))
-    IdentifierDoesNotMatchSOPClass = Status('Failure',
-                                            'Identifier does not match SOP '
-                                            'Class',
-                                            range(0xA900, 0xA900 + 1))
-    UnableToProcess = Status('Failure',
-                             'Unable to process',
-                             range(0xC000, 0xCFFF + 1))
-    Cancel = Status('Cancel',
-                    'Sub-operations terminated due to Cancel indication',
-                    range(0xFE00, 0xFE00 + 1))
-    Warning = Status('Warning',
-                     'Sub-operations Complete - One or more Failures or '
-                     'Warnings',
-                     range(0xB000, 0xB000 + 1))
-    Success = Status('Success',
-                     'Sub-operations Complete - No Failure or Warnings',
-                     range(0x0000, 0x0000 + 1))
-    Pending = Status('Pending',
-                     'Sub-operations are continuing',
-                     range(0xFF00, 0xFF00 + 1))
+    """Implements the QR Get Service Class.
+
+    Status
+    ------
+    Based on PS3.7 Section 9.1.3.1.6 and PS3.4 Annex C.4.3.1.4.
+
+    * Indicates service class specific status codes
+
+    Success
+        Success: Sub-operations complete, no failures - 0x0000
+    Pending
+        *Pending: Sub-operations are continuing - 0xFF00
+    Cancel
+        Cancel: Sub-operations terminated due to Cancel indication - 0xFE00
+    Failure
+        *Refused: Out of Resources, unable to calculate number of matches
+            - 0xA701
+        *Refused: Out of Resources, unable to perform sub-operations - 0xA702
+        Refused: SOP Class Not Supported - 0x0122
+        *Identifier Does Not Match SOP Class - 0xA900
+        *Unable to Process - 0xCxxx
+        Refused: Duplicate Invocation
+        Refused: Mistyped Argument
+        Refused: Unrecognised Operation
+        Refused: Not Authorised
+    Warning
+        Warning: Sub-operations completed, one or more failures/warnings - 0xB000
+    """
+    # Service class specific status code values - PS3.4 Annex C.4.3.1.4
+    statuses = {
+        0xA701 : ('Failure', 'Refused: Out of resources, unable to calculate '
+                             'number of matches'),
+        0xA702 : ('Failure', 'Refused: Out of resources, unable to perform '
+                             'sub-operations')
+        0xA900 : ('Failure', 'Identifier does not match SOP class'),
+        range(0xC000, 0xCFFF + 1) : ('Failure', 'Unable to process'),
+        0xFF00 : ('Pending', 'Sub-operations are continuing'),
+    }
+
+    # Add the General status code values - PS3.7 Annex C
+    statuses.update(GENERAL_STATUS)
 
     def SCP(self, msg, priority=2):
         """
@@ -1239,70 +1256,35 @@ class QueryRetrieveGetServiceClass(ServiceClass):
           either refused, failed or success
         """
         # Build C-GET response primitive
-        c_get_rsp = C_GET()
-        c_get_rsp.MessageIDBeingRespondedTo = msg.MessageID
-        c_get_rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        c_get_rsp.Identifier = msg.Identifier
+        rsp = C_GET()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        rsp.Identifier = msg.Identifier
 
         # Number of suboperation trackers
         no_remaining = 0
         no_completed = 0
         no_failed = 0
         no_warning = 0
+        failed_sop_instances = []
 
         # Check the identifier SOP Class UID matches the one agreed to
-        if self.UID != self.sopclass:
-            LOGGER.error("Get request's Identifier UID does not match the "
-                         "presentation context")
-            c_get_rsp.Status = int(self.IdentifierDoesNotMatchSOPClass)
-            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+        if not self._is_identifier_sop_class_valid(rsp):
             return
 
-        try:
-            dataset = decode(msg.Identifier,
-                             self.transfersyntax.is_implicit_VR,
-                             self.transfersyntax.is_little_endian)
-        except:
-            LOGGER.error("Failed to decode the received Identifier dataset")
-            c_get_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+        # Decode the Identifier dataset
+        ds = self._decode_identifier(rsp)
+        if ds is None:
             return
 
-        # Log Identifier
-        try:
-            LOGGER.info('Get SCP Request Identifiers:')
-            LOGGER.info('')
-            LOGGER.debug('# DICOM Data Set')
-            for elem in dataset:
-                LOGGER.info(elem)
-            LOGGER.info('')
-        except (AttributeError, NotImplementedError, TypeError, KeyError):
-            LOGGER.error("Failed to decode the received Identifier dataset")
-            c_get_rsp.Status = int(self.UnableToProcess)
-            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+        # Get user's on_c_find generator
+        result = self._user_callback(ds, rsp)
+        if result is None:
             return
 
-        # The user is responsible for returning the matching Instances
-        try:
-            result = self.AE.on_c_get(dataset)
-        except:
-            LOGGER.exception('Exception in user\'s on_c_get implementation.')
-            c_get_rsp.Status = int(self.UnableToProcess)
-            LOGGER.info('Get SCP Response: (Failure - %s)',
-                        self.UnableToProcess.description)
-            self.DIMSE.send_msg(c_get_rsp, self.pcid)
-            return
-
-        try:
-            no_remaining = int(next(result))
-        except TypeError:
-            LOGGER.exception('You must yield the number of sub-operations '
-                             'in ae.on_c_get before yielding (status, '
-                             'dataset) pairs')
-            c_get_rsp.Status = int(self.UnableToProcess)
-            LOGGER.info('Get SCP Response: (Failure - %s)',
-                        self.UnableToProcess.description)
-            self.DIMSE.send_msg(c_get_rsp, self.pcid)
+        # Get user's yielded number of sub-operations
+        no_remaining = self._get_number_suboperations(result, rsp)
+        if no_remaining is None:
             return
 
         # Iterate through the results
@@ -1313,32 +1295,32 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             except (ValueError, TypeError):
                 LOGGER.error("ApplicationEntity.on_c_move() returned an "
                              "invalid status value.")
-                c_get_rsp.Status = int(self.UnableToProcess)
-                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                rsp.Status = int(self.UnableToProcess)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
 
             if usr_status.status_type == 'Cancel':
                 LOGGER.info('Received C-CANCEL-GET RQ from peer')
-                c_get_rsp.Status = int(self.Cancel)
-                c_get_rsp.NumberOfRemainingSuboperations = no_remaining
-                c_get_rsp.NumberOfFailedSuboperations = no_failed
-                c_get_rsp.NumberOfWarningSuboperations = no_warning
-                c_get_rsp.NumberOfCompletedSuboperations = no_completed
+                rsp.Status = int(self.Cancel)
+                rsp.NumberOfRemainingSuboperations = no_remaining
+                rsp.NumberOfFailedSuboperations = no_failed
+                rsp.NumberOfWarningSuboperations = no_warning
+                rsp.NumberOfCompletedSuboperations = no_completed
                 # Send C-CANCEL confirmation
-                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif usr_status.status_type == 'Failure':
                 # Pass along the status from the user
-                c_get_rsp.Status = int(usr_status)
+                rsp.Status = int(usr_status)
                 LOGGER.info('Get SCP Response: (Failure - %s)',
                             usr_status.description)
-                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif usr_status.status_type == 'Success':
                 # User isn't supposed to send these, but handle anyway
-                c_get_rsp.Status = int(self.Success)
+                rsp.Status = int(self.Success)
                 LOGGER.info('Get SCP Response: (Success)')
-                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                self.DIMSE.send_msg(rsp, self.pcid)
                 return
             else:
                 # Send C-STORE-RQ and Pending C-GET-RSP to peer
@@ -1364,24 +1346,119 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                     no_completed += 1
                 no_remaining -= 1
 
-                c_get_rsp.NumberOfRemainingSuboperations = no_remaining
-                c_get_rsp.NumberOfFailedSuboperations = no_failed
-                c_get_rsp.NumberOfWarningSuboperations = no_warning
-                c_get_rsp.NumberOfCompletedSuboperations = no_completed
+                rsp.NumberOfRemainingSuboperations = no_remaining
+                rsp.NumberOfFailedSuboperations = no_failed
+                rsp.NumberOfWarningSuboperations = no_warning
+                rsp.NumberOfCompletedSuboperations = no_completed
 
                 LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
-                c_get_rsp.Status = int(self.Pending)
-                self.DIMSE.send_msg(c_get_rsp, self.pcid)
+                rsp.Status = int(self.Pending)
+                self.DIMSE.send_msg(rsp, self.pcid)
 
         # Send final C-GET-RSP to peer
         if no_warning == 0 and no_failed == 0:
-            c_get_rsp.Status = int(self.Success)
+            rsp.Status = int(self.Success)
             LOGGER.info('Get SCP Final Response (Success)')
         else:
-            c_get_rsp.Status = int(self.Warning)
+            rsp.Status = int(self.Warning)
             LOGGER.info('Get SCP Final Response (Warning)')
 
-        self.DIMSE.send_msg(c_get_rsp, self.pcid)
+        self.DIMSE.send_msg(rsp, self.pcid)
+
+    def _is_identifier_sop_class_valid(self, rsp):
+        """Check the Identifier's SOP Class UID matches the one agreed to."""
+        if self.UID != self.sopclass:
+            LOGGER.error("C-GET request's Identifier SOP Class UID does not "
+                         "match the agreed presentation context.")
+            # Failure - Identifier doesn't match SOP class
+            rsp.Status = 0xA900
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return False
+
+        return True
+
+    def _decode_identifier(self, rsp):
+        """Decode the Identifier dataset."""
+        try:
+            ds = decode(rsp.Identifier,
+                        self.transfersyntax.is_implicit_VR,
+                        self.transfersyntax.is_little_endian)
+
+            LOGGER.info('Get SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in ds:
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except (AttributeError, NotImplementedError, TypeError, KeyError):
+            LOGGER.error("Failed to decode the Identifier dataset received "
+                         "from the peer.")
+            # Failure - Unable to process - Failed to decode Identifier
+            rsp.Status = 0xC000
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return None
+
+        return ds
+
+    def _user_callback(self, ds, rsp):
+        """Call the user's on_c_get callback."""
+        try:
+            result = self.AE.on_c_get(ds)
+        except:
+            LOGGER.exception("Exception in user's on_c_get implementation.")
+            # Failure - Unable to process - Error in on_c_get callback
+            rsp.Status = 0xC001
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return None
+
+        return result
+
+    def _get_number_suboperations(self, generator, rsp):
+        """Get the number of suboperations."""
+        try:
+            no_remaining = int(next(generator))
+        except TypeError:
+            LOGGER.exception('You must yield the number of sub-operations in '
+                             'ae.on_c_get before yielding the (status, '
+                             'dataset) pairs.')
+            # Failure - Unable to process - Error in on_c_get yield
+            rsp.Status = 0xC002
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return None
+
+        return no_remaining
+
+    def _get_status(self, ds, rsp):
+        """Check the callback's returned status dataset and set rsp.Status."""
+        # Check the callback's returned Status dataset
+        if isinstance(ds, Dataset) and 'Status' in ds:
+            # Check returned dataset Status element value is OK
+            if ds.Status not in self.statuses:
+                LOGGER.error("Status dataset yielded by on_c_get callback "
+                             "contains a Status element with an unknown value: "
+                             "0x{0:04x}.".format(ds.Status))
+                # Failure: Unable to Process - Invalid Status returned
+                rsp.Status = 0xC002
+                return rsp
+
+            # For the elements in the status dataset, try and set the
+            #   corresponding response primitive attribute
+            for elem in ds:
+                if hasattr(rsp, elem.keyword):
+                    setattr(rsp, elem.keyword, elem.value)
+                else:
+                    LOGGER.warning("Status dataset yielded by on_c_get"
+                                   "callback contained an unsupported "
+                                   "Element '{}'.".format(elem.keyword))
+        else:
+            LOGGER.error("Callback yielded an invalid status "
+                         "(should be a pydicom Dataset with a Status "
+                         "element).")
+            # Failure: Unable to Process - callback didn't yield/return
+            #   a pydicom.dataset.Dataset with a Status element.
+            rsp.Status = 0xC003
+
+        return rsp
 
 
 # Generate the various SOP classes
