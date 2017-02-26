@@ -894,6 +894,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         no_completed = 0
         no_failed = 0
         no_warning = 0
+        failed_sop_instances = []
 
         # Check that the Identifier's SOP Class matches the presentation context
         if not self._is_identifier_sop_class_valid(rsp):
@@ -926,7 +927,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
             ## USER YIELD STATUS, DATASET
             for ii, (status_ds, dataset) in enumerate(result):
-                # Check validity of status_ds
+                # Check validity of status_ds and set rsp.Status
                 rsp = self._get_status_dataset(status_ds, rsp)
                 status = Status(rsp.Status, *self.statuses[rsp.Status])
 
@@ -941,12 +942,16 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     rsp.NumberOfFailedSuboperations = no_failed
                     rsp.NumberOfWarningSuboperations = no_warning
                     rsp.NumberOfCompletedSuboperations = no_completed
+                    rsp.Identifier = self._add_failed_sop_instances(rsp,
+                                                        failed_sop_instances)
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status.category == 'Failure':
                     LOGGER.info('Move SCP Response: (Failure - %s)',
                                 usr_status.description)
                     assoc.release()
+                    rsp.Identifier = self._add_failed_sop_instances(rsp,
+                                                        failed_sop_instances)
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status.category == 'Success':
@@ -957,6 +962,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                 elif status.category == 'Warning':
                     LOGGER.info('Move SCP Response: (Warning)')
                     assoc.release()
+                    rsp.Identifier = self._add_failed_sop_instances(rsp,
+                                                        failed_sop_instances)
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 else:
@@ -965,15 +972,20 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     #   association. While the sub-operations are being
                     #   performed send Pending statuses back to the peer
                     store_status = assoc.send_c_store(dataset)
-
+                    store_status = self._get_store_status(store_status)
+                    service_class = StorageServiceClass()
+                    store_status = Status(store_status,
+                                          *service.statuses[store_status])
                     LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
                                 store_status.category)
 
                     # Update the suboperation trackers
                     if store_status.status_type == 'Failure':
                         no_failed += 1
+                        failed_sop_instances.append(dataset.SOPInstanceUID)
                     elif store_status.status_type == 'Warning':
                         no_warning += 1
+                        failed_sop_instances.append(dataset.SOPInstanceUID)
                     elif store_status.status_type == 'Success':
                         no_completed += 1
                     no_remaining -= 1
@@ -982,7 +994,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     rsp.NumberOfFailedSuboperations = no_failed
                     rsp.NumberOfWarningSuboperations = no_warning
                     rsp.NumberOfCompletedSuboperations = no_completed
-                    rsp.Status = int(self.Pending)
+
+                    rsp.Status = 0xFF00 # Pending
                     LOGGER.info('Move SCP Response %s (Pending)', ii)
                     self.DIMSE.send_msg(rsp, self.pcid)
 
@@ -995,16 +1008,19 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
             LOGGER.info('Move SCP Response: (Failure - Peer refused '
                         'association)')
-            rsp.Status = int(self.OutOfResourcesUnableToPerform)
+            # Failure - Out of resources, unable to perform sub-operations
+            rsp.Status = 0xA702
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Send final C-MOVE-RSP to peer
         if no_warning == 0 and no_failed == 0:
-            rsp.Status = int(self.Success)
+            rsp.Status = 0x0000 # Success
             LOGGER.info('Move SCP Response: (Success)')
         else:
-            rsp.Status = int(self.Warning)
+            rsp.Status = 0xB000 # Warning
+            rsp.Identifier = self._add_failed_sop_instances(rsp,
+                                                        failed_sop_instances)
             LOGGER.info('Move SCP Response: (Warning)')
         self.DIMSE.send_msg(rsp, self.pcid)
 
@@ -1108,7 +1124,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         return addr, port
 
     def _get_status(self, ds, rsp):
-        """Check the callback's returned status dataset."""
+        """Check the callback's returned status dataset and set rsp.Status."""
         # Check the callback's returned Status dataset
         if isinstance(ds, Dataset) and 'Status' in ds:
             # Check returned dataset Status element value is OK
@@ -1139,6 +1155,38 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         return rsp
 
+    def _get_store_status(self, ds):
+        """Check the on_c_store's returned status dataset and set rsp.Status."""
+        # Check the callback's returned Status dataset
+        if isinstance(ds, Dataset) and 'Status' in ds:
+            # Check returned dataset Status element value is OK
+            if ds.Status not in self.statuses:
+                LOGGER.error("Status dataset yielded by on_c_store callback "
+                             "contains a Status element with an unknown value: "
+                             "0x{0:04x}.".format(ds.Status))
+                # Failure: Unable to Process - Invalid Status returned
+                status = 0xC002
+            # User's status is OK
+            status = ds.Status
+        else:
+            LOGGER.error("Callback yielded an invalid status "
+                         "(should be a pydicom Dataset with a Status "
+                         "element).")
+            # Failure: Unable to Process - callback didn't yield/return
+            #   a pydicom.dataset.Dataset with a Status element.
+            status = 0xC003
+
+        return status
+
+    def _add_failed_sop_instances(self, rsp, failed_instances):
+        """Add FailedSOPInstanceUIDList to the Identifier."""
+        # Decode Identifier
+        ds = decode(msg.Identifier,
+                    self.transfersyntax.is_implicit_VR,
+                    self.transfersyntax.is_little_endian)
+        ds.FailedSOPInstanceUIDList = failed_instances
+        return ds.encode(self.transfersyntax.is_implicit_VR,
+                         self.transfersyntax.is_little_endian)
 
 class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the QR Get Service Class."""

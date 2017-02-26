@@ -260,7 +260,7 @@ class DIMSEMessage(object):
             # xxxxxx11 - Command information, the last fragment
             control_header_byte = pdv_item[1][0]
 
-            # Python 2 ompatibility
+            # Python 2 compatibility
             if isinstance(control_header_byte, str):
                 control_header_byte = ord(control_header_byte)
 

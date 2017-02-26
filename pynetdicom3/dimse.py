@@ -9,18 +9,18 @@ import time
 
 # pylint: disable=no-name-in-module
 from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, \
-                                      C_FIND_RSP, C_GET_RQ, C_GET_RSP, \
-                                      C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, \
-                                      C_ECHO_RSP, C_CANCEL_RQ, \
-                                      N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, \
-                                      N_GET_RQ, N_GET_RSP, N_SET_RQ, \
-                                      N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, \
-                                      N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, \
-                                      N_DELETE_RSP, DIMSEMessage
+                                       C_FIND_RSP, C_GET_RQ, C_GET_RSP, \
+                                       C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, \
+                                       C_ECHO_RSP, C_CANCEL_RQ, \
+                                       N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, \
+                                       N_GET_RQ, N_GET_RSP, N_SET_RQ, \
+                                       N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, \
+                                       N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, \
+                                       N_DELETE_RSP, DIMSEMessage
 # pylint: enable=no-name-in-module
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
-                                        C_ECHO, N_EVENT_REPORT, N_GET, N_SET, \
-                                        N_ACTION, N_CREATE, N_DELETE, C_CANCEL
+                                         C_ECHO, N_EVENT_REPORT, N_GET, N_SET, \
+                                         N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 from pynetdicom3.pdu_primitives import P_DATA
 from pynetdicom3.sop_class import uid_to_sop_class
 from pynetdicom3.status import code_to_status, Status
@@ -490,6 +490,9 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.dimse_messages.C_STORE_RSP
             The C-STORE-RSP message to be sent.
+
+        TODO: Add in the extra status related elements if present
+        TODO: Add C-STORE logs
         """
         pass
 
@@ -539,6 +542,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.dimse_messages.C_FIND_RSP
             The C-FIND-RSP message to be sent.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -607,6 +612,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.dimse_messages.C_GET_RSP
             The C-GET-RSP message to be sent.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -677,6 +684,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.dimse_messages.C_MOVE_RSP
             The C-MOVE-RSP message to be sent.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -752,6 +761,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.dimse_messages.C_ECHO_RSP
             The received C-ECHO-RSP message.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
         status = code_to_status(cs.Status)
@@ -816,6 +827,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.DIMSEmessage.C_STORE_RSP
             The received C-STORE-RSP message.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -902,6 +915,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.dimse_messages.C_FIND_RSP
             The received C-FIND-RSP message.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
         if cs.Status != 0x0000:
@@ -998,6 +1013,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.DIMSEmessage.C_GET_RSP
             The received C-GET-RSP message.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -1054,6 +1071,8 @@ class DIMSEServiceProvider(object):
         ----------
         msg : pynetdicom3.DIMSEmessage.C_MOVE_RSP
             The received C-MOVE-RSP message.
+
+        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
