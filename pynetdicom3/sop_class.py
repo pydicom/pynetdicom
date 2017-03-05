@@ -11,9 +11,9 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom3.dsutils import decode, encode
-from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, \
-                                         C_FIND, N_EVENT_REPORT, N_GET, \
-                                         N_SET, N_CREATE, N_ACTION, N_DELETE
+from pynetdicom3.dimse_primitives import (C_STORE, C_ECHO, C_MOVE, C_GET,
+                                          C_FIND, N_EVENT_REPORT, N_GET,
+                                          N_SET, N_CREATE, N_ACTION, N_DELETE)
 from pynetdicom3.status import GENERAL_STATUS, Status
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
@@ -225,12 +225,12 @@ class VerificationServiceClass(ServiceClass):
     Based on PS3.7 Section 9.1.5.1.4.
 
     Success
-        Success - 0x0000
+        0x000 - Success
     Failure
-        Refused: SOP Class Not Supported - 0x0122
-        Refused: Duplicate Invocation - 0x0210
-        Refused: Mistyped Argument - 0x0212
-        Refused: Unrecognised Operation - 0x0211
+        0x0122 - Refused: SOP Class Not Supported
+        0x0210 - Refused: Duplicate Invocation
+        0x0212 - Refused: Mistyped Argument
+        0x0211 - Refused: Unrecognised Operation
     """
     statuses = GENERAL_STATUS
 
@@ -255,7 +255,7 @@ class VerificationServiceClass(ServiceClass):
         try:
             self.AE.on_c_echo()
         except:
-            LOGGER.exception("Exception in the AE.on_c_echo() callback")
+            LOGGER.exception("Exception in the AE.on_c_echo() callback.")
 
         # Send primitive
         self.DIMSE.send_msg(rsp, self.pcid)
@@ -268,35 +268,45 @@ class StorageServiceClass(ServiceClass):
     ------
     Based on PS3.7 Section 9.1.1.1.9 and PS3.4 Annex B.2.3.
 
+    pynetdicom3 specific status codes
+        Failure: Cannot Understand
+            0xC100 - Failed to decode the received dataset.
+            0xC101 - Exception in the on_c_store callback.
+            0xC102 - Unknown status returned by the on_c_store callback.
+            0xC103 - Dataset with no Status element returned by the on_c_store
+                     callback.
+            0xC104 - on_c_store callback failed to return a pydicom Dataset.
+
     * Indicates service class specific status codes
 
     Success
-        Success - 0x0000
+        0x0000 - Success
     Warning
-        *Warning: Coercion of Data Elements - 0xB000
-        *Warning: Data Set Does Not Match SOP Class - 0xB007
-        *Warning: Elements Discarded - 0xB006
+        0xB000 * - Warning: Coercion of Data Elements
+        0xB006 * - Warning: Elements Discarded
+        0xB007 * - Warning: Data Set Does Not Match SOP Class
     Failure
-        *Refused: Out of Resources - 0xA7xx
-        Refused: SOP Class Not Supported - 0x0122
-        *Error: Cannot Understand - 0xCxxx
-        *Error: Data Set Does Not Match SOP Class - 0xA9xx
-        Refused: Duplicate Invocation - 0x0210
-        Refused: Invalid SOP Instance - 0x0117
-        Refused: Mistyped Argument - 0x0212
-        Refused: Unrecognised Operation - 0x0211
-        Refused: Not Authorised - 0x0124
+        0x0117 - Refused: Invalid SOP Instance
+        0x0122 - Refused: SOP Class Not Supported
+        0x0124 - Refused: Not Authorised
+        0x0210 - Refused: Duplicate Invocation
+        0x0211 - Refused: Unrecognised Operation
+        0x0212 - Refused: Mistyped Argument
+        0xA7xx * - Refused: Out of Resources
+        0xA9xx * - Error: Data Set Does Not Match SOP Class
+        0xCxxx * - Error: Cannot Understand
     """
     # Service class specific status code values - PS3.4 Annex B.2.3
-    statuses = {
-        range(0xA700, 0xA7FF + 1) : ('Failure', 'Refused: Out of Resources'),
-        range(0xA900, 0xA9FF + 1) : ('Failure',
-                                     'Data Set Does Not Match SOP Class'),
-        range(0xC000, 0xCFFF + 1) : ('Failure', 'Cannot Understand'),
-        0xB000 : ('Warning', 'Coercion of Data Elements'),
-        0xB007 : ('Warning', 'Data Set Does Not Match SOP Class'),
-        0xB006 : ('Warning', 'Element Discarded')
-    }
+    statuses = {0xB000 : ('Warning', 'Coercion of Data Elements'),
+                0xB007 : ('Warning', 'Data Set Does Not Match SOP Class'),
+                0xB006 : ('Warning', 'Element Discarded')}
+    # Ranged values
+    for code in range(0xA700, 0xA7FF + 1):
+        statuses[code] = ('Failure', 'Refused: Out of Resources')
+    for code in range(0xA900, 0xA9FF + 1):
+        statuses[code] = ('Failure', 'Data Set Does Not Match SOP Class')
+    for code in range(0xC000, 0xCFFF + 1):
+        statuses[code] = ('Failure', 'Cannot Understand')
 
     # Add the General status code values - PS3.7 9.1.1.1.9 and Annex C
     statuses.update(GENERAL_STATUS)
@@ -326,7 +336,7 @@ class StorageServiceClass(ServiceClass):
         except:
             LOGGER.error("Failed to decode the received dataset")
              # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC000
+            rsp.Status = 0xC100
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -337,7 +347,7 @@ class StorageServiceClass(ServiceClass):
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
              # Failure: Cannot Understand - Error in on_c_store callback
-            rsp.Status = 0xC001
+            rsp.Status = 0xC101
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -351,7 +361,7 @@ class StorageServiceClass(ServiceClass):
                                  "invalid status value.")
                     # Failure: Cannot Understand - Invalid Status returned
                     #   by on_c_store callback
-                    rsp.Status = 0xC002
+                    rsp.Status = 0xC102
 
                 # For the elements in the status dataset, try and set the
                 #   corresponding response primitive attribute
@@ -367,13 +377,13 @@ class StorageServiceClass(ServiceClass):
                              "dataset without a Status element.")
                 # Failure: Cannot Understand - on_c_store callback returned
                 #   a pydicom.dataset.Dataset without a Status element
-                rsp.Status = 0xC003
+                rsp.Status = 0xC103
         else:
             LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
                          "status type (should be a pydicom Dataset).")
             # Failure: Cannot Understand - on_c_store callback didn't return
             #   a pydicom.dataset.Dataset
-            rsp.Status = 0xC004
+            rsp.Status = 0xC104
 
         self.DIMSE.send_msg(rsp, self.pcid)
 
@@ -488,10 +498,12 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     statuses = {
         0xA700 : ('Failure', 'Refused: Out of Resources'),
         0xA900 : ('Failure', 'Identifier Does Not Match SOP Class'),
-        range(0xC000, 0xCFFF + 1) : ('Failure', 'Unable to Process'),
         0xFF00 : ('Pending', 'Matches are continuing, current match supplied'),
         0xFF01 : ('Pending', 'Matches are continuing, warning')
     }
+    # Ranged values
+    for code in range(0xC000, 0xCFFF + 1):
+        statuses[code] = ('Failure', 'Unable to Process')
 
     # Add the General status code values - PS3.7 Annex C
     statuses.update(GENERAL_STATUS)
@@ -818,12 +830,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         0xA701 : ('Failure', 'Refused: Out of resources, unable to calculate '
                              'number of matches'),
         0xA702 : ('Failure', 'Refused: Out of resources, unable to perform '
-                             'sub-operations')
+                             'sub-operations'),
         0xA801 : ('Failure', 'Move destination unknown'),
         0xA900 : ('Failure', 'Identifier does not match SOP class'),
-        range(0xC000, 0xCFFF + 1) : ('Failure', 'Unable to process'),
         0xFF00 : ('Pending', 'Sub-operations are continuing'),
     }
+    # Ranged values
+    for code in range(0xC000, 0xCFFF + 1):
+        statuses[code] = ('Failure', 'Unable to Process')
 
     # Add the General status code values - PS3.7 Annex C
     statuses.update(GENERAL_STATUS)
@@ -1227,11 +1241,13 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         0xA701 : ('Failure', 'Refused: Out of resources, unable to calculate '
                              'number of matches'),
         0xA702 : ('Failure', 'Refused: Out of resources, unable to perform '
-                             'sub-operations')
+                             'sub-operations'),
         0xA900 : ('Failure', 'Identifier does not match SOP class'),
-        range(0xC000, 0xCFFF + 1) : ('Failure', 'Unable to process'),
         0xFF00 : ('Pending', 'Sub-operations are continuing'),
     }
+    # Ranged values
+    for code in range(0xC000, 0xCFFF + 1):
+        statuses[code] = ('Failure', 'Unable to Process')
 
     # Add the General status code values - PS3.7 Annex C
     statuses.update(GENERAL_STATUS)
@@ -1459,6 +1475,84 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             rsp.Status = 0xC003
 
         return rsp
+
+
+# WORKLIST SOP Classes
+class BasicWorklistServiceClass(ServiceClass): pass
+
+
+class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
+    """Implements the Modality Worklist Service Class.
+
+    Status
+    ------
+    Based on PS3.4 Annex K.4.1.1.4.
+
+    * Indicates service class specific status codes
+
+    Success
+        Success: Sub-operations complete, no failures - 0x0000
+    Pending
+        *Pending: Matches are continuing - warning that one or more Optional
+            Keys were not supported for existence for this Identifier - 0xFF01
+        *Pending: Matches are continuing - current match is supplied and any
+            Optional Keys were supported in the same manner as Required Keys
+            - 0xFF00
+    Cancel
+        Cancel: Sub-operations terminated due to Cancel indication - 0xFE00
+    Failure
+        *Refused: Out of Resources - 0xA700
+        *Identifier Does Not Match SOP Class - 0xA900
+        *Unable to Process - 0xCxxx
+    """
+    # Service class specific status code values - PS3.4 Annex C.4.2.1.5
+    statuses = {
+        0xA700 : ('Failure', 'Refused: Out of resources'),
+        0xA900 : ('Failure', 'Identifier does not match SOP class'),
+        0xFF00 : ('Pending', 'Matches are continuing - current match is '
+                             'supplied and any Optional Keys were supported in '
+                             'the same manner as Required Keys'),
+        0xFE00 : ('Pending', 'Matches are continuing - warning that one or '
+                             'more Optional Keys were not supported for '
+                             'existence for this Identifier'),
+    }
+    # Ranged values
+    for code in range(0xC000, 0xCFFF + 1):
+        statuses[code] = ('Failure', 'Unable to Process')
+
+    # Add the General status code values - PS3.7 Annex C
+    statuses.update(GENERAL_STATUS)
+
+    # FIXME
+    def SCP(self, msg):
+        """SCP"""
+        ds = decode(msg.Identifier,
+                    self.transfersyntax.is_implicit_VR,
+                    self.transfersyntax.is_little_endian)
+
+        # make response
+        rsp = C_FIND()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+
+        gen = self.AE.OnReceiveFind(self, ds)
+        try:
+            while 1:
+                time.sleep(0.001)
+                dataset, status = gen.next()
+                rsp.Status = int(status)
+                rsp.Identifier = encode(dataset,
+                                        self.transfersyntax.is_implicit_VR,
+                                        self.transfersyntax.is_little_endian)
+                # send response
+                self.DIMSE.send_msg(rsp, self.pcid)
+        except StopIteration:
+            # send final response
+            rsp = C_FIND()
+            rsp.MessageIDBeingRespondedTo = msg.MessageID.value
+            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
+            rsp.Status = int(self.Success)
+            self.DIMSE.send_msg(rsp, self.pcid)
 
 
 # Generate the various SOP classes

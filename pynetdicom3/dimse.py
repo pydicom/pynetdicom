@@ -773,11 +773,11 @@ class DIMSEServiceProvider(object):
         #   0x0212 Refused: Mistyped Argument
         #   0x0211 Refused: Unrecognised Operation
         if cs.Status == 0x0000:
-            status_str = '{}'.format(status.status_type)
+            status_str = '{}'.format(status.category)
         else:
             status_str = '{} - {} {}'.format(status,
-                                             status.status_type,
-                                             status.status_name)
+                                             status.category,
+                                             status.description)
         LOGGER.info("Received Echo Response (Status: {})".format(status_str))
 
     @staticmethod

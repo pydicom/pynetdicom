@@ -1,43 +1,35 @@
-"""Implementation of the DIMSE Status"""
+"""Implementation of the DIMSE Status."""
 
 
 class Status(int):
     """Implementation of the DIMSE Status value.
 
-    When sub-classing python built-ins you should only extend behaviour.
-    """
-    """
-    DIMSE-N Statuses
-    ----------------
-
-    """
-    """
     Statuses
     --------
     Taken from PS3.7 Annex C
 
     Success Status Class
     ~~~~~~~~~~~~~~~~~~~~
-    Success - 0x0000
+    * Success - 0x0000
 
     Pending Status Class
     ~~~~~~~~~~~~~~~~~~~~
     Service Class Specific: 0xFF00 or 0xFF01
 
-    Pending - (Service Class Specific)
+    * Pending - (Service Class Specific)
 
     Cancel Status Class
     ~~~~~~~~~~~~~~~~~~~
-    Cancel - 0xFE00
+    * Cancel - 0xFE00
 
     Warning Status Class
     ~~~~~~~~~~~~~~~~~~~~
     Service Class Specific: 0x0001 or 0xBxxx
     General Annex C assigned: 0x01xx, 0x02xx
 
-    Warning - (Service Class Specific)
-    Attribute List Error - 0x0107
-    Attribute Value Out of Range - 0x0116
+    * Warning - (Service Class Specific)
+    * Attribute List Error - 0x0107
+    * Attribute Value Out of Range - 0x0116
 
     Failure Status Class
     ~~~~~~~~~~~~~~~~~~~~
@@ -69,17 +61,40 @@ class Status(int):
     Unrecognised Operation - 0x0211
     No Such Action Type - 0x0123
     Refused: Not Authorised - 0x0124
+
+    Attributes
+    ----------
+    category : str
+        One of ('Success', 'Cancel', 'Warning', 'Pending', 'Failure').
+    description : str
+    text : str
     """
-    def __new__(cls, val, category, name, description=''):
+    # When sub-classing python built-ins you should only extend behaviour.
+    def __new__(cls, val, category, description, text=''):
+        """Create a new Status.
+
+        Parameters
+        ----------
+        val : int
+            The status code.
+        category : str
+            One of ('Success', 'Cancel', 'Warning', 'Pending', 'Failure').
+        description : str
+            A short summary of the status, taken from the DICOM standard.
+        text : str
+            A longer description of the status.
+        """
+        cls.text = text
         cls.description = description
-        cls.name = name
         cls.category = category
         return super(Status, cls).__new__(cls, val)
 
     def __str__(self):
+        """Return Status string as '0xXXXX' with value as 2-byte hex."""
         return '0x{0:04x}'.format(self)
 
 
+# Non-Service Class specific statuses - PS3.7 Annex C
 GENERAL_STATUS = {0x0000 : ('Success', ''),
                   0xFE00 : ('Cancel', ''),
                   0x0107 : ('Warning', 'Attribute List Error'),
@@ -106,6 +121,7 @@ GENERAL_STATUS = {0x0000 : ('Success', ''),
                   0x0124 : ('Failure', 'Refused: Not Authorised')}
 
 def code_to_status(val):
+    """Return a Status from a general status code."""
     if val in GENERAL_STATUS:
         return Status(val, *GENERAL_STATUS[val])
 
