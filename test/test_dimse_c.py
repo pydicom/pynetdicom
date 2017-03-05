@@ -46,6 +46,7 @@ class TestPrimitive_C_CANCEL(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.MessageIDBeingRespondedTo = 'test'
 
+
 class TestPrimitive_C_STORE(unittest.TestCase):
     """Test DIMSE C-STORE operations."""
     def test_assignment(self):
@@ -850,8 +851,12 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
         self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
+        # Known status
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
+        # Unknown status
+        primitive.Status = 0x9999
+        self.assertEqual(primitive.Status, 0x9999)
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -860,45 +865,34 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         # MessageID
         with self.assertRaises(TypeError):
             primitive.MessageID = 'halp'
-
         with self.assertRaises(TypeError):
             primitive.MessageID = 1.111
-
         with self.assertRaises(ValueError):
             primitive.MessageID = 65536
-
         with self.assertRaises(ValueError):
             primitive.MessageID = -1
 
         # MessageIDBeingRespondedTo
         with self.assertRaises(TypeError):
             primitive.MessageIDBeingRespondedTo = 'halp'
-
         with self.assertRaises(TypeError):
             primitive.MessageIDBeingRespondedTo = 1.111
-
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = 65536
-
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = -1
 
         # AffectedSOPClassUID
         with self.assertRaises(TypeError):
             primitive.AffectedSOPClassUID = 45.2
-
         with self.assertRaises(TypeError):
             primitive.AffectedSOPClassUID = 100
-
         with self.assertRaises(ValueError):
             primitive.AffectedSOPClassUID = 'abc'
 
         # Status
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             primitive.Status = 19.4
-
-        with self.assertRaises(ValueError):
-            primitive.Status = 0x0010
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """

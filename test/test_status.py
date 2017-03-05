@@ -16,8 +16,8 @@ class TestStatus(unittest.TestCase):
         status = code_to_status(0x0123)
         print(status)
         print(status.description)
-        print(status.status_type)
-        print(status.status_name)
+        print(status.category)
+        print(status.text)
 
 
 if __name__ == "__main__":

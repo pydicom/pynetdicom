@@ -14,6 +14,7 @@ import logging
 
 from pydicom.uid import UID
 
+from pynetdicom3.status import VERIFICATION_SERVICE_CLASS_STATUS
 from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
@@ -1354,10 +1355,12 @@ class C_ECHO(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
+        if not isinstance(value, (int, type(None))):
+            raise TypeError("C-ECHO Status must be an int.")
+        if value not in VERIFICATION_SERVICE_CLASS_STATUS and value is not None:
             LOGGER.warning("Unknown C-ECHO Status 0x{0:04x}".format(value))
+
+        self._status = value
 
 
 class C_CANCEL(object):

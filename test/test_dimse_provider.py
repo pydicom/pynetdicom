@@ -11,20 +11,20 @@ import unittest
 from pydicom.dataset import Dataset
 
 from encoded_dimse_msg import c_store_ds
-from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, \
-                                      C_FIND_RSP, C_GET_RQ, C_GET_RSP, \
-                                      C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, \
-                                      C_ECHO_RSP, C_CANCEL_RQ, \
-                                      N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, \
-                                      N_GET_RQ, N_GET_RSP, N_SET_RQ, \
-                                      N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, \
-                                      N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, \
-                                      N_DELETE_RSP
-from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_GET, C_MOVE, \
-                                        C_FIND, N_EVENT_REPORT, N_SET, \
-                                        N_GET, N_ACTION, N_CREATE, N_DELETE, \
-                                        C_CANCEL
 from pynetdicom3.dimse import DIMSEServiceProvider
+from pynetdicom3.dimse_messages import (C_STORE_RQ, C_STORE_RSP, C_FIND_RQ,
+                                        C_FIND_RSP, C_GET_RQ, C_GET_RSP,
+                                        C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ,
+                                        C_ECHO_RSP, C_CANCEL_RQ,
+                                        N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP,
+                                        N_GET_RQ, N_GET_RSP, N_SET_RQ,
+                                        N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP,
+                                        N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ,
+                                        N_DELETE_RSP)
+from pynetdicom3.dimse_primitives import (C_STORE, C_ECHO, C_GET, C_MOVE,
+                                          C_FIND, N_EVENT_REPORT, N_SET,
+                                          N_GET, N_ACTION, N_CREATE, N_DELETE,
+                                          C_CANCEL)
 from pynetdicom3.dsutils import encode
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -35,7 +35,7 @@ class DummyDUL(object):
     """Dummy DUL class for testing DIMSE provider"""
     @staticmethod
     def is_alive(): return True
-    
+
     @staticmethod
     def send_pdu(pdv):
         """Dummy Send method to test DIMSEServiceProvider.Send"""
@@ -605,7 +605,11 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         self.dimse.debug_receive_c_echo_rq(msg)
 
         # C-ECHO-RSP
+        primitive = C_ECHO()
+        primitive.MessageIDBeingRespondedTo = 4
+        primitive.Status = 0x0000
         msg = C_ECHO_RQ()
+        msg.primitive_to_message(primitive)
         self.dimse.debug_receive_c_echo_rsp(msg)
 
     def test_callback_receive_c_store(self):

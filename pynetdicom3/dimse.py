@@ -765,6 +765,7 @@ class DIMSEServiceProvider(object):
         TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
+        print(cs)
         status = code_to_status(cs.Status)
         # Status is one of the following:
         #   0x0000 Success
@@ -844,11 +845,11 @@ class DIMSEServiceProvider(object):
         else:
             status = Status(cs.Status, '(unknown)', '')
 
-        if status.name == '':
+        if status.description == '':
             status_str = '{}: {}'.format(status, status.category)
         else:
             status_str = '{}: {} - {}'.format(status, status.category,
-                                              status.name)
+                                              status.description)
 
         LOGGER.info('Received Store Response')
         s = []

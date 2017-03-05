@@ -14,7 +14,12 @@ from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dimse_primitives import (C_STORE, C_ECHO, C_MOVE, C_GET,
                                           C_FIND, N_EVENT_REPORT, N_GET,
                                           N_SET, N_CREATE, N_ACTION, N_DELETE)
-from pynetdicom3.status import GENERAL_STATUS, Status
+from pynetdicom3.status import (Status, VERIFICATION_SERVICE_CLASS_STATUS,
+                                STORAGE_SERVICE_CLASS_STATUS,
+                                QR_FIND_SERVICE_CLASS_STATUS,
+                                QR_MOVE_SERVICE_CLASS_STATUS,
+                                QR_GET_SERVICE_CLASS_STATUS,
+                                MODALITY_WORKLIST_SERVICE_CLASS_STATUS)
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
@@ -232,7 +237,7 @@ class VerificationServiceClass(ServiceClass):
         0x0212 - Refused: Mistyped Argument
         0x0211 - Refused: Unrecognised Operation
     """
-    statuses = GENERAL_STATUS
+    statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
         """
@@ -296,20 +301,7 @@ class StorageServiceClass(ServiceClass):
         0xA9xx * - Error: Data Set Does Not Match SOP Class
         0xCxxx * - Error: Cannot Understand
     """
-    # Service class specific status code values - PS3.4 Annex B.2.3
-    statuses = {0xB000 : ('Warning', 'Coercion of Data Elements'),
-                0xB007 : ('Warning', 'Data Set Does Not Match SOP Class'),
-                0xB006 : ('Warning', 'Element Discarded')}
-    # Ranged values
-    for code in range(0xA700, 0xA7FF + 1):
-        statuses[code] = ('Failure', 'Refused: Out of Resources')
-    for code in range(0xA900, 0xA9FF + 1):
-        statuses[code] = ('Failure', 'Data Set Does Not Match SOP Class')
-    for code in range(0xC000, 0xCFFF + 1):
-        statuses[code] = ('Failure', 'Cannot Understand')
-
-    # Add the General status code values - PS3.7 9.1.1.1.9 and Annex C
-    statuses.update(GENERAL_STATUS)
+    statuses = STORAGE_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
         """Called when running as an SCP and receive a C-STORE request."""
@@ -490,23 +482,10 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         *Identifier Does Not Match SOP Class - 0xA900
         *Unable to Process - 0xCxxx
 
-
     A QR C-FIND SCP may also support Instance Availability (0008,0056) element
     in the Identifier (PS3.4 C.4.1.1.3)
     """
-    # Service class specific status code values - PS3.4 Annex C.4.1.1.4
-    statuses = {
-        0xA700 : ('Failure', 'Refused: Out of Resources'),
-        0xA900 : ('Failure', 'Identifier Does Not Match SOP Class'),
-        0xFF00 : ('Pending', 'Matches are continuing, current match supplied'),
-        0xFF01 : ('Pending', 'Matches are continuing, warning')
-    }
-    # Ranged values
-    for code in range(0xC000, 0xCFFF + 1):
-        statuses[code] = ('Failure', 'Unable to Process')
-
-    # Add the General status code values - PS3.7 Annex C
-    statuses.update(GENERAL_STATUS)
+    statuses = QR_FIND_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
         """
@@ -825,22 +804,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     Warning
         Warning: Sub-operations completed, one or more failures - 0xB000
     """
-    # Service class specific status code values - PS3.4 Annex C.4.2.1.5
-    statuses = {
-        0xA701 : ('Failure', 'Refused: Out of resources, unable to calculate '
-                             'number of matches'),
-        0xA702 : ('Failure', 'Refused: Out of resources, unable to perform '
-                             'sub-operations'),
-        0xA801 : ('Failure', 'Move destination unknown'),
-        0xA900 : ('Failure', 'Identifier does not match SOP class'),
-        0xFF00 : ('Pending', 'Sub-operations are continuing'),
-    }
-    # Ranged values
-    for code in range(0xC000, 0xCFFF + 1):
-        statuses[code] = ('Failure', 'Unable to Process')
-
-    # Add the General status code values - PS3.7 Annex C
-    statuses.update(GENERAL_STATUS)
+    statuses = QR_MOVE_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
         """SCP
@@ -1236,21 +1200,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     Warning
         Warning: Sub-operations completed, one or more failures/warnings - 0xB000
     """
-    # Service class specific status code values - PS3.4 Annex C.4.3.1.4
-    statuses = {
-        0xA701 : ('Failure', 'Refused: Out of resources, unable to calculate '
-                             'number of matches'),
-        0xA702 : ('Failure', 'Refused: Out of resources, unable to perform '
-                             'sub-operations'),
-        0xA900 : ('Failure', 'Identifier does not match SOP class'),
-        0xFF00 : ('Pending', 'Sub-operations are continuing'),
-    }
-    # Ranged values
-    for code in range(0xC000, 0xCFFF + 1):
-        statuses[code] = ('Failure', 'Unable to Process')
-
-    # Add the General status code values - PS3.7 Annex C
-    statuses.update(GENERAL_STATUS)
+    statuses = QR_GET_SERVICE_CLASS_STATUS
 
     def SCP(self, msg, priority=2):
         """
@@ -1486,7 +1436,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
 
     Status
     ------
-    Based on PS3.4 Annex K.4.1.1.4.
+    Based on PS3.4 Annex K.4.1.1.4 (FIXME)
 
     * Indicates service class specific status codes
 
@@ -1505,23 +1455,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
         *Identifier Does Not Match SOP Class - 0xA900
         *Unable to Process - 0xCxxx
     """
-    # Service class specific status code values - PS3.4 Annex C.4.2.1.5
-    statuses = {
-        0xA700 : ('Failure', 'Refused: Out of resources'),
-        0xA900 : ('Failure', 'Identifier does not match SOP class'),
-        0xFF00 : ('Pending', 'Matches are continuing - current match is '
-                             'supplied and any Optional Keys were supported in '
-                             'the same manner as Required Keys'),
-        0xFE00 : ('Pending', 'Matches are continuing - warning that one or '
-                             'more Optional Keys were not supported for '
-                             'existence for this Identifier'),
-    }
-    # Ranged values
-    for code in range(0xC000, 0xCFFF + 1):
-        statuses[code] = ('Failure', 'Unable to Process')
-
-    # Add the General status code values - PS3.7 Annex C
-    statuses.update(GENERAL_STATUS)
+    statuses = MODALITY_WORKLIST_SERVICE_CLASS_STATUS
 
     # FIXME
     def SCP(self, msg):
