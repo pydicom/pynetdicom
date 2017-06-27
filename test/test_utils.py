@@ -192,7 +192,10 @@ class TestPresentationContext(unittest.TestCase):
         with self.assertRaises(ValueError):
             pc.add_transfer_syntax('1.2.840.10008.1.1')
 
-
+    def test_add_private_transfer_syntax(self):
+        """Test adding private transfer syntaxes"""
+        pc = PresentationContext(1)
+        pc.add_transfer_syntax('2.16.840.1.113709.1.2.2')
 
     def test_equality(self):
         """Test presentation context equality"""
