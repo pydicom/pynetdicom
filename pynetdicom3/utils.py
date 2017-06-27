@@ -367,7 +367,9 @@ class PresentationContext(object):
                             'transfer syntax UID')
                 continue
 
-            if uid.is_transfer_syntax:
+            if uid.is_private:
+                self._transfer_syntax.append(uid)
+            elif uid.is_transfer_syntax:
                 self._transfer_syntax.append(uid)
 
     @property

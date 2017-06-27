@@ -196,6 +196,10 @@ class TestPresentationContext(unittest.TestCase):
         """Test adding private transfer syntaxes"""
         pc = PresentationContext(1)
         pc.add_transfer_syntax('2.16.840.1.113709.1.2.2')
+        self.assertTrue('2.16.840.1.113709.1.2.2' in pc._transfer_syntax)
+
+        pc.TransferSyntax = ['2.16.840.1.113709.1.2.1']
+        self.assertTrue('2.16.840.1.113709.1.2.1' in pc._transfer_syntax)
 
     def test_equality(self):
         """Test presentation context equality"""
