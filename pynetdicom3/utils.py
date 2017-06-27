@@ -239,7 +239,9 @@ class PresentationContext(object):
             except InvalidUID:
                 raise ValueError('Presentation Context attempted to add a '
                                  'invalid UID')
-            if not transfer_syntax.is_transfer_syntax:
+            # Issue #62: private transfer syntaxes may be used
+            if not transfer_syntax.is_private and \
+                                not transfer_syntax.is_transfer_syntax:
                 raise ValueError('Presentation Context attempted to add a '
                                  'non-transfer syntax UID')
             self.TransferSyntax.append(transfer_syntax)
