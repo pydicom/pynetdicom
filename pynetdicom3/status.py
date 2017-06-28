@@ -1,18 +1,25 @@
 """Implementation of the DIMSE Status."""
 
 from pydicom.datadict import tag_for_keyword, dictionary_VR
-from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
+from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
 
 class Status(Dataset):
     """Implementation of the DIMSE Status value.
 
-    Tag = (0000, 0900), Keyword = Status, VR = US,  VM = 1
+    A subclass of pydicom's Dataset that always contains a Status element.
+    Additional group 0x0000 elements can be added where appropriate, depending
+    on the DIMSE-C Service and the Status value.
+    * (0000, 0900) Status
+    * OffendingElement
+    * ErrorComment
+    * AffectedSOPInstanceUID
+    * ErrorID
 
-    Statuses
-    --------
+    Status
+    ------
     Taken from PS3.7 Annex C
 
     Success Status Class
@@ -93,18 +100,22 @@ class Status(Dataset):
             A longer description of the status.
         """
         Dataset.__init__(self)
+        # pylint: disable=invalid-name
         self.Status = val
         self._category = category
         self._description = description
         self.text = text
 
     def __eq__(self, other):
+        """Return True if the Status value for `self` equals `other`."""
         return self.Status == other
 
     def __int__(self):
+        """Return the Status' value."""
         return self.Status
 
     def __ne__(self, other):
+        """Return True if the Status value for `self` doesn't equal `other`."""
         return not self == other
 
     def __setattr__(self, name, value):
@@ -123,6 +134,12 @@ class Status(Dataset):
             name of the attribute to be added/changed.
         value
             The value for the attribute to be added/changed.
+
+        Raises
+        ------
+        ValueError
+            If Status is being set to an invalid value or if a non-group 0x0000
+            element is being added.
         """
         tag = tag_for_keyword(name)
 
@@ -131,22 +148,22 @@ class Status(Dataset):
             tag = Tag(tag)
             # Check to ensure group 0x0000 and Status value OK
             if tag.group != 0x0000:
-                raise ValueError("Only group 0x0000 elements can be added to a" \
-                                    "Status dataset")
+                raise ValueError("Only group 0x0000 elements can be added to " \
+                                 "a Status dataset")
             elif tag == 0x00000900 and not isinstance(value, int):
                 raise ValueError("The value for the Status element must be a " \
-                                  "positive integer")
+                                 "positive integer")
             elif tag == 0x00000900 and value < 0:
                 raise ValueError("The value for the Status element must be a " \
-                                  "positive integer")
-            
+                                 "positive integer")
+
             # Tag not yet in Dataset
             if tag not in self:
-                VR = dictionary_VR(tag)
-                data_element = DataElement(tag, VR, value)
+                vr = dictionary_VR(tag)
+                data_element = DataElement(tag, vr, value)
 
             # Already have this data_element, just changing its value
-            else:  
+            else:
                 data_element = self[tag]
                 data_element.value = value
 
@@ -155,7 +172,7 @@ class Status(Dataset):
 
         # If tag is None, set class attribute
         else:
-            super(Dataset, self).__setattr__(name, value)
+            super(Status, self).__setattr__(name, value)
 
     def __setitem__(self, key, value):
         """Operator for Dataset[key] = value.
@@ -198,11 +215,12 @@ class Status(Dataset):
 
         if key != tag:
             raise ValueError("DataElement.tag must match the dictionary key")
- 
+
         dict.__setitem__(self, tag, value)
 
     @property
     def category(self):
+        """Return the Status' category."""
         code = int(self)
         if code in GENERAL_STATUS:
             return GENERAL_STATUS[int(self)][0]
@@ -219,13 +237,14 @@ class Status(Dataset):
 
     @property
     def description(self):
+        """Return the Status' description."""
         code = int(self)
         if code in GENERAL_STATUS:
             return GENERAL_STATUS[int(self)][1]
         elif self._description != '':
             return self._description
-        else:
-            return ''
+
+        return ''
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
@@ -268,14 +287,14 @@ STORAGE_SERVICE_CLASS_STATUS = {
 }
 
 # Ranged values
-for code in range(0xA700, 0xA7FF + 1):
-    STORAGE_SERVICE_CLASS_STATUS[code] = ('Failure',
-                                          'Refused: Out of Resources')
-for code in range(0xA900, 0xA9FF + 1):
-    STORAGE_SERVICE_CLASS_STATUS[code] = ('Failure',
-                                          'Data Set Does Not Match SOP Class')
-for code in range(0xC000, 0xCFFF + 1):
-    STORAGE_SERVICE_CLASS_STATUS[code] = ('Failure', 'Cannot Understand')
+for _code in range(0xA700, 0xA7FF + 1):
+    STORAGE_SERVICE_CLASS_STATUS[_code] = ('Failure',
+                                           'Refused: Out of Resources')
+for _code in range(0xA900, 0xA9FF + 1):
+    STORAGE_SERVICE_CLASS_STATUS[_code] = ('Failure',
+                                           'Data Set Does Not Match SOP Class')
+for _code in range(0xC000, 0xCFFF + 1):
+    STORAGE_SERVICE_CLASS_STATUS[_code] = ('Failure', 'Cannot Understand')
 
 # Add the General status code values - PS3.7 9.1.1.1.9 and Annex C
 STORAGE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
@@ -291,9 +310,8 @@ QR_FIND_SERVICE_CLASS_STATUS = {
 }
 
 # Ranged values
-for code in range(0xC000, 0xCFFF + 1):
-    QR_FIND_SERVICE_CLASS_STATUS[code] = ('Failure',
-                                                      'Unable to Process')
+for _code in range(0xC000, 0xCFFF + 1):
+    QR_FIND_SERVICE_CLASS_STATUS[_code] = ('Failure', 'Unable to Process')
 
 # Add the General status code values - PS3.7 Annex C
 QR_FIND_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
@@ -312,8 +330,8 @@ QR_MOVE_SERVICE_CLASS_STATUS = {
 }
 
 # Ranged values
-for code in range(0xC000, 0xCFFF + 1):
-    QR_MOVE_SERVICE_CLASS_STATUS[code] = ('Failure', 'Unable to Process')
+for _code in range(0xC000, 0xCFFF + 1):
+    QR_MOVE_SERVICE_CLASS_STATUS[_code] = ('Failure', 'Unable to Process')
 
 # Add the General status code values - PS3.7 Annex C
 QR_MOVE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
@@ -331,8 +349,8 @@ QR_GET_SERVICE_CLASS_STATUS = {
 }
 
 # Ranged values
-for code in range(0xC000, 0xCFFF + 1):
-    QR_GET_SERVICE_CLASS_STATUS[code] = ('Failure', 'Unable to Process')
+for _code in range(0xC000, 0xCFFF + 1):
+    QR_GET_SERVICE_CLASS_STATUS[_code] = ('Failure', 'Unable to Process')
 
 # Add the General status code values - PS3.7 Annex C
 QR_GET_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
@@ -351,9 +369,9 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS = {
                          'existence for this Identifier'),
 }
 # Ranged values
-for code in range(0xC000, 0xCFFF + 1):
-    MODALITY_WORKLIST_SERVICE_CLASS_STATUS[code] = ('Failure',
-                                                    'Unable to Process')
+for _code in range(0xC000, 0xCFFF + 1):
+    MODALITY_WORKLIST_SERVICE_CLASS_STATUS[_code] = ('Failure',
+                                                     'Unable to Process')
 
 # Add the General status code values - PS3.7 Annex C
 MODALITY_WORKLIST_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)

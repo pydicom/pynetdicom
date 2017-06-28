@@ -59,17 +59,15 @@ class TestStatus(unittest.TestCase):
 
     def test_eq(self):
         """Test equality operator"""
-        st = Status(0x0000)
-        self.assertEqual(st, 0x0000)
-        st.Status = 0xFFFE
-        self.assertEqual(st, 0xFFFE)
+        self.assertEqual(Status(0x0000), 0x0000)
+        self.assertEqual(Status(0xFFFE), 0xFFFE)
+        self.assertEqual(Status(0xFFEE), Status(0xFFEE))
 
     def test_ne(self):
         """Test inequality operator"""
-        st = Status(0x0000)
-        self.assertNotEqual(st, 0xFFFF)
-        st.Status = 0xFFFE
-        self.assertNotEqual(st, 0x0000)
+        self.assertNotEqual(Status(0x0000), 0xFFFF)
+        self.assertNotEqual(Status(0xFFFE), 0x0000)
+        self.assertNotEqual(Status(0xFFEE), Status(0x0000))
 
     def test_code_to_status(self):
         """Test fetching status works"""
