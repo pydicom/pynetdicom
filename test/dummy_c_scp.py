@@ -22,8 +22,9 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
                                  PatientStudyOnlyQueryRetrieveInformationModelGet, \
                                  PatientRootQueryRetrieveInformationModelMove, \
                                  StudyRootQueryRetrieveInformationModelMove, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelMove, \
-                                 Status
+                                 PatientStudyOnlyQueryRetrieveInformationModelMove
+from pynetdicom3.status import Status
+                                 
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
@@ -36,7 +37,7 @@ COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossl
 
 class DummyBaseSCP(threading.Thread):
     """Base class for the Dummy SCP classes"""
-    bad_status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
+    bad_status = Status(0x0101, 'Test', 'A test status')
     def __init__(self):
         """Initialise the class"""
         self.ae.on_c_echo = self.on_c_echo
@@ -124,22 +125,14 @@ class DummyVerificationSCP(DummyBaseSCP):
 class DummyStorageSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
 
-    out_of_resources = Status('Failure',
-                              'Refused: Out of resources',
-                              range(0xA700, 0xA7FF + 1))
-    ds_doesnt_match_sop_fail = Status('Failure',
-                                 'Error: Data Set does not match SOP Class',
-                                 range(0xA900, 0xA9FF + 1))
-    cant_understand = Status('Failure', 'Error: Cannot understand',
-                             range(0xC000, 0xCFFF + 1))
-    coercion_of_elements = Status('Warning', 'Coercion of Data Elements',
-                                  range(0xB000, 0xB000 + 1))
-    ds_doesnt_match_sop_warn = Status('Warning',
-                                      'Data Set does not match SOP Class',
-                                      range(0xB007, 0xB007 + 1))
-    elem_discard = Status('Warning', 'Element Discarded',
-                          range(0xB006, 0xB006 + 1))
-    success = Status('Success', '', range(0x0000, 0x0000 + 1))
+    out_of_resources = Status(0xA700, 'Failure', 'Refused: Out of resources')
+    ds_doesnt_match_sop_fail = Status(0xA900, 'Failure', 'Error: Data Set does not match SOP Class')
+    cant_understand = Status(0xC000, 'Failure', 'Error: Cannot understand')
+    coercion_of_elements = Status(0xB000, 'Warning', 'Coercion of Data Elements')
+    ds_doesnt_match_sop_warn = Status(0xB007, 'Warning', 'Data Set does not match SOP Class')
+    elem_discard = Status(0xB006, 'Warning', 'Element Discarded')
+    success = Status(0x0000, 'Success', '')
+    bad_status = Status(0xFFFF)
 
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
@@ -157,34 +150,26 @@ class DummyStorageSCP(DummyBaseSCP):
 
 
 class DummyFindSCP(DummyBaseSCP):
-    """A threaded dummy storage SCP used for testing"""
-    out_of_resources = Status('Failure',
-                            'Refused: Out of resources',
-                            range(0xA700, 0xA700 + 1))
-    identifier_doesnt_match_sop = Status('Failure',
-                                            "Identifier does not match SOP "
-                                            "Class",
-                                            range(0xA900, 0xA900 + 1))
-    unable_to_process = Status('Failure',
-                             'Unable to process',
-                             range(0xC000, 0xCFFF + 1))
-    matching_terminated_cancel = Status('Cancel',
+    """A threaded dummy find SCP used for testing"""
+    out_of_resources = Status(0xA700, 'Failure','Refused: Out of resources')
+    identifier_doesnt_match_sop = Status(0xA900, 'Failure',
+                                            "Identifier does not match SOP Class")
+    unable_to_process = Status(0xC000, 'Failure',
+                             'Unable to process')
+    matching_terminated_cancel = Status(0xFE00, 'Cancel',
                                                   "Matching terminated due to "
-                                                  "Cancel request",
-                                                  range(0xFE00, 0xFE00 + 1))
-    success = Status('Success',
-                     'Matching is complete - No final Identifier is supplied',
-                     range(0x0000, 0x0000 + 1))
-    pending = Status('Pending',
+                                                  "Cancel request")
+    success = Status(0x0000, 'Success',
+                     'Matching is complete - No final Identifier is supplied')
+    pending = Status(0xFF00, 'Pending',
                      "Matches are continuing - Current Match is supplied "
                      "and any Optional Keys were supported in the same manner "
-                     "as 'Required Keys'",
-                     range(0xFF00, 0xFF00 + 1))
-    pending_warning = Status("Pending",
+                     "as 'Required Keys'")
+    pending_warning = Status(0xFF01, "Pending",
                             "Matches are continuing - Warning that one or more "
                             "Optional Keys were not supported for existence "
-                            "and/or matching for this identifier",
-                            range(0xFF01, 0xFF01 + 1))
+                            "and/or matching for this identifier")
+    bad_status = Status(0xFFFF)
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelFind,
                                     StudyRootQueryRetrieveInformationModelFind,
@@ -205,7 +190,7 @@ class DummyFindSCP(DummyBaseSCP):
             yield self.status, None
             return
         
-        if self.status.status_type != 'Pending':
+        if self.status.category != 'Pending':
             yield self.status, None
 
         if self.cancel:
@@ -219,35 +204,25 @@ class DummyFindSCP(DummyBaseSCP):
 
 
 class DummyGetSCP(DummyBaseSCP):
-    """A threaded dummy storage SCP used for testing"""
-    out_of_resources_match = Status('Failure',
+    """A threaded dummy get SCP used for testing"""
+    out_of_resources_match = Status(0xA701, 'Failure',
                                            'Refused: Out of resources - Unable '
-                                           'to calculate number of matches',
-                                           range(0xA701, 0xA701 + 1))
-    out_of_resources_unable = Status('Failure',
+                                           'to calculate number of matches')
+    out_of_resources_unable = Status(0xA702, 'Failure',
                                            'Refused: Out of resources - Unable '
-                                           'to perform sub-operations',
-                                           range(0xA702, 0xA702 + 1))
-    identifier_doesnt_match_sop = Status('Failure',
+                                           'to perform sub-operations')
+    identifier_doesnt_match_sop = Status(0xA900, 'Failure',
                                             'Identifier does not match SOP '
-                                            'Class',
-                                            range(0xA900, 0xA900 + 1))
-    unable = Status('Failure',
-                             'Unable to process',
-                             range(0xC000, 0xCFFF + 1))
-    cancel_status = Status('Cancel',
-                    'Sub-operations terminated due to Cancel indication',
-                    range(0xFE00, 0xFE00 + 1))
-    warning = Status('Warning',
+                                            'Class')
+    unable = Status(0xC000, 'Failure', 'Unable to process')
+    cancel_status = Status(0xFE00, 'Cancel',
+                    'Sub-operations terminated due to Cancel indication')
+    warning = Status(0xB000, 'Warning',
                      'Sub-operations Complete - One or more Failures or '
-                     'Warnings',
-                     range(0xB000, 0xB000 + 1))
-    success = Status('Success',
-                     'Sub-operations Complete - No Failure or Warnings',
-                     range(0x0000, 0x0000 + 1))
-    pending = Status('Pending',
-                     'Sub-operations are continuing',
-                     range(0xFF00, 0xFF00 + 1))
+                     'Warnings')
+    success = Status(0x0000, 'Success',
+                     'Sub-operations Complete - No Failure or Warnings')
+    pending = Status(0xFF00, 'Pending', 'Sub-operations are continuing')
     
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
@@ -266,7 +241,7 @@ class DummyGetSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
-        if self.status.status_type not in ['Pending', 'Warning']:
+        if self.status.category not in ['Pending', 'Warning']:
             yield 1
             yield self.status, None
 
@@ -284,37 +259,28 @@ class DummyGetSCP(DummyBaseSCP):
 
 
 class DummyMoveSCP(DummyBaseSCP):
-    """A threaded dummy storage SCP used for testing"""
+    """A threaded dummy move SCP used for testing"""
     out_of_resources_match = \
-            Status('Failure',
+            Status(0xA701, 'Failure',
                    'Refused: Out of resources - Unable to calculate number ' \
-                   'of matches',
-                   range(0xA701, 0xA701 + 1))
+                   'of matches')
     out_of_resources_unable = \
-            Status('Failure',
+            Status(0xA702, 'Failure',
                    'Refused: Out of resources - Unable to perform ' \
-                   'sub-operations',
-                   range(0xA702, 0xA702 + 1))
-    move_destination_unknown = Status('Failure',
-                                    'Refused: Move destination unknown',
-                                    range(0xA801, 0xA801 + 1))
+                   'sub-operations')
+    move_destination_unknown = Status(0xA801, 'Failure',
+                                    'Refused: Move destination unknown')
     identifier_doesnt_match_sop = \
-            Status('Failure', 'Identifier does not match SOP Class',
-                   range(0xA900, 0xA900 + 1))
-    unable_to_process = Status('Failure', 'Unable to process',
-                             range(0xC000, 0xCFFF + 1))
-    cancel_status = Status('Cancel',
-                    'Sub-operations terminated due to Cancel indication',
-                    range(0xFE00, 0xFE00 + 1))
-    warning = Status('Warning',
+            Status(0xA900, 'Failure', 'Identifier does not match SOP Class')
+    unable_to_process = Status(0xC000, 'Failure', 'Unable to process')
+    cancel_status = Status(0xFE00, 'Cancel',
+                    'Sub-operations terminated due to Cancel indication')
+    warning = Status(0xB000, 'Warning',
                      'Sub-operations Complete - One or more Failures or ' \
-                     'Warnings',
-                     range(0xB000, 0xB000 + 1))
-    success = Status('Success',
-                     'Sub-operations Complete - No Failure or Warnings',
-                     range(0x0000, 0x0000 + 1))
-    pending = Status('Pending', 'Sub-operations are continuing',
-                     range(0xFF00, 0xFF00 + 1))
+                     'Warnings')
+    success = Status(0x0000, 'Success',
+                     'Sub-operations Complete - No Failure or Warnings')
+    pending = Status(0xFF00, 'Pending', 'Sub-operations are continuing')
     
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
@@ -340,7 +306,7 @@ class DummyMoveSCP(DummyBaseSCP):
             yield 1
             yield None, None
 
-        if self.status.status_type not in ['Pending', 'Warning']:
+        if self.status.category not in ['Pending', 'Warning']:
             yield 1
             yield 'localhost', 11113
             yield self.status, None

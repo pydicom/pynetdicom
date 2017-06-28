@@ -726,7 +726,6 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-
     @staticmethod
     def debug_receive_c_echo_rq(msg):
         """Debugging function when a C-ECHO-RQ is received.
@@ -765,7 +764,6 @@ class DIMSEServiceProvider(object):
         TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
-        print(cs)
         status = code_to_status(cs.Status)
         # Status is one of the following:
         #   0x0000 Success
@@ -776,7 +774,7 @@ class DIMSEServiceProvider(object):
         if cs.Status == 0x0000:
             status_str = '{}'.format(status.category)
         else:
-            status_str = '{} - {} {}'.format(status,
+            status_str = '0x{0:04x} - {1} {2}'.format(int(status),
                                              status.category,
                                              status.description)
         LOGGER.info("Received Echo Response (Status: {})".format(status_str))
@@ -846,9 +844,9 @@ class DIMSEServiceProvider(object):
             status = Status(cs.Status, '(unknown)', '')
 
         if status.description == '':
-            status_str = '{}: {}'.format(status, status.category)
+            status_str = '0x{0:04x} - {1}'.format(int(status), status.category)
         else:
-            status_str = '{}: {} - {}'.format(status, status.category,
+            status_str = '0x{0:04x} - {1} - {2}'.format(int(status), status.category,
                                               status.description)
 
         LOGGER.info('Received Store Response')
@@ -936,7 +934,7 @@ class DIMSEServiceProvider(object):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(int(cs.Status)))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1045,7 +1043,7 @@ class DIMSEServiceProvider(object):
             s.append('Warning Sub-operations        : {0!s}'
                      .format(cs.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(int(cs.Status)))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1102,7 +1100,7 @@ class DIMSEServiceProvider(object):
             s.append('Warning Sub-operations        : {0!s}'
                      .format(cs.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(int(cs.Status)))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')

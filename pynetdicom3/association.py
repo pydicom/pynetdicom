@@ -35,7 +35,7 @@ from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
                                    SOPClassExtendedNegotiation, \
                                    SOPClassCommonExtendedNegotiation, \
                                    A_ASSOCIATE, A_ABORT, A_P_ABORT
-from pynetdicom3.status import code_to_status
+from pynetdicom3.status import code_to_status, Status
 from pynetdicom3.utils import PresentationContextManager
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
@@ -655,9 +655,9 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.sop_class.Status or None
+        status : pynetdicom3.status.Status or None
             Returns None if no valid presentation context or no response
-            from the peer, Success (0x0000) otherwise.
+            from the peer, Status otherwise.
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
@@ -778,30 +778,24 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.sop_class.Status or None
+        status : pynetdicom3.status.Status or None
             The status for the requested C-STORE operation (see PS3.4 Annex
             B.2.3), should be one of the following Status objects/codes
             (separate causes for each status can be identified through the use
             of different codes within the available range of each status):
-                Success status
-                    sop_class.Success
-                        Success - 0000
 
-                Failure statuses
-                    sop_class.OutOfResources
-                        Refused: Out of Resources - A7xx
-                    sop_class.DataSetDoesNotMatchSOPClassFailure
-                        Error: Data Set does not match SOP Class - A9xx
-                    sop_class.CannotUnderstand
-                        Error: Cannot understand - Cxxx
+            Success status
+                0x0000 - Success
 
-                Warning statuses
-                    sop_class.CoercionOfDataElements
-                        Coercion of Data Elements - B000
-                    sop_class.DataSetDoesNotMatchSOPClassWarning
-                        Data Set does not matching SOP Class - B007
-                    sop_class.ElementsDiscarded
-                        Elements Discarded - B006
+            Failure statuses
+                0xA7xx - Refused: Out of Resources
+                0xA9xx - Error: Data Set does not match SOP Class
+                0xC0xx - Error: Cannot understand
+
+            Warning statuses
+                0xB000 - Coercion of Data Elements
+                0xB007 - Data Set does not matching SOP Class
+                0xB006 - Elements Discarded
 
             Returns None if the DIMSE service timed out before receiving a
             response.
@@ -810,7 +804,6 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
-
 
         # Service Class - used to determine Status
         service_class = StorageServiceClass()
@@ -828,14 +821,16 @@ class Association(threading.Thread):
                              "Dataset has no 'SOP Class UID' element")
                 LOGGER.error("Store SCU failed due to there being no valid "
                              "presentation context for the current dataset")
-                return service_class.CannotUnderstand
+                # Dataset doesn't match SOP Class
+                return Status(0xA900, *service_class.statuses[0xA900])
 
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'",
                          dataset.SOPClassUID)
             LOGGER.error("Store SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            return service_class.CannotUnderstand
+            # Dataset doesn't match SOP Class
+            return Status(0xA900, *service_class.statuses[0xA900])
 
         # Build C-STORE request primitive
         primitive = C_STORE()
@@ -862,7 +857,8 @@ class Association(threading.Thread):
             primitive.DataSet = BytesIO(ds)
         else:
             # If we failed to encode our dataset
-            return service_class.CannotUnderstand
+            return Status(0xC000, 'Failure', 'Cannot Understand',
+                          'Unable to encode the supplied Dataset')
 
         # Send C-STORE request primitive to DIMSE
         self.dimse.send_msg(primitive, context_id)
@@ -907,8 +903,9 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.sop_class.Status
-            The resulting status(es) from the C-FIND operation.
+        status : pynetdicom3.status.Status
+            The resulting status(es) from the C-FIND operation as pydicom
+            Dataset subclasses.
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-FIND operation. Yields None if
             no matching Presentation Context.
@@ -949,7 +946,8 @@ class Association(threading.Thread):
                          sop_class.UID)
             LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
+            status = Status(0xA900, *service_class.statuses[0xA900])
+            yield status, None
             return
 
         # Build C-FIND primitive
@@ -992,15 +990,15 @@ class Association(threading.Thread):
             # FF01 - Pending (matches are continuing, optional keys
             #                 not supported)
             # 0000 - Success (matching complete, no final identifier supplied)
-            status = service_class.code_to_status(rsp.Status)
+            status = Status(rsp.Status, *service_class.statuses[rsp.Status])
 
             LOGGER.debug('-' * 65)
             LOGGER.debug('Find SCP Response: %s (%s)',
-                         ii, status.status_type)
+                         ii, status.category)
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status.status_type != 'Pending':
+            if status.category != 'Pending':
                 ds = None
                 break
 
@@ -1068,8 +1066,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : int
-
+        status : pynetdicom3.status.Status
         dataset : pydicom.dataset.Dataset
         """
         # Can't send a C-MOVE without an Association
@@ -1101,8 +1098,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context\n   for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            yield code_to_status(0xA900), None
 
         # Build C-MOVE primitive
         primitive = C_MOVE()
@@ -1132,14 +1128,14 @@ class Association(threading.Thread):
             rsp, context_id = self.dimse.receive_msg(wait=False)
 
             if rsp.__class__ == C_MOVE:
-                status = service_class.code_to_status(rsp.Status)
+                status = code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
                                  transfer_syntax.is_little_endian)
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.status_type == 'Pending':
+                if status.category == 'Pending':
                     remain = rsp.NumberOfRemainingSuboperations
                     complete = rsp.NumberOfCompletedSuboperations
                     failed = rsp.NumberOfFailedSuboperations
@@ -1163,23 +1159,23 @@ class Association(threading.Thread):
                 #   had a status of warning, interpreted as final response
                 # Failure indicates all sub-ops were unsuccessful
                 #   intrepreted as final response
-                elif status.status_type == "Success":
-                    status = service_class.Success
+                elif status.category == "Success":
+                    status = code_to_status(0x0000)
                     dataset = None
                     break
                 # All other possible responses
-                elif status.status_type == "Failure":
+                elif status.category == "Failure":
                     LOGGER.debug('')
                     LOGGER.error('Move Response: %s (Failure)', ii)
                     LOGGER.error('    %s', status.description)
                     break
-                elif status.status_type == "Cancel":
+                elif status.category == "Cancel":
                     LOGGER.debug('')
                     LOGGER.info('Move Response: %s (Cancel)', ii)
                     LOGGER.info('    %s', status.description)
                     dataset = None
                     break
-                elif status.status_type == "Warning":
+                elif status.category == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Move Response: %s (Warning)', ii)
                     LOGGER.warning('    %s', status.description)
@@ -1219,7 +1215,7 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.sop_class.Status
+        status : pynetdicom3.status.Status
             The resulting status(es) from the C-GET operation
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-GET operation. Yields None if
@@ -1257,8 +1253,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            yield code_to_status(0xA900), None
 
 
         # Build C-GET primitive
@@ -1266,9 +1261,9 @@ class Association(threading.Thread):
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
         primitive.Priority = priority
-        primitive.Identifier = \
-            BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
-                           transfer_syntax.is_little_endian))
+        primitive.Identifier = BytesIO(encode(dataset,
+                                              transfer_syntax.is_implicit_VR,
+                                              transfer_syntax.is_little_endian))
 
         LOGGER.info('Get SCU Request Identifiers:')
         LOGGER.info('')
@@ -1287,14 +1282,14 @@ class Association(threading.Thread):
             # Received a C-GET response
             if rsp.__class__ == C_GET:
 
-                status = service_class.code_to_status(rsp.Status)
+                status = code_to_status(rsp.Status)
                 dataset = decode(rsp.Identifier,
                                  transfer_syntax.is_implicit_VR,
                                  transfer_syntax.is_little_endian)
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.status_type == 'Pending':
+                if status.category == 'Pending':
                     remain = rsp.NumberOfRemainingSuboperations
                     complete = rsp.NumberOfCompletedSuboperations
                     failed = rsp.NumberOfFailedSuboperations
@@ -1311,13 +1306,13 @@ class Association(threading.Thread):
                     yield status, dataset
 
                 # If the Status is "Success" then processing is complete
-                elif status.status_type == "Success":
-                    status = service_class.Success
+                elif status.category == "Success":
+                    status = code_to_status(0x0000)
                     dataset = None
                     break
 
                 # All other possible responses
-                elif status.status_type == "Failure":
+                elif status.category == "Failure":
                     LOGGER.debug('')
                     LOGGER.error('Find Response: %s (Failure)', ii)
                     LOGGER.error('    %s', status.description)
@@ -1327,13 +1322,13 @@ class Association(threading.Thread):
                         LOGGER.error('%s: %s', elem.name, elem.value)
 
                     break
-                elif status.status_type == "Cancel":
+                elif status.category == "Cancel":
                     LOGGER.debug('')
                     LOGGER.info('Find Response: %s (Cancel)', ii)
                     LOGGER.info('    %s', status.description)
                     dataset = None
                     break
-                elif status.status_type == "Warning":
+                elif status.category == "Warning":
                     LOGGER.debug('')
                     LOGGER.warning('Find Response: %s (Warning)', ii)
                     LOGGER.warning('    %s', status.description)
@@ -1357,7 +1352,7 @@ class Association(threading.Thread):
                 status = self.ae.on_c_store(ds)
 
                 # Send C-STORE confirmation back to peer
-                c_store_rsp.Status = int(status)
+                c_store_rsp.update(status)
                 self.dimse.send_msg(c_store_rsp, context_id)
 
         yield status, dataset

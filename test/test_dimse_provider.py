@@ -608,7 +608,7 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         primitive = C_ECHO()
         primitive.MessageIDBeingRespondedTo = 4
         primitive.Status = 0x0000
-        msg = C_ECHO_RQ()
+        msg = C_ECHO_RSP()
         msg.primitive_to_message(primitive)
         self.dimse.debug_receive_c_echo_rsp(msg)
 

@@ -1,8 +1,15 @@
 """Implementation of the DIMSE Status."""
 
+from pydicom.datadict import tag_for_keyword, dictionary_VR
+from pydicom.dataset import Dataset
+from pydicom.dataelem import DataElement
+from pydicom.tag import Tag
 
-class Status(int):
+
+class Status(Dataset):
     """Implementation of the DIMSE Status value.
+
+    Tag = (0000, 0900), Keyword = Status, VR = US,  VM = 1
 
     Statuses
     --------
@@ -71,8 +78,7 @@ class Status(int):
     text : str
         Longer (optional) description of the status.
     """
-    # When sub-classing python built-ins you should only extend behaviour.
-    def __new__(cls, val, category, description, text=''):
+    def __init__(self, val, category='', description='', text=''):
         """Create a new Status.
 
         Parameters
@@ -86,41 +92,167 @@ class Status(int):
         text : str
             A longer description of the status.
         """
-        cls.text = text
-        cls.description = description
-        cls.category = category
-        return super(Status, cls).__new__(cls, val)
+        Dataset.__init__(self)
+        self.Status = val
+        self._category = category
+        self._description = description
+        self.text = text
 
-    def __str__(self):
-        """Return Status string as '0xXXXX' with value as 2-byte hex."""
-        return '0x{0:04x}'.format(self)
+    def __eq__(self, other):
+        return self.Status == other
+
+    def __int__(self):
+        return self.Status
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __setattr__(self, name, value):
+        """Intercept any attempts to set a value for an instance attribute.
+
+        If name is a DICOM keyword, set the corresponding tag and DataElement.
+        Else, set an instance (python) attribute as any other class would do.
+
+        Only group 0x0000 elements will be accepted
+
+        Parameters
+        ----------
+        name : str
+            The element keyword for the DataElement you wish to add/change. If
+            `name` is not a DICOM element keyword then this will be the
+            name of the attribute to be added/changed.
+        value
+            The value for the attribute to be added/changed.
+        """
+        tag = tag_for_keyword(name)
+
+        # If tag is not None, found DICOM element
+        if tag is not None:
+            tag = Tag(tag)
+            # Check to ensure group 0x0000 and Status value OK
+            if tag.group != 0x0000:
+                raise ValueError("Only group 0x0000 elements can be added to a" \
+                                    "Status dataset")
+            elif tag == 0x00000900 and not isinstance(value, int):
+                raise ValueError("The value for the Status element must be a " \
+                                  "positive integer")
+            elif tag == 0x00000900 and value < 0:
+                raise ValueError("The value for the Status element must be a " \
+                                  "positive integer")
+            
+            # Tag not yet in Dataset
+            if tag not in self:
+                VR = dictionary_VR(tag)
+                data_element = DataElement(tag, VR, value)
+
+            # Already have this data_element, just changing its value
+            else:  
+                data_element = self[tag]
+                data_element.value = value
+
+            # Now have data_element - store it in this dict
+            self[tag] = data_element
+
+        # If tag is None, set class attribute
+        else:
+            super(Dataset, self).__setattr__(name, value)
+
+    def __setitem__(self, key, value):
+        """Operator for Dataset[key] = value.
+
+        Only group 0x0000 elements will be accepted
+
+        Parameters
+        ----------
+        key : int
+            The tag for the element to be added to the Dataset.
+        value : pydicom.dataelem.DataElement or pydicom.dataelem.RawDataElement
+            The element to add to the Dataset.
+
+        Raises
+        ------
+        NotImplementedError
+            If `key` is a slice.
+        ValueError
+            If the `key` value doesn't match DataElement.tag.
+        """
+        if isinstance(key, slice):
+            raise NotImplementedError('Slicing is not supported for setting '
+                                      'Dataset elements.')
+
+        # OK if is subclass, e.g. DeferredDataElement
+        if not isinstance(value, DataElement):
+            raise TypeError("Dataset contents must be DataElement instances.")
+
+        tag = Tag(value.tag)
+        if tag.group != 0x0000:
+            raise ValueError("Only group 0x0000 elements can be added to a" \
+                                "Status dataset")
+
+        if key == 0x00000900 and not isinstance(value.value, int):
+            raise TypeError("The value for the Status element must be a " \
+                              "positive integer")
+        elif key == 0x00000900 and value.value < 0:
+            raise TypeError("The value for the Status element must be a " \
+                              "positive integer")
+
+        if key != tag:
+            raise ValueError("DataElement.tag must match the dictionary key")
+ 
+        dict.__setitem__(self, tag, value)
+
+    @property
+    def category(self):
+        code = int(self)
+        if code in GENERAL_STATUS:
+            return GENERAL_STATUS[int(self)][0]
+        elif code in [0xFF00, 0xFF01]:
+            return 'Pending'
+        elif code == 0xFE00:
+            return 'Cancel'
+        elif code in [0x0107, 0x0116]:
+            return 'Warning'
+        elif code in range(0xA000, 0xB000) or code in range(0xC000, 0xD000):
+            return 'Failure'
+        elif code in range(0x0100, 0x0200) or code in range(0x0200, 0x0300):
+            return 'Failure'
+
+    @property
+    def description(self):
+        code = int(self)
+        if code in GENERAL_STATUS:
+            return GENERAL_STATUS[int(self)][1]
+        elif self._description != '':
+            return self._description
+        else:
+            return ''
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
 GENERAL_STATUS = {0x0000 : ('Success', ''),
-                  0xFE00 : ('Cancel', ''),
-                  0x0107 : ('Warning', 'Attribute List Error'),
-                  0x0116 : ('Warning', 'Attribute Value Out of Range'),
-                  0x0122 : ('Failure', 'Refused: SOP Class Not Supported'),
-                  0x0119 : ('Failure', 'Class-Instance Conflict'),
-                  0x0111 : ('Failure', 'Duplication SOP Instance'),
-                  0x0210 : ('Failure', 'Duplicate Invocation'),
-                  0x0115 : ('Failure', 'Invalid Argument Value'),
+                  0x0105 : ('Failure', 'No Such Attribute'),
                   0x0106 : ('Failure', 'Invalid Attribute Value'),
+                  0x0107 : ('Warning', 'Attribute List Error'),
+                  0x0110 : ('Failure', 'Processing Failure'),
+                  0x0111 : ('Failure', 'Duplication SOP Instance'),
+                  0x0112 : ('Failure', 'No Such SOP Instance'),
+                  0x0113 : ('Failure', 'No Such Event Type'),
+                  0x0114 : ('Failure', 'No Such Argument'),
+                  0x0115 : ('Failure', 'Invalid Argument Value'),
+                  0x0116 : ('Warning', 'Attribute Value Out of Range'),
                   0x0117 : ('Failure', 'Invalid Object Instance'),
+                  0x0118 : ('Failure', 'No Such SOP Class'),
+                  0x0119 : ('Failure', 'Class-Instance Conflict'),
                   0x0120 : ('Failure', 'Missing Attribute'),
                   0x0121 : ('Failure', 'Missing Attribute Value'),
-                  0x0212 : ('Failure', 'Mistyped Argument'),
-                  0x0114 : ('Failure', 'No Such Argument'),
-                  0x0105 : ('Failure', 'No Such Attribute'),
-                  0x0113 : ('Failure', 'No Such Event Type'),
-                  0x0112 : ('Failure', 'No Such SOP Instance'),
-                  0x0118 : ('Failure', 'No Such SOP Class'),
-                  0x0110 : ('Failure', 'Processing Failure'),
-                  0x0213 : ('Failure', 'Resources Limitation'),
-                  0x0211 : ('Failure', 'Unrecognised Operation'),
+                  0x0122 : ('Failure', 'Refused: SOP Class Not Supported'),
                   0x0123 : ('Failure', 'No Such Action'),
-                  0x0124 : ('Failure', 'Refused: Not Authorised')}
+                  0x0124 : ('Failure', 'Refused: Not Authorised'),
+                  0x0210 : ('Failure', 'Duplicate Invocation'),
+                  0x0211 : ('Failure', 'Unrecognised Operation'),
+                  0x0212 : ('Failure', 'Mistyped Argument'),
+                  0x0213 : ('Failure', 'Resources Limitation'),
+                  0xFE00 : ('Cancel', '')}
 
 
 ## SERVICE CLASS STATUSES
@@ -228,7 +360,7 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 def code_to_status(val):
-    """Return a Status from a general status code."""
+    """Return a Status from a general status code `val`."""
     if val in GENERAL_STATUS:
         return Status(val, *GENERAL_STATUS[val])
 

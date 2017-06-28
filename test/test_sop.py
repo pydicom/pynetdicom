@@ -68,30 +68,13 @@ class DummyDIMSE(object):
 
 
 class TestServiceClass(unittest.TestCase):
-    def test_code_to_status(self):
-        """Test conversion of status code to Status class."""
-        sop = VerificationServiceClass()
-        with self.assertRaises(ValueError):
-            sop.code_to_status(0x0001)
-
-        status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
-        with self.assertRaises(ValueError):
-            sop.code_to_status(status)
-
-        with self.assertRaises(TypeError):
-            sop.code_to_status('test')
-
-        self.assertEqual(sop.Success, sop.code_to_status(sop.Success))
-
-        with self.assertRaises(TypeError):
-            sop.code_to_status('test')
-
     def test_is_valid_status(self):
         """Test that is_valid_status returns correct values"""
         sop = StorageServiceClass()
-        status = Status('Test', 'A test status', range(0x0101, 0x0101 + 1))
-        self.assertFalse(sop.is_valid_status(status))
-        self.assertTrue(sop.is_valid_status(sop.Success))
+        st = Status(0x0101)
+        self.assertFalse(sop.is_valid_status(st))
+        st = Status(0x0000)
+        self.assertTrue(sop.is_valid_status(st))
 
 
 class TestVerificationServiceClass(unittest.TestCase):
@@ -146,39 +129,6 @@ class TestRTMachineVerificationServiceClass(unittest.TestCase):
     def test_scp(self):
         """Test SCP"""
         pass
-
-
-class TestStatus(unittest.TestCase):
-    def test_init(self):
-        """Test Status initialisation."""
-        status = Status('Success', 'A test status', range(0x0000, 0x0000 + 2))
-        self.assertEqual(status.status_type, 'Success')
-        self.assertEqual(status.description, 'A test status')
-        self.assertEqual(status.code_range, range(0x0000, 0x0000 + 2))
-
-    def test_assign_code(self):
-        """Test assigning a specific code to a Status."""
-        status = Status('Success', 'A test status', range(0x0000, 0x0000 + 2))
-        status.code = 0x0001
-        self.assertEqual(status.code, 0x0001)
-        with self.assertRaises(ValueError):
-            status.code = 0x0002
-        with self.assertRaises(TypeError):
-            status.code = 'a'
-
-    def test_int(self):
-        """Test the Status __int__ method."""
-        status = Status('Success', 'A test status', range(0x0000, 0x0000 + 2))
-        # Test default code
-        self.assertEqual(int(status), 0x0000)
-        status.code = 0x0001
-        # Test assigned code
-        self.assertEqual(int(status), 0x0001)
-
-    def test_str(self):
-        """Test the Status __str__ method."""
-        status = Status('Success', 'A test status', range(0x0000, 0x0000 + 2))
-        self.assertEqual(str(status), '0x0000: Success - A test status')
 
 
 class TestUIDtoSOPlass(unittest.TestCase):

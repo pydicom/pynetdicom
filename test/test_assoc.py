@@ -42,7 +42,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -618,7 +618,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         response = assoc.send_c_store(DATASET)
-        self.assertEqual(int(response), 0xc000)
+        self.assertEqual(int(response), 0xC101)
         assoc.release()
         scp.stop()
 
@@ -631,23 +631,25 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC000)
+        self.assertEqual(int(status), 0xC104)
         assoc.release()
         scp.stop()
 
     def test_bad_user_on_c_store_status(self):
         """Test exception raised by invalid on_c_store status"""
         scp = DummyStorageSCP()
+        # on_c_store must return Status object with valid value
         scp.status = scp.bad_status
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC000)
+        self.assertEqual(int(status), 0xC102)
+        # on_c_store must return Status object, not int
         scp.status = 0xCCCC
         status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC000)
+        self.assertEqual(int(status), 0xC104)
         assoc.release()
         scp.stop()
 
@@ -675,7 +677,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(ds)
-        self.assertEqual(int(result), 0xC000)
+        self.assertEqual(int(result), 0xA900)
         assoc.release()
         scp.stop()
 
@@ -779,7 +781,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds):
-            self.assertEqual(int(status), 0xa900)
+            self.assertEqual(int(status), 0xA900)
         assoc.release()
         scp.stop()
 
@@ -884,7 +886,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC000)
+            self.assertEqual(int(status), 0xC001)
         assoc.release()
         scp.stop()
 
@@ -897,7 +899,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC000)
+            self.assertEqual(int(status), 0xC002)
         assoc.release()
         scp.stop()
 
@@ -910,7 +912,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC000)
+            self.assertEqual(int(status), 0xC004)
         assoc.release()
         scp.stop()
 
@@ -929,7 +931,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC000)
+            self.assertEqual(int(status), 0xC004)
         assoc.release()
         scp.stop()
 

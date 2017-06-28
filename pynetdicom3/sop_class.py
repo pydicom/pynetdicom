@@ -61,65 +61,6 @@ def _generate_service_sop_classes(sop_class_list, service_class):
         globals()[cls.__name__] = cls
 
 
-class Status(object):
-    """Status object for the SOP Classes.
-
-    Attributes
-    ----------
-    status_type : str
-        The type of Status (e.g. Success, Warning, Failure, Pending).
-    description : str
-        A description of the Status.
-    code_range : range
-        The range of valid code values for the Status.
-    code : int
-        The assigned Status code, returns the first valid code range in
-        `code_range` if not assigned.
-    """
-    def __init__(self, status_type, description, code_range):
-        """Create a new Status.
-
-        Parameters
-        ----------
-        status_type : str
-            The type of Status (e.g. Success, Warning, Failure, Pending).
-        description : str
-            A description of the Status.
-        code_range : range
-            The range of valid code values for the Status.
-        """
-        self.status_type = status_type
-        self.description = description
-        self.code_range = code_range
-        self.code = self.code_range[0]
-
-    @property
-    def code(self):
-        """Return the assigned code for the Status."""
-        return self._code
-
-    @code.setter
-    def code(self, value):
-        """Set the code for the Status."""
-        # pylint: disable=attribute-defined-outside-init
-        if not isinstance(value, int):
-            raise TypeError("Status code value must be an integer.")
-
-        if not value in self.code_range:
-            raise ValueError("Status code value must be within the allowed "
-                             "range.")
-        self._code = value
-
-    def __int__(self):
-        """Return the assigned code of the Status."""
-        return self.code
-
-    def __str__(self):
-        """Return a string representation of the Status."""
-        return '0x{0:04x}: {1} - {2}'.format(self.code, self.status_type,
-                                             self.description)
-
-
 # DICOM SERVICE CLASS BASE
 class ServiceClass(object):
     """The base class for all the service class types.
@@ -153,50 +94,6 @@ class ServiceClass(object):
         # New method?
         self.presentation_context = None
 
-    def code_to_status(self, code):
-        """
-        Parameters
-        ----------
-        code : int or pynetdicom3.sop_class.Status
-            The status code value from/for the (0000,0900) dataset element. If
-            `code` is a Status type, it will be checked for validity and
-            returned.
-
-        Returns
-        -------
-        obj : pynetdicom3.sop_class.Status
-            The Status object for the `code`.
-
-        Raises
-        ------
-        ValueError
-            If `code` is not valid for the Service class' Status code ranges.
-        TypeError
-            If `code` is not an int or Status
-        """
-        # Passthrough for Status type
-        if isinstance(code, Status):
-            if self.is_valid_status(code):
-                return code
-            else:
-                raise ValueError('Code 0x{0:04x} is not a valid Status code '
-                                 'for the current SOP class.'
-                                 .format(code.code))
-
-        if not isinstance(code, int):
-            raise TypeError('Status code must be an int')
-
-        # For all the members in the class
-        for member in dir(self):
-            # If the member is a Status class object and `code` is in the
-            #   Status' code range, return the Status object.
-            obj = getattr(self, member)
-            if isinstance(obj, Status) and code in obj.code_range:
-                return obj
-
-        raise ValueError('Code 0x{0:04x} is not a valid Status code for the '
-                         'current SOP class.'.format(code))
-
     def is_valid_status(self, status):
         """Check if a status is valid for the service class.
 
@@ -210,13 +107,8 @@ class ServiceClass(object):
         bool
             Whether or not the status is valid
         """
-        # For all the members in the class
-        for member in dir(self):
-            # If the member is a Status class object and `code` is in the
-            #   Status' code range, return the Status object.
-            obj = getattr(self, member)
-            if isinstance(obj, Status) and status.code in obj.code_range:
-                return True
+        if int(status) in self.statuses:
+            return True
 
         return False
 
@@ -354,16 +246,16 @@ class StorageServiceClass(ServiceClass):
                     # Failure: Cannot Understand - Invalid Status returned
                     #   by on_c_store callback
                     rsp.Status = 0xC102
-
-                # For the elements in the status dataset, try and set the
-                #   corresponding response primitive attribute
-                for elem in status_ds:
-                    if hasattr(rsp, elem.keyword):
-                        setattr(rsp, elem.keyword, elem.value)
-                    else:
-                        LOGGER.warning("Status dataset returned by on_c_store "
-                                       "contained an unsupported Element "
-                                       "'{}'.".format(elem.keyword))
+                else:
+                    # For the elements in the status dataset, try and set the
+                    #   corresponding response primitive attribute
+                    for elem in status_ds:
+                        if hasattr(rsp, elem.keyword):
+                            setattr(rsp, elem.keyword, elem.value)
+                        else:
+                            LOGGER.warning("Status dataset returned by on_c_store "
+                                           "contained an unsupported Element "
+                                           "'{}'.".format(elem.keyword))
             else:
                 LOGGER.error("ApplicationEntity.on_c_store() returned a "
                              "dataset without a Status element.")
@@ -697,16 +589,16 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                         # Failure: Unable to Process - Invalid Status returned
                         #   by on_c_find callback
                         rsp.Status = 0xC002
-
-                    # For the elements in the status dataset, try and set the
-                    #   corresponding response primitive attribute
-                    for elem in status_ds:
-                        if hasattr(rsp, elem.keyword):
-                            setattr(rsp, elem.keyword, elem.value)
-                        else:
-                            LOGGER.warning("Status dataset returned by "
-                                           "on_c_find contained an unsupported "
-                                           "Element '{}'.".format(elem.keyword))
+                    else:
+                        # For the elements in the status dataset, try and set the
+                        #   corresponding response primitive attribute
+                        for elem in status_ds:
+                            if hasattr(rsp, elem.keyword):
+                                setattr(rsp, elem.keyword, elem.value)
+                            else:
+                                LOGGER.warning("Status dataset returned by "
+                                               "on_c_find contained an unsupported "
+                                               "Element '{}'.".format(elem.keyword))
                 else:
                     LOGGER.error("ApplicationEntity.on_c_find returned a "
                                  "dataset without a Status element.")
@@ -727,7 +619,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status.category == 'Failure':
-                LOGGER.info('Find SCP Response: (Failure - %s)', status.name)
+                LOGGER.info('Find SCP Response: (Failure - %s)', status.description)
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status.category == 'Success':
@@ -910,7 +802,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             ## USER YIELD STATUS, DATASET
             for ii, (status_ds, dataset) in enumerate(result):
                 # Check validity of status_ds and set rsp.Status
-                rsp = self._get_status_dataset(status_ds, rsp)
+                rsp = self._get_status(status_ds, rsp)
                 status = Status(rsp.Status, *self.statuses[rsp.Status])
 
                 # If usr_status is Cancel, Failure or Success then generate a
@@ -1108,7 +1000,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     def _get_status(self, ds, rsp):
         """Check the callback's returned status dataset and set rsp.Status."""
         # Check the callback's returned Status dataset
-        if isinstance(ds, Dataset) and 'Status' in ds:
+        if isinstance(ds, Status) and 'Status' in ds:
             # Check returned dataset Status element value is OK
             if ds.Status not in self.statuses:
                 LOGGER.error("Status dataset yielded by on_c_move callback "
@@ -1124,9 +1016,10 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                 if hasattr(rsp, elem.keyword):
                     setattr(rsp, elem.keyword, elem.value)
                 else:
-                    LOGGER.warning("Status dataset yielded by on_c_move"
+                    LOGGER.warning("Status dataset yielded by on_c_move "
                                    "callback contained an unsupported "
                                    "Element '{}'.".format(elem.keyword))
+            
         else:
             LOGGER.error("Callback yielded an invalid status "
                          "(should be a pydicom Dataset with a Status "
@@ -1140,7 +1033,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     def _get_store_status(self, ds):
         """Check the on_c_store's returned status dataset and set rsp.Status."""
         # Check the callback's returned Status dataset
-        if isinstance(ds, Dataset) and 'Status' in ds:
+        if isinstance(ds, Status) and 'Status' in ds:
             # Check returned dataset Status element value is OK
             if ds.Status not in self.statuses:
                 LOGGER.error("Status dataset yielded by on_c_store callback "
@@ -1254,20 +1147,21 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             return
 
         # Iterate through the results
-        for ii, (usr_status, matching_ds) in enumerate(result):
-            # Check validity of usr_status
+        for ii, (status_ds, dataset) in enumerate(result):
+            # Check validity of status_ds and set rsp.Status
+            rsp = self._get_status(status_ds, rsp)
             try:
-                usr_status = self.code_to_status(usr_status)
+                status = Status(rsp.Status, *self.statuses[rsp.Status])
             except (ValueError, TypeError):
                 LOGGER.error("ApplicationEntity.on_c_move() returned an "
                              "invalid status value.")
-                rsp.Status = int(self.UnableToProcess)
+                rsp.Status = 0xC000 # Unable to process
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
 
-            if usr_status.status_type == 'Cancel':
+            if status.category == 'Cancel':
                 LOGGER.info('Received C-CANCEL-GET RQ from peer')
-                rsp.Status = int(self.Cancel)
+                rsp.Status = 0xFE00 # Cancel
                 rsp.NumberOfRemainingSuboperations = no_remaining
                 rsp.NumberOfFailedSuboperations = no_failed
                 rsp.NumberOfWarningSuboperations = no_warning
@@ -1275,16 +1169,16 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 # Send C-CANCEL confirmation
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif usr_status.status_type == 'Failure':
+            elif status.category == 'Failure':
                 # Pass along the status from the user
                 rsp.Status = int(usr_status)
                 LOGGER.info('Get SCP Response: (Failure - %s)',
                             usr_status.description)
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif usr_status.status_type == 'Success':
+            elif status.category == 'Success':
                 # User isn't supposed to send these, but handle anyway
-                rsp.Status = int(self.Success)
+                rsp.Status = 0x0000 # Success
                 LOGGER.info('Get SCP Response: (Success)')
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
@@ -1293,22 +1187,24 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 # Send each matching dataset via C-STORE
                 LOGGER.info('Store SCU RQ: MsgID %s', ii + 1)
 
-                store_status = self.ACSE.parent.send_c_store(matching_ds,
+                store_status = self.ACSE.parent.send_c_store(dataset,
                                                              msg.MessageID,
                                                              priority)
 
-                store_status = \
-                            StorageServiceClass().code_to_status(store_status)
-
+                store_status = assoc.send_c_store(dataset)
+                store_status = self._get_store_status(store_status)
+                service_class = StorageServiceClass()
+                store_status = Status(store_status,
+                                      *service.statuses[store_status])
                 LOGGER.info('Get SCU: Received Store SCU RSP (%s)',
-                            store_status.status_type)
+                            store_status.category)
 
                 # Update the suboperation trackers
-                if store_status.status_type == 'Failure':
+                if store_status.category == 'Failure':
                     no_failed += 1
-                elif store_status.status_type == 'Warning':
+                elif store_status.category == 'Warning':
                     no_warning += 1
-                elif store_status.status_type == 'Success':
+                elif store_status.category == 'Success':
                     no_completed += 1
                 no_remaining -= 1
 
@@ -1318,15 +1214,15 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = no_completed
 
                 LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
-                rsp.Status = int(self.Pending)
+                rsp.Status = 0xFF00 # Pending
                 self.DIMSE.send_msg(rsp, self.pcid)
 
         # Send final C-GET-RSP to peer
         if no_warning == 0 and no_failed == 0:
-            rsp.Status = int(self.Success)
+            rsp.Status = 0x0000
             LOGGER.info('Get SCP Final Response (Success)')
         else:
-            rsp.Status = int(self.Warning)
+            rsp.Status = 0xB000 # Warning
             LOGGER.info('Get SCP Final Response (Warning)')
 
         self.DIMSE.send_msg(rsp, self.pcid)
@@ -1399,7 +1295,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         # Check the callback's returned Status dataset
         if isinstance(ds, Dataset) and 'Status' in ds:
             # Check returned dataset Status element value is OK
-            if ds.Status not in self.statuses:
+            if int(ds.Status) not in self.statuses:
                 LOGGER.error("Status dataset yielded by on_c_get callback "
                              "contains a Status element with an unknown value: "
                              "0x{0:04x}.".format(ds.Status))
@@ -1413,7 +1309,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 if hasattr(rsp, elem.keyword):
                     setattr(rsp, elem.keyword, elem.value)
                 else:
-                    LOGGER.warning("Status dataset yielded by on_c_get"
+                    LOGGER.warning("Status dataset yielded by on_c_get "
                                    "callback contained an unsupported "
                                    "Element '{}'.".format(elem.keyword))
         else:
@@ -1425,6 +1321,30 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             rsp.Status = 0xC003
 
         return rsp
+
+    def _get_store_status(self, ds):
+        """Check the on_c_store's returned status dataset and set rsp.Status."""
+        # Check the callback's returned Status dataset
+        if isinstance(ds, Status) and 'Status' in ds:
+            # Check returned dataset Status element value is OK
+            if ds.Status not in self.statuses:
+                LOGGER.error("Status dataset yielded by on_c_store callback "
+                             "contains a Status element with an unknown value: "
+                             "0x{0:04x}.".format(ds.Status))
+                # Failure: Unable to Process - Invalid Status returned
+                status = 0xC002
+            # User's status is OK
+            status = ds.Status
+        else:
+            LOGGER.error("Callback yielded an invalid status "
+                         "(should be a pydicom Dataset with a Status "
+                         "element).")
+            # Failure: Unable to Process - callback didn't yield/return
+            #   a pydicom.dataset.Dataset with a Status element.
+            status = 0xC003
+
+        return status
+
 
 
 # WORKLIST SOP Classes
