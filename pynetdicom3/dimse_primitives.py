@@ -15,7 +15,8 @@ import logging
 from pydicom.uid import UID
 
 from pynetdicom3.status import (VERIFICATION_SERVICE_CLASS_STATUS,
-                                STORAGE_SERVICE_CLASS_STATUS)
+                                STORAGE_SERVICE_CLASS_STATUS,
+                                QR_FIND_SERVICE_CLASS_STATUS)
 from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
@@ -126,7 +127,7 @@ class C_STORE(object):
         # For Warning statuses 0xB000, 0xB006, 0xB007
         # For Failure statuses 0xCxxx, 0xA9xx, 0xA7xx, 0x0122, 0x0124
         self.ErrorComment = None
-        # For Failure statuses 0x0117, 0x0122
+        # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
 
     @property
@@ -327,7 +328,6 @@ class C_STORE(object):
             LOGGER.warning("Unknown C-STORE Status 0x{0:04x}".format(value))
 
 
-
 class C_FIND(object):
     """Represents a C-FIND primitive.
 
@@ -447,11 +447,14 @@ class C_FIND(object):
         # Optional Command Set elements used in with specific Status values
         # For Failure statuses 0xA900
         self.OffendingElement = None
-        # For Failure statuses 0xA900, 0xA700, 0x0122, 0xC000
+        # For Failure statuses 0xA900, 0xA700, 0x0122, 0xCxxx
         self.ErrorComment = None
-        # For Failure statuses 0xC000
+        # For Failure statuses 0xCxxx
         self.AffectedSOPInstanceUID = None
+        # For Failure status 0xCxxx
         self.ErrorID = None
+        # For Failure status 0xCxxx
+        # self.AffectedSOPClassUID
 
     @property
     def MessageID(self):
@@ -567,7 +570,10 @@ class C_FIND(object):
         if isinstance(value, int) or value is None:
             self._status = value
         else:
-            raise TypeError("Status must be an int")
+            raise TypeError("'C_FIND.Status' must be an int.")
+
+        if value not in QR_FIND_SERVICE_CLASS_STATUS and value is not None:
+            LOGGER.warning("Unknown C-FIND Status 0x{0:04x}".format(value))
 
 
 class C_GET(object):

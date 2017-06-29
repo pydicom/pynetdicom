@@ -11,30 +11,25 @@ from pydicom.uid import UID
 
 from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
-from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
-                                         C_FIND, C_CANCEL
+from pynetdicom3.dimse_primitives import (C_ECHO, C_MOVE, C_STORE, C_GET,
+                                          C_FIND, C_CANCEL)
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
-from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
-                         StorageServiceClass, \
-                         QueryRetrieveGetServiceClass, \
-                         QueryRetrieveFindServiceClass, \
-                         QueryRetrieveMoveServiceClass, \
-                         ModalityWorklistInformationFind, \
-                         ModalityWorklistServiceSOPClass, \
-                         PatientRootQueryRetrieveInformationModelFind, \
-                         StudyRootQueryRetrieveInformationModelFind, \
-                         PatientStudyOnlyQueryRetrieveInformationModelFind, \
-                         PatientRootQueryRetrieveInformationModelMove, \
-                         StudyRootQueryRetrieveInformationModelMove, \
-                         PatientStudyOnlyQueryRetrieveInformationModelMove, \
-                         PatientRootQueryRetrieveInformationModelGet, \
-                         StudyRootQueryRetrieveInformationModelGet, \
-                         PatientStudyOnlyQueryRetrieveInformationModelGet
-from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
-                                   SOPClassExtendedNegotiation, \
-                                   SOPClassCommonExtendedNegotiation, \
-                                   A_ASSOCIATE, A_ABORT, A_P_ABORT
+from pynetdicom3.sop_class import (uid_to_sop_class,
+                            ModalityWorklistInformationFind,
+                            PatientRootQueryRetrieveInformationModelFind,
+                            StudyRootQueryRetrieveInformationModelFind,
+                            PatientStudyOnlyQueryRetrieveInformationModelFind,
+                            PatientRootQueryRetrieveInformationModelMove,
+                            StudyRootQueryRetrieveInformationModelMove,
+                            PatientStudyOnlyQueryRetrieveInformationModelMove,
+                            PatientRootQueryRetrieveInformationModelGet,
+                            StudyRootQueryRetrieveInformationModelGet,
+                            PatientStudyOnlyQueryRetrieveInformationModelGet)
+from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
+                                        SOPClassExtendedNegotiation,
+                                        SOPClassCommonExtendedNegotiation,
+                                        A_ASSOCIATE, A_ABORT, A_P_ABORT)
 from pynetdicom3.status import code_to_status, Status
 from pynetdicom3.utils import PresentationContextManager
 
@@ -882,8 +877,7 @@ class Association(threading.Thread):
             primitive.Priorty = 0x0002
 
         # Encode the dataset using the agreed transfer syntax
-        # Correcting ambiguous VR is handled by pydicom
-        # Will return None if failed to encode
+        #   Will return None if failed to encode
         ds = encode(dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian)
@@ -911,6 +905,8 @@ class Association(threading.Thread):
                 status.OffendingElement = rsp.OffendingElement
             if 'ErrorComment' in rsp:
                 status.ErrorComment = rsp.ErrorComment
+            if rsp.Status == 0x0117 and 'AffectedSOPInstanceUID' in rsp:
+                status.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
 
         return status
 
@@ -944,23 +940,55 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.status.Status
-            The resulting status(es) from the C-FIND operation as pydicom
-            Dataset subclasses.
+        status : pydicom.dataset.Dataset or None
+            Yields None if no valid presentation context, no response
+            from the peer or if couldn't encode the supplied `dataset`. If a
+            response was received from the peer then returns a pydicom Dataset
+            containing at least a (0000,0900) Status element, and depending on
+            the returned Status value may optionally contain additional elements
+            (see PS3.7 9.1.2.1.5 and Annex C).
+
+            The status for the requested C-FIND operation (see PS3.4 Annex
+            C.4.1), should be one of the following Status objects/codes:
+
+            Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
+                Failure
+                    * 0xA700 - Refused: Out of resources
+                    * 0xA900 - Identifier does not match SOP Class
+                    * 0xCxxx - Unable to process
+                Pending
+                    * 0xFF00 - Matches are continuing - Current match is supplied
+                               and any Optional Keys were supported in the same
+                               manner as Required Keys
+                    * 0xFF01 - Matches are continuing - Warning that one or more
+                               Optional Keys were not supported for existence and/or
+                               matching for this Identifier)
+            General C-FIND PS3.7 9.1.2.1.5 and Annex C
+                Cancel
+                    * 0xFE00 - Matching terminated due to Cancel request
+                Success
+                    * 0x0000 - Matching is complete, no final Identifier is supplied
+                Failure
+                    * 0x0122 - Refused: SOP class not supported
         dataset : pydicom.dataset.Dataset or None
             The resulting dataset(s) from the C-FIND operation. Yields None if
             no matching Presentation Context.
+
+        See Also
+        --------
+        pynetdicom3.dimse_primitives.C_FIND
+        pynetdicom3.applicationentity.on_c_find
+        pynetdicom3.sop_class.StorageServiceClass
+        DICOM Standard PS3.7 9.1.2, 9.3.2 and Annex C
+        DICOM Standard PS3.4 Annex C
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-FIND request")
 
-        service_class = QueryRetrieveFindServiceClass()
-
         if query_model == 'W':
             sop_class = ModalityWorklistInformationFind()
-            service_class = ModalityWorklistServiceSOPClass()
         elif query_model == "P":
             # Four level hierarchy, patient, study, series, composite object
             sop_class = PatientRootQueryRetrieveInformationModelFind()
@@ -987,18 +1015,34 @@ class Association(threading.Thread):
                          sop_class.UID)
             LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            status = Status(0xA900, *service_class.statuses[0xA900])
-            yield status, None
+            yield None, None
             return
 
         # Build C-FIND primitive
         primitive = C_FIND()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
-        primitive.Priority = priority
-        primitive.Identifier = BytesIO(encode(dataset,
-                                              transfer_syntax.is_implicit_VR,
-                                              transfer_syntax.is_little_endian))
+
+        # Message priority - if invalid set to 0x0002
+        if priority in [0x0000, 0x0001, 0x0002]:
+            primitive.Priority = priority
+        else:
+            LOGGER.warning("C-FIND SCU: Invalid priority value '%s'",
+                           priority)
+            primitive.Priorty = 0x0002
+
+        # Encode the dataset using the agreed transfer syntax
+        #   Will return None if failed to encode
+        ds = encode(dataset,
+                    transfer_syntax.is_implicit_VR,
+                    transfer_syntax.is_little_endian)
+
+        if ds is not None:
+            primitive.Identifier = BytesIO(ds)
+        else:
+            # If we failed to encode our dataset
+            LOGGER.error("Failed to encode the supplied Dataset")
+            return None
 
         LOGGER.info('Find SCU Request Identifiers:')
         LOGGER.info('')
@@ -1031,28 +1075,51 @@ class Association(threading.Thread):
             # FF01 - Pending (matches are continuing, optional keys
             #                 not supported)
             # 0000 - Success (matching complete, no final identifier supplied)
-            status = Status(rsp.Status, *service_class.statuses[rsp.Status])
+            status = Dataset()
+            status.Status = rsp.Status
+            if 'OffendingElement' in rsp:
+                status.OffendingElement = rsp.OffendingElement
+            if 'ErrorComment' in rsp:
+                status.ErrorComment = rsp.ErrorComment
+            if 'ErrorID' in rsp:
+                status.ErrorID = rsp.ErrorID
 
             LOGGER.debug('-' * 65)
-            LOGGER.debug('Find SCP Response: %s (%s)',
-                         ii, status.category)
+            if status.Status in [0xFF00, 0xFF01]:
+                status_category = 'Pending'
+            elif status.Status == 0x0000:
+                status_category = 'Success'
+            elif status.Status in [0xA700, 0xA900]:
+                status_category = 'Failure'
+            elif status.Status == 0xFE00:
+                status_category = 'Cancel'
+            elif status.Status in range(0xC000, 0xD000):
+                status_category = 'Failure'
+            else:
+                status_category = 'Unknown'
+
+            LOGGER.debug('Find SCP Response: %s (%s)', ii, status_category)
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status.category != 'Pending':
+            if status_category != 'Pending':
                 ds = None
                 break
 
-            # Decode the dataset
-            ds = decode(rsp.Identifier,
-                        transfer_syntax.is_implicit_VR,
-                        transfer_syntax.is_little_endian)
+            # Status must be Pending, so decode the Identifier dataset
+            try:
+                ds = decode(rsp.Identifier,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
 
-            LOGGER.debug('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in ds:
-                LOGGER.debug(elem)
-            LOGGER.debug('')
+                LOGGER.debug('')
+                LOGGER.debug('# DICOM Dataset')
+                for elem in ds:
+                    LOGGER.debug(elem)
+                LOGGER.debug('')
+            except:
+                LOGGER.error("Failed to decode the received Identifier dataset")
+                yield status, None
 
             ii += 1
 
