@@ -117,8 +117,8 @@ class ServiceClass(object):
 class VerificationServiceClass(ServiceClass):
     """Represents the Verification Service Class.
 
-    Status
-    ------
+    Valid Statuses
+    --------------
     Based on PS3.7 Section 9.1.5.1.4.
 
     Success
@@ -135,7 +135,23 @@ class VerificationServiceClass(ServiceClass):
         """
         When the local AE is acting as an SCP for the VerificationSOPClass
         and a C-ECHO request is received then create a C-ECHO response
-        primitive and send it to the peer AE via the DIMSE provider
+        primitive and send it to the peer AE via the DIMSE provider.
+
+        Will always return 0x0000 (Success) unless the user returns a different
+        value from the on_c_echo callback.
+
+        C-ECHO Response/Confirmation
+        ----------------------------
+        Required Elements
+        ~~~~~~~~~~~~~~~~~
+        MessageIDBeingRespondedTo
+        AffectedSOPClassUID
+        Status
+
+        Optional Elements
+        ~~~~~~~~~~~~~~~~~
+        MessageID
+        ErrorComment
 
         Parameters
         ----------
@@ -146,13 +162,17 @@ class VerificationServiceClass(ServiceClass):
         rsp = C_ECHO()
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.Status = 0x0000 # Success
 
         # Try and run the user on_c_echo callback
         try:
-            self.AE.on_c_echo()
+            status = self.AE.on_c_echo()
+            if status is not None:
+                rsp.update(status)
+            else:
+                rsp.Status = 0x0000
         except:
             LOGGER.exception("Exception in the AE.on_c_echo() callback.")
+            rsp.Status = 0x0000
 
         # Send primitive
         self.DIMSE.send_msg(rsp, self.pcid)

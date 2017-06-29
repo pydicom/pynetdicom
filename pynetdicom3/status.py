@@ -383,3 +383,13 @@ def code_to_status(val):
         return Status(val, *GENERAL_STATUS[val])
 
     return None
+
+
+def code_to_status_ds(code):
+    """Return a Dataset with Status element matching `code`."""
+    if isinstance(code, int) and code >= 0:
+        ds = Dataset()
+        ds.Status = code
+        return ds
+    else:
+        raise ValueError("'code' must be a positive integer.")

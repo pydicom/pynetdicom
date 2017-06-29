@@ -85,22 +85,22 @@ class C_STORE(object):
         Storage Service Class Specific (PS3.4 Annex B.2.3):
             Failure
                 * 0xA7xx - Refused: Out of resources
-                * 0xA9xx - Error: Data Set does not match SOP Class
+                * 0xA9xx - Error: Data set does not match SOP class
                 * 0xCxxx - Error: Cannot understand
             Warning
-                * 0xB000 - Coercion of Data Elements
-                * 0xB007 - Data Set does not match SOP Class
-                * 0xB006 - Element Discarded
+                * 0xB000 - Coercion of data elements
+                * 0xB006 - Element discarded
+                * 0xB007 - Data set does not match SOP class
         General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
             Success
                 * 0x0000 - Success
             Failure
-                * 0x0122 - Refused: SOP class not supported
-                * 0x0210 - Refused: Duplicate invocation
                 * 0x0117 - Refused: Invalid SOP instance
-                * 0x0212 - Refused: Mistyped argument
-                * 0x0211 - Refused: Unrecognised operation
+                * 0x0122 - Refused: SOP class not supported
                 * 0x0124 - Refused: Not authorised
+                * 0x0210 - Refused: Duplicate invocation
+                * 0x0211 - Refused: Unrecognised operation
+                * 0x0212 - Refused: Mistyped argument
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1246,22 +1246,33 @@ class C_ECHO(object):
 
     Attributes
     ----------
-    MessageID : int
+    MessageID : int or None
         [M, U] Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
-    MessageIDBeingRespondedTo : int
+    MessageIDBeingRespondedTo : int or None
         [-, M] The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str or None
         [M, U(=)] For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    Status : int
+    Status : int or None
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-        * 0x0000: Success
+
+        General C-STORE (PS3.7 9.1.5.1.4 and Annex C):
+            Success
+                * 0x0000 - Success
+            Failure
+                * 0x0122 - Refused: SOP class not supported
+                * 0x0210 - Refused: Duplicate invocation
+                * 0x0211 - Refused: Unrecognised operation
+                * 0x0212 - Refused: Mistyped argument
+    ErrorComment : str or None
+        [-, C] If the Status value is 0x0122 then ErrorComment may contain an
+        application specific text description of the error detected.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1273,6 +1284,9 @@ class C_ECHO(object):
         self.MessageIDBeingRespondedTo = None
         self.AffectedSOPClassUID = None
         self.Status = None
+
+        # (Optional) for Failure status 0x0122
+        self.ErrorComment = None
 
     @property
     def MessageID(self):

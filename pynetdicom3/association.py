@@ -655,30 +655,50 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pynetdicom3.status.Status or None
+        status : pydicom.dataset.Dataset or None
             Returns None if no valid presentation context or no response
-            from the peer, Status otherwise.
+            from the peer. If a response was received from the peer then returns
+            a pydicom Dataset containing at least a (0000,0900) Status element,
+            and depending on the returned Status value may optionally contain
+            additional elements (see PS3.7 9.1.5.1.4 and Annex C).
+
+            General C-ECHO (PS3.7 9.1.5.1.4 and Annex C) Status values:
+                Success
+                    * 0x0000 - Success
+                Failure
+                    * 0x0122 - Refused: SOP class not supported
+                    * 0x0210 - Refused: Duplicate invocation
+                    * 0x0211 - Refused: Unrecognised operation
+                    * 0x0212 - Refused: Mistyped argument
+
+        Raises
+        ------
+        RuntimeError
+            If called without an association to a peer SCP
+
+        See Also
+        --------
+        pynetdicom3.dimse_primitives.C_ECHO
+        pynetdicom3.applicationentity.on_c_echo
+        pynetdicom3.sop_class.VerificationServiceClass
+        DICOM Standard PS3.7 9.1.5, 9.3.5 and Annex C
+        DICOM Standard PS3.4 Annex A
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-ECHO request")
 
-        # Service Class - used to determine Status
-        service_class = VerificationServiceClass()
-
         uid = UID('1.2.840.10008.1.1')
 
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
+        # Determine the Presentation Context we are operating under.
+        context_id = None
         for context in self.acse.context_manager.accepted:
             if uid == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
 
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", uid)
+        if context_id is None:
+            LOGGER.error("No valid Presentation Context for '%s'", uid)
             return None
 
         # Build C-STORE request primitive
@@ -691,8 +711,11 @@ class Association(threading.Thread):
 
         status = None
         if rsp is not None:
-            # This is OK for C-ECHO
-            status = code_to_status(rsp.Status)
+            status = Dataset()
+            if 'Status' in rsp:
+                status.Status = rsp.Status
+            if 'ErrorComment' in rsp:
+                status.ErrorComment = rsp.ErrorComment
         else:
             # DIMSE service timed out
             self.abort()
@@ -766,47 +789,61 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        dataset : pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset to send to the peer.
         msg_id : int, optional
             The message ID, must be between 0 and 65535, inclusive, (default 1).
         priority : int, optional
             The C-STORE operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
                 0 - Medium
+                1 - High
+                2 - Low (default)
 
         Returns
         -------
-        status : pynetdicom3.status.Status or None
+        status : pydicom.dataset.Dataset or None
+            Returns None if no valid presentation context, no response
+            from the peer or if couldn't encode the supplied `dataset`. If a
+            response was received from the peer then returns a pydicom Dataset
+            containing at least a (0000,0900) Status element, and depending on
+            the returned Status value may optionally contain additional elements
+            (see PS3.7 9.1.1.1.9 and Annex C).
+        
             The status for the requested C-STORE operation (see PS3.4 Annex
-            B.2.3), should be one of the following Status objects/codes
-            (separate causes for each status can be identified through the use
-            of different codes within the available range of each status):
+            B.2.3), should be one of the following Status objects/codes:
 
-            Success status
-                0x0000 - Success
+            Storage Service Class Specific (PS3.4 Annex B.2.3):
+                Failure
+                    * 0xA7xx - Refused: Out of resources
+                    * 0xA9xx - Error: Data set does not match SOP class
+                    * 0xCxxx - Error: Cannot understand
+                Warning
+                    * 0xB000 - Coercion of data elements
+                    * 0xB006 - Element discarded
+                    * 0xB007 - Data set does not match SOP class
+            General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
+                Success
+                    * 0x0000 - Success
+                Failure
+                    * 0x0117 - Refused: Invalid SOP instance
+                    * 0x0122 - Refused: SOP class not supported
+                    * 0x0124 - Refused: Not authorised
+                    * 0x0210 - Refused: Duplicate invocation
+                    * 0x0211 - Refused: Unrecognised operation
+                    * 0x0212 - Refused: Mistyped argument
 
-            Failure statuses
-                0xA7xx - Refused: Out of Resources
-                0xA9xx - Error: Data Set does not match SOP Class
-                0xC0xx - Error: Cannot understand
-
-            Warning statuses
-                0xB000 - Coercion of Data Elements
-                0xB007 - Data Set does not matching SOP Class
-                0xB006 - Elements Discarded
-
-            Returns None if the DIMSE service timed out before receiving a
-            response.
+        See Also
+        --------
+        pynetdicom3.dimse_primitives.C_STORE
+        pynetdicom3.applicationentity.on_c_store
+        pynetdicom3.sop_class.StorageServiceClass
+        DICOM Standard PS3.7 9.1.1, 9.3.1 and Annex C
+        DICOM Standard PS3.4 Annex B
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
-
-        # Service Class - used to determine Status
-        service_class = StorageServiceClass()
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -821,16 +858,14 @@ class Association(threading.Thread):
                              "Dataset has no 'SOP Class UID' element")
                 LOGGER.error("Store SCU failed due to there being no valid "
                              "presentation context for the current dataset")
-                # Dataset doesn't match SOP Class
-                return Status(0xA900, *service_class.statuses[0xA900])
+                return None
 
         if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'",
+            LOGGER.error("No valid Presentation Context for: '%s'",
                          dataset.SOPClassUID)
             LOGGER.error("Store SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            # Dataset doesn't match SOP Class
-            return Status(0xA900, *service_class.statuses[0xA900])
+            return None
 
         # Build C-STORE request primitive
         primitive = C_STORE()
@@ -838,7 +873,7 @@ class Association(threading.Thread):
         primitive.AffectedSOPClassUID = dataset.SOPClassUID
         primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
 
-        # Message priority
+        # Message priority - if invalid set to 0x0002
         if priority in [0x0000, 0x0001, 0x0002]:
             primitive.Priority = priority
         else:
@@ -857,8 +892,8 @@ class Association(threading.Thread):
             primitive.DataSet = BytesIO(ds)
         else:
             # If we failed to encode our dataset
-            return Status(0xC000, 'Failure', 'Cannot Understand',
-                          'Unable to encode the supplied Dataset')
+            LOGGER.error("Failed to encode the supplied Dataset")
+            return None
 
         # Send C-STORE request primitive to DIMSE
         self.dimse.send_msg(primitive, context_id)
@@ -869,7 +904,13 @@ class Association(threading.Thread):
 
         status = None
         if rsp is not None:
-            status = rsp.Status
+            status = Dataset()
+            if 'Status' in rsp:
+                status.Status = rsp.Status
+            if 'OffendingElement' in rsp:
+                status.OffendingElement = rsp.OffendingElement
+            if 'ErrorComment' in rsp:
+                status.ErrorComment = rsp.ErrorComment
 
         return status
 

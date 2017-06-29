@@ -11,6 +11,7 @@ from struct import pack
 import sys
 import time
 
+from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian, UID, InvalidUID
 
@@ -819,20 +820,27 @@ class ApplicationEntity(object):
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling AE.start()
 
-        Called during by pynetdicom3.sop_class.VerificationServiceClass.SCP()
-        after receiving a C-ECHO request and immediately prior to sending the
-        response. As the status for a C-ECHO response is always Success no
-        return value is required.
+        Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
+        after receiving a C-ECHO request and prior to sending the response.
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset
+            A Dataset object containing (at a minimum) a (0000,0900) Status
+            element with a valid C-ECHO/Verification Service Class status (see
+            PS3.4 Annex A and PS3.7 Section 9.1.5.1.4 and Annex C). The returned
+            Dataset may also contain optional elements related to the Status.
         """
         # User implementation of on_c_echo is optional
-        pass
+        status = Dataset()
+        status.Status = 0x000
+        return status
 
     def on_c_store(self, dataset):
         """Callback for when a dataset is received following a C-STORE request.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a valid C-STORE status integer value or the corresponding
-        pynetdicom3.sop_class.Status object.
+        a pydicom Dataset containing a valid Status element.
 
         Parameters
         ----------
@@ -841,7 +849,7 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        status_ds : pydicom.dataset.Dataset
+        status : pydicom.dataset.Dataset
             A Dataset object containing (at a minimum) a Status element with
             a valid C-STORE/Storage Service Class status (see PS3.4 Annex
             B.2.3 and PS3.7 Section 9.1.1.1.9 and Annex C). In addition, the
@@ -872,7 +880,7 @@ class ApplicationEntity(object):
 
         Yields
         ------
-        status : pynetdicom3.sop_class.Status or int
+        status : pydicom.dataset.Dataset
             A valid return status for the C-FIND operation (see PS3.4 Annex
             C.4.1.1.4), must be one of the following Status objects or the
             corresponding integer value. A Status of Success (0x0000) will be
