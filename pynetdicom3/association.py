@@ -7,6 +7,7 @@ import socket
 import threading
 import time
 
+from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom3.acse import ACSEServiceProvider
@@ -705,14 +706,16 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         status = None
-        if rsp is not None:
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
             status = Dataset()
-            if 'Status' in rsp:
-                status.Status = rsp.Status
-            if 'ErrorComment' in rsp:
+            status.Status = rsp.Status
+            if getattr(rsp, 'ErrorComment') is not None:
                 status.ErrorComment = rsp.ErrorComment
         else:
-            # DIMSE service timed out
+            LOGGER.error('Received an invalid C-ECHO response from the peer')
             self.abort()
 
         return status
@@ -901,6 +904,10 @@ class Association(threading.Thread):
             status = Dataset()
             if 'Status' in rsp:
                 status.Status = rsp.Status
+            else:
+                LOGGER.error('C-STORE response missing Status element')
+                return None
+
             if 'OffendingElement' in rsp:
                 status.OffendingElement = rsp.OffendingElement
             if 'ErrorComment' in rsp:
@@ -1076,7 +1083,12 @@ class Association(threading.Thread):
             #                 not supported)
             # 0000 - Success (matching complete, no final identifier supplied)
             status = Dataset()
-            status.Status = rsp.Status
+            if 'Status' in rsp:
+                status.Status = rsp.Status
+            else:
+                LOGGER.error('C-FIND response missing Status element')
+                yield None, None
+
             if 'OffendingElement' in rsp:
                 status.OffendingElement = rsp.OffendingElement
             if 'ErrorComment' in rsp:

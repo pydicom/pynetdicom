@@ -533,6 +533,12 @@ class DIMSEMessage(object):
         elif cls_type_name == 'N_ACTION_RSP':
             setattr(primitive, 'ActionReply', self.data_set)
 
+        # Check validity of received parameters - all except C_CANCEL
+        if 'RQ' in cls_type_name and not primitive.is_valid_request:
+            pass
+        if 'RSP' in cls_type_name and not primitive.is_valid_response:
+            pass
+
         return primitive
 
 

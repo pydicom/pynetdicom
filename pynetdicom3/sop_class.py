@@ -166,10 +166,9 @@ class VerificationServiceClass(ServiceClass):
         # Try and run the user on_c_echo callback
         try:
             status = self.AE.on_c_echo()
-            if status is not None:
-                rsp.update(status)
-            else:
-                rsp.Status = 0x0000
+            for elem in status:
+                if hasattr(rsp, elem.keyword):
+                    setattr(rsp, elem.keyword, elem.value)
         except:
             LOGGER.exception("Exception in the AE.on_c_echo() callback.")
             rsp.Status = 0x0000

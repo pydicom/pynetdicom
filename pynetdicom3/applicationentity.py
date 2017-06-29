@@ -840,7 +840,8 @@ class ApplicationEntity(object):
         """Callback for when a dataset is received following a C-STORE request.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a pydicom Dataset containing a valid Status element.
+        a pydicom Dataset containing a Status element with a valid C-STORE
+        status integer.
 
         Parameters
         ----------

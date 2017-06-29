@@ -273,9 +273,8 @@ if assoc.is_established:
     for ii in range(args.repeat):
         status = assoc.send_c_echo()
 
-    if status is not None:
-        # Abort or release association
-        if args.abort:
-            assoc.abort()
-        else:
-            assoc.release()
+    # Abort or release association
+    if args.abort:
+        assoc.abort()
+    else:
+        assoc.release()

@@ -327,6 +327,25 @@ class C_STORE(object):
         if value not in STORAGE_SERVICE_CLASS_STATUS and value is not None:
             LOGGER.warning("Unknown C-STORE Status 0x{0:04x}".format(value))
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'AffectedSOPInstanceUID', 'DataSet']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class C_FIND(object):
     """Represents a C-FIND primitive.
@@ -574,6 +593,25 @@ class C_FIND(object):
 
         if value not in QR_FIND_SERVICE_CLASS_STATUS and value is not None:
             LOGGER.warning("Unknown C-FIND Status 0x{0:04x}".format(value))
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'Identifier']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_GET(object):
@@ -881,6 +919,25 @@ class C_GET(object):
             self._number_of_warning_suboperations = value
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'Identifier']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_MOVE(object):
@@ -1235,6 +1292,25 @@ class C_MOVE(object):
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'Identifier', 'MoveDestination']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class C_ECHO(object):
     """Represents a C-ECHO primitive.
@@ -1388,6 +1464,24 @@ class C_ECHO(object):
         if value not in VERIFICATION_SERVICE_CLASS_STATUS and value is not None:
             LOGGER.warning("Unknown C-ECHO Status 0x{0:04x}".format(value))
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class C_CANCEL(object):
     """Represents a C-CANCEL primitive.
@@ -1494,6 +1588,25 @@ class N_EVENT_REPORT(object):
         self.EventReply = None
         self.Status = None
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'EventTypeID',
+                        'AffectedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class N_GET(object):
     """Represents a N-GET primitive.
@@ -1559,6 +1672,25 @@ class N_GET(object):
         self.AffectedSOPInstanceUID = None
         self.AttributeList = None
         self.Status = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class N_SET(object):
@@ -1628,6 +1760,25 @@ class N_SET(object):
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.Status = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class N_ACTION(object):
@@ -1699,6 +1850,25 @@ class N_ACTION(object):
         self.ActionReply = None
         self.Status = None
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class N_CREATE(object):
     """Represents a N-CREATE primitive.
@@ -1760,6 +1930,24 @@ class N_CREATE(object):
         self.AttributeList = None
         self.Status = None
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class N_DELETE(object):
     """Represents a N-DELETE primitive.
@@ -1815,3 +2003,22 @@ class N_DELETE(object):
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.Status = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
