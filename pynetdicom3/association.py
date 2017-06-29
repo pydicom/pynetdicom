@@ -1048,7 +1048,8 @@ class Association(threading.Thread):
         else:
             # If we failed to encode our dataset
             LOGGER.error("Failed to encode the supplied Dataset")
-            return None
+            yield None, None
+            return
 
         LOGGER.info('Find SCU Request Identifiers:')
         LOGGER.info('')
@@ -1071,6 +1072,12 @@ class Association(threading.Thread):
             # If no response received, start loop again
             if not rsp:
                 continue
+            elif not rsp.is_valid_response:
+                LOGGER.error('Received an invalid C-FIND response from ' \
+                             'the peer')
+                self.abort()
+                yield None, None
+                return
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
             # A700 - Failure (out of resources)
@@ -1082,33 +1089,28 @@ class Association(threading.Thread):
             #                 not supported)
             # 0000 - Success (matching complete, no final identifier supplied)
             status = Dataset()
-            if 'Status' in rsp:
-                status.Status = rsp.Status
-            else:
-                LOGGER.error('C-FIND response missing Status element')
-                yield None, None
-
-            if 'OffendingElement' in rsp:
+            status.Status = rsp.Status
+            if hasattr(rsp, 'OffendingElement'):
                 status.OffendingElement = rsp.OffendingElement
-            if 'ErrorComment' in rsp:
+            if hasattr(rsp, 'ErrorComment'):
                 status.ErrorComment = rsp.ErrorComment
-            if 'ErrorID' in rsp:
+            if hasattr(rsp, 'ErrorID'):
                 status.ErrorID = rsp.ErrorID
 
-            LOGGER.debug('-' * 65)
             if status.Status in [0xFF00, 0xFF01]:
                 status_category = 'Pending'
             elif status.Status == 0x0000:
                 status_category = 'Success'
             elif status.Status in [0xA700, 0xA900]:
                 status_category = 'Failure'
-            elif status.Status == 0xFE00:
-                status_category = 'Cancel'
             elif status.Status in range(0xC000, 0xD000):
                 status_category = 'Failure'
+            elif status.Status == 0xFE00:
+                status_category = 'Cancel'
             else:
                 status_category = 'Unknown'
 
+            LOGGER.debug('-' * 65)
             LOGGER.debug('Find SCP Response: %s (%s)', ii, status_category)
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
