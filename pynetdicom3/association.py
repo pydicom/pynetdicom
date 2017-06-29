@@ -896,24 +896,23 @@ class Association(threading.Thread):
         self.dimse.send_msg(primitive, context_id)
 
         # Wait for C-STORE response primitive
-        #   returns a C_STORE primitive
+        #   returns a C_STORE primitive or None
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         status = None
-        if rsp is not None:
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
             status = Dataset()
-            if 'Status' in rsp:
-                status.Status = rsp.Status
-            else:
-                LOGGER.error('C-STORE response missing Status element')
-                return None
-
-            if 'OffendingElement' in rsp:
-                status.OffendingElement = rsp.OffendingElement
-            if 'ErrorComment' in rsp:
+            status.Status = rsp.Status
+            if getattr(rsp, 'ErrorComment') is not None:
                 status.ErrorComment = rsp.ErrorComment
-            if rsp.Status == 0x0117 and 'AffectedSOPInstanceUID' in rsp:
-                status.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
+            if getattr(rsp, 'OffendingElement') is not None:
+                status.OffendingElement = rsp.OffendingElement
+        else:
+            LOGGER.error('Received an invalid C-STORE response from the peer')
+            self.abort()
 
         return status
 
