@@ -181,19 +181,24 @@ class VerificationServiceClass(ServiceClass):
 class StorageServiceClass(ServiceClass):
     """Represents the Storage Service Class.
 
-    Status
-    ------
+    Statuses
+    --------
     Based on PS3.7 Section 9.1.1.1.9 and PS3.4 Annex B.2.3.
 
-    pynetdicom3 specific status codes
-        Failure: Cannot Understand
-            0xC100 - Failed to decode the received dataset.
-            0xC101 - Exception in the on_c_store callback.
-            0xC102 - Unknown status returned by the on_c_store callback.
-            0xC103 - Dataset with no Status element returned by the on_c_store
-                     callback.
-            0xC104 - on_c_store callback failed to return a pydicom Dataset.
+    pynetdicom3 Specific Statuses
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Failure
+        0xC100 - Cannot Understand: Failed to decode the received dataset.
+        0xC101 - Cannot Understand: Exception in the on_c_store callback.
+        0xC102 - Cannot Understand: Unknown status returned by the on_c_store
+                 callback.
+        0xC103 - Cannot Understand: Dataset with no Status element returned by
+                 the on_c_store callback.
+        0xC104 - Cannot Understand: on_c_store callback failed to return a
+                 dataset.
 
+    General and Service Class Statuses
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     * Indicates service class specific status codes
 
     Success
@@ -216,7 +221,28 @@ class StorageServiceClass(ServiceClass):
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
-        """Called when running as an SCP and receive a C-STORE request."""
+        """Called when running as an SCP and receive a C-STORE request.
+
+        C-STORE Response/Confirmation
+        ----------------------------
+        Required Elements
+        ~~~~~~~~~~~~~~~~~
+        MessageIDBeingRespondedTo
+        AffectedSOPClassUID
+        AffectedSOPInstanceUID
+        Status
+
+        Optional Elements
+        ~~~~~~~~~~~~~~~~~
+        MessageID
+        OffendingElement
+        ErrorComment
+
+        Parameters
+        ----------
+        msg : pynetdicom3.dimse_primitives.C_STORE
+            The C-STORE request primitive sent by the peer
+        """
         # Create C-STORE response primitive
         rsp = C_STORE()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
@@ -225,9 +251,9 @@ class StorageServiceClass(ServiceClass):
 
         # Check the dataset SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
-            LOGGER.error("Store request's dataset UID does not match the "
-                         "presentation context")
-             # Failure: Data Set Does Not Match SOP Class
+            LOGGER.error("C-STORE request's Dataset SOP Class UID does not "
+                         "match the presentation context")
+            # Failure: Data Set Does Not Match SOP Class
             rsp.Status = 0xA900
             self.DIMSE.send_msg(rsp, self.pcid)
             return
@@ -241,12 +267,13 @@ class StorageServiceClass(ServiceClass):
             LOGGER.error("Failed to decode the received dataset")
              # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC100
+            rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status_ds = self.AE.on_c_store(ds)
+            status = self.AE.on_c_store(ds)
         except Exception:
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
@@ -256,11 +283,11 @@ class StorageServiceClass(ServiceClass):
             return
 
         # Check the callback's returned Status dataset
-        if isinstance(status_ds, Dataset):
+        if isinstance(status, Dataset):
             # Check that the returned status dataset contains a Status element
-            if 'Status' in status_ds:
+            if 'Status' in status:
                 # Check returned dataset Status element value is OK
-                if status_ds.Status not in self.statuses:
+                if status.Status not in self.statuses:
                     LOGGER.error("ApplicationEntity.on_c_store() returned an "
                                  "invalid status value.")
                     # Failure: Cannot Understand - Invalid Status returned
@@ -269,7 +296,7 @@ class StorageServiceClass(ServiceClass):
                 else:
                     # For the elements in the status dataset, try and set the
                     #   corresponding response primitive attribute
-                    for elem in status_ds:
+                    for elem in status:
                         if hasattr(rsp, elem.keyword):
                             setattr(rsp, elem.keyword, elem.value)
                         else:

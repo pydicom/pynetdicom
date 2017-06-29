@@ -808,7 +808,7 @@ class Association(threading.Thread):
             containing at least a (0000,0900) Status element, and depending on
             the returned Status value may optionally contain additional elements
             (see PS3.7 9.1.1.1.9 and Annex C).
-        
+
             The status for the requested C-STORE operation (see PS3.4 Annex
             B.2.3), should be one of the following Status objects/codes:
 
