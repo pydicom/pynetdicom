@@ -677,8 +677,8 @@ class Association(threading.Thread):
         pynetdicom3.dimse_primitives.C_ECHO
         pynetdicom3.applicationentity.on_c_echo
         pynetdicom3.sop_class.VerificationServiceClass
-        DICOM Standard PS3.7 9.1.5, 9.3.5 and Annex C
-        DICOM Standard PS3.4 Annex A
+        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
+        DICOM Standard Part 4, Annex A
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:

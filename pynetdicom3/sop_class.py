@@ -65,10 +65,7 @@ def _generate_service_sop_classes(sop_class_list, service_class):
 class ServiceClass(object):
     """The base class for all the service class types.
 
-    FIXME: Determine a better method for the statuses
-    FIXME: SOP class status values shouldn't overwrite Warning (which is a
-    non-pythonic attribute name anyway)
-    FIXME: Perhaps define some class attributes such as self.AE = None
+    TODO: Perhaps define some class attributes such as self.AE = None
         self.UID = None,
         then call ServiceClass.__init__() in the subclasses?
 
@@ -94,33 +91,86 @@ class ServiceClass(object):
         # New method?
         self.presentation_context = None
 
+    @property
     def is_valid_status(self, status):
-        """Check if a status is valid for the service class.
+        """Return True if `status` is valid for the service class.
 
         Parameters
         ----------
-        status : pynetdicom3.sop_class.Status
-            The Status object to check for validity.
+        status : int
+            The Status value to check for validity.
 
         Returns
         -------
         bool
-            Whether or not the status is valid
+            True if the status is valid, False otherwise.
         """
-        if int(status) in self.statuses:
+        if status in self.statuses:
             return True
 
         return False
+
+    def validate_status(status, rsp):
+        """Validate `status` and set `rsp.Status` accordingly.
+
+        Parameters
+        ----------
+        status : pydicom.dataset.Dataset or int
+            A Dataset containing a Status element or an int.
+        rsp : pynetdicom3.dimse_primitive
+            The response primitive to be sent to the peer.
+
+        Returns
+        -------
+        rsp : pynetdicom3.dimse_primitive
+            The response primitie to be sent to the peer (containing a valid
+            Status parameter).
+        """
+        # Check the callback's returned Status dataset
+        if isinstance(status, Dataset):
+            # Check that the returned status dataset contains a Status element
+            if 'Status' in status:
+                # For the elements in the status dataset, try and set the
+                #   corresponding response primitive attribute
+                for elem in status:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning("Status dataset returned by callback "
+                                       "contained an unsupported Element "
+                                       "'{}'.".format(elem.keyword))
+            else:
+                LOGGER.error("User callback returned a `Dataset` without a "
+                             "Status element.")
+                # Failure: Cannot Understand - callback returned
+                #   a pydicom.dataset.Dataset without a Status element
+                rsp.Status = 0xC102
+        elif isinstance(status, int):
+            rsp.Status = status
+        else:
+            LOGGER.error("Invalid status returned by user callback.")
+            # Failure: Cannot Understand - callback didn't return
+            #   a valid status type
+            rsp.Status = 0xC103
+
+        if not self.is_valid_status(rsp.Status):
+            # Failure: Cannot Understand - Unknown status returned by the
+            #   callback
+            rsp.Status = 0xC104
+
+        return rsp
 
 
 # Service Class types
 class VerificationServiceClass(ServiceClass):
     """Represents the Verification Service Class.
 
-    Valid Statuses
-    --------------
+    Statuses
+    --------
     Based on PS3.7 Section 9.1.5.1.4.
 
+    General Statuses
+    ~~~~~~~~~~~~~~~~
     Success
         0x000 - Success
     Failure
@@ -138,7 +188,7 @@ class VerificationServiceClass(ServiceClass):
         primitive and send it to the peer AE via the DIMSE provider.
 
         Will always return 0x0000 (Success) unless the user returns a different
-        value from the on_c_echo callback.
+        (valid) status value from the on_c_echo callback.
 
         C-ECHO Response/Confirmation
         ----------------------------
@@ -163,12 +213,31 @@ class VerificationServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = msg.MessageID
 
-        # Try and run the user on_c_echo callback
+        # Try and run the user's on_c_echo callback
+        #   The callback should return the Status as either an int or Dataset
         try:
             status = self.AE.on_c_echo()
-            for elem in status:
-                if hasattr(rsp, elem.keyword):
-                    setattr(rsp, elem.keyword, elem.value)
+            if isinstance(status, Dataset):
+                if 'Status' not in status:
+                    raise AttributeError("The status 'Dataset' returned by "
+                                         "'on_c_echo' must contain"
+                                         "a (0000,0900) Status element")
+                for elem in status:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning("Status dataset returned by "
+                                       "on_c_echo contained an unsupported "
+                                       "Element '{}'.".format(elem.keyword))
+            elif isinstance(status, int):
+                rsp.Status = status
+            else:
+                raise TypeError("Invalid status returned by 'on_c_echo'")
+
+            # Check Status validity
+            if not is_valid_status(rsp.Status):
+                raise ValueError("Invalid status value returned by "
+                                 "'on_c_echo'")
         except:
             LOGGER.exception("Exception in the AE.on_c_echo() callback.")
             rsp.Status = 0x0000
@@ -189,17 +258,15 @@ class StorageServiceClass(ServiceClass):
     Failure
         0xC100 - Cannot Understand: Failed to decode the received dataset.
         0xC101 - Cannot Understand: Exception in the on_c_store callback.
-        0xC102 - Cannot Understand: Unknown status returned by the on_c_store
-                 callback.
-        0xC103 - Cannot Understand: Dataset with no Status element returned by
+        0xC102 - Cannot Understand: Dataset with no Status element returned by
                  the on_c_store callback.
-        0xC104 - Cannot Understand: on_c_store callback failed to return a
-                 dataset.
+        0xC103 - Cannot Understand: on_c_store callback didn't return
+                 a valid status type.
+        0xC104 - Cannot Understand: Unknown status returned by the on_c_store
+                 callback.
 
     General and Service Class Statuses
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    * Indicates service class specific status codes
-
     Success
         0x0000 - Success
     Warning
@@ -216,6 +283,8 @@ class StorageServiceClass(ServiceClass):
         0xA7xx * - Refused: Out of Resources
         0xA9xx * - Error: Data Set Does Not Match SOP Class
         0xCxxx * - Error: Cannot Understand
+
+    Where * denotes Storage Service Class specific statuses.
     """
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
@@ -281,40 +350,8 @@ class StorageServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Check the callback's returned Status dataset
-        if isinstance(status, Dataset):
-            # Check that the returned status dataset contains a Status element
-            if 'Status' in status:
-                # Check returned dataset Status element value is OK
-                if status.Status not in self.statuses:
-                    LOGGER.error("ApplicationEntity.on_c_store() returned an "
-                                 "invalid status value.")
-                    # Failure: Cannot Understand - Invalid Status returned
-                    #   by on_c_store callback
-                    rsp.Status = 0xC102
-                else:
-                    # For the elements in the status dataset, try and set the
-                    #   corresponding response primitive attribute
-                    for elem in status:
-                        if hasattr(rsp, elem.keyword):
-                            setattr(rsp, elem.keyword, elem.value)
-                        else:
-                            LOGGER.warning("Status dataset returned by on_c_store "
-                                           "contained an unsupported Element "
-                                           "'{}'.".format(elem.keyword))
-            else:
-                LOGGER.error("ApplicationEntity.on_c_store() returned a "
-                             "dataset without a Status element.")
-                # Failure: Cannot Understand - on_c_store callback returned
-                #   a pydicom.dataset.Dataset without a Status element
-                rsp.Status = 0xC103
-        else:
-            LOGGER.error("ApplicationEntity.on_c_store() returned an invalid "
-                         "status type (should be a pydicom Dataset).")
-            # Failure: Cannot Understand - on_c_store callback didn't return
-            #   a pydicom.dataset.Dataset
-            rsp.Status = 0xC104
-
+        # Validate rsp_status and set rsp.Status accordingly
+        rsp = self.validate_status(rsp_status, rsp)
         self.DIMSE.send_msg(rsp, self.pcid)
 
 
@@ -614,49 +651,16 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         try:
             result = self.AE.on_c_find(dataset)
         except:
-            LOGGER.exception('Exception in user\'s on_c_find implementation.')
+            LOGGER.exception("Exception in user's on_c_find implementation.")
             # Failure - Unable to Process - Error in on_c_find callback
             rsp.Status = 0xC001
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Iterate through the results
-        for ii, (status_ds, matching_ds) in enumerate(result):
-
-            # Check the callback's returned Status dataset
-            if isinstance(status_ds, Dataset):
-                # Check that the returned status dataset contains
-                #   a Status element
-                if 'Status' in status_ds:
-                    # Check returned dataset Status element value is OK
-                    if status_ds.Status not in self.statuses:
-                        LOGGER.error("ApplicationEntity.on_c_find returned "
-                                     "an invalid status value.")
-                        # Failure: Unable to Process - Invalid Status returned
-                        #   by on_c_find callback
-                        rsp.Status = 0xC002
-                    else:
-                        # For the elements in the status dataset, try and set the
-                        #   corresponding response primitive attribute
-                        for elem in status_ds:
-                            if hasattr(rsp, elem.keyword):
-                                setattr(rsp, elem.keyword, elem.value)
-                            else:
-                                LOGGER.warning("Status dataset returned by "
-                                               "on_c_find contained an unsupported "
-                                               "Element '{}'.".format(elem.keyword))
-                else:
-                    LOGGER.error("ApplicationEntity.on_c_find returned a "
-                                 "dataset without a Status element.")
-                    # Failure: Unable to Process - on_c_store callback returned
-                    #   a pydicom.dataset.Dataset without a Status element
-                    rsp.Status = 0xC003
-            else:
-                LOGGER.error("ApplicationEntity.on_c_find returned an invalid "
-                             "status type (should be a pydicom Dataset).")
-                # Failure: Unable to Process - on_c_store callback didn't return
-                #   a pydicom.dataset.Dataset
-                rsp.Status = 0xC004
+        for ii, (rsp_status, rsp_ds) in enumerate(result):
+            # Validate rsp_status and set rsp.Status accordingly
+            rsp = self.validate_status(rsp_status, rsp)
 
             status = Status(rsp.Status, *self.statuses[rsp.Status])
             if status.category == 'Cancel':
@@ -673,9 +677,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.info('Find SCP Response: (Success)')
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            else:
-                # Pending
-                ds = BytesIO(encode(matching_ds,
+            else: # Pending
+                ds = BytesIO(encode(rsp_ds,
                                     self.transfersyntax.is_implicit_VR,
                                     self.transfersyntax.is_little_endian))
 
@@ -700,7 +703,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.debug('Find SCP Response Identifiers:')
                 LOGGER.debug('')
                 LOGGER.debug('# DICOM Dataset')
-                for elem in matching_ds:
+                for elem in rsp_ds:
                     LOGGER.debug(elem)
                 LOGGER.debug('')
 
@@ -846,9 +849,9 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         if assoc.is_established:
 
             ## USER YIELD STATUS, DATASET
-            for ii, (status_ds, dataset) in enumerate(result):
-                # Check validity of status_ds and set rsp.Status
-                rsp = self._get_status(status_ds, rsp)
+            for ii, (rsp_status, dataset) in enumerate(result):
+                # Validate rsp_status and set rsp.Status accordingly
+                rsp = self.validate_status(rsp_status, rsp)
                 status = Status(rsp.Status, *self.statuses[rsp.Status])
 
                 # If usr_status is Cancel, Failure or Success then generate a
@@ -1043,62 +1046,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         return addr, port
 
-    def _get_status(self, ds, rsp):
-        """Check the callback's returned status dataset and set rsp.Status."""
-        # Check the callback's returned Status dataset
-        if isinstance(ds, Status) and 'Status' in ds:
-            # Check returned dataset Status element value is OK
-            if ds.Status not in self.statuses:
-                LOGGER.error("Status dataset yielded by on_c_move callback "
-                             "contains a Status element with an unknown value: "
-                             "0x{0:04x}.".format(ds.Status))
-                # Failure: Unable to Process - Invalid Status returned
-                rsp.Status = 0xC002
-                return rsp
-
-            # For the elements in the status dataset, try and set the
-            #   corresponding response primitive attribute
-            for elem in ds:
-                if hasattr(rsp, elem.keyword):
-                    setattr(rsp, elem.keyword, elem.value)
-                else:
-                    LOGGER.warning("Status dataset yielded by on_c_move "
-                                   "callback contained an unsupported "
-                                   "Element '{}'.".format(elem.keyword))
-            
-        else:
-            LOGGER.error("Callback yielded an invalid status "
-                         "(should be a pydicom Dataset with a Status "
-                         "element).")
-            # Failure: Unable to Process - callback didn't yield/return
-            #   a pydicom.dataset.Dataset with a Status element.
-            rsp.Status = 0xC003
-
-        return rsp
-
-    def _get_store_status(self, ds):
-        """Check the on_c_store's returned status dataset and set rsp.Status."""
-        # Check the callback's returned Status dataset
-        if isinstance(ds, Status) and 'Status' in ds:
-            # Check returned dataset Status element value is OK
-            if ds.Status not in self.statuses:
-                LOGGER.error("Status dataset yielded by on_c_store callback "
-                             "contains a Status element with an unknown value: "
-                             "0x{0:04x}.".format(ds.Status))
-                # Failure: Unable to Process - Invalid Status returned
-                status = 0xC002
-            # User's status is OK
-            status = ds.Status
-        else:
-            LOGGER.error("Callback yielded an invalid status "
-                         "(should be a pydicom Dataset with a Status "
-                         "element).")
-            # Failure: Unable to Process - callback didn't yield/return
-            #   a pydicom.dataset.Dataset with a Status element.
-            status = 0xC003
-
-        return status
-
     def _add_failed_sop_instances(self, rsp, failed_instances):
         """Add FailedSOPInstanceUIDList to the Identifier."""
         # Decode Identifier
@@ -1194,16 +1141,9 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         # Iterate through the results
         for ii, (status_ds, dataset) in enumerate(result):
-            # Check validity of status_ds and set rsp.Status
-            rsp = self._get_status(status_ds, rsp)
-            try:
-                status = Status(rsp.Status, *self.statuses[rsp.Status])
-            except (ValueError, TypeError):
-                LOGGER.error("ApplicationEntity.on_c_move() returned an "
-                             "invalid status value.")
-                rsp.Status = 0xC000 # Unable to process
-                self.DIMSE.send_msg(rsp, self.pcid)
-                return
+            # Validate rsp_status and set rsp.Status accordingly
+            rsp = self.validate_status(rsp_status, rsp)
+            status = Status(rsp.Status, *self.statuses[rsp.Status])
 
             if status.category == 'Cancel':
                 LOGGER.info('Received C-CANCEL-GET RQ from peer')

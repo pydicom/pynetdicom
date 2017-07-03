@@ -1563,20 +1563,20 @@ class N_EVENT_REPORT(object):
     10.1.1.1.8 Status
 
     Failure
-        class-instance conflict 0x0119 PS3.7 Annex C.5.7
-        duplicate invocation 0x0210 PS3.7 Annex C.5.9
-        invalid argument value 0x0115 PS3.7 Annex C.5.10
-        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
-        mistyped argument 0x0212 PS3.7 Annex C.5.15
-        no such argument 0x0114 PS3.7 Annex C.5.16
-        no such event type 0x0113 PS3.7 Annex C.5.18
-        no such SOP class 0x0118 PS3.7 Annex C.5.20
-        no such SOP instance 0x0112 PS3.7 Annex C.5.19
-        processing failure 0x0110 PS3.7 Annex C.5.21
-        resource limitation 0x213 PS3.7 Annex C.5.22
-        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        0x0119 - class-instance conflict 0x0119 PS3.7 Annex C.5.7
+        0x0210 - duplicate invocation 0x0210 PS3.7 Annex C.5.9
+        0x0115 - invalid argument value 0x0115 PS3.7 Annex C.5.10
+        0x0117 - invalid SOP instance 0x0117 PS3.7 Annex C.5.12
+        0x0212 - mistyped argument 0x0212 PS3.7 Annex C.5.15
+        0x0114 - no such argument 0x0114 PS3.7 Annex C.5.16
+        0x0113 - no such event type 0x0113 PS3.7 Annex C.5.18
+        0x0118 - no such SOP class 0x0118 PS3.7 Annex C.5.20
+        0x0112 - no such SOP instance 0x0112 PS3.7 Annex C.5.19
+        0x0110 - processing failure 0x0110 PS3.7 Annex C.5.21
+        0x0213 - resource limitation 0x213 PS3.7 Annex C.5.22
+        0x0211 - unrecognised operation 0x0211 PS3.7 Annex C.5.23
     Success
-        success 0x0000
+        0x0000 - success 0x0000
     """
     def __init__(self):
         self.MessageID = None
