@@ -825,43 +825,97 @@ class ApplicationEntity(object):
         Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
         after receiving a C-ECHO request and prior to sending the response.
 
+        Statuses
+        --------
+        Success
+            0x000 - Success
+        Failure
+            0x0122 - Refused: SOP Class Not Supported
+            0x0210 - Refused: Duplicate Invocation
+            0x0212 - Refused: Mistyped Argument
+            0x0211 - Refused: Unrecognised Operation
+
         Returns
         -------
         status : pydicom.dataset.Dataset or int
             A valid C-ECHO/Verification Service Class status value as either an
             int or a Dataset object containing (at a minimum) a (0000,0900)
-            Status element (see PS3.4 Annex A and PS3.7 Section 9.1.5.1.4 and
-            Annex C). If returning a Dataset object then it may also contain
-            optional elements related to the Status (as in PS3.7 Annex C).
+            Status element. If returning a Dataset object then it may also
+            contain optional elements related to the Status (as in the DICOM
+            Standard Part 7, Annex C).
+
+        See Also
+        --------
+        pynetdicom3.sop_class.VerificationServiceClass
+        pynetdicom3.association.send_c_echo
+        pynetdicom3.dimse_primitives.C_ECHO
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex A
+        DICOM Standard Part 7, Section 9.1.5.1.4 and Annex C
         """
         # User implementation of on_c_echo is optional
         return 0x0000
 
     def on_c_store(self, dataset):
-        """Callback for when a dataset is received following a C-STORE request.
+        """Callback for when a `dataset` is received following a C-STORE request.
 
         Must be defined by the user prior to calling AE.start() and must return
         either an int or a pydicom Dataset containing a Status element with a
         valid C-STORE status value.
 
+        Called by pynetdicom3.sop_class.StorageServiceClass.SCP()
+        after receiving a C-STORE request and prior to sending the response.
+
+        Statuses
+        --------
+        Success
+            0x0000 - Success
+        Warning
+            0xB000 - Warning: Coercion of Data Elements
+            0xB006 - Warning: Elements Discarded
+            0xB007 - Warning: Data Set Does Not Match SOP Class
+        Failure
+            0x0117 - Refused: Invalid SOP Instance
+            0x0122 - Refused: SOP Class Not Supported
+            0x0124 - Refused: Not Authorised
+            0x0210 - Refused: Duplicate Invocation
+            0x0211 - Refused: Unrecognised Operation
+            0x0212 - Refused: Mistyped Argument
+            0xA700 to 0xA7FF - Refused: Out of Resources
+            0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
+            0xC000 to 0xCFFF - Error: Cannot Understand
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent in the C-STORE request
+            The DICOM dataset sent by the peer in the C-STORE request.
 
         Returns
         -------
         status : pydicom.dataset.Dataset or int
             A valid C-STORE/Storage Service Class status value as either an
-            int or a Dataset object containing (at a minimum) a Status element
-            (see PS3.4 Annex B.2.3 and PS3.7 Section 9.1.1.1.9 and Annex C). If
-            returning a Dataset object then it may also contain optional
-            elements related to the Status (as in PS3.7 Annex C).
+            int or a Dataset object containing (at a minimum) a (0000,0900)
+            Status element. If returning a Dataset object then it may also
+            contain optional elements related to the Status (as in the DICOM
+            Standard Part 7, Annex C).
 
         Raises
         ------
         NotImplementedError
             If the callback has not been implemented by the user
+
+        See Also
+        --------
+        pynetdicom3.sop_class.StorageServiceClass
+        pynetdicom3.association.send_c_store
+        pynetdicom3.dimse_primitives.C_STORE
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex B
+        DICOM Standard Part 7, Section 9.1.1.1.9 and Annex C 
         """
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
@@ -878,44 +932,52 @@ class ApplicationEntity(object):
         The peer AE sends an Identifier `dataset` containing Attributes that
         should be used to match against locally available SOP Instances. For
         each match you should yield a 'Pending' status and a matching Identifier
-        Dataset. Once all matches are complete then a 'Success' status will be
+        dataset. Once all matches are complete then a 'Success' status will be
         automatically sent.
+
+        Status
+        ------
+        Failure
+            0xA700 - Refused: Out of Resources
+            0xA900 - Identifier does not match SOP Class
+            0xC000 to 0xCFFF - Unable to process
+        Cancel
+            0xFE00 - Matching terminated due to Cancel request
+        Pending
+            0xFF00 - Matches are continuing - Current Match is supplied and any
+                     Optional Keys were supported in the same manner as Required
+                     Keys
+            0xFF01 - Matches are continuing - Warning that one or more Optional
+                     Keys were not supported for existence and/or matching for
+                     this Identifier
+        Success
+            0x0000 - Success
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent via the C-FIND
+            The DICOM Identifier dataset sent by the peer in the C-FIND request.
 
         Yields
         ------
         status : pydicom.dataset.Dataset or int
             A valid C-FIND/Query/Retrieve Service Class status value as either
             an int or a Dataset object containing (at a minimum) a Status
-            element (see PS3.4 Annex C.4.1.1.4 and PS3.7 Section 9.1.2.1.5 and
-            Annex C). If returning a Dataset object then it may also contain
-            optional elements related to the Status (as in PS3.7 Annex C).
-
-            Failure statuses
-                0xA700 - Refused: Out of Resources
-                0xA900 - Identifier does not match SOP Class
-                0xCxxx - Unable to process
-            Cancel status
-                0xFE00 - Matching terminated due to Cancel request
-            Pending statuses
-                0xFF00 - Matches are continuing - Current Match is supplied and
-                         any Optional Keys were supported in the same manner as
-                         Required Keys
-                0xFF01 - Matches are continuing - Warning that one or more
-                         Optional Keys were not supported for existence and/or
-                         matching for this Identifier
-            Success status
-                0x0000 - Success
-                
+            element. If returning a Dataset object then it may also contain
+            optional elements related to the Status (as in DICOM Standard Part
+            7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            A matching dataset if the status is Pending, None otherwise.
+            The matching Identifier dataset if the status is 'Pending', None
+            otherwise.
 
         See Also
         --------
+        pynetdicom3.sop_class.QueryRetrieveFindServiceClass
+        pynetdicom3.association.send_c_find
+        pynetdicom3.dimse_primitives.C_FIND
+
+        References
+        ----------
         DICOM Standard Part 4, Annex C
         DICOM Standard Part 7, Section 9.1.2 and Annex C
         """
@@ -937,9 +999,29 @@ class ApplicationEntity(object):
     def on_c_get(self, dataset):
         """Callback for when a dataset is received following a C-STORE.
 
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.sop_class.Status object. In addition,the
-        AE.on_c_get_cancel() callback must also be defined
+        Must be defined by the user prior to calling AE.start() and must yield
+        a int containing the total number of matches, then yield statuses and
+        datasets. In addition,the AE.on_c_get_cancel() callback must also be
+        defined.
+
+        Status
+        ------
+        Failure
+            0xA701 - Refused: Out of Resources, unable to calculate the number
+                     of matches
+            0xA702 - Refused: Out of Resources, unable to perform sub-operations
+            0xA900 - Identifier does not match SOP Class
+            0xC000 to 0xCFFF - Unable to process
+        Cancel
+            0xFE00 - Sub-operations terminated due to Cancel request
+        Warning
+            0xB000 - Sub-operations complete, one or more failures or warnings
+        Pending
+            0xFF00 - Matches are continuing - Current Match is supplied and
+                     any Optional Keys were supported in the same manner as
+                     Required Keys
+        Success
+            0x0000 - Success
 
         Parameters
         ----------
@@ -957,29 +1039,7 @@ class ApplicationEntity(object):
             corresponding integer value. A Status of Success (0x0000) will be
             automatically sent once all matches are processing if no Cancel or
             Failure statuses are yielded:
-            Failure statuses
-                QueryRetrieveGetSOPClass.OutOfResourcesNumberOfMatches
-                    Refused: Out of Resources, unable to calculate the number
-                    of matches - 0xA701
-                QueryRetrieveGetSOPClass.OutOfResourcesUnableToPerform
-                    Refused: Out of Resources, unable to perform sub-operations
-                    - 0xA702
-                QueryRetrieveGetSOPClass.IdentifierDoesNotMatchSOPClass
-                    Identifier does not match SOP Class - 0xA900
-                QueryRetrieveFindSOPClass.UnableToProcess
-                    Unable to process - 0xCxxx
-            Cancel status
-                QueryRetrieveGetSOPClass.Cancel
-                    Sub-operations terminated due to Cancel request - 0xFE00
-            Warning status
-                QueryRetrieveGetSOPClass.Warning
-                    Sub-operations complete, one or more failures or warnings
-                    - 0xB000
-            Pending status
-                QueryRetrieveGetSOPClass.Pending
-                    Matches are continuing - Current Match is supplied and
-                    any Optional Keys were supported in the same manner as
-                    Required Keys - 0xFF00
+            
         dataset : pydicom.dataset.Dataset or None
             A matching dataset if the status is Pending, None otherwise.
         """
