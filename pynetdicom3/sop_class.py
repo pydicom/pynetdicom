@@ -161,52 +161,51 @@ class ServiceClass(object):
         return rsp
 
 
-# Service Class types
+# Service Class implementations
 class VerificationServiceClass(ServiceClass):
-    """Represents the Verification Service Class.
-
-    Statuses
-    --------
-    Based on PS3.7 Section 9.1.5.1.4.
-
-    General Statuses
-    ~~~~~~~~~~~~~~~~
-    Success
-        0x000 - Success
-    Failure
-        0x0122 - Refused: SOP Class Not Supported
-        0x0210 - Refused: Duplicate Invocation
-        0x0212 - Refused: Mistyped Argument
-        0x0211 - Refused: Unrecognised Operation
-    """
+    """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
-        """
-        When the local AE is acting as an SCP for the VerificationSOPClass
-        and a C-ECHO request is received then create a C-ECHO response
-        primitive and send it to the peer AE via the DIMSE provider.
+        """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
         (valid) status value from the on_c_echo callback.
 
-        C-ECHO Response/Confirmation
-        ----------------------------
-        Required Elements
+        C-ECHO Response
+        ---------------
+        Parameters
         ~~~~~~~~~~~~~~~~~
-        MessageIDBeingRespondedTo
-        AffectedSOPClassUID
-        Status
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) AffectedSOPClassUID
+        (M) Status
 
-        Optional Elements
-        ~~~~~~~~~~~~~~~~~
-        MessageID
-        ErrorComment
+        Status
+        ~~~~~~
+        Success
+            0x000 - Success
+        Failure
+            0x0122 - Refused: SOP Class Not Supported
+            0x0210 - Refused: Duplicate Invocation
+            0x0211 - Refused: Unrecognised Operation
+            0x0212 - Refused: Mistyped Argument
 
         Parameters
         ----------
         msg : pynetdicom3.dimse_primitives.C_ECHO
-            The C-ECHO request primitive sent by the peer
+            The C-ECHO request primitive sent by the peer.
+
+        See Also
+        --------
+        pynetdicom3.AE.on_c_echo
+        pynetdicom3.association.send_c_echo
+        pynetdicom3.dimse_primitives.C_ECHO
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex A
+        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
         """
         # Create C-ECHO response primitive
         rsp = C_ECHO()
@@ -226,8 +225,8 @@ class VerificationServiceClass(ServiceClass):
                     if hasattr(rsp, elem.keyword):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
-                        LOGGER.warning("Status dataset returned by "
-                                       "on_c_echo contained an unsupported "
+                        LOGGER.warning("The status 'Dataset' returned by "
+                                       "'on_c_echo' contained an unsupported "
                                        "Element '{}'.".format(elem.keyword))
             elif isinstance(status, int):
                 rsp.Status = status
@@ -238,8 +237,9 @@ class VerificationServiceClass(ServiceClass):
             if not is_valid_status(rsp.Status):
                 raise ValueError("Invalid status value returned by "
                                  "'on_c_echo'")
-        except:
-            LOGGER.exception("Exception in the AE.on_c_echo() callback.")
+        except Exception as ex:
+            LOGGER.error("Exception in the 'on_c_echo' callback.")
+            LOGGER.exception(ex)
             rsp.Status = 0x0000
 
         # Send primitive
@@ -364,6 +364,14 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         C-FIND Response
         ---------------
+        Parameters
+        ~~~~~~~~~~~~~~~~~
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (C) Identifier
+        (M) Status
+
         Status
         ~~~~~~
         Success
