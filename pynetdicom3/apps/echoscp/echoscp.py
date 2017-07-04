@@ -194,7 +194,6 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
     transfer_syntax.remove(ExplicitVRBigEndian)
     transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,

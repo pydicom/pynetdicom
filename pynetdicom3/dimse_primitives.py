@@ -324,9 +324,6 @@ class C_STORE(object):
         else:
             raise TypeError("'C_STORE.Status' must be an int")
 
-        if value not in STORAGE_SERVICE_CLASS_STATUS and value is not None:
-            LOGGER.warning("Unknown C-STORE Status 0x{0:04x}".format(value))
-
     @property
     def is_valid_request(self):
         """Return True if the required parameters for a C-ECHO RQ are set."""
@@ -1462,9 +1459,6 @@ class C_ECHO(object):
             self._status = value
         else:
             raise TypeError("'C_ECHO.Status' must be an int.")
-
-        #if value not in VERIFICATION_SERVICE_CLASS_STATUS and value is not None:
-        #    LOGGER.warning("Unknown C-ECHO Status value - 0x{0:04x}".format(value))
 
     @property
     def is_valid_request(self):

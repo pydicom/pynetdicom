@@ -235,6 +235,8 @@ class Status(Dataset):
         elif code in range(0x0100, 0x0200) or code in range(0x0200, 0x0300):
             return 'Failure'
 
+        return 'Unknown'
+
     @property
     def description(self):
         """Return the Status' description."""

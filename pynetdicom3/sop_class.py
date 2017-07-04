@@ -155,7 +155,8 @@ class ServiceClass(object):
         if not self.is_valid_status(rsp.Status):
             # Failure: Cannot Understand - Unknown status returned by the
             #   callback
-            rsp.Status = 0xC104
+            LOGGER.warning("Unknown status value returned by "
+                           "callback - 0x{0:04x}".format(rsp.Status))
 
         return rsp
 
@@ -217,6 +218,7 @@ class VerificationServiceClass(ServiceClass):
 
         # Try and run the user's on_c_echo callback
         #   The callback should return the Status as either an int or Dataset
+        #   any failures in the callback results in 0x0000 Success
         try:
             status = self.AE.on_c_echo()
             if isinstance(status, Dataset):
@@ -344,7 +346,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.AE.on_c_store(ds)
+            rsp_status = self.AE.on_c_store(ds)
         except Exception:
             LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
                              "callback")
