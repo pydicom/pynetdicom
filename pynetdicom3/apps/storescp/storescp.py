@@ -272,7 +272,6 @@ def on_c_store(dataset):
             # Failed - Out of Resources - Miscellaneous error
             status_ds.Status = 0xA701
 
-    return 0x0001
     return status_ds
 
 # Test output-directory

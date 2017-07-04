@@ -272,7 +272,6 @@ class TestStorageServiceClass(unittest.TestCase):
         scp.stop()
 
 
-
 class TestQRFindServiceClass(unittest.TestCase):
     def test_scp(self):
         """Test SCP"""

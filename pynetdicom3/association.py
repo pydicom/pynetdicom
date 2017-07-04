@@ -799,7 +799,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pydicom.dataset.Dataset or None
+        status : pydicom.dataset.Dataset
             Returns None if no valid presentation context, no response
             from the peer or if couldn't encode the supplied `dataset`. If a
             response was received from the peer then returns a pydicom Dataset
@@ -830,13 +830,25 @@ class Association(threading.Thread):
                     * 0x0211 - Refused: Unrecognised operation
                     * 0x0212 - Refused: Mistyped argument
 
+        Raises
+        ------
+        RuntimeError
+            If send_c_store is called with no established association.
+        AttributeError
+            If `dataset` contains not SOP Class UID element.
+        ValueError
+            If no accepted Presentation Context for `dataset` exists.
+
         See Also
         --------
         pynetdicom3.dimse_primitives.C_STORE
         pynetdicom3.applicationentity.on_c_store
         pynetdicom3.sop_class.StorageServiceClass
-        DICOM Standard PS3.7 9.1.1, 9.3.1 and Annex C
+
+        References
+        ----------
         DICOM Standard PS3.4 Annex B
+        DICOM Standard PS3.7 9.1.1, 9.3.1 and Annex C
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -851,19 +863,20 @@ class Association(threading.Thread):
                 if dataset.SOPClassUID == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
                     context_id = context.ID
-            except AttributeError:
-                LOGGER.error("Unable to determine Presentation Context as "
+            except AttributeError as ex:
+                LOGGER.error("Association.send_c_store - unable to determine "
+                             "Presentation Context as "
                              "Dataset has no 'SOP Class UID' element")
                 LOGGER.error("Store SCU failed due to there being no valid "
                              "presentation context for the current dataset")
-                return None
+                raise ex
 
         if transfer_syntax is None:
-            LOGGER.error("No valid Presentation Context for: '%s'",
-                         dataset.SOPClassUID)
+            LOGGER.error("Association.send_c_store - no valid Presentation "
+                         " Context for: '%s'", dataset.SOPClassUID)
             LOGGER.error("Store SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            return None
+            raise ValueError("No accepted Presentation Context for 'dataset'.")
 
         # Build C-STORE request primitive
         primitive = C_STORE()
@@ -875,8 +888,7 @@ class Association(threading.Thread):
         if priority in [0x0000, 0x0001, 0x0002]:
             primitive.Priority = priority
         else:
-            LOGGER.warning("C-STORE SCU: Invalid priority value '%s'",
-                           priority)
+            LOGGER.warning("C-STORE SCU: Invalid priority value '%s'", priority)
             primitive.Priorty = 0x0002
 
         # Encode the dataset using the agreed transfer syntax
@@ -890,7 +902,9 @@ class Association(threading.Thread):
         else:
             # If we failed to encode our dataset
             LOGGER.error("Failed to encode the supplied Dataset")
-            return None
+            status = Dataset()
+            status.Status = 0xC100
+            return status
 
         # Send C-STORE request primitive to DIMSE
         self.dimse.send_msg(primitive, context_id)

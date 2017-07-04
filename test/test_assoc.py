@@ -42,7 +42,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
                                  StudyRootQueryRetrieveInformationModelMove
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -564,7 +564,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         DATASET.PerimeterValue = b'\x00\x01'
         result = assoc.send_c_store(DATASET)
-        self.assertEqual(int(result), 0xC000)
+        self.assertEqual(result.Status, 0xC100)
         assoc.release()
         del DATASET.PerimeterValue # Fix up our changes
         scp.stop()
@@ -604,7 +604,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET, priority=0x0003)
-        self.assertEqual(int(result), 0x0000)
+        self.assertEqual(result.Status, 0x0000)
         assoc.release()
         scp.stop()
 
@@ -617,26 +617,26 @@ class TestAssociationSendCStore(unittest.TestCase):
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        response = assoc.send_c_store(DATASET)
-        self.assertEqual(int(response), 0xC101)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(result.Status, 0xC101)
         assoc.release()
         scp.stop()
 
     def test_bad_user_on_c_store_return(self):
-        """Test exception raised by bad on_c_store return"""
+        """Test SCP exception raised by bad on_c_store return"""
         scp = DummyStorageSCP()
         scp.status = 'testing'
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC104)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(result.Status, 0xC103)
         assoc.release()
         scp.stop()
 
     def test_bad_user_on_c_store_status(self):
-        """Test exception raised by invalid on_c_store status"""
+        """Test SCP exception raised by invalid on_c_store status"""
         scp = DummyStorageSCP()
         # on_c_store must return Status object with valid value
         scp.status = scp.bad_status
@@ -644,29 +644,29 @@ class TestAssociationSendCStore(unittest.TestCase):
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC102)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(result.Status, 0xFFFF)
         # on_c_store must return Status object, not int
         scp.status = 0xCCCC
-        status = assoc.send_c_store(DATASET)
-        self.assertEqual(int(status), 0xC104)
+        result = assoc.send_c_store(DATASET)
+        self.assertEqual(result.Status, 0xCCCC)
         assoc.release()
         scp.stop()
 
     def test_compressed_ds(self):
-        """Test when ds is compressed"""
+        """Test SCU when ds is compressed"""
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[MRImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(COMP_DATASET)
-        self.assertEqual(int(result), 0x0000)
+        self.assertEqual(result.Status, 0x0000)
         assoc.release()
         scp.stop()
 
     def test_ds_no_sop_class(self):
-        """Test when the sent dataset has no sop class uid"""
+        """Test SCU when the sent dataset has no sop class uid"""
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
@@ -676,13 +676,12 @@ class TestAssociationSendCStore(unittest.TestCase):
         ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_store(ds)
-        self.assertEqual(int(result), 0xA900)
+        self.assertRaises(AttributeError, assoc.send_c_store, ds)
         assoc.release()
         scp.stop()
 
     def test_ds_not_match_agreed_sop(self):
-        """Test returns failure status if dataset sop wasnt agreed on"""
+        """Test SCP returns failure status if dataset sop wasnt agreed on"""
         scp = DummyStorageSCP()
         scp.start()
 
@@ -715,19 +714,19 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp.stop()
 
     def test_good_response(self):
-        """Test successful c-store"""
+        """Test SCU/SCP successful c-store"""
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
-        self.assertEqual(int(result), 0x0000)
+        self.assertEqual(result.Status, 0x0000)
         assoc.release()
         scp.stop()
 
     def test_must_be_associated(self):
-        """Test can't send without association."""
+        """Test SCU can't send without association."""
         # Test raise if assoc not established
         scp = DummyStorageSCP()
         scp.start()
@@ -740,14 +739,13 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp.stop()
 
     def test_no_abstract_syntax_match(self):
-        """Test when no accepted abstract syntax"""
+        """Test SCU when no accepted abstract syntax"""
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_store(DATASET)
-        self.assertEqual(int(result), 0xc000)
+        self.assertRaises(ValueError, assoc.send_c_store, DATASET)
         assoc.release()
         scp.stop()
 
