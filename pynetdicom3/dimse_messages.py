@@ -1,4 +1,7 @@
-"""Define the DIMSE Message classes."""
+"""Define the DIMSE Message classes.
+
+TODO: Add C-FIND-RSP additional status elements
+"""
 
 from io import BytesIO
 import logging
@@ -38,7 +41,8 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                      'C-ECHO-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000120,  # MessageIDBeingRespondedTo
                                      0x00000800,
-                                     0x00000900], # Status
+                                     0x00000900, # Status
+                                     0x00000902], # ErrorComment
                      'C-STORE-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000110,
                                      0x00000700,  # Priority
@@ -49,11 +53,14 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                                      0x00001031], # MoveOriginatorMessageID
                      'C-STORE-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                       0x00000120, 0x00000800, 0x00000900,
-                                      0x00001000],
+                                      0x00000901, # OffendingElement
+                                      0x00000902, 0x00001000],
                      'C-FIND-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                     0x00000110, 0x00000700, 0x00000800],
                      'C-FIND-RSP' : [0x00000000, 0x00000002, 0x00000100,
-                                     0x00000120, 0x00000800, 0x00000900],
+                                     0x00000120, 0x00000800, 0x00000900,
+                                     0x00000901, 0x00000902,
+                                     0x00000903], # ErrorID
                      'C-CANCEL-RQ' : [0x00000000, 0x00000100, 0x00000120,
                                       0x00000800],
                      'C-GET-RQ' : [0x00000000, 0x00000002, 0x00000100,
@@ -69,8 +76,9 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                                     0x00000600],
                      'C-MOVE-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000120, 0x00000800, 0x00000900,
-                                     0x00001020, 0x00001021, 0x00001022,
-                                     0x00001023],
+                                     0x00000901, 0x00000902, 0x00000903,
+                                     0x00001000, 0x00001020, 0x00001021,
+                                     0x00001022, 0x00001023],
                      'N-EVENT-REPORT-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                             0x00000110, 0x00000800, 0x00001000,
                                             0x00001002], # EventTypeID

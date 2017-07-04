@@ -728,6 +728,8 @@ class C_GET(object):
         self.NumberOfFailedSuboperations = None
         self.NumberOfWarningSuboperations = None
 
+        # FIXME: Additional status elements 
+
     @property
     def MessageID(self):
         """Return the Message ID parameter."""

@@ -520,7 +520,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
-        self.assertEqual(int(result), 0x0000)
+        self.assertEqual(result.Status, 0x0000)
         assoc.release()
         scp.stop()
 

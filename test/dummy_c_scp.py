@@ -107,6 +107,7 @@ class DummyVerificationSCP(DummyBaseSCP):
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[VerificationSOPClass], port=port)
         DummyBaseSCP.__init__(self)
+        self.status = 0x0000
 
     def on_c_echo(self):
         """Callback for ae.on_c_echo
@@ -120,6 +121,8 @@ class DummyVerificationSCP(DummyBaseSCP):
         
         if self.send_abort:
             self.ae.active_associations[0].abort()
+
+        return self.status
 
 
 class DummyStorageSCP(DummyBaseSCP):

@@ -195,9 +195,6 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
     transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 
-def on_c_echo():
-    return 0x0F12
-
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
@@ -205,7 +202,6 @@ ae = AE(ae_title=args.aetitle,
         scp_sop_class=[VerificationSOPClass],
         transfer_syntax=transfer_syntax)
 
-#ae.on_c_echo = on_c_echo
 ae.maximum_pdu_size = args.max_pdu
 
 # Set timeouts
