@@ -670,7 +670,9 @@ class Association(threading.Thread):
         Raises
         ------
         RuntimeError
-            If called without an association to a peer SCP
+            If called without an association to a peer SCP.
+        ValueError
+            If no accepted Presentation Context for 'Verification SOP Class'.
 
         See Also
         --------
@@ -695,7 +697,8 @@ class Association(threading.Thread):
 
         if context_id is None:
             LOGGER.error("No valid Presentation Context for '%s'", uid)
-            return None
+            raise ValueError("No accepted Presentation Context for "
+                             "'Verification SOP Class'.")
 
         # Build C-STORE request primitive
         primitive = C_ECHO()
@@ -835,7 +838,7 @@ class Association(threading.Thread):
         RuntimeError
             If send_c_store is called with no established association.
         AttributeError
-            If `dataset` contains not SOP Class UID element.
+            If `dataset` contains no (0008,0016) SOP Class UID element.
         ValueError
             If no accepted Presentation Context for `dataset` exists.
 

@@ -500,18 +500,6 @@ class TestAssociationSendCEcho(unittest.TestCase):
             assoc.send_c_echo()
         scp.stop()
 
-    def test_no_abstract_syntax_match(self):
-        """Test when no accepted abstract syntax"""
-        scp = DummyStorageSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        result = assoc.send_c_echo()
-        self.assertTrue(result is None)
-        assoc.release()
-        scp.stop()
-
     def test_good_response(self):
         """Test successful c-echo"""
         scp = DummyVerificationSCP()
@@ -537,7 +525,6 @@ class TestAssociationSendCEcho(unittest.TestCase):
         assoc.release()
         scp.stop()
 
-    #@unittest.skip
     def test_abort_during_c_echo(self):
         """Test aborting the association during c-echo"""
         scp = DummyVerificationSCP()
@@ -549,6 +536,17 @@ class TestAssociationSendCEcho(unittest.TestCase):
         result = assoc.send_c_echo()
         self.assertTrue(result is None)
         self.assertTrue(assoc.is_aborted)
+        scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test SCU when no accepted abstract syntax"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        self.assertRaises(ValueError, assoc.send_c_echo)
+        assoc.release()
         scp.stop()
 
 
