@@ -356,265 +356,71 @@ class StorageServiceClass(ServiceClass):
 
 
 class QueryRetrieveFindServiceClass(ServiceClass):
-    """Implements the QR Find Service Class.
-    PS3.4 C.1.4 C-FIND Service Definition
-    -------------------------------------
-    - The SCU requests that the SCP perform a match of all the keys
-      specified in the Identifier  of the request, against the information
-      that it possesses, to the level (Patient, Study, Series or Composite
-      Object Instance) specified in the request. Identifier refers to the
-      Identifier service parameter of the C-FIND
-
-    - The SCP generates a C-FIND response for each match with an Identifier
-      containing the values of all key fields and all known Attributes
-      requested. All such responses will contain a status of Pending.
-      A status of Pending indicates that the process of matching is not
-      complete
-
-    - When the process of matching is complete a C-FIND response is sent
-      with a status of Success and no Identifier.
-
-    - A Refused or Failed response to a C-FIND request indicates that the
-      SCP is unable to process the request.
-
-    - The SCU may cancel the C-FIND service by issuing a C-FIND-CANCEL
-      request at any time during the processing of the C-FIND service.
-      The SCP will interrupt all matching and return a status of Canceled.
-
-    Patient Root QR Information Model
-    =================================
-    PS3.4 Table C.6-1, C.6-2
-
-    Patient Level
-    -------------
-    Required Key
-    - Patient's Name (0010,0010)
-    Unique Key
-    - Patient ID (0010,0020)
-
-    Study Level
-    -----------
-    Required Keys
-    - Study Date (0008,0020)
-    - Study Time (0008,0030)
-    - Accession Number (0008,0050)
-    - Study ID (0020,0010)
-    Unique Key
-    - Study Instance UID (0020,000D)
-
-    Series Level
-    ------------
-    Required Keys
-    - Modality (0008,0060)
-    - Series Number (0020,0011)
-    Unique Key
-    - Series Instance UID (0020,000E)
-
-    Composite Object Instance Level
-    -------------------------------
-    Required Key
-    - Instance Number (0020,0013)
-    Unique Key
-    - SOP Instance UID (0008,0018)
-
-
-    Study Root QR Information Model
-    ===============================
-    PS3.4 C.6.2.1
-
-    Study Level
-    -----------
-    Required Keys
-    - Study Date (0008,0020)
-    - Study Time (0008,0030)
-    - Accession Number (0008,0050)
-    - Patient's Name (0010,0010)
-    - Patient ID (0010,0020)
-    - Study ID (0020,0010)
-    Unique Key
-    - Study Instance UID (0020,000D)
-
-    Series Level/Composite Object Instance Level
-    --------------------------------------------
-    As for Patient Root QR Information Model
-
-    Status
-    ------
-    Based on PS3.7 Section 9.1.2.1.5 and PS3.4 Annex C.4.1.1.4
-
-    * Indicates service class specific status codes
-
-    Success
-        Success - 0x0000
-    Pending
-        *Pending: Matches are continuing, current match supplied - 0xFF00
-        *Pending: Matches are continuing, warning - 0xFF01
-    Cancel
-        Cancel - 0xFE00
-    Failure
-        *Refused: Out of Resources - 0xA700
-        Refused: SOP Class Not Supported - 0x0122
-        *Identifier Does Not Match SOP Class - 0xA900
-        *Unable to Process - 0xCxxx
-
-    A QR C-FIND SCP may also support Instance Availability (0008,0056) element
-    in the Identifier (PS3.4 C.4.1.1.3)
-    """
+    """Implementation of the Query/Retrieve Find Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
     def SCP(self, msg):
-        """
-        PS3.4 Annex C.1.3
-        In order to serve as an QR SCP, a DICOM AE possesses information about
-        the Attributes of a number of stored Composite Object Instances. This
-        information is organised into a well defined QR Information Model.
-        This QR Information Model shall be a standard QR Information Model.
+        """The SCP implementation for the Query/Retrieve Find Service Class.
 
-        A specific SOP Class of the QR Service Class consists of an Information
-        Model Definition and a DIMSE-C Service Group.
+        C-FIND Response
+        ---------------
+        Status
+        ~~~~~~
+        Success
+            0x0000 - Success
+        Pending
+            0xFF00 * - Pending: Matches are continuing, current match supplied
+            0xFF01 * - Pending: Matches are continuing, warning
+        Cancel
+            0xFE00 - Cancel
+        Failure
+            0xA700 * - Refused: Out of Resources
+            0x0122 - Refused: SOP Class Not Supported
+            0xA900 * - Identifier Does Not Match SOP Class
+            0xCxxx * - Unable to Process
 
-        PS3.4 Annex C.2
-        A QR Information Model contains:
-        - an Entity-Relationship Model Definition: a hierarchy of entities, with
-          Attributes defined for each level in the hierarchy (eg Patient, Study,
-          Series, Composite Object Instance)
-        - a Key Attributes Definition: Attributes should be defined at each
-          level in the Entity-Relationship Model. An Identifier shall contain
-          values to be matched against the Attributes of the Entities in a
-          QR Information Model. For any query, the set of entities for which
-          Attributes are returned shall be determined by the set of Key
-          Attributes specified in the Identifier that have corresponding
-          matches on entities managed by the SCP associated with the query.
+        Where * indicates service class specific status codes.
 
-        All Attributes shall be either a Unique, Required or Optional Key. 'Key
-        Attributes' refers to these three types.
+        Identifier
+        ~~~~~~~~~~
+        The C-FIND response shall only include an Identifier when the Status is
+        'Pending'. When sent, the Identifier shall contain:
+        * Key Attributes with values corresponding to Key Attributes contained
+        in the Identifier of the request.
+        * (0008,0052) Query/Retrieve Level.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+        character sets may be used in any of the Attributes in the response
+        Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
+        response Identifier are to be interpreted explicitly in the designated
+        local time zone. It shall not be present otherwise.
 
-        Unique Keys
-        -----------
-        At each level in the Entity-Relationship Model (ERM), one Attribute
-        shall be defined as a Unique Key. A single value in a Unique Key
-        Attribute shall uniquely identify a single entity at a given level (ie
-        two entities at the same level may not have the same Unique Key value).
+        The C-FIND response Identifier shall also contain either or both of:
+        * (0008,0130) Storage Media File-Set ID and (0088,0140) Storage Media
+        File-Set UID.
+        * (0008,0054) Retrieve AE Title.
 
-        All entities managed by C-FIND SCPs shall have a specific non-zero
-        length Unique Key value.
-
-        Unique Keys may be contained in the Identifier of a C-FIND request.
-
-        Required Keys
-        -------------
-        At each level in the ERM, a set of Attributes shall be defined as
-        Required Keys. Required Keys imply the SCP of a C-FIND shall support
-        matching based on a value contained in a Required Key of the C-FIND
-        required. Multiple entities may have the same value for Required Keys.
-
-        C-FIND SCPs shall support existence and matching of all Required Keys
-        defined by a QR Information Model. If a C-FIND SCP manages an entity
-        with a Required Key of zero length, the value is considered unknown
-        and all matching against the zero length Required Key shall be
-        considered a successful match.
-
-        Required Keys may be contained in the Identifier of a C-FIND request.
-
-        Optional Keys
-        -------------
-        At each level in the ERM, a set of Attributes shall be defined as
-        Optional Keys. Optional Keys may have three different types of
-        behaviour depending on support for existence and/or matching by the
-        C-FIND SCP.
-        1. If the SCP doesnt support the existence of the Optional Key, then
-           the Attribute shall not be returned in C-FIND responses
-        2. If the SCP supports existence of the Optional Key but does not
-           support matching on the Optional Key, then the Optional Key shall be
-           processed in the same manner as a zero length Required Key.
-        3. If the SCP supports both the existence and matching of the Optional
-           Key, then the Key shall be processed in the same manner as a Required
-           Key.
-
-        Optional Keys may be contained in the Identifier of a C-FIND request.
-
-        Attribute Matching
-        ==================
-        The following types of matching may be performed on Key Attributes:
-        * Single Value
-        * List of UID
-        * Universal
-        * Wild Card
-        * Range
-        * Sequence
-
-        Matching requires special characters (*, ?, -, =, \) which need not be
-        part of the character repertoire for the VR of the Key Attribute
-
-        The total length of the Key Attribute may exceed the length as specified
-        in the VR in PS3.5. The VM may be larger than that specified in PS3.6.
-
-        Single Value Matching
-        ---------------------
-        single value matching shall be performed if the value specified for a
-        Key Attribute in a request is non-zero length and it is:
-        a. Not a date or time or datetime and contains not wild card characters
-        b. A date or time or datetime and contains a single date or time or
-           datetime with no '-'.
-
-        Except for Attributes with a PN VR, only entites with values that
-        exactly match are included. Matching is case-sensitive.
-
-        For PN VRs, an application may perform literal matching that is either
-        case-sensitive or that is insensitive to some or all aspects of case,
-        position, accent or other character encoding variants
-
-        Blah blah, this is user implementation stuff
-
-        ...
-
-        Three standard QR Information Models are defined:
-        * Patient Root
-        * Study Root
-        * Patient/Study Only
-
-        Patient Root QR Information Model
-        ---------------------------------
-        The Patient Root is based on a four level hierarchy: Patient, Study,
-        Series, Composite Object Instance.
-
-        The Patient level is the top level and contains Attributes associated
-        with the Patietn Information Entity of the Composite IODs (PS3.3).
-        Patient IEs are modality independent.
-
-        The Study level contains Attributes associated with the Series, Frame of
-        Reference and Equipment IEs of the Composite IODs. A series belongs
-        to a single study, which may have multiple series. Series IEs are
-        modality dependant.
-
-        The Composite Object Instance level contains Attributes associated with
-        the Composite object IE of the Composite IODs. A Composite Object
-        Instance belongs to a single series, which may have multiple Composite
-        Object Instances.
-
-        Study Root
-        ----------
-        The Study Root is identical to the Patient Root except the top level is
-        the Study level. Attributes of patients are considered to be Attributes
-        of studies
-
-        Patient/Study Root
-        ------------------
-        Retired (PS3.4-2004)
+        The C-FIND response Identifier may also (but is not required to) include
+        the (0008,0056) Instance Availability element.
 
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
-            The C_FIND request primitive received from the peer
+            The C_FIND request primitive received from the peer.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C.
+        DICOM Standard Part 7, Section 9.1.2 and Annex C.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
-        # Check the identifier SOP Class UID matches the one agreed to
+        # Check the Identifier's SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
-            LOGGER.error("Find request's Identifier UID does not match the "
+            LOGGER.error("C-FIND request's SOP Class UID does not match the "
                          "presentation context")
             # Failure - Identifier Does Not Match SOP Class
             rsp.Status = 0xA900
@@ -622,9 +428,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             return
 
         try:
-            dataset = decode(msg.Identifier,
-                             self.transfersyntax.is_implicit_VR,
-                             self.transfersyntax.is_little_endian)
+            identifier = decode(msg.Identifier,
+                                self.transfersyntax.is_implicit_VR,
+                                self.transfersyntax.is_little_endian)
         except:
             LOGGER.error("Failed to decode the received Identifier dataset")
             # Failure - Unable to Process - Failed to decode Identifier
@@ -637,11 +443,11 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.info('Find SCP Request Identifiers:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Data Set')
-            for elem in dataset:
+            for elem in identifier:
                 LOGGER.info(elem)
             LOGGER.info('')
         except (AttributeError, NotImplementedError, TypeError):
-            LOGGER.error("Failed to decode the received Identifier dataset")
+            LOGGER.error("Failed to decode the received Identifier dataset.")
             # Failure - Unable to Process - Failed to decode Identifier
             rsp.Status = 0xC000
             self.DIMSE.send_msg(rsp, self.pcid)
@@ -649,20 +455,21 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         # Callback - C-FIND
         try:
-            result = self.AE.on_c_find(dataset)
-        except:
-            LOGGER.exception("Exception in user's on_c_find implementation.")
+            result = self.AE.on_c_find(identifier)
+        except Exception as ex:
+            LOGGER.error("Exception in user's on_c_find implementation.")
+            LOGGER.exception(ex)
             # Failure - Unable to Process - Error in on_c_find callback
             rsp.Status = 0xC001
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Iterate through the results
-        for ii, (rsp_status, rsp_ds) in enumerate(result):
+        for ii, (rsp_status, rsp_identifier) in enumerate(result):
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
-
             status = Status(rsp.Status, *self.statuses[rsp.Status])
+
             if status.category == 'Cancel':
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info('Find SCP Response: (Cancel)')
@@ -678,7 +485,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             else: # Pending
-                ds = BytesIO(encode(rsp_ds,
+                ds = BytesIO(encode(rsp_identifier,
                                     self.transfersyntax.is_implicit_VR,
                                     self.transfersyntax.is_little_endian))
 
@@ -693,9 +500,6 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
                 rsp.Identifier = ds
 
-                # Send Pending response
-                rsp.Status = 0xFF00
-
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
 
                 self.DIMSE.send_msg(rsp, self.pcid)
@@ -703,7 +507,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.debug('Find SCP Response Identifiers:')
                 LOGGER.debug('')
                 LOGGER.debug('# DICOM Dataset')
-                for elem in rsp_ds:
+                for elem in rsp_identifier:
                     LOGGER.debug(elem)
                 LOGGER.debug('')
 
@@ -1156,7 +960,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status.category == 'Failure':
-                # Pass along the status from the user
+                # Pass along the status from the user - FIXME
                 rsp.Status = int(usr_status)
                 LOGGER.info('Get SCP Response: (Failure - %s)',
                             usr_status.description)
@@ -1275,38 +1079,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             return None
 
         return no_remaining
-
-    def _get_status(self, ds, rsp):
-        """Check the callback's returned status dataset and set rsp.Status."""
-        # Check the callback's returned Status dataset
-        if isinstance(ds, Dataset) and 'Status' in ds:
-            # Check returned dataset Status element value is OK
-            if int(ds.Status) not in self.statuses:
-                LOGGER.error("Status dataset yielded by on_c_get callback "
-                             "contains a Status element with an unknown value: "
-                             "0x{0:04x}.".format(ds.Status))
-                # Failure: Unable to Process - Invalid Status returned
-                rsp.Status = 0xC002
-                return rsp
-
-            # For the elements in the status dataset, try and set the
-            #   corresponding response primitive attribute
-            for elem in ds:
-                if hasattr(rsp, elem.keyword):
-                    setattr(rsp, elem.keyword, elem.value)
-                else:
-                    LOGGER.warning("Status dataset yielded by on_c_get "
-                                   "callback contained an unsupported "
-                                   "Element '{}'.".format(elem.keyword))
-        else:
-            LOGGER.error("Callback yielded an invalid status "
-                         "(should be a pydicom Dataset with a Status "
-                         "element).")
-            # Failure: Unable to Process - callback didn't yield/return
-            #   a pydicom.dataset.Dataset with a Status element.
-            rsp.Status = 0xC003
-
-        return rsp
 
     def _get_store_status(self, ds):
         """Check the on_c_store's returned status dataset and set rsp.Status."""

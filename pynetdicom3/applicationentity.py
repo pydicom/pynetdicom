@@ -853,13 +853,13 @@ class ApplicationEntity(object):
         References
         ----------
         DICOM Standard Part 4, Annex A
-        DICOM Standard Part 7, Section 9.1.5.1.4 and Annex C
+        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
         """
         # User implementation of on_c_echo is optional
         return 0x0000
 
     def on_c_store(self, dataset):
-        """Callback for when a `dataset` is received following a C-STORE request.
+        """Callback for C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
         either an int or a pydicom Dataset containing a Status element with a
@@ -915,13 +915,13 @@ class ApplicationEntity(object):
         References
         ----------
         DICOM Standard Part 4, Annex B
-        DICOM Standard Part 7, Section 9.1.1.1.9 and Annex C 
+        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
     def on_c_find(self, dataset):
-        """Callback for when an C-FIND Identifier `dataset` is received.
+        """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
         a status and dataset. In addition, the AE.on_c_find_cancel() callback
@@ -968,7 +968,8 @@ class ApplicationEntity(object):
             7, Annex C).
         dataset : pydicom.dataset.Dataset or None
             The matching Identifier dataset if the status is 'Pending', None
-            otherwise.
+            otherwise. The exact requirements for the C-FIND response Identifier
+            dataset are Service Class specific (see the DICOM Standard, Part 4).
 
         See Also
         --------
@@ -979,13 +980,13 @@ class ApplicationEntity(object):
         References
         ----------
         DICOM Standard Part 4, Annex C
-        DICOM Standard Part 7, Section 9.1.2 and Annex C
+        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
 
     def on_c_find_cancel(self):
-        """Callback for when a C-FIND-CANCEL is received.
+        """Callback for when a C-FIND-CANCEL request is received.
 
         Returns
         -------
@@ -997,12 +998,22 @@ class ApplicationEntity(object):
                                   "calling AE.start()")
 
     def on_c_get(self, dataset):
-        """Callback for when a dataset is received following a C-STORE.
+        """Callback for when an C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
         a int containing the total number of matches, then yield statuses and
         datasets. In addition,the AE.on_c_get_cancel() callback must also be
         defined.
+
+        Usage
+        -----
+        The peer AE sends an Identifier `dataset` containing Attributes that
+        should be used to match against locally available SOP Instances. For
+        each match you should first yield the number of C-STORE sub-operations
+        that will be invoked (typically one for each matching SOP Instance),
+        then yield a 'Pending' status and a matching Identifier dataset.
+        Once all matches are complete then a 'Success' status will be
+        automatically sent.
 
         Status
         ------
@@ -1026,7 +1037,7 @@ class ApplicationEntity(object):
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent via the C-STORE
+            The DICOM Identifier dataset sent via the C-GET
 
         Yields
         ------
@@ -1034,26 +1045,38 @@ class ApplicationEntity(object):
             The first yielded value should be the total number of matches, after
             that user should yield a status, dataset pair.
         status : pydicom.dataset.Dataset or int
-            A valid return status for the C-GET operation (see PS3.4 Annex
-            C.4.3.1.4), must be one of the following Status objects or the
-            corresponding integer value. A Status of Success (0x0000) will be
-            automatically sent once all matches are processing if no Cancel or
-            Failure statuses are yielded:
-            
+            A valid C-GET/Query/Retrieve Service Class status value as either
+            an int or a Dataset object containing (at a minimum) a Status
+            element. If returning a Dataset object then it may also contain
+            optional elements related to the Status (as in DICOM Standard Part
+            7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            A matching dataset if the status is Pending, None otherwise.
+            The matching Identifier dataset if the status is Pending, None
+            otherwise.
+
+        See Also
+        --------
+        pynetdicom3.sop_class.QueryRetrieveGetServiceClass
+        pynetdicom3.association.send_c_get
+        pynetdicom3.association.send_c_store
+        pynetdicom3.dimse_primitives.C_GET
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
 
     def on_c_get_cancel(self):
-        """Callback for when a C-GET-CANCEL is received."""
+        """Callback for when a C-GET-CANCEL request is received."""
         raise NotImplementedError("User must implement the "
                                   "AE.on_c_get_cancel function prior to "
                                   "calling AE.start()")
 
     def on_c_move(self, dataset, move_aet):
-        """Callback for when a dataset is received following a C-STORE.
+        """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
         a valid status. In addition,the AE.on_c_move_cancel() callback must
@@ -1094,7 +1117,7 @@ class ApplicationEntity(object):
                                   "function prior to calling AE.start()")
 
     def on_c_move_cancel(self):
-        """Callback for when a C-MOVE-CANCEL is received."""
+        """Callback for when a C-MOVE-CANCEL request is received."""
         raise NotImplementedError("User must implement the "
                                   "AE.on_c_move_cancel function prior to "
                                   "calling AE.start()")
