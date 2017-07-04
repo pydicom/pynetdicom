@@ -827,6 +827,10 @@ class ApplicationEntity(object):
 
         Statuses
         --------
+        The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
+        status "shall have a value of Success", however Section 9.1.5.1.4 states
+        that the status of the response may have any of the following values:
+
         Success
             0x000 - Success
         Failure

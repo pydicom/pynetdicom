@@ -1461,8 +1461,8 @@ class C_ECHO(object):
         else:
             raise TypeError("'C_ECHO.Status' must be an int.")
 
-        if value not in VERIFICATION_SERVICE_CLASS_STATUS and value is not None:
-            LOGGER.warning("Unknown C-ECHO Status 0x{0:04x}".format(value))
+        #if value not in VERIFICATION_SERVICE_CLASS_STATUS and value is not None:
+        #    LOGGER.warning("Unknown C-ECHO Status value - 0x{0:04x}".format(value))
 
     @property
     def is_valid_request(self):

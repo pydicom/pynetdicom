@@ -91,7 +91,6 @@ class ServiceClass(object):
         # New method?
         self.presentation_context = None
 
-    @property
     def is_valid_status(self, status):
         """Return True if `status` is valid for the service class.
 
@@ -110,7 +109,7 @@ class ServiceClass(object):
 
         return False
 
-    def validate_status(status, rsp):
+    def validate_status(self, status, rsp):
         """Validate `status` and set `rsp.Status` accordingly.
 
         Parameters
@@ -183,6 +182,10 @@ class VerificationServiceClass(ServiceClass):
 
         Status
         ~~~~~~
+        The DICOM Standard Part 7, Table 9.3-13 indicates that the Status value
+        of a C-ECHO response "shall have a value of Success". However Section
+        9.1.5.1.4 indicates it may have any of the following values:
+
         Success
             0x000 - Success
         Failure
@@ -234,9 +237,9 @@ class VerificationServiceClass(ServiceClass):
                 raise TypeError("Invalid status returned by 'on_c_echo'")
 
             # Check Status validity
-            if not is_valid_status(rsp.Status):
-                raise ValueError("Invalid status value returned by "
-                                 "'on_c_echo'")
+            if not self.is_valid_status(rsp.Status):
+                LOGGER.warning("Unknown status value returned by 'on_c_echo' "
+                               "callback - 0x{0:04x}".format(rsp.Status))
         except Exception as ex:
             LOGGER.error("Exception in the 'on_c_echo' callback.")
             LOGGER.exception(ex)

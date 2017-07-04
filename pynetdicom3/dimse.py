@@ -764,7 +764,6 @@ class DIMSEServiceProvider(object):
         TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
-        status = code_to_status(cs.Status)
         # Status is one of the following:
         #   0x0000 Success
         #   0x0122 Refused: SOP Class Not Supported
@@ -772,11 +771,9 @@ class DIMSEServiceProvider(object):
         #   0x0212 Refused: Mistyped Argument
         #   0x0211 Refused: Unrecognised Operation
         if cs.Status == 0x0000:
-            status_str = '{}'.format(status.category)
+            status_str = 'Success'
         else:
-            status_str = '0x{0:04x} - {1} {2}'.format(int(status),
-                                             status.category,
-                                             status.description)
+            status_str = '0x{0:04x} - Unknown'.format(cs.Status)
         LOGGER.info("Received Echo Response (Status: {})".format(status_str))
 
     @staticmethod
