@@ -644,6 +644,15 @@ class Association(threading.Thread):
     def send_c_echo(self, msg_id=1):
         """Send a C-ECHO request to the peer AE.
 
+        Example
+        -------
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        >>>     status = assoc.send_c_echo()
+        >>>     
+        >>>     if status:
+        >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
+
         Parameters
         ----------
         msg_id : int, optional
@@ -652,9 +661,10 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If a response was received from the peer then returns a pydicom
-            Dataset containing at least a (0000,0900) Status element,
-            and depending on the returned Status value may optionally contain
+            If the peer timed out or sent an invalid response then returns an
+            empty Dataset. If a valid response was received from the peer then
+            returns a Dataset containing at least a (0000,0900) Status element,
+            and, depending on the returned Status value, may optionally contain
             additional elements (see PS3.7 9.1.5.1.4 and Annex C).
 
             The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
@@ -713,85 +723,30 @@ class Association(threading.Thread):
         self.dimse.send_msg(primitive, context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
-        status = None
+        status = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
-            self.abort()
         elif rsp.is_valid_response:
-            status = Dataset()
             status.Status = rsp.Status
             if getattr(rsp, 'ErrorComment') is not None:
                 status.ErrorComment = rsp.ErrorComment
         else:
             LOGGER.error('Received an invalid C-ECHO response from the peer')
-            self.abort()
 
         return status
 
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """Send a C-STORE request to the peer AE.
 
-        PS3.4 Annex B
-
-        Service Definition
-        ==================
-        Two peer DICOM AEs implement a SOP Class of the Storage Service Class
-        with one serving in the SCU role and one service in the SCP role.
-        SOP Classes are implemented using the C-STORE DIMSE service. A
-        successful completion of the C-STORE has the following semantics:
-        - Both the SCU and SCP support the type of information to be stored
-        - The information is stored in some medium
-        - For some time frame, the information may be accessed
-
-        (For JPIP Referenced Pixel Data transfer syntaxes, transfer may result
-        in storage of incomplete information in that the pixel data may be
-        partially or completely transferred by some other mechanism at the
-        discretion of the SCP)
-
-        Extended Negotiation
-        ====================
-        Extended negotiation is optional, however SCUs requesting association
-        may include:
-        - one SOP Class Extended Negotiation Sub-Item for each supported SOP
-        Class of the Storage Service Class, as described in PS3.7 Annex D.3.3.5.
-        - one SOP Class Common Extended Negotiation Sub-Item for each supported
-        SOP Class of the Storage Service Class, as described in PS3.7 Annex
-        D.3.3.6
-
-        The SCP accepting association shall optionally support:
-        - one SOP Class Extended Negotiation Sub-Item for each supported SOP
-        Class of the Storage Service Class, as described in PS3.7 Annex D.3.3.5.
-
-        Use of Extended Negotiation is left up to the end user to implement via
-        the ``AE.extended_negotiation`` attribute.
-
-
-        SOP Class Extended Negotiation
-        ------------------------------
-        Service Class Application Information (A-ASSOCIATE-RQ)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        PS3.4 Table B.3-1 shows the format of the SOP Class Extended Negotiation
-        Sub-Item's service-class-application-information field when requesting
-        association.
-
-        Service Class Application Information (A-ASSOCIATE-AC)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        PS3.4 Table B.3-2 shows the format of the SOP Class Extended Negotiation
-        Sub-Item's service-class-application-information field when accepting
-        association.
-
-        SOP Class Common Extended Negotiation
-        -------------------------------------
-        Service Class UID
-        ~~~~~~~~~~~~~~~~~
-        The SOP-class-uid field of the SOP Class Common Extended Negotiation
-        Sub-Item shall be 1.2.840.10008.4.2
-
-        Related General SOP Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        PS3.4 Table B.3-3 identifies the Standard SOP Classes that participate
-        in this mechanism. If a Standard SOP Class is not listed, then Related
-        General SOP Classes shall not be included.
+        Example
+        -------
+        >>> ds = read_file('file-in.dcm')
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        >>>     status = assoc.send_c_store(ds)
+        >>>     
+        >>>     if status:
+        >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
 
         Parameters
         ----------
@@ -808,12 +763,11 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            Returns None if no valid presentation context, no response
-            from the peer or if couldn't encode the supplied `dataset`. If a
-            response was received from the peer then returns a pydicom Dataset
-            containing at least a (0000,0900) Status element, and depending on
-            the returned Status value may optionally contain additional elements
-            (see PS3.7 9.1.1.1.9 and Annex C).
+            If the peer timed out or sent an invalid response then returns an
+            empty Dataset. If a valid response was received from the peer then
+            returns a Dataset containing at least a (0000,0900) Status element,
+            and depending on the returned Status value may optionally contain
+            additional elements (see PS3.7 9.1.1.1.9 and Annex C).
 
             The status for the requested C-STORE operation (see PS3.4 Annex
             B.2.3), should be one of the following Status objects/codes:
@@ -845,7 +799,8 @@ class Association(threading.Thread):
         AttributeError
             If `dataset` contains no (0008,0016) SOP Class UID element.
         ValueError
-            If no accepted Presentation Context for `dataset` exists.
+            If no accepted Presentation Context for `dataset` exists or if
+            we failed to encode the `dataset`.
 
         See Also
         --------
@@ -910,23 +865,18 @@ class Association(threading.Thread):
         else:
             # If we failed to encode our dataset
             LOGGER.error("Failed to encode the supplied Dataset")
-            status = Dataset()
-            status.Status = 0xC100
-            return status
+            raise ValueError('Failed to encode the supplied Dataset')
 
         # Send C-STORE request primitive to DIMSE
         self.dimse.send_msg(primitive, context_id)
 
-        # Wait for C-STORE response primitive
-        #   returns a C_STORE primitive or None
+        # Waits for a response, returns a C_STORE primitive or None
         rsp, _ = self.dimse.receive_msg(wait=True)
 
-        status = None
+        status = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
-            self.abort()
         elif rsp.is_valid_response:
-            status = Dataset()
             status.Status = rsp.Status
             if getattr(rsp, 'ErrorComment') is not None:
                 status.ErrorComment = rsp.ErrorComment
@@ -934,7 +884,6 @@ class Association(threading.Thread):
                 status.OffendingElement = rsp.OffendingElement
         else:
             LOGGER.error('Received an invalid C-STORE response from the peer')
-            self.abort()
 
         return status
 
