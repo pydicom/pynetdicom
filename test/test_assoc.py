@@ -43,6 +43,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -546,6 +547,26 @@ class TestAssociationSendCEcho(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         self.assertRaises(ValueError, assoc.send_c_echo)
+        assoc.release()
+        scp.stop()
+
+    def test_status_ds_multi(self):
+        """Test successful c-echo"""
+        def on_c_echo():
+            ds = Dataset()
+            ds.Status = 0x0122
+            ds.ErrorComment = 'Some comment'
+            return ds
+        
+        scp = DummyVerificationSCP()
+        scp.ae.on_c_echo = on_c_echo
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_echo()
+        self.assertEqual(result.Status, 0x0122)
+        self.assertEqual(result.ErrorComment, 'Some comment')
         assoc.release()
         scp.stop()
 

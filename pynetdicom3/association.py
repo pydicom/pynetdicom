@@ -651,21 +651,23 @@ class Association(threading.Thread):
 
         Returns
         -------
-        status : pydicom.dataset.Dataset or None
-            Returns None if no valid presentation context or no response
-            from the peer. If a response was received from the peer then returns
-            a pydicom Dataset containing at least a (0000,0900) Status element,
+        status : pydicom.dataset.Dataset
+            If a response was received from the peer then returns a pydicom
+            Dataset containing at least a (0000,0900) Status element,
             and depending on the returned Status value may optionally contain
             additional elements (see PS3.7 9.1.5.1.4 and Annex C).
 
-            General C-ECHO (PS3.7 9.1.5.1.4 and Annex C) Status values:
-                Success
-                    * 0x0000 - Success
-                Failure
-                    * 0x0122 - Refused: SOP class not supported
-                    * 0x0210 - Refused: Duplicate invocation
-                    * 0x0211 - Refused: Unrecognised operation
-                    * 0x0212 - Refused: Mistyped argument
+            The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
+            value of a C-ECHO response "shall have a value of Success". However
+            Section 9.1.5.1.4 indicates it may have any of the following values:
+
+            Success
+                * 0x0000 - Success
+            Failure
+                * 0x0122 - Refused: SOP class not supported
+                * 0x0210 - Refused: Duplicate invocation
+                * 0x0211 - Refused: Unrecognised operation
+                * 0x0212 - Refused: Mistyped argument
 
         Raises
         ------
@@ -679,6 +681,9 @@ class Association(threading.Thread):
         pynetdicom3.dimse_primitives.C_ECHO
         pynetdicom3.applicationentity.on_c_echo
         pynetdicom3.sop_class.VerificationServiceClass
+
+        References
+        ----------
         DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
         DICOM Standard Part 4, Annex A
         """
