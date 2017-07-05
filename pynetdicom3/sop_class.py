@@ -520,18 +520,23 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         for ii, (rsp_status, rsp_identifier) in enumerate(result):
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
-            status = Status(rsp.Status, *self.statuses[rsp.Status])
 
-            if status.category == 'Cancel':
+            if rsp.Status in self.statuses:
+                status = self.statuses[rsp.Status]
+            else: # Unknown status
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+
+            if status[0] == 'Cancel':
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info('Find SCP Response: (Cancel)')
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status.category == 'Failure':
-                LOGGER.info('Find SCP Response: (Failure - %s)', status.description)
+            elif status[0] == 'Failure':
+                LOGGER.info('Find SCP Resp onse: (Failure - %s)', status[1])
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status.category == 'Success':
+            elif status[0] == 'Success':
                 # User isn't supposed to send these, but handle anyway
                 LOGGER.info('Find SCP Response: (Success)')
                 self.DIMSE.send_msg(rsp, self.pcid)

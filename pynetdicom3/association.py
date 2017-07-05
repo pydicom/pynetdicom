@@ -673,8 +673,8 @@ class Association(threading.Thread):
               * 0x0211 - Refused: Unrecognised operation
               * 0x0212 - Refused: Mistyped argument
 
-            However, as the actual status depends on the peer SCP, it shouldn't
-            be assumed that it will be one of these.
+            As the actual status depends on the peer SCP, it shouldn't be
+            assumed that it will be one of these.
 
         Raises
         ------
@@ -685,9 +685,9 @@ class Association(threading.Thread):
 
         See Also
         --------
-        dimse_primitives.C_ECHO
         applicationentity.ApplicationEntity.on_c_echo
         sop_class.VerificationServiceClass
+        dimse_primitives.C_ECHO
 
         References
         ----------
@@ -737,12 +737,14 @@ class Association(threading.Thread):
         status = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
+            self.abort()
         elif rsp.is_valid_response:
             status.Status = rsp.Status
             if getattr(rsp, 'ErrorComment') is not None:
                 status.ErrorComment = rsp.ErrorComment
         else:
             LOGGER.error('Received an invalid C-ECHO response from the peer')
+            self.abort()
 
         return status
 
@@ -815,9 +817,9 @@ class Association(threading.Thread):
 
         See Also
         --------
-        dimse_primitives.C_STORE
         applicationentity.ApplicationEntity.on_c_store
         sop_class.StorageServiceClass
+        dimse_primitives.C_STORE
 
         References
         ----------
@@ -891,6 +893,7 @@ class Association(threading.Thread):
         status = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
+            self.abort()
         elif rsp.is_valid_response:
             status.Status = rsp.Status
             if getattr(rsp, 'ErrorComment') is not None:
@@ -899,6 +902,7 @@ class Association(threading.Thread):
                 status.OffendingElement = rsp.OffendingElement
         else:
             LOGGER.error('Received an invalid C-STORE response from the peer')
+            self.abort()
 
         return status
 
@@ -991,9 +995,9 @@ class Association(threading.Thread):
 
         See Also
         --------
-        dimse_primitives.C_FIND
         applicationentity.ApplicationEntity.on_c_find
         sop_class.QueryRetrieveFindServiceClass
+        dimse_primitives.C_FIND
 
         References
         ----------
@@ -1086,6 +1090,8 @@ class Association(threading.Thread):
                 status.ErrorComment = rsp.ErrorComment
             if getattr(rsp, 'ErrorID') is not None:
                 status.ErrorID = rsp.ErrorID
+            if getattr(rsp, 'AffectedSOPInstanceUID') is not None:
+                status.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
 
             if status.Status in [0xFF00, 0xFF01]:
                 status_category = 'Pending'

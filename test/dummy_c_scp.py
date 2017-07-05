@@ -189,17 +189,22 @@ class DummyFindSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
-        if not isinstance(self.status, Status):
-            yield self.status, None
-            return
-        
-        if self.status.category != 'Pending':
-            yield self.status, None
 
         if self.cancel:
-            yield self.matching_terminated_cancel, None
+            yield 0xFE00, None
 
-        yield self.status, ds
+        if isinstance(self.status, Dataset):
+            if self.status.Status in [0xFF00, 0xFF01]:
+                yield self.status, ds
+            else:
+                yield self.status, None
+        elif isinstance(self.status, int):
+            if self.status in [0xFF00, 0xFF01]:
+                yield self.status, ds
+            else:
+                yield self.status, None
+        else:
+            yield 0xC000, None
 
     def on_c_cancel_find(self):
         """Callback for ae.on_c_cancel_find"""

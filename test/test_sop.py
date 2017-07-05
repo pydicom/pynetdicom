@@ -9,7 +9,7 @@ from pydicom.dataset import Dataset
 
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_ECHO
-from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP
+from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, DummyFindSCP
 from pynetdicom3.sop_class import (Status, uid_to_sop_class,
                                    VerificationServiceClass,
                                    StorageServiceClass,
@@ -18,10 +18,12 @@ from pynetdicom3.sop_class import (Status, uid_to_sop_class,
                                    QueryRetrieveMoveServiceClass,
                                    ModalityWorklistServiceSOPClass,
                                    VerificationSOPClass,
-                                   CTImageStorage)
+                                   CTImageStorage,
+                                   PatientRootQueryRetrieveInformationModelFind)
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -216,21 +218,6 @@ class TestStorageServiceClass(unittest.TestCase):
     def test_scp_callback_return_int(self):
         """Test on_c_echo returning an int status"""
         scp = DummyStorageSCP()
-        scp.status = 0x0002
-        scp.start()
-
-        ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0x0002)
-        self.assertFalse('ErrorComment' in rsp)
-        assoc.release()
-        scp.stop()
-
-    def test_scp_callback_return_valid(self):
-        """Test on_c_store returning a valid status"""
-        scp = DummyStorageSCP()
         scp.status = 0x0000
         scp.start()
 
@@ -239,6 +226,21 @@ class TestStorageServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         rsp = assoc.send_c_store(DATASET)
         self.assertEqual(rsp.Status, 0x0000)
+        self.assertFalse('ErrorComment' in rsp)
+        assoc.release()
+        scp.stop()
+
+    def test_scp_callback_return_invalid(self):
+        """Test on_c_store returning a valid status"""
+        scp = DummyStorageSCP()
+        scp.status = 0xFFF0
+        scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        rsp = assoc.send_c_store(DATASET)
+        self.assertEqual(rsp.Status, 0xFFF0)
         assoc.release()
         scp.stop()
 
@@ -273,9 +275,123 @@ class TestStorageServiceClass(unittest.TestCase):
 
 
 class TestQRFindServiceClass(unittest.TestCase):
-    def test_scp(self):
-        """Test SCP"""
-        pass
+    """Test the QueryRetrieveFindServiceClass"""
+    def setUp(self):
+        """Run prior to each test"""
+        self.query = Dataset()
+        self.query.PatientName = '*'
+        self.query.QueryRetrieveLevel = "PATIENT"
+
+    def test_scp_callback_return_dataset(self):
+        """Test on_c_find returning a Dataset status"""
+        scp = DummyFindSCP()
+        scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+
+        assoc.release()
+        scp.stop()
+
+    def test_scp_callback_return_dataset_multi(self):
+        """Test on_c_store returning a Dataset status with other elements"""
+        scp = DummyFindSCP()
+        scp.status = Dataset()
+        scp.status.Status = 0xFF00
+        scp.status.ErrorComment = 'Test'
+        scp.status.OffendingElement = 0x00010001
+        scp.status.ErrorID = 12
+        scp.status.AffectedSOPInstanceUID = '1.2'
+        scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(status.ErrorComment, 'Test')
+        self.assertEqual(status.OffendingElement, 0x00010001)
+        self.assertEqual(status.ErrorID, 12)
+        self.assertEqual(status.AffectedSOPInstanceUID, '1.2')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+
+        assoc.release()
+        scp.stop()
+
+    def test_scp_callback_return_int(self):
+        """Test on_c_find returning an int status"""
+        scp = DummyFindSCP()
+        scp.status = 0xFF00
+        scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+
+        assoc.release()
+        scp.stop()
+
+    def test_scp_callback_return_invalid(self):
+        """Test on_c_store returning a invalid status"""
+        scp = DummyFindSCP()
+        scp.status = 0xFFF0
+        scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFFF0)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        scp.stop()
+
+    def test_scp_callback_no_status(self):
+        """Test on_c_store not returning a status"""
+        scp = DummyFindSCP()
+        scp.status = None
+        scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC000)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        scp.stop()
+
+    def test_scp_callback_exception(self):
+        """Test on_c_store raising an exception"""
+        scp = DummyFindSCP()
+        def on_c_find(ds): raise ValueError
+        scp.ae.on_c_find = on_c_find
+        scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC001)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        scp.stop()
 
 
 class TestQRGetServiceClass(unittest.TestCase):

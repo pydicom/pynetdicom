@@ -535,7 +535,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
-        self.assertTrue(result is None)
+        self.assertEqual(result, Dataset())
         self.assertTrue(assoc.is_aborted)
         scp.stop()
 
@@ -582,8 +582,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         DATASET.PerimeterValue = b'\x00\x01'
-        result = assoc.send_c_store(DATASET)
-        self.assertEqual(result.Status, 0xC100)
+        self.assertRaises(ValueError, assoc.send_c_store, DATASET)
         assoc.release()
         del DATASET.PerimeterValue # Fix up our changes
         scp.stop()
@@ -616,14 +615,13 @@ class TestAssociationSendCStore(unittest.TestCase):
         scp.stop()
 
     def test_bad_priority(self):
-        """Test bad priority gets reset"""
+        """Test bad priority raises exception"""
         scp = DummyStorageSCP()
         scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_store(DATASET, priority=0x0003)
-        self.assertEqual(result.Status, 0x0000)
+        self.assertRaises(ValueError, assoc.send_c_store, DATASET, priority=0x0003)
         assoc.release()
         scp.stop()
 
@@ -797,8 +795,11 @@ class TestAssociationSendCFind(unittest.TestCase):
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        for (status, ds) in assoc.send_c_find(self.ds):
-            self.assertEqual(int(status), 0xA900)
+
+        def test():
+            next(assoc.send_c_find(self.ds))
+
+        self.assertRaises(ValueError, test)
         assoc.release()
         scp.stop()
 
@@ -826,13 +827,13 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='S'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='O'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='W'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         assoc.release()
         scp.stop()
 
@@ -845,7 +846,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xA700)
+            self.assertEqual(status.Status, 0xA700)
         assoc.release()
         scp.stop()
 
@@ -859,10 +860,10 @@ class TestAssociationSendCFind(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_find(self.ds, query_model='P')
         (status, ds) = next(result)
-        self.assertEqual(int(status), 0xFF00)
+        self.assertEqual(status.Status, 0xFF00)
         self.assertTrue('PatientName' in ds)
         (status, ds) = next(result)
-        self.assertEqual(int(status), 0x0000)
+        self.assertEqual(status.Status, 0x0000)
         self.assertTrue(ds is None)
         assoc.release()
         scp.stop()
@@ -876,7 +877,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         assoc.release()
         scp.stop()
 
@@ -889,7 +890,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xFE00)
+            self.assertEqual(status.Status, 0xFE00)
         assoc.release()
         scp.stop()
 
@@ -903,20 +904,20 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC001)
+            self.assertEqual(status.Status, 0xC001)
         assoc.release()
         scp.stop()
 
     def test_bad_user_on_c_find_status(self):
         """Test exception raised by bad on_c_find"""
         scp = DummyFindSCP()
-        scp.status = scp.bad_status
+        scp.status = 0xFFF0
         scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC002)
+            self.assertEqual(status.Status, 0xFFF0)
         assoc.release()
         scp.stop()
 
@@ -929,7 +930,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC004)
+            self.assertTrue(status.Status in range(0xC000, 0xD000))
         assoc.release()
         scp.stop()
 
@@ -948,7 +949,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            self.assertEqual(int(status), 0xC004)
+            self.assertTrue(status.Status in range(0xC000, 0xD000))
         assoc.release()
         scp.stop()
 

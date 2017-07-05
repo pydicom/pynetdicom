@@ -588,9 +588,6 @@ class C_FIND(object):
         else:
             raise TypeError("'C_FIND.Status' must be an int.")
 
-        if value not in QR_FIND_SERVICE_CLASS_STATUS and value is not None:
-            LOGGER.warning("Unknown C-FIND Status 0x{0:04x}".format(value))
-
     @property
     def is_valid_request(self):
         """Return True if the required parameters for a C-ECHO RQ are set."""
