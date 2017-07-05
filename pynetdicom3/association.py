@@ -652,6 +652,8 @@ class Association(threading.Thread):
         >>>     
         >>>     if status:
         >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
+        >>>     
+        >>>     assoc.release()
 
         Parameters
         ----------
@@ -678,6 +680,9 @@ class Association(threading.Thread):
                 * 0x0210 - Refused: Duplicate invocation
                 * 0x0211 - Refused: Unrecognised operation
                 * 0x0212 - Refused: Mistyped argument
+
+            However, as the actual status depends on the peer SCP, it shouldn't
+            be assumed that it will be one of these.
 
         Raises
         ------
@@ -747,6 +752,8 @@ class Association(threading.Thread):
         >>>     
         >>>     if status:
         >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
+        >>>     
+        >>>     assoc.release()
 
         Parameters
         ----------
@@ -766,11 +773,11 @@ class Association(threading.Thread):
             If the peer timed out or sent an invalid response then returns an
             empty Dataset. If a valid response was received from the peer then
             returns a Dataset containing at least a (0000,0900) Status element,
-            and depending on the returned Status value may optionally contain
-            additional elements (see PS3.7 9.1.1.1.9 and Annex C).
+            and, depending on the returned Status value, may optionally contain
+            additional elements (see DICOM Standard Part 7, Annex C).
 
-            The status for the requested C-STORE operation (see PS3.4 Annex
-            B.2.3), should be one of the following Status objects/codes:
+            The status for the requested C-STORE operation should be one of the
+            following Status objects/codes, but this shouldn't be assumed:
 
             Storage Service Class Specific (PS3.4 Annex B.2.3):
                 Failure
@@ -800,7 +807,7 @@ class Association(threading.Thread):
             If `dataset` contains no (0008,0016) SOP Class UID element.
         ValueError
             If no accepted Presentation Context for `dataset` exists or if
-            we failed to encode the `dataset`.
+            unable to encode the `dataset`.
 
         See Also
         --------
@@ -842,18 +849,12 @@ class Association(threading.Thread):
             raise ValueError("No accepted Presentation Context for 'dataset'.")
 
         # Build C-STORE request primitive
-        primitive = C_STORE()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = dataset.SOPClassUID
-        primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-
-        # Message priority - if invalid set to 0x0002
-        if priority in [0x0000, 0x0001, 0x0002]:
-            primitive.Priority = priority
-        else:
-            LOGGER.warning("C-STORE SCU: Invalid priority value '%s'", priority)
-            primitive.Priorty = 0x0002
-
+        req = C_STORE()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = dataset.SOPClassUID
+        req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+        req.Priority = priority
+        
         # Encode the dataset using the agreed transfer syntax
         #   Will return None if failed to encode
         ds = encode(dataset,
@@ -861,16 +862,16 @@ class Association(threading.Thread):
                     transfer_syntax.is_little_endian)
 
         if ds is not None:
-            primitive.DataSet = BytesIO(ds)
+            req.DataSet = BytesIO(ds)
         else:
             # If we failed to encode our dataset
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
-        # Send C-STORE request primitive to DIMSE
-        self.dimse.send_msg(primitive, context_id)
+        # Send C-STORE request to the peer via DIMSE
+        self.dimse.send_msg(req, context_id)
 
-        # Waits for a response, returns a C_STORE primitive or None
+        # Wait for C-STORE response from the peer
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         status = Dataset()

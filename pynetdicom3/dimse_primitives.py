@@ -251,7 +251,7 @@ class C_STORE(object):
         else:
             LOGGER.warning("Attempted to set C-STORE Priority parameter to " \
                            "an invalid value")
-            raise ValueError("Priority must be 0, 1, or 2")
+            raise ValueError("C-STORE Priority must be 0, 1, or 2")
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):
