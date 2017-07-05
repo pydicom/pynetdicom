@@ -825,19 +825,22 @@ class ApplicationEntity(object):
         Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
         after receiving a C-ECHO request and prior to sending the response.
 
-        Statuses
-        --------
+        Status
+        ------
         The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
         status "shall have a value of Success", however Section 9.1.5.1.4 states
         that the status of the response may have any of the following values:
 
         Success
-            0x000 - Success
+        
+        - 0x000 - Success
+        
         Failure
-            0x0122 - Refused: SOP Class Not Supported
-            0x0210 - Refused: Duplicate Invocation
-            0x0212 - Refused: Mistyped Argument
-            0x0211 - Refused: Unrecognised Operation
+        
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0x0210 - Refused: Duplicate Invocation
+        - 0x0212 - Refused: Mistyped Argument
+        - 0x0211 - Refused: Unrecognised Operation
 
         Returns
         -------
@@ -850,9 +853,9 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        pynetdicom3.sop_class.VerificationServiceClass
-        pynetdicom3.association.send_c_echo
-        pynetdicom3.dimse_primitives.C_ECHO
+        sop_class.VerificationServiceClass
+        association.Association.send_c_echo
+        dimse_primitives.C_ECHO
 
         References
         ----------
@@ -872,24 +875,33 @@ class ApplicationEntity(object):
         Called by pynetdicom3.sop_class.StorageServiceClass.SCP()
         after receiving a C-STORE request and prior to sending the response.
 
-        Statuses
-        --------
+        If the user is storing `dataset` in the DICOM File Format (as in the
+        DICOM Standard Part 10, Section 7) then they are responsible for adding
+        the DICOM File Meta Information.
+
+        Status
+        ------
         Success
-            0x0000 - Success
+        
+        - 0x0000 - Success
+        
         Warning
-            0xB000 - Warning: Coercion of Data Elements
-            0xB006 - Warning: Elements Discarded
-            0xB007 - Warning: Data Set Does Not Match SOP Class
+        
+        - 0xB000 - Warning: Coercion of Data Elements
+        - 0xB006 - Warning: Elements Discarded
+        - 0xB007 - Warning: Data Set Does Not Match SOP Class
+        
         Failure
-            0x0117 - Refused: Invalid SOP Instance
-            0x0122 - Refused: SOP Class Not Supported
-            0x0124 - Refused: Not Authorised
-            0x0210 - Refused: Duplicate Invocation
-            0x0211 - Refused: Unrecognised Operation
-            0x0212 - Refused: Mistyped Argument
-            0xA700 to 0xA7FF - Refused: Out of Resources
-            0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
-            0xC000 to 0xCFFF - Error: Cannot Understand
+        
+        - 0x0117 - Refused: Invalid SOP Instance
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0x0124 - Refused: Not Authorised
+        - 0x0210 - Refused: Duplicate Invocation
+        - 0x0211 - Refused: Unrecognised Operation
+        - 0x0212 - Refused: Mistyped Argument
+        - 0xA700 to 0xA7FF - Refused: Out of Resources
+        - 0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
+        - 0xC000 to 0xCFFF - Error: Cannot Understand
 
         Parameters
         ----------
@@ -912,9 +924,9 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        pynetdicom3.sop_class.StorageServiceClass
-        pynetdicom3.association.send_c_store
-        pynetdicom3.dimse_primitives.C_STORE
+        sop_class.StorageServiceClass
+        association.Association.send_c_store
+        dimse_primitives.C_STORE
 
         References
         ----------
@@ -928,34 +940,32 @@ class ApplicationEntity(object):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
-        a status and dataset. In addition, the AE.on_c_find_cancel() callback
+        status and dataset. In addition, the AE.on_c_find_cancel() callback
         must also be defined.
-
-        Usage
-        -----
-        The peer AE sends an Identifier `dataset` containing Attributes that
-        should be used to match against locally available SOP Instances. For
-        each match you should yield a 'Pending' status and a matching Identifier
-        dataset. Once all matches are complete then a 'Success' status will be
-        automatically sent.
 
         Status
         ------
         Failure
-            0xA700 - Refused: Out of Resources
-            0xA900 - Identifier does not match SOP Class
-            0xC000 to 0xCFFF - Unable to process
+        
+        - 0xA700 - Refused: Out of Resources
+        - 0xA900 - Identifier does not match SOP Class
+        - 0xC000 to 0xCFFF - Unable to process
+        
         Cancel
-            0xFE00 - Matching terminated due to Cancel request
+        
+        - 0xFE00 - Matching terminated due to Cancel request
+        
         Pending
-            0xFF00 - Matches are continuing - Current Match is supplied and any
-                     Optional Keys were supported in the same manner as Required
-                     Keys
-            0xFF01 - Matches are continuing - Warning that one or more Optional
-                     Keys were not supported for existence and/or matching for
-                     this Identifier
+        
+        - 0xFF00 - Matches are continuing - Current Match is supplied and any
+          Optional Keys were supported in the same manner as Required Keys
+        - 0xFF01 - Matches are continuing - Warning that one or more Optional
+          Keys were not supported for existence and/or matching for this
+          Identifier
+          
         Success
-            0x0000 - Success
+        
+        - 0x0000 - Success
 
         Parameters
         ----------
@@ -977,9 +987,9 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        pynetdicom3.sop_class.QueryRetrieveFindServiceClass
-        pynetdicom3.association.send_c_find
-        pynetdicom3.dimse_primitives.C_FIND
+        sop_class.QueryRetrieveFindServiceClass
+        association.Association.send_c_find
+        dimse_primitives.C_FIND
 
         References
         ----------
@@ -1022,21 +1032,29 @@ class ApplicationEntity(object):
         Status
         ------
         Failure
-            0xA701 - Refused: Out of Resources, unable to calculate the number
-                     of matches
-            0xA702 - Refused: Out of Resources, unable to perform sub-operations
-            0xA900 - Identifier does not match SOP Class
-            0xC000 to 0xCFFF - Unable to process
+
+        - 0xA701 - Refused: Out of Resources, unable to calculate the number of
+          matches
+        - 0xA702 - Refused: Out of Resources, unable to perform sub-operations
+        - 0xA900 - Identifier does not match SOP Class
+        - 0xC000 to 0xCFFF - Unable to process
+
         Cancel
-            0xFE00 - Sub-operations terminated due to Cancel request
+
+        - 0xFE00 - Sub-operations terminated due to Cancel request
+
         Warning
-            0xB000 - Sub-operations complete, one or more failures or warnings
+
+        - 0xB000 - Sub-operations complete, one or more failures or warnings
+
         Pending
-            0xFF00 - Matches are continuing - Current Match is supplied and
-                     any Optional Keys were supported in the same manner as
-                     Required Keys
+
+        - 0xFF00 - Matches are continuing - Current Match is supplied and any
+          Optional Keys were supported in the same manner as Required Keys
+
         Success
-            0x0000 - Success
+        
+        - 0x0000 - Success
 
         Parameters
         ----------
@@ -1060,10 +1078,10 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        pynetdicom3.sop_class.QueryRetrieveGetServiceClass
-        pynetdicom3.association.send_c_get
-        pynetdicom3.association.send_c_store
-        pynetdicom3.dimse_primitives.C_GET
+        sop_class.QueryRetrieveGetServiceClass
+        association.Association.send_c_get
+        association.Association.send_c_store
+        dimse_primitives.C_GET
 
         References
         ----------

@@ -644,21 +644,10 @@ class Association(threading.Thread):
     def send_c_echo(self, msg_id=1):
         """Send a C-ECHO request to the peer AE.
 
-        Example
-        -------
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        >>>     status = assoc.send_c_echo()
-        >>>     
-        >>>     if status:
-        >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
-        >>>     
-        >>>     assoc.release()
-
         Parameters
         ----------
         msg_id : int, optional
-            The message ID to use (default: 1)
+            The message ID, must be between 0 and 65535, inclusive, (default 1).
 
         Returns
         -------
@@ -673,13 +662,16 @@ class Association(threading.Thread):
             value of a C-ECHO response "shall have a value of Success". However
             Section 9.1.5.1.4 indicates it may have any of the following values:
 
-            Success
-                * 0x0000 - Success
-            Failure
-                * 0x0122 - Refused: SOP class not supported
-                * 0x0210 - Refused: Duplicate invocation
-                * 0x0211 - Refused: Unrecognised operation
-                * 0x0212 - Refused: Mistyped argument
+            - Success
+
+              * 0x0000 - Success
+
+            - Failure
+
+              * 0x0122 - Refused: SOP class not supported
+              * 0x0210 - Refused: Duplicate invocation
+              * 0x0211 - Refused: Unrecognised operation
+              * 0x0212 - Refused: Mistyped argument
 
             However, as the actual status depends on the peer SCP, it shouldn't
             be assumed that it will be one of these.
@@ -693,23 +685,35 @@ class Association(threading.Thread):
 
         See Also
         --------
-        pynetdicom3.dimse_primitives.C_ECHO
-        pynetdicom3.applicationentity.on_c_echo
-        pynetdicom3.sop_class.VerificationServiceClass
+        dimse_primitives.C_ECHO
+        applicationentity.ApplicationEntity.on_c_echo
+        sop_class.VerificationServiceClass
 
         References
         ----------
-        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
         DICOM Standard Part 4, Annex A
+        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
+
+        Examples
+        --------
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        >>>     status = assoc.send_c_echo()
+        >>>     
+        >>>     if status:
+        >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
+        >>>     
+        >>>     assoc.release()
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-ECHO request")
 
+        # Verification SOP Class
         uid = UID('1.2.840.10008.1.1')
 
-        # Determine the Presentation Context we are operating under.
+        # Get the Presentation Context we are operating under
         context_id = None
         for context in self.acse.context_manager.accepted:
             if uid == context.AbstractSyntax:
@@ -725,9 +729,11 @@ class Association(threading.Thread):
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
 
+        # Send C-ECHO request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(primitive, context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
+        # Determine validity of the response and get the status
         status = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
@@ -743,18 +749,6 @@ class Association(threading.Thread):
     def send_c_store(self, dataset, msg_id=1, priority=2):
         """Send a C-STORE request to the peer AE.
 
-        Example
-        -------
-        >>> ds = read_file('file-in.dcm')
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        >>>     status = assoc.send_c_store(ds)
-        >>>     
-        >>>     if status:
-        >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
-        >>>     
-        >>>     assoc.release()
-
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
@@ -763,9 +757,10 @@ class Association(threading.Thread):
             The message ID, must be between 0 and 65535, inclusive, (default 1).
         priority : int, optional
             The C-STORE operation priority (if supported by the peer), one of:
-                0 - Medium
-                1 - High
-                2 - Low (default)
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
 
         Returns
         -------
@@ -779,25 +774,34 @@ class Association(threading.Thread):
             The status for the requested C-STORE operation should be one of the
             following Status objects/codes, but this shouldn't be assumed:
 
-            Storage Service Class Specific (PS3.4 Annex B.2.3):
-                Failure
-                    * 0xA7xx - Refused: Out of resources
-                    * 0xA9xx - Error: Data set does not match SOP class
-                    * 0xCxxx - Error: Cannot understand
-                Warning
-                    * 0xB000 - Coercion of data elements
-                    * 0xB006 - Element discarded
-                    * 0xB007 - Data set does not match SOP class
             General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
-                Success
-                    * 0x0000 - Success
-                Failure
-                    * 0x0117 - Refused: Invalid SOP instance
-                    * 0x0122 - Refused: SOP class not supported
-                    * 0x0124 - Refused: Not authorised
-                    * 0x0210 - Refused: Duplicate invocation
-                    * 0x0211 - Refused: Unrecognised operation
-                    * 0x0212 - Refused: Mistyped argument
+
+            - Success
+
+              * 0x0000 - Success
+
+            - Failure
+
+              * 0x0117 - Refused: Invalid SOP instance
+              * 0x0122 - Refused: SOP class not supported
+              * 0x0124 - Refused: Not authorised
+              * 0x0210 - Refused: Duplicate invocation
+              * 0x0211 - Refused: Unrecognised operation
+              * 0x0212 - Refused: Mistyped argument
+
+            Storage Service Class specific (PS3.4 Annex B.2.3):
+
+            - Failure
+
+              * 0xA700 to 0xA7FF - Refused: Out of resources
+              * 0xA900 to 0xA9FF - Error: Data set does not match SOP class
+              * 0xC000 to 0xCFFF - Error: Cannot understand
+
+            - Warning
+
+              * 0xB000 - Coercion of data elements
+              * 0xB006 - Element discarded
+              * 0xB007 - Data set does not match SOP class
 
         Raises
         ------
@@ -811,14 +815,26 @@ class Association(threading.Thread):
 
         See Also
         --------
-        pynetdicom3.dimse_primitives.C_STORE
-        pynetdicom3.applicationentity.on_c_store
-        pynetdicom3.sop_class.StorageServiceClass
+        dimse_primitives.C_STORE
+        applicationentity.ApplicationEntity.on_c_store
+        sop_class.StorageServiceClass
 
         References
         ----------
-        DICOM Standard PS3.4 Annex B
-        DICOM Standard PS3.7 9.1.1, 9.3.1 and Annex C
+        DICOM Standard Part 4, Annex B
+        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
+
+        Examples
+        --------
+        >>> ds = read_file('file-in.dcm')
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        >>>     status = assoc.send_c_store(ds)
+        >>>     
+        >>>     if status:
+        >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
+        >>>     
+        >>>     assoc.release()
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -855,7 +871,7 @@ class Association(threading.Thread):
         req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         req.Priority = priority
         
-        # Encode the dataset using the agreed transfer syntax
+        # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         ds = encode(dataset,
                     transfer_syntax.is_implicit_VR,
@@ -864,16 +880,14 @@ class Association(threading.Thread):
         if ds is not None:
             req.DataSet = BytesIO(ds)
         else:
-            # If we failed to encode our dataset
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
-        # Send C-STORE request to the peer via DIMSE
+        # Send C-STORE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context_id)
-
-        # Wait for C-STORE response from the peer
         rsp, _ = self.dimse.receive_msg(wait=True)
 
+        # Determine validity of the response and get the status
         status = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
@@ -891,74 +905,100 @@ class Association(threading.Thread):
     def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """Send a C-FIND request to the peer AE.
 
-        See PS3.4 Annex C - Query/Retrieve Service Class
-
         Parameters
         ----------
-        dataset : pydicom.Dataset
-            The DICOM dataset to containing the Key Attributes the peer AE
-            should perform the match against.
+        dataset : pydicom.dataset.Dataset
+            The C-FIND request's Identifier dataset. The exact requirements for
+            the Identifier dataset are Service Class specific (see the DICOM
+            Standard, Part 4).
         msg_id : int, optional
-            The message ID.
+            The message ID, must be between 0 and 65535, inclusive, (default 1).
         priority : int, optional
             The C-FIND operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
-                0 - Medium
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
+
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
-                'W' - Modality Worklist Information - FIND (default)
-                    1.2.840.10008.5.1.4.31
-                'P' - Patient Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.1.1
-                'S' - Study Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.2.1
-                'O' - Patient Study Only Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.3.1
+
+            - 'W' - Modality Worklist Information - FIND (default)
+              1.2.840.10008.5.1.4.31
+            - 'P' - Patient Root Information Model - FIND
+              1.2.840.10008.5.1.4.1.2.1.1
+            - 'S' - Study Root Information Model - FIND
+              1.2.840.10008.5.1.4.1.2.2.1
+            - 'O' - Patient Study Only Information Model - FIND
+              1.2.840.10008.5.1.4.1.2.3.1
 
         Yields
         ------
-        status : pydicom.dataset.Dataset or None
-            Yields None if no valid presentation context, no response
-            from the peer or if couldn't encode the supplied `dataset`. If a
-            response was received from the peer then returns a pydicom Dataset
-            containing at least a (0000,0900) Status element, and depending on
-            the returned Status value may optionally contain additional elements
-            (see PS3.7 9.1.2.1.5 and Annex C).
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty Dataset. If a response was received from the peer then returns
+            a Dataset containing at least a (0000,0900) Status element, and
+            depending on the returned Status value may optionally contain
+            additional elements (see PS3.7 9.1.2.1.5 and Annex C).
 
-            The status for the requested C-FIND operation (see PS3.4 Annex
-            C.4.1), should be one of the following Status objects/codes:
+            The status for the requested C-FIND operation should be one of the
+            following Status objects/codes, but this shouldn't be assumed:
+
+            General C-FIND (PS3.7 9.1.2.1.5 and Annex C)
+
+            - Cancel
+
+              * 0xFE00 - Matching terminated due to Cancel request
+
+            - Success
+
+              * 0x0000 - Matching is complete, no final Identifier is supplied
+
+            - Failure
+
+              * 0x0122 - Refused: SOP class not supported
 
             Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
-                Failure
-                    * 0xA700 - Refused: Out of resources
-                    * 0xA900 - Identifier does not match SOP Class
-                    * 0xCxxx - Unable to process
-                Pending
-                    * 0xFF00 - Matches are continuing - Current match is supplied
-                               and any Optional Keys were supported in the same
-                               manner as Required Keys
-                    * 0xFF01 - Matches are continuing - Warning that one or more
-                               Optional Keys were not supported for existence and/or
-                               matching for this Identifier)
-            General C-FIND PS3.7 9.1.2.1.5 and Annex C
-                Cancel
-                    * 0xFE00 - Matching terminated due to Cancel request
-                Success
-                    * 0x0000 - Matching is complete, no final Identifier is supplied
-                Failure
-                    * 0x0122 - Refused: SOP class not supported
+
+            - Failure
+
+              * 0xA700 - Refused: Out of resources
+              * 0xA900 - Identifier does not match SOP Class
+              * 0xC000 to 0xCFFF - Unable to process
+
+            - Pending
+
+              * 0xFF00 - Matches are continuing - Current match is supplied and
+                any Optional Keys were supported in the same manner as Required
+                Keys
+              * 0xFF01 - Matches are continuing - Warning that one or more
+                Optional Keys were not supported for existence and/or matching
+                for this Identifier)
+
         dataset : pydicom.dataset.Dataset or None
-            The resulting dataset(s) from the C-FIND operation. Yields None if
-            no matching Presentation Context.
+            If the status is 'Pending' then the C-FIND response's Identifier
+            dataset. If the status is not 'Pending' this will be None. The exact
+            contents of the response Identifier are Service Class specific (see
+            the DICOM Standard, Part 4).
+
+        Raises
+        ------
+        RuntimeError
+            If send_c_find is called with no established association.
+        ValueError
+            If no accepted Presentation Context for `dataset` exists or if
+            unable to encode the `dataset`.
 
         See Also
         --------
-        pynetdicom3.dimse_primitives.C_FIND
-        pynetdicom3.applicationentity.on_c_find
-        pynetdicom3.sop_class.StorageServiceClass
-        DICOM Standard PS3.7 9.1.2, 9.3.2 and Annex C
-        DICOM Standard PS3.4 Annex C
+        dimse_primitives.C_FIND
+        applicationentity.ApplicationEntity.on_c_find
+        sop_class.QueryRetrieveFindServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
@@ -968,17 +1008,14 @@ class Association(threading.Thread):
         if query_model == 'W':
             sop_class = ModalityWorklistInformationFind()
         elif query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
             sop_class = PatientRootQueryRetrieveInformationModelFind()
         elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
             sop_class = StudyRootQueryRetrieveInformationModelFind()
         elif query_model == "O":
-            # Retired
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
         else:
-            raise ValueError("Association.send_c_find() query_model "
-                             "must be one of ['W'|'P'|'S'|'O']")
+            raise ValueError("Association.send_c_find - 'query_model' "
+                             "must be one of 'W', 'P', 'S', 'O'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -993,35 +1030,25 @@ class Association(threading.Thread):
                          sop_class.UID)
             LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield None, None
-            return
+            raise ValueError("No accepted Presentation Context for 'dataset'")
 
-        # Build C-FIND primitive
-        primitive = C_FIND()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = sop_class.UID
+        # Build C-FIND request primitive
+        req = C_FIND()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = sop_class.UID
+        req.Priority = priority
 
-        # Message priority - if invalid set to 0x0002
-        if priority in [0x0000, 0x0001, 0x0002]:
-            primitive.Priority = priority
-        else:
-            LOGGER.warning("C-FIND SCU: Invalid priority value '%s'",
-                           priority)
-            primitive.Priorty = 0x0002
-
-        # Encode the dataset using the agreed transfer syntax
+        # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         ds = encode(dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian)
 
         if ds is not None:
-            primitive.Identifier = BytesIO(ds)
+            req.Identifier = BytesIO(ds)
         else:
-            # If we failed to encode our dataset
             LOGGER.error("Failed to encode the supplied Dataset")
-            yield None, None
-            return
+            raise ValueError('Failed to encode the supplied Dataset')
 
         LOGGER.info('Find SCU Request Identifiers:')
         LOGGER.info('')
@@ -1030,13 +1057,13 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send C-FIND request
-        self.dimse.send_msg(primitive, context_id)
+        # Send C-FIND request to the peer via DIMSE
+        self.dimse.send_msg(req, context_id)
 
         # Get the responses from the peer
         ii = 1
         while True:
-            time.sleep(0.001)
+            time.sleep(0.1)
 
             # Wait for C-FIND responses
             rsp, _ = self.dimse.receive_msg(wait=False)
@@ -1047,26 +1074,17 @@ class Association(threading.Thread):
             elif not rsp.is_valid_response:
                 LOGGER.error('Received an invalid C-FIND response from ' \
                              'the peer')
-                self.abort()
-                yield None, None
+                yield Dataset(), None
                 return
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-            # A700 - Failure (out of resources)
-            # A900 - Failure (identifier doesn't match SOP class)
-            # Cxxx - Failure (unable to process)
-            # FE00 - Cancel (matching terminated due to cancel request)
-            # FF00 - Pending (matches are continuing, current match supplied)
-            # FF01 - Pending (matches are continuing, optional keys
-            #                 not supported)
-            # 0000 - Success (matching complete, no final identifier supplied)
             status = Dataset()
             status.Status = rsp.Status
-            if hasattr(rsp, 'OffendingElement'):
+            if getattr(rsp, 'OffendingElement') is not None:
                 status.OffendingElement = rsp.OffendingElement
-            if hasattr(rsp, 'ErrorComment'):
+            if getattr(rsp, 'ErrorComment') is not None:
                 status.ErrorComment = rsp.ErrorComment
-            if hasattr(rsp, 'ErrorID'):
+            if getattr(rsp, 'ErrorID') is not None:
                 status.ErrorID = rsp.ErrorID
 
             if status.Status in [0xFF00, 0xFF01]:
@@ -1083,7 +1101,8 @@ class Association(threading.Thread):
                 status_category = 'Unknown'
 
             LOGGER.debug('-' * 65)
-            LOGGER.debug('Find SCP Response: %s (%s)', ii, status_category)
+            LOGGER.debug('Find SCP Response: {2} (0x{0:04x} - {1})'
+                         .format(status.Status, status_category, ii))
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
@@ -1142,7 +1161,7 @@ class Association(threading.Thread):
             The AE title for the destination of the C-STORE operations performed
             by the C-MOVE performing DIMSE user.
         msg_id : int, optional
-            The Message ID to use for the C-MOVE service.
+            The message ID, must be between 0 and 65535, inclusive, (default 1).
         priority : int, optional
             The C-MOVE operation priority (if supported by the peer), one of:
                 2 - Low (default)
@@ -1291,7 +1310,7 @@ class Association(threading.Thread):
             The DICOM dataset to containing the Key Attributes the peer AE
             should perform the match against
         msg_id : int, optional
-            The message ID
+            The message ID, must be between 0 and 65535, inclusive, (default 1).
         priority : int, optional
             The C-GET operation priority (if supported by the peer), one of:
                 2 - Low (default)
@@ -1459,6 +1478,7 @@ class Association(threading.Thread):
         ----------
         msg_id : int
             The message ID of the C-GET/MOVE/FIND operation we want to cancel.
+            Must be between 0 and 65535, inclusive.
         """
         # Can't send a C-CANCEL without an Association
         if not self.is_established:

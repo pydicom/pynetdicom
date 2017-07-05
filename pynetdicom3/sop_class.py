@@ -166,19 +166,26 @@ class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, msg):
+    def SCP(self, req):
         """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
-        (valid) status value from the on_c_echo callback.
+        (valid) status value from the AE.on_c_echo callback.
+
+        C-ECHO Request
+        --------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
 
         C-ECHO Response
         ---------------
         Parameters
-        ~~~~~~~~~~~~~~~~~
+        ~~~~~~~~~~
         (U) Message ID
         (M) Message ID Being Responded To
-        (U) AffectedSOPClassUID
+        (U) Affected SOP Class UID
         (M) Status
 
         Status
@@ -197,13 +204,13 @@ class VerificationServiceClass(ServiceClass):
 
         Parameters
         ----------
-        msg : pynetdicom3.dimse_primitives.C_ECHO
+        req : pynetdicom3.dimse_primitives.C_ECHO
             The C-ECHO request primitive sent by the peer.
 
         See Also
         --------
         pynetdicom3.AE.on_c_echo
-        pynetdicom3.association.send_c_echo
+        pynetdicom3.association.Association.send_c_echo
         pynetdicom3.dimse_primitives.C_ECHO
 
         References
@@ -214,7 +221,7 @@ class VerificationServiceClass(ServiceClass):
         # Create C-ECHO response primitive
         rsp = C_ECHO()
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.MessageIDBeingRespondedTo = req.MessageID
 
         # Try and run the user's on_c_echo callback
         #   The callback should return the Status as either an int or Dataset
@@ -252,75 +259,76 @@ class VerificationServiceClass(ServiceClass):
 
 
 class StorageServiceClass(ServiceClass):
-    """Represents the Storage Service Class.
-
-    Statuses
-    --------
-    Based on PS3.7 Section 9.1.1.1.9 and PS3.4 Annex B.2.3.
-
-    pynetdicom3 Specific Statuses
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Failure
-        0xC100 - Cannot Understand: Failed to decode the received dataset.
-        0xC101 - Cannot Understand: Exception in the on_c_store callback.
-        0xC102 - Cannot Understand: Dataset with no Status element returned by
-                 the on_c_store callback.
-        0xC103 - Cannot Understand: on_c_store callback didn't return
-                 a valid status type.
-        0xC104 - Cannot Understand: Unknown status returned by the on_c_store
-                 callback.
-
-    General and Service Class Statuses
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Success
-        0x0000 - Success
-    Warning
-        0xB000 * - Warning: Coercion of Data Elements
-        0xB006 * - Warning: Elements Discarded
-        0xB007 * - Warning: Data Set Does Not Match SOP Class
-    Failure
-        0x0117 - Refused: Invalid SOP Instance
-        0x0122 - Refused: SOP Class Not Supported
-        0x0124 - Refused: Not Authorised
-        0x0210 - Refused: Duplicate Invocation
-        0x0211 - Refused: Unrecognised Operation
-        0x0212 - Refused: Mistyped Argument
-        0xA7xx * - Refused: Out of Resources
-        0xA9xx * - Error: Data Set Does Not Match SOP Class
-        0xCxxx * - Error: Cannot Understand
-
-    Where * denotes Storage Service Class specific statuses.
-    """
+    """Implementation of the Storage Service Class."""
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, msg):
-        """Called when running as an SCP and receive a C-STORE request.
+    def SCP(self, req):
+        """The SCP implementation for the Storage Service Class.
 
-        C-STORE Response/Confirmation
-        ----------------------------
-        Required Elements
-        ~~~~~~~~~~~~~~~~~
-        MessageIDBeingRespondedTo
-        AffectedSOPClassUID
-        AffectedSOPInstanceUID
+        C-STORE Request
+        ---------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Affected SOP Instance UID
+        (M) Priority
+        (U) Move Originator Application Entity Title
+        (U) Move Originator Message ID
+        (M) Data Set
+
+        C-STORE Response
+        ----------------
+        Parameters
+        ~~~~~~~~~~
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Affected SOP Instance UID
+        (M) Status
+
         Status
+        ~~~~~~
+        Success
+            0x0000 - Success
+        Warning
+            0xB000 * - Warning: Coercion of Data Elements
+            0xB006 * - Warning: Elements Discarded
+            0xB007 * - Warning: Data Set Does Not Match SOP Class
+        Failure
+            0x0117 - Refused: Invalid SOP Instance
+            0x0122 - Refused: SOP Class Not Supported
+            0x0124 - Refused: Not Authorised
+            0x0210 - Refused: Duplicate Invocation
+            0x0211 - Refused: Unrecognised Operation
+            0x0212 - Refused: Mistyped Argument
+            0xA7xx * - Refused: Out of Resources
+            0xA9xx * - Error: Data Set Does Not Match SOP Class
+            0xCxxx * - Error: Cannot Understand
 
-        Optional Elements
-        ~~~~~~~~~~~~~~~~~
-        MessageID
-        OffendingElement
-        ErrorComment
+        Where * indicates service class specific statuses.
 
         Parameters
         ----------
-        msg : pynetdicom3.dimse_primitives.C_STORE
-            The C-STORE request primitive sent by the peer
+        req : pynetdicom3.dimse_primitives.C_STORE
+            The C-STORE request primitive sent by the peer.
+
+        See Also
+        --------
+        pynetdicom3.AE.on_c_store
+        pynetdicom3.association.Association.send_c_store
+        pynetdicom3.dimse_primitives.C_STORE
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex B.
+        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C.
         """
         # Create C-STORE response primitive
         rsp = C_STORE()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         # Check the dataset SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
@@ -333,7 +341,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to decode the dataset
         try:
-            ds = decode(msg.DataSet,
+            ds = decode(req.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
         except:
@@ -364,13 +372,38 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Find Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def SCP(self, msg):
+    def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Find Service Class.
+
+        C-FIND Request
+        --------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Identifier
+
+        Identifier
+        ~~~~~~~~~~
+        The C-FIND request shall contain:
+        * Key Attributes values to be matched against the values of storage SOP
+        Instances managed by the SCP.
+        * (0008,0052) Query/Retrieve Level.
+        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
+        Conversion has been accepted during Extended Negotiation. It shall not
+        be present otherwise.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+        character sets may be used in any of the Attributes in the request
+        Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
+        request Identifier are to be interpreted explicitly in the designated
+        local time zone. It shall not be present otherwise.
 
         C-FIND Response
         ---------------
         Parameters
-        ~~~~~~~~~~~~~~~~~
+        ~~~~~~~~~~
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
@@ -418,18 +451,24 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         Parameters
         ----------
-        msg : pynetdicom3.DIMSEmessage.C_FIND_RQ
+        req : pynetdicom3.DIMSEmessage.C_FIND_RQ
             The C_FIND request primitive received from the peer.
+
+        See Also
+        --------
+        pynetdicom3.AE.on_c_find
+        pynetdicom3.association.Association.send_c_find
+        pynetdicom3.dimse_primitives.C_FIND
 
         References
         ----------
         DICOM Standard Part 4, Annex C.
-        DICOM Standard Part 7, Section 9.1.2 and Annex C.
+        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         # Check the Identifier's SOP Class UID matches the one agreed to
         if self.UID != self.sopclass:
@@ -441,7 +480,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             return
 
         try:
-            identifier = decode(msg.Identifier,
+            identifier = decode(req.Identifier,
                                 self.transfersyntax.is_implicit_VR,
                                 self.transfersyntax.is_little_endian)
         except:
@@ -459,7 +498,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             for elem in identifier:
                 LOGGER.info(elem)
             LOGGER.info('')
-        except (AttributeError, NotImplementedError, TypeError):
+        except:
             LOGGER.error("Failed to decode the received Identifier dataset.")
             # Failure - Unable to Process - Failed to decode Identifier
             rsp.Status = 0xC000
