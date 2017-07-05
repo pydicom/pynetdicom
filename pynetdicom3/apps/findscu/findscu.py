@@ -120,7 +120,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$findscu.py v{0!s} {1!s} $'.format('0.1.0', '2016-02-15'))
+logger.debug('$findscu.py v{0!s} {1!s} $'.format('0.1.1', '2017-07-02'))
 logger.debug('')
 
 # Create application entity
@@ -144,9 +144,11 @@ if assoc.is_established:
         f.close()
     except IOError:
         logger.error('Cannot read input file {0!s}'.format(args.dcmfile_in))
+        assoc.release()
         sys.exit()
     except:
         logger.error('File may not be DICOM {0!s}'.format(args.dcmfile_in))
+        assoc.release()
         sys.exit()
 
     # Modify keys if requested
