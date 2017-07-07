@@ -722,7 +722,14 @@ class C_GET(object):
         self.NumberOfFailedSuboperations = None
         self.NumberOfWarningSuboperations = None
 
-        # FIXME: Additional status elements 
+        # For Failure statuses 0xA701, 0xA900
+        self.ErrorComment = None
+        self.OffendingElement = None
+        # For 0xA702, 0xFE00, 0xB000, 0x0000
+        # self.NumberOfRemainingSuboperations
+        # self.NumberOfCompletedSuboperations
+        # self.NumberOfFailedSuboperations
+        # self.NumberOfWarningSuboperations
 
     @property
     def MessageID(self):

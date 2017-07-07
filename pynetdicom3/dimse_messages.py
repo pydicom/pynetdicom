@@ -68,6 +68,7 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                                    0x00000110, 0x00000700, 0x00000800],
                      'C-GET-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                     0x00000120, 0x00000800, 0x00000900,
+                                    0x00000901, 0x00000902,
                                     0x00001020, # NumberOfRemainingSuboperations
                                     0x00001021, # NumberOfCompletedSuboperations
                                     0x00001022, # NumberOfFailedSuboperations

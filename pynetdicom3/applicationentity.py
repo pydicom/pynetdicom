@@ -981,7 +981,7 @@ class ApplicationEntity(object):
             optional elements related to the Status (as in DICOM Standard Part
             7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            The matching Identifier dataset if the status is 'Pending', None
+            A matching Identifier dataset if the status is 'Pending', None
             otherwise. The exact requirements for the C-FIND response Identifier
             dataset are Service Class specific (see the DICOM Standard, Part 4).
 
@@ -1019,16 +1019,6 @@ class ApplicationEntity(object):
         datasets. In addition,the AE.on_c_get_cancel() callback must also be
         defined.
 
-        Usage
-        -----
-        The peer AE sends an Identifier `dataset` containing Attributes that
-        should be used to match against locally available SOP Instances. For
-        each match you should first yield the number of C-STORE sub-operations
-        that will be invoked (typically one for each matching SOP Instance),
-        then yield a 'Pending' status and a matching Identifier dataset.
-        Once all matches are complete then a 'Success' status will be
-        automatically sent.
-
         Status
         ------
         Failure
@@ -1059,28 +1049,32 @@ class ApplicationEntity(object):
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM Identifier dataset sent via the C-GET
+            The DICOM Identifier dataset sent by the peer in the C-GET request.
 
         Yields
         ------
         int
             The first yielded value should be the total number of matches, after
-            that user should yield a status, dataset pair.
+            that user should yield a (status, identifier, dataset triplet).
         status : pydicom.dataset.Dataset or int
             A valid C-GET/Query/Retrieve Service Class status value as either
             an int or a Dataset object containing (at a minimum) a Status
             element. If returning a Dataset object then it may also contain
             optional elements related to the Status (as in DICOM Standard Part
             7, Annex C).
+        identifier : pydicom.dataset.Dataset or None
+            A matching Identifier dataset if the status is 'Pending', None
+            otherwise. The exact requirements for the C-GET response Identifier
+            dataset are Service Class specific (see the DICOM Standard, Part 4).
         dataset : pydicom.dataset.Dataset or None
-            The matching Identifier dataset if the status is Pending, None
-            otherwise.
+            If the status is 'Pending' then the dataset to send to the peer
+            via a C-STORE operation over the current association. If the status
+            is not 'Pending' this shall be None.
 
         See Also
         --------
-        sop_class.QueryRetrieveGetServiceClass
         association.Association.send_c_get
-        association.Association.send_c_store
+        sop_class.QueryRetrieveGetServiceClass
         dimse_primitives.C_GET
 
         References

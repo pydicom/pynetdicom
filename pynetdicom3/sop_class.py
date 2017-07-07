@@ -919,54 +919,101 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
 
 class QueryRetrieveGetServiceClass(ServiceClass):
-    """Implements the QR Get Service Class.
-
-    Status
-    ------
-    Based on PS3.7 Section 9.1.3.1.6 and PS3.4 Annex C.4.3.1.4.
-
-    * Indicates service class specific status codes
-
-    Success
-        Success: Sub-operations complete, no failures - 0x0000
-    Pending
-        *Pending: Sub-operations are continuing - 0xFF00
-    Cancel
-        Cancel: Sub-operations terminated due to Cancel indication - 0xFE00
-    Failure
-        *Refused: Out of Resources, unable to calculate number of matches
-            - 0xA701
-        *Refused: Out of Resources, unable to perform sub-operations - 0xA702
-        Refused: SOP Class Not Supported - 0x0122
-        *Identifier Does Not Match SOP Class - 0xA900
-        *Unable to Process - 0xCxxx
-        Refused: Duplicate Invocation
-        Refused: Mistyped Argument
-        Refused: Unrecognised Operation
-        Refused: Not Authorised
-    Warning
-        Warning: Sub-operations completed, one or more failures/warnings - 0xB000
-    """
+    """Implements the Query/Retrieve Get Service Class."""
     statuses = QR_GET_SERVICE_CLASS_STATUS
 
     def SCP(self, msg, priority=2):
-        """
-        PS3.7 9.1.3.2
+        """The SCP implementation for the Query/Retrieve Get Service Class.
 
-        Service Procedure
-        -----------------
-        Performing DIMSE User
-        ~~~~~~~~~~~~~~~~~~~~~
-        - When the performer receives a C-GET indication it matches the
-          Identifier against the Attributes of known composite SOP Instances
-          and generates a C-STORE sub-operation for each match
-        - For each match, the performing user initiates a C-STORE sub-operation
-          on the same Association as the C-GET.
-        - During the processing of the C-GET operation, the performing user may
-          issue C-GET response primitives with a status of Pending
-        - When the C-GET operation completes (either in success or failure) the
-          performing DIMSE user issues a C-GET response with status set to
-          either refused, failed or success
+        C-GET Request
+        -------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Identifier
+
+        Identifier
+        ~~~~~~~~~~
+        The C-GET request shall contain:
+        * Key Attributes values to be matched against the values of storage SOP
+        Instances managed by the SCP.
+        * (0008,0052) Query/Retrieve Level.
+        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
+        Conversion has been accepted during Extended Negotiation. It shall not
+        be present otherwise.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+        character sets may be used in any of the Attributes in the request
+        Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
+        request Identifier are to be interpreted explicitly in the designated
+        local time zone. It shall not be present otherwise.
+
+        C-FIND Response
+        ---------------
+        Parameters
+        ~~~~~~~~~~
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (C) Identifier
+        (M) Status
+
+        Status
+        ~~~~~~
+        Success
+            0x0000 - Success
+        Pending
+            0xFF00 * - Pending: Matches are continuing, current match supplied
+            0xFF01 * - Pending: Matches are continuing, warning
+        Cancel
+            0xFE00 - Cancel
+        Failure
+            0xA700 * - Refused: Out of Resources
+            0x0122 - Refused: SOP Class Not Supported
+            0xA900 * - Identifier Does Not Match SOP Class
+            0xCxxx * - Unable to Process
+
+        Where * indicates service class specific status codes.
+
+        Identifier
+        ~~~~~~~~~~
+        The C-FIND response shall only include an Identifier when the Status is
+        'Pending'. When sent, the Identifier shall contain:
+        * Key Attributes with values corresponding to Key Attributes contained
+        in the Identifier of the request.
+        * (0008,0052) Query/Retrieve Level.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+        character sets may be used in any of the Attributes in the response
+        Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
+        response Identifier are to be interpreted explicitly in the designated
+        local time zone. It shall not be present otherwise.
+
+        The C-FIND response Identifier shall also contain either or both of:
+        * (0008,0130) Storage Media File-Set ID and (0088,0140) Storage Media
+        File-Set UID.
+        * (0008,0054) Retrieve AE Title.
+
+        The C-FIND response Identifier may also (but is not required to) include
+        the (0008,0056) Instance Availability element.
+
+        Parameters
+        ----------
+        req : pynetdicom3.DIMSEmessage.C_FIND_RQ
+            The C_FIND request primitive received from the peer.
+
+        See Also
+        --------
+        pynetdicom3.AE.on_c_find
+        pynetdicom3.association.Association.send_c_find
+        pynetdicom3.dimse_primitives.C_FIND
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C.
+        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C.
         """
         # Build C-GET response primitive
         rsp = C_GET()
@@ -1001,6 +1048,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             return
 
         # Iterate through the results
+        # C-GET Pending responses are optional!
         for ii, (status_ds, dataset) in enumerate(result):
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
