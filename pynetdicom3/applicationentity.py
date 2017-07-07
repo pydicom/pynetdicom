@@ -832,11 +832,11 @@ class ApplicationEntity(object):
         that the status of the response may have any of the following values:
 
         Success
-        
+
         - 0x000 - Success
-        
+
         Failure
-        
+
         - 0x0122 - Refused: SOP Class Not Supported
         - 0x0210 - Refused: Duplicate Invocation
         - 0x0212 - Refused: Mistyped Argument
@@ -845,7 +845,8 @@ class ApplicationEntity(object):
         Returns
         -------
         status : pydicom.dataset.Dataset or int
-            A valid C-ECHO/Verification Service Class status value as either an
+            The status returned to the peer AE in the C-ECHO response. Must be a
+            valid C-ECHO/Verification Service Class status value as either an
             int or a Dataset object containing (at a minimum) a (0000,0900)
             Status element. If returning a Dataset object then it may also
             contain optional elements related to the Status (as in the DICOM
@@ -872,8 +873,9 @@ class ApplicationEntity(object):
         either an int or a pydicom Dataset containing a Status element with a
         valid C-STORE status value.
 
-        Called by pynetdicom3.sop_class.StorageServiceClass.SCP()
-        after receiving a C-STORE request and prior to sending the response.
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a C-STORE request and prior to sending the
+        response.
 
         If the user is storing `dataset` in the DICOM File Format (as in the
         DICOM Standard Part 10, Section 7) then they are responsible for adding
@@ -882,17 +884,17 @@ class ApplicationEntity(object):
         Status
         ------
         Success
-        
+
         - 0x0000 - Success
-        
+
         Warning
-        
+
         - 0xB000 - Warning: Coercion of Data Elements
         - 0xB006 - Warning: Elements Discarded
         - 0xB007 - Warning: Data Set Does Not Match SOP Class
-        
+
         Failure
-        
+
         - 0x0117 - Refused: Invalid SOP Instance
         - 0x0122 - Refused: SOP Class Not Supported
         - 0x0124 - Refused: Not Authorised
@@ -911,11 +913,12 @@ class ApplicationEntity(object):
         Returns
         -------
         status : pydicom.dataset.Dataset or int
-            A valid C-STORE/Storage Service Class status value as either an
-            int or a Dataset object containing (at a minimum) a (0000,0900)
-            Status element. If returning a Dataset object then it may also
-            contain optional elements related to the Status (as in the DICOM
-            Standard Part 7, Annex C).
+            The status returned to the peer AE in the C-STORE response. Must be
+            a valid C-STORE status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) Status element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in the
+            DICOM Standard Part 7, Annex C).
 
         Raises
         ------
@@ -924,9 +927,9 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        sop_class.StorageServiceClass
         association.Association.send_c_store
         dimse_primitives.C_STORE
+        sop_class.StorageServiceClass
 
         References
         ----------
@@ -943,28 +946,32 @@ class ApplicationEntity(object):
         status and dataset. In addition, the AE.on_c_find_cancel() callback
         must also be defined.
 
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a C-FIND request and prior to sending the
+        response.
+
         Status
         ------
         Failure
-        
+
         - 0xA700 - Refused: Out of Resources
         - 0xA900 - Identifier does not match SOP Class
         - 0xC000 to 0xCFFF - Unable to process
-        
+
         Cancel
-        
+
         - 0xFE00 - Matching terminated due to Cancel request
-        
+
         Pending
-        
+
         - 0xFF00 - Matches are continuing - Current Match is supplied and any
           Optional Keys were supported in the same manner as Required Keys
         - 0xFF01 - Matches are continuing - Warning that one or more Optional
           Keys were not supported for existence and/or matching for this
           Identifier
-          
+
         Success
-        
+
         - 0x0000 - Success
 
         Parameters
@@ -975,8 +982,9 @@ class ApplicationEntity(object):
         Yields
         ------
         status : pydicom.dataset.Dataset or int
-            A valid C-FIND/Query/Retrieve Service Class status value as either
-            an int or a Dataset object containing (at a minimum) a Status
+            The status returned to the peer AE in the C-FIND response. Must be a
+            valid C-FIND status vuale for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a Status
             element. If returning a Dataset object then it may also contain
             optional elements related to the Status (as in DICOM Standard Part
             7, Annex C).
@@ -987,13 +995,13 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        sop_class.QueryRetrieveFindServiceClass
         association.Association.send_c_find
         dimse_primitives.C_FIND
+        sop_class.QueryRetrieveFindServiceClass
 
         References
         ----------
-        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 4, Annexes C
         DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
@@ -1012,7 +1020,7 @@ class ApplicationEntity(object):
                                   "calling AE.start()")
 
     def on_c_get(self, dataset):
-        """Callback for when an C-GET request is received.
+        """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
         a int containing the total number of matches, then yield statuses and
@@ -1043,7 +1051,7 @@ class ApplicationEntity(object):
           Optional Keys were supported in the same manner as Required Keys
 
         Success
-        
+
         - 0x0000 - Success
 
         Parameters
@@ -1057,7 +1065,8 @@ class ApplicationEntity(object):
             The first yielded value should be the total number of matches, after
             that user should yield a (status, identifier, dataset triplet).
         status : pydicom.dataset.Dataset or int
-            A valid C-GET/Query/Retrieve Service Class status value as either
+            The status returned to the peer AE in the C-GET response. Must be a
+            valid C-GET status value for the applicable Service Class as either
             an int or a Dataset object containing (at a minimum) a Status
             element. If returning a Dataset object then it may also contain
             optional elements related to the Status (as in DICOM Standard Part
@@ -1074,8 +1083,8 @@ class ApplicationEntity(object):
         See Also
         --------
         association.Association.send_c_get
-        sop_class.QueryRetrieveGetServiceClass
         dimse_primitives.C_GET
+        sop_class.QueryRetrieveGetServiceClass
 
         References
         ----------
@@ -1124,7 +1133,12 @@ class ApplicationEntity(object):
             The second yield should be the TCP/IP address and port number of the
             destination AE (if known) or None, None if unknown.
         status : pydiom.dataset.Dataset or int
-            A Dataset containing (at a minimum) a Status (0000, 0900) element.
+            The status returned to the peer AE in the C-MOVE response. Must be a
+            valid C-MOVE status value for the applicable Service Class as either
+            an int or a Dataset object containing (at a minimum) a Status
+            element. If returning a Dataset object then it may also contain
+            optional elements related to the Status (as in DICOM Standard Part
+            7, Annex C).
         dataset : pydicom.dataset.Dataset or None
             If the status is 'Pending' then you can (optionally) return a
             Dataset containing the identifiers or None.
