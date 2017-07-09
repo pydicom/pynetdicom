@@ -457,14 +457,14 @@ class ApplicationEntity(object):
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCU):\n"
-        if len(self.scu_supported_sop) == 0:
+        if not self.scu_supported_sop:
             str_out += "\tNone\n"
         for sop_class in self.scu_supported_sop:
             str_out += "\t{0!s}\n".format(sop_class)
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCP):\n"
-        if len(self.scp_supported_sop) == 0:
+        if not self.scp_supported_sop:
             str_out += "\tNone\n"
         for sop_class in self.scp_supported_sop:
             str_out += "\t{0!s}\n".format(sop_class)
@@ -854,9 +854,9 @@ class ApplicationEntity(object):
 
         See Also
         --------
-        sop_class.VerificationServiceClass
         association.Association.send_c_echo
         dimse_primitives.C_ECHO
+        sop_class.VerificationServiceClass
 
         References
         ----------

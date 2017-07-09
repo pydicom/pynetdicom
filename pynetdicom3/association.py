@@ -16,22 +16,23 @@ from pynetdicom3.dimse_primitives import (C_ECHO, C_MOVE, C_STORE, C_GET,
                                           C_FIND, C_CANCEL)
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
-from pynetdicom3.sop_class import (uid_to_sop_class,
-                            ModalityWorklistInformationFind,
-                            PatientRootQueryRetrieveInformationModelFind,
-                            StudyRootQueryRetrieveInformationModelFind,
-                            PatientStudyOnlyQueryRetrieveInformationModelFind,
-                            PatientRootQueryRetrieveInformationModelMove,
-                            StudyRootQueryRetrieveInformationModelMove,
-                            PatientStudyOnlyQueryRetrieveInformationModelMove,
-                            PatientRootQueryRetrieveInformationModelGet,
-                            StudyRootQueryRetrieveInformationModelGet,
-                            PatientStudyOnlyQueryRetrieveInformationModelGet)
+from pynetdicom3.sop_class import (
+    uid_to_sop_class,
+    ModalityWorklistInformationFind,
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind,
+    PatientStudyOnlyQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelMove,
+    PatientStudyOnlyQueryRetrieveInformationModelMove,
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
+    PatientStudyOnlyQueryRetrieveInformationModelGet)
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
                                         A_ASSOCIATE, A_ABORT, A_P_ABORT)
-from pynetdicom3.status import code_to_status, Status
+from pynetdicom3.status import code_to_status
 from pynetdicom3.utils import PresentationContextManager
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
@@ -686,8 +687,8 @@ class Association(threading.Thread):
         See Also
         --------
         applicationentity.ApplicationEntity.on_c_echo
-        sop_class.VerificationServiceClass
         dimse_primitives.C_ECHO
+        sop_class.VerificationServiceClass
 
         References
         ----------
@@ -699,10 +700,8 @@ class Association(threading.Thread):
         >>> assoc = ae.associate(addr, port)
         >>> if assoc.is_established:
         >>>     status = assoc.send_c_echo()
-        >>>     
         >>>     if status:
         >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
-        >>>     
         >>>     assoc.release()
         """
         # Can't send a C-ECHO without an Association
@@ -775,7 +774,8 @@ class Association(threading.Thread):
             additional elements (see DICOM Standard Part 7, Annex C).
 
             The status for the requested C-STORE operation should be one of the
-            following Status objects/codes, but this shouldn't be assumed:
+            following Status objects/codes, but as the value is set by the peer
+            AE this can't be assumed:
 
             General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
 
@@ -792,7 +792,7 @@ class Association(threading.Thread):
               * 0x0211 - Refused: Unrecognised operation
               * 0x0212 - Refused: Mistyped argument
 
-            Storage Service Class specific (PS3.4 Annex B.2.3):
+            Storage Service Class specific (DICOM Standard Part 4, Annex B.2.3):
 
             - Failure
 
@@ -805,6 +805,15 @@ class Association(threading.Thread):
               * 0xB000 - Coercion of data elements
               * 0xB006 - Element discarded
               * 0xB007 - Data set does not match SOP class
+
+            Non-Patient Object Service Class specific (DICOM Standard Part 4,
+            Annex GG.4.2)
+
+            - Failure
+
+              * 0xA700 - Refused: Out of resources
+              * 0xA900 - Error: Data set does not match SOP class
+              * 0xC000 - Error: Cannot understand
 
         Raises
         ------
@@ -819,12 +828,12 @@ class Association(threading.Thread):
         See Also
         --------
         applicationentity.ApplicationEntity.on_c_store
-        sop_class.StorageServiceClass
         dimse_primitives.C_STORE
+        sop_class.StorageServiceClass
 
         References
         ----------
-        DICOM Standard Part 4, Annex B
+        DICOM Standard Part 4, Annexes B, GG
         DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
 
         Examples
@@ -833,10 +842,8 @@ class Association(threading.Thread):
         >>> assoc = ae.associate(addr, port)
         >>> if assoc.is_established:
         >>>     status = assoc.send_c_store(ds)
-        >>>     
         >>>     if status:
         >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
-        >>>     
         >>>     assoc.release()
         """
         # Can't send a C-STORE without an Association
@@ -873,7 +880,7 @@ class Association(threading.Thread):
         req.AffectedSOPClassUID = dataset.SOPClassUID
         req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         req.Priority = priority
-        
+
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         ds = encode(dataset,
@@ -944,11 +951,12 @@ class Association(threading.Thread):
             If the peer timed out or sent an invalid response then yields an
             empty Dataset. If a response was received from the peer then returns
             a Dataset containing at least a (0000,0900) Status element, and
-            depending on the returned Status value may optionally contain
+            depending on the returned Status value, may optionally contain
             additional elements (see PS3.7 9.1.2.1.5 and Annex C).
 
             The status for the requested C-FIND operation should be one of the
-            following Status objects/codes, but this shouldn't be assumed:
+            following Status objects/codes, but as the returned value depends
+            on the peer this can't be assumed:
 
             General C-FIND (PS3.7 9.1.2.1.5 and Annex C)
 
@@ -993,13 +1001,13 @@ class Association(threading.Thread):
             If send_c_find is called with no established association.
         ValueError
             If no accepted Presentation Context for `dataset` exists or if
-            unable to encode the `dataset`.
+            unable to encode the Identifier `dataset`.
 
         See Also
         --------
         applicationentity.ApplicationEntity.on_c_find
-        sop_class.QueryRetrieveFindServiceClass
         dimse_primitives.C_FIND
+        sop_class.QueryRetrieveFindServiceClass
 
         References
         ----------
@@ -1141,40 +1149,26 @@ class Association(threading.Thread):
 
     def send_c_move(self, dataset, move_aet, msg_id=1,
                     priority=2, query_model='P'):
-        """Send a DIMSE C-MOVE request to a peer AE.
-
-        C-MOVE Service Procedure
-        ------------------------
-        PS3.7 9.1.4.2
-
-        Invoker
-        ~~~~~~~
-        The invoking DIMSE user requests a performing DIMSE user match an
-        Identifier against the Attributes of all SOP Instances known to the
-        performing user and generate a C-STORE sub-operation for each match.
-
-        Performer
-        ~~~~~~~~~
-        For each matching composite SOP Instance, the C-MOVE performing user
-        initiates a C-STORE sub-operation on a different Association than the
-        C-MOVE. In this sub-operation the C-MOVE performer becomes the C-STORE
-        invoker. The C-STORE performing DIMSE user may or may not be the C-MOVE
-        invoking DIMSE user.
+        """Send a C-MOVE request to a peer AE.
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The dataset containing the Attributes to match against.
+            The C-MOVE request's Identifier dataset. The exact requirements for
+            the Identifier dataset are Service Class specific (see the DICOM
+            Standard, Part 4).
         move_aet : str
-            The AE title for the destination of the C-STORE operations performed
-            by the C-MOVE performing DIMSE user.
+            The AE title for the destination of the C-STORE sub-operations
+            performed by the peer.
         msg_id : int, optional
             The message ID, must be between 0 and 65535, inclusive, (default 1).
         priority : int, optional
             The C-MOVE operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
-                0 - Medium
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
+
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
                 'P' - Patient Root Information Model - MOVE (default)
@@ -1186,8 +1180,72 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : pynetdicom3.status.Status
-        dataset : pydicom.dataset.Dataset
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty Dataset. If a response was received from the peer then returns
+            a Dataset containing at least a (0000,0900) Status element, and
+            depending on the returned Status value, may optionally contain
+            additional elements (see PS3.7 9.1.4.1.7 and Annex C).
+
+            The status for the requested C-MOVE operation should be one of the
+            following Status objects/codes, but as the returned value depends
+            on the peer this can't be assumed:
+
+            General C-MOVE (PS3.7 9.1.4.1.7 and Annex C)
+
+            - Cancel
+
+              * 0xFE00 - Matching terminated due to Cancel request
+
+            - Success
+
+              * 0x0000 - Matching is complete, no final Identifier is supplied
+
+            - Failure
+
+              * 0x0122 - Refused: SOP class not supported
+
+            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
+            C):
+
+            - Failure
+
+              * 0xA701 - Refused: Out of resources - unable to calculate number
+                of matches
+              * 0xA702 - Refused: Out of resouses - unable to perform
+                sub-operations
+              * 0xA801 - Refused: Move Destination unknown
+              * 0xA900 - Identifier does not match SOP Class
+              * 0xC000 to 0xCFFF - Unable to process
+
+            - Pending
+
+              * 0xFF00 - Matches are continuing - Current match is supplied and
+                any Optional Keys were supported in the same manner as Required
+                Keys
+
+            - Warning
+
+              * 0xB000 - Sub-operations complete - one or more failures
+
+        identifier : pydicom.dataset.Dataset or None
+            The yielded identifier value depends both on the yielded status
+            and the applicable Service Class. For example, for the
+            Query/Retrieve Service Class, a status of 'Failed' should yield an
+            identifier Dataset containing a (0008,0058) Failed SOP Instance UID
+            List element, while a status of 'Pending' will yield an identifier
+            with a value of None.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_move
+        dimse_primitives.C_MOVE
+        sop_class.QueryRetrieveMoveServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1203,8 +1261,6 @@ class Association(threading.Thread):
         else:
             raise ValueError("Association.send_c_move() query_model must "
                              "be one of ['P'|'S'|'O']")
-
-        service_class = QueryRetrieveMoveServiceClass()
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1311,7 +1367,8 @@ class Association(threading.Thread):
         """Send a C-GET request message to the peer AE.
 
         The ApplicationEntity.on_c_store callback must be implemented prior
-        to calling send_c_get.
+        to calling send_c_get as the peer will return any matches via a C-STORE
+        operation over the current association.
 
         Parameters
         ----------
@@ -1349,7 +1406,8 @@ class Association(threading.Thread):
             additional elements (see PS3.7 9.1.2.1.5 and Annex C).
 
             The status for the requested C-GET operation should be one of the
-            following Status objects/codes, but this shouldn't be assumed:
+            following Status objects/codes, but as the returned value depends
+            on the peer this can't be assumed:
 
             General C-GET (DICOM Standard Part 7, Section 9.1.3 and Annex C)
 
@@ -1390,14 +1448,14 @@ class Association(threading.Thread):
 
               *  0xB000 - Warning: Sub-operations completed, one or more
                  failures/warnings
-            
+
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then may either be the C-GET response's
-            Identifier dataset or None, depending on the requirements of the
-            Service Class. If the status is not 'Pending' this shall be None.
-            If the C-GET response contains an Identifier dataset then the exact
-            contents are Service Class specific (see the DICOM Standard, Part
-            4).
+            The yielded identifier value depends both on the yielded status
+            and the applicable Service Class. For example, for the
+            Query/Retrieve Service Class, a status of 'Failed' should yield an
+            identifier Dataset containing a (0008,0058) Failed SOP Instance UID
+            List element, while a status of 'Pending' will yield an identifier
+            with a value of None.
 
         Raises
         ------
@@ -1405,7 +1463,7 @@ class Association(threading.Thread):
             If send_c_get is called with no established association.
         ValueError
             If no accepted Presentation Context for `dataset` exists or if
-            unable to encode the `dataset`.
+            unable to encode the Identifier `dataset`.
 
         See Also
         --------
@@ -1453,7 +1511,7 @@ class Association(threading.Thread):
         req.MessageID = msg_id
         req.AffectedSOPClassUID = sop_class.UID
         req.Priority = priority
-        
+
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         bytestream = encode(dataset,
@@ -1512,8 +1570,8 @@ class Association(threading.Thread):
                     if rsp.Identifier is not None:
                         try:
                             identifier = decode(rsp.Identifier,
-                                        self.transfersyntax.is_implicit_VR,
-                                        self.transfersyntax.is_little_endian)
+                                                self.transfersyntax.is_implicit_VR,
+                                                self.transfersyntax.is_little_endian)
                         except:
                             LOGGER.error("Failed to decode the C-GET "
                                          "response's Identifier dataset")
