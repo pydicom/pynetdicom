@@ -3,9 +3,6 @@
     :target: https://coveralls.io/github/scaramallion/pynetdicom3?branch=master
 .. image:: https://travis-ci.org/scaramallion/pynetdicom3.svg?branch=master
     :target: https://travis-ci.org/scaramallion/pynetdicom3
-.. image:: https://www.quantifiedcode.com/api/v1/project/2711ecce67c047dfbceba3e590d49790/badge.svg
-    :target: https://www.quantifiedcode.com/app/project/2711ecce67c047dfbceba3e590d49790
-    :alt: Code issues
 
 pynetdicom3
 ===========
