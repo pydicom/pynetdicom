@@ -23,6 +23,10 @@ class TestStatus(unittest.TestCase):
         del status.Status
         self.assertEqual(status, Dataset())
 
+    def test_code_to_category_unknown(self):
+        """Test converting an unknown status code to its category"""
+        self.assertEqual(code_to_category(0xDF01), 'Unknown')
+
     def test_code_to_category_general(self):
         """Test converting a general status code to its category"""
         c2c = code_to_category
