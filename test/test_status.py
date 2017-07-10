@@ -4,13 +4,25 @@
 import logging
 import unittest
 
-from pynetdicom3.status import code_to_status, code_to_category
+from pydicom.dataset import Dataset
+
+from pynetdicom3.status import code_to_category, code_to_status
+
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
+
 class TestStatus(unittest.TestCase):
     """Test the status.py module"""
+    def test_code_to_status(self):
+        """Test converting a status code to a Dataset"""
+        status = code_to_status(0x0123)
+        self.assertTrue(isinstance(status, Dataset))
+        self.assertTrue(status.Status == 0x0123)
+        del status.Status
+        self.assertEqual(status, Dataset())
+
     def test_code_to_category_general(self):
         """Test converting a general status code to its category"""
         c2c = code_to_category

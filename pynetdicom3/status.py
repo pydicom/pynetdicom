@@ -1,9 +1,7 @@
-"""Implementation of the DIMSE Status."""
+"""Implementation of the DIMSE Status values."""
 
-from pydicom.datadict import tag_for_keyword, dictionary_VR
-from pydicom.dataelem import DataElement
+
 from pydicom.dataset import Dataset
-from pydicom.tag import Tag
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
