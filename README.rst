@@ -83,13 +83,13 @@ Installation
 -----------
 Dependencies
 ~~~~~~~~~~~~
-`pydicom <https://github.com/darcymason/pydicom>`_ >= 1.0.0a1
+`pydicom <https://github.com/pydicom/pydicom>`_ >= 1.0.0a1
 
 Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-        $ git clone https://github.com/scaramallion/pynetdicom3.git
+        $ git clone https://github.com/pydicom/pynetdicom3.git
         $ cd pynetdicom3
         $ python setup.py install
 
