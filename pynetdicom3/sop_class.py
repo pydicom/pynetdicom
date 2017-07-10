@@ -14,7 +14,7 @@ from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dimse_primitives import (C_STORE, C_ECHO, C_MOVE, C_GET,
                                           C_FIND, N_EVENT_REPORT, N_GET,
                                           N_SET, N_CREATE, N_ACTION, N_DELETE)
-from pynetdicom3.status import (Status, VERIFICATION_SERVICE_CLASS_STATUS,
+from pynetdicom3.status import (VERIFICATION_SERVICE_CLASS_STATUS,
                                 STORAGE_SERVICE_CLASS_STATUS,
                                 QR_FIND_SERVICE_CLASS_STATUS,
                                 QR_MOVE_SERVICE_CLASS_STATUS,

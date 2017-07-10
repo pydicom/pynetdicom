@@ -6,249 +6,6 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
 
-class Status(Dataset):
-    """Implementation of the DIMSE Status value.
-
-    A subclass of pydicom's Dataset that always contains a Status element.
-    Additional group 0x0000 elements can be added where appropriate, depending
-    on the DIMSE-C Service and the Status value.
-    * (0000, 0900) Status
-    * OffendingElement
-    * ErrorComment
-    * AffectedSOPInstanceUID
-    * ErrorID
-
-    Status
-    ------
-    Taken from PS3.7 Annex C
-
-    Success Status Class
-    ~~~~~~~~~~~~~~~~~~~~
-    * 0x0000 - Success
-
-    Pending Status Class
-    ~~~~~~~~~~~~~~~~~~~~
-    Service Class Specific: 0xFF00 or 0xFF01
-
-    * (Service Class Specific) - Pending
-
-    Cancel Status Class
-    ~~~~~~~~~~~~~~~~~~~
-    * 0xFE00 - Cancel
-
-    Warning Status Class
-    ~~~~~~~~~~~~~~~~~~~~
-    Service Class Specific: 0x0001 or 0xBxxx
-    General Annex C assigned: 0x01xx, 0x02xx
-
-    * (Service Class Specific) - Warning
-    * 0x0107 - Attribute List Error
-    * 0x0116 - Attribute Value Out of Range
-
-    Failure Status Class
-    ~~~~~~~~~~~~~~~~~~~~
-    Service Class Specific: 0xAxxx and 0xCxxx
-    General Annex C assigned: 0x01xx and 0x02xx
-
-    (Service Class Specific) - Error: Cannot Understand
-    (Service Class Specific) - Error: Data Set Does Not Match SOP Class
-    (Service Class Specific) - Failed
-    (Service Class Specific) - Refused: Move Destination Unknown
-    (Service Class Specific) - Refused: Out of Resources
-    0x0105 - No Such Attribute
-    0x0106 - Invalid Attribute Value
-    0x0110 - Processing Failure
-    0x0111 - Duplicate SOP Instance
-    0x0112 - No Such SOP Instance
-    0x0113 - No Such Event Type
-    0x0114 - No Such Argument
-    0x0115 - Invalid Argument Value
-    0x0117 - Invalid Object Instance
-    0x0118 - No Such SOP Class
-    0x0119 - Class-Instance Conflict
-    0x0120 - Missing Attribute
-    0x0121 - Missing Attribute Value
-    0x0122 - Refused: SOP Class Not Supported
-    0x0123 - No Such Action Type
-    0x0124 - Refused: Not Authorised
-    0x0210 - Duplicate Invocation
-    0x0211 - Unrecognised Operation
-    0x0212 - Mistyped Argument
-    0x0213 - Resources Limitation
-
-    Attributes
-    ----------
-    category : str
-        One of ('Success', 'Cancel', 'Warning', 'Pending', 'Failure').
-    description : str
-        Short summary of the status taken from the DICOM standard.
-    text : str
-        Longer (optional) description of the status.
-    """
-    def __init__(self, val, category='', description='', text=''):
-        """Create a new Status.
-
-        Parameters
-        ----------
-        val : int
-            The status code.
-        category : str
-            One of ('Success', 'Cancel', 'Warning', 'Pending', 'Failure').
-        description : str
-            A short summary of the status, taken from the DICOM standard.
-        text : str
-            A longer description of the status.
-        """
-        Dataset.__init__(self)
-        # pylint: disable=invalid-name
-        self.Status = val
-        self._category = category
-        self._description = description
-        self.text = text
-
-    def __eq__(self, other):
-        """Return True if the Status value for `self` equals `other`."""
-        return self.Status == other
-
-    def __int__(self):
-        """Return the Status' value."""
-        return self.Status
-
-    def __ne__(self, other):
-        """Return True if the Status value for `self` doesn't equal `other`."""
-        return not self == other
-
-    def __setattr__(self, name, value):
-        """Intercept any attempts to set a value for an instance attribute.
-
-        If name is a DICOM keyword, set the corresponding tag and DataElement.
-        Else, set an instance (python) attribute as any other class would do.
-
-        Only group 0x0000 elements will be accepted
-
-        Parameters
-        ----------
-        name : str
-            The element keyword for the DataElement you wish to add/change. If
-            `name` is not a DICOM element keyword then this will be the
-            name of the attribute to be added/changed.
-        value
-            The value for the attribute to be added/changed.
-
-        Raises
-        ------
-        ValueError
-            If Status is being set to an invalid value or if a non-group 0x0000
-            element is being added.
-        """
-        tag = tag_for_keyword(name)
-
-        # If tag is not None, found DICOM element
-        if tag is not None:
-            tag = Tag(tag)
-            # Check to ensure group 0x0000 and Status value OK
-            if tag.group != 0x0000:
-                raise ValueError("Only group 0x0000 elements can be added to " \
-                                 "a Status dataset")
-            elif tag == 0x00000900 and not isinstance(value, int):
-                raise ValueError("The value for the Status element must be a " \
-                                 "positive integer")
-            elif tag == 0x00000900 and value < 0:
-                raise ValueError("The value for the Status element must be a " \
-                                 "positive integer")
-
-            # Tag not yet in Dataset
-            if tag not in self:
-                vr = dictionary_VR(tag)
-                data_element = DataElement(tag, vr, value)
-
-            # Already have this data_element, just changing its value
-            else:
-                data_element = self[tag]
-                data_element.value = value
-
-            # Now have data_element - store it in this dict
-            self[tag] = data_element
-
-        # If tag is None, set class attribute
-        else:
-            super(Status, self).__setattr__(name, value)
-
-    def __setitem__(self, key, value):
-        """Operator for Dataset[key] = value.
-
-        Only group 0x0000 elements will be accepted
-
-        Parameters
-        ----------
-        key : int
-            The tag for the element to be added to the Dataset.
-        value : pydicom.dataelem.DataElement or pydicom.dataelem.RawDataElement
-            The element to add to the Dataset.
-
-        Raises
-        ------
-        NotImplementedError
-            If `key` is a slice.
-        ValueError
-            If the `key` value doesn't match DataElement.tag.
-        """
-        if isinstance(key, slice):
-            raise NotImplementedError('Slicing is not supported for setting '
-                                      'Dataset elements.')
-
-        # OK if is subclass, e.g. DeferredDataElement
-        if not isinstance(value, DataElement):
-            raise TypeError("Dataset contents must be DataElement instances.")
-
-        tag = Tag(value.tag)
-        if tag.group != 0x0000:
-            raise ValueError("Only group 0x0000 elements can be added to a" \
-                                "Status dataset")
-
-        if key == 0x00000900 and not isinstance(value.value, int):
-            raise TypeError("The value for the Status element must be a " \
-                              "positive integer")
-        elif key == 0x00000900 and value.value < 0:
-            raise TypeError("The value for the Status element must be a " \
-                              "positive integer")
-
-        if key != tag:
-            raise ValueError("DataElement.tag must match the dictionary key")
-
-        dict.__setitem__(self, tag, value)
-
-    @property
-    def category(self):
-        """Return the Status' category."""
-        code = int(self)
-        if code in GENERAL_STATUS:
-            return GENERAL_STATUS[int(self)][0]
-        elif code in [0xFF00, 0xFF01]:
-            return 'Pending'
-        elif code == 0xFE00:
-            return 'Cancel'
-        elif code in [0x0107, 0x0116]:
-            return 'Warning'
-        elif code in range(0xA000, 0xB000) or code in range(0xC000, 0xD000):
-            return 'Failure'
-        elif code in range(0x0100, 0x0200) or code in range(0x0200, 0x0300):
-            return 'Failure'
-
-        return 'Unknown'
-
-    @property
-    def description(self):
-        """Return the Status' description."""
-        code = int(self)
-        if code in GENERAL_STATUS:
-            return GENERAL_STATUS[int(self)][1]
-        elif self._description != '':
-            return self._description
-
-        return ''
-
-
 # Non-Service Class specific statuses - PS3.7 Annex C
 GENERAL_STATUS = {0x0000 : ('Success', ''),
                   0x0105 : ('Failure', 'No Such Attribute'),
@@ -379,15 +136,7 @@ for _code in range(0xC000, 0xCFFF + 1):
 MODALITY_WORKLIST_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-def code_to_status(val):
-    """Return a Status from a general status code `val`."""
-    if val in GENERAL_STATUS:
-        return Status(val, *GENERAL_STATUS[val])
-
-    return None
-
-
-def code_to_status_ds(code):
+def code_to_status(code):
     """Return a Dataset with Status element matching `code`."""
     if isinstance(code, int) and code >= 0:
         ds = Dataset()
@@ -395,3 +144,38 @@ def code_to_status_ds(code):
         return ds
     else:
         raise ValueError("'code' must be a positive integer.")
+
+def code_to_category(code):
+    """Return a Status' category as a str or 'Unknown' if not recognised.
+
+    References
+    ----------
+    DICOM Standard Part 7, Annex C
+    DICOM Standard Part 4
+    """
+    if isinstance(code, int) and code >= 0:
+        if code == 0x0000:
+            return 'Success'
+        elif code in [0xFF00, 0xFF01]:
+            return 'Pending'
+        elif code == 0xFE00:
+            return 'Cancel'
+        elif code in [0x0105, 0x0106, 0x0110, 0x0111, 0x0112, 0x0113, 0x0114,
+                      0x0115, 0x0117, 0x0118, 0x0119, 0x0120, 0x0121, 0x0122,
+                      0x0123, 0x0124, 0x0210, 0x0211, 0x0212, 0x0213]:
+            return 'Failure'
+        elif code in range(0xA000, 0xB000):
+            return 'Failure'
+        elif code in range(0xC000, 0xD000):
+            return 'Failure'
+        elif code in [0x0107, 0x0116]:
+            return 'Warning'
+        elif code in range (0xB000, 0xC000):
+            return 'Warning'
+        elif code == 0x0001:
+            return 'Warning'
+        else:
+            return 'Unknown'
+    else:
+        raise ValueError("'code' must be a positive integer.")
+    

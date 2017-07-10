@@ -23,7 +23,7 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                          N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 from pynetdicom3.pdu_primitives import P_DATA
 from pynetdicom3.sop_class import uid_to_sop_class
-from pynetdicom3.status import code_to_status, Status
+from pynetdicom3.status import code_to_status
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
