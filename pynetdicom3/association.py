@@ -657,7 +657,7 @@ class Association(threading.Thread):
             empty Dataset. If a valid response was received from the peer then
             returns a Dataset containing at least a (0000,0900) Status element,
             and, depending on the returned Status value, may optionally contain
-            additional elements (see PS3.7 9.1.5.1.4 and Annex C).
+            additional elements (see DICOM Standard Part 7, Annex C).
 
             The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
             value of a C-ECHO response "shall have a value of Success". However
@@ -724,6 +724,8 @@ class Association(threading.Thread):
                              "'Verification SOP Class'.")
 
         # Build C-STORE request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
         primitive = C_ECHO()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
@@ -747,7 +749,8 @@ class Association(threading.Thread):
 
         return status
 
-    def send_c_store(self, dataset, msg_id=1, priority=2):
+    def send_c_store(self, dataset, msg_id=1, priority=2, originator_aet=None,
+                     originator_id=None):
         """Send a C-STORE request to the peer AE.
 
         Parameters
@@ -764,6 +767,13 @@ class Association(threading.Thread):
             - 1 - High
             - 2 - Low (default)
 
+        originator_aet : str, optional
+            The AE title of the AE that invoked the C-MOVE operation for which
+            this C-STORE sub-operation is being performed.
+        originator_id : int, optional
+            The Message ID of the C-MOVE request primitive from which this
+            C-STORE sub-operation is being performed.
+
         Returns
         -------
         status : pydicom.dataset.Dataset
@@ -774,10 +784,10 @@ class Association(threading.Thread):
             additional elements (see DICOM Standard Part 7, Annex C).
 
             The status for the requested C-STORE operation should be one of the
-            following Status objects/codes, but as the value is set by the peer
-            AE this can't be assumed:
+            following, but as the value is depends on the peer SCP this can't be
+            assumed:
 
-            General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
+            General C-STORE (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
 
             - Success
 
@@ -875,11 +885,20 @@ class Association(threading.Thread):
             raise ValueError("No accepted Presentation Context for 'dataset'.")
 
         # Build C-STORE request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Affected SOP Instance UID
+        #   (M) Priority
+        #   (U) Move Originator Application Entity Title
+        #   (U) Move Originator Message ID
+        #   (M) Data Set
         req = C_STORE()
         req.MessageID = msg_id
         req.AffectedSOPClassUID = dataset.SOPClassUID
         req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         req.Priority = priority
+        req.MoveOriginatorApplicationEntityTitle = originator_aet
+        req.MoveOriginatorMessageID = originator_id
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
@@ -1047,6 +1066,10 @@ class Association(threading.Thread):
             raise ValueError("No accepted Presentation Context for 'dataset'")
 
         # Build C-FIND request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Priority
+        #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
         req.AffectedSOPClassUID = sop_class.UID
@@ -1277,6 +1300,11 @@ class Association(threading.Thread):
             yield code_to_status(0xA900), None
 
         # Build C-MOVE primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Priority
+        #   (M) Move Destination
+        #   (M) Identifier
         primitive = C_MOVE()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = sop_class.UID
@@ -1507,6 +1535,10 @@ class Association(threading.Thread):
             raise ValueError
 
         # Build C-GET request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Priority
+        #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
         req.AffectedSOPClassUID = sop_class.UID

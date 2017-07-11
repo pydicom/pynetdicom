@@ -1,5 +1,5 @@
 """
-Defines the supported Service Classes, generates the SOP Classes.
+Defines the supported Service Classes and generates their SOP Classes.
 """
 import inspect
 from io import BytesIO
@@ -1286,7 +1286,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
 
 
-# WORKLIST SOP Classes
+# WORKLIST Service Classes - WIP
 class BasicWorklistServiceClass(ServiceClass): pass
 
 
