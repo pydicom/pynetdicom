@@ -902,12 +902,12 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
-        ds = encode(dataset,
-                    transfer_syntax.is_implicit_VR,
-                    transfer_syntax.is_little_endian)
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
 
-        if ds is not None:
-            req.DataSet = BytesIO(ds)
+        if bytestream is not None:
+            req.DataSet = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
@@ -1254,10 +1254,9 @@ class Association(threading.Thread):
         identifier : pydicom.dataset.Dataset or None
             The yielded identifier value depends both on the yielded status
             and the applicable Service Class. For example, for the
-            Query/Retrieve Service Class, a status of 'Failed' should yield an
-            identifier Dataset containing a (0008,0058) Failed SOP Instance UID
-            List element, while a status of 'Pending' will yield an identifier
-            with a value of None.
+            Query/Retrieve Move Service Class, a status of 'Failed' should yield
+            an identifier Dataset containing a (0008,0058) 'Failed SOP Instance
+            UID List' element, while a status of 'Pending' will yield None.
 
         See Also
         --------
@@ -1282,8 +1281,8 @@ class Association(threading.Thread):
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
         else:
-            raise ValueError("Association.send_c_move() query_model must "
-                             "be one of ['P'|'S'|'O']")
+            raise ValueError("Association.send_c_move - 'query_model' must "
+                             "be one of 'P', 'S' or 'O'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1299,20 +1298,29 @@ class Association(threading.Thread):
                          "presentation context\n   for the current dataset")
             yield code_to_status(0xA900), None
 
-        # Build C-MOVE primitive
+        # Build C-MOVE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
         #   (M) Priority
         #   (M) Move Destination
         #   (M) Identifier
-        primitive = C_MOVE()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = sop_class.UID
-        primitive.MoveDestination = move_aet
-        primitive.Priority = priority
-        primitive.Identifier = BytesIO(encode(dataset,
-                                              transfer_syntax.is_implicit_VR,
-                                              transfer_syntax.is_little_endian))
+        req = C_MOVE()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = sop_class.UID
+        req.MoveDestination = move_aet
+        req.Priority = priority
+
+        # Encode the Identifier `dataset` using the agreed transfer syntax
+        #   will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+
+        if bytestream is not None:
+            req.Identifier = BytesIO(bytestream)
+        else:
+            LOGGER.error('Failed to encode the supplied Dataset')
+            raise ValueError('Failed to encode the supplied Dataset')
 
         LOGGER.info('Move SCU Request Identifiers:')
         LOGGER.info('')
@@ -1321,8 +1329,8 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send C-MOVE primitive to peer
-        self.dimse.send_msg(primitive, context_id)
+        # Send C-MOVE request to the peer via DIMSE and wait for the response
+        self.dimse.send_msg(req, context_id)
 
         # Get the responses from peer
         ii = 1
@@ -1441,7 +1449,7 @@ class Association(threading.Thread):
 
             - Success
 
-              * 0x0000 - Success: Sub-operations complete, no failures
+              * 0x0000 - Sub-operations complete, no failures or warnings
 
             - Failure
 
@@ -1456,12 +1464,11 @@ class Association(threading.Thread):
 
             - Pending
 
-              * 0xFF00 - Pending: Sub-operations are continuing
+              * 0xFF00 - Sub-operations are continuing
 
             - Cancel
 
-              * 0xFE00 - Cancel: Sub-operations terminated due to Cancel
-                indication
+              * 0xFE00 - Sub-operations terminated due to Cancel indication
 
             - Failure
 
@@ -1480,10 +1487,9 @@ class Association(threading.Thread):
         identifier : pydicom.dataset.Dataset or None
             The yielded identifier value depends both on the yielded status
             and the applicable Service Class. For example, for the
-            Query/Retrieve Service Class, a status of 'Failed' should yield an
-            identifier Dataset containing a (0008,0058) Failed SOP Instance UID
-            List element, while a status of 'Pending' will yield an identifier
-            with a value of None.
+            Query/Retrieve Get Service Class, a status of 'Failed' should yield
+            an identifier Dataset containing a (0008,0058) 'Failed SOP Instance
+            UID List' element, while a status of 'Pending' will yield None.
 
         Raises
         ------
@@ -1647,25 +1653,58 @@ class Association(threading.Thread):
                     dataset = None
                     break
 
-            # Received a C-STORE request in response to the C-GET
+            # Received a C-STORE request
             elif rsp.__class__ == C_STORE:
 
+                # Build C-STORE response primitive
+                #   (U) Message ID
+                #   (M) Message ID Being Responded To
+                #   (U) Affected SOP Class UID
+                #   (U) Affected SOP Instance UID
+                #   (M) Status
                 store_rsp = C_STORE()
                 store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
-                store_rsp.AffectedSOPInstanceUID = \
-                                                rsp.AffectedSOPInstanceUID
+                store_rsp.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
                 store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
 
-                ds = decode(rsp.DataSet,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+                # Get the presentation context we are operating under
+                pass
+
+                # Attempt to decode the dataset
+                # FIXME: transfer_syntax should be the ts agreed to for the pc
+                try:
+                    ds = decode(rsp.DataSet,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error('Failed to decode the received dataset')
+                    LOGGER.exception(ex)
+                    store_rsp.Status = 0xC100
+                    store_rsp.ErrorComment = 'Unable to decode the dataset'
+                    # FIXME: get pc ID from above
+                    self.dimse.send_msg(store_rsp, pc_id)
+                    yield Dataset(), None
+
+                # Check dataset SOP Class UID matches the one agreed to
+                pass
 
                 #  Callback for C-STORE SCP (user implemented)
-                status = self.ae.on_c_store(ds)
-                # Need to validate returned status
+                try:
+                    store_status = self.ae.on_c_store(ds)
+                except Exception as ex:
+                    LOGGER.error("Exception in the "
+                                 "ApplicationEntity.on_c_store() callback")
+                    LOGGER.exception(ex)
+                    store_rsp.Status = 0xC101
+                    # FIXME: get pc ID from above
+                    self.dimse.send_msg(store_rsp, pc_id)
+
+                # Validate store_status and set store_rsp.Status accordingly
+                pass
 
                 # Send C-STORE confirmation back to peer
-                store_rsp.Status = status
+                store_rsp.Status = store_status
+                # FIXME: get pc ID from above
                 self.dimse.send_msg(store_rsp, context_id)
 
         yield status, identifier
