@@ -1,5 +1,5 @@
 """
-Defines Status and the supported Service Classes, generates the SOP Classes.
+Defines the supported Service Classes, generates the SOP Classes.
 """
 import inspect
 from io import BytesIO
@@ -24,8 +24,7 @@ from pynetdicom3.status import (VERIFICATION_SERVICE_CLASS_STATUS,
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
 def _class_factory(name, uid, base_cls):
-    """
-    Generates a SOP Class subclass of `base_cls` called `name`
+    """Generates a SOP Class subclass of `base_cls` called `name`.
 
     Parameters
     ----------
@@ -63,7 +62,7 @@ def _generate_service_sop_classes(sop_class_list, service_class):
 
 # DICOM SERVICE CLASS BASE
 class ServiceClass(object):
-    """The base class for all the service class types.
+    """The base class for all the service classes.
 
     TODO: Perhaps define some class attributes such as self.AE = None
         self.UID = None,
@@ -195,12 +194,15 @@ class VerificationServiceClass(ServiceClass):
         9.1.5.1.4 indicates it may have any of the following values:
 
         Success
-            0x000 - Success
+
+        - 0x000 - Success
+
         Failure
-            0x0122 - Refused: SOP Class Not Supported
-            0x0210 - Refused: Duplicate Invocation
-            0x0211 - Refused: Unrecognised Operation
-            0x0212 - Refused: Mistyped Argument
+
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0x0210 - Refused: Duplicate Invocation
+        - 0x0211 - Refused: Unrecognised Operation
+        - 0x0212 - Refused: Mistyped Argument
 
         Parameters
         ----------
@@ -209,9 +211,8 @@ class VerificationServiceClass(ServiceClass):
 
         See Also
         --------
-        pynetdicom3.AE.on_c_echo
-        pynetdicom3.association.Association.send_c_echo
-        pynetdicom3.dimse_primitives.C_ECHO
+        applicationentity.ApplicationEntity.on_c_echo
+        association.Association.send_c_echo
 
         References
         ----------
@@ -223,9 +224,9 @@ class VerificationServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
         rsp.MessageIDBeingRespondedTo = req.MessageID
 
-        # Try and run the user's on_c_echo callback
-        #   The callback should return the Status as either an int or Dataset
-        #   any failures in the callback results in 0x0000 Success
+        # Try and run the user's on_c_echo callback. The callback should return
+        #   the Status as either an int or Dataset, and any failures in the
+        #   callback results in 0x0000 'Success'
         try:
             status = self.AE.on_c_echo()
             if isinstance(status, Dataset):
@@ -290,23 +291,26 @@ class StorageServiceClass(ServiceClass):
         Status
         ~~~~~~
         Success
-            0x0000 - Success
-        Warning
-            0xB000 * - Warning: Coercion of Data Elements
-            0xB006 * - Warning: Elements Discarded
-            0xB007 * - Warning: Data Set Does Not Match SOP Class
-        Failure
-            0x0117 - Refused: Invalid SOP Instance
-            0x0122 - Refused: SOP Class Not Supported
-            0x0124 - Refused: Not Authorised
-            0x0210 - Refused: Duplicate Invocation
-            0x0211 - Refused: Unrecognised Operation
-            0x0212 - Refused: Mistyped Argument
-            0xA7xx * - Refused: Out of Resources
-            0xA9xx * - Error: Data Set Does Not Match SOP Class
-            0xCxxx * - Error: Cannot Understand
 
-        Where * indicates service class specific statuses.
+        - 0x0000 - Success
+
+        Warning
+
+        - 0xB000 - Warning: Coercion of Data Elements
+        - 0xB006 - Warning: Elements Discarded
+        - 0xB007 - Warning: Data Set Does Not Match SOP Class
+
+        Failure
+
+        - 0x0117 - Refused: Invalid SOP Instance
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0x0124 - Refused: Not Authorised
+        - 0x0210 - Refused: Duplicate Invocation
+        - 0x0211 - Refused: Unrecognised Operation
+        - 0x0212 - Refused: Mistyped Argument
+        - 0xA700 to 0xA7FF - Refused: Out of Resources
+        - 0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
+        - 0xC000 to 0xCFFF - Error: Cannot Understand
 
         Parameters
         ----------
@@ -315,9 +319,8 @@ class StorageServiceClass(ServiceClass):
 
         See Also
         --------
-        pynetdicom3.AE.on_c_store
-        pynetdicom3.association.Association.send_c_store
-        pynetdicom3.dimse_primitives.C_STORE
+        applicationentity.ApplicationEntity.on_c_store
+        association.Association.send_c_store
 
         References
         ----------
@@ -344,9 +347,10 @@ class StorageServiceClass(ServiceClass):
             ds = decode(req.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
-        except:
+        except Exception as ex:
             LOGGER.error("Failed to decode the received dataset")
-             # Failure: Cannot Understand - Dataset decoding error
+            LOGGER.exception(ex)
+            # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC100
             rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
@@ -355,10 +359,11 @@ class StorageServiceClass(ServiceClass):
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
             rsp_status = self.AE.on_c_store(ds)
-        except Exception:
-            LOGGER.exception("Exception in the ApplicationEntity.on_c_store() "
-                             "callback")
-             # Failure: Cannot Understand - Error in on_c_store callback
+        except Exception as ex:
+            LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
+                         "callback")
+            LOGGER.exception(ex)
+            # Failure: Cannot Understand - Error in on_c_store callback
             rsp.Status = 0xC101
             self.DIMSE.send_msg(rsp, self.pcid)
             return
@@ -386,7 +391,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         Identifier
         ~~~~~~~~~~
-        The C-FIND request shall contain:
+        The C-FIND request Identifier shall contain:
+
         * Key Attributes values to be matched against the values of storage SOP
         Instances managed by the SCP.
         * (0008,0052) Query/Retrieve Level.
@@ -410,27 +416,11 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         (C) Identifier
         (M) Status
 
-        Status
-        ~~~~~~
-        Success
-            0x0000 - Success
-        Pending
-            0xFF00 * - Pending: Matches are continuing, current match supplied
-            0xFF01 * - Pending: Matches are continuing, warning
-        Cancel
-            0xFE00 - Cancel
-        Failure
-            0xA700 * - Refused: Out of Resources
-            0x0122 - Refused: SOP Class Not Supported
-            0xA900 * - Identifier Does Not Match SOP Class
-            0xCxxx * - Unable to Process
-
-        Where * indicates service class specific status codes.
-
         Identifier
         ~~~~~~~~~~
         The C-FIND response shall only include an Identifier when the Status is
         'Pending'. When sent, the Identifier shall contain:
+
         * Key Attributes with values corresponding to Key Attributes contained
         in the Identifier of the request.
         * (0008,0052) Query/Retrieve Level.
@@ -442,6 +432,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         local time zone. It shall not be present otherwise.
 
         The C-FIND response Identifier shall also contain either or both of:
+
         * (0008,0130) Storage Media File-Set ID and (0088,0140) Storage Media
         File-Set UID.
         * (0008,0054) Retrieve AE Title.
@@ -449,16 +440,37 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         The C-FIND response Identifier may also (but is not required to) include
         the (0008,0056) Instance Availability element.
 
+        Status
+        ~~~~~~
+        Success
+
+        - 0x0000 - Success
+
+        Pending
+
+        - 0xFF00 - Pending: Matches are continuing, current match supplied
+        - 0xFF01 - Pending: Matches are continuing, warning
+
+        Cancel
+
+        - 0xFE00 - Cancel
+
+        Failure
+
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0xA700 - Refused: Out of Resources
+        - 0xA900 - Identifier Does Not Match SOP Class
+        - 0xC000 to 0xCFFF - Unable to Process
+
         Parameters
         ----------
-        req : pynetdicom3.DIMSEmessage.C_FIND_RQ
-            The C_FIND request primitive received from the peer.
+        req : pynetdicom3.dimse_primitives.C_FIND
+            The C-FIND request primitive received from the peer.
 
         See Also
         --------
-        pynetdicom3.AE.on_c_find
-        pynetdicom3.association.Association.send_c_find
-        pynetdicom3.dimse_primitives.C_FIND
+        applicationentity.ApplicationEntity.on_c_find
+        association.Association.send_c_find
 
         References
         ----------
@@ -479,27 +491,20 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
+        # Decode and log Identifier
         try:
             identifier = decode(req.Identifier,
                                 self.transfersyntax.is_implicit_VR,
                                 self.transfersyntax.is_little_endian)
-        except:
-            LOGGER.error("Failed to decode the received Identifier dataset")
-            # Failure - Unable to Process - Failed to decode Identifier
-            rsp.Status = 0xC000
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
-
-        # Log Identifier
-        try:
             LOGGER.info('Find SCP Request Identifiers:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Data Set')
             for elem in identifier:
                 LOGGER.info(elem)
             LOGGER.info('')
-        except:
-            LOGGER.error("Failed to decode the received Identifier dataset.")
+        except Exception as ex:
+            LOGGER.error("Failed to decode the request's Identifier dataset.")
+            LOGGER.exception(ex)
             # Failure - Unable to Process - Failed to decode Identifier
             rsp.Status = 0xC000
             self.DIMSE.send_msg(rsp, self.pcid)
@@ -507,6 +512,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         # Callback - C-FIND
         try:
+            # yields (status, identifier)
             result = self.AE.on_c_find(identifier)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_find implementation.")
@@ -523,7 +529,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
             if rsp.Status in self.statuses:
                 status = self.statuses[rsp.Status]
-            else: # Unknown status
+            else:  # Unknown status
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
 
@@ -533,7 +539,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Failure':
-                LOGGER.info('Find SCP Resp onse: (Failure - %s)', status[1])
+                LOGGER.info('Find SCP Response: (Failure - %s)', status[1])
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Success':
@@ -541,7 +547,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.info('Find SCP Response: (Success)')
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            else: # Pending
+            elif status[0] == 'Pending':
                 ds = BytesIO(encode(rsp_identifier,
                                     self.transfersyntax.is_implicit_VR,
                                     self.transfersyntax.is_little_endian))
@@ -567,6 +573,11 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 for elem in rsp_identifier:
                     LOGGER.debug(elem)
                 LOGGER.debug('')
+            else:
+                LOGGER.error('Find SCP Response: Unsupported status')
+                rsp.Status = 0xC000
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
 
         # Send final success response
         rsp.Status = 0x0000
@@ -575,103 +586,139 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
 
 class QueryRetrieveMoveServiceClass(ServiceClass):
-    """Implements the QR Move Service Class.
-
-    PS3.4 Section C.4.2.2
-
-    Status
-    ------
-    Based on PS3.7 Section 9.1.4.1.7 and PS3.4 Annex C.4.2.1.5.
-
-    * Indicates service class specific status codes
-
-    Success
-        Success: Sub-operations complete, no failures - 0x0000
-    Pending
-        *Pending: Sub-operations are continuing - 0xFF00
-    Cancel
-        Cancel: Sub-operations terminated due to Cancel indication - 0xFE00
-    Failure
-        *Refused: Out of Resources, unable to calculate number of matches
-            - 0xA701
-        *Refused: Out of Resources, unable to perform sub-operations - 0xA702
-        Refused: SOP Class Not Supported - 0x0122
-        *Refused: Move Destination Unknown - 0xA801
-        *Identifier Does Not Match SOP Class - 0xA900
-        *Unable to Process - 0xCxxx
-        Refused: Duplicate Invocation
-        Refused: Mistyped Argument
-        Refused: Unrecognised Operation
-        Refused: Not Authorised
-    Warning
-        Warning: Sub-operations completed, one or more failures - 0xB000
-    """
+    """Implements the Query/Retrieve Move Service Class."""
     statuses = QR_MOVE_SERVICE_CLASS_STATUS
 
-    def SCP(self, msg):
-        """SCP
+    def SCP(self, req):
+        """The SCP implementation for the Query/Retrieve Move Service Class.
 
-        SCP Behaviour
-        -------------
-        The SCP shall identify a set of Entities at the level of the transfer
-        based on the values in the Unique Keys in the Identifier of the C-MOVE
-        request.
-
-        The SCP shall initiate C-STORE sub-operations for all stored SOP
-        Instances related to the Patient ID, List of Study Instance UIDs, List
-        of Series Instance UIDs or List of SOP Instance UIDs depending on the
-        QR level specified in the C-MOVE request.
-
-        A sub-operation is considered Failed if the SCP is unable to negotiate
-        an appropriate presentation context for a given stored SOP instance.
-
-        Optionally, the SCP may generate responses to the C-MOVE with status
-        equal to Pending during the processing of the C-STORE sub-operations.
-        These responses shall indicate the Remaining, Completed, Failed and
-        Warning C-STORE sub-operations.
-
-        When the number of Remaining sub-operations reaches zero, the SCP shall
-        generate a final response with a status equal to Success, Warning,
-        Failure or Refused.
-
-        The SCP may receive a C-MOVE-CANCEL request at any time during the
-        processing of the C-MOVE. The SCP shall interrupt all C-STORE
-        sub-operation processing and return a status of Canceled in the C-MOVE
-        response.
-
-        Pending: shall contain NoRemainingSubops, NoCompletedSubops,
-            NoFailedSubops, NoWarningSubops
-        Canceled: may contain NoRemainingSubops, NoCompletedSubops,
-            NoFailedSubops, NoWarningSubops
-        Failed: shall NOT contain NoRemainingSubops, may contain
-            NoCompletedSubops, NoFailedSubops, NoWarningSubops
-        Warning: shall NOT contain NoRemainingSubops, may contain
-            NoCompletedSubops, NoFailedSubops, NoWarningSubops
-        Success: shall NOT contain NoRemainingSubops, may contain
-            NoCompletedSubops, NoFailedSubops, NoWarningSubops
+        C-MOVE Request
+        --------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Move Destination
+        (M) Identifier
 
         Identifier
-        -----------
-        Based on PS3.7 Annex C.4.2.1.4.2
+        ~~~~~~~~~~
+        The C-MOVE request Identifier shall contain:
 
-        The FailedSOPInstanceUIDList (0008,0058) specifies a list of UIDs of the
-        C-STORE sub-operation SOP Instances for which this C-MOVE operation has
-        failed.
+        * (0008,0052) Query/Retrieve Level.
+        * Unique Key Attributes, which may include:
 
-        The Identifier in a C-MOVE response with a status of Canceled, Failure,
-        Refused or Warning shall contain the FailedSOPInstanceUIDList attribute.
-        Pending shall not contain the FailedSOPInstanceUIDList attribute.
+          - (0010,0020) Patient ID
+          - (0020,000D) Study Instance UIDs
+          - (0020,000E) Series Instance UIDs
+          - (0008,0018) SOP Instance UIDs
+
+        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
+          Conversion has been accepted during Extended Negotiation. It shall not
+          be present otherwise.
+        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is using
+          a character set other than the default character repertoire.
+
+        C-MOVE Response
+        ---------------
+        Parameters
+        ~~~~~~~~~~
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Identifier
+        (M) Status
+        (C) Number of Remaining Sub-operations
+        (C) Number of Completed Sub-operations
+        (C) Number of Failed Sub-operations
+        (C) Number of Warning Sub-operations
+
+        Identifier
+        ~~~~~~~~~~
+        If the C-MOVE response Status is 'Cancelled', 'Failure', 'Refused' or
+        'Warning' then the Identifier shall contain:
+
+        * (0008,0058) Failed SOP Instance UID List
+
+        If the C-MOVE response Status is 'Pending' then there is no Identifier.
+
+        Status
+        ~~~~~~
+        Success
+
+        - 0x0000 - Success: Sub-operations complete, no failures
+
+        Pending
+
+        - 0xFF00 - Pending: Sub-operations are continuing
+
+        Cancel
+
+        - 0xFE00 - Cancel: Sub-operations terminated due to Cancel indication
+
+        Failure
+
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0x0124 - Refused: Not Authorised
+        - 0x0210 - Refused: Duplicate Invocation
+        - 0x0211 - Refused: Unrecognised Operation
+        - 0x0212 - Refused: Mistyped Argument
+        - 0xA701 - Refused: Out of Resources, unable to calculate number of
+          matches
+        - 0xA702 - Refused: Out of Resources, unable to perform sub-operations
+        - 0xA801 - Refused: Move Destination Unknown
+        - 0xA900 - Identifier Does Not Match SOP Class
+        - 0xC000 to 0xCFFF - Unable to Process
+
+        Warning
+
+        - 0xB000 - Warning: Sub-operations completed, one or more failures
+
+        Number of X Sub-operations
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Inclusion of the 'Number of X Sub-operations' parameters is conditional
+        on the value of the response Status. For a given Status category, the
+        table below states whether or not the response shall contain, shall not
+        contain or may contain the 'Number of X Sub-operations' parameter.
+
+        +-----------+------------------------------------------+
+        |           | Number of "X" Sub-operations             |
+        +-----------+-----------+-----------+--------+---------+
+        | Status    | Remaining | Completed | Failed | Warning |
+        +===========+===========+===========+========+=========+
+        | Pending   | shall     | shall     | shall  | shall   |
+        +-----------+-----------+-----------+--------+---------+
+        | Cancelled | may       | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
+        | Warning   | shall not | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
+        | Failure   | shall not | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
+        | Success   | shall not | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
 
         Parameters
         ----------
-        msg : pynetdicom3.dimse_messages.DIMSEMessage
-            The DIMSE C-MOVE request (C_MOVE_RQ) message
+        req : pynetdicom3.dimse_primitives.C_MOVE
+            The C-MOVE request primitive sent by the peer.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_move
+        association.Association.send_c_move
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C.
+        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C.
         """
         # Build C-MOVE response primitive
         rsp = C_MOVE()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        rsp.Identifier = msg.Identifier
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        # FIXME: response identifier != request identifier
+        rsp.Identifier = req.Identifier
 
         # Number of suboperation trackers
         no_remaining = 0
@@ -690,7 +737,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             return
 
         ## GET USER ON_C_MOVE GENERATOR
-        result = self._user_callback(ds, msg.MoveDestination, rsp)
+        result = self._user_callback(ds, req.MoveDestination, rsp)
         if result is None:
             return
 
@@ -922,7 +969,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the Query/Retrieve Get Service Class."""
     statuses = QR_GET_SERVICE_CLASS_STATUS
 
-    def SCP(self, msg, priority=2):
+    def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
         C-GET Request
@@ -936,84 +983,113 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         Identifier
         ~~~~~~~~~~
-        The C-GET request shall contain:
-        * Key Attributes values to be matched against the values of storage SOP
-        Instances managed by the SCP.
-        * (0008,0052) Query/Retrieve Level.
-        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-        Conversion has been accepted during Extended Negotiation. It shall not
-        be present otherwise.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-        character sets may be used in any of the Attributes in the request
-        Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
-        request Identifier are to be interpreted explicitly in the designated
-        local time zone. It shall not be present otherwise.
+        The C-GET request Identifier shall contain:
 
-        C-FIND Response
+        * (0008,0052) Query/Retrieve Level.
+        * Unique Key Attributes, which may include:
+
+          - (0010,0020) Patient ID
+          - (0020,000D) Study Instance UIDs
+          - (0020,000E) Series Instance UIDs
+          - (0008,0018) SOP Instance UIDs
+
+        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
+          Conversion has been accepted during Extended Negotiation. It shall not
+          be present otherwise.
+        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is using
+          a character set other than the default character repertoire.
+
+        C-GET Response
         ---------------
         Parameters
         ~~~~~~~~~~
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
-        (C) Identifier
+        (U) Identifier
         (M) Status
+        (C) Number of Remaining Sub-operations
+        (C) Number of Completed Sub-operations
+        (C) Number of Failed Sub-operations
+        (C) Number of Warning Sub-operations
+
+        Identifier
+        ~~~~~~~~~~
+        If the C-GET response Status is 'Cancelled', 'Failure', 'Refused' or
+        'Warning' then the Identifier shall contain:
+
+        * (0008,0058) Failed SOP Instance UID List
+
+        If the C-GET response Status is 'Pending' then there is no Identifier.
 
         Status
         ~~~~~~
         Success
-            0x0000 - Success
+
+        - 0x0000 - Success - Sub-operations complete - no Failures or Warnings
+
         Pending
-            0xFF00 * - Pending: Matches are continuing, current match supplied
-            0xFF01 * - Pending: Matches are continuing, warning
+
+        - 0xFF00 - Sub-operations are continuing
+
         Cancel
-            0xFE00 - Cancel
+
+        - 0xFE00 - Sub-operations terminated due to Cancel indication
+
         Failure
-            0xA700 * - Refused: Out of Resources
-            0x0122 - Refused: SOP Class Not Supported
-            0xA900 * - Identifier Does Not Match SOP Class
-            0xCxxx * - Unable to Process
 
-        Where * indicates service class specific status codes.
+        - 0x0122 - Refused: SOP Class Not Supported
+        - 0x0124 - Refused: Not Authorised
+        - 0x0210 - Refused: Duplicate Invocation
+        - 0x0211 - Refused: Unrecognised Operation
+        - 0x0212 - Refused: Mistyped Argument
+        - 0xA701 - Refused: Out of Resources - unable to calculate number of
+          matches
+        - 0xA702 - Refused: Out of Resources - unable to perform sub-operations
+        - 0xA900 - Identifier Does Not Match SOP Class
+        - 0xC000 to 0xCFFF - Unable to Process
 
-        Identifier
-        ~~~~~~~~~~
-        The C-FIND response shall only include an Identifier when the Status is
-        'Pending'. When sent, the Identifier shall contain:
-        * Key Attributes with values corresponding to Key Attributes contained
-        in the Identifier of the request.
-        * (0008,0052) Query/Retrieve Level.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-        character sets may be used in any of the Attributes in the response
-        Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
-        response Identifier are to be interpreted explicitly in the designated
-        local time zone. It shall not be present otherwise.
+        Warning
 
-        The C-FIND response Identifier shall also contain either or both of:
-        * (0008,0130) Storage Media File-Set ID and (0088,0140) Storage Media
-        File-Set UID.
-        * (0008,0054) Retrieve AE Title.
+        - 0xB000 - Sub-operations complete - one or more Failures or Warnings
 
-        The C-FIND response Identifier may also (but is not required to) include
-        the (0008,0056) Instance Availability element.
+        Number of X Sub-operations
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Inclusion of the 'Number of X Sub-operations' parameters is conditional
+        on the value of the response Status. For a given Status category, the
+        table below states whether or not the response shall contain, shall not
+        contain or may contain the 'Number of X Sub-operations' parameter.
+
+        +-----------+------------------------------------------+
+        |           | Number of "X" Sub-operations             |
+        +-----------+-----------+-----------+--------+---------+
+        | Status    | Remaining | Completed | Failed | Warning |
+        +===========+===========+===========+========+=========+
+        | Pending   | shall     | shall     | shall  | shall   |
+        +-----------+-----------+-----------+--------+---------+
+        | Cancelled | may       | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
+        | Warning   | shall not | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
+        | Failure   | shall not | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
+        | Success   | shall not | may       | may    | may     |
+        +-----------+-----------+-----------+--------+---------+
 
         Parameters
         ----------
-        req : pynetdicom3.DIMSEmessage.C_FIND_RQ
-            The C_FIND request primitive received from the peer.
+        req : pynetdicom3.dimse_primitives.C_GET
+            The C-GET request primitive sent by the peer.
 
         See Also
         --------
-        pynetdicom3.AE.on_c_find
-        pynetdicom3.association.Association.send_c_find
-        pynetdicom3.dimse_primitives.C_FIND
+        applicationentity.ApplicationEntity.on_c_get
+        association.Association.send_c_get
 
         References
         ----------
         DICOM Standard Part 4, Annex C.
-        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C.
+        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C.
         """
         # Build C-GET response primitive
         rsp = C_GET()

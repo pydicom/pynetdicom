@@ -836,15 +836,10 @@ class DIMSEServiceProvider(object):
         # Try and get the status from the affected SOP class UID
         sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
         if cs.Status in sop_class.statuses:
-            status = Status(cs.Status, *sop_class.statuses[cs.Status])
+            status = sop_class.statuses[cs.Status]
+            status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
         else:
-            status = Status(cs.Status, '(unknown)', '')
-
-        if status.description == '':
-            status_str = '0x{0:04x} - {1}'.format(int(status), status.category)
-        else:
-            status_str = '0x{0:04x} - {1} - {2}'.format(int(status), status.category,
-                                              status.description)
+            status_str = '0x{0:04x} - Unknown'
 
         LOGGER.info('Received Store Response')
         s = []
