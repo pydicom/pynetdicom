@@ -169,6 +169,7 @@ class ApplicationEntity(object):
         self.address = platform.node()
         self.port = port
         self.ae_title = ae_title
+        self.ASSOCIATION = Association
 
         # Avoid dangerous default values
         if transfer_syntax is None:
@@ -344,7 +345,7 @@ class ApplicationEntity(object):
 
             # Create a new Association
             # Association(local_ae, local_socket=None, max_pdu=16382)
-            assoc = Association(self,
+            assoc = self.ASSOCIATION(self,
                                 client_socket,
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
@@ -422,7 +423,7 @@ class ApplicationEntity(object):
                    'Port' : port}
 
         # Associate
-        assoc = Association(local_ae=self,
+        assoc = self.ASSOCIATION(local_ae=self,
                             peer_ae=peer_ae,
                             acse_timeout=self.acse_timeout,
                             dimse_timeout=self.dimse_timeout,
