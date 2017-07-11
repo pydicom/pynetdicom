@@ -10,12 +10,15 @@ import socket
 from struct import pack
 import sys
 import time
+import ssl
+from exceptions import RuntimeError
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian, UID
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
+
 
 def setup_logger():
     """Setup the logger."""
@@ -62,7 +65,6 @@ class ApplicationEntity(object):
 
                 # Must return a valid C-STORE status - 0x0000 is Success
                 return 0x0000
-
             ae.on_c_store = on_c_store
 
             # Start the SCP
@@ -140,10 +142,36 @@ class ApplicationEntity(object):
         The SOP Classes supported when acting as an SCP (SCP only)
     transfer_syntaxes : List of pydicom.uid.UID
         The supported transfer syntaxes
-    """
+    # ######### SSL/TLS Parameters ############################ #
+    # For more information please visit:                        #
+    # Python2.7: https://docs.python.org/2.7/library/ssl.html   #
+    # Python3: https://docs.python.org/3/library/ssl.html       #
+    # ######################################################### #
+
+    certfile : File path
+        The certificate file for SSL/TLS communication over DICOM
+    keyfile : File path
+        The key file for SSL/TLS communication over DICOM
+    cert_verify: ssl.CERT_NONE or ssl.CERT_OPTIONAL or ssl.CERT_REQUIRED
+        Specifies whether a certificate is required from the other side of the
+        connection, and whether it will be validated if provided.
+        If the value of this parameter is not CERT_NONE, then the ca_certs
+        parameter must point to a file of CA certificates.
+    cacerts: File path
+        File contains a set of concatenated "certification authority"
+        certificates, which are used to validate certificates passed
+        from the other end of the connection.
+    version: tls (for sslv2 and sslv3 support), tlsv1, tlsv1_1, tlsv1_2
+        Specifies which version of the SSL protocol to use. Typically,
+        the server chooses a particular protocol version, and the client must
+        adapt to the server's choice
+        """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
-                 scp_sop_class=None, transfer_syntax=None):
+                 scp_sop_class=None, transfer_syntax=None,
+                 certfile=None, keyfile=None,
+                 cacerts='/etc/ssl/certs/ca-certificates.crt',
+                 cert_verify=True, version=ssl.PROTOCOL_SSLv23):
         """Create a new Application Entity.
 
         Parameters
@@ -187,6 +215,33 @@ class ApplicationEntity(object):
         # The transfer syntax(es) available to the AE
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
+
+        self.has_ssl = False
+        # Check if ssl parameters are complete
+        if certfile and keyfile:
+            self.certfile = certfile
+            self.keyfile = keyfile
+            self.has_ssl = True
+            if cert_verify:
+                if not cacerts:
+                    raise RuntimeError("Please provide certification authority"
+                                       " certificates file for validation")
+            self.cacerts = cacerts
+            self.cert_verify = ssl.CERT_REQUIRED if cert_verify else ssl.CERT_NONE
+
+            ssl_versions = ['tls', 'tlsv1', 'tlsv1_1', 'tlsv1_2']
+            if version in ssl_versions:
+                self.ssl_version = ssl_versions.index(version)+2
+            else:
+                raise RuntimeError("The SSL/TLS version you specified is not "
+                                   "currently supported.\nPlease provide one "
+                                   "of the following values "
+                                   "[tls, tlsv1, tlsv1_1, tlsv1_2]")
+
+        else:
+            raise RuntimeError("SSL/TLS configuration is not valid.\n"
+                               "Please provide certfile, keyfile")
+
 
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
@@ -337,20 +392,34 @@ class ApplicationEntity(object):
 
         # If theres a connection
         if read_list:
-            client_socket, _ = self.local_socket.accept()
-            client_socket.setsockopt(socket.SOL_SOCKET,
-                                     socket.SO_RCVTIMEO,
-                                     pack('ll', 10, 0))
+            _socket, _ = self.local_socket.accept()
+            try:
+                if self.has_ssl:
+                    client_socket = ssl.wrap_socket(_socket,
+                                                    server_side=True,
+                                                    certfile=self.certfile,
+                                                    keyfile=self.keyfile,
+                                                    cert_reqs=self.cert_verify,
+                                                    ca_certs=self.cacerts,
+                                                    ssl_version=self.ssl_version)
+                else:
+                    client_socket = _socket
+                client_socket.setsockopt(socket.SOL_SOCKET,
+                                         socket.SO_RCVTIMEO,
+                                         pack('ll', 10, 0))
 
-            # Create a new Association
-            # Association(local_ae, local_socket=None, max_pdu=16382)
-            assoc = Association(self,
-                                client_socket,
-                                max_pdu=self.maximum_pdu_size,
-                                acse_timeout=self.acse_timeout,
-                                dimse_timeout=self.dimse_timeout)
-            assoc.start()
-            self.active_associations.append(assoc)
+                # Create a new Association
+                # Association(local_ae, local_socket=None, max_pdu=16382)
+                assoc = Association(self,
+                                    client_socket,
+                                    max_pdu=self.maximum_pdu_size,
+                                    acse_timeout=self.acse_timeout,
+                                    dimse_timeout=self.dimse_timeout)
+                assoc.start()
+                self.active_associations.append(assoc)
+            except Exception as e:
+                LOGGER.error(str(e))
+
 
     def cleanup_associations(self):
         """Remove dead associations.
