@@ -12,8 +12,8 @@ import sys
 import time
 
 from pydicom.dataset import Dataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian, UID, InvalidUID
+from pydicom.uid import (ExplicitVRLittleEndian, ImplicitVRLittleEndian,
+                         ExplicitVRBigEndian, UID, InvalidUID)
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title

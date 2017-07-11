@@ -56,7 +56,7 @@ from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation, \
                                    SCP_SCU_RoleSelectionNegotiation, \
                                    AsynchronousOperationsWindowNegotiation, \
                                    UserIdentityNegotiation
-from pynetdicom3.utils import wrap_list, PresentationContext
+from pynetdicom3.utils import pretty_bytes, PresentationContext
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
@@ -64,7 +64,7 @@ LOGGER.setLevel(logging.CRITICAL)
 
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
-    str_list = wrap_list(bytestream, prefix="b'\\x", delimiter='\\x',
+    str_list = pretty_bytes(bytestream, prefix="b'\\x", delimiter='\\x',
                         items_per_line=10)
     for string in str_list:
         print(string)
@@ -585,7 +585,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
         s = user_info.encode()
 
-        #for ii in wrap_list(s):
+        #for ii in pretty_bytes(s):
         #        print(ii)
 
         self.assertEqual(s, user_information)
@@ -936,7 +936,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
 
                 s = async.encode()
 
-                #for ii in wrap_list(s):
+                #for ii in pretty_bytes(s):
                 #    print(ii)
 
                 self.assertEqual(s, asynchronous_window_ops)

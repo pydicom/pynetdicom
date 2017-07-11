@@ -44,7 +44,7 @@ from struct import pack, unpack
 
 from pydicom.uid import UID
 
-from pynetdicom3.utils import wrap_list, PresentationContext, validate_ae_title
+from pynetdicom3.utils import pretty_bytes, PresentationContext, validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3.pdu')
@@ -438,7 +438,7 @@ class A_ASSOCIATE_RQ(PDU):
         LOGGER.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
                      'PDU header', len(bytestring) - 6)
 
-        for line in wrap_list(bytestring, max_size=1024):
+        for line in pretty_bytes(bytestring, max_size=1024):
             LOGGER.debug('  ' + line)
 
         LOGGER.debug('Parsing an A-ASSOCIATE PDU')
@@ -831,7 +831,7 @@ class A_ASSOCIATE_AC(PDU):
         LOGGER.debug('PDU Type: Associate Accept, PDU Length: %s + 6 bytes '
                      'PDU header', len(bytestring) - 6)
 
-        for line in wrap_list(bytestring, max_size=512):
+        for line in pretty_bytes(bytestring, max_size=512):
             LOGGER.debug('  ' + line)
 
         LOGGER.debug('Parsing an A-ASSOCIATE PDU')

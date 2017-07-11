@@ -1,6 +1,4 @@
 """Implementation of the DIMSE Status values."""
-
-
 from pydicom.dataset import Dataset
 
 

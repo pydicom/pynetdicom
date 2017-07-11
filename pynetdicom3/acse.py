@@ -13,7 +13,7 @@ from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
 from pynetdicom3.pdu_primitives import (A_ASSOCIATE, A_RELEASE, A_ABORT,
                                         A_P_ABORT)
 from pynetdicom3.utils import PresentationContextManager
-from pynetdicom3.utils import wrap_list
+from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.acse')
 
@@ -481,7 +481,7 @@ class ACSEServiceProvider(object):
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
-                app_info = wrap_list(item.app_info)
+                app_info = pretty_bytes(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
                 for line in app_info:
@@ -750,7 +750,7 @@ class ACSEServiceProvider(object):
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
-                app_info = wrap_list(item.app_info)
+                app_info = pretty_bytes(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
                 for line in app_info:

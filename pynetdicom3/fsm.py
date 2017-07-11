@@ -4,9 +4,8 @@ The DUL's finite state machine representation.
 import logging
 import socket
 
-from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, \
-                            A_ASSOCIATE_AC, P_DATA_TF, \
-                            A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
+from pynetdicom3.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
+                             P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
 from pynetdicom3.pdu_primitives import A_ABORT
 
 LOGGER = logging.getLogger('pynetdicom3.sm')

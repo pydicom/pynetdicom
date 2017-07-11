@@ -35,7 +35,7 @@ from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
                                    ImplementationClassUIDNotification, \
                                    ImplementationVersionNameNotification, \
                                    A_P_ABORT, A_ABORT, A_ASSOCIATE, P_DATA
-#from pynetdicom3.utils import wrap_list
+#from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)

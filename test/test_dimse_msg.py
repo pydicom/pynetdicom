@@ -40,14 +40,14 @@ from pynetdicom3.dimse_primitives import C_STORE, \
                                         N_DELETE
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
-from pynetdicom3.utils import wrap_list
+from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
-    str_list = wrap_list(bytestream, prefix="b'\\x", delimiter='\\x',
+    str_list = pretty_bytes(bytestream, prefix="b'\\x", delimiter='\\x',
                         items_per_line=10, suffix="' \\")
     for string in str_list:
         print(string)

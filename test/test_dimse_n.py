@@ -20,7 +20,7 @@ from pynetdicom3.dimse_primitives import N_EVENT_REPORT, \
                                         N_ACTION, \
                                         N_CREATE, \
                                         N_DELETE
-#from pynetdicom3.utils import wrap_list
+#from pynetdicom3.utils import pretty_bytes
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
 

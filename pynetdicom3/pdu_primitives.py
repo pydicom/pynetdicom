@@ -6,17 +6,17 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.pdu import MaximumLengthSubItem, \
-                            ImplementationClassUIDSubItem, \
-                            ImplementationVersionNameSubItem, \
-                            AsynchronousOperationsWindowSubItem, \
-                            SCP_SCU_RoleSelectionSubItem, \
-                            SOPClassExtendedNegotiationSubItem, \
-                            SOPClassCommonExtendedNegotiationSubItem, \
-                            UserIdentitySubItemRQ, \
-                            UserIdentitySubItemAC
+from pynetdicom3.pdu import (MaximumLengthSubItem,
+                             ImplementationClassUIDSubItem,
+                             ImplementationVersionNameSubItem,
+                             AsynchronousOperationsWindowSubItem,
+                             SCP_SCU_RoleSelectionSubItem,
+                             SOPClassExtendedNegotiationSubItem,
+                             SOPClassCommonExtendedNegotiationSubItem,
+                             UserIdentitySubItemRQ,
+                             UserIdentitySubItemAC)
 from pynetdicom3.utils import validate_ae_title, PresentationContext
-#from pynetdicom3.utils import wrap_list
+#from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
@@ -959,7 +959,7 @@ class P_DATA(object):
                          'the DIMSE message\n'
 
             # Remaining data
-            #s += wrap_list(pdv[1][1:], '    ', max_size=512)
+            #s += pretty_bytes(pdv[1][1:], '    ', max_size=512)
 
         return s
 

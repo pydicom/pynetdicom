@@ -13,12 +13,8 @@ from threading import Thread
 import time
 
 from pynetdicom3.fsm import StateMachine
-from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
-                            A_ASSOCIATE_RJ, \
-                            P_DATA_TF, \
-                            A_RELEASE_RQ, \
-                            A_RELEASE_RP, \
-                            A_ABORT_RQ
+from pynetdicom3.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
+                             P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
 from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom3.timer import Timer
 

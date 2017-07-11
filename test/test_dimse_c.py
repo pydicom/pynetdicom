@@ -24,7 +24,7 @@ from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
                                       C_GET_RQ, C_GET_RSP
 from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
                                         C_FIND, C_CANCEL
-#from pynetdicom3.utils import wrap_list
+#from pynetdicom3.utils import pretty_bytes
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
 

@@ -1,7 +1,7 @@
 """Unit tests for the utility functions.
 
 validate_ae_title
-wrap_list
+pretty_bytes
 """
 
 from io import BytesIO
@@ -11,7 +11,7 @@ import unittest
 from pydicom.uid import UID
 
 from encoded_pdu_items import a_associate_rq
-from pynetdicom3.utils import validate_ae_title, wrap_list, \
+from pynetdicom3.utils import validate_ae_title, pretty_bytes, \
                               PresentationContext, PresentationContextManager
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -88,38 +88,38 @@ class TestValidateAETitle(unittest.TestCase):
 
 
 class TestWrapList(unittest.TestCase):
-    """Test wrap_list() function"""
+    """Test pretty_bytes() function"""
     def test_parameters(self):
         """Test parameters are correct."""
         # Default
         bytestream = a_associate_rq
-        result = wrap_list(bytestream)
+        result = pretty_bytes(bytestream)
         self.assertEqual(len(result), 14)
         self.assertTrue(isinstance(result[0], str))
 
         # prefix
-        result = wrap_list(bytestream, prefix='\\x')
+        result = pretty_bytes(bytestream, prefix='\\x')
         for line in result:
             self.assertTrue(line[:2] == '\\x')
 
         # delimiter
-        result = wrap_list(bytestream, prefix='', delimiter=',')
+        result = pretty_bytes(bytestream, prefix='', delimiter=',')
         for line in result:
             self.assertTrue(line[2] == ',')
 
         # items_per_line
-        result = wrap_list(bytestream, prefix='', delimiter='',
+        result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10)
         self.assertEqual(len(result[0]), 20)
 
         # max_size
-        result = wrap_list(bytestream, prefix='', delimiter='',
+        result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10, max_size=100)
         self.assertEqual(len(result), 11) # 10 plus the cutoff line
-        result = wrap_list(bytestream, max_size=None)
+        result = pretty_bytes(bytestream, max_size=None)
 
         # suffix
-        result = wrap_list(bytestream, suffix='xxx')
+        result = pretty_bytes(bytestream, suffix='xxx')
         for line in result:
             self.assertTrue(line[-3:] == 'xxx')
 
@@ -127,7 +127,7 @@ class TestWrapList(unittest.TestCase):
         """Test wrap list using bytesio"""
         bytestream = BytesIO()
         bytestream.write(a_associate_rq)
-        result = wrap_list(bytestream, prefix='', delimiter='',
+        result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10)
         self.assertTrue(isinstance(result[0], str))
 

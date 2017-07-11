@@ -1,7 +1,5 @@
-"""Various utility functions.
+"""Various utility functions."""
 
-TODO: Rename wrap_list globally to pretty_bytes_string
-"""
 import codecs
 from io import BytesIO
 import logging
@@ -96,9 +94,9 @@ def validate_ae_title(ae_title):
         raise TypeError("Invalid value for an AE title; must be a "
                         "non-empty string or bytes.")
 
-def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
-              max_size=512, suffix=''):
-    """Given a bytestring `lst` turn it into a list of nicely formatted str.
+def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
+                 max_size=512, suffix=''):
+    """Turn the bytestring `lst` into a list of nicely formatted str.
 
     Parameters
     ----------

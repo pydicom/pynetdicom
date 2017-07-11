@@ -10,10 +10,10 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
 
-from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
-                                         C_ECHO, C_CANCEL, N_EVENT_REPORT, \
-                                         N_GET, N_SET, N_ACTION, N_CREATE, \
-                                         N_DELETE
+from pynetdicom3.dimse_primitives import (C_STORE, C_FIND, C_GET, C_MOVE,
+                                          C_ECHO, C_CANCEL, N_EVENT_REPORT,
+                                          N_GET, N_SET, N_ACTION, N_CREATE,
+                                          N_DELETE)
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
 
