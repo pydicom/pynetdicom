@@ -364,8 +364,7 @@ class ACSEServiceProvider(object):
         self.dul.send_pdu(primitive)
 
     def CheckRelease(self):
-        """Checks for release request from the remote AE. Upon reception of
-        the request a confirmation is sent"""
+        """Checks for release request from the remote AE."""
         rel = self.dul.peek_next_pdu()
         if rel.__class__ == A_RELEASE:
             # Make sure this is a A-RELEASE request primitive
@@ -373,13 +372,15 @@ class ACSEServiceProvider(object):
                 return False
 
             self.dul.receive_pdu(wait=False)
-            release_rsp = A_RELEASE()
-            release_rsp.result = "affirmative"
-            self.dul.send_pdu(release_rsp)
-
             return True
         else:
             return False
+
+    def Release(self):
+        """Upon reception of the request a confirmation is sent"""
+        release_rsp = A_RELEASE()
+        release_rsp.result = "affirmative"
+        self.dul.send_pdu(release_rsp)
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
