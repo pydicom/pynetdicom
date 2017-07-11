@@ -1,5 +1,4 @@
-"""
-Implementation of the DIMSE service provider.
+"""Implementation of the DIMSE service provider.
 
 TODO: rename Send and Receive class methods to lowercase
 """
@@ -23,7 +22,6 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
                                          N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 from pynetdicom3.pdu_primitives import P_DATA
 from pynetdicom3.sop_class import uid_to_sop_class
-from pynetdicom3.status import code_to_status
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
@@ -306,8 +304,8 @@ class DIMSEServiceProvider(object):
                     self.message = None
 
                     return primitive, context_id
-                else:
-                    return None, None
+
+                return None, None
 
         else:
             cls = self.dul.peek_next_pdu().__class__
@@ -331,8 +329,8 @@ class DIMSEServiceProvider(object):
                 self.message = None
 
                 return primitive, context_id
-            else:
-                return None, None
+
+            return None, None
 
 
     # Debugging and AE callbacks
@@ -774,7 +772,7 @@ class DIMSEServiceProvider(object):
             status_str = 'Success'
         else:
             status_str = '0x{0:04x} - Unknown'.format(cs.Status)
-        LOGGER.info("Received Echo Response (Status: {})".format(status_str))
+        LOGGER.info("Received Echo Response (Status: %s)", status_str)
 
     @staticmethod
     def debug_receive_c_store_rq(msg):
@@ -926,7 +924,7 @@ class DIMSEServiceProvider(object):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(int(cs.Status)))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1035,7 +1033,7 @@ class DIMSEServiceProvider(object):
             s.append('Warning Sub-operations        : {0!s}'
                      .format(cs.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(int(cs.Status)))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1092,7 +1090,7 @@ class DIMSEServiceProvider(object):
             s.append('Warning Sub-operations        : {0!s}'
                      .format(cs.NumberOfWarningSuboperations))
         s.append('Data Set                      : {0!s}'.format(dataset))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(int(cs.Status)))
+        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')

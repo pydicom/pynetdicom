@@ -151,6 +151,7 @@ def code_to_category(code):
     DICOM Standard Part 7, Annex C
     DICOM Standard Part 4
     """
+    # pylint: disable=too-many-return-statements
     if isinstance(code, int) and code >= 0:
         if code == 0x0000:
             return 'Success'
@@ -168,12 +169,11 @@ def code_to_category(code):
             return 'Failure'
         elif code in [0x0107, 0x0116]:
             return 'Warning'
-        elif code in range (0xB000, 0xC000):
+        elif code in range(0xB000, 0xC000):
             return 'Warning'
         elif code == 0x0001:
             return 'Warning'
-        else:
-            return 'Unknown'
+
+        return 'Unknown'
     else:
         raise ValueError("'code' must be a positive integer.")
-    

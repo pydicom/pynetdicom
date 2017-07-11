@@ -2,17 +2,16 @@
 ACSE service provider
 """
 import logging
-import time
 
 from pydicom.uid import UID
 
 from pynetdicom3 import pynetdicom_uid_prefix
 from pynetdicom3 import pynetdicom_version
-from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
-                                   ImplementationClassUIDNotification, \
-                                   ImplementationVersionNameNotification
-from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, \
-                                       A_P_ABORT
+from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
+                                        ImplementationClassUIDNotification,
+                                        ImplementationVersionNameNotification)
+from pynetdicom3.pdu_primitives import (A_ASSOCIATE, A_RELEASE, A_ABORT,
+                                        A_P_ABORT)
 from pynetdicom3.utils import PresentationContextManager
 from pynetdicom3.utils import wrap_list
 
@@ -378,8 +377,8 @@ class ACSEServiceProvider(object):
             self.dul.send_pdu(release_rsp)
 
             return True
-        else:
-            return False
+
+        return False
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
@@ -389,8 +388,8 @@ class ACSEServiceProvider(object):
         if primitive.__class__ in (A_ABORT, A_P_ABORT):
             self.dul.receive_pdu(wait=False)
             return True
-        else:
-            return False
+
+        return False
 
     def Status(self):
         """Return the current state of the DUL's state machine"""

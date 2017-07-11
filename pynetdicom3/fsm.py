@@ -671,8 +671,8 @@ def AR_8(dul):
     dul.to_user_queue.put(dul.primitive)
     if dul.requestor == 1:
         return 'Sta9'
-    else:
-        return 'Sta10'
+
+    return 'Sta10'
 
 def AR_9(dul):
     """Association release AR-9.
@@ -993,7 +993,7 @@ def AA_8(dul):
             dul.scu_socket.send(dul.pdu.Encode())
         except socket.error:
             dul.scu_socket.close()
-        except ConnectionResetError:
+        except ConnectionError:
             dul.scu_socket.close()
 
         # Issue A-P-ABORT to user

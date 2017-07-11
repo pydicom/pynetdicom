@@ -560,7 +560,7 @@ class DULServiceProvider(Thread):
         while read_length < n_bytes:
             tmp = sock.recv(n_bytes - read_length)
 
-            if len(tmp) == 0:
+            if not tmp:
                 return ret
 
             ret += tmp

@@ -368,7 +368,7 @@ class DIMSEMessage(object):
         fragment_length -= 6
 
         fragments = []
-        while len(bytestream) > 0:
+        while bytestream:
             # Add the fragment to the output
             fragments.append(bytestream[:fragment_length])
             # Remove the added fragment from the bytestream
@@ -485,7 +485,7 @@ class DIMSEMessage(object):
             One of the pynetdicom3.dimse_primitives primitives generated from
             the current DIMSEMessage.
         """
-        # pylint: disable=redefined-variable-type,too-many-branches
+        # pylint: disable=too-many-branches
         cls_type_name = self.__class__.__name__
         if 'C_ECHO' in cls_type_name:
             primitive = C_ECHO()

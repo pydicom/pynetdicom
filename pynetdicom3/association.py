@@ -10,6 +10,7 @@ import time
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
+# pylint: disable=no-name-in-module
 from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dimse_primitives import (C_ECHO, C_MOVE, C_STORE, C_GET,
@@ -34,6 +35,7 @@ from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         A_ASSOCIATE, A_ABORT, A_P_ABORT)
 from pynetdicom3.status import code_to_status
 from pynetdicom3.utils import PresentationContextManager
+# pylint: enable=no-name-in-module
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
@@ -1608,8 +1610,8 @@ class Association(threading.Thread):
                     if rsp.Identifier is not None:
                         try:
                             identifier = decode(rsp.Identifier,
-                                                self.transfersyntax.is_implicit_VR,
-                                                self.transfersyntax.is_little_endian)
+                                                transfer_syntax.is_implicit_VR,
+                                                transfer_syntax.is_little_endian)
                         except:
                             LOGGER.error("Failed to decode the C-GET "
                                          "response's Identifier dataset")

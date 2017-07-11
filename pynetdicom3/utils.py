@@ -73,15 +73,15 @@ def validate_ae_title(ae_title):
 
             if is_bytes:
                 return codecs.encode(significant_characters, 'utf-8')
-            else:
-                return significant_characters
+
+            return significant_characters
 
         # AE title too long : truncate
         elif len(significant_characters.strip()) > 16:
             if is_bytes:
                 return codecs.encode(significant_characters[:16], 'utf-8')
-            else:
-                return significant_characters[:16]
+
+            return significant_characters[:16]
 
         # AE title empty str
         else:
@@ -283,7 +283,7 @@ class PresentationContext(object):
         FIXME: Add Parameters section
         """
         # pylint: disable=attribute-defined-outside-init
-        if not (1 <= value <= 255):
+        if not 1 <= value <= 255:
             raise ValueError("Presentation Context ID must be an odd "
                              "integer between 1 and 255 inclusive")
         elif value % 2 == 0:
