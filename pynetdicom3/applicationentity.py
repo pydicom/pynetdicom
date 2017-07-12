@@ -11,14 +11,12 @@ from struct import pack
 import sys
 import time
 import ssl
-from exceptions import RuntimeError
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian, UID
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
-
 
 def setup_logger():
     """Setup the logger."""
@@ -65,6 +63,7 @@ class ApplicationEntity(object):
 
                 # Must return a valid C-STORE status - 0x0000 is Success
                 return 0x0000
+
             ae.on_c_store = on_c_store
 
             # Start the SCP
@@ -171,7 +170,7 @@ class ApplicationEntity(object):
                  scp_sop_class=None, transfer_syntax=None,
                  certfile=None, keyfile=None,
                  cacerts='/etc/ssl/certs/ca-certificates.crt',
-                 cert_verify=True, version=ssl.PROTOCOL_SSLv23):
+                 cert_verify=True, version='sslv23'):
         """Create a new Application Entity.
 
         Parameters
@@ -217,6 +216,11 @@ class ApplicationEntity(object):
         self.transfer_syntaxes = transfer_syntax
 
         self.has_ssl = False
+        self.certfile = None
+        self.keyfile = None
+        self.cert_verify = None
+        self.cacerts = None
+        self.ssl_version = None
         # Check if ssl parameters are complete
         if certfile and keyfile:
             self.certfile = certfile
@@ -229,18 +233,25 @@ class ApplicationEntity(object):
             self.cacerts = cacerts
             self.cert_verify = ssl.CERT_REQUIRED if cert_verify else ssl.CERT_NONE
 
-            ssl_versions = ['tls', 'tlsv1', 'tlsv1_1', 'tlsv1_2']
+            ssl_versions = {
+                    'sslv23': ssl.PROTOCOL_SSLv23,
+                    'tlsv1': ssl.PROTOCOL_TLSv1,
+                    'tlsv1_1': ssl.PROTOCOL_TLSv1_1,
+                    'tlsv1_2': ssl.PROTOCOL_TLSv1_2,
+            }
             if version in ssl_versions:
-                self.ssl_version = ssl_versions.index(version)+2
+                self.ssl_version = ssl_versions[version]
             else:
                 raise RuntimeError("The SSL/TLS version you specified is not "
                                    "currently supported.\nPlease provide one "
-                                   "of the following values "
-                                   "[tls, tlsv1, tlsv1_1, tlsv1_2]")
+                                   "of %s." % ssl_versions.keys())
 
+            LOGGER.debug('DICOM communication over ' + version)
+        elif certfile or keyfile:
+            raise RuntimeError("In order to use SSL/TLS communication you "
+                               "need to provide both certfile and keyfile")
         else:
-            raise RuntimeError("SSL/TLS configuration is not valid.\n"
-                               "Please provide certfile, keyfile")
+            LOGGER.debug('DICOM communication without SSL/TLS')
 
 
         # The user may require the use of Extended Negotiation items
@@ -392,34 +403,31 @@ class ApplicationEntity(object):
 
         # If theres a connection
         if read_list:
-            _socket, _ = self.local_socket.accept()
-            try:
-                if self.has_ssl:
-                    client_socket = ssl.wrap_socket(_socket,
+            client_socket, _ = self.local_socket.accept()
+            if self.has_ssl:
+                try:
+                    client_socket = ssl.wrap_socket(client_socket,
                                                     server_side=True,
                                                     certfile=self.certfile,
                                                     keyfile=self.keyfile,
                                                     cert_reqs=self.cert_verify,
                                                     ca_certs=self.cacerts,
                                                     ssl_version=self.ssl_version)
-                else:
-                    client_socket = _socket
-                client_socket.setsockopt(socket.SOL_SOCKET,
-                                         socket.SO_RCVTIMEO,
-                                         pack('ll', 10, 0))
+                except Exception as e:
+                    LOGGER.error(str(e))
+            client_socket.setsockopt(socket.SOL_SOCKET,
+                                     socket.SO_RCVTIMEO,
+                                     pack('ll', 10, 0))
 
-                # Create a new Association
-                # Association(local_ae, local_socket=None, max_pdu=16382)
-                assoc = Association(self,
-                                    client_socket,
-                                    max_pdu=self.maximum_pdu_size,
-                                    acse_timeout=self.acse_timeout,
-                                    dimse_timeout=self.dimse_timeout)
-                assoc.start()
-                self.active_associations.append(assoc)
-            except Exception as e:
-                LOGGER.error(str(e))
-
+            # Create a new Association
+            # Association(local_ae, local_socket=None, max_pdu=16382)
+            assoc = Association(self,
+                                client_socket,
+                                max_pdu=self.maximum_pdu_size,
+                                acse_timeout=self.acse_timeout,
+                                dimse_timeout=self.dimse_timeout)
+            assoc.start()
+            self.active_associations.append(assoc)
 
     def cleanup_associations(self):
         """Remove dead associations.
