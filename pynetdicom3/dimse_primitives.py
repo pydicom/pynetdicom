@@ -15,9 +15,6 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.status import (VERIFICATION_SERVICE_CLASS_STATUS,
-                                STORAGE_SERVICE_CLASS_STATUS,
-                                QR_FIND_SERVICE_CLASS_STATUS)
 from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
@@ -84,6 +81,12 @@ class C_STORE(object):
         SOP Instance to be stored, encoded as a BytesIO object
     Status : int
         [-, M] The error or success notification of the operation.
+    OffendingElement : list of int or None
+        [-, C] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -407,6 +410,12 @@ class C_FIND(object):
         service-user
     Status : int
         [-, M, -] The error or success notification of the operation.
+    OffendingElement : list of int or None
+        [-, C, -] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C, -] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -647,6 +656,12 @@ class C_GET(object):
         [-, C, -] The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
+    OffendingElement : list of int or None
+        [-, C, -] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C, -] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -973,12 +988,12 @@ class C_MOVE(object):
         [-, C, -] The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
+    OffendingElement : list of int or None
+        [-, C, -] An optional status related field containing a list of the
+        elements in which an error was detected.
     ErrorComment : str or None
-        [-, C] If the Status value is 0x0122 then ErrorComment may contain an
-        application specific text description of the error detected. FIXME
-    OffendingElement : str or None
-        [-, C] If the Status value is 0x0122 then ErrorComment may contain an
-        application specific text description of the error detected. FIXME
+        [-, C, -] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1276,8 +1291,8 @@ class C_ECHO(object):
     Status : int or None
         [-, M] The error or success notification of the operation.
     ErrorComment : str or None
-        [-, C] If the Status value is 0x0122 then ErrorComment may contain an
-        application specific text description of the error detected.
+        [-, C] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1478,18 +1493,18 @@ class N_EVENT_REPORT(object):
     10.1.1.1.8 Status
 
     Failure
-        0x0119 - class-instance conflict 0x0119 PS3.7 Annex C.5.7
-        0x0210 - duplicate invocation 0x0210 PS3.7 Annex C.5.9
-        0x0115 - invalid argument value 0x0115 PS3.7 Annex C.5.10
-        0x0117 - invalid SOP instance 0x0117 PS3.7 Annex C.5.12
-        0x0212 - mistyped argument 0x0212 PS3.7 Annex C.5.15
-        0x0114 - no such argument 0x0114 PS3.7 Annex C.5.16
-        0x0113 - no such event type 0x0113 PS3.7 Annex C.5.18
-        0x0118 - no such SOP class 0x0118 PS3.7 Annex C.5.20
-        0x0112 - no such SOP instance 0x0112 PS3.7 Annex C.5.19
-        0x0110 - processing failure 0x0110 PS3.7 Annex C.5.21
-        0x0213 - resource limitation 0x213 PS3.7 Annex C.5.22
-        0x0211 - unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        0x0119 - class-instance conflict PS3.7 Annex C.5.7
+        0x0210 - duplicate invocation PS3.7 Annex C.5.9
+        0x0115 - invalid argument value PS3.7 Annex C.5.10
+        0x0117 - invalid SOP instance PS3.7 Annex C.5.12
+        0x0212 - mistyped argument PS3.7 Annex C.5.15
+        0x0114 - no such argument  PS3.7 Annex C.5.16
+        0x0113 - no such event type PS3.7 Annex C.5.18
+        0x0118 - no such SOP class PS3.7 Annex C.5.20
+        0x0112 - no such SOP instance PS3.7 Annex C.5.19
+        0x0110 - processing failure PS3.7 Annex C.5.21
+        0x0213 - resource limitation PS3.7 Annex C.5.22
+        0x0211 - unrecognised operation PS3.7 Annex C.5.23
     Success
         0x0000 - success 0x0000
     """
@@ -1502,6 +1517,10 @@ class N_EVENT_REPORT(object):
         self.EventInformation = None
         self.EventReply = None
         self.Status = None
+
+        # (0000,1008) 0x0115
+        self.ActionTypeID = None
+        self.ActionInformation = None
 
     @property
     def is_valid_request(self):
