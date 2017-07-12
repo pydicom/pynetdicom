@@ -494,6 +494,7 @@ class Association(threading.Thread):
                 # Callback trigger
                 self.debug_association_released()
                 self.ae.on_association_released()
+                self.acse.Release()
                 self.kill()
 
             # Check for abort
@@ -586,6 +587,7 @@ class Association(threading.Thread):
                         # Callback trigger
                         self.ae.on_association_released()
                         self.debug_association_released()
+                        self.acse.Release()
                         self.kill()
                         return
 
