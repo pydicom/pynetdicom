@@ -11,9 +11,7 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom3.dsutils import decode, encode
-from pynetdicom3.dimse_primitives import (C_STORE, C_ECHO, C_MOVE, C_GET,
-                                          C_FIND, N_EVENT_REPORT, N_GET,
-                                          N_SET, N_CREATE, N_ACTION, N_DELETE)
+from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
 from pynetdicom3.status import (VERIFICATION_SERVICE_CLASS_STATUS,
                                 STORAGE_SERVICE_CLASS_STATUS,
                                 QR_FIND_SERVICE_CLASS_STATUS,
@@ -136,7 +134,7 @@ class ServiceClass(object):
                     else:
                         LOGGER.warning("Status dataset returned by callback "
                                        "contained an unsupported Element "
-                                       "'{}'.".format(elem.keyword))
+                                       "'%s'.", elem.keyword)
             else:
                 LOGGER.error("User callback returned a `Dataset` without a "
                              "Status element.")
@@ -240,7 +238,7 @@ class VerificationServiceClass(ServiceClass):
                     else:
                         LOGGER.warning("The status 'Dataset' returned by "
                                        "'on_c_echo' contained an unsupported "
-                                       "Element '{}'.".format(elem.keyword))
+                                       "Element '%s'.", elem.keyword)
             elif isinstance(status, int):
                 rsp.Status = status
             else:
@@ -731,7 +729,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             return
 
         # Decode the Identifier dataset
-        ds = self._decode_identifier(msg, rsp)
+        ds = self._decode_identifier(req, rsp)
         if ds is None:
             return
 
@@ -773,12 +771,12 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     rsp.NumberOfWarningSuboperations = no_warning
                     rsp.NumberOfCompletedSuboperations = no_completed
                     rsp.Identifier = self._add_failed_sop_instances(rsp,
-                                                        failed_sop_instances)
+                                                                    failed_sop_instances)
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status.category == 'Failure':
                     LOGGER.info('Move SCP Response: (Failure - %s)',
-                                usr_status.description)
+                                rsp_status.description)
                     assoc.release()
                     rsp.Identifier = self._add_failed_sop_instances(rsp,
                                                         failed_sop_instances)

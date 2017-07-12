@@ -6,6 +6,7 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 
 TODO: Implement properties for DIMSE-N parameters
+TODO: Implement status related parameters for DIMSE-N classes
 TODO: Add string output for the DIMSE-C classes
 """
 

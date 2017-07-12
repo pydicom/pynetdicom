@@ -1,6 +1,5 @@
-"""Implementation of the DIMSE service provider.
-
-TODO: rename Send and Receive class methods to lowercase
+"""
+Implementation of the DIMSE service provider.
 """
 from io import BytesIO
 import logging

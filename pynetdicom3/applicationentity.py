@@ -11,7 +11,6 @@ from struct import pack
 import sys
 import time
 
-from pydicom.dataset import Dataset
 from pydicom.uid import (ExplicitVRLittleEndian, ImplicitVRLittleEndian,
                          ExplicitVRBigEndian, UID, InvalidUID)
 

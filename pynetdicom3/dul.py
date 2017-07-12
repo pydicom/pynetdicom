@@ -1,4 +1,6 @@
-"""Implements the DICOM Upper Layer service provider."""
+"""
+Implements the DICOM Upper Layer service provider.
+"""
 
 import logging
 import os

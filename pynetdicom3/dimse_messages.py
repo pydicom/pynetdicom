@@ -1,6 +1,5 @@
-"""Define the DIMSE Message classes.
-
-TODO: Add C-FIND-RSP additional status elements
+"""
+Define the DIMSE Message classes.
 """
 
 from io import BytesIO

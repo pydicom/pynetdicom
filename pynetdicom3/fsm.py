@@ -990,9 +990,7 @@ def AA_8(dul):
         try:
             # Encode and send A-ABORT to peer
             dul.scu_socket.send(dul.pdu.Encode())
-        except socket.error:
-            dul.scu_socket.close()
-        except ConnectionError:
+        except (socket.error, ConnectionError):
             dul.scu_socket.close()
 
         # Issue A-P-ABORT to user
