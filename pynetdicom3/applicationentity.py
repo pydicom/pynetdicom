@@ -142,12 +142,12 @@ class ApplicationEntity(object):
         The supported transfer syntaxes
     """
 
-    """Association class type is set to a variable to make usage of another
-    maybe overidden type of Association easier
-    Example:
-        class MyApplicationEntity(ApplicationEntity):
-            ASSOCIATION = MyAssociation
-    """
+    # Association class type is set to a variable to make usage of another
+    # maybe overidden type of Association easier
+    # Example:
+    #     class MyApplicationEntity(ApplicationEntity):
+    #         ASSOCIATION = MyAssociation
+    #
     ASSOCIATION = Association
 
 
@@ -355,10 +355,10 @@ class ApplicationEntity(object):
             # Create a new Association
             # Association(local_ae, local_socket=None, max_pdu=16382)
             assoc = self.ASSOCIATION(self,
-                                client_socket,
-                                max_pdu=self.maximum_pdu_size,
-                                acse_timeout=self.acse_timeout,
-                                dimse_timeout=self.dimse_timeout)
+                                     client_socket,
+                                     max_pdu=self.maximum_pdu_size,
+                                     acse_timeout=self.acse_timeout,
+                                     dimse_timeout=self.dimse_timeout)
             assoc.start()
             self.active_associations.append(assoc)
 
@@ -433,11 +433,11 @@ class ApplicationEntity(object):
 
         # Associate
         assoc = self.ASSOCIATION(local_ae=self,
-                            peer_ae=peer_ae,
-                            acse_timeout=self.acse_timeout,
-                            dimse_timeout=self.dimse_timeout,
-                            max_pdu=max_pdu,
-                            ext_neg=ext_neg)
+                                 peer_ae=peer_ae,
+                                 acse_timeout=self.acse_timeout,
+                                 dimse_timeout=self.dimse_timeout,
+                                 max_pdu=max_pdu,
+                                 ext_neg=ext_neg)
         assoc.start()
 
         # Endlessly loops while the Association negotiation is taking place
