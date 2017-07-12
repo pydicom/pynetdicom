@@ -83,27 +83,7 @@ class C_STORE(object):
         [M, -] The pydicom Dataset containing the Attributes of the Composite
         SOP Instance to be stored, encoded as a BytesIO object
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
-        one of the following values:
-        Storage Service Class Specific (PS3.4 Annex B.2.3):
-            Failure
-                * 0xA7xx - Refused: Out of resources
-                * 0xA9xx - Error: Data set does not match SOP class
-                * 0xCxxx - Error: Cannot understand
-            Warning
-                * 0xB000 - Coercion of data elements
-                * 0xB006 - Element discarded
-                * 0xB007 - Data set does not match SOP class
-        General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
-            Success
-                * 0x0000 - Success
-            Failure
-                * 0x0117 - Refused: Invalid SOP instance
-                * 0x0122 - Refused: SOP class not supported
-                * 0x0124 - Refused: Not authorised
-                * 0x0210 - Refused: Duplicate invocation
-                * 0x0211 - Refused: Unrecognised operation
-                * 0x0212 - Refused: Mistyped argument
+        [-, M] The error or success notification of the operation.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -426,27 +406,7 @@ class C_FIND(object):
         instances of the composite objects known to the performing DIMSE
         service-user
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall
-        be one of the following values:
-        Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
-            Failure
-                * 0xA700 - Refused: Out of resources
-                * 0xA900 - Identifier does not match SOP Class
-                * 0xCxxx - Unable to process
-            Pending
-                * 0xFF00 - Matches are continuing - Current match is supplied
-                           and any Optional Keys were supported in the same
-                           manner as Required Keys
-                * 0xFF01 - Matches are continuing - Warning that one or more
-                           Optional Keys were not supported for existence and/or
-                           matching for this Identifier)
-        General C-FIND PS3.7 9.1.2.1.5 and Annex C
-            Cancel
-                * 0xFE00 - Matching terminated due to Cancel request
-            Success
-                * 0x0000 - Matching is complete, no final Identifier is supplied
-            Failure
-                * 0x0122 - Refused: SOP class not supported
+        [-, M, -] The error or success notification of the operation.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -462,16 +422,10 @@ class C_FIND(object):
         self.Status = None
 
         # Optional Command Set elements used in with specific Status values
-        # For Failure statuses 0xA900
+        # For Failure statuses 0xA900, 0xCxxx
         self.OffendingElement = None
         # For Failure statuses 0xA900, 0xA700, 0x0122, 0xCxxx
         self.ErrorComment = None
-        # For Failure statuses 0xCxxx
-        self.AffectedSOPInstanceUID = None
-        # For Failure status 0xCxxx
-        self.ErrorID = None
-        # For Failure status 0xCxxx
-        # self.AffectedSOPClassUID
 
     @property
     def MessageID(self):
@@ -676,19 +630,7 @@ class C_GET(object):
         object. For the list of allowed Attributes and the rules defining their
         usage see PS3.4 Annex C.4.3.1.3
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall
-        be one of the following values:
-        * 0xA701: Failure (Refused: out of resources - unable to calculate
-            number of matches)
-        * 0xA702: Failure (Refused: out of resources - unable to perform
-            sub-operations)
-        * 0xA900: Failure (Identifier does not match SOP Class)
-        * 0xC000 to 0xCFFF: Failure (Unable to process)
-        * 0xFE00: Cancel (Sub-operations terminated due to Cancel indication)
-        * 0xB000: Warning (Sub-operations complete - one or more Failures or
-            Warnings)
-        * 0x0000: Success (Sub-operations complete - no Failures or Warnings)
-        * 0xFF00: Pending (Sub-operations are continuing)
+        [-, M, -] The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
         [-, C, -] The number of remaining C-STORE sub-operations to be invoked
         by this C-GET operation. It may be included in any response and shall
@@ -1014,28 +956,7 @@ class C_MOVE(object):
         object. For the list of allowed Attributes and the rules defining their
         usage see PS3.4 Annex C.4.2.1.4
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall
-        be one of the following values:
-        Query/Retrieve Service Class Specific (PS3.4 Annex C.4.2.1.5):
-            * 0xA701: Failure (Refused: Out of resources - unable to calculate
-                      number of matches)
-            * 0xA702: Failure (Refused: Out of resources - unable to perform
-                      sub-operations)
-            * 0xA801: Failure (Refused: Move destination unknown)
-            * 0xA900: Failure (Identifier does not match SOP Class)
-            * 0xC000 to 0xCFFF: Failure (Unable to process)
-            * 0xFE00: Cancel (Sub-operations terminated due to Cancel
-                      indication)
-            * 0xB000: Warning (Sub-operations complete - one or more failures)
-            * 0x0000: Success (Sub-operations complete - no failures)
-            * 0xFF00: Pending (Sub-operations are continuing)
-        General C-MOVE PS3.7 9.1.4.1.7 and Annex C:
-            * 0x0122: Failure (Refused: SOP class not supported)
-            * 0x0111: Failure (Refused: Duplicate invocation)
-            * 0x0212: Failure (Refused: Mistyped argument)
-            * 0x0211: Failure (Refused: Unrecognised operation)
-            * 0x0124: Failure (Refused: Not authorised)
-
+        [-, M, -] The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
         [-, C, -] The number of remaining C-STORE sub-operations to be invoked
         by this C-MOVE operation. It may be included in any response and shall
@@ -1052,6 +973,12 @@ class C_MOVE(object):
         [-, C, -] The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
+    ErrorComment : str or None
+        [-, C] If the Status value is 0x0122 then ErrorComment may contain an
+        application specific text description of the error detected. FIXME
+    OffendingElement : str or None
+        [-, C] If the Status value is 0x0122 then ErrorComment may contain an
+        application specific text description of the error detected. FIXME
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1077,9 +1004,6 @@ class C_MOVE(object):
         # For Failure statuses 0xA801, 0xA701, 0xA702, 0x0122, 0xA900, 0xCxxx
         #   0x0124
         self.ErrorComment = None
-        # For Failure statuses 0xCxxx
-        self.AffectedSOPInstanceUID = None
-        self.ErrorID = None
 
     @property
     def MessageID(self):
@@ -1350,17 +1274,7 @@ class C_ECHO(object):
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     Status : int or None
-        [-, M] The error or success notification of the operation. It shall be
-        one of the following values:
-
-        General C-STORE (PS3.7 9.1.5.1.4 and Annex C):
-            Success
-                * 0x0000 - Success
-            Failure
-                * 0x0122 - Refused: SOP class not supported
-                * 0x0210 - Refused: Duplicate invocation
-                * 0x0211 - Refused: Unrecognised operation
-                * 0x0212 - Refused: Mistyped argument
+        [-, M] The error or success notification of the operation.
     ErrorComment : str or None
         [-, C] If the Status value is 0x0122 then ErrorComment may contain an
         application specific text description of the error detected.
