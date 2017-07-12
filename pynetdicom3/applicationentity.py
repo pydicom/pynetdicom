@@ -825,6 +825,10 @@ class ApplicationEntity(object):
         Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
         after receiving a C-ECHO request and prior to sending the response.
 
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Verification Service Class
+
         Status
         ------
         The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
@@ -837,10 +841,10 @@ class ApplicationEntity(object):
 
         Failure
 
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0x0210 - Refused: Duplicate Invocation
-        - 0x0212 - Refused: Mistyped Argument
-        - 0x0211 - Refused: Unrecognised Operation
+        - 0x0122 - SOP class not supported
+        - 0x0210 - Duplicate invocation
+        - 0x0212 - Mistyped argument
+        - 0x0211 - Unrecognised operation
 
         Returns
         -------
@@ -881,6 +885,10 @@ class ApplicationEntity(object):
         DICOM Standard Part 10, Section 7) then they are responsible for adding
         the DICOM File Meta Information.
 
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Storage Service Class
+
         Status
         ------
         Success
@@ -889,21 +897,21 @@ class ApplicationEntity(object):
 
         Warning
 
-        - 0xB000 - Warning: Coercion of Data Elements
-        - 0xB006 - Warning: Elements Discarded
-        - 0xB007 - Warning: Data Set Does Not Match SOP Class
+        - 0xB000 - Coercion of data elements
+        - 0xB006 - Elements discarded
+        - 0xB007 - Dataset does not match SOP class
 
         Failure
 
-        - 0x0117 - Refused: Invalid SOP Instance
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0x0124 - Refused: Not Authorised
-        - 0x0210 - Refused: Duplicate Invocation
-        - 0x0211 - Refused: Unrecognised Operation
-        - 0x0212 - Refused: Mistyped Argument
-        - 0xA700 to 0xA7FF - Refused: Out of Resources
-        - 0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
-        - 0xC000 to 0xCFFF - Error: Cannot Understand
+        - 0x0117 - Invalid SOP instance
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA700 to 0xA7FF - Out of resources
+        - 0xA900 to 0xA9FF - Dataset does not match SOP class
+        - 0xC000 to 0xCFFF - Cannot understand
 
         Parameters
         ----------
@@ -933,8 +941,9 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annex B
+        DICOM Standard Part 4, Annexes B, AA, FF and GG
         DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
+        DICOM Standard Part 10, Section 7
         """
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
@@ -950,12 +959,20 @@ class ApplicationEntity(object):
         method after receiving a C-FIND request and prior to sending the
         response.
 
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Query/Retrieve Service Class
+
         Status
         ------
+        Success
+
+        - 0x0000 - Success
+
         Failure
 
-        - 0xA700 - Refused: Out of Resources
-        - 0xA900 - Identifier does not match SOP Class
+        - 0xA700 - Out of resources
+        - 0xA900 - Identifier does not match SOP class
         - 0xC000 to 0xCFFF - Unable to process
 
         Cancel
@@ -964,15 +981,11 @@ class ApplicationEntity(object):
 
         Pending
 
-        - 0xFF00 - Matches are continuing - Current Match is supplied and any
+        - 0xFF00 - Matches are continuing - Current match is supplied and any
           Optional Keys were supported in the same manner as Required Keys
         - 0xFF01 - Matches are continuing - Warning that one or more Optional
           Keys were not supported for existence and/or matching for this
           Identifier
-
-        Success
-
-        - 0x0000 - Success
 
         Parameters
         ----------
@@ -989,9 +1002,16 @@ class ApplicationEntity(object):
             optional elements related to the Status (as in DICOM Standard Part
             7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            A matching Identifier dataset if the status is 'Pending', None
-            otherwise. The exact requirements for the C-FIND response Identifier
-            dataset are Service Class specific (see the DICOM Standard, Part 4).
+            If the status is 'Pending' then the Identifier dataset for a
+            matching SOP Instance. The exact requirements for the C-FIND
+            response Identifier dataset are Service Class specific (see the
+            DICOM Standard, Part 4).
+
+            If the status is 'Failure' or 'Cancel' then yield None.
+
+            If the status is 'Success' then yield None, however yielding a
+            final 'Success' status is not required and will be overwritten if
+            necessary.
 
         See Also
         --------
@@ -1001,7 +1021,7 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annexes C
+        DICOM Standard Part 4, Annexes C, K, Q, U, V, X, BB, CC and HH
         DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
@@ -1023,18 +1043,24 @@ class ApplicationEntity(object):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
-        a int containing the total number of matches, then yield statuses and
-        datasets. In addition,the AE.on_c_get_cancel() callback must also be
-        defined.
+        a int containing the total number of C-STORE sub-operations, then yield
+        (status, dataset) pairs.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Query/Retrieve Service Class
 
         Status
         ------
+        Success
+
+        - 0x0000 - Sub-operations complete, no failures or warnings
+
         Failure
 
-        - 0xA701 - Refused: Out of Resources, unable to calculate the number of
-          matches
-        - 0xA702 - Refused: Out of Resources, unable to perform sub-operations
-        - 0xA900 - Identifier does not match SOP Class
+        - 0xA701 - Out of resources: unable to calculate the number of matches
+        - 0xA702 - Out of resources: unable to perform sub-operations
+        - 0xA900 - Identifier does not match SOP class
         - 0xC000 to 0xCFFF - Unable to process
 
         Cancel
@@ -1050,10 +1076,6 @@ class ApplicationEntity(object):
         - 0xFF00 - Matches are continuing - Current Match is supplied and any
           Optional Keys were supported in the same manner as Required Keys
 
-        Success
-
-        - 0x0000 - Success
-
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
@@ -1062,8 +1084,10 @@ class ApplicationEntity(object):
         Yields
         ------
         int
-            The first yielded value should be the total number of matches, after
-            that user should yield a (status, identifier, dataset triplet).
+            The first yielded value should be the total number of C-STORE
+            sub-operations necessary to complete the C-GET operation. In other
+            words, this is the number of matching SOP Instances to be sent to
+            the peer.
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-GET response. Must be a
             valid C-GET status value for the applicable Service Class as either
@@ -1071,14 +1095,18 @@ class ApplicationEntity(object):
             element. If returning a Dataset object then it may also contain
             optional elements related to the Status (as in DICOM Standard Part
             7, Annex C).
-        identifier : pydicom.dataset.Dataset or None
-            A matching Identifier dataset if the status is 'Pending', None
-            otherwise. The exact requirements for the C-GET response Identifier
-            dataset are Service Class specific (see the DICOM Standard, Part 4).
         dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then the dataset to send to the peer
-            via a C-STORE operation over the current association. If the status
-            is not 'Pending' this shall be None.
+            If the status is 'Pending' then yield the dataset to send to the
+            peer via a C-STORE sub-operation over the current association.
+
+            If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+            Dataset with a (0008,0058) Failed SOP Instance UID element
+            containing the list of the C-STORE sub-operation SOP Instances
+            for which the C-GET operation has failed.
+
+            If the status is 'Success' then yield None, although yielding a
+            final 'Success' status is not required and will be overwritten if
+            necessary.
 
         See Also
         --------
@@ -1088,7 +1116,7 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 4, Annexes C, U, X, Y, Z, BB and HH
         DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
@@ -1103,35 +1131,69 @@ class ApplicationEntity(object):
     def on_c_move(self, dataset, move_aet):
         """Callback for when a C-MOVE request is received.
 
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid status. In addition,the AE.on_c_move_cancel() callback must
-        also be defined.
+        Must be defined by the user prior to calling AE.start().
 
-        Matching Instances will be sent to the known peer AE with AE title
+        The first yield should be the (addr, port) of the move destination, the
+        second yield the number of required C-STORE sub-operations, and the
+        remaining yields the (status, dataset) pairs.
+
+        Matching SOP Instances will be sent to the peer AE with AE title
         `move_aet` over a new association. If `move_aet` is unknown then the
-        C-MOVE will fail due to 'Move Destination Unknown'.
+        SCP will send a response with a 'Failure' status of 0xA801 (move
+        destination unknown).
 
-        A successful match should return a generator with the first value
-        the number of matching Instances, the second value the (addr, port) of
-        the move destination and the remaining values the matching Instance
-        datasets.
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Query/Retrieve Service Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Sub-operations complete, no failures
+
+        Pending
+
+        - 0xFF00 - Sub-operations are continuing
+
+        Cancel
+
+        - 0xFE00 - Sub-operations terminated due to Cancel indication
+
+        Failure
+
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA701 - Out of resources: unable to calculate number of matches
+        - 0xA702 - Out of resources: unable to perform sub-operations
+        - 0xA801 - Move destination unknown
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent via the C-MOVE
+            The DICOM Identifier dataset sent by the peer in the C-MOVE request.
         move_aet : bytes
-            The destination AE title that matching Instances will be sent to.
-            `move_aet` will be a correctly formatted AE title (16 chars,
-            with trailing spaces as padding)
+            The destination AE title that matching SOP Instances will be sent to
+            using C-STORE sub-operations. `move_aet` will be a correctly
+            formatted AE title (16 chars, with trailing spaces as padding).
 
         Yields
         ------
-        number_matches : int
-            The first yield should be the number of matching Instances.
-        addr, port : str, int
-            The second yield should be the TCP/IP address and port number of the
-            destination AE (if known) or None, None if unknown.
+        addr, port : str, int or None, None
+            The first yield should be the TCP/IP address and port number of the
+            destination AE (if known) or (None, None) if unknown. If (None,
+            None) is yielded then the SCP will send a C-MOVE response with a
+            'Failure' Status of 0xA801 (move destination unknown), in which case
+            nothing more needs to be yielded.
+        int
+            The second yield should be the number of C-STORE sub-operations
+            required to complete the C-MOVE operation. In other words, this is
+            the number of matching SOP Instances to be sent to the peer.
         status : pydiom.dataset.Dataset or int
             The status returned to the peer AE in the C-MOVE response. Must be a
             valid C-MOVE status value for the applicable Service Class as either
@@ -1140,8 +1202,28 @@ class ApplicationEntity(object):
             optional elements related to the Status (as in DICOM Standard Part
             7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then you can (optionally) return a
-            Dataset containing the identifiers or None.
+            If the status is 'Pending' then yield the dataset to send to the
+            peer via a C-STORE sub-operation over a new association.
+
+            If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+            Dataset with a (0008,0058) Failed SOP Instance UID element
+            containing the list of the C-STORE sub-operation SOP Instances
+            for which the C-MOVE operation has failed.
+
+            If the status is 'Success' then yield None, although yielding a
+            final 'Success' status is not required and will be overwritten if
+            necessary.
+
+        See Also
+        --------
+        association.Association.send_c_move
+        dimse_primitives.C_MOVE
+        sop_class.QueryRetrieveMoveServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes C, U, X, Y, BB and HH
+        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
@@ -1155,37 +1237,67 @@ class ApplicationEntity(object):
 
     # High-level DIMSE-N callbacks - user should implement these as required
     def on_n_event_report(self):
-        """Callback for when a N-EVENT-REPORT is received."""
+        """Callback for when a N-EVENT-REPORT is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, J, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
     def on_n_get(self):
-        """Callback for when a N-GET is received."""
+        """Callback for when a N-GET is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
     def on_n_set(self):
-        """Callback for when a N-SET is received."""
+        """Callback for when a N-SET is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
     def on_n_action(self):
-        """Callback for when a N-ACTION is received."""
+        """Callback for when a N-ACTION is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
     def on_n_create(self):
-        """Callback for when a N-CREATE is received."""
+        """Callback for when a N-CREATE is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
     def on_n_delete(self):
-        """Callback for when a N-DELETE is received."""
+        """Callback for when a N-DELETE is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes H and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_delete function prior to calling "
                                   "AE.start()")

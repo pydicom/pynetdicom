@@ -1,4 +1,5 @@
 """Implementation of the DIMSE Status values."""
+
 from pydicom.dataset import Dataset
 
 
@@ -123,6 +124,7 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS = {
                          'more Optional Keys were not supported for '
                          'existence for this Identifier'),
 }
+
 # Ranged values
 for _code in range(0xC000, 0xCFFF + 1):
     MODALITY_WORKLIST_SERVICE_CLASS_STATUS[_code] = ('Failure',
