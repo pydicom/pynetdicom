@@ -10,7 +10,7 @@ from pydicom.dataset import Dataset
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_ECHO
 from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, DummyFindSCP
-from pynetdicom3.sop_class import (Status, uid_to_sop_class,
+from pynetdicom3.sop_class import (uid_to_sop_class,
                                    VerificationServiceClass,
                                    StorageServiceClass,
                                    QueryRetrieveGetServiceClass,
@@ -22,8 +22,8 @@ from pynetdicom3.sop_class import (Status, uid_to_sop_class,
                                    PatientRootQueryRetrieveInformationModelFind)
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
-#LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))

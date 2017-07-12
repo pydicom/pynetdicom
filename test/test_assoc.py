@@ -19,31 +19,31 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, \
-                        DummyFindSCP, DummyGetSCP, DummyMoveSCP
+from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
+                         DummyGetSCP, DummyMoveSCP)
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import encode, decode
-from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
-                                   SOPClassExtendedNegotiation, \
-                                   SOPClassCommonExtendedNegotiation
-from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, Status, \
-                                 RTImageStorage, \
-                                 PatientRootQueryRetrieveInformationModelFind, \
-                                 StudyRootQueryRetrieveInformationModelFind, \
-                                 ModalityWorklistInformationFind, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelFind, \
-                                 PatientRootQueryRetrieveInformationModelGet, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelGet, \
-                                 StudyRootQueryRetrieveInformationModelGet, \
-                                 PatientRootQueryRetrieveInformationModelMove, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelMove, \
-                                 StudyRootQueryRetrieveInformationModelMove
+from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
+                                        SOPClassExtendedNegotiation,
+                                        SOPClassCommonExtendedNegotiation)
+from pynetdicom3.sop_class import (CTImageStorage, MRImageStorage,
+                                   RTImageStorage,
+                                   PatientRootQueryRetrieveInformationModelFind,
+                                   StudyRootQueryRetrieveInformationModelFind,
+                                   ModalityWorklistInformationFind,
+                                   PatientStudyOnlyQueryRetrieveInformationModelFind,
+                                   PatientRootQueryRetrieveInformationModelGet,
+                                   PatientStudyOnlyQueryRetrieveInformationModelGet,
+                                   StudyRootQueryRetrieveInformationModelGet,
+                                   PatientRootQueryRetrieveInformationModelMove,
+                                   PatientStudyOnlyQueryRetrieveInformationModelMove,
+                                   StudyRootQueryRetrieveInformationModelMove)
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -501,6 +501,46 @@ class TestAssociationSendCEcho(unittest.TestCase):
             assoc.send_c_echo()
         scp.stop()
 
+    def test_no_response(self):
+        """Test no response from peer"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def receive_msg(*args, **kwargs): return None, None
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_echo()
+
+        self.assertTrue(assoc.is_aborted)
+        
+        scp.stop()
+
+    def test_invalid_response(self):
+        """Test invalid response received from peer"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyResponse():
+            is_valid_response = False
+        
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def receive_msg(*args, **kwargs): return DummyResponse(), None
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_echo()
+
+        self.assertTrue(assoc.is_aborted)
+        
+        scp.stop()
+
     def test_good_response(self):
         """Test successful c-echo"""
         scp = DummyVerificationSCP()
@@ -585,6 +625,46 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertRaises(ValueError, assoc.send_c_store, DATASET)
         assoc.release()
         del DATASET.PerimeterValue # Fix up our changes
+        scp.stop()
+
+    def test_no_response(self):
+        """Test no response from peer"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def receive_msg(*args, **kwargs): return None, None
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_store(DATASET)
+
+        self.assertTrue(assoc.is_aborted)
+        
+        scp.stop()
+
+    def test_invalid_response(self):
+        """Test invalid response received from peer"""
+        scp = DummyStorageSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyResponse():
+            is_valid_response = False
+        
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def receive_msg(*args, **kwargs): return DummyResponse(), None
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_store(DATASET)
+
+        self.assertTrue(assoc.is_aborted)
+        
         scp.stop()
 
     @unittest.skip('Too difficult to test')

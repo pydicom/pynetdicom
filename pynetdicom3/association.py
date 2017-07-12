@@ -33,7 +33,7 @@ from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
                                         A_ASSOCIATE, A_ABORT, A_P_ABORT)
-from pynetdicom3.status import code_to_status
+from pynetdicom3.status import code_to_status, code_to_category
 from pynetdicom3.utils import PresentationContextManager
 # pylint: enable=no-name-in-module
 
@@ -665,16 +665,16 @@ class Association(threading.Thread):
             value of a C-ECHO response "shall have a value of Success". However
             Section 9.1.5.1.4 indicates it may have any of the following values:
 
-            - Success
+            Success
 
               * 0x0000 - Success
 
-            - Failure
+            Failure
 
-              * 0x0122 - Refused: SOP class not supported
-              * 0x0210 - Refused: Duplicate invocation
-              * 0x0211 - Refused: Unrecognised operation
-              * 0x0212 - Refused: Mistyped argument
+              * 0x0122 - SOP class not supported
+              * 0x0210 - Duplicate invocation
+              * 0x0211 - Unrecognised operation
+              * 0x0212 - Mistyped argument
 
             As the actual status depends on the peer SCP, it shouldn't be
             assumed that it will be one of these.
@@ -797,20 +797,20 @@ class Association(threading.Thread):
 
             - Failure
 
-              * 0x0117 - Refused: Invalid SOP instance
-              * 0x0122 - Refused: SOP class not supported
-              * 0x0124 - Refused: Not authorised
-              * 0x0210 - Refused: Duplicate invocation
-              * 0x0211 - Refused: Unrecognised operation
-              * 0x0212 - Refused: Mistyped argument
+              * 0x0117 - Invalid SOP instance
+              * 0x0122 - SOP class not supported
+              * 0x0124 - Not authorised
+              * 0x0210 - Duplicate invocation
+              * 0x0211 - Unrecognised operation
+              * 0x0212 - Mistyped argument
 
             Storage Service Class specific (DICOM Standard Part 4, Annex B.2.3):
 
             - Failure
 
-              * 0xA700 to 0xA7FF - Refused: Out of resources
-              * 0xA900 to 0xA9FF - Error: Data set does not match SOP class
-              * 0xC000 to 0xCFFF - Error: Cannot understand
+              * 0xA700 to 0xA7FF - Out of resources
+              * 0xA900 to 0xA9FF - Data set does not match SOP class
+              * 0xC000 to 0xCFFF - Cannot understand
 
             - Warning
 
@@ -823,9 +823,9 @@ class Association(threading.Thread):
 
             - Failure
 
-              * 0xA700 - Refused: Out of resources
-              * 0xA900 - Error: Data set does not match SOP class
-              * 0xC000 - Error: Cannot understand
+              * 0xA700 - Out of resources
+              * 0xA900 - Data set does not match SOP class
+              * 0xC000 - Cannot understand
 
         Raises
         ------
@@ -991,13 +991,13 @@ class Association(threading.Thread):
 
             - Failure
 
-              * 0x0122 - Refused: SOP class not supported
+              * 0x0122 - SOP class not supported
 
             Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
 
             - Failure
 
-              * 0xA700 - Refused: Out of resources
+              * 0xA700 - Out of resources
               * 0xA900 - Identifier does not match SOP Class
               * 0xC000 to 0xCFFF - Unable to process
 
@@ -1119,27 +1119,12 @@ class Association(threading.Thread):
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
             status = Dataset()
             status.Status = rsp.Status
-            if getattr(rsp, 'OffendingElement') is not None:
-                status.OffendingElement = rsp.OffendingElement
-            if getattr(rsp, 'ErrorComment') is not None:
-                status.ErrorComment = rsp.ErrorComment
-            if getattr(rsp, 'ErrorID') is not None:
-                status.ErrorID = rsp.ErrorID
-            if getattr(rsp, 'AffectedSOPInstanceUID') is not None:
-                status.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
+            for keyword in ['OffendingElement', 'ErrorComment', 'ErrorID',
+                            'AffectedSOPInstanceUID']:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
 
-            if status.Status in [0xFF00, 0xFF01]:
-                status_category = 'Pending'
-            elif status.Status == 0x0000:
-                status_category = 'Success'
-            elif status.Status in [0xA700, 0xA900]:
-                status_category = 'Failure'
-            elif status.Status in range(0xC000, 0xD000):
-                status_category = 'Failure'
-            elif status.Status == 0xFE00:
-                status_category = 'Cancel'
-            else:
-                status_category = 'Unknown'
+            status_category = code_to_category(status.Status)
 
             LOGGER.debug('-' * 65)
             LOGGER.debug('Find SCP Response: {2} (0x{0:04x} - {1})'
@@ -1172,8 +1157,8 @@ class Association(threading.Thread):
 
         yield status, identifier
 
-    def send_c_move(self, dataset, move_aet, msg_id=1,
-                    priority=2, query_model='P'):
+    def send_c_move(self, dataset, move_aet, msg_id=1, priority=2,
+                    query_model='P'):
         """Send a C-MOVE request to a peer AE.
 
         Parameters
@@ -1228,37 +1213,33 @@ class Association(threading.Thread):
 
             - Failure
 
-              * 0x0122 - Refused: SOP class not supported
+              * 0x0122 - SOP class not supported
 
             Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
             C):
 
             - Failure
 
-              * 0xA701 - Refused: Out of resources - unable to calculate number
-                of matches
-              * 0xA702 - Refused: Out of resouses - unable to perform
-                sub-operations
-              * 0xA801 - Refused: Move Destination unknown
+              * 0xA701 - Out of resources: unable to calculate number of matches
+              * 0xA702 - Out of resouses: unable to perform sub-operations
+              * 0xA801 - Move Destination unknown
               * 0xA900 - Identifier does not match SOP Class
               * 0xC000 to 0xCFFF - Unable to process
 
             - Pending
 
-              * 0xFF00 - Matches are continuing - Current match is supplied and
+              * 0xFF00 - Matches are continuing: Current match is supplied and
                 any Optional Keys were supported in the same manner as Required
                 Keys
 
             - Warning
 
-              * 0xB000 - Sub-operations complete - one or more failures
+              * 0xB000 - Sub-operations complete: one or more failures
 
         identifier : pydicom.dataset.Dataset or None
-            The yielded identifier value depends both on the yielded status
-            and the applicable Service Class. For example, for the
-            Query/Retrieve Move Service Class, a status of 'Failed' should yield
-            an identifier Dataset containing a (0008,0058) 'Failed SOP Instance
-            UID List' element, while a status of 'Pending' will yield None.
+            If the status is 'Pending' or 'Success' then yields None. If the
+            status is 'Warning', 'Failure' or 'Cancel' then yields an Dataset
+            containing a (0008,0058) 'Failed SOP Instance UID List' element.
 
         See Also
         --------
@@ -1406,7 +1387,7 @@ class Association(threading.Thread):
 
         The ApplicationEntity.on_c_store callback must be implemented prior
         to calling send_c_get as the peer will return any matches via a C-STORE
-        operation over the current association.
+        sub-operation over the current association.
 
         Parameters
         ----------
@@ -1451,15 +1432,15 @@ class Association(threading.Thread):
 
             - Success
 
-              * 0x0000 - Sub-operations complete, no failures or warnings
+              * 0x0000 - Sub-operations complete: no failures or warnings
 
             - Failure
 
-              * 0x0122 - Refused: SOP class not supported
-              * 0x0124 - Refused: Not authorised
-              * 0x0210 - Refused: Duplicate invocation
-              * 0x0211 - Refused: Unrecognised operation
-              * 0x0212 - Refused: Mistyped argument
+              * 0x0122 - SOP class not supported
+              * 0x0124 - Not authorised
+              * 0x0210 - Duplicate invocation
+              * 0x0211 - Unrecognised operation
+              * 0x0212 - Mistyped argument
 
             Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
             C.4.3):
@@ -1474,24 +1455,21 @@ class Association(threading.Thread):
 
             - Failure
 
-              *  0xA701 - Refused: Out of Resources, unable to calculate number
-                 of matches
-              *  0xA702 - Refused: Out of Resources, unable to perform
-                 sub-operations
-              *  0xA900 - Identifier Does Not Match SOP Class
-              *  0xC000 to 0xCFFF - Unable to Process
+              *  0xA701 - Out of resources: unable to calculate number of
+                 matches
+              *  0xA702 - Out of resources: unable to perform sub-operations
+              *  0xA900 - Identifier does not match SOP class
+              *  0xC000 to 0xCFFF - Unable to process
 
             - Warning
 
-              *  0xB000 - Warning: Sub-operations completed, one or more
-                 failures/warnings
+              *  0xB000 - Sub-operations completed: one or more failures or
+                 warnings
 
         identifier : pydicom.dataset.Dataset or None
-            The yielded identifier value depends both on the yielded status
-            and the applicable Service Class. For example, for the
-            Query/Retrieve Get Service Class, a status of 'Failed' should yield
-            an identifier Dataset containing a (0008,0058) 'Failed SOP Instance
-            UID List' element, while a status of 'Pending' will yield None.
+            If the status is 'Pending' or 'Success' then yields None. If the
+            status is 'Warning', 'Failure' or 'Cancel' then yields an Dataset
+            containing a (0008,0058) 'Failed SOP Instance UID List' element.
 
         Raises
         ------

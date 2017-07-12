@@ -448,8 +448,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         Pending
 
-        - 0xFF00 - Pending: Matches are continuing, current match supplied
-        - 0xFF01 - Pending: Matches are continuing, warning
+        - 0xFF00 - Matches are continuing, current match supplied
+        - 0xFF01 - Matches are continuing, warning
 
         Cancel
 
@@ -457,10 +457,10 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         Failure
 
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0xA700 - Refused: Out of Resources
-        - 0xA900 - Identifier Does Not Match SOP Class
-        - 0xC000 to 0xCFFF - Unable to Process
+        - 0x0122 - SOP class not supported
+        - 0xA700 - Out of resources
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
 
         Parameters
         ----------
@@ -647,33 +647,32 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         ~~~~~~
         Success
 
-        - 0x0000 - Success: Sub-operations complete, no failures
+        - 0x0000 - Sub-operations complete: no failures
 
         Pending
 
-        - 0xFF00 - Pending: Sub-operations are continuing
+        - 0xFF00 - Sub-operations are continuing
 
         Cancel
 
-        - 0xFE00 - Cancel: Sub-operations terminated due to Cancel indication
+        - 0xFE00 - Sub-operations terminated due to Cancel indication
 
         Failure
 
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0x0124 - Refused: Not Authorised
-        - 0x0210 - Refused: Duplicate Invocation
-        - 0x0211 - Refused: Unrecognised Operation
-        - 0x0212 - Refused: Mistyped Argument
-        - 0xA701 - Refused: Out of Resources, unable to calculate number of
-          matches
-        - 0xA702 - Refused: Out of Resources, unable to perform sub-operations
-        - 0xA801 - Refused: Move Destination Unknown
-        - 0xA900 - Identifier Does Not Match SOP Class
-        - 0xC000 to 0xCFFF - Unable to Process
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA701 - Out of resources: unable to calculate number of matches
+        - 0xA702 - Out of resources, unable to perform sub-operations
+        - 0xA801 - Move destination unknown
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
 
         Warning
 
-        - 0xB000 - Warning: Sub-operations completed, one or more failures
+        - 0xB000 - Sub-operations complete: one or more failures
 
         Number of X Sub-operations
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1026,7 +1025,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         ~~~~~~
         Success
 
-        - 0x0000 - Success - Sub-operations complete - no Failures or Warnings
+        - 0x0000 - Sub-operations complete: no failures or warnings
 
         Pending
 
@@ -1038,20 +1037,19 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         Failure
 
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0x0124 - Refused: Not Authorised
-        - 0x0210 - Refused: Duplicate Invocation
-        - 0x0211 - Refused: Unrecognised Operation
-        - 0x0212 - Refused: Mistyped Argument
-        - 0xA701 - Refused: Out of Resources - unable to calculate number of
-          matches
-        - 0xA702 - Refused: Out of Resources - unable to perform sub-operations
-        - 0xA900 - Identifier Does Not Match SOP Class
-        - 0xC000 to 0xCFFF - Unable to Process
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA701 - Out of resources: unable to calculate number of matches
+        - 0xA702 - Out of resources: unable to perform sub-operations
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
 
         Warning
 
-        - 0xB000 - Sub-operations complete - one or more Failures or Warnings
+        - 0xB000 - Sub-operations complete: one or more failures or warnings
 
         Number of X Sub-operations
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1093,9 +1091,9 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         """
         # Build C-GET response primitive
         rsp = C_GET()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        rsp.Identifier = msg.Identifier
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        rsp.Identifier = req.Identifier
 
         # Number of suboperation trackers
         no_remaining = 0
@@ -1159,7 +1157,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 LOGGER.info('Store SCU RQ: MsgID %s', ii + 1)
 
                 store_status = self.ACSE.parent.send_c_store(dataset,
-                                                             msg.MessageID,
+                                                             req.MessageID,
                                                              priority)
 
                 store_status = assoc.send_c_store(dataset)
