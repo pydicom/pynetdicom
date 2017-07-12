@@ -141,6 +141,16 @@ class ApplicationEntity(object):
     transfer_syntaxes : List of pydicom.uid.UID
         The supported transfer syntaxes
     """
+
+    """Association class type is set to a variable to make usage of another
+    maybe overidden type of Association easier
+    Example:
+        class MyApplicationEntity(ApplicationEntity):
+            ASSOCIATION = MyAssociation
+    """
+    ASSOCIATION = Association
+
+
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
                  scp_sop_class=None, transfer_syntax=None):
@@ -169,7 +179,6 @@ class ApplicationEntity(object):
         self.address = platform.node()
         self.port = port
         self.ae_title = ae_title
-        self.ASSOCIATION = Association
 
         # Avoid dangerous default values
         if transfer_syntax is None:
