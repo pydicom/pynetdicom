@@ -645,7 +645,7 @@ class TestAssociationSendCStore(unittest.TestCase):
                 thread.abort()
                 thread.stop()
 
-    def test_bad_dataset(self):
+    def test_dataset_encode_failure(self):
         """Test failure if unable to encode dataset"""
         self.scp = DummyStorageSCP()
         self.scp.start()
@@ -659,7 +659,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         del DATASET.PerimeterValue # Fix up our changes
         self.scp.stop()
 
-    def test_no_response(self):
+    def test_no_peer_response(self):
         """Test no response from peer"""
         self.scp = DummyStorageSCP()
         self.scp.start()
@@ -677,7 +677,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         
         self.scp.stop()
 
-    def test_invalid_response(self):
+    def test_invalid_peer_response(self):
         """Test invalid response received from peer"""
         self.scp = DummyStorageSCP()
         self.scp.start()

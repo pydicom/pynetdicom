@@ -331,26 +331,30 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        # Check the dataset SOP Class UID matches the one agreed to
-        if self.UID != self.sopclass:
-            LOGGER.error("C-STORE request's Dataset SOP Class UID does not "
-                         "match the presentation context")
-            # Failure: Data Set Does Not Match SOP Class
-            rsp.Status = 0xA900
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
-
         # Attempt to decode the dataset
         try:
             ds = decode(req.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
+            # Frequently only time we get an Exception is by iterating through
+            for elem in ds.iterall():
+                pass
         except Exception as ex:
             LOGGER.error("Failed to decode the received dataset")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC100
             rsp.ErrorComment = 'Unable to decode the dataset'
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
+
+        # Check the dataset SOP Class UID matches the one agreed to
+        if 'SOPClassUID' not in ds or ('SOPClassUID' in ds and
+                                       ds.SOPClassUID != self.sopclass):
+            LOGGER.error("C-STORE request's Dataset SOP Class UID does not "
+                         "match the presentation context")
+            # Failure: Data Set Does Not Match SOP Class
+            rsp.Status = 0xA900
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -362,9 +366,7 @@ class StorageServiceClass(ServiceClass):
                          "callback")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Error in on_c_store callback
-            rsp.Status = 0xC101
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
+            rsp_status = 0xC101
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)
@@ -497,7 +499,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.info('Find SCP Request Identifiers:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Data Set')
-            for elem in identifier:
+            for elem in identifier.iterall():
                 LOGGER.info(elem)
             LOGGER.info('')
         except Exception as ex:
@@ -505,6 +507,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.exception(ex)
             # Failure - Unable to Process - Failed to decode Identifier
             rsp.Status = 0xC000
+            rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
