@@ -10,7 +10,7 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 
 from pynetdicom3 import AE
-from pynetdicom3.dimse_primitives import C_ECHO
+from pynetdicom3.dimse_primitives import C_ECHO, C_STORE
 from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
                          DummyBaseSCP)
 from pynetdicom3.sop_class import (uid_to_sop_class,
@@ -87,6 +87,47 @@ class TestServiceClass(unittest.TestCase):
         sop = StorageServiceClass()
         self.assertFalse(sop.is_valid_status(0x0101))
         self.assertTrue(sop.is_valid_status(0x0000))
+
+    def test_validate_status_ds(self):
+        """Test that validate_status works correctly with dataset"""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        status = Dataset()
+        status.Status = 0x0001
+        rsp = sop.validate_status(status, rsp)
+        self.assertEqual(rsp.Status, 0x0001)
+
+    def test_validate_status_ds_multi(self):
+        """Test that validate_status works correctly with dataset multi"""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        status = Dataset()
+        status.Status = 0x0002
+        status.ErrorComment = 'test'
+        rsp = sop.validate_status(status, rsp)
+        self.assertEqual(rsp.Status, 0x0002)
+        self.assertEqual(rsp.ErrorComment, 'test')
+
+    def test_validate_status_int(self):
+        """Test that validate_status works correctly with int"""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        rsp = sop.validate_status(0x0000, rsp)
+        self.assertEqual(rsp.Status, 0x0000)
+
+    def test_validate_status_invalid(self):
+        """Test exception raised if invalid status value"""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        rsp = sop.validate_status('test', rsp)
+        self.assertEqual(rsp.Status, 0xC103)
+
+    def test_validate_status_unknown(self):
+        """Test return unknown status"""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        rsp = sop.validate_status(0xD011, rsp)
+        self.assertEqual(rsp.Status, 0xD011)
 
 
 class TestVerificationServiceClass(unittest.TestCase):
