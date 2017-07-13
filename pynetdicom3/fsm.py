@@ -3,6 +3,7 @@ The DUL's finite state machine representation.
 """
 import logging
 import socket
+import ssl
 
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, \
                             A_ASSOCIATE_AC, P_DATA_TF, \
@@ -126,6 +127,14 @@ def AE_1(dul):
     # Issue TRANSPORT CONNECT request primitive to local transport service
     dul.scu_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        if dul.assoc.ae.has_ssl:
+            dul.scu_socket = ssl.wrap_socket(dul.scu_socket,
+                                             server_side=False,
+                                             certfile=dul.assoc.ae.certfile,
+                                             keyfile=dul.assoc.ae.keyfile,
+                                             cert_reqs=dul.assoc.ae.cert_verify,
+                                             ca_certs=dul.assoc.ae.cacerts,
+                                             ssl_version=dul.assoc.ae.ssl_version)
         # CalledPresentationAddress is set by the ACSE and
         #   is an (address, port) tuple
         dul.scu_socket.connect(dul.primitive.called_presentation_address)
