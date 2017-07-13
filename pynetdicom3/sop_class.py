@@ -331,30 +331,17 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        # Attempt to decode the dataset
+        # Attempt to decode the request's dataset
         try:
             ds = decode(req.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
-            # Frequently only time we get an Exception is by iterating through
-            for elem in ds.iterall():
-                pass
         except Exception as ex:
             LOGGER.error("Failed to decode the received dataset")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC100
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
-
-        # Check the dataset SOP Class UID matches the one agreed to
-        if 'SOPClassUID' not in ds or ('SOPClassUID' in ds and
-                                       ds.SOPClassUID != self.sopclass):
-            LOGGER.error("C-STORE request's Dataset SOP Class UID does not "
-                         "match the presentation context")
-            # Failure: Data Set Does Not Match SOP Class
-            rsp.Status = 0xA900
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -482,15 +469,6 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        # Check the Identifier's SOP Class UID matches the one agreed to
-        if self.UID != self.sopclass:
-            LOGGER.error("C-FIND request's SOP Class UID does not match the "
-                         "presentation context")
-            # Failure - Identifier Does Not Match SOP Class
-            rsp.Status = 0xA900
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
-
         # Decode and log Identifier
         try:
             identifier = decode(req.Identifier,
@@ -498,7 +476,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                                 self.transfersyntax.is_little_endian)
             LOGGER.info('Find SCP Request Identifiers:')
             LOGGER.info('')
-            LOGGER.debug('# DICOM Data Set')
+            LOGGER.debug('# DICOM Dataset')
             for elem in identifier.iterall():
                 LOGGER.info(elem)
             LOGGER.info('')
@@ -530,7 +508,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
             if rsp.Status in self.statuses:
                 status = self.statuses[rsp.Status]
-            else:  # Unknown status
+            else:
+                # Unknown status
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
 
@@ -568,10 +547,10 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
                 self.DIMSE.send_msg(rsp, self.pcid)
 
-                LOGGER.debug('Find SCP Response Identifiers:')
+                LOGGER.debug('Find SCP Response Identifier:')
                 LOGGER.debug('')
                 LOGGER.debug('# DICOM Dataset')
-                for elem in rsp_identifier:
+                for elem in rsp_identifier.iterall():
                     LOGGER.debug(elem)
                 LOGGER.debug('')
             else:
@@ -717,8 +696,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         rsp = C_MOVE()
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
-        # FIXME: response identifier != request identifier
-        rsp.Identifier = req.Identifier
 
         # Number of suboperation trackers
         no_remaining = 0
@@ -727,13 +704,24 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         no_warning = 0
         failed_sop_instances = []
 
-        # Check that the Identifier's SOP Class matches the presentation context
-        if not self._is_identifier_sop_class_valid(rsp):
-            return
-
-        # Decode the Identifier dataset
-        ds = self._decode_identifier(req, rsp)
-        if ds is None:
+        # Attempt to decode the request's Identifier dataset
+        try:
+            identifier = decode(req.Identifier,
+                                self.transfersyntax.is_implicit_VR,
+                                self.transfersyntax.is_little_endian)
+            LOGGER.info('Move SCP Request Identifier:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in identifier.iterall():
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except Exception as ex:
+            LOGGER.error("Failed to decode the request's Identifier dataset")
+            LOGGER.exception(ex)
+            # Failure: Cannot Understand - Dataset decoding error
+            rsp.Status = 0xC100
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         ## GET USER ON_C_MOVE GENERATOR
@@ -854,41 +842,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                                                         failed_sop_instances)
             LOGGER.info('Move SCP Response: (Warning)')
         self.DIMSE.send_msg(rsp, self.pcid)
-
-    def _is_identifier_sop_class_valid(self, rsp):
-        """Check the Identifier's SOP Class UID matches the one agreed to."""
-        if self.UID != self.sopclass:
-            LOGGER.error("C-MOVE request's Identifier SOP Class UID does not "
-                         "match the agreed presentation context.")
-            # Failure - Identifier doesn't match SOP class
-            rsp.Status = 0xA900
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return False
-
-        return True
-
-    def _decode_identifier(self, rsp):
-        """Decode the Identifier dataset."""
-        try:
-            ds = decode(rsp.Identifier,
-                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
-
-            LOGGER.info('Move SCP Request Identifiers:')
-            LOGGER.info('')
-            LOGGER.debug('# DICOM Data Set')
-            for elem in ds:
-                LOGGER.info(elem)
-            LOGGER.info('')
-        except (AttributeError, NotImplementedError, TypeError, KeyError):
-            LOGGER.error("Failed to decode the Identifier dataset received "
-                         "from the peer.")
-            # Failure - Unable to process - Failed to decode Identifier
-            rsp.Status = 0xC000
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return None
-
-        return ds
 
     def _user_callback(self, ds, move_destination, rsp):
         """Call the user's on_c_move callback."""
@@ -1094,7 +1047,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         rsp = C_GET()
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
-        rsp.Identifier = req.Identifier
 
         # Number of suboperation trackers
         no_remaining = 0
@@ -1103,16 +1055,27 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         no_warning = 0
         failed_sop_instances = []
 
-        # Check the identifier SOP Class UID matches the one agreed to
-        if not self._is_identifier_sop_class_valid(rsp):
+        # Attempt to decode the request's Identifier dataset
+        try:
+            identifer = decode(req.Identifier,
+                               self.transfersyntax.is_implicit_VR,
+                               self.transfersyntax.is_little_endian)
+            LOGGER.info('Get SCP Request Identifier:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in identifier.iterall():
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except Exception as ex:
+            LOGGER.error("Failed to decode the request's Identifier dataset")
+            LOGGER.exception(ex)
+            # Failure: Cannot Understand - Dataset decoding error
+            rsp.Status = 0xC100
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Decode the Identifier dataset
-        ds = self._decode_identifier(rsp)
-        if ds is None:
-            return
-
-        # Get user's on_c_find generator
+        # Get user's on_c_get generator
         result = self._user_callback(ds, rsp)
         if result is None:
             return
@@ -1196,41 +1159,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             LOGGER.info('Get SCP Final Response (Warning)')
 
         self.DIMSE.send_msg(rsp, self.pcid)
-
-    def _is_identifier_sop_class_valid(self, rsp):
-        """Check the Identifier's SOP Class UID matches the one agreed to."""
-        if self.UID != self.sopclass:
-            LOGGER.error("C-GET request's Identifier SOP Class UID does not "
-                         "match the agreed presentation context.")
-            # Failure - Identifier doesn't match SOP class
-            rsp.Status = 0xA900
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return False
-
-        return True
-
-    def _decode_identifier(self, rsp):
-        """Decode the Identifier dataset."""
-        try:
-            ds = decode(rsp.Identifier,
-                        self.transfersyntax.is_implicit_VR,
-                        self.transfersyntax.is_little_endian)
-
-            LOGGER.info('Get SCP Request Identifiers:')
-            LOGGER.info('')
-            LOGGER.debug('# DICOM Data Set')
-            for elem in ds:
-                LOGGER.info(elem)
-            LOGGER.info('')
-        except (AttributeError, NotImplementedError, TypeError, KeyError):
-            LOGGER.error("Failed to decode the Identifier dataset received "
-                         "from the peer.")
-            # Failure - Unable to process - Failed to decode Identifier
-            rsp.Status = 0xC000
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return None
-
-        return ds
 
     def _user_callback(self, ds, rsp):
         """Call the user's on_c_get callback."""

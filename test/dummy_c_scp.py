@@ -23,6 +23,7 @@ from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
                                  PatientRootQueryRetrieveInformationModelMove, \
                                  StudyRootQueryRetrieveInformationModelMove, \
                                  PatientStudyOnlyQueryRetrieveInformationModelMove
+from pynetdicom3.status import code_to_category
 
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -210,7 +211,7 @@ class DummyGetSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
-        if self.status.category not in ['Pending', 'Warning']:
+        if code_to_category(self.status) not in ['Pending', 'Warning']:
             yield 1
             yield self.status, None
 
@@ -256,7 +257,7 @@ class DummyMoveSCP(DummyBaseSCP):
             yield 1
             yield None, None
 
-        if self.status.category not in ['Pending', 'Warning']:
+        if code_to_category(self.status) not in ['Pending', 'Warning']:
             yield 1
             yield 'localhost', 11113
             yield self.status, None

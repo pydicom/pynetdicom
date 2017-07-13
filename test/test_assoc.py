@@ -699,7 +699,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         
         self.scp.stop()
 
-    @unittest.skip('Too difficult to test')
+    @unittest.skip('Hard to test correctly')
     def test_bad_ds(self):
         """Test returns failure status if dataset cant be decoded by SCP"""
         self.scp = DummyStorageSCP()
@@ -712,7 +712,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         primitive.AffectedSOPClassUID = DATASET.SOPClassUID
         primitive.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         primitive.Priorty = 0x0002
-        primitive.DataSet = BytesIO(b'\x08\x00\x05\x00\x43\x53\x08\x00\x49\x53\x4f\x54\x45\x53\x54\x00')
+        primitive.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49\x53')
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -722,7 +722,8 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc.dimse.send_msg(primitive, 1)
         rsp, _ = assoc.dimse.receive_msg(True)
 
-        self.assertEqual(rsp.Status, 0xC000)
+        self.assertEqual(rsp.Status, 0xC100)
+        self.assertEqual(rsp.ErrorComment, 'Unable to decode the dataset')
         assoc.release()
         self.scp.stop()
 
@@ -792,54 +793,6 @@ class TestAssociationSendCStore(unittest.TestCase):
         result = assoc.send_c_store(COMP_DATASET)
         self.assertEqual(result.Status, 0x0000)
         assoc.release()
-        self.scp.stop()
-
-    def test_ds_no_sop_class(self):
-        """Test SCU when the sent dataset has no sop class uid"""
-        ds = Dataset()
-        ds.PatientName = '*'
-        ds.QueryRetrieveLevel = "PATIENT"
-
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        self.assertRaises(AttributeError, assoc.send_c_store, ds)
-        assoc.release()
-        self.scp.stop()
-
-    def test_ds_not_match_agreed_sop(self):
-        """Test SCP returns failure status if dataset sop wasnt agreed on"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-
-        ## Need to bypass the standard send_c_store checks
-        # Modify the DATASET SOPClassUID
-        orig = DATASET.SOPClassUID
-        DATASET.SOPClassUID = '1.2.840.10008.5.1.4.1.1.1'
-
-        # Build C-STORE request primitive
-        primitive = C_STORE()
-        primitive.MessageID = 1
-        primitive.AffectedSOPClassUID = DATASET.SOPClassUID
-        primitive.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        primitive.Priorty = 0x0002
-        ds = encode(DATASET, True, True)
-        primitive.DataSet = BytesIO(ds)
-
-        ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-
-        # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.send_msg(primitive, 1)
-        rsp, _ = assoc.dimse.receive_msg(True)
-
-        self.assertEqual(rsp.Status, 0xA900)
-        assoc.release()
-
-        DATASET.SOPClassUID = orig
         self.scp.stop()
 
     def test_good_response(self):
@@ -1100,38 +1053,6 @@ class TestAssociationSendCFind(unittest.TestCase):
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertTrue(status.Status in range(0xC000, 0xD000))
         assoc.release()
-        self.scp.stop()
-
-    def test_ds_not_match_agreed_sop(self):
-        """Test returns failure status if dataset sop wasnt agreed on"""
-        self.scp = DummyFindSCP()
-        self.scp.start()
-
-        ## Need to bypass the standard send_c_find checks
-        # Modify the DATASET SOPClassUID
-        orig = DATASET.SOPClassUID
-        DATASET.SOPClassUID = StudyRootQueryRetrieveInformationModelFind.UID
-
-        # Build C-STORE request primitive
-        primitive = C_FIND()
-        primitive.MessageID = 1
-        primitive.AffectedSOPClassUID = DATASET.SOPClassUID
-        primitive.Priorty = 0x0002
-        ds = encode(DATASET, True, True)
-        primitive.Identifier = BytesIO(ds)
-
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-
-        # Send C-STORE request primitive to DIMSE and get response
-        assoc.dimse.send_msg(primitive, 1)
-        rsp, _ = assoc.dimse.receive_msg(True)
-
-        self.assertEqual(rsp.Status, 0xA900)
-        assoc.release()
-
-        DATASET.SOPClassUID = orig
         self.scp.stop()
 
     def test_ds_corrupt(self):

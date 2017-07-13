@@ -27,8 +27,8 @@ from pynetdicom3.sop_class import (uid_to_sop_class,
                                    PatientRootQueryRetrieveInformationModelFind)
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
-#LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -273,32 +273,7 @@ class TestStorageServiceClass(unittest.TestCase):
                 thread.abort()
                 thread.stop()
 
-    def test_scp_invalid_sop(self):
-        """Test dataset SOP class doesnt match presentation context"""
-        self.scp = DummyStorageSCP()
-        self.scp.status = 0x0000
-        self.scp.start()
-
-        ae = AE(scu_sop_class=[CTImageStorage])
-        assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x16\x00\x43\x53\x08\x00\x49\x53')
-
-        # Send C-STORE request to DIMSE and get response
-        assoc.dimse.send_msg(req, 1)
-        rsp, _ = assoc.dimse.receive_msg(True)
-
-        self.assertEqual(rsp.Status, 0xA900)
-        self.assertEqual(rsp.ErrorComment, None)
-        assoc.release()
-        self.scp.stop()
-
+    @unittest.skip('Difficult to test correctly')
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
         self.scp = DummyStorageSCP()
@@ -314,12 +289,12 @@ class TestStorageServiceClass(unittest.TestCase):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49\x53')
+        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
 
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)
         rsp, _ = assoc.dimse.receive_msg(True)
-
+    
         self.assertEqual(rsp.Status, 0xC100)
         self.assertEqual(rsp.ErrorComment, 'Unable to decode the dataset')
         assoc.release()
