@@ -20,7 +20,7 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
 from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
-                         DummyGetSCP, DummyMoveSCP)
+                         DummyGetSCP, DummyMoveSCP, DummyBaseSCP)
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
@@ -42,8 +42,8 @@ from pynetdicom3.sop_class import (CTImageStorage, MRImageStorage,
                                    StudyRootQueryRetrieveInformationModelMove)
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -488,23 +488,39 @@ class TestAssociation(unittest.TestCase):
 
 class TestAssociationSendCEcho(unittest.TestCase):
     """Run tests on Assocation send_c_echo."""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_c_echo()
-        scp.stop()
+        self.scp.stop()
 
     def test_no_response(self):
         """Test no response from peer"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
@@ -517,12 +533,12 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
         self.assertTrue(assoc.is_aborted)
         
-        scp.stop()
+        self.scp.stop()
 
     def test_invalid_response(self):
         """Test invalid response received from peer"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
 
@@ -539,56 +555,56 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
         self.assertTrue(assoc.is_aborted)
         
-        scp.stop()
+        self.scp.stop()
 
     def test_good_response(self):
         """Test successful c-echo"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertEqual(result.Status, 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_echo(self):
         """Test no exception raised in on_c_echo"""
-        scp = DummyVerificationSCP()
+        self.scp = DummyVerificationSCP()
         def on_c_echo(): raise RuntimeError
-        scp.ae.on_c_echo = on_c_echo
-        scp.start()
+        self.scp.ae.on_c_echo = on_c_echo
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         assoc.send_c_echo()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_abort_during_c_echo(self):
         """Test aborting the association during c-echo"""
-        scp = DummyVerificationSCP()
-        scp.send_abort = True
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.send_abort = True
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_echo()
         self.assertEqual(result, Dataset())
         self.assertTrue(assoc.is_aborted)
-        scp.stop()
+        self.scp.stop()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         self.assertRaises(ValueError, assoc.send_c_echo)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_status_ds_multi(self):
         """Test successful c-echo"""
@@ -598,9 +614,9 @@ class TestAssociationSendCEcho(unittest.TestCase):
             ds.ErrorComment = 'Some comment'
             return ds
         
-        scp = DummyVerificationSCP()
-        scp.ae.on_c_echo = on_c_echo
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_c_echo = on_c_echo
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
@@ -608,15 +624,31 @@ class TestAssociationSendCEcho(unittest.TestCase):
         self.assertEqual(result.Status, 0x0122)
         self.assertEqual(result.ErrorComment, 'Some comment')
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCStore(unittest.TestCase):
     """Run tests on Assocation send_c_store."""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_bad_dataset(self):
         """Test failure if unable to encode dataset"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage],
                 transfer_syntax=[ExplicitVRLittleEndian])
         assoc = ae.associate('localhost', 11112)
@@ -625,12 +657,12 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertRaises(ValueError, assoc.send_c_store, DATASET)
         assoc.release()
         del DATASET.PerimeterValue # Fix up our changes
-        scp.stop()
+        self.scp.stop()
 
     def test_no_response(self):
         """Test no response from peer"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
@@ -643,12 +675,12 @@ class TestAssociationSendCStore(unittest.TestCase):
 
         self.assertTrue(assoc.is_aborted)
         
-        scp.stop()
+        self.scp.stop()
 
     def test_invalid_response(self):
         """Test invalid response received from peer"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
 
@@ -665,13 +697,13 @@ class TestAssociationSendCStore(unittest.TestCase):
 
         self.assertTrue(assoc.is_aborted)
         
-        scp.stop()
+        self.scp.stop()
 
     @unittest.skip('Too difficult to test')
     def test_bad_ds(self):
         """Test returns failure status if dataset cant be decoded by SCP"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
 
         ## Need to bypass the standard send_c_store checks
         # Build C-STORE request primitive
@@ -692,75 +724,75 @@ class TestAssociationSendCStore(unittest.TestCase):
 
         self.assertEqual(rsp.Status, 0xC000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_priority(self):
         """Test bad priority raises exception"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         self.assertRaises(ValueError, assoc.send_c_store, DATASET, priority=0x0003)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_store(self):
         """Test exception raised in on_c_store returns failure status"""
-        scp = DummyStorageSCP()
+        self.scp = DummyStorageSCP()
         def on_c_store(ds): raise RuntimeError
-        scp.ae.on_c_store = on_c_store
-        scp.start()
+        self.scp.ae.on_c_store = on_c_store
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertEqual(result.Status, 0xC101)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_store_return(self):
         """Test SCP exception raised by bad on_c_store return"""
-        scp = DummyStorageSCP()
-        scp.status = 'testing'
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.status = 'testing'
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertEqual(result.Status, 0xC103)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_store_status(self):
         """Test SCP exception raised by invalid on_c_store status"""
-        scp = DummyStorageSCP()
+        self.scp = DummyStorageSCP()
         # on_c_store must return Status object with valid value
-        scp.status = scp.bad_status
-        scp.start()
+        self.scp.status = self.scp.bad_status
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertEqual(result.Status, 0xFFFF)
         # on_c_store must return Status object, not int
-        scp.status = 0xCCCC
+        self.scp.status = 0xCCCC
         result = assoc.send_c_store(DATASET)
         self.assertEqual(result.Status, 0xCCCC)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_compressed_ds(self):
         """Test SCU when ds is compressed"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[MRImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(COMP_DATASET)
         self.assertEqual(result.Status, 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_no_sop_class(self):
         """Test SCU when the sent dataset has no sop class uid"""
@@ -768,19 +800,19 @@ class TestAssociationSendCStore(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
 
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         self.assertRaises(AttributeError, assoc.send_c_store, ds)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_not_match_agreed_sop(self):
         """Test SCP returns failure status if dataset sop wasnt agreed on"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
 
         ## Need to bypass the standard send_c_store checks
         # Modify the DATASET SOPClassUID
@@ -808,43 +840,43 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc.release()
 
         DATASET.SOPClassUID = orig
-        scp.stop()
+        self.scp.stop()
 
     def test_good_response(self):
         """Test SCU/SCP successful c-store"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_store(DATASET)
         self.assertEqual(result.Status, 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_must_be_associated(self):
         """Test SCU can't send without association."""
         # Test raise if assoc not established
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_c_store(DATASET)
-        scp.stop()
+        self.scp.stop()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         self.assertRaises(ValueError, assoc.send_c_store, DATASET)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCFind(unittest.TestCase):
@@ -854,6 +886,43 @@ class TestAssociationSendCFind(unittest.TestCase):
         self.ds = Dataset()
         self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
+
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_invalid_response(self):
+        """Test invalid response received from peer"""
+        self.scp = DummyFindSCP()
+        self.scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyResponse():
+            is_valid_response = False
+        
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def receive_msg(*args, **kwargs): return DummyResponse(), None
+
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+        for (_, _) in assoc.send_c_find(self.ds, query_model='P'):
+            pass
+
+        self.assertTrue(assoc.is_aborted)
+        
+        self.scp.stop()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
@@ -976,54 +1045,54 @@ class TestAssociationSendCFind(unittest.TestCase):
 
     def test_bad_user_on_c_find(self):
         """Test exception raised by bad on_c_find"""
-        scp = DummyFindSCP()
+        self.scp = DummyFindSCP()
         def on_c_find(ds): raise RuntimeError
-        scp.ae.on_c_find = on_c_find
-        scp.start()
+        self.scp.ae.on_c_find = on_c_find
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertEqual(status.Status, 0xC001)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_find_status(self):
         """Test exception raised by bad on_c_find"""
-        scp = DummyFindSCP()
-        scp.status = 0xFFF0
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.status = 0xFFF0
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertEqual(status.Status, 0xFFF0)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_find_return(self):
         """Test exception raised by bad on_c_find return"""
-        scp = DummyFindSCP()
-        scp.status = 'testing'
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.status = 'testing'
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertTrue(status.Status in range(0xC000, 0xD000))
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_find_ds(self):
         """Test exception raised by bad on_c_find"""
-        scp = DummyFindSCP()
+        self.scp = DummyFindSCP()
 
         def on_c_find(ds):
             def test(): pass
             yield 0xFF00, test
 
-        scp.ae.on_c_find = on_c_find
-        scp.start()
+        self.scp.ae.on_c_find = on_c_find
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind],
                 transfer_syntax=[ExplicitVRLittleEndian])
         assoc = ae.associate('localhost', 11112)
@@ -1031,12 +1100,12 @@ class TestAssociationSendCFind(unittest.TestCase):
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             self.assertTrue(status.Status in range(0xC000, 0xD000))
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_not_match_agreed_sop(self):
         """Test returns failure status if dataset sop wasnt agreed on"""
-        scp = DummyFindSCP()
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.start()
 
         ## Need to bypass the standard send_c_find checks
         # Modify the DATASET SOPClassUID
@@ -1063,12 +1132,12 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc.release()
 
         DATASET.SOPClassUID = orig
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_corrupt(self):
         """Test returns failure status if dataset corrupt"""
-        scp = DummyFindSCP()
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.start()
 
         ## Need to bypass the standard send_c_find checks
         # Build C-STORE request primitive
@@ -1088,45 +1157,61 @@ class TestAssociationSendCFind(unittest.TestCase):
 
         self.assertEqual(rsp.Status, 0xC000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCCancelFind(unittest.TestCase):
     """Run tests on Assocation send_c_cancel_find."""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+            
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyFindSCP()
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_c_cancel_find(1)
-        scp.stop()
+        self.scp.stop()
 
     def test_good_send(self):
         """Test send_c_cancel_move"""
-        scp = DummyFindSCP()
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         assoc.send_c_cancel_find(1)
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_send(self):
         """Test send_c_cancel_move"""
-        scp = DummyFindSCP()
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(TypeError):
             assoc.send_c_cancel_find('a')
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCGet(unittest.TestCase):
@@ -1138,47 +1223,61 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
 
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyGetSCP()
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             next(assoc.send_c_get(self.ds))
-        scp.stop()
+        self.scp.stop()
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds):
             self.assertEqual(int(status), 0xa900)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_query_model(self):
         """Test bad query model parameter"""
-        scp = DummyGetSCP()
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_get(self.ds, query_model='X'))
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_good_query_model(self):
         """Test all the query models"""
-        scp = DummyGetSCP()
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                StudyRootQueryRetrieveInformationModelGet,
                                PatientStudyOnlyQueryRetrieveInformationModelGet])
@@ -1191,13 +1290,13 @@ class TestAssociationSendCGet(unittest.TestCase):
         for (status, ds) in assoc.send_c_get(self.ds, query_model='O'):
             self.assertEqual(int(status), 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_failure(self):
         """Test receiving a failure response"""
-        scp = DummyGetSCP()
-        scp.status = scp.out_of_resources_match
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.out_of_resources_match
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         def on_c_store(ds): return 0x0000
         assoc = ae.associate('localhost', 11112)
@@ -1205,13 +1304,13 @@ class TestAssociationSendCGet(unittest.TestCase):
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xA701)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_pending_send_success(self):
         """Test receiving a pending response and sending success"""
-        scp = DummyGetSCP()
-        scp.status = scp.pending
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.pending
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
@@ -1231,13 +1330,13 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertEqual(int(status), 0x0000)
         self.assertTrue(ds is None)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_success(self):
         """Test receiving a success response"""
-        scp = DummyGetSCP()
-        scp.status = scp.success
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.success
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
@@ -1245,13 +1344,13 @@ class TestAssociationSendCGet(unittest.TestCase):
             self.assertEqual(int(status), 0x0000)
             self.assertTrue(ds is None)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_pending_send_failure(self):
         """Test receiving a pending response and sending a failure"""
-        scp = DummyGetSCP()
-        scp.status = scp.pending
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.pending
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
@@ -1271,13 +1370,13 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertEqual(int(status), 0xB000)
         self.assertTrue(ds is None)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_pending_send_warning(self):
         """Test receiving a pending response and sending a warning"""
-        scp = DummyGetSCP()
-        scp.status = scp.pending
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.pending
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
@@ -1297,26 +1396,26 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertEqual(int(status), 0xB000)
         self.assertTrue(ds is None)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_cancel(self):
         """Test receiving a cancel response"""
-        scp = DummyGetSCP()
-        scp.status = scp.cancel_status
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.cancel_status
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xFE00)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_receive_warning(self):
         """Test receiving a warning response"""
-        scp = DummyGetSCP()
-        scp.status = scp.warning
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.warning
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
@@ -1336,72 +1435,72 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.assertEqual(int(status), 0xb000)
         self.assertTrue(ds is None)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_get(self):
         """Test bad user on_c_get causes a failure response"""
-        scp = DummyGetSCP()
+        self.scp = DummyGetSCP()
         def on_c_get(ds): raise RuntimeError
-        scp.ae.on_c_get = on_c_get
-        scp.start()
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xC000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_get_yield(self):
         """Test receiving a bad yield"""
-        scp = DummyGetSCP()
+        self.scp = DummyGetSCP()
         def on_c_get(ds): yield 'ats', None
-        scp.ae.on_c_get = on_c_get
-        scp.start()
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xC000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_get_status_value(self):
         """Test receiving a bad yield status int"""
-        scp = DummyGetSCP()
+        self.scp = DummyGetSCP()
         def on_c_get(ds):
             yield 1
             yield 0x0111, None
-        scp.ae.on_c_get = on_c_get
-        scp.start()
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xC000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_get_status_type(self):
         """Test receiving a bad yield status type"""
-        scp = DummyGetSCP()
+        self.scp = DummyGetSCP()
         def on_c_get(ds):
             yield 1
             yield 'test', None
-        scp.ae.on_c_get = on_c_get
-        scp.start()
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             self.assertEqual(int(status), 0xC000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_user_on_c_get_ds(self):
         """Test exception raised by bad on_c_get ds"""
-        scp = DummyGetSCP()
-        scp.status = scp.pending
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.pending
 
         def on_c_store(ds):
             return 0x0000
@@ -1411,8 +1510,8 @@ class TestAssociationSendCGet(unittest.TestCase):
             yield 1
             yield 0xFF00, test
 
-        scp.ae.on_c_get = on_c_get
-        scp.start()
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
@@ -1427,18 +1526,18 @@ class TestAssociationSendCGet(unittest.TestCase):
         (status, ds) = next(result)
         self.assertEqual(int(status), 0xb000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_good_send(self):
         """Test good send"""
-        scp = DummyGetSCP()
-        scp.status = scp.pending
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.pending
 
         def on_c_store(ds):
             self.assertTrue('PatientID' in ds)
             return 0x0000
 
-        scp.start()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
@@ -1455,12 +1554,12 @@ class TestAssociationSendCGet(unittest.TestCase):
         (status, ds) = next(result)
         self.assertEqual(int(status), 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_not_match_agreed_sop(self):
         """Test returns failure status if dataset sop wasnt agreed on"""
-        scp = DummyGetSCP()
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.start()
 
         ## Need to bypass the standard send_c_find checks
         primitive = C_GET()
@@ -1485,13 +1584,13 @@ class TestAssociationSendCGet(unittest.TestCase):
                 assoc.release()
                 break
 
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_bad(self):
         """Test the user on_c_get raises when ds is bad"""
-        scp = DummyGetSCP()
-        scp.status = scp.pending
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.status = self.scp.pending
+        self.scp.start()
 
         ## Need to bypass the standard send_c_find checks
         primitive = C_GET()
@@ -1516,23 +1615,39 @@ class TestAssociationSendCGet(unittest.TestCase):
                 assoc.release()
                 break
 
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCCancelGet(unittest.TestCase):
     """Run tests on Assocation send_c_cancel_find."""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyGetSCP()
-        scp.start()
+        self.scp = DummyGetSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_c_cancel_get(1)
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCMove(unittest.TestCase):
@@ -1543,50 +1658,68 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
 
+        self.scp = None
+        self.scp2 = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        if self.scp2:
+            self.scp2.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             next(assoc.send_c_move(self.ds, b'TESTMOVE'))
-        scp.stop()
+        self.scp.stop()
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
-        scp = DummyStorageSCP()
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_move(DATASET, b'TESTMOVE'):
             self.assertEqual(int(status), 0xa900)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_bad_query_model(self):
         """Test bad query model parameter"""
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(ValueError):
             next(assoc.send_c_move(self.ds, b'TESTMOVE', query_model='X'))
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_good_query_model(self):
         """Test all the query models"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1616,14 +1749,14 @@ class TestAssociationSendCMove(unittest.TestCase):
         (status, ds) = next(result)
         self.assertEqual(int(status), 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
     def test_move_destination_no_assoc(self):
         """Test move destination failed to assoc"""
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1632,12 +1765,12 @@ class TestAssociationSendCMove(unittest.TestCase):
         for (status, ds) in assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P'):
             self.assertEqual(int(status), 0xa702)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_move_destination_unknown(self):
         """Test unknown move destination"""
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1646,16 +1779,16 @@ class TestAssociationSendCMove(unittest.TestCase):
         for (status, ds) in assoc.send_c_move(self.ds, b'UNKNOWN', query_model='P'):
             self.assertEqual(int(status), 0xa801)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_move_destination_failed_store(self):
         """Test the destination AE returning failed status"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.status = store_scp.out_of_resources
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.status = self.scp2.out_of_resources
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1670,18 +1803,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xB000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
     def test_move_destination_warning_store(self):
         """Test the destination AE returning warning status"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.status = store_scp.coercion_of_elements
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.status = self.scp2.coercion_of_elements
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1696,18 +1829,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xB000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
     def test_user_failed(self):
         """Test the user on_c_move returning failure status"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp.start()
 
-        scp = DummyMoveSCP()
-        scp.status = scp.unable_to_process
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.status = self.scp.unable_to_process
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1718,18 +1851,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xC000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp.stop()
 
     def test_user_warning(self):
         """Test the user on_c_move returning warning status"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
-        scp.status = scp.warning
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.status = self.scp.warning
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1740,18 +1873,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xB000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
     def test_user_cancel(self):
         """Test the user on_c_move returning cancel status"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
-        scp.status = scp.cancel_status
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.status = self.scp.cancel_status
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1762,18 +1895,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xFE00)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
     def test_user_success(self):
         """Test the user on_c_move returning success status"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
-        scp.status = scp.success
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.status = scp.success
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                StudyRootQueryRetrieveInformationModelMove,
                                PatientStudyOnlyQueryRetrieveInformationModelMove])
@@ -1784,19 +1917,19 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0x0000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
     def test_bad_user_on_c_move(self):
         """Test bad user on_c_move causes a failure response"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
+        self.scp = DummyMoveSCP()
         def on_c_move(ds, aet): raise RuntimeError
-        scp.ae.on_c_move = on_c_move
-        scp.start()
+        self.scp.ae.on_c_move = on_c_move
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
@@ -1806,18 +1939,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xC000)
 
         assoc.release()
-        scp.stop()
-        store_scp.stop()
+        self.scp.stop()
+        self.scp2.stop()
 
     def test_bad_user_on_c_move_first_yield(self):
         """Test exception raised by bad on_c_move first yield"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
+        self.scp = DummyMoveSCP()
         def on_c_move(ds, aet): yield None
-        scp.ae.on_c_move = on_c_move
-        scp.start()
+        self.scp.ae.on_c_move = on_c_move
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
@@ -1827,18 +1960,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xC000)
 
         assoc.release()
-        scp.stop()
-        store_scp.stop()
+        self.scp.stop()
+        self.scp2.stop()
 
     def test_bad_user_on_c_move_second_yield_missing(self):
         """Test exception raised by bad on_c_move second yield missing"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
+        self.scp = DummyMoveSCP()
         def on_c_move(ds, aet): yield 1
-        scp.ae.on_c_move = on_c_move
-        scp.start()
+        self.scp.ae.on_c_move = on_c_move
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
@@ -1848,18 +1981,18 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xC000)
 
         assoc.release()
-        scp.stop()
-        store_scp.stop()
+        self.scp.stop()
+        self.scp2.stop()
 
     def test_bad_user_on_c_move_second_yield(self):
         """Test exception raised by bad on_c_move second yield"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
+        self.scp = DummyMoveSCP()
         def on_c_move(ds, aet): yield 1; yield 1234, 'test'
-        scp.ae.on_c_move = on_c_move
-        scp.start()
+        self.scp.ae.on_c_move = on_c_move
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
@@ -1869,21 +2002,21 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xA801)
 
         assoc.release()
-        scp.stop()
-        store_scp.stop()
+        self.scp.stop()
+        self.scp2.stop()
 
     def test_bad_user_on_c_move_nth_yield(self):
         """Test exception raised by bad on_c_move third+ yield"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
-        scp = DummyMoveSCP()
+        self.scp = DummyMoveSCP()
         def on_c_move(ds, aet):
             yield 1
             yield 'localhost', 11113
             yield 'test', DATASET
-        scp.ae.on_c_move = on_c_move
-        scp.start()
+        self.scp.ae.on_c_move = on_c_move
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
@@ -1893,13 +2026,13 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertEqual(int(status), 0xc000)
 
         assoc.release()
-        scp.stop()
-        store_scp.stop()
+        self.scp.stop()
+        self.scp2.stop()
 
     def test_ds_not_match_agreed_sop(self):
         """Test returns failure status if dataset sop wasnt agreed on"""
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
 
         ## Need to bypass the standard send_c_find checks
         primitive = C_MOVE()
@@ -1925,12 +2058,12 @@ class TestAssociationSendCMove(unittest.TestCase):
                 assoc.release()
                 break
 
-        scp.stop()
+        self.scp.stop()
 
     def test_ds_bad(self):
         """Test the user on_c_move raises when ds is bad"""
-        store_scp = DummyStorageSCP(11113)
-        store_scp.start()
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
 
         def test(): pass
 
@@ -1939,10 +2072,10 @@ class TestAssociationSendCMove(unittest.TestCase):
             yield 'localhost', 11113
             yield 0xff00, test
 
-        scp = DummyMoveSCP()
-        scp.ae.on_c_move = on_c_move
-        scp.status = scp.pending
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.ae.on_c_move = on_c_move
+        self.scp.status = self.scp.pending
+        self.scp.start()
 
         ## Need to bypass the standard send_c_find checks
         primitive = C_MOVE()
@@ -1968,212 +2101,332 @@ class TestAssociationSendCMove(unittest.TestCase):
                 assoc.release()
                 break
 
-        scp.stop()
+        self.scp.stop()
 
-        store_scp.stop()
+        self.scp2.stop()
 
 
 class TestAssociationSendCCancelMove(unittest.TestCase):
     """Run tests on Assocation send_c_cancel_move."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+    
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyMoveSCP()
-        scp.start()
+        self.scp = DummyMoveSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_c_cancel_move(1)
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendNEventReport(unittest.TestCase):
     """Run tests on Assocation send_n_event_report."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_n_event_report()
-        scp.stop()
+        self.scp.stop()
 
     def test_not_implemented(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_event_report()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendNGet(unittest.TestCase):
     """Run tests on Assocation send_n_get."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_n_get()
-        scp.stop()
+        self.scp.stop()
 
     def test_not_implemented(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_get()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendNSet(unittest.TestCase):
     """Run tests on Assocation send_n_set."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_n_set()
-        scp.stop()
+        self.scp.stop()
 
     def test_not_implemented(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_set()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendNAction(unittest.TestCase):
     """Run tests on Assocation send_n_action."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_n_action()
-        scp.stop()
+        self.scp.stop()
 
     def test_not_implemented(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_action()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendNCreate(unittest.TestCase):
     """Run tests on Assocation send_n_create."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_n_create()
-        scp.stop()
+        self.scp.stop()
 
     def test_not_implemented(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_create()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendNDelete(unittest.TestCase):
     """Run tests on Assocation send_n_delete."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         self.assertFalse(assoc.is_established)
         with self.assertRaises(RuntimeError):
             assoc.send_n_delete()
-        scp.stop()
+        self.scp.stop()
 
     def test_not_implemented(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         with self.assertRaises(NotImplementedError):
             assoc.send_n_delete()
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationCallbacks(unittest.TestCase):
     """Run tests on Assocation callbacks."""
+    def setUp(self):
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_debug_assoc_rq(self):
         """Test the callback"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         assoc.debug_association_requested(None)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 if __name__ == "__main__":

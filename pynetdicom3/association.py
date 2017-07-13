@@ -1113,14 +1113,13 @@ class Association(threading.Thread):
             elif not rsp.is_valid_response:
                 LOGGER.error('Received an invalid C-FIND response from ' \
                              'the peer')
-                yield Dataset(), None
+                self.abort()
                 return
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
             status = Dataset()
             status.Status = rsp.Status
-            for keyword in ['OffendingElement', 'ErrorComment', 'ErrorID',
-                            'AffectedSOPInstanceUID']:
+            for keyword in ['OffendingElement', 'ErrorComment']:
                 if getattr(rsp, keyword) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
 

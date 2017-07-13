@@ -2,6 +2,8 @@
 
 import logging
 import os
+import threading
+import time
 import unittest
 
 from pydicom import read_file
@@ -9,7 +11,8 @@ from pydicom.dataset import Dataset
 
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_ECHO
-from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, DummyFindSCP
+from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
+                         DummyBaseSCP)
 from pynetdicom3.sop_class import (uid_to_sop_class,
                                    VerificationServiceClass,
                                    StorageServiceClass,
@@ -88,12 +91,28 @@ class TestServiceClass(unittest.TestCase):
 
 class TestVerificationServiceClass(unittest.TestCase):
     """Test the VerifictionSOPClass"""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_scp_callback_return_dataset(self):
         """Test on_c_echo returning a Dataset status"""
-        scp = DummyVerificationSCP()
-        scp.status = Dataset()
-        scp.status.Status = 0x0001
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -101,15 +120,15 @@ class TestVerificationServiceClass(unittest.TestCase):
         rsp = assoc.send_c_echo()
         self.assertEqual(rsp.Status, 0x0001)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_dataset_multi(self):
         """Test on_c_echo returning a Dataset status with other elements"""
-        scp = DummyVerificationSCP()
-        scp.status = Dataset()
-        scp.status.Status = 0x0001
-        scp.status.ErrorComment = 'Test'
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.status.ErrorComment = 'Test'
+        self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -118,13 +137,13 @@ class TestVerificationServiceClass(unittest.TestCase):
         self.assertEqual(rsp.Status, 0x0001)
         self.assertEqual(rsp.ErrorComment, 'Test')
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_int(self):
         """Test on_c_echo returning an int status"""
-        scp = DummyVerificationSCP()
-        scp.status = 0x0002
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.status = 0x0002
+        self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -133,13 +152,13 @@ class TestVerificationServiceClass(unittest.TestCase):
         self.assertEqual(rsp.Status, 0x0002)
         self.assertFalse('ErrorComment' in rsp)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_valid(self):
         """Test on_c_echo returning a valid status"""
-        scp = DummyVerificationSCP()
-        scp.status = 0x0000
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.status = 0x0000
+        self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -147,13 +166,13 @@ class TestVerificationServiceClass(unittest.TestCase):
         rsp = assoc.send_c_echo()
         self.assertEqual(rsp.Status, 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_no_status(self):
         """Test on_c_echo not returning a status"""
-        scp = DummyVerificationSCP()
-        scp.status = None
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.status = None
+        self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -161,14 +180,14 @@ class TestVerificationServiceClass(unittest.TestCase):
         rsp = assoc.send_c_echo()
         self.assertEqual(rsp.Status, 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_exception(self):
         """Test on_c_echo raising an exception"""
-        scp = DummyVerificationSCP()
+        self.scp = DummyVerificationSCP()
         def on_c_echo(): raise ValueError
-        scp.ae.on_c_echo = on_c_echo
-        scp.start()
+        self.scp.ae.on_c_echo = on_c_echo
+        self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
@@ -176,17 +195,33 @@ class TestVerificationServiceClass(unittest.TestCase):
         rsp = assoc.send_c_echo()
         self.assertEqual(rsp.Status, 0x0000)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestStorageServiceClass(unittest.TestCase):
     """Test the StorageServiceClass"""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_scp_callback_return_dataset(self):
         """Test on_c_store returning a Dataset status"""
-        scp = DummyStorageSCP()
-        scp.status = Dataset()
-        scp.status.Status = 0x0001
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -194,16 +229,16 @@ class TestStorageServiceClass(unittest.TestCase):
         rsp = assoc.send_c_store(DATASET)
         self.assertEqual(rsp.Status, 0x0001)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_dataset_multi(self):
         """Test on_c_store returning a Dataset status with other elements"""
-        scp = DummyStorageSCP()
-        scp.status = Dataset()
-        scp.status.Status = 0x0001
-        scp.status.ErrorComment = 'Test'
-        scp.status.OffendingElement = 0x00080010
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.status.ErrorComment = 'Test'
+        self.scp.status.OffendingElement = 0x00080010
+        self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -213,13 +248,13 @@ class TestStorageServiceClass(unittest.TestCase):
         self.assertEqual(rsp.ErrorComment, 'Test')
         self.assertEqual(rsp.OffendingElement, 0x00080010)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_int(self):
         """Test on_c_echo returning an int status"""
-        scp = DummyStorageSCP()
-        scp.status = 0x0000
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.status = 0x0000
+        self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -228,13 +263,13 @@ class TestStorageServiceClass(unittest.TestCase):
         self.assertEqual(rsp.Status, 0x0000)
         self.assertFalse('ErrorComment' in rsp)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_invalid(self):
         """Test on_c_store returning a valid status"""
-        scp = DummyStorageSCP()
-        scp.status = 0xFFF0
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.status = 0xFFF0
+        self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -242,13 +277,13 @@ class TestStorageServiceClass(unittest.TestCase):
         rsp = assoc.send_c_store(DATASET)
         self.assertEqual(rsp.Status, 0xFFF0)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_no_status(self):
         """Test on_c_store not returning a status"""
-        scp = DummyStorageSCP()
-        scp.status = None
-        scp.start()
+        self.scp = DummyStorageSCP()
+        self.scp.status = None
+        self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -256,14 +291,14 @@ class TestStorageServiceClass(unittest.TestCase):
         rsp = assoc.send_c_store(DATASET)
         self.assertEqual(rsp.Status, 0xC103)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_exception(self):
         """Test on_c_store raising an exception"""
-        scp = DummyStorageSCP()
+        self.scp = DummyStorageSCP()
         def on_c_store(ds): raise ValueError
-        scp.ae.on_c_store = on_c_store
-        scp.start()
+        self.scp.ae.on_c_store = on_c_store
+        self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
@@ -271,7 +306,7 @@ class TestStorageServiceClass(unittest.TestCase):
         rsp = assoc.send_c_store(DATASET)
         self.assertEqual(rsp.Status, 0xC101)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestQRFindServiceClass(unittest.TestCase):
@@ -282,10 +317,24 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.query.PatientName = '*'
         self.query.QueryRetrieveLevel = "PATIENT"
 
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
     def test_scp_callback_return_dataset(self):
         """Test on_c_find returning a Dataset status"""
-        scp = DummyFindSCP()
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -297,18 +346,16 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertEqual(status.Status, 0x0000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_dataset_multi(self):
         """Test on_c_store returning a Dataset status with other elements"""
-        scp = DummyFindSCP()
-        scp.status = Dataset()
-        scp.status.Status = 0xFF00
-        scp.status.ErrorComment = 'Test'
-        scp.status.OffendingElement = 0x00010001
-        scp.status.ErrorID = 12
-        scp.status.AffectedSOPInstanceUID = '1.2'
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0xFF00
+        self.scp.status.ErrorComment = 'Test'
+        self.scp.status.OffendingElement = 0x00010001
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -318,19 +365,17 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertEqual(status.Status, 0xFF00)
         self.assertEqual(status.ErrorComment, 'Test')
         self.assertEqual(status.OffendingElement, 0x00010001)
-        self.assertEqual(status.ErrorID, 12)
-        self.assertEqual(status.AffectedSOPInstanceUID, '1.2')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0x0000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_int(self):
         """Test on_c_find returning an int status"""
-        scp = DummyFindSCP()
-        scp.status = 0xFF00
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.status = 0xFF00
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -342,13 +387,13 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertEqual(status.Status, 0x0000)
 
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_return_invalid(self):
         """Test on_c_store returning a invalid status"""
-        scp = DummyFindSCP()
-        scp.status = 0xFFF0
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.status = 0xFFF0
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -358,13 +403,13 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertEqual(status.Status, 0xFFF0)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_no_status(self):
         """Test on_c_store not returning a status"""
-        scp = DummyFindSCP()
-        scp.status = None
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.status = None
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -374,14 +419,14 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertEqual(status.Status, 0xC000)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_callback_exception(self):
         """Test on_c_store raising an exception"""
-        scp = DummyFindSCP()
+        self.scp = DummyFindSCP()
         def on_c_find(ds): raise ValueError
-        scp.ae.on_c_find = on_c_find
-        scp.start()
+        self.scp.ae.on_c_find = on_c_find
+        self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
@@ -391,7 +436,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertEqual(status.Status, 0xC001)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
-        scp.stop()
+        self.scp.stop()
 
 
 class TestQRGetServiceClass(unittest.TestCase):
