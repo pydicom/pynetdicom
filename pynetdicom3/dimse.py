@@ -158,31 +158,31 @@ class DIMSEServiceProvider(object):
             The ID of the presentation context to be sent under.
         """
         if primitive.__class__ == C_ECHO:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = C_ECHO_RQ()
             else:
                 dimse_msg = C_ECHO_RSP()
 
         elif primitive.__class__ == C_STORE:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = C_STORE_RQ()
             else:
                 dimse_msg = C_STORE_RSP()
 
         elif primitive.__class__ == C_FIND:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = C_FIND_RQ()
             else:
                 dimse_msg = C_FIND_RSP()
 
         elif primitive.__class__ == C_GET:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = C_GET_RQ()
             else:
                 dimse_msg = C_GET_RSP()
 
         elif primitive.__class__ == C_MOVE:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = C_MOVE_RQ()
             else:
                 dimse_msg = C_MOVE_RSP()
@@ -191,37 +191,37 @@ class DIMSEServiceProvider(object):
             dimse_msg = C_CANCEL_RQ()
 
         elif primitive.__class__ == N_EVENT_REPORT:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = N_EVENT_REPORT_RQ()
             else:
                 dimse_msg = N_EVENT_REPORT_RSP()
 
         elif primitive.__class__ == N_GET:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = N_GET_RQ()
             else:
                 dimse_msg = N_GET_RSP()
 
         elif primitive.__class__ == N_SET:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = N_SET_RQ()
             else:
                 dimse_msg = N_SET_RSP()
 
         elif primitive.__class__ == N_ACTION:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = N_ACTION_RQ()
             else:
                 dimse_msg = N_ACTION_RSP()
 
         elif primitive.__class__ == N_CREATE:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = N_CREATE_RQ()
             else:
                 dimse_msg = N_CREATE_RSP()
 
         elif primitive.__class__ == N_DELETE:
-            if primitive.MessageID is not None:
+            if primitive.MessageIDBeingRespondedTo is None:
                 dimse_msg = N_DELETE_RQ()
             else:
                 dimse_msg = N_DELETE_RSP()
@@ -280,7 +280,7 @@ class DIMSEServiceProvider(object):
                 if not self.dul.is_alive():
                     return None, None
 
-                time.sleep(0.001)
+                time.sleep(0.05)
 
                 nxt = self.dul.peek_next_pdu()
                 if nxt is None:
@@ -652,9 +652,9 @@ class DIMSEServiceProvider(object):
                         1 : 'High'}
         priority = priority_str[cs.Priority]
 
-        dataset = 'None'
+        identifier = 'None'
         if msg.data_set.getvalue() != b'':
-            dataset = 'Present'
+            identifier = 'Present'
 
         LOGGER.info("Sending Move Request: MsgID %s", cs.MessageID)
 
@@ -667,7 +667,7 @@ class DIMSEServiceProvider(object):
                  .format(cs.AffectedSOPClassUID))
         s.append('Move Destination              : {0!s}'
                  .format(cs.MoveDestination.decode('utf-8')))
-        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -688,9 +688,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        dataset = 'None'
-        if msg.data_set.getvalue() != b'':
-            dataset = 'Present'
+        identifier = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            identifier = 'Present'
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
@@ -703,7 +703,7 @@ class DIMSEServiceProvider(object):
                      .format(cs.AffectedSOPClassUID))
         else:
             s.append('Affected SOP Class UID        : none')
-        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -1066,9 +1066,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        dataset = 'None'
-        if msg.data_set.getvalue() != b'':
-            dataset = 'Present'
+        identifier = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            identifier = 'Present'
 
         s = []
         s.append('===================== INCOMING DIMSE MESSAGE ================'
@@ -1090,7 +1090,7 @@ class DIMSEServiceProvider(object):
         if 'NumberOfWarningSuboperations' in cs:
             s.append('Warning Sub-operations        : {0!s}'
                      .format(cs.NumberOfWarningSuboperations))
-        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='

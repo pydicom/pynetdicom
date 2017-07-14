@@ -413,10 +413,10 @@ class ApplicationEntity(object):
             The Association thread
         """
         if not isinstance(addr, str):
-            raise TypeError("ip_address must be a valid IPv4 string")
+            raise TypeError("'addr' must be a valid IPv4 string")
 
         if not isinstance(port, int):
-            raise TypeError("port must be a valid port number")
+            raise TypeError("'port' must be a valid port number")
 
         peer_ae = {'AET' : validate_ae_title(ae_title),
                    'Address' : addr,

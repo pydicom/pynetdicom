@@ -72,7 +72,7 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                                     0x00001023], # NumberOfWarningSuboperations
                      'C-MOVE-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                     0x00000110, 0x00000700, 0x00000800,
-                                    0x00000600],
+                                    0x00000600], # MoveDestination
                      'C-MOVE-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000120, 0x00000800, 0x00000900,
                                      0x00000901, 0x00000902, 0x00001020,
@@ -270,6 +270,8 @@ class DIMSEMessage(object):
             if isinstance(control_header_byte, str):
                 control_header_byte = ord(control_header_byte)
 
+            #LOGGER.debug('Control header byte %s', control_header_byte)
+
             ## COMMAND SET
             # P-DATA fragment contains Command Set information
             #   (control_header_byte is xxxxxx01 or xxxxxx11)
@@ -429,20 +431,20 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set.CommandDataSetType = 0x0101
 
-        # These message types should always have a Data Set
-        #   (except for C-FIND-RSP)
+        # TODO: This can probably be refactored to be cleaner
+        #   dict = {['C_STORE_RQ'] : 'DataSet',
+        #           ['C_FIND_RQ', 'C_GET_RQ'] : 'Identifier'}
+        #   for cls_names in dict.keys():
+        #       if cls_type_name in cls_names and hasattr(primitive, dict[cls_type_name]):
+        #           self.data_set = getattr(primitive.dict[cls_type_name])
+        #           self.command_set.CommandDataSetType = 0x0001
         cls_type_name = self.__class__.__name__
         if cls_type_name == 'C_STORE_RQ':
             self.data_set = primitive.DataSet
             self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name in ['C_FIND_RQ', 'C_GET_RQ', 'C_GET_RSP',
-                               'C_MOVE_RQ', 'C_MOVE_RSP']:
-            self.data_set = primitive.Identifier
-            self.command_set.CommandDataSetType = 0x0001
-        # C-FIND-RSP only has a Data Set when the Status is pending (0xFF00) or
-        #   Pending Warning (0xFF01)
-        elif cls_type_name == 'C_FIND_RSP' and \
-                        self.command_set.Status in [0xFF00, 0xFF01]:
+        elif cls_type_name in ['C_FIND_RQ', 'C_GET_RQ', 'C_MOVE_RQ',
+                                'C_FIND_RSP', 'C_GET_RSP', 'C_MOVE_RSP'] and \
+                primitive.Identifier:
             self.data_set = primitive.Identifier
             self.command_set.CommandDataSetType = 0x0001
         elif cls_type_name == 'N_EVENT_REPORT_RQ':

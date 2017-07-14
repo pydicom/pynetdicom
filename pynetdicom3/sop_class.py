@@ -217,10 +217,11 @@ class VerificationServiceClass(ServiceClass):
         DICOM Standard Part 4, Annex A
         DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
         """
-        # Create C-ECHO response primitive
+        # Build C-ECHO response primitive
         rsp = C_ECHO()
-        rsp.AffectedSOPClassUID = '1.2.840.10008.1.1'
+        rsp.MessageID = req.MessageID
         rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         # Try and run the user's on_c_echo callback. The callback should return
         #   the Status as either an int or Dataset, and any failures in the
@@ -325,8 +326,9 @@ class StorageServiceClass(ServiceClass):
         DICOM Standard Part 4, Annex B.
         DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C.
         """
-        # Create C-STORE response primitive
+        # Build C-STORE response primitive
         rsp = C_STORE()
+        rsp.MessageID = req.MessageID
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
@@ -466,6 +468,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
+        rsp.MessageID = req.MessageID
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
@@ -491,7 +494,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         # Callback - C-FIND
         try:
-            # yields (status, identifier)
+            # yields (status, identifier), ...
             result = self.AE.on_c_find(identifier)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_find implementation.")
@@ -533,7 +536,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                                     self.transfersyntax.is_little_endian))
 
                 if ds.getvalue() == b'':
-                    LOGGER.error("Failed to decode the received Identifier "
+                    LOGGER.error("Failed to encode the received Identifier "
                                  "dataset")
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by on_c_find callback
@@ -694,15 +697,9 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         """
         # Build C-MOVE response primitive
         rsp = C_MOVE()
+        rsp.MessageID = req.MessageID
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
-
-        # Number of suboperation trackers
-        no_remaining = 0
-        no_completed = 0
-        no_failed = 0
-        no_warning = 0
-        failed_sop_instances = []
 
         # Attempt to decode the request's Identifier dataset
         try:
@@ -724,198 +721,198 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        ## GET USER ON_C_MOVE GENERATOR
-        result = self._user_callback(ds, req.MoveDestination, rsp)
-        if result is None:
-            return
-
-        # USER YIELD NUMBER OF OPERATIONS
-        no_remaining = self._get_number_suboperations(result, rsp)
-        if no_remaining is None:
-            return
-
-        ## USER YIELD MOVE DESTINATION ADDR, PORT
-        addr, port = self._get_destination(result, rsp)
-        if addr is None:
-            return
-
-        # Request new association with move destination
-        #   need (addr, port, aet)
-        assoc = self.AE.associate(addr, port, msg.MoveDestination)
-        if assoc.is_established:
-
-            ## USER YIELD STATUS, DATASET
-            for ii, (rsp_status, dataset) in enumerate(result):
-                # Validate rsp_status and set rsp.Status accordingly
-                rsp = self.validate_status(rsp_status, rsp)
-                status = Status(rsp.Status, *self.statuses[rsp.Status])
-
-                # If usr_status is Cancel, Failure or Success then generate a
-                #   final response
-                if status.category == 'Cancel':
-                    LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
-                    assoc.release()
-
-                    # A Cancel response may include the number remaining, etc
-                    rsp.NumberOfRemainingSuboperations = no_remaining
-                    rsp.NumberOfFailedSuboperations = no_failed
-                    rsp.NumberOfWarningSuboperations = no_warning
-                    rsp.NumberOfCompletedSuboperations = no_completed
-                    rsp.Identifier = self._add_failed_sop_instances(rsp,
-                                                                    failed_sop_instances)
-                    self.DIMSE.send_msg(rsp, self.pcid)
-                    return
-                elif status.category == 'Failure':
-                    LOGGER.info('Move SCP Response: (Failure - %s)',
-                                rsp_status.description)
-                    assoc.release()
-                    rsp.Identifier = self._add_failed_sop_instances(rsp,
-                                                        failed_sop_instances)
-                    self.DIMSE.send_msg(rsp, self.pcid)
-                    return
-                elif status.category == 'Success':
-                    LOGGER.info('Move SCP Response: (Success)')
-                    assoc.release()
-                    self.DIMSE.send_msg(rsp, self.pcid)
-                    return
-                elif status.category == 'Warning':
-                    LOGGER.info('Move SCP Response: (Warning)')
-                    assoc.release()
-                    rsp.Identifier = self._add_failed_sop_instances(rsp,
-                                                        failed_sop_instances)
-                    self.DIMSE.send_msg(rsp, self.pcid)
-                    return
-                else:
-                    ## USER RESPONSE IS PENDING
-                    # Send dataset(s) via C-STORE sub-operations over new
-                    #   association. While the sub-operations are being
-                    #   performed send Pending statuses back to the peer
-                    store_status = assoc.send_c_store(dataset)
-                    store_status = self._get_store_status(store_status)
-                    service_class = StorageServiceClass()
-                    store_status = Status(store_status,
-                                          *service.statuses[store_status])
-                    LOGGER.info('Move SCU: Received Store SCU RSP (%s)',
-                                store_status.category)
-
-                    # Update the suboperation trackers
-                    if store_status.status_type == 'Failure':
-                        no_failed += 1
-                        failed_sop_instances.append(dataset.SOPInstanceUID)
-                    elif store_status.status_type == 'Warning':
-                        no_warning += 1
-                        failed_sop_instances.append(dataset.SOPInstanceUID)
-                    elif store_status.status_type == 'Success':
-                        no_completed += 1
-                    no_remaining -= 1
-
-                    rsp.NumberOfRemainingSuboperations = no_remaining
-                    rsp.NumberOfFailedSuboperations = no_failed
-                    rsp.NumberOfWarningSuboperations = no_warning
-                    rsp.NumberOfCompletedSuboperations = no_completed
-
-                    rsp.Status = 0xFF00 # Pending
-                    LOGGER.info('Move SCP Response %s (Pending)', ii)
-                    self.DIMSE.send_msg(rsp, self.pcid)
-
-            assoc.release()
-
-        else:
-            # Failed to associate
-            # Close socket
-            assoc.dul.scu_socket.close()
-
-            LOGGER.info('Move SCP Response: (Failure - Peer refused '
-                        'association)')
-            # Failure - Out of resources, unable to perform sub-operations
-            rsp.Status = 0xA702
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
-
-        # Send final C-MOVE-RSP to peer
-        if no_warning == 0 and no_failed == 0:
-            rsp.Status = 0x0000 # Success
-            LOGGER.info('Move SCP Response: (Success)')
-        else:
-            rsp.Status = 0xB000 # Warning
-            rsp.Identifier = self._add_failed_sop_instances(rsp,
-                                                        failed_sop_instances)
-            LOGGER.info('Move SCP Response: (Warning)')
-        self.DIMSE.send_msg(rsp, self.pcid)
-
-    def _user_callback(self, ds, move_destination, rsp):
-        """Call the user's on_c_move callback."""
+        # Callback - C-MOVE
         try:
-            result = self.AE.on_c_move(ds, move_destination)
-        except:
-            LOGGER.exception("Exception in user's on_c_move implementation.")
+            # yields (addr, port), int, (status, dataset), ...
+            result = self.AE.on_c_move(identifier, req.MoveDestination)
+        except Exception as ex:
+            LOGGER.error("Exception in user's on_c_move implementation.")
+            LOGGER.exception(ex)
             # Failure - Unable to process - Error in on_c_move callback
             rsp.Status = 0xC001
             self.DIMSE.send_msg(rsp, self.pcid)
-            return None
+            return
 
-        return result
-
-    def _get_number_suboperations(self, generator, rsp):
-        """Get the number of suboperations."""
         try:
-            no_remaining = int(next(generator))
-        except TypeError:
-            LOGGER.exception('You must yield the number of sub-operations in '
-                             'ae.on_c_move before yielding the (address, port) '
-                             'of the destination AE and then yield (status, '
-                             'dataset) pairs.')
-            # Failure - Unable to process - Error in on_c_move yield
-            rsp.Status = 0xC002
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return None
-
-        return no_remaining
-
-    def _get_destination(self, generator, rsp):
-        """Get the IP address and port for the move destination."""
-        # Second yield is the addr and port for the move destination if known
-        #   None, None if not known
-        try:
-            addr, port = next(generator)
+            addr, port = next(result)
+            no_suboperations = next(result)
         except StopIteration:
-            LOGGER.exception('You must yield the number of sub-operations in '
-                             'ae.on_c_move before yielding the (address, port) '
-                             'of the destination AE and then yield (status, '
-                             'dataset) pairs.')
+            LOGGER.exception("The on_c_move callback must yield the (address, "
+                             "port) of the destination AE, then yield the "
+                             "number of sub-operations, then yield (status "
+                             "dataset) pairs.")
             # Failure - Unable to process - Error in on_c_move yield
             rsp.Status = 0xC002
             self.DIMSE.send_msg(rsp, self.pcid)
-            return None, None
+            return
 
+        # Unknown Move Destination
         if None in [addr, port]:
             LOGGER.error('Unknown Move Destination: %s',
                          msg.MoveDestination.decode('utf-8'))
             # Failure - Move destination unknown
             rsp.Status = 0xA801
             self.DIMSE.send_msg(rsp, self.pcid)
-            return None, None
+            return
 
-        if not isinstance(addr, str) or not isinstance(port, int):
-            LOGGER.exception('You must yield the (address, port) '
-                             'of the destination AE and then yield (status, '
-                             'dataset) pairs.')
-            # Failure - Unable to process - Bad yielded value
+        # Check number of C-STORE sub-operations
+        try:
+            no_suboperations = int(no_suboperations)
+        except TypeError:
+            LOGGER.error("'on_c_move' yielded an invalid number of "
+                         "sub-operations value")
+            # Failure - Unable to process - Error in on_c_move yield
             rsp.Status = 0xC002
             self.DIMSE.send_msg(rsp, self.pcid)
-            return None, None
+            return
 
-        return addr, port
+        # Request new association with Move Destination
+        try:
+            store_assoc = self.AE.associate(addr, port, msg.MoveDestination)
+        except TypeError:
+            LOGGER.error("'on_c_move' yielded an invalid destination AE (addr, "
+                         "port) value")
+            # Failure - Unable to process - Bad on_c_move destination
+            rsp.Status = 0xC002
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
 
-    def _add_failed_sop_instances(self, rsp, failed_instances):
-        """Add FailedSOPInstanceUIDList to the Identifier."""
-        # Decode Identifier
-        ds = decode(msg.Identifier,
-                    self.transfersyntax.is_implicit_VR,
-                    self.transfersyntax.is_little_endian)
-        ds.FailedSOPInstanceUIDList = failed_instances
-        return ds.encode(self.transfersyntax.is_implicit_VR,
-                         self.transfersyntax.is_little_endian)
+        # Track the sub operation results [remaining, failed, warning, complete]
+        store_results = [no_suboperations, 0, 0, 0]
+
+        # Store the SOP Instance UIDs from any failed C-STORE sub-operations
+        failed_instances = []
+        def _add_failed_instance(ds):
+            if hasattr(ds, 'SOPInstanceUID'):
+                failed_instances.append(ds.SOPInstanceUID)
+
+        if store_assoc.is_established:
+            # Iterate through the remaining callback (status, dataset) yields
+            for ii, (rsp_status, dataset) in enumerate(result):
+                # Validate rsp_status and set rsp.Status accordingly
+                rsp = self.validate_status(rsp_status, rsp)
+
+                if rsp.Status in self.statuses:
+                    status = self.statuses[rsp.Status]
+                else:
+                    # Unknown status
+                    self.DIMSE.send_msg(rsp, self.pcid)
+                    return
+
+                if status[0] in ['Cancel', 'Failure', 'Warning']:
+                    store_assoc.release()
+
+                    # If the user supplies a Cancel, Failure or Warning response
+                    #   then they're responsible for a conformant Identifier
+                    #   dataset
+                    bytestream = encode(dataset,
+                                        self.transfersyntax.is_implicit_VR,
+                                        self.transfersyntax.is_little_endian)
+                    rsp.Identifier = BytesIO(bytestream)
+
+                    rsp.NumberOfRemainingSuboperations = store_results[0]
+                    rsp.NumberOfFailedSuboperations = store_results[1]
+                    rsp.NumberOfWarningSuboperations = store_results[2]
+                    rsp.NumberOfCompletedSuboperations = store_results[3]
+
+                # If usr_status is Cancel, Failure, Warning or Success then
+                #   generate a final response, if Pending then do C-STORE
+                #   sub-operation
+                if status[0] == 'Cancel':
+                    LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
+                    self.DIMSE.send_msg(rsp, self.pcid)
+                    return
+                elif status[0] == 'Failure':
+                    LOGGER.info('Move SCP Result (Failure - %s)', status[1])
+                    rsp.NumberOfRemainingSuboperations = None
+                    self.DIMSE.send_msg(rsp, self.pcid)
+                    return
+                elif status[0] == 'Success':
+                    store_assoc.release()
+                    LOGGER.info('Move SCP Result (Success)')
+                    rsp.NumberOfRemainingSuboperations = None
+                    rsp.Identifier = None
+                    self.DIMSE.send_msg(rsp, self.pcid)
+                    return
+                elif status[0] == 'Warning':
+                    LOGGER.info('Move SCP Result (Warning)')
+                    rsp.NumberOfRemainingSuboperations = None
+                    self.DIMSE.send_msg(rsp, self.pcid)
+                    return
+                elif status[0] == 'Pending' and dataset:
+                    LOGGER.info('Move SCP Response %s (Pending)', ii)
+                    
+                    # Send `dataset` via C-STORE sub-operations over the
+                    #   association and check that the response's Status exists
+                    #   and is a known value
+                    try:
+                        store_status = assoc.send_c_store(dataset)
+                        store_status = STORAGE_STORAGE_SERVICE_CLASS_STATUS[
+                            store_status.Status]
+                    except (RuntimeError, AttributeError, KeyError,
+                            ValueError):
+                        store_status[0] = 'Failure'
+
+                    LOGGER.info('Move SCP: Received Store SCU response (%s)',
+                                store_status[0])
+
+                    # Update the C-STORE sub-operation result tracker
+                    if store_status[0] == 'Failure':
+                        store_results[1] += 1
+                        _add_failed_instance(dataset)
+                    elif store_status[0] == 'Warning':
+                        store_results[2] += 1
+                        _add_failed_instance(dataset)
+                    elif store_status[0] == 'Success':
+                        store_results[3] += 1
+
+                    store_results[0] -= 1 
+
+                    rsp.Status = 0xFF00 # Pending
+                    rsp.Identifier = None
+                    rsp.NumberOfRemainingSuboperations = store_results[0]
+                    rsp.NumberOfFailedSuboperations = store_results[1]
+                    rsp.NumberOfWarningSuboperations = store_results[2]
+                    rsp.NumberOfCompletedSuboperations = store_results[3]
+                    
+                    self.DIMSE.send_msg(rsp, self.pcid)
+
+            store_assoc.release()
+
+        else:
+            # Failed to associate with Move Destination AE
+            LOGGER.error('Move SCP: Unable to associate with destination AE')
+            rsp.Status = 0xA801
+            self.DIMSE.send_msg(rsp, self.pcid)
+
+            # FIXME - shouldn't have to manually close the socket like this
+            store_assoc.dul.scu_socket.close()
+            return
+
+        # If not already done, send the final 'Success' or 'Warning' response
+        if not store_results[1] and not store_results[2]:
+            # Success response - no failures or warnings
+            LOGGER.info('Move SCP Result: (Success)')
+            rsp.Status = 0x0000
+        else:
+            # Warning response - one or more failures or warnings
+            LOGGER.info('Move SCP Result: (Warning)')
+            rsp.Status = 0xB000
+            # If Warning response, need to return an Identifier with
+            #   (0008, 0058) Failed SOP Instance UID List element
+            ds = Dataset
+            ds.FailedSOPInstanceUIDList = failed_instances
+            bytestream = encode(ds,
+                                self.transfersyntax.is_implicit_VR,
+                                self.transfersyntax.is_little_endian)
+            rsp.Identifier = BytesIO(bytestream)
+
+        rsp.NumberOfRemainingSuboperations = None
+        rsp.NumberOfFailedSuboperations = store_results[1]
+        rsp.NumberOfWarningSuboperations = store_results[2]
+        rsp.NumberOfCompletedSuboperations = store_results[3]
+
+        self.DIMSE.send_msg(rsp, self.pcid)
 
 
 class QueryRetrieveGetServiceClass(ServiceClass):
@@ -1045,6 +1042,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         """
         # Build C-GET response primitive
         rsp = C_GET()
+        rsp.MessageID = req.MessageID
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 

@@ -1843,10 +1843,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.scp2.stop()
 
     def test_bad_user_on_c_move(self):
-        """Test bad user on_c_move causes a failure response"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
-
+        """Test exception in on_c_move causes a failure response"""
         self.scp = DummyMoveSCP()
         def on_c_move(ds, aet): raise RuntimeError
         self.scp.ae.on_c_move = on_c_move
@@ -1857,11 +1854,10 @@ class TestAssociationSendCMove(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
-        self.assertEqual(int(status), 0xC000)
+        self.assertEqual(status.Status, 0xC001)
 
         assoc.release()
         self.scp.stop()
-        self.scp2.stop()
 
     def test_bad_user_on_c_move_first_yield(self):
         """Test exception raised by bad on_c_move first yield"""

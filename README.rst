@@ -1,8 +1,8 @@
 .. class:: center
-.. image:: https://coveralls.io/repos/github/scaramallion/pynetdicom3/badge.svg?branch=master
-    :target: https://coveralls.io/github/scaramallion/pynetdicom3?branch=master
-.. image:: https://travis-ci.org/scaramallion/pynetdicom3.svg?branch=master
-    :target: https://travis-ci.org/scaramallion/pynetdicom3
+.. image:: https://coveralls.io/repos/github/pydicom/pynetdicom3/badge.svg?branch=master
+    :target: https://coveralls.io/github/pydicom/pynetdicom3?branch=master
+.. image:: https://travis-ci.org/pydicom/pynetdicom3.svg?branch=master
+    :target: https://travis-ci.org/pydicom/pynetdicom3
 
 pynetdicom3
 ===========
@@ -19,7 +19,7 @@ protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
 *pynetdicom3* is a pure Python (2.7/3+) program that implements the DICOM networking
-protocol. Working with `pydicom <https://github.com/darcymason/pydicom>`_, it
+protocol. Working with `pydicom <https://github.com/pydicom/pydicom>`_, it
 allows the easy creation of DICOM clients (*Service Class Users* or SCUs) and
 servers (*Service Class Providers* or SCPs).
 
@@ -128,7 +128,7 @@ Examples
         # Start the SCP
         ae.start()
 
-- Send the DICOM CTImageStorage dataset in *dcm_file* to a peer Storage SCP
+- Send the DICOM CTImageStorage dataset in *file_in.dcm* to a peer Storage SCP
   (at TCP/IP address *addr*, listen port number *port*):
 
 .. code-block:: python
@@ -145,7 +145,7 @@ Examples
 
         assoc = ae.associate(addr, port)
         if assoc.is_established:
-            dataset = read_file('dcm_file')
+            dataset = read_file('file_in.dcm')
             assoc.send_c_store(dataset)
 
             assoc.release()

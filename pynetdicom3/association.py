@@ -925,10 +925,9 @@ class Association(threading.Thread):
             self.abort()
         elif rsp.is_valid_response:
             status.Status = rsp.Status
-            if getattr(rsp, 'ErrorComment') is not None:
-                status.ErrorComment = rsp.ErrorComment
-            if getattr(rsp, 'OffendingElement') is not None:
-                status.OffendingElement = rsp.OffendingElement
+            for keyword in ['ErrorComment', 'OffendingElement']:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
         else:
             LOGGER.error('Received an invalid C-STORE response from the peer')
             self.abort()
@@ -1237,8 +1236,8 @@ class Association(threading.Thread):
 
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' or 'Success' then yields None. If the
-            status is 'Warning', 'Failure' or 'Cancel' then yields an Dataset
-            containing a (0008,0058) 'Failed SOP Instance UID List' element.
+            status is 'Warning', 'Failure' or 'Cancel' then yields a Dataset
+            containing an (0008,0058) 'Failed SOP Instance UID List' element.
 
         See Also
         --------
@@ -1317,7 +1316,7 @@ class Association(threading.Thread):
         # Get the responses from peer
         ii = 1
         while True:
-            time.sleep(0.001)
+            time.sleep(0.05)
 
             rsp, context_id = self.dimse.receive_msg(wait=False)
 
@@ -1378,6 +1377,10 @@ class Association(threading.Thread):
                         LOGGER.warning('%s: %s', elem.name, elem.value)
 
                     break
+
+            elif rsp.__class__ == C_STORE:
+                # C-STORE sub-operations can be over the same association
+                pass
 
         yield status, dataset
 
@@ -1467,8 +1470,8 @@ class Association(threading.Thread):
 
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' or 'Success' then yields None. If the
-            status is 'Warning', 'Failure' or 'Cancel' then yields an Dataset
-            containing a (0008,0058) 'Failed SOP Instance UID List' element.
+            status is 'Warning', 'Failure' or 'Cancel' then yields a Dataset
+            containing an (0008,0058) 'Failed SOP Instance UID List' element.
 
         Raises
         ------
