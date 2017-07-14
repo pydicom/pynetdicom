@@ -192,8 +192,6 @@ class DummyFindSCP(DummyBaseSCP):
 
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
-    success = 0x0000
-    pending = 0xFF00
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                     StudyRootQueryRetrieveInformationModelGet,
@@ -202,7 +200,9 @@ class DummyGetSCP(DummyBaseSCP):
                      scu_sop_class=[CTImageStorage],
                      port=port)
         DummyBaseSCP.__init__(self)
-        self.status = self.success
+        self.statuses = [0x0000]
+        self.identifiers = [None]
+        self.no_suboperations = 1
         self.cancel = False
 
     def on_c_get(self, ds):
@@ -211,17 +211,10 @@ class DummyGetSCP(DummyBaseSCP):
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
-        if code_to_category(self.status) not in ['Pending', 'Warning']:
-            yield 1
-            yield self.status, None
 
-        if self.cancel:
-            yield 1
-            yield self.cancel, None
-
-        yield 2
-        for ii in range(2):
-            yield self.status, DATASET
+        yield self.no_suboperations
+        for (status, identifier) in zip(self.statuses, self.identifiers):
+            yield status, identifier
 
     def on_c_cancel_get(self):
         """Callback for ae.on_c_cancel_get"""

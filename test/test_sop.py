@@ -14,7 +14,7 @@ from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_ECHO, C_STORE
 from pynetdicom3.dsutils import decode
 from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
-                         DummyBaseSCP)
+                         DummyBaseSCP, DummyGetSCP, DummyMoveSCP)
 from pynetdicom3.sop_class import (uid_to_sop_class,
                                    VerificationServiceClass,
                                    StorageServiceClass,
@@ -24,11 +24,13 @@ from pynetdicom3.sop_class import (uid_to_sop_class,
                                    ModalityWorklistServiceSOPClass,
                                    VerificationSOPClass,
                                    CTImageStorage,
-                                   PatientRootQueryRetrieveInformationModelFind)
+                                   PatientRootQueryRetrieveInformationModelFind,
+                                   PatientRootQueryRetrieveInformationModelGet,
+                                   PatientRootQueryRetrieveInformationModelMove)
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -524,9 +526,59 @@ class TestQRFindServiceClass(unittest.TestCase):
 
 
 class TestQRGetServiceClass(unittest.TestCase):
-    def test_scp(self):
-        """Test SCP"""
-        pass
+    def setUp(self):
+        """Run prior to each test"""
+        self.query = Dataset()
+        self.query.PatientName = '*'
+        self.query.QueryRetrieveLevel = "PATIENT"
+
+        self.ds = Dataset()
+        self.ds.SOPClassUID = CTImageStorage().UID
+        self.ds.SOPInstanceUID = '1.1.1'
+        self.ds.PatientName = 'Test'
+
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_scp_basic(self):
+        """Test on_c_get"""
+        self.scp = DummyGetSCP()
+        def on_c_store(ds):
+            return 0x0000
+        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
+        self.scp.identifiers = [self.ds, self.ds, None]
+        self.scp.no_suboperations = 2
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+
+        assoc.release()
+        self.scp.stop()
 
 
 class TestQRMoveServiceClass(unittest.TestCase):

@@ -1051,9 +1051,9 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         # Attempt to decode the request's Identifier dataset
         try:
-            identifer = decode(req.Identifier,
-                               self.transfersyntax.is_implicit_VR,
-                               self.transfersyntax.is_little_endian)
+            identifier = decode(req.Identifier,
+                                self.transfersyntax.is_implicit_VR,
+                                self.transfersyntax.is_little_endian)
             LOGGER.info('Get SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Data Set')
@@ -1083,7 +1083,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         # Number of C-STORE sub-operations
         try:
             no_suboperations = int(next(result))
-        except StopIteration, TypeError:
+        except (StopIteration, TypeError):
             LOGGER.error("'on_c_get' yielded an invalid number of "
                          "sub-operations value")
             rsp.Status = 0xC002
@@ -1148,21 +1148,21 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfRemainingSuboperations = None
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status[0] == 'Pending' and dataset:
-                LOGGER.info('Get SCP Response %s (Pending)', ii)
+            elif status[0] == 'Pending':
+                LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
 
                 # Send `dataset` via C-STORE sub-operations over the existing
                 #   association and check that the response's Status exists and
                 #   is a known value
-                try:
-                    store_status = self.ACSE.parent.send_c_store(dataset)
-                    store_status = STORAGE_SERVICE_CLASS_STATUS[
-                        store_status.Status]
-                except (RuntimeError, AttributeError, KeyError,
-                        ValueError):
-                    store_status = ['Failure', 'Unknown']
+                #try:
+                store_status = self.ACSE.parent.send_c_store(dataset)
+                store_status = STORAGE_SERVICE_CLASS_STATUS[
+                    store_status.Status]
+                #except (RuntimeError, AttributeError, KeyError,
+                #        ValueError):
+                #    store_status = ['Failure', 'Unknown']
 
-                LOGGER.info('Get SCP: Received Store SCU response (%s'),
+                LOGGER.info('Get SCP: Received Store SCU response (%s)',
                             store_status[0])
 
                 # Update the C-STORE sub-operation result tracker
@@ -1180,7 +1180,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
-
                 self.DIMSE.send_msg(rsp, self.pcid)
 
         # If not already done, send the final 'Success' or 'Warning' response

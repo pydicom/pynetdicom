@@ -1555,25 +1555,18 @@ class Association(threading.Thread):
         self.dimse.send_msg(req, context_id)
 
         # Get the responses from the peer
-        ii = 1
+        operation_no = 1
         while True:
-            time.sleep(0.1)
-
             # Wait for C-GET response
             rsp, context_id = self.dimse.receive_msg(wait=True)
 
             # If no response received, start loop again
             if not rsp:
                 continue
-            elif not rsp.is_valid_response:
-                LOGGER.error('Received an invalid response from the peer')
-                yield Dataset(), None
-                return
-
-            status = Dataset()
 
             # Received a C-GET response
             if rsp.__class__ == C_GET:
+                status = Dataset()
                 status.Status = rsp.Status
                 for keyword in ['ErrorComment', 'OffendingElement',
                                 'NumberOfRemainingSuboperations',
@@ -1585,59 +1578,67 @@ class Association(threading.Thread):
 
                 # If the Status is "Pending" then the processing of
                 #   matches and suboperations is initiated or continuing
-                if status.category == 'Pending':
-                    # Attempt to decode the identifier, if present
-                    if rsp.Identifier is not None:
-                        try:
-                            identifier = decode(rsp.Identifier,
-                                                transfer_syntax.is_implicit_VR,
-                                                transfer_syntax.is_little_endian)
-                        except:
-                            LOGGER.error("Failed to decode the C-GET "
-                                         "response's Identifier dataset")
-                            identifier = None
-
-                    # Pending Response
+                # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
+                #   then we are finished
+                category = code_to_category(status.Status)
+                if category == 'Pending':
                     LOGGER.debug('')
-                    LOGGER.info("Find Response: %s (Pending)", ii)
-                    LOGGER.info("    Sub-Operations Remaining: %s, "
-                                "Completed: %s, Failed: %s, Warning: %s",
-                                rsp.NumberOfRemainingSuboperations or 'N/A',
-                                rsp.NumberOfCompletedSuboperations or 'N/A',
-                                rsp.NumberOfFailedSuboperations or 'N/A',
-                                rsp.NumberOfWarningSuboperations or 'N/A')
-                    ii += 1
+                    LOGGER.info("Get SCU Response: %s (Pending)", operation_no)
+                    LOGGER.info("    Sub-Operations Remaining: %s, Completed: "
+                                "%s, Failed: %s, Warning: %s",
+                                rsp.NumberOfRemainingSuboperations or '0',
+                                rsp.NumberOfCompletedSuboperations or '0',
+                                rsp.NumberOfFailedSuboperations or '0',
+                                rsp.NumberOfWarningSuboperations or '0')
+                    yield status, None
+                elif category in ["Success", 'Cancel', 'Warning']:
+                    LOGGER.debug('')
+                    LOGGER.error('Get SCU Response: %s (%s)', operation_no,
+                                 category)
+                    LOGGER.info("    Sub-Operations Remaining: %s, Completed: "
+                                "%s, Failed: %s, Warning: %s",
+                                rsp.NumberOfRemainingSuboperations or '0',
+                                rsp.NumberOfCompletedSuboperations or '0',
+                                rsp.NumberOfFailedSuboperations or '0',
+                                rsp.NumberOfWarningSuboperations or '0')
+                elif category == "Failure":
+                    LOGGER.debug('')
+                    LOGGER.error('Get SCU Response: %s (Failure - 0x%)',
+                                 operation_no, status.Status)
+                    LOGGER.info("    Sub-Operations Remaining: %s, Completed: "
+                                "%s, Failed: %s, Warning: %s",
+                                rsp.NumberOfRemainingSuboperations or '0',
+                                rsp.NumberOfCompletedSuboperations or '0',
+                                rsp.NumberOfFailedSuboperations or '0',
+                                rsp.NumberOfWarningSuboperations or '0')
+
+                if category in ['Cancel', 'Warning', 'Failure']:
+                    # Status must be Pending, so decode the Identifier dataset
+                    try:
+                        identifier = decode(rsp.Identifier,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+
+                        LOGGER.debug('')
+                        LOGGER.debug('# DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
+                    except:
+                        LOGGER.error("Failed to decode the received Identifier "
+                                     "dataset")
+                        yield status, None
 
                     yield status, identifier
-                elif status.category == "Success":
-                    identifier = None
                     break
-                elif status.category == "Failure":
-                    LOGGER.debug('')
-                    LOGGER.error('Find Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.description)
+                elif category == 'Success':
+                    yield status, None
+                    break
 
-                    # Print out the status information
-                    for elem in dataset:
-                        LOGGER.error('%s: %s', elem.name, elem.value)
-
-                    break
-                elif status.category == "Cancel":
-                    LOGGER.debug('')
-                    LOGGER.info('Find Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.description)
-                    dataset = None
-                    break
-                elif status.category == "Warning":
-                    LOGGER.debug('')
-                    LOGGER.warning('Find Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.description)
-                    dataset = None
-                    break
+                operation_no += 1
 
             # Received a C-STORE request
             elif rsp.__class__ == C_STORE:
-
                 # Build C-STORE response primitive
                 #   (U) Message ID
                 #   (M) Message ID Being Responded To
