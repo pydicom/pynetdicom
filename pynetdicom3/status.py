@@ -102,6 +102,8 @@ QR_GET_SERVICE_CLASS_STATUS = {
                          'sub-operations'),
     0xA900 : ('Failure', 'Identifier does not match SOP class'),
     0xFF00 : ('Pending', 'Sub-operations are continuing'),
+    0xB000 : ('Warning', 'Sub-operations complete, one or more failures or '
+                         'warnings'),
 }
 
 # Ranged values

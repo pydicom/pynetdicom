@@ -1135,12 +1135,25 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Success':
-                LOGGER.info('Get SCP Response: (Success)')
+                # If user yields Success, check it
+                if store_results[1] or store_results[2]:
+                    LOGGER.info('Get SCP Response: (Warning)')
+                    rsp.Status = 0xB000
+                    ds = Dataset()
+                    ds.FailedSOPInstanceUIDList = failed_instances
+                    bytestream = encode(ds,
+                                        self.transfersyntax.is_implicit_VR,
+                                        self.transfersyntax.is_little_endian)
+                    rsp.Identifier = BytesIO(bytestream)
+                else:
+                    LOGGER.info('Get SCP Response: (Success)')
+                    rsp.Identifier = None
+
                 rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
-                rsp.Identifier = None
+                
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Warning':

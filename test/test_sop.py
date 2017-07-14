@@ -537,6 +537,9 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
+        self.fail = Dataset()
+        self.fail.FailedSOPInstanceUIDList = ['1.2.3']
+
         self.scp = None
 
     def tearDown(self):
@@ -557,7 +560,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         def on_c_store(ds):
             return 0x0000
         self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
-        self.scp.identifiers = [self.ds, self.ds, None]
+        self.scp.identifiers = [self.ds, self.fail, None]
         self.scp.no_suboperations = 2
         self.scp.start()
 
@@ -576,6 +579,68 @@ class TestQRGetServiceClass(unittest.TestCase):
         status, identifier = next(result)
         self.assertEqual(status.Status, 0x0000)
         self.assertEqual(identifier, None)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_scp_store_failure(self):
+        """Test on_c_get"""
+        self.scp = DummyGetSCP()
+        def on_c_store(ds):
+            return 0xC001
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
+        self.scp.identifiers = [self.ds, self.ds, None]
+        self.scp.no_suboperations = 2
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 2)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_scp_store_warning(self):
+        """Test on_c_get"""
+        self.scp = DummyGetSCP()
+        def on_c_store(ds):
+            return 0xB000
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
+        self.scp.identifiers = [self.ds, self.ds, None]
+        self.scp.no_suboperations = 2
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfWarningSuboperations, 2)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
 
         assoc.release()
         self.scp.stop()

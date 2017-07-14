@@ -1596,7 +1596,7 @@ class Association(threading.Thread):
                     LOGGER.info('Get SCP Result: (%s)', category)
                 elif category == "Failure":
                     LOGGER.debug('')
-                    LOGGER.info('Get SCP Result: (Failure - 0x%)',
+                    LOGGER.info('Get SCP Result: (Failure - 0x%04x)',
                                 status.Status)
                     LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
                                 "Failed: %s, Warning: %s",
