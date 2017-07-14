@@ -128,7 +128,7 @@ Examples
         # Start the SCP
         ae.start()
 
-- Send the DICOM CTImageStorage dataset in *file_in.dcm* to a peer Storage SCP
+- Send the DICOM CTImageStorage dataset in *file-in.dcm* to a peer Storage SCP
   (at TCP/IP address *addr*, listen port number *port*):
 
 .. code-block:: python
@@ -145,7 +145,7 @@ Examples
 
         assoc = ae.associate(addr, port)
         if assoc.is_established:
-            dataset = read_file('file_in.dcm')
+            dataset = read_file('file-in.dcm')
             assoc.send_c_store(dataset)
 
             assoc.release()
