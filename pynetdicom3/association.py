@@ -1544,7 +1544,7 @@ class Association(threading.Thread):
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
-        LOGGER.info('Get SCU Request Identifiers:')
+        LOGGER.info('Get SCU Request Identifier:')
         LOGGER.info('')
         LOGGER.info('# DICOM Dataset')
         for elem in dataset:
@@ -1583,9 +1583,9 @@ class Association(threading.Thread):
                 category = code_to_category(status.Status)
                 if category == 'Pending':
                     LOGGER.debug('')
-                    LOGGER.info("Get SCU Response: %s (Pending)", operation_no)
-                    LOGGER.info("    Sub-Operations Remaining: %s, Completed: "
-                                "%s, Failed: %s, Warning: %s",
+                    LOGGER.info("Get SCP Response: %s (Pending)", operation_no)
+                    LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
+                                "Failed: %s, Warning: %s",
                                 rsp.NumberOfRemainingSuboperations or '0',
                                 rsp.NumberOfCompletedSuboperations or '0',
                                 rsp.NumberOfFailedSuboperations or '0',
@@ -1593,20 +1593,13 @@ class Association(threading.Thread):
                     yield status, None
                 elif category in ["Success", 'Cancel', 'Warning']:
                     LOGGER.debug('')
-                    LOGGER.error('Get SCU Response: %s (%s)', operation_no,
-                                 category)
-                    LOGGER.info("    Sub-Operations Remaining: %s, Completed: "
-                                "%s, Failed: %s, Warning: %s",
-                                rsp.NumberOfRemainingSuboperations or '0',
-                                rsp.NumberOfCompletedSuboperations or '0',
-                                rsp.NumberOfFailedSuboperations or '0',
-                                rsp.NumberOfWarningSuboperations or '0')
+                    LOGGER.info('Get SCP Result: (%s)', category)
                 elif category == "Failure":
                     LOGGER.debug('')
-                    LOGGER.error('Get SCU Response: %s (Failure - 0x%)',
-                                 operation_no, status.Status)
-                    LOGGER.info("    Sub-Operations Remaining: %s, Completed: "
-                                "%s, Failed: %s, Warning: %s",
+                    LOGGER.info('Get SCP Result: (Failure - 0x%)',
+                                status.Status)
+                    LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
+                                "Failed: %s, Warning: %s",
                                 rsp.NumberOfRemainingSuboperations or '0',
                                 rsp.NumberOfCompletedSuboperations or '0',
                                 rsp.NumberOfFailedSuboperations or '0',
@@ -1689,8 +1682,6 @@ class Association(threading.Thread):
                 store_rsp.Status = store_status
                 # FIXME: get pc ID from above
                 self.dimse.send_msg(store_rsp, context_id)
-
-        yield status, identifier
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.

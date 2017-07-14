@@ -1168,8 +1168,10 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 # Update the C-STORE sub-operation result tracker
                 if store_status[0] == 'Failure':
                     store_results[1] += 1
+                    _add_failed_instance(dataset)
                 elif store_status[0] == 'Warning':
                     store_results[2] += 1
+                    _add_failed_instance(dataset)
                 elif store_status[0] == 'Success':
                     store_results[3] += 1
 
