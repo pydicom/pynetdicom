@@ -831,7 +831,11 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     store_assoc.release()
                     LOGGER.info('Move SCP Result (Success)')
                     rsp.NumberOfRemainingSuboperations = None
+                    rsp.NumberOfFailedSuboperations = store_results[1]
+                    rsp.NumberOfWarningSuboperations = store_results[2]
+                    rsp.NumberOfCompletedSuboperations = store_results[3]
                     rsp.Identifier = None
+                    
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Warning':
@@ -847,11 +851,11 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     #   and is a known value
                     try:
                         store_status = assoc.send_c_store(dataset)
-                        store_status = STORAGE_STORAGE_SERVICE_CLASS_STATUS[
+                        store_status = STORAGE_SERVICE_CLASS_STATUS[
                             store_status.Status]
                     except (RuntimeError, AttributeError, KeyError,
                             ValueError):
-                        store_status[0] = 'Failure'
+                        store_status = ['Failure', 'Unknown']
 
                     LOGGER.info('Move SCP: Received Store SCU response (%s)',
                                 store_status[0])
@@ -868,7 +872,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
                     store_results[0] -= 1 
 
-                    rsp.Status = 0xFF00 # Pending
                     rsp.Identifier = None
                     rsp.NumberOfRemainingSuboperations = store_results[0]
                     rsp.NumberOfFailedSuboperations = store_results[1]
@@ -900,7 +903,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             rsp.Status = 0xB000
             # If Warning response, need to return an Identifier with
             #   (0008, 0058) Failed SOP Instance UID List element
-            ds = Dataset
+            ds = Dataset()
             ds.FailedSOPInstanceUIDList = failed_instances
             bytestream = encode(ds,
                                 self.transfersyntax.is_implicit_VR,
@@ -1046,13 +1049,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        # Number of suboperation trackers
-        no_remaining = 0
-        no_completed = 0
-        no_failed = 0
-        no_warning = 0
-        failed_sop_instances = []
-
         # Attempt to decode the request's Identifier dataset
         try:
             identifer = decode(req.Identifier,
@@ -1073,142 +1069,144 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Get user's on_c_get generator
-        result = self._user_callback(ds, rsp)
-        if result is None:
+        # Callback - C-GET
+        try:
+            # yields int, (status, dataset), ...
+            result = self.AE.on_c_get(identifier)
+        except Exception as ex:
+            LOGGER.error("Exception in user's on_c_get implementation.")
+            LOGGER.exception(ex)
+            rsp.Status = 0xC001
+            self.DIMSE.send_msg(rsp, self.pcid)
             return
+        
+        # Number of C-STORE sub-operations
+        try:
+            no_suboperations = int(next(result))
+        except StopIteration, TypeError:
+            LOGGER.error("'on_c_get' yielded an invalid number of "
+                         "sub-operations value")
+            rsp.Status = 0xC002
+            self.DIMSE.send_msg(rsp, self.pcid)
 
-        # Get user's yielded number of sub-operations
-        no_remaining = self._get_number_suboperations(result, rsp)
-        if no_remaining is None:
-            return
+        # Track the sub operation results [remaining, failed, warning, complete]
+        store_results = [no_suboperations, 0, 0, 0]
+
+        # Store the SOP Instance UIDs from any failed C-STORE sub-operations
+        failed_instances = []
+        def _add_failed_instance(ds):
+            if hasattr(ds, 'SOPInstanceUID'):
+                failed_instances.append(ds.SOPInstanceUID)
 
         # Iterate through the results
         # C-GET Pending responses are optional!
-        for ii, (status_ds, dataset) in enumerate(result):
+        for ii, (rsp_status, dataset) in enumerate(result):
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
-            status = Status(rsp.Status, *self.statuses[rsp.Status])
 
-            if status.category == 'Cancel':
-                LOGGER.info('Received C-CANCEL-GET RQ from peer')
-                rsp.Status = 0xFE00 # Cancel
-                rsp.NumberOfRemainingSuboperations = no_remaining
-                rsp.NumberOfFailedSuboperations = no_failed
-                rsp.NumberOfWarningSuboperations = no_warning
-                rsp.NumberOfCompletedSuboperations = no_completed
-                # Send C-CANCEL confirmation
-                self.DIMSE.send_msg(rsp, self.pcid)
-                return
-            elif status.category == 'Failure':
-                # Pass along the status from the user - FIXME
-                rsp.Status = int(usr_status)
-                LOGGER.info('Get SCP Response: (Failure - %s)',
-                            usr_status.description)
-                self.DIMSE.send_msg(rsp, self.pcid)
-                return
-            elif status.category == 'Success':
-                # User isn't supposed to send these, but handle anyway
-                rsp.Status = 0x0000 # Success
-                LOGGER.info('Get SCP Response: (Success)')
-                self.DIMSE.send_msg(rsp, self.pcid)
-                return
+            if rsp.Status in self.statuses:
+                status = self.statuses[rsp.Status]
             else:
-                # Send C-STORE-RQ and Pending C-GET-RSP to peer
-                # Send each matching dataset via C-STORE
-                LOGGER.info('Store SCU RQ: MsgID %s', ii + 1)
+                # Unknown status
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
 
-                store_status = self.ACSE.parent.send_c_store(dataset,
-                                                             req.MessageID,
-                                                             priority)
+            if status[0] in ['Cancel', 'Failure', 'Warning']:
+                # If the user supplies a Cancel, Failure or Warning response
+                #   then they're responsible for a conformant Identifier
+                #   dataset
+                bytestream = encode(dataset,
+                                    self.transfersyntax.is_implicit_VR,
+                                    self.transfersyntax.is_little_endian)
+                rsp.Identifier = BytesIO(bytestream)
 
-                store_status = assoc.send_c_store(dataset)
-                store_status = self._get_store_status(store_status)
-                service_class = StorageServiceClass()
-                store_status = Status(store_status,
-                                      *service.statuses[store_status])
-                LOGGER.info('Get SCU: Received Store SCU RSP (%s)',
-                            store_status.category)
+                rsp.NumberOfRemainingSuboperations = store_results[0]
+                rsp.NumberOfFailedSuboperations = store_results[1]
+                rsp.NumberOfWarningSuboperations = store_results[2]
+                rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                # Update the suboperation trackers
-                if store_status.category == 'Failure':
-                    no_failed += 1
-                elif store_status.category == 'Warning':
-                    no_warning += 1
-                elif store_status.category == 'Success':
-                    no_completed += 1
-                no_remaining -= 1
+            if status[0] == 'Cancel':
+                LOGGER.info('Get SCP Received C-CANCEL-GET RQ from peer')
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+            elif status[0] == 'Failure':
+                LOGGER.info('Get SCP Result (Failure - %s)', status[1])
+                rsp.NumberOfRemainingSuboperations = None
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+            elif status[0] == 'Success':
+                LOGGER.info('Get SCP Response: (Success)')
+                rsp.NumberOfRemainingSuboperations = None
+                rsp.NumberOfFailedSuboperations = store_results[1]
+                rsp.NumberOfWarningSuboperations = store_results[2]
+                rsp.NumberOfCompletedSuboperations = store_results[3]
+                rsp.Identifier = None
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+            elif status[0] == 'Warning':
+                LOGGER.info('Get SCP Result (Warning)')
+                rsp.NumberOfRemainingSuboperations = None
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+            elif status[0] == 'Pending' and dataset:
+                LOGGER.info('Get SCP Response %s (Pending)', ii)
 
-                rsp.NumberOfRemainingSuboperations = no_remaining
-                rsp.NumberOfFailedSuboperations = no_failed
-                rsp.NumberOfWarningSuboperations = no_warning
-                rsp.NumberOfCompletedSuboperations = no_completed
+                # Send `dataset` via C-STORE sub-operations over the existing
+                #   association and check that the response's Status exists and
+                #   is a known value
+                try:
+                    store_status = self.ACSE.parent.send_c_store(dataset)
+                    store_status = STORAGE_SERVICE_CLASS_STATUS[
+                        store_status.Status]
+                except (RuntimeError, AttributeError, KeyError,
+                        ValueError):
+                    store_status = ['Failure', 'Unknown']
 
-                LOGGER.info('Get SCP Response %s (Pending)', ii + 1)
-                rsp.Status = 0xFF00 # Pending
+                LOGGER.info('Get SCP: Received Store SCU response (%s'),
+                            store_status[0])
+
+                # Update the C-STORE sub-operation result tracker
+                if store_status[0] == 'Failure':
+                    store_results[1] += 1
+                elif store_status[0] == 'Warning':
+                    store_results[2] += 1
+                elif store_status[0] == 'Success':
+                    store_results[3] += 1
+
+                store_results[0] -= 1
+
+                rsp.Identifier = None
+                rsp.NumberOfRemainingSuboperations = store_results[0]
+                rsp.NumberOfFailedSuboperations = store_results[1]
+                rsp.NumberOfWarningSuboperations = store_results[2]
+                rsp.NumberOfCompletedSuboperations = store_results[3]
+
                 self.DIMSE.send_msg(rsp, self.pcid)
 
-        # Send final C-GET-RSP to peer
-        if no_warning == 0 and no_failed == 0:
+        # If not already done, send the final 'Success' or 'Warning' response
+        if not store_results[1] and not store_results[2]:
+            # Success response - no failures or warnings
+            LOGGER.info('Get SCP Result: (Success)')
             rsp.Status = 0x0000
-            LOGGER.info('Get SCP Final Response (Success)')
         else:
-            rsp.Status = 0xB000 # Warning
-            LOGGER.info('Get SCP Final Response (Warning)')
+            # Warning response - one or more failures or warnings
+            LOGGER.info('Get SCP Result: (Warning)')
+            rsp.Status = 0xB000
+            # If Warning response, need to return an Identifier with
+            #   (0008,0058) Failed SOP Instance UID List element
+            ds = Dataset()
+            ds.FailedSOPInstanceUIDList = failed_instances
+            bytestream = encode(ds,
+                                self.transfersyntax.is_implicit_VR,
+                                self.transfersyntax.is_little_endian)
+            rsp.Identifier = BytesIO(bytestream)
+
+        rsp.NumberOfRemainingSuboperations = None
+        rsp.NumberOfFailedSuboperations = store_results[1]
+        rsp.NumberOfWarningSuboperations = store_results[2]
+        rsp.NumberOfCompletedSuboperations = store_results[3]
 
         self.DIMSE.send_msg(rsp, self.pcid)
-
-    def _user_callback(self, ds, rsp):
-        """Call the user's on_c_get callback."""
-        try:
-            result = self.AE.on_c_get(ds)
-        except:
-            LOGGER.exception("Exception in user's on_c_get implementation.")
-            # Failure - Unable to process - Error in on_c_get callback
-            rsp.Status = 0xC001
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return None
-
-        return result
-
-    def _get_number_suboperations(self, generator, rsp):
-        """Get the number of suboperations."""
-        try:
-            no_remaining = int(next(generator))
-        except TypeError:
-            LOGGER.exception('You must yield the number of sub-operations in '
-                             'ae.on_c_get before yielding the (status, '
-                             'dataset) pairs.')
-            # Failure - Unable to process - Error in on_c_get yield
-            rsp.Status = 0xC002
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return None
-
-        return no_remaining
-
-    def _get_store_status(self, ds):
-        """Check the on_c_store's returned status dataset and set rsp.Status."""
-        # Check the callback's returned Status dataset
-        if isinstance(ds, Status) and 'Status' in ds:
-            # Check returned dataset Status element value is OK
-            if ds.Status not in self.statuses:
-                LOGGER.error("Status dataset yielded by on_c_store callback "
-                             "contains a Status element with an unknown value: "
-                             "0x{0:04x}.".format(ds.Status))
-                # Failure: Unable to Process - Invalid Status returned
-                status = 0xC002
-            # User's status is OK
-            status = ds.Status
-        else:
-            LOGGER.error("Callback yielded an invalid status "
-                         "(should be a pydicom Dataset with a Status "
-                         "element).")
-            # Failure: Unable to Process - callback didn't yield/return
-            #   a pydicom.dataset.Dataset with a Status element.
-            status = 0xC003
-
-        return status
-
 
 
 # WORKLIST Service Classes - WIP
