@@ -1,6 +1,7 @@
 """
 The main user class, represents a DICOM Application Entity
 """
+import os
 import gc
 from inspect import isclass
 import logging
@@ -222,7 +223,11 @@ class ApplicationEntity(object):
         self.cacerts = None
         self.ssl_version = None
         # Check if ssl parameters are complete
-        if certfile and keyfile:
+        if (certfile and keyfile):
+            if not os.path.exists(certfile):
+               raise OSError(2, 'No such certificate file', certfile)
+            if not os.path.exists(keyfile):
+               raise OSError(2, 'No such private key file', keyfile)
             self.certfile = certfile
             self.keyfile = keyfile
             self.has_ssl = True
