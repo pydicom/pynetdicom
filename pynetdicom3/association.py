@@ -33,7 +33,8 @@ from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
                                         A_ASSOCIATE, A_ABORT, A_P_ABORT)
-from pynetdicom3.status import code_to_status, code_to_category
+from pynetdicom3.status import (code_to_status, code_to_category,
+                                STORAGE_SERVICE_CLASS_STATUS)
 from pynetdicom3.utils import PresentationContextManager
 # pylint: enable=no-name-in-module
 
@@ -577,7 +578,7 @@ class Association(threading.Thread):
                 #
                 # Listen for further messages from the peer
                 while not self._kill:
-                    time.sleep(0.001)
+                    time.sleep(0.1)
 
                     # Check for release request
                     if self.acse.CheckRelease():
@@ -1559,14 +1560,15 @@ class Association(threading.Thread):
         # Get the responses from the peer
         operation_no = 1
         while True:
-            # Wait for C-GET response
+            # Wait for DIMSE message, may be either a C-GET response or a C-STORE
+            #   request
             rsp, context_id = self.dimse.receive_msg(wait=True)
 
             # If no response received, start loop again
             if not rsp:
                 continue
 
-            # Received a C-GET response
+            # Received a C-GET response from the peer
             if rsp.__class__ == C_GET:
                 status = Dataset()
                 status.Status = rsp.Status
@@ -1633,8 +1635,22 @@ class Association(threading.Thread):
 
                 operation_no += 1
 
-            # Received a C-STORE request
+            # Received a C-STORE request from the peer
             elif rsp.__class__ == C_STORE:
+                store_ts = None
+                for context in self.acse.context_manager.accepted:
+                    if rsp.AffectedSOPClassUID == context.AbstractSyntax:
+                        store_ts = context.TransferSyntax[0]
+                        store_context = context.ID
+
+                if store_ts is None:
+                    LOGGER.error("No Presentation Context for: '%s'",
+                                 rsp.AffectedSOPClassUID)
+                    # SOP Class not supported
+                    store_rsp.Status = 0x0122
+                    self.dimse.send_msg(store_rsp, store_context)
+                    continue
+
                 # Build C-STORE response primitive
                 #   (U) Message ID
                 #   (M) Message ID Being Responded To
@@ -1642,32 +1658,25 @@ class Association(threading.Thread):
                 #   (U) Affected SOP Instance UID
                 #   (M) Status
                 store_rsp = C_STORE()
+                store_rsp.MessageID = rsp.MessageID
                 store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
                 store_rsp.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
                 store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
 
-                # Get the presentation context we are operating under
-                pass
-
                 # Attempt to decode the dataset
-                # FIXME: transfer_syntax should be the ts agreed to for the pc
                 try:
                     ds = decode(rsp.DataSet,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+                                store_ts.is_implicit_VR,
+                                store_ts.is_little_endian)
                 except Exception as ex:
                     LOGGER.error('Failed to decode the received dataset')
                     LOGGER.exception(ex)
                     store_rsp.Status = 0xC100
                     store_rsp.ErrorComment = 'Unable to decode the dataset'
-                    # FIXME: get pc ID from above
-                    self.dimse.send_msg(store_rsp, pc_id)
-                    yield Dataset(), None
+                    self.dimse.send_msg(store_rsp, store_context)
+                    continue
 
-                # Check dataset SOP Class UID matches the one agreed to
-                pass
-
-                #  Callback for C-STORE SCP (user implemented)
+                #  Attempt to run the ApplicationEntity's on_c_store callback
                 try:
                     store_status = self.ae.on_c_store(ds)
                 except Exception as ex:
@@ -1675,16 +1684,36 @@ class Association(threading.Thread):
                                  "ApplicationEntity.on_c_store() callback")
                     LOGGER.exception(ex)
                     store_rsp.Status = 0xC101
-                    # FIXME: get pc ID from above
-                    self.dimse.send_msg(store_rsp, pc_id)
 
-                # Validate store_status and set store_rsp.Status accordingly
-                pass
+                # Check the callback's returned status
+                if isinstance(store_status, Dataset):
+                    if 'Status' in store_status:
+                        # For the elements in the status dataset, try and set
+                        #   the corresponding response primitive attribute
+                        for elem in store_status:
+                            if hasattr(store_rsp, elem.keyword):
+                                setattr(store_rsp, elem.keyword, elem.value)
+                            else:
+                                LOGGER.warning("Status dataset returned by "
+                                               "callback contained an "
+                                               "unsupported element '%s'.",
+                                               elem.keyword)
+                    else:
+                        LOGGER.error("User callback returned a `Dataset` "
+                                     "without a Status element.")
+                        store_rsp.Status = 0xC102
+                elif isinstance(store_status, int):
+                    store_rsp.Status = status
+                else:
+                    LOGGER.error("Invalid status returned by user callback.")
+                    store_rsp.Status = 0xC103
+
+                if not store_rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
+                    LOGGER.warning("Unknown status value returned by callback "
+                                   "- 0x{0:04x}".format(store_rsp.Status))
 
                 # Send C-STORE confirmation back to peer
-                store_rsp.Status = store_status
-                # FIXME: get pc ID from above
-                self.dimse.send_msg(store_rsp, context_id)
+                self.dimse.send_msg(store_rsp, store_context)
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.
