@@ -1278,7 +1278,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context\n   for the current dataset")
-            yield code_to_status(0xA900), None
+            raise ValueError('No accepted Presentation Context')
 
         # Build C-MOVE request primitive
         #   (M) Message ID
@@ -1289,8 +1289,8 @@ class Association(threading.Thread):
         req = C_MOVE()
         req.MessageID = msg_id
         req.AffectedSOPClassUID = sop_class.UID
-        req.MoveDestination = move_aet
         req.Priority = priority
+        req.MoveDestination = move_aet
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   will return None if failed to encode
@@ -1301,10 +1301,11 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
         else:
-            LOGGER.error('Failed to encode the supplied Dataset')
-            raise ValueError('Failed to encode the supplied Dataset')
+            LOGGER.error('Failed to encode the supplied Identifier dataset')
+            raise ValueError('Failed to encode the supplied Identifier '
+                             'dataset')
 
-        LOGGER.info('Move SCU Request Identifiers:')
+        LOGGER.info('Move SCU Request Identifier:')
         LOGGER.info('')
         LOGGER.info('# DICOM Dataset')
         for elem in dataset:
@@ -1315,75 +1316,74 @@ class Association(threading.Thread):
         self.dimse.send_msg(req, context_id)
 
         # Get the responses from peer
-        ii = 1
+        operation_no = 1
         while True:
-            time.sleep(0.05)
-
-            rsp, context_id = self.dimse.receive_msg(wait=False)
+            rsp, context_id = self.dimse.receive_msg(wait=True)
 
             if rsp.__class__ == C_MOVE:
-                status = code_to_status(rsp.Status)
-                dataset = decode(rsp.Identifier,
-                                 transfer_syntax.is_implicit_VR,
-                                 transfer_syntax.is_little_endian)
+                status = Dataset()
+                status.Status = rsp.Status
+                for keyword in []:
+                    if getattr(rsp, keyword):
+                        setattr(status, keyword, getattr(rsp, keyword))
 
-                # If the Status is "Pending" then the processing of
-                #   matches and suboperations is initiated or continuing
-                if status.category == 'Pending':
-                    remain = rsp.NumberOfRemainingSuboperations
-                    complete = rsp.NumberOfCompletedSuboperations
-                    failed = rsp.NumberOfFailedSuboperations
-                    warning = rsp.NumberOfWarningSuboperations
+                # If the Status is 'Pending' then the processing of matches
+                #   and sub-operations are initiated or continuing
+                # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
+                #   then we are finished
+                category = code_to_category(status.Status)
 
-                    # Pending Response
-                    LOGGER.debug('')
-                    LOGGER.info("Move Response: %s (Pending)", ii)
-                    LOGGER.info("    Sub-Operations Remaining: %s, "
-                                "Completed: %s, Failed: %s, Warning: %s",
-                                remain, complete, failed, warning)
-                    ii += 1
+                # Log status type
+                LOGGER.debug('')
+                if category == 'Pending':
+                    LOGGER.info("Move SCP Response: %s (Pending)", operation_no)
+                elif category in ['Success', 'Cancel', 'Warning']:
+                    LOGGER.info("Move SCP Result: (%s)", category)
+                elif category == 'Failure':
+                    LOGGER.info("Move SCP Result: (Failure - 0x%04x",
+                                status.Status)
 
-                    yield status, dataset
+                # Log number of remaining sub-operations
+                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
+                            "Failed: %s, Warning: %s",
+                            rsp.NumberOfRemainingSuboperations or '0',
+                            rsp.NumberOfCompletedSuboperations or '0',
+                            rsp.NumberOfFailedSuboperations or '0',
+                            rsp.NumberOfWarningSuboperations or '0')
 
-                # If the Status is "Success" then processing is complete
-                # PS3.4 Section C.4.2.2
-                # Success indicates all sub-ops were successfully completed
-                #   interpreted as final response
-                # Warning indicates one or more sub-ops were unsuccessful or
-                #   had a status of warning, interpreted as final response
-                # Failure indicates all sub-ops were unsuccessful
-                #   intrepreted as final response
-                elif status.category == "Success":
-                    status = code_to_status(0x0000)
-                    dataset = None
-                    break
-                # All other possible responses
-                elif status.category == "Failure":
-                    LOGGER.debug('')
-                    LOGGER.error('Move Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.description)
-                    break
-                elif status.category == "Cancel":
-                    LOGGER.debug('')
-                    LOGGER.info('Move Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.description)
-                    dataset = None
-                    break
-                elif status.category == "Warning":
-                    LOGGER.debug('')
-                    LOGGER.warning('Move Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.description)
+                # Yields - 'Success', 'Warning', 'Cancel', 'Failure' are final
+                #   yields, 'Pending' means more to come
+                identifier = None
+                if category == 'Pending':
+                    operation_no += 1
+                    yield status, identifier
+                    continue
+                elif rsp.Identifier and category in ['Cancel', 'Warning',
+                                                     'Failure']:
+                    # From Part 4, Annex C.4.2, responses with these statuses
+                    #   should contain an Identifier dataset with a
+                    #   (0008,0058) Failed SOP Instance UID List element
+                    try:
+                        identifier = decode(rsp.Identifier,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
 
-                    for elem in dataset:
-                        LOGGER.warning('%s: %s', elem.name, elem.value)
+                        LOGGER.debug('')
+                        LOGGER.debug('# DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
+                    except Exception as ex:
+                        LOGGER.error("Failed to decode the received Identifier "
+                                     "dataset")
+                        LOGGER.exception(ex)
 
-                    break
+                yield status, identifier
+                break
 
             elif rsp.__class__ == C_STORE:
                 # C-STORE sub-operations can be over the same association
                 pass
-
-        yield status, dataset
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request message to the peer AE.
@@ -1581,7 +1581,7 @@ class Association(threading.Thread):
                         setattr(status, keyword, getattr(rsp, keyword))
 
                 # If the Status is 'Pending' then the processing of
-                #   matches and suboperations is initiated or continuing
+                #   matches and sub-operations are initiated or continuing
                 # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
                 #   then we are finished
                 category = code_to_category(status.Status)
@@ -1608,6 +1608,7 @@ class Association(threading.Thread):
                 #   final yields, 'Pending' means more to come
                 identifier = None
                 if category in ['Pending']:
+                    operation_no += 1
                     yield status, identifier
                     continue
                 elif rsp.Identifier and category in ['Cancel', 'Warning',
@@ -1633,87 +1634,10 @@ class Association(threading.Thread):
                 yield status, identifier
                 break
 
-                operation_no += 1
-
             # Received a C-STORE request from the peer
             elif rsp.__class__ == C_STORE:
-                store_ts = None
-                for context in self.acse.context_manager.accepted:
-                    if rsp.AffectedSOPClassUID == context.AbstractSyntax:
-                        store_ts = context.TransferSyntax[0]
-                        store_context = context.ID
-
-                if store_ts is None:
-                    LOGGER.error("No Presentation Context for: '%s'",
-                                 rsp.AffectedSOPClassUID)
-                    # SOP Class not supported
-                    store_rsp.Status = 0x0122
-                    self.dimse.send_msg(store_rsp, store_context)
-                    continue
-
-                # Build C-STORE response primitive
-                #   (U) Message ID
-                #   (M) Message ID Being Responded To
-                #   (U) Affected SOP Class UID
-                #   (U) Affected SOP Instance UID
-                #   (M) Status
-                store_rsp = C_STORE()
-                store_rsp.MessageID = rsp.MessageID
-                store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
-                store_rsp.AffectedSOPInstanceUID = rsp.AffectedSOPInstanceUID
-                store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
-
-                # Attempt to decode the dataset
-                try:
-                    ds = decode(rsp.DataSet,
-                                store_ts.is_implicit_VR,
-                                store_ts.is_little_endian)
-                except Exception as ex:
-                    LOGGER.error('Failed to decode the received dataset')
-                    LOGGER.exception(ex)
-                    store_rsp.Status = 0xC100
-                    store_rsp.ErrorComment = 'Unable to decode the dataset'
-                    self.dimse.send_msg(store_rsp, store_context)
-                    continue
-
-                #  Attempt to run the ApplicationEntity's on_c_store callback
-                try:
-                    store_status = self.ae.on_c_store(ds)
-                except Exception as ex:
-                    LOGGER.error("Exception in the "
-                                 "ApplicationEntity.on_c_store() callback")
-                    LOGGER.exception(ex)
-                    store_rsp.Status = 0xC101
-
-                # Check the callback's returned status
-                if isinstance(store_status, Dataset):
-                    if 'Status' in store_status:
-                        # For the elements in the status dataset, try and set
-                        #   the corresponding response primitive attribute
-                        for elem in store_status:
-                            if hasattr(store_rsp, elem.keyword):
-                                setattr(store_rsp, elem.keyword, elem.value)
-                            else:
-                                LOGGER.warning("Status dataset returned by "
-                                               "callback contained an "
-                                               "unsupported element '%s'.",
-                                               elem.keyword)
-                    else:
-                        LOGGER.error("User callback returned a `Dataset` "
-                                     "without a Status element.")
-                        store_rsp.Status = 0xC102
-                elif isinstance(store_status, int):
-                    store_rsp.Status = status
-                else:
-                    LOGGER.error("Invalid status returned by user callback.")
-                    store_rsp.Status = 0xC103
-
-                if not store_rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
-                    LOGGER.warning("Unknown status value returned by callback "
-                                   "- 0x{0:04x}".format(store_rsp.Status))
-
-                # Send C-STORE confirmation back to peer
-                self.dimse.send_msg(store_rsp, store_context)
+                self._c_store_scp(rsp)
+                
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.
@@ -1746,6 +1670,92 @@ class Association(threading.Thread):
         # Send C-CANCEL request
         # FIXME: need context ID, not msg ID. maybe
         self.dimse.send_msg(primitive, msg_id)
+
+    def _c_store_scp(self, req):
+        """A C-STORE SCP implementation.
+
+        Parameters
+        ----------
+        req : 
+        
+        """
+        # Build C-STORE response primitive
+        #   (U) Message ID
+        #   (M) Message ID Being Responded To
+        #   (U) Affected SOP Class UID
+        #   (U) Affected SOP Instance UID
+        #   (M) Status
+        rsp = C_STORE()
+        rsp.MessageID = req.MessageID
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+
+        transfer_syntax = None
+        for context in self.acse.context_manager.accepted:
+            if req.AffectedSOPClassUID == context.AbstractSyntax:
+                transfer_syntax = context.TransferSyntax[0]
+                context_id = context.ID
+
+        if transfer_syntax is None:
+            LOGGER.error("No Presentation Context for: '%s'",
+                         req.AffectedSOPClassUID)
+            # SOP Class not supported
+            rsp.Status = 0x0122
+            self.dimse.send_msg(rsp, context_id)
+            return
+
+        # Attempt to decode the dataset
+        try:
+            ds = decode(req.DataSet,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian)
+        except Exception as ex:
+            LOGGER.error('Failed to decode the received dataset')
+            LOGGER.exception(ex)
+            rsp.Status = 0xC100
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.dimse.send_msg(rsp, store_context)
+            return
+
+        #  Attempt to run the ApplicationEntity's on_c_store callback
+        try:
+            status = self.ae.on_c_store(ds)
+        except Exception as ex:
+            LOGGER.error("Exception in the "
+                         "ApplicationEntity.on_c_store() callback")
+            LOGGER.exception(ex)
+            rsp.Status = 0xC101
+
+        # Check the callback's returned status
+        if isinstance(status, Dataset):
+            if 'Status' in status:
+                # For the elements in the status dataset, try and set
+                #   the corresponding response primitive attribute
+                for elem in status:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning("Status dataset returned by "
+                                       "callback contained an "
+                                       "unsupported element '%s'.",
+                                       elem.keyword)
+            else:
+                LOGGER.error("User callback returned a `Dataset` "
+                             "without a Status element.")
+                rsp.Status = 0xC102
+        elif isinstance(status, int):
+            rsp.Status = status
+        else:
+            LOGGER.error("Invalid status returned by user callback.")
+            rsp.Status = 0xC103
+
+        if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
+            LOGGER.warning("Unknown status value returned by callback "
+                           "- 0x{0:04x}".format(rsp.Status))
+
+        # Send C-STORE confirmation back to peer
+        self.dimse.send_msg(rsp, context_id)
 
 
     # DIMSE-N services provided by the Association
