@@ -1049,7 +1049,7 @@ class Association(threading.Thread):
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
         else:
             raise ValueError("Association.send_c_find - 'query_model' "
-                             "must be one of 'W', 'P', 'S' or 'O'")
+                             "must be 'W', 'P', 'S' or 'O'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1263,7 +1263,7 @@ class Association(threading.Thread):
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
         else:
             raise ValueError("Association.send_c_move - 'query_model' must "
-                             "be one of 'P', 'S' or 'O'")
+                             "be 'P', 'S' or 'O'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1387,7 +1387,7 @@ class Association(threading.Thread):
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request message to the peer AE.
 
-        The ApplicationEntity.on_c_store callback must be implemented prior
+        The ApplicationEntity.on_c_store callback should be implemented prior
         to calling send_c_get as the peer will return any matches via a C-STORE
         sub-operation over the current association.
 
@@ -1411,7 +1411,7 @@ class Association(threading.Thread):
             The Query/Retrieve Information Model to use, one of the following:
 
             - 'P' - Patient Root Information Model - GET
-              1.2.840.10008.5.1.4.1.2.1.3
+              1.2.840.10008.5.1.4.1.2.1.3 (default)
             - 'S' - Study Root Information Model - GET
               1.2.840.10008.5.1.4.1.2.2.3
             - 'O' - Patient Study Only Information Model - GET
@@ -1424,11 +1424,12 @@ class Association(threading.Thread):
             empty Dataset. If a response was received from the peer then returns
             a Dataset containing at least a (0000,0900) Status element, and
             depending on the returned Status value may optionally contain
-            additional elements (see PS3.7 9.1.2.1.5 and Annex C).
+            additional elements (see DICOM Standard Part 7, Section 9.1.2.1.5
+            and Annex C).
 
             The status for the requested C-GET operation should be one of the
-            following Status objects/codes, but as the returned value depends
-            on the peer this can't be assumed:
+            following Status codes, but as the returned value depends on the
+            peer this can't be assumed:
 
             General C-GET (DICOM Standard Part 7, Section 9.1.3 and Annex C)
 
@@ -1506,7 +1507,7 @@ class Association(threading.Thread):
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
         else:
             raise ValueError("Association.send_c_get() query_model "
-                             "must be one of 'P', 'S' or 'O']")
+                             "must be 'P', 'S' or 'O']")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1520,7 +1521,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            raise ValueError
+            raise ValueError('No accepted Presentation Context')
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1541,8 +1542,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            LOGGER.error("Failed to encode the supplied Identifier dataset")
+            raise ValueError('Failed to encode the supplied Identifer '
+                             'dataset')
 
         LOGGER.info('Get SCU Request Identifier:')
         LOGGER.info('')
@@ -1576,37 +1578,41 @@ class Association(threading.Thread):
                     if getattr(rsp, keyword) is not None:
                         setattr(status, keyword, getattr(rsp, keyword))
 
-                # If the Status is "Pending" then the processing of
+                # If the Status is 'Pending' then the processing of
                 #   matches and suboperations is initiated or continuing
                 # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
                 #   then we are finished
                 category = code_to_category(status.Status)
+
+                # Log status type
+                LOGGER.debug('')
                 if category == 'Pending':
-                    LOGGER.debug('')
                     LOGGER.info("Get SCP Response: %s (Pending)", operation_no)
-                    LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
-                                "Failed: %s, Warning: %s",
-                                rsp.NumberOfRemainingSuboperations or '0',
-                                rsp.NumberOfCompletedSuboperations or '0',
-                                rsp.NumberOfFailedSuboperations or '0',
-                                rsp.NumberOfWarningSuboperations or '0')
-                    yield status, None
-                elif category in ["Success", 'Cancel', 'Warning']:
-                    LOGGER.debug('')
+                elif category in ['Success', 'Cancel', 'Warning']:
                     LOGGER.info('Get SCP Result: (%s)', category)
                 elif category == "Failure":
-                    LOGGER.debug('')
                     LOGGER.info('Get SCP Result: (Failure - 0x%04x)',
                                 status.Status)
-                    LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
-                                "Failed: %s, Warning: %s",
-                                rsp.NumberOfRemainingSuboperations or '0',
-                                rsp.NumberOfCompletedSuboperations or '0',
-                                rsp.NumberOfFailedSuboperations or '0',
-                                rsp.NumberOfWarningSuboperations or '0')
 
-                if category in ['Cancel', 'Warning', 'Failure']:
-                    # Status must be Pending, so decode the Identifier dataset
+                # Log number of remaining sub-operations
+                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
+                            "Failed: %s, Warning: %s",
+                            rsp.NumberOfRemainingSuboperations or '0',
+                            rsp.NumberOfCompletedSuboperations or '0',
+                            rsp.NumberOfFailedSuboperations or '0',
+                            rsp.NumberOfWarningSuboperations or '0')
+
+                # Yields - 'Success', 'Warning', 'Failure', 'Cancel' are
+                #   final yields, 'Pending' means more to come
+                identifier = None
+                if category in ['Pending']:
+                    yield status, identifier
+                    continue
+                elif rsp.Identifier and category in ['Cancel', 'Warning',
+                                                     'Failure']:
+                    # From Part 4, Annex C.4.3, responses with these statuses
+                    #   should contain an Identifier dataset with a
+                    #   (0008,0058) Failed SOP Instance UID List element
                     try:
                         identifier = decode(rsp.Identifier,
                                             transfer_syntax.is_implicit_VR,
@@ -1617,16 +1623,13 @@ class Association(threading.Thread):
                         for elem in identifier:
                             LOGGER.debug(elem)
                         LOGGER.debug('')
-                    except:
+                    except Exception as ex:
                         LOGGER.error("Failed to decode the received Identifier "
                                      "dataset")
-                        yield status, None
+                        LOGGER.exception(ex)
 
-                    yield status, identifier
-                    break
-                elif category == 'Success':
-                    yield status, None
-                    break
+                yield status, identifier
+                break
 
                 operation_no += 1
 
