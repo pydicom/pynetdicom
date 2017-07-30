@@ -442,7 +442,7 @@ class Association(threading.Thread):
         """
         self._is_running = True
         while not self._kill:
-            time.sleep(0.001)
+            time.sleep(0.1)
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
@@ -771,11 +771,11 @@ class Association(threading.Thread):
             - 2 - Low (default)
 
         originator_aet : str, optional
-            The AE title of the AE that invoked the C-MOVE operation for which
-            this C-STORE sub-operation is being performed.
+            The AE title of the peer that invoked the C-MOVE operation for which
+            this C-STORE sub-operation is being performed (default None).
         originator_id : int, optional
             The Message ID of the C-MOVE request primitive from which this
-            C-STORE sub-operation is being performed.
+            C-STORE sub-operation is being performed (default None).
 
         Returns
         -------
@@ -1158,7 +1158,12 @@ class Association(threading.Thread):
 
     def send_c_move(self, dataset, move_aet, msg_id=1, priority=2,
                     query_model='P'):
-        """Send a C-MOVE request to a peer AE.
+        """Send a C-MOVE request to the peer AE.
+
+        The ApplicationEntity.on_c_store callback should be implemented prior
+        to calling send_c_move as the peer may either return any matches
+        via a C-STORE sub-operation over the current association or request a
+        new association over which to return any matches.
 
         Parameters
         ----------
@@ -1167,7 +1172,7 @@ class Association(threading.Thread):
             the Identifier dataset are Service Class specific (see the DICOM
             Standard, Part 4).
         move_aet : str
-            The AE title for the destination of the C-STORE sub-operations
+            The AE title of the destination for the C-STORE sub-operations
             performed by the peer.
         msg_id : int, optional
             The message ID, must be between 0 and 65535, inclusive, (default 1).
@@ -1237,11 +1242,14 @@ class Association(threading.Thread):
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' or 'Success' then yields None. If the
             status is 'Warning', 'Failure' or 'Cancel' then yields a Dataset
-            containing an (0008,0058) 'Failed SOP Instance UID List' element.
+            which should contain an (0008,0058) 'Failed SOP Instance UID List'
+            element, however this is not guaranteed and may return an empty
+            Dataset.
 
         See Also
         --------
         applicationentity.ApplicationEntity.on_c_move
+        applicationentity.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
         sop_class.QueryRetrieveMoveServiceClass
 
@@ -1319,7 +1327,7 @@ class Association(threading.Thread):
         while True:
             rsp, context_id = self.dimse.receive_msg(wait=True)
 
-            # If no response received, start loop again
+            # If nothing received from the peer, try again
             if not rsp:
                 continue
 
@@ -1348,7 +1356,7 @@ class Association(threading.Thread):
                 elif category in ['Success', 'Cancel', 'Warning']:
                     LOGGER.info("Move SCP Result: (%s)", category)
                 elif category == 'Failure':
-                    LOGGER.info("Move SCP Result: (Failure - 0x%04x",
+                    LOGGER.info("Move SCP Result: (Failure - 0x%04x)",
                                 status.Status)
 
                 # Log number of remaining sub-operations
@@ -1371,6 +1379,7 @@ class Association(threading.Thread):
                     # From Part 4, Annex C.4.2, responses with these statuses
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
+                    #   however this can't be assumed
                     try:
                         identifier = decode(rsp.Identifier,
                                             transfer_syntax.is_implicit_VR,
@@ -1395,7 +1404,7 @@ class Association(threading.Thread):
                 self._c_store_scp(rsp)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
-        """Send a C-GET request message to the peer AE.
+        """Send a C-GET request to the peer AE.
 
         The ApplicationEntity.on_c_store callback should be implemented prior
         to calling send_c_get as the peer will return any matches via a C-STORE
@@ -1482,7 +1491,9 @@ class Association(threading.Thread):
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' or 'Success' then yields None. If the
             status is 'Warning', 'Failure' or 'Cancel' then yields a Dataset
-            containing an (0008,0058) 'Failed SOP Instance UID List' element.
+            which should contain an (0008,0058) 'Failed SOP Instance UID List'
+            element, however this is not guaranteed and may return an empty
+            Dataset.
 
         Raises
         ------
@@ -1569,11 +1580,11 @@ class Association(threading.Thread):
         # Get the responses from the peer
         operation_no = 1
         while True:
-            # Wait for DIMSE message, may be either a C-GET response or a C-STORE
-            #   request
+            # Wait for DIMSE message, may be either a C-GET response or a
+            #   C-STORE request
             rsp, context_id = self.dimse.receive_msg(wait=True)
 
-            # If no response received, start loop again
+            # If nothing received from the peer, try again
             if not rsp:
                 continue
 
@@ -1625,6 +1636,7 @@ class Association(threading.Thread):
                     # From Part 4, Annex C.4.3, responses with these statuses
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
+                    #   however this can't be assumed
                     try:
                         identifier = decode(rsp.Identifier,
                                             transfer_syntax.is_implicit_VR,
@@ -1646,38 +1658,6 @@ class Association(threading.Thread):
             # Received a C-STORE request from the peer
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
-
-    def _send_c_cancel(self, msg_id):
-        """Send a C-CANCEL-* request to the peer AE.
-
-        See PS3.7 9.3.2.3
-
-        Parameters
-        ----------
-        msg_id : int
-            The message ID of the C-GET/MOVE/FIND operation we want to cancel.
-            Must be between 0 and 65535, inclusive.
-        """
-        # Can't send a C-CANCEL without an Association
-        if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL request.")
-
-        if not isinstance(msg_id, int):
-            # FIXME: Add more detail to exception
-            raise TypeError("msg_id must be an integer.")
-
-        # FIXME: Add validity checks to msg_id value
-
-        # Build C-CANCEL primitive
-        primitive = C_CANCEL()
-        primitive.MessageIDBeingRespondedTo = msg_id
-
-        LOGGER.info('Sending C-CANCEL')
-
-        # Send C-CANCEL request
-        # FIXME: need context ID, not msg ID. maybe
-        self.dimse.send_msg(primitive, msg_id)
 
     def _c_store_scp(self, req):
         """A C-STORE SCP implementation.
@@ -1782,6 +1762,38 @@ class Association(threading.Thread):
         # Send C-STORE confirmation back to peer
         self.dimse.send_msg(rsp, context_id)
 
+    def _send_c_cancel(self, msg_id):
+        """Send a C-CANCEL-* request to the peer AE.
+
+        See PS3.7 9.3.2.3
+
+        Parameters
+        ----------
+        msg_id : int
+            The message ID of the C-GET/MOVE/FIND operation we want to cancel.
+            Must be between 0 and 65535, inclusive.
+        """
+        # Can't send a C-CANCEL without an Association
+        if not self.is_established:
+            raise RuntimeError("The association with a peer SCP must be "
+                               "established before sending a C-CANCEL request.")
+
+        if not isinstance(msg_id, int):
+            # FIXME: Add more detail to exception
+            raise TypeError("msg_id must be an integer.")
+
+        # FIXME: Add validity checks to msg_id value
+
+        # Build C-CANCEL primitive
+        primitive = C_CANCEL()
+        primitive.MessageIDBeingRespondedTo = msg_id
+
+        LOGGER.info('Sending C-CANCEL')
+
+        # Send C-CANCEL request
+        # FIXME: need context ID, not msg ID. maybe
+        self.dimse.send_msg(primitive, msg_id)
+
 
     # DIMSE-N services provided by the Association
     # TODO: Implement DIMSE-N services
@@ -1796,45 +1808,6 @@ class Association(threading.Thread):
 
     def send_n_get(self):
         """Send an N-GET request message to the peer AE."""
-        '''
-        service_class = QueryRetrieveGetServiceClass()
-
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Get SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-
-        # Build N-GET primitive
-        primitive = N_GET()
-        primitive.MessageID = msg_id
-        # The SOP Class for which Attribute Values are to be retrieved
-        primitive.RequestedSOPClassUID = None
-        # The SOP Instance for which Attribute Values are to be retrieved
-        primitive.RequestedSOPInstanceUID = None
-        # A set of Attribute identifiers, if omitted then all identifiers
-        #   are assumed. The definitions of the Attributes are found
-        #   in PS3.3
-        if dataset is not None:
-            primitive.AttributeIdentifierList = \
-                    encode(dataset, transfer_syntax.is_implicit_VR,
-                           transfer_syntax.is_little_endian)
-            primitive.AttributeIdentifierList = \
-                    BytesIO(primitive.AttributeIdentifierList)
-
-        # Send primitive to peer
-        self.dimse.send_msg(primitive, context_id)
-        '''
         # Can't send an N-GET without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
