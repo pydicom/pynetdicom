@@ -818,8 +818,8 @@ class ApplicationEntity(object):
 
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling AE.start() and
-        must return either an int or a pydicom Dataset containing a Status
-        element with a valid C-ECHO status value.
+        must return either an int or a pydicom Dataset containing a (0000,0900)
+        Status element with a valid C-ECHO status value.
 
         Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
         after receiving a C-ECHO request and prior to sending the response.
@@ -851,7 +851,7 @@ class ApplicationEntity(object):
             The status returned to the peer AE in the C-ECHO response. Must be a
             valid C-ECHO/Verification Service Class status value as either an
             int or a Dataset object containing (at a minimum) a (0000,0900)
-            Status element. If returning a Dataset object then it may also
+            'Status' element. If returning a Dataset object then it may also
             contain optional elements related to the Status (as in the DICOM
             Standard Part 7, Annex C).
 
@@ -873,8 +873,8 @@ class ApplicationEntity(object):
         """Callback for C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
-        either an int or a pydicom Dataset containing a Status element with a
-        valid C-STORE status value.
+        either an int or a pydicom Dataset containing a (0000,0900) Status
+        element with a valid C-STORE status value.
 
         Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
         method after receiving a C-STORE request and prior to sending the
@@ -923,7 +923,7 @@ class ApplicationEntity(object):
             The status returned to the peer AE in the C-STORE response. Must be
             a valid C-STORE status value for the applicable Service Class as
             either an int or a Dataset object containing (at a minimum) a
-            (0000,0900) Status element. If returning a Dataset object then it
+            (0000,0900) 'Status' element. If returning a Dataset object then it
             may also contain optional elements related to the Status (as in the
             DICOM Standard Part 7, Annex C).
 
@@ -951,8 +951,9 @@ class ApplicationEntity(object):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
-        status and dataset. In addition, the AE.on_c_find_cancel() callback
-        must also be defined.
+        status (as either and int or pydicom Dataset containing a (0000,0900)
+        Status element) and an Identifier dataset. In addition, the
+        AE.on_c_find_cancel() callback must also be defined.
 
         Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
         method after receiving a C-FIND request and prior to sending the
@@ -980,9 +981,9 @@ class ApplicationEntity(object):
 
         Pending
 
-        - 0xFF00 - Matches are continuing - Current match is supplied and any
+        - 0xFF00 - Matches are continuing: current match is supplied and any
           Optional Keys were supported in the same manner as Required Keys
-        - 0xFF01 - Matches are continuing - Warning that one or more Optional
+        - 0xFF01 - Matches are continuing: warning that one or more Optional
           Keys were not supported for existence and/or matching for this
           Identifier
 
@@ -996,10 +997,10 @@ class ApplicationEntity(object):
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-FIND response. Must be a
             valid C-FIND status vuale for the applicable Service Class as
-            either an int or a Dataset object containing (at a minimum) a Status
-            element. If returning a Dataset object then it may also contain
-            optional elements related to the Status (as in DICOM Standard Part
-            7, Annex C).
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
             If the status is 'Pending' then the Identifier dataset for a
             matching SOP Instance. The exact requirements for the C-FIND
@@ -1009,7 +1010,7 @@ class ApplicationEntity(object):
             If the status is 'Failure' or 'Cancel' then yield None.
 
             If the status is 'Success' then yield None, however yielding a
-            final 'Success' status is not required and will be overwritten if
+            final 'Success' status is not required and will be ignored if
             necessary.
 
         See Also
@@ -1090,21 +1091,21 @@ class ApplicationEntity(object):
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-GET response. Must be a
             valid C-GET status value for the applicable Service Class as either
-            an int or a Dataset object containing (at a minimum) a Status
-            element. If returning a Dataset object then it may also contain
-            optional elements related to the Status (as in DICOM Standard Part
-            7, Annex C).
+            an int or a Dataset object containing (at a minimum) a (0000,0900)
+            'Status' element. If returning a Dataset object then it may also
+            contain optional elements related to the Status (as in DICOM
+            Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
             If the status is 'Pending' then yield the dataset to send to the
             peer via a C-STORE sub-operation over the current association.
 
             If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-            Dataset with a (0008,0058) Failed SOP Instance UID element
-            containing the list of the C-STORE sub-operation SOP Instances
+            Dataset with a (0008,0058) 'Failed SOP Instance UID List' element
+            containing a list of the C-STORE sub-operation SOP Instance UIDs
             for which the C-GET operation has failed.
 
             If the status is 'Success' then yield None, although yielding a
-            final 'Success' status is not required and will be overwritten if
+            final 'Success' status is not required and will be ignored if
             necessary.
 
         See Also
@@ -1196,21 +1197,21 @@ class ApplicationEntity(object):
         status : pydiom.dataset.Dataset or int
             The status returned to the peer AE in the C-MOVE response. Must be a
             valid C-MOVE status value for the applicable Service Class as either
-            an int or a Dataset object containing (at a minimum) a Status
-            element. If returning a Dataset object then it may also contain
-            optional elements related to the Status (as in DICOM Standard Part
-            7, Annex C).
+            an int or a Dataset object containing (at a minimum) a (0000,0900)
+            'Status' element. If returning a Dataset object then it may also
+            contain optional elements related to the Status (as in DICOM
+            Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
             If the status is 'Pending' then yield the dataset to send to the
             peer via a C-STORE sub-operation over a new association.
 
             If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-            Dataset with a (0008,0058) Failed SOP Instance UID element
-            containing the list of the C-STORE sub-operation SOP Instances
+            Dataset with a (0008,0058) 'Failed SOP Instance UID List' element
+            containing the list of the C-STORE sub-operation SOP Instance UIDs
             for which the C-MOVE operation has failed.
 
             If the status is 'Success' then yield None, although yielding a
-            final 'Success' status is not required and will be overwritten if
+            final 'Success' status is not required and will be ignored if
             necessary.
 
         See Also
