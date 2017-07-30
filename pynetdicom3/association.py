@@ -1,5 +1,5 @@
 """
-Defines the Association class
+Defines the Association class which handles associating with peers.
 """
 from io import BytesIO
 import logging
@@ -987,7 +987,7 @@ class Association(threading.Thread):
 
             - Success
 
-              * 0x0000 - Matching is complete, no final Identifier is supplied
+              * 0x0000 - Matching is complete: no final Identifier is supplied
 
             - Failure
 
@@ -1003,10 +1003,10 @@ class Association(threading.Thread):
 
             - Pending
 
-              * 0xFF00 - Matches are continuing - Current match is supplied and
+              * 0xFF00 - Matches are continuing: current match is supplied and
                 any Optional Keys were supported in the same manner as Required
                 Keys
-              * 0xFF01 - Matches are continuing - Warning that one or more
+              * 0xFF01 - Matches are continuing: warning that one or more
                 Optional Keys were not supported for existence and/or matching
                 for this Identifier)
 
@@ -1194,21 +1194,22 @@ class Association(threading.Thread):
             empty Dataset. If a response was received from the peer then returns
             a Dataset containing at least a (0000,0900) Status element, and
             depending on the returned Status value, may optionally contain
-            additional elements (see PS3.7 9.1.4.1.7 and Annex C).
+            additional elements (see DICOM Standard Part 7, Section 9.1.4 and
+            Annex C).
 
             The status for the requested C-MOVE operation should be one of the
             following Status objects/codes, but as the returned value depends
             on the peer this can't be assumed:
 
-            General C-MOVE (PS3.7 9.1.4.1.7 and Annex C)
+            General C-MOVE (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
 
             - Cancel
 
-              * 0xFE00 - Matching terminated due to Cancel request
+              * 0xFE00 - Sub-operations terminated due to Cancel indication
 
             - Success
 
-              * 0x0000 - Matching is complete, no final Identifier is supplied
+              * 0x0000 - Sub-operations complete: no failures
 
             - Failure
 
@@ -1220,16 +1221,14 @@ class Association(threading.Thread):
             - Failure
 
               * 0xA701 - Out of resources: unable to calculate number of matches
-              * 0xA702 - Out of resouses: unable to perform sub-operations
-              * 0xA801 - Move Destination unknown
+              * 0xA702 - Out of resources: unable to perform sub-operations
+              * 0xA801 - Move destination unknown
               * 0xA900 - Identifier does not match SOP Class
               * 0xC000 to 0xCFFF - Unable to process
 
             - Pending
 
-              * 0xFF00 - Matches are continuing: Current match is supplied and
-                any Optional Keys were supported in the same manner as Required
-                Keys
+              * 0xFF00 - Sub-operations are continuing
 
             - Warning
 
@@ -1292,7 +1291,7 @@ class Association(threading.Thread):
         req.Priority = priority
         req.MoveDestination = move_aet
 
-        # Encode the Identifier `dataset` using the agreed transfer syntax
+        # Encode the Identifier `dataset` using the agreed transfer syntax;
         #   will return None if failed to encode
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
@@ -1320,11 +1319,20 @@ class Association(threading.Thread):
         while True:
             rsp, context_id = self.dimse.receive_msg(wait=True)
 
+            # If no response received, start loop again
+            if not rsp:
+                continue
+
+            # Received a C-MOVE response from the peer
             if rsp.__class__ == C_MOVE:
                 status = Dataset()
                 status.Status = rsp.Status
-                for keyword in []:
-                    if getattr(rsp, keyword):
+                for keyword in ['ErrorComment', 'OffendingElement',
+                                'NumberOfRemainingSuboperations',
+                                'NumberOfCompletedSuboperations',
+                                'NumberOfFailedSuboperations',
+                                'NumberOfWarningSuboperations']:
+                    if getattr(rsp, keyword) is not None:
                         setattr(status, keyword, getattr(rsp, keyword))
 
                 # If the Status is 'Pending' then the processing of matches
@@ -1381,9 +1389,10 @@ class Association(threading.Thread):
                 yield status, identifier
                 break
 
+            # Received a C-STORE request from the peer
+            #   C-STORE requests can be over the same association for C-MOVE
             elif rsp.__class__ == C_STORE:
-                # C-STORE sub-operations can be over the same association
-                pass
+                self._c_store_scp(rsp)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request message to the peer AE.
@@ -1637,7 +1646,6 @@ class Association(threading.Thread):
             # Received a C-STORE request from the peer
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
-                
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.
@@ -1674,10 +1682,27 @@ class Association(threading.Thread):
     def _c_store_scp(self, req):
         """A C-STORE SCP implementation.
 
+        Handles C-STORE requests from the peer over the same assocation as the
+        local AE sent a C-MOVE or C-GET request.
+
+        Must always send a C-STORE response back to the peer.
+
+        C-STORE Request
+        ---------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Affected SOP Instance UID
+        (M) Priority
+        (U) Move Originator Application Entity Title
+        (U) Move Originator Message ID
+        (M) Data Set
+
         Parameters
         ----------
-        req : 
-        
+        req : dimse_primitives.C_STORE
+            The C-STORE request primitive received from the peer.
         """
         # Build C-STORE response primitive
         #   (U) Message ID
