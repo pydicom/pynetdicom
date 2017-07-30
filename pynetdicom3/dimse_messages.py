@@ -270,7 +270,7 @@ class DIMSEMessage(object):
             if isinstance(control_header_byte, str):
                 control_header_byte = ord(control_header_byte)
 
-            #LOGGER.debug('Control header byte %s', control_header_byte)
+            # LOGGER.debug('Control header byte %s', control_header_byte)
 
             ## COMMAND SET
             # P-DATA fragment contains Command Set information
@@ -375,9 +375,9 @@ class DIMSEMessage(object):
         return fragments
 
     def primitive_to_message(self, primitive):
-        """Convert a DIMSE primitive to the current DIMSEMessage object.
+        """Convert a DIMSE `primitive` to the current DIMSEMessage object.
 
-        Parameters
+        Parameters`
         ----------
         primitive
             The pynetdicom3.dimse_primitives DIMSE service primitive to convert

@@ -230,27 +230,28 @@ class VerificationServiceClass(ServiceClass):
             status = self.AE.on_c_echo()
             if isinstance(status, Dataset):
                 if 'Status' not in status:
-                    raise AttributeError("The status 'Dataset' returned by "
+                    raise AttributeError("The 'status' dataset returned by "
                                          "'on_c_echo' must contain"
                                          "a (0000,0900) Status element")
                 for elem in status:
                     if hasattr(rsp, elem.keyword):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
-                        LOGGER.warning("The status 'Dataset' returned by "
+                        LOGGER.warning("The 'status' dataset returned by "
                                        "'on_c_echo' contained an unsupported "
                                        "Element '%s'.", elem.keyword)
             elif isinstance(status, int):
                 rsp.Status = status
             else:
-                raise TypeError("Invalid status returned by 'on_c_echo'")
+                raise TypeError("Invalid 'status' returned by 'on_c_echo'")
 
             # Check Status validity
             if not self.is_valid_status(rsp.Status):
-                LOGGER.warning("Unknown status value returned by 'on_c_echo' "
+                LOGGER.warning("Unknown 'status' value returned by 'on_c_echo' "
                                "callback - 0x{0:04x}".format(rsp.Status))
         except Exception as ex:
-            LOGGER.error("Exception in the 'on_c_echo' callback.")
+            LOGGER.error("Exception in the 'on_c_echo' callback, using default "
+                         "'status' value of 0x0000 Success.")
             LOGGER.exception(ex)
             rsp.Status = 0x0000
 
@@ -531,11 +532,12 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Pending':
-                ds = BytesIO(encode(rsp_identifier,
+                bytestream = encode(rsp_identifier,
                                     self.transfersyntax.is_implicit_VR,
-                                    self.transfersyntax.is_little_endian))
+                                    self.transfersyntax.is_little_endian)
+                bytestream = BytesIO(bytestream)
 
-                if ds.getvalue() == b'':
+                if bytestream.getvalue() == b'':
                     LOGGER.error("Failed to encode the received Identifier "
                                  "dataset")
                     # Failure: Unable to Process - Can't decode dataset
@@ -544,20 +546,19 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
 
-                rsp.Identifier = ds
+                rsp.Identifier = bytestream
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
-
-                self.DIMSE.send_msg(rsp, self.pcid)
-
                 LOGGER.debug('Find SCP Response Identifier:')
                 LOGGER.debug('')
                 LOGGER.debug('# DICOM Dataset')
                 for elem in rsp_identifier.iterall():
                     LOGGER.debug(elem)
                 LOGGER.debug('')
+
+                self.DIMSE.send_msg(rsp, self.pcid)
             else:
-                LOGGER.error('Find SCP Response: Unsupported status')
+                LOGGER.error('Find SCP Response: Unknown status')
                 rsp.Status = 0xC000
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
@@ -835,7 +836,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
                     rsp.Identifier = None
-                    
+
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Warning':
@@ -845,14 +846,17 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     return
                 elif status[0] == 'Pending' and dataset:
                     LOGGER.info('Move SCP Response %s (Pending)', ii)
-                    
+
                     # Send `dataset` via C-STORE sub-operations over the
                     #   association and check that the response's Status exists
                     #   and is a known value
                     try:
+                        # TODO: Consider adding the move originator
                         store_status = assoc.send_c_store(dataset)
+                        # FIXME: Should probably split status check?
                         store_status = STORAGE_SERVICE_CLASS_STATUS[
                             store_status.Status]
+                    # FIXME: Why not catch all for the callback?
                     except (RuntimeError, AttributeError, KeyError,
                             ValueError):
                         store_status = ['Failure', 'Unknown']
@@ -870,14 +874,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     elif store_status[0] == 'Success':
                         store_results[3] += 1
 
-                    store_results[0] -= 1 
+                    store_results[0] -= 1
 
                     rsp.Identifier = None
                     rsp.NumberOfRemainingSuboperations = store_results[0]
                     rsp.NumberOfFailedSuboperations = store_results[1]
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
-                    
+
                     self.DIMSE.send_msg(rsp, self.pcid)
 
             store_assoc.release()
@@ -1079,7 +1083,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             rsp.Status = 0xC001
             self.DIMSE.send_msg(rsp, self.pcid)
             return
-        
+
         # Number of C-STORE sub-operations
         try:
             no_suboperations = int(next(result))
@@ -1153,7 +1157,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
-                
+
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Warning':
