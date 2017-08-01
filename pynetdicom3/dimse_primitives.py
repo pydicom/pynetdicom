@@ -188,12 +188,9 @@ class C_STORE(object):
             raise TypeError("Affected SOP Class UID must be a " \
                     "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Affected SOP Class UID is an invalid UID")
-                raise ValueError("Affected SOP Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
@@ -223,12 +220,9 @@ class C_STORE(object):
             raise TypeError("Affected SOP Instance UID must be a " \
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Affected SOP Instance UID is an invalid UID")
-                raise ValueError("Affected SOP Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Instance UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_instance_uid = value
 
@@ -533,12 +527,9 @@ class C_FIND(object):
             raise TypeError("Affected SOP Class UID must be a " \
                     "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Affected SOP Class UID is an invalid UID")
-                raise ValueError("Affected SOP Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
@@ -776,12 +767,9 @@ class C_GET(object):
             raise TypeError("Affected SOP Class UID must be a " \
                     "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Affected SOP Class UID is an invalid UID")
-                raise ValueError("Affected SOP Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
@@ -1119,12 +1107,9 @@ class C_MOVE(object):
             raise TypeError("Affected SOP Class UID must be a " \
                     "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Affected SOP Class UID is an invalid UID")
-                raise ValueError("Affected SOP Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 
@@ -1397,12 +1382,9 @@ class C_ECHO(object):
             raise TypeError("Affected SOP Class UID must be a " \
                     "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Affected SOP Class UID is an invalid UID")
-                raise ValueError("Affected SOP Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
 
         self._affected_sop_class_uid = value
 

@@ -12,7 +12,7 @@ import sys
 import time
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian, UID, InvalidUID
+                        ExplicitVRBigEndian, UID
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
@@ -683,9 +683,7 @@ class ApplicationEntity(object):
             else:
                 continue
 
-            try:
-                sop_uid.is_valid()
-            except InvalidUID:
+            if not sop_uid.is_valid:
                 continue
 
             self._scu_supported_sop.append(sop_uid)
@@ -732,9 +730,7 @@ class ApplicationEntity(object):
             else:
                 continue
 
-            try:
-                sop_uid.is_valid()
-            except InvalidUID:
+            if not sop_uid.is_valid:
                 continue
 
             self._scp_supported_sop.append(sop_uid)
@@ -763,9 +759,7 @@ class ApplicationEntity(object):
             else:
                 raise ValueError("Transfer syntax SOP class must be a "
                                  "UID str, UID bytes or UID.")
-            try:
-                sop_uid.is_valid()
-            except InvalidUID:
+            if not sop_uid.is_valid:
                 raise ValueError("Transfer syntax contained an "
                                  "invalid UID string")
 
