@@ -833,7 +833,8 @@ class Association(threading.Thread):
         RuntimeError
             If send_c_store is called with no established association.
         AttributeError
-            If `dataset` contains no (0008,0016) SOP Class UID element.
+            If `dataset` is missing (0008,0016) 'SOP Class UID' or
+            (0008,0018) 'SOP Instance UID' elements.
         ValueError
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the `dataset`.

@@ -11,7 +11,7 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 
 from pynetdicom3 import AE
-from pynetdicom3.dimse_primitives import C_ECHO, C_STORE, C_FIND
+from pynetdicom3.dimse_primitives import C_ECHO, C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import decode
 from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
                          DummyBaseSCP, DummyGetSCP, DummyMoveSCP)
@@ -461,7 +461,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.scp.stop()
 
     def test_callback_status_dataset_multi(self):
-        """Test on_c_store yielding a Dataset status with other elements"""
+        """Test on_c_find yielding a Dataset status with other elements"""
         self.scp = DummyFindSCP()
         self.scp.statuses = [Dataset()]
         self.scp.statuses[0].Status = 0xFF00
@@ -504,7 +504,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.scp.stop()
 
     def test_callback_status_unknown(self):
-        """Test SCP handles on_c_store yielding a unknown status"""
+        """Test SCP handles on_c_find yielding a unknown status"""
         self.scp = DummyFindSCP()
         self.scp.statuses = [0xFFF0]
         self.scp.start()
@@ -520,7 +520,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.scp.stop()
 
     def test_callback_status_invalid(self):
-        """Test SCP handles on_c_store yielding a invalid status"""
+        """Test SCP handles on_c_find yielding a invalid status"""
         self.scp = DummyFindSCP()
         self.scp.statuses = ['Failure']
         self.scp.start()
@@ -536,7 +536,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.scp.stop()
 
     def test_callback_status_none(self):
-        """Test SCP handles on_c_store not yielding a status"""
+        """Test SCP handles on_c_find not yielding a status"""
         self.scp = DummyFindSCP()
         self.scp.statuses = [None]
         self.scp.start()
@@ -552,7 +552,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.scp.stop()
 
     def test_callback_exception(self):
-        """Test SCP handles on_c_store yielding an exception"""
+        """Test SCP handles on_c_find yielding an exception"""
         self.scp = DummyFindSCP()
         def on_c_find(ds): raise ValueError
         self.scp.ae.on_c_find = on_c_find
@@ -766,13 +766,280 @@ class TestQRGetServiceClass(unittest.TestCase):
                 thread.abort()
                 thread.stop()
 
+    def test_bad_req_identifier(self):
+        """Test SCP handles a bad request identifier"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+
+        req = C_GET()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet.UID
+        req.Priority = 2
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        assoc.dimse.send_msg(req, 1)
+        result, _ = assoc.dimse.receive_msg(True)
+        self.assertEqual(result.Status, 0xC100)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_bad_subops(self):
+        """Test on_c_get yielding a bad no subops"""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 'test'
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC002)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_status_dataset(self):
+        """Test on_c_get yielding a Dataset status"""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_status_dataset_multi(self):
+        """Test on_c_get yielding a Dataset status with other elements"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [Dataset()]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.statuses[0].ErrorComment = 'Test'
+        self.scp.statuses[0].OffendingElement = 0x00010001
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(status.ErrorComment, 'Test')
+        self.assertEqual(status.OffendingElement, 0x00010001)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_status_int(self):
+        """Test on_c_get yielding an int status"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_status_unknown(self):
+        """Test SCP handles on_c_get yielding a unknown status"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [0xFFF0]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFFF0)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_status_invalid(self):
+        """Test SCP handles on_c_get yielding a invalid status"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = ['Failure']
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_status_none(self):
+        """Test SCP handles on_c_get not yielding a status"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_exception(self):
+        """Test SCP handles on_c_get yielding an exception"""
+        self.scp = DummyGetSCP()
+        def on_c_get(ds): raise ValueError
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC001)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_bad_dataset(self):
+        """Test SCP handles on_c_get not yielding a dataset"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [0xFF00, 0xFE00]
+        self.scp.datasets = [self.fail, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_store_callback_exception(self):
+        """Test SCP handles send_c_store raising an exception"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = [0xFF00, 0x0000]
+        self.scp.datasets = [self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
     def test_scp_basic(self):
         """Test on_c_get"""
         self.scp = DummyGetSCP()
         def on_c_store(ds):
             return 0x0000
-        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
-        self.scp.identifiers = [self.ds, self.fail, None]
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.identifiers = [self.ds, self.ds]
         self.scp.no_suboperations = 2
         self.scp.start()
 
@@ -785,12 +1052,12 @@ class TestQRGetServiceClass(unittest.TestCase):
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
         self.assertEqual(identifier, None)
-        status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
         self.assertEqual(identifier, None)
         status, identifier = next(result)
         self.assertEqual(status.Status, 0x0000)
         self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
 
         assoc.release()
         self.scp.stop()

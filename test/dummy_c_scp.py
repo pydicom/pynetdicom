@@ -186,7 +186,11 @@ class DummyGetSCP(DummyBaseSCP):
                      port=port)
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
-        self.identifiers = [None]
+        ds = Dataset()
+        ds.PatientName = 'Test'
+        ds.SOPClassUID = CTImageStorage.UID
+        ds.SOPInstanceUID = '1.2.3.4'
+        self.datasets = [ds]
         self.no_suboperations = 1
         self.cancel = False
 
@@ -198,8 +202,11 @@ class DummyGetSCP(DummyBaseSCP):
         ds.QueryRetrieveLevel = "PATIENT"
 
         yield self.no_suboperations
-        for (status, identifier) in zip(self.statuses, self.identifiers):
-            yield status, identifier
+        for (status, ds) in zip(self.statuses, self.datasets):
+            if self.cancel:
+                yield 0xFE00, None
+                return
+            yield status, ds
 
     def on_c_cancel_get(self):
         """Callback for ae.on_c_cancel_get"""

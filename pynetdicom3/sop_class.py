@@ -1087,11 +1087,13 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         # Number of C-STORE sub-operations
         try:
             no_suboperations = int(next(result))
-        except (StopIteration, TypeError):
+        except Exception as ex:
             LOGGER.error("'on_c_get' yielded an invalid number of "
                          "sub-operations value")
+            LOGGER.exception(ex)
             rsp.Status = 0xC002
             self.DIMSE.send_msg(rsp, self.pcid)
+            return
 
         # Track the sub operation results [remaining, failed, warning, complete]
         store_results = [no_suboperations, 0, 0, 0]
@@ -1105,6 +1107,12 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         # Iterate through the results
         # C-GET Pending responses are optional!
         for ii, (rsp_status, dataset) in enumerate(result):
+            # Check dataset is a Dataset or None
+            if not isinstance(dataset, (Dataset, type(None))):
+                rsp.Status = 0xC000
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+            
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
 
@@ -1171,13 +1179,14 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 # Send `dataset` via C-STORE sub-operations over the existing
                 #   association and check that the response's Status exists and
                 #   is a known value
-                #try:
-                store_status = self.ACSE.parent.send_c_store(dataset)
-                store_status = STORAGE_SERVICE_CLASS_STATUS[
-                    store_status.Status]
-                #except (RuntimeError, AttributeError, KeyError,
-                #        ValueError):
-                #    store_status = ['Failure', 'Unknown']
+                try:
+                    store_status = self.ACSE.parent.send_c_store(dataset)
+                    store_status = \
+                        STORAGE_SERVICE_CLASS_STATUS[store_status.Status]
+                except Exception as ex:
+                    # An exception implies a C-STORE failure
+                    LOGGER.warning("C-STORE sub-operation failed.")
+                    store_status = ['Failure', 'Unknown']
 
                 LOGGER.info('Get SCP: Received Store SCU response (%s)',
                             store_status[0])
