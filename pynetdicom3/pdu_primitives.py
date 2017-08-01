@@ -279,12 +279,9 @@ class A_ASSOCIATE(object):
             raise TypeError("application_context_name must be a " \
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("application_context_name is an invalid UID")
-                raise ValueError("application_context_name is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("application_context_name is an invalid UID")
+            raise ValueError("application_context_name is an invalid UID")
 
         self._application_context_name = value
 
@@ -1124,12 +1121,9 @@ class ImplementationClassUIDNotification(ServiceParameter):
             raise TypeError("Implementation Class UID must be a " \
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Implementation Class UID is an invalid UID")
-                raise ValueError("Implementation Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
 
         self._implementation_class_uid = value
 
@@ -1458,12 +1452,9 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
             raise TypeError("SOP Class UID must be a pydicom.uid.UID, str " \
                             "or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Implementation Class UID is an invalid UID")
-                raise ValueError("Implementation Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
 
@@ -1617,12 +1608,9 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             raise TypeError("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Implementation Class UID is an invalid UID")
-                raise ValueError("Implementation Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
 
@@ -1743,12 +1731,9 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             raise TypeError("SOP Class UID must be a pydicom.uid.UID, str " \
                     "or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Implementation Class UID is an invalid UID")
-                raise ValueError("Implementation Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
 
@@ -1786,12 +1771,9 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             raise TypeError("Service Class UID must be a pydicom.uid.UID, " \
                             "str or bytes")
 
-        if value is not None:
-            try:
-                value.is_valid()
-            except:
-                LOGGER.error("Implementation Class UID is an invalid UID")
-                raise ValueError("Implementation Class UID is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
 
         self._service_class_uid = value
 
@@ -1838,14 +1820,11 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                                     "Identification must be a list of " \
                                     "pydicom.uid.UID, str or bytes")
 
-                if uid is not None:
-                    try:
-                        uid.is_valid()
-                    except:
-                        LOGGER.error("Related General SOP Class " \
-                                     "Identification contains an invalid UID")
-                        raise ValueError("Related General SOP Class contains " \
-                                         "an invalid UID")
+                if uid is not None and not uid.is_valid:
+                    LOGGER.error("Related General SOP Class " \
+                                 "Identification contains an invalid UID")
+                    raise ValueError("Related General SOP Class contains " \
+                                     "an invalid UID")
 
                 valid_uid_list.append(uid)
 
