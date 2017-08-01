@@ -11,7 +11,7 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 
 from pynetdicom3 import AE
-from pynetdicom3.dimse_primitives import C_ECHO, C_STORE
+from pynetdicom3.dimse_primitives import C_ECHO, C_STORE, C_FIND
 from pynetdicom3.dsutils import decode
 from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
                          DummyBaseSCP, DummyGetSCP, DummyMoveSCP)
@@ -29,8 +29,8 @@ from pynetdicom3.sop_class import (uid_to_sop_class,
                                    PatientRootQueryRetrieveInformationModelMove)
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -417,9 +417,35 @@ class TestQRFindServiceClass(unittest.TestCase):
                 thread.abort()
                 thread.stop()
 
-    def test_scp_callback_return_dataset(self):
-        """Test on_c_find returning a Dataset status"""
+    def test_bad_req_identifier(self):
+        """Test SCP handles a bad request identifier"""
         self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.identifiers = [self.query]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+
+        req = C_FIND()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind.UID
+        req.Priority = 2
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        assoc.dimse.send_msg(req, 1)
+        result, _ = assoc.dimse.receive_msg(True)
+        self.assertEqual(result.Status, 0xC000)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_status_dataset(self):
+        """Test on_c_find yielding a Dataset status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.identifers = [self.query, None]
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
@@ -434,13 +460,14 @@ class TestQRFindServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_scp_callback_return_dataset_multi(self):
-        """Test on_c_store returning a Dataset status with other elements"""
+    def test_callback_status_dataset_multi(self):
+        """Test on_c_store yielding a Dataset status with other elements"""
         self.scp = DummyFindSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFF00
-        self.scp.status.ErrorComment = 'Test'
-        self.scp.status.OffendingElement = 0x00010001
+        self.scp.statuses = [Dataset()]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.statuses[0].ErrorComment = 'Test'
+        self.scp.statuses[0].OffendingElement = 0x00010001
+        self.scp.identifiers = [self.query]
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
@@ -457,10 +484,11 @@ class TestQRFindServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_scp_callback_return_int(self):
-        """Test on_c_find returning an int status"""
+    def test_callback_status_int(self):
+        """Test on_c_find yielding an int status"""
         self.scp = DummyFindSCP()
-        self.scp.status = 0xFF00
+        self.scp.statuses = [0xFF00]
+        self.scp.identifiers = [self.query]
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
@@ -475,10 +503,10 @@ class TestQRFindServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_scp_callback_return_invalid(self):
-        """Test on_c_store returning a invalid status"""
+    def test_callback_status_unknown(self):
+        """Test SCP handles on_c_store yielding a unknown status"""
         self.scp = DummyFindSCP()
-        self.scp.status = 0xFFF0
+        self.scp.statuses = [0xFFF0]
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
@@ -491,10 +519,10 @@ class TestQRFindServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_scp_callback_no_status(self):
-        """Test on_c_store not returning a status"""
+    def test_callback_status_invalid(self):
+        """Test SCP handles on_c_store yielding a invalid status"""
         self.scp = DummyFindSCP()
-        self.scp.status = None
+        self.scp.statuses = ['Failure']
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
@@ -502,13 +530,29 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC000)
+        self.assertEqual(status.Status, 0xC103)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
         self.scp.stop()
 
-    def test_scp_callback_exception(self):
-        """Test on_c_store raising an exception"""
+    def test_callback_status_none(self):
+        """Test SCP handles on_c_store not yielding a status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC103)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_exception(self):
+        """Test SCP handles on_c_store yielding an exception"""
         self.scp = DummyFindSCP()
         def on_c_find(ds): raise ValueError
         self.scp.ae.on_c_find = on_c_find
@@ -521,6 +565,174 @@ class TestQRFindServiceClass(unittest.TestCase):
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC001)
         self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_bad_identifier(self):
+        """Test SCP handles a bad callback identifier"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00, 0xFE00]
+        self.scp.identifiers = [None, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC005)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_pending_cancel(self):
+        """Test on_c_find yielding pending then cancel status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00, 0xFE00]
+        self.scp.identifiers = [self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFE00)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_pending_success(self):
+        """Test on_c_find yielding pending then success status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF01, 0x0000, 0xA700]
+        self.scp.identifiers = [self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF01)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_pending_failure(self):
+        """Test on_c_find yielding pending then failure status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00, 0xA700, 0x0000]
+        self.scp.identifiers = [self.query, None, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xA700)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_multi_pending_cancel(self):
+        """Test on_c_find yielding multiple pending then cancel status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00, 0xFF01, 0xFF00, 0xFE00, 0x0000]
+        self.scp.identifiers = [self.query, self.query, self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF01)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFE00)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_multi_pending_success(self):
+        """Test on_c_find yielding multiple pending then success status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00, 0xFF01, 0xFF00, 0x0000, 0xA700]
+        self.scp.identifiers = [self.query, self.query, self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF01)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_multi_pending_failure(self):
+        """Test on_c_find yielding multiple pending then failure status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0xFF00, 0xFF01, 0xFF00, 0xA700, 0x0000]
+        self.scp.identifiers = [self.query, self.query, self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF01)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, self.query)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xA700)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
         assoc.release()
         self.scp.stop()
 

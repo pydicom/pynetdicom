@@ -144,7 +144,7 @@ class ServiceClass(object):
         elif isinstance(status, int):
             rsp.Status = status
         else:
-            LOGGER.error("Invalid status returned by user callback.")
+            LOGGER.error("Invalid status returned by callback.")
             # Failure: Cannot Understand - callback didn't return
             #   a valid status type
             rsp.Status = 0xC103

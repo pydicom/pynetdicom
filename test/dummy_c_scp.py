@@ -147,11 +147,6 @@ class DummyStorageSCP(DummyBaseSCP):
 
 class DummyFindSCP(DummyBaseSCP):
     """A threaded dummy find SCP used for testing"""
-    success = 0x0000
-    pending = 0xFF00
-    bad_status = 0xFFFF
-    matching_terminated_cancel = 0xFE00
-    out_of_resources = 0xA700
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelFind,
                                     StudyRootQueryRetrieveInformationModelFind,
@@ -159,31 +154,21 @@ class DummyFindSCP(DummyBaseSCP):
                                     PatientStudyOnlyQueryRetrieveInformationModelFind],
                      port=port)
         DummyBaseSCP.__init__(self)
-        self.status = self.pending
+        self.statuses = [0x0000]
+        identifier = Dataset()
+        identifier.PatientName = 'Test'
+        self.identifiers = [identifier]
         self.cancel = False
 
     def on_c_find(self, ds):
         """Callback for ae.on_c_find"""
         time.sleep(self.delay)
-        ds = Dataset()
-        ds.PatientName = '*'
-        ds.QueryRetrieveLevel = "PATIENT"
 
-        if self.cancel:
-            yield 0xFE00, None
-
-        if isinstance(self.status, Dataset):
-            if self.status.Status in [0xFF00, 0xFF01]:
-                yield self.status, ds
-            else:
-                yield self.status, None
-        elif isinstance(self.status, int):
-            if self.status in [0xFF00, 0xFF01]:
-                yield self.status, ds
-            else:
-                yield self.status, None
-        else:
-            yield 0xC000, None
+        for status, identifier in zip(self.statuses, self.identifiers):
+            if self.cancel:
+                yield 0xFE00, None
+                return
+            yield status, identifier
 
     def on_c_cancel_find(self):
         """Callback for ae.on_c_cancel_find"""
