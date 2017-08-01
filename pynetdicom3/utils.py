@@ -7,7 +7,7 @@ from io import BytesIO
 import logging
 import unicodedata
 
-from pydicom.uid import UID, InvalidUID
+from pydicom.uid import UID
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
 
@@ -234,9 +234,7 @@ class PresentationContext(object):
 
         if transfer_syntax not in self.TransferSyntax and \
                                                     transfer_syntax != '':
-            try:
-                transfer_syntax.is_valid()
-            except InvalidUID:
+            if not  transfer_syntax.is_valid:
                 raise ValueError('Presentation Context attempted to add a '
                                  'invalid UID')
             # Issue #62: private transfer syntaxes may be used
@@ -323,12 +321,11 @@ class PresentationContext(object):
             raise TypeError("Presentation Context invalid type for abstract "
                             "syntax")
 
-        try:
-            uid.is_valid()
-            self._abstract_syntax = uid
-        except InvalidUID:
+        if not uid.is_valid:
             LOGGER.info('Presentation Context attempted to set an invalid '
                         'abstract syntax UID')
+        else:
+            self._abstract_syntax = uid
 
     @property
     def TransferSyntax(self):
@@ -360,9 +357,7 @@ class PresentationContext(object):
                 raise ValueError("PresentationContext(): Invalid transfer "
                                  "syntax item")
 
-            try:
-                uid.is_valid()
-            except InvalidUID:
+            if not uid.is_valid:
                 LOGGER.info('Presentation Context attempted to set an invalid '
                             'transfer syntax UID')
                 continue
