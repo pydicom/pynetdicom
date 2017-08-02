@@ -1404,6 +1404,10 @@ class Association(threading.Thread):
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
 
+            # Received a C-CANCEL request from the peer
+            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
+                pass
+
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request to the peer AE.
 
@@ -1659,6 +1663,10 @@ class Association(threading.Thread):
             # Received a C-STORE request from the peer
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
+
+            # Received a C-CANCEL request from the peer
+            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
+                pass
 
     def _c_store_scp(self, req):
         """A C-STORE SCP implementation.

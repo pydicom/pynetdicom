@@ -626,7 +626,8 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : none')
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
