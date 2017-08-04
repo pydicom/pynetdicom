@@ -364,8 +364,6 @@ class DIMSEMessage(object):
             # Add the fragment to the output
             fragments.append(bytestream[start:start + length])
             start += length
-
-        assert bytestream == ''.join(fragments)
         return fragments
 
     def primitive_to_message(self, primitive):
