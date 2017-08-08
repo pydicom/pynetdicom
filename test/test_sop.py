@@ -1739,7 +1739,441 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
+    def test_scp_basic(self):
+        """Test on_c_move"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.ds, self.ds]
+        self.scp.no_suboperations = 2
+        self.scp.start()
 
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_scp_store_failure(self):
+        """Test when on_c_store returns failure status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
+        self.scp.datasets = [self.ds, self.ds, None]
+        self.scp.no_suboperations = 2
+        self.scp.store_status = 0xC000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 2)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_scp_store_warning(self):
+        """Test when on_c_store returns warning status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
+        self.scp.datasets = [self.ds, self.ds, None]
+        self.scp.no_suboperations = 3
+        self.scp.store_status = 0xB000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 2)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_pending_success(self):
+        """Test when on_c_move returns success status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final warning status
+        self.scp.statuses = [0xFF00, 0xB000]
+        self.scp.datasets = [self.ds, None]
+        self.scp.no_suboperations = 1
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_pending_warning(self):
+        """Test when on_c_move returns warning status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0x0000]
+        self.scp.datasets = [self.ds, None]
+        self.scp.no_suboperations = 1
+        self.scp.store_status = 0xB000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 1)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_pending_failure(self):
+        """Test on_c_move returns warning status after store failure"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final warning status
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.no_suboperations = 1
+        self.scp.store_status = 0xC000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 1)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_multi_pending_success(self):
+        """Test on_c_move returns success status after multi store success"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final warning status
+        self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
+        self.scp.datasets = [self.ds, self.ds, self.ds, None]
+        self.scp.no_suboperations = 3
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 3)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_multi_pending_warning(self):
+        """Test on_c_move returns warning status after multi store warning"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final warning status
+        self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
+        self.scp.datasets = [self.ds, self.ds, self.ds, None]
+        self.scp.no_suboperations = 3
+        self.scp.store_status = 0xB000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 3)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1',
+                                                               '1.1.1',
+                                                               '1.1.1'])
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+        
+    def test_multi_pending_failure(self):
+        """Test on_c_move returns warning status after multi store failure"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final warning status
+        self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
+        self.scp.datasets = [self.ds, self.ds, self.ds, None]
+        self.scp.no_suboperations = 3
+        self.scp.store_status = 0xC000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 3)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1',
+                                                               '1.1.1',
+                                                               '1.1.1'])
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_failure(self):
+        """Test when on_c_move returns failure status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0xC000]
+        self.scp.datasets = [self.ds, self.fail]
+        self.scp.no_suboperations = 2
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 1)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_success(self):
+        """Test when on_c_move returns failure status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.no_suboperations = 1
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+        
+    def test_move_cancel(self):
+        """Test on_c_move returns cancel status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00, 0xFE00, 0x0000]
+        self.scp.datasets = [self.ds, self.fail, None]
+        self.scp.no_suboperations = 2
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFE00)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+        
+    def test_move_warning(self):
+        """Test on_c_move returns warning status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.no_suboperations = 1
+        self.scp.store_status = 0xB000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 0)
+        self.assertEqual(status.NumberOfWarningSuboperations, 1)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+        
+    def test_no_associate(self):
+        """Test when on_c_move returns failure status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.no_suboperations = 1
+        self.scp.destination_ae = ('localhost', 11113)
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xA801)
+        self.assertEqual(identifier, Dataset())
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+        
 
 class TestUIDtoSOPlass(unittest.TestCase):
     def test_missing_sop(self):
