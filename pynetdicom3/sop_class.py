@@ -735,7 +735,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             return
 
         try:
-            addr, port = next(result)
+            destination = next(result)
             no_suboperations = next(result)
         except StopIteration:
             LOGGER.exception("The on_c_move callback must yield the (address, "
@@ -747,32 +747,34 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Unknown Move Destination
-        if None in [addr, port]:
-            LOGGER.error('Unknown Move Destination: %s',
-                         msg.MoveDestination.decode('utf-8'))
-            # Failure - Move destination unknown
-            rsp.Status = 0xA801
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
-
         # Check number of C-STORE sub-operations
         try:
             no_suboperations = int(no_suboperations)
-        except TypeError:
+        except Exception as ex:
             LOGGER.error("'on_c_move' yielded an invalid number of "
                          "sub-operations value")
-            # Failure - Unable to process - Error in on_c_move yield
+            LOGGER.exception(ex)
             rsp.Status = 0xC002
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
         # Request new association with Move Destination
         try:
-            store_assoc = self.AE.associate(addr, port, msg.MoveDestination)
-        except TypeError:
+            # Unknown Move Destination
+            if None in destination:
+                LOGGER.error('Unknown Move Destination: %s',
+                             req.MoveDestination.decode('utf-8'))
+                # Failure - Move destination unknown
+                rsp.Status = 0xA801
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
+            
+            store_assoc = self.AE.associate(destination[0], destination[1],
+                                            req.MoveDestination)
+        except Exception as ex:
             LOGGER.error("'on_c_move' yielded an invalid destination AE (addr, "
                          "port) value")
+            LOGGER.exception(ex)
             # Failure - Unable to process - Bad on_c_move destination
             rsp.Status = 0xC002
             self.DIMSE.send_msg(rsp, self.pcid)
@@ -790,6 +792,20 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         if store_assoc.is_established:
             # Iterate through the remaining callback (status, dataset) yields
             for ii, (rsp_status, dataset) in enumerate(result):
+                # All sub-operations are complete
+                if store_results[0] <= 0:
+                    LOGGER.warning("'on_c_move' yielded further (status, "
+                                   "dataset) results but these will be "
+                                   "ignored as the sub-operations are "
+                                   "complete")
+                    break
+                
+                # Check dataset is a Dataset or None
+                if not isinstance(dataset, (Dataset, type(None))):
+                    rsp.Status = 0xC000
+                    self.DIMSE.send_msg(rsp, self.pcid)
+                    return
+                
                 # Validate rsp_status and set rsp.Status accordingly
                 rsp = self.validate_status(rsp_status, rsp)
 
@@ -852,13 +868,13 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     #   and is a known value
                     try:
                         # TODO: Consider adding the move originator
-                        store_status = assoc.send_c_store(dataset)
+                        store_status = store_assoc.send_c_store(dataset)
                         # FIXME: Should probably split status check?
                         store_status = STORAGE_SERVICE_CLASS_STATUS[
                             store_status.Status]
                     # FIXME: Why not catch all for the callback?
-                    except (RuntimeError, AttributeError, KeyError,
-                            ValueError):
+                    except Exception as ex:
+                        LOGGER.exception(ex)
                         store_status = ['Failure', 'Unknown']
 
                     LOGGER.info('Move SCP: Received Store SCU response (%s)',

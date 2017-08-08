@@ -11,18 +11,18 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom3 import AE, VerificationSOPClass
-from pynetdicom3.sop_class import CTImageStorage, MRImageStorage, \
-                                 RTImageStorage, \
-                                 PatientRootQueryRetrieveInformationModelFind, \
-                                 StudyRootQueryRetrieveInformationModelFind, \
-                                 ModalityWorklistInformationFind, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelFind, \
-                                 PatientRootQueryRetrieveInformationModelGet, \
-                                 StudyRootQueryRetrieveInformationModelGet, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelGet, \
-                                 PatientRootQueryRetrieveInformationModelMove, \
-                                 StudyRootQueryRetrieveInformationModelMove, \
-                                 PatientStudyOnlyQueryRetrieveInformationModelMove
+from pynetdicom3.sop_class import (
+    CTImageStorage, MRImageStorage, RTImageStorage,
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind,
+    ModalityWorklistInformationFind,
+    PatientStudyOnlyQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
+    PatientStudyOnlyQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelMove,
+    PatientStudyOnlyQueryRetrieveInformationModelMove)
 from pynetdicom3.status import code_to_category
 
 
@@ -215,19 +215,23 @@ class DummyGetSCP(DummyBaseSCP):
 
 class DummyMoveSCP(DummyBaseSCP):
     """A threaded dummy move SCP used for testing"""
-    success = 0x0000
-    pending = 0xFF00
-
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                     StudyRootQueryRetrieveInformationModelMove,
                                     PatientStudyOnlyQueryRetrieveInformationModelMove,
                                     RTImageStorage, CTImageStorage],
-                     scu_sop_class=[RTImageStorage,
-                                    CTImageStorage],
+                     scu_sop_class=[RTImageStorage, CTImageStorage],
                      port=port)
         DummyBaseSCP.__init__(self)
-        self.status = self.pending
+        self.statuses = [0x0000]
+        self.store_status = 0x0000
+        ds = Dataset()
+        ds.PatientName = 'Test'
+        ds.SOPClassUID = CTImageStorage.UID
+        ds.SOPInstanceUID = '1.2.3.4'
+        self.datasets = [ds]
+        self.no_suboperations = 1
+        self.destination_ae = ('localhost', 11112)
         self.cancel = False
 
     def on_c_move(self, ds, move_aet):
@@ -237,26 +241,17 @@ class DummyMoveSCP(DummyBaseSCP):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
 
-        # Check move_aet first
-        if move_aet != b'TESTMOVE        ':
-            yield 1
-            yield None, None
+        yield self.destination_ae
+        yield self.no_suboperations
+        for (status, ds) in zip(self.statuses, self.datasets):
+            if self.cancel:
+                yield 0xFE00, None
+                return
+            yield status, ds
 
-        if code_to_category(self.status) not in ['Pending', 'Warning']:
-            yield 1
-            yield 'localhost', 11113
-            yield self.status, None
+    def on_c_store(self, ds):
+        return self.store_status
 
-        if self.cancel:
-            yield 1
-            yield 'localhost', 11113
-            yield self.cancel, None
-
-        yield 2
-        yield 'localhost', 11113
-        for ii in range(2):
-            yield self.status, DATASET
-
-    def on_c_cancel_find(self):
+    def on_c_cancel_move(self):
         """Callback for ae.on_c_cancel_move"""
         self.cancel = True

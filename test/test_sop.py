@@ -933,7 +933,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC103)
-        self.assertEqual(identifier, Dataset())
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
         self.scp.stop()
@@ -954,7 +954,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC103)
-        self.assertEqual(identifier, Dataset())
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
         self.scp.stop()
@@ -1465,21 +1465,288 @@ class TestQRGetServiceClass(unittest.TestCase):
         
 
 class TestQRMoveServiceClass(unittest.TestCase):
-    def test_scp(self):
-        """Test SCP"""
-        pass
+    def setUp(self):
+        """Run prior to each test"""
+        self.query = Dataset()
+        self.query.PatientName = '*'
+        self.query.QueryRetrieveLevel = "PATIENT"
 
+        self.ds = Dataset()
+        self.ds.SOPClassUID = CTImageStorage().UID
+        self.ds.SOPInstanceUID = '1.1.1'
+        self.ds.PatientName = 'Test'
 
-class TestModalityWorklistServiceClass(unittest.TestCase):
-    def test_scp(self):
-        """Test SCP"""
-        pass
+        self.fail = Dataset()
+        self.fail.FailedSOPInstanceUIDList = ['1.2.3']
 
+        self.scp = None
 
-class TestRTMachineVerificationServiceClass(unittest.TestCase):
-    def test_scp(self):
-        """Test SCP"""
-        pass
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_bad_req_identifier(self):
+        """Test SCP handles a bad request identifier"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+
+        req = C_GET()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove.UID
+        req.Priority = 2
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        assoc.dimse.send_msg(req, 1)
+        result, _ = assoc.dimse.receive_msg(True)
+        self.assertEqual(result.Status, 0xC100)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_bad_subops(self):
+        """Test on_c_move yielding a bad no subops"""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 'test'
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC002)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_bad_aet(self):
+        """Test on_c_move yielding a bad move aet"""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.destination_ae = None
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC002)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_status_dataset(self):
+        """Test on_c_move yielding a Dataset status"""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_status_dataset_multi(self):
+        """Test on_c_move yielding a Dataset status with other elements"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [Dataset()]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.statuses[0].ErrorComment = 'Test'
+        self.scp.statuses[0].OffendingElement = 0x00010001
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(status.ErrorComment, 'Test')
+        self.assertEqual(status.OffendingElement, 0x00010001)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_status_int(self):
+        """Test on_c_move yielding an int status"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_status_unknown(self):
+        """Test SCP handles on_c_move yielding a unknown status"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFFF0]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFFF0)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_status_invalid(self):
+        """Test SCP handles on_c_move yielding a invalid status"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = ['Failure']
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_status_none(self):
+        """Test SCP handles on_c_move not yielding a status"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_exception(self):
+        """Test SCP handles on_c_move yielding an exception"""
+        self.scp = DummyMoveSCP()
+        def on_c_get(ds): raise ValueError
+        self.scp.ae.on_c_get = on_c_get
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC001)
+        self.assertEqual(identifier, Dataset())
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_bad_dataset(self):
+        """Test SCP handles on_c_move not yielding a valid dataset"""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00, 0x0000]
+        self.scp.datasets = [self.fail, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+        def on_c_store(ds):
+            return 0x0000
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
 
 
 class TestUIDtoSOPlass(unittest.TestCase):
