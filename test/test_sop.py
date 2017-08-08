@@ -1665,12 +1665,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-        def on_c_store(ds):
-            return 0x0000
-        ae.on_c_store = on_c_store
+
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC103)
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
@@ -1686,12 +1684,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-        def on_c_store(ds):
-            return 0x0000
-        ae.on_c_store = on_c_store
+
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC103)
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
@@ -1702,18 +1698,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
     def test_move_callback_exception(self):
         """Test SCP handles on_c_move yielding an exception"""
         self.scp = DummyMoveSCP()
-        def on_c_get(ds): raise ValueError
-        self.scp.ae.on_c_get = on_c_get
+        def on_c_move(ds, dest): raise ValueError
+        self.scp.ae.on_c_move = on_c_move
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-        def on_c_store(ds):
-            return 0x0000
-        ae.on_c_store = on_c_store
+
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC001)
         self.assertEqual(identifier, Dataset())
@@ -1730,12 +1724,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-        def on_c_store(ds):
-            return 0x0000
-        ae.on_c_store = on_c_store
+
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        result = assoc.send_c_move(self.query, b'TESTMOVE        ', query_model='P')
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
         self.assertEqual(identifier, None)

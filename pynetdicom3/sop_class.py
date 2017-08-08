@@ -799,54 +799,77 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                                    "ignored as the sub-operations are "
                                    "complete")
                     break
-                
-                # Check dataset is a Dataset or None
-                if not isinstance(dataset, (Dataset, type(None))):
-                    rsp.Status = 0xC000
-                    self.DIMSE.send_msg(rsp, self.pcid)
-                    return
-                
+
                 # Validate rsp_status and set rsp.Status accordingly
                 rsp = self.validate_status(rsp_status, rsp)
-
                 if rsp.Status in self.statuses:
                     status = self.statuses[rsp.Status]
                 else:
                     # Unknown status
+                    store_assoc.release()
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
-
-                if status[0] in ['Cancel', 'Failure', 'Warning']:
-                    store_assoc.release()
-
-                    # If the user supplies a Cancel, Failure or Warning response
-                    #   then they're responsible for a conformant Identifier
-                    #   dataset
-                    bytestream = encode(dataset,
-                                        self.transfersyntax.is_implicit_VR,
-                                        self.transfersyntax.is_little_endian)
-                    rsp.Identifier = BytesIO(bytestream)
-
-                    rsp.NumberOfRemainingSuboperations = store_results[0]
-                    rsp.NumberOfFailedSuboperations = store_results[1]
-                    rsp.NumberOfWarningSuboperations = store_results[2]
-                    rsp.NumberOfCompletedSuboperations = store_results[3]
 
                 # If usr_status is Cancel, Failure, Warning or Success then
                 #   generate a final response, if Pending then do C-STORE
                 #   sub-operation
                 if status[0] == 'Cancel':
                     LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
+                    store_assoc.release()
+
+                    ds = Dataset()
+                    ds.FailedSOPInstanceUIDList = failed_instances
+                    bytestream = encode(dataset,
+                                        self.transfersyntax.is_implicit_VR,
+                                        self.transfersyntax.is_little_endian)
+
+                    rsp.Identifier = BytesIO(bytestream)
+                    rsp.NumberOfRemainingSuboperations = store_results[0]
+                    rsp.NumberOfFailedSuboperations = store_results[1]
+                    rsp.NumberOfWarningSuboperations = store_results[2]
+                    rsp.NumberOfCompletedSuboperations = store_results[3]
+                    
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Failure':
                     LOGGER.info('Move SCP Result (Failure - %s)', status[1])
+                    store_assoc.release()
+
+                    ds = Dataset()
+                    ds.FailedSOPInstanceUIDList = failed_instances
+                    bytestream = encode(ds,
+                                        self.transfersyntax.is_implicit_VR,
+                                        self.transfersyntax.is_little_endian)
+
+                    rsp.Identifier = BytesIO(bytestream)
                     rsp.NumberOfRemainingSuboperations = None
+                    rsp.NumberOfFailedSuboperations = (
+                        store_results[1] + store_results[0]
+                    )
+                    rsp.NumberOfWarningSuboperations = store_results[2]
+                    rsp.NumberOfCompletedSuboperations = store_results[3]
+
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Success':
+                    # If the user yields Success, check it
+                    if store_results[1] or store_results[2]:
+                        LOGGER.info('Move SCP Response: (Warning)')
+
+                        ds = Dataset()
+                        ds.FailedSOPInstanceUIDList = failed_instances
+                        bytestream = encode(dataset,
+                                            self.transfersyntax.is_implicit_VR,
+                                            self.transfersyntax.is_little_endian)
+
+                        rsp.Identifier = BytesIO(bytestream)
+                        rsp.Status = 0xB000
+                    else:
+                        LOGGER.info('Move SCP Response: (Warning)')
+                        rsp.Identifier = None
+                        
                     store_assoc.release()
-                    LOGGER.info('Move SCP Result (Success)')
+
                     rsp.NumberOfRemainingSuboperations = None
                     rsp.NumberOfFailedSuboperations = store_results[1]
                     rsp.NumberOfWarningSuboperations = store_results[2]
@@ -856,12 +879,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Warning':
-                    LOGGER.info('Move SCP Result (Warning)')
-                    rsp.NumberOfRemainingSuboperations = None
-                    self.DIMSE.send_msg(rsp, self.pcid)
-                    return
+                    break
                 elif status[0] == 'Pending' and dataset:
                     LOGGER.info('Move SCP Response %s (Pending)', ii)
+
+                    if not isinstance(dataset, Dataset):
+                        rsp.Status = 0xC000
+                        self.DIMSE.send_msg(rsp, self.pcid)
+                        return
 
                     # Send `dataset` via C-STORE sub-operations over the
                     #   association and check that the response's Status exists
@@ -872,9 +897,9 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                         # FIXME: Should probably split status check?
                         store_status = STORAGE_SERVICE_CLASS_STATUS[
                             store_status.Status]
-                    # FIXME: Why not catch all for the callback?
                     except Exception as ex:
-                        LOGGER.exception(ex)
+                        # An exception implies a C-STORE failure
+                        LOGGER.warning("C-STORE sub-operation failed.")
                         store_status = ['Failure', 'Unknown']
 
                     LOGGER.info('Move SCP: Received Store SCU response (%s)',
