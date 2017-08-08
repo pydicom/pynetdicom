@@ -1729,7 +1729,7 @@ class Association(threading.Thread):
             LOGGER.exception(ex)
             rsp.Status = 0xC100
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, store_context)
+            self.dimse.send_msg(rsp, context_id)
             return
 
         #  Attempt to run the ApplicationEntity's on_c_store callback
@@ -1740,6 +1740,8 @@ class Association(threading.Thread):
                          "ApplicationEntity.on_c_store() callback")
             LOGGER.exception(ex)
             rsp.Status = 0xC101
+            self.dimse.send_msg(rsp, context_id)
+            return
 
         # Check the callback's returned status
         if isinstance(status, Dataset):
