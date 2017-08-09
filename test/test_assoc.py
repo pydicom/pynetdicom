@@ -42,8 +42,8 @@ from pynetdicom3.sop_class import (CTImageStorage, MRImageStorage,
                                    StudyRootQueryRetrieveInformationModelMove)
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -66,9 +66,21 @@ class TestAssociation(unittest.TestCase):
                      'Address' : 'localhost'}
         self.ext_neg = []
 
+        self.scp = None
+
     def tearDown(self):
         """This function runs after all test methods"""
         self.socket.close()
+
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
 
     def test_scp_assoc_a_abort_reply(self):
         """Test the SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
@@ -282,15 +294,16 @@ class TestAssociation(unittest.TestCase):
 
     def test_peer_aborts_assoc(self):
         """Test peer aborts assoc"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
-        scp.abort()
+        self.scp.abort()
+        time.sleep(0.1)
         self.assertFalse(assoc.is_established)
         self.assertTrue(assoc.is_aborted)
-        scp.stop() # Important!
+        self.scp.stop()
 
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""

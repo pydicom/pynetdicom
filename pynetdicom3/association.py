@@ -266,6 +266,9 @@ class Association(threading.Thread):
             self.kill()
             self.is_aborted = True
 
+        # Add short delay to ensure everything shuts down
+        time.sleep(0.1)
+
     def run(self):
         """The main Association control."""
         self.dul.start()
