@@ -163,7 +163,7 @@ class Association(threading.Thread):
         #   as an SCU?
         # Q. Why do we need to feed the DUL an ACSE timeout?
         # A. ARTIM timer
-        self.dul = DULServiceProvider(client_socket,
+        self.dul = DULServiceProvider(socket=client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 

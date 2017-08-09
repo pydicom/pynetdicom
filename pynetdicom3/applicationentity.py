@@ -346,7 +346,7 @@ class ApplicationEntity(object):
             # Create a new Association
             # Association(local_ae, local_socket=None, max_pdu=16382)
             assoc = Association(self,
-                                client_socket,
+                                client_socket=client_socket,
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
                                 dimse_timeout=self.dimse_timeout)

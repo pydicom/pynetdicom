@@ -2,6 +2,7 @@
 ACSE service provider
 """
 import logging
+import socket
 
 from pydicom.uid import UID
 
