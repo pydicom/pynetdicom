@@ -1103,10 +1103,8 @@ class Association(threading.Thread):
         # Get the responses from the peer
         ii = 1
         while True:
-            time.sleep(0.1)
-
             # Wait for C-FIND response
-            rsp, _ = self.dimse.receive_msg(wait=False)
+            rsp, _ = self.dimse.receive_msg(wait=True)
 
             # If no response received, start loop again
             if not rsp:

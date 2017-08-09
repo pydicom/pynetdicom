@@ -127,9 +127,6 @@ class DummyVerificationSCP(DummyBaseSCP):
 
 class DummyStorageSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
-    bad_status = 0xFFFF
-    success = 0x0000
-
     def __init__(self, port=11112):
         self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                     StudyRootQueryRetrieveInformationModelMove,
@@ -137,7 +134,7 @@ class DummyStorageSCP(DummyBaseSCP):
                                     CTImageStorage,
                                     RTImageStorage, MRImageStorage], port=port)
         DummyBaseSCP.__init__(self)
-        self.status = self.success
+        self.status = 0x0000
 
     def on_c_store(self, ds):
         """Callback for ae.on_c_store"""

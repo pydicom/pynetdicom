@@ -620,14 +620,15 @@ class DIMSEServiceProvider(object):
         if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
+        affected_sop = getattr(cs, 'AffectedSOPClassUID', 'None')
+
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+        s.append('Affected SOP Class UID        : {0!s}'.format(affected_sop))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 

@@ -52,14 +52,6 @@ class TestAEVerificationSCP(unittest.TestCase):
                 thread.abort()
                 thread.stop()
     
-    def test_bad_start(self):
-        """Test bad startup"""
-        self.scp = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(ValueError):
-            self.scp.start()
-
-        self.scp.stop()
-
     # Causing thread exiting issues
     @unittest.skip('Causes threading issues')
     def test_stop_scp_keyboard(self):
@@ -108,7 +100,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        with patch.object(scp.ae, 'on_c_echo') as mock:
+        with patch.object(self.scp.ae, 'on_c_echo') as mock:
             assoc.send_c_echo()
             self.assertTrue(mock.called)
         assoc.release()
@@ -123,7 +115,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         ae = AE(scu_sop_class=[RTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        with patch.object(scp.ae, 'on_c_store') as mock:
+        with patch.object(self.scp.ae, 'on_c_store') as mock:
             mock.return_value = 0x0000
             assoc.send_c_store(DATASET)
             self.assertTrue(mock.called)
@@ -134,7 +126,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_c_find_called(self):
         """ Check that SCP AE.on_c_find(dataset) was called """
         self.scp = DummyFindSCP()
-        self.scp.status = self.scp.success
+        self.scp.status = 0x0000
         self.scp.start()
 
         ds = Dataset()
@@ -144,7 +136,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(ds, query_model='P'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         assoc.release()
 
         self.scp.stop()
@@ -161,7 +153,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(ds, query_model='P'):
-            self.assertEqual(int(status), 0x0000)
+            self.assertEqual(status.Status, 0x0000)
         assoc.release()
 
         self.scp.stop()
@@ -349,8 +341,8 @@ class TestAEGoodAssociation(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112, max_pdu=12345)
-        self.assertTrue(scp.ae.active_associations[0].local_max_pdu == 54321)
-        self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 12345)
+        self.assertTrue(self.scp.ae.active_associations[0].local_max_pdu == 54321)
+        self.assertTrue(self.scp.ae.active_associations[0].peer_max_pdu == 12345)
         self.assertTrue(assoc.local_max_pdu == 12345)
         self.assertTrue(assoc.peer_max_pdu == 54321)
         assoc.release()
@@ -358,7 +350,7 @@ class TestAEGoodAssociation(unittest.TestCase):
         # Check 0 max pdu value
         assoc = ae.associate('localhost', 11112, max_pdu=0)
         self.assertTrue(assoc.local_max_pdu == 0)
-        self.assertTrue(scp.ae.active_associations[0].peer_max_pdu == 0)
+        self.assertTrue(self.scp.ae.active_associations[0].peer_max_pdu == 0)
         assoc.release()
 
         self.scp.stop()
@@ -374,8 +366,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         ae.acse_timeout = 0
         ae.dimse_timeout = 0
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(scp.ae.active_associations[0].acse_timeout == 0)
-        self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 0)
+        self.assertTrue(self.scp.ae.active_associations[0].acse_timeout == 0)
+        self.assertTrue(self.scp.ae.active_associations[0].dimse_timeout == 0)
         self.assertTrue(assoc.acse_timeout == 0)
         self.assertTrue(assoc.dimse_timeout == 0)
         assoc.release()
@@ -386,8 +378,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         ae.dimse_timeout = 32
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(scp.ae.active_associations[0].acse_timeout == 21)
-        self.assertTrue(scp.ae.active_associations[0].dimse_timeout == 22)
+        self.assertTrue(self.scp.ae.active_associations[0].acse_timeout == 21)
+        self.assertTrue(self.scp.ae.active_associations[0].dimse_timeout == 22)
         self.assertTrue(assoc.acse_timeout == 31)
         self.assertTrue(assoc.dimse_timeout == 32)
         assoc.release()
