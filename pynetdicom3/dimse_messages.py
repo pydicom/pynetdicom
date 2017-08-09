@@ -366,12 +366,12 @@ class DIMSEMessage(object):
         fragment_length -= 6
 
         fragments = []
-        while bytestream:
+        start = 0
+        while start < len(bytestream):
+            length = min(fragment_length, len(bytestream) - start)
             # Add the fragment to the output
-            fragments.append(bytestream[:fragment_length])
-            # Remove the added fragment from the bytestream
-            bytestream = bytestream[fragment_length:]
-
+            fragments.append(bytestream[start:start + length])
+            start += length
         return fragments
 
     def primitive_to_message(self, primitive):
