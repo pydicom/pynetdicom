@@ -296,7 +296,7 @@ class TestStorageServiceClass(unittest.TestCase):
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)
         rsp, _ = assoc.dimse.receive_msg(True)
-    
+
         self.assertEqual(rsp.Status, 0xC100)
         self.assertEqual(rsp.ErrorComment, 'Unable to decode the dataset')
         assoc.release()
@@ -400,8 +400,8 @@ class TestQRFindServiceClass(unittest.TestCase):
     def setUp(self):
         """Run prior to each test"""
         self.query = Dataset()
-        self.query.PatientName = '*'
         self.query.QueryRetrieveLevel = "PATIENT"
+        self.query.PatientName = '*'
 
         self.scp = None
 
@@ -1299,7 +1299,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_multi_pending_failure(self):
         """Test on_c_get returns warning status after multi store failure"""
         self.scp = DummyGetSCP()
@@ -1400,7 +1400,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_get_cancel(self):
         """Test on_c_get returns cancel status"""
         self.scp = DummyGetSCP()
@@ -1431,7 +1431,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_get_warning(self):
         """Test on_c_get returns warning status"""
         self.scp = DummyGetSCP()
@@ -1462,7 +1462,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
 
 class TestQRMoveServiceClass(unittest.TestCase):
     def setUp(self):
@@ -1994,7 +1994,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_multi_pending_failure(self):
         """Test on_c_move returns warning status after multi store failure"""
         self.scp = DummyMoveSCP()
@@ -2090,7 +2090,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_move_cancel(self):
         """Test on_c_move returns cancel status"""
         self.scp = DummyMoveSCP()
@@ -2119,7 +2119,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_move_warning(self):
         """Test on_c_move returns warning status"""
         self.scp = DummyMoveSCP()
@@ -2149,7 +2149,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
     def test_no_associate(self):
         """Test when on_c_move returns failure status"""
         self.scp = DummyMoveSCP()
@@ -2173,7 +2173,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-        
+
 
 class TestUIDtoSOPlass(unittest.TestCase):
     def test_missing_sop(self):
