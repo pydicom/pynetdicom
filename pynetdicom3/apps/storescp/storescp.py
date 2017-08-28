@@ -48,6 +48,10 @@ def _setup_argparser():
     req_opts.add_argument("port",
                           help="TCP/IP port number to listen on",
                           type=int)
+    req_opts.add_argument("--bind_addr",
+                          help="The IP address of the network interface to "
+                          "listen on. If unset, listen on all interfaces.",
+                          default='')
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
@@ -281,6 +285,7 @@ scp_classes.append(VerificationSOPClass)
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
+        bind_addr=args.bind_addr,
         scu_sop_class=[],
         scp_sop_class=scp_classes,
         transfer_syntax=transfer_syntax)
