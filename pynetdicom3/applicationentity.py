@@ -142,36 +142,12 @@ class ApplicationEntity(object):
         The SOP Classes supported when acting as an SCP (SCP only)
     transfer_syntaxes : List of pydicom.uid.UID
         The supported transfer syntaxes
-    # ######### SSL/TLS Parameters ############################ #
-    # For more information please visit:                        #
-    # Python2.7: https://docs.python.org/2.7/library/ssl.html   #
-    # Python3: https://docs.python.org/3/library/ssl.html       #
-    # ######################################################### #
+    """
 
-    certfile : File path
-        The certificate file for SSL/TLS communication over DICOM
-    keyfile : File path
-        The key file for SSL/TLS communication over DICOM
-    cert_verify: ssl.CERT_NONE or ssl.CERT_OPTIONAL or ssl.CERT_REQUIRED
-        Specifies whether a certificate is required from the other side of the
-        connection, and whether it will be validated if provided.
-        If the value of this parameter is not CERT_NONE, then the ca_certs
-        parameter must point to a file of CA certificates.
-    cacerts: File path
-        File contains a set of concatenated "certification authority"
-        certificates, which are used to validate certificates passed
-        from the other end of the connection.
-    version: tls (for sslv2 and sslv3 support), tlsv1, tlsv1_1, tlsv1_2
-        Specifies which version of the SSL protocol to use. Typically,
-        the server chooses a particular protocol version, and the client must
-        adapt to the server's choice
-        """
+
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
-                 scp_sop_class=None, transfer_syntax=None,
-                 certfile=None, keyfile=None,
-                 cacerts='/etc/ssl/certs/ca-certificates.crt',
-                 cert_verify=True, version='sslv23'):
+                 scp_sop_class=None, transfer_syntax=None):
         """Create a new Application Entity.
 
         Parameters
@@ -197,6 +173,7 @@ class ApplicationEntity(object):
         self.address = platform.node()
         self.port = port
         self.ae_title = ae_title
+        self.has_ssl = False
 
         # Avoid dangerous default values
         if transfer_syntax is None:
@@ -215,49 +192,6 @@ class ApplicationEntity(object):
         # The transfer syntax(es) available to the AE
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
-
-        self.has_ssl = False
-        self.certfile = None
-        self.keyfile = None
-        self.cert_verify = None
-        self.cacerts = None
-        self.ssl_version = None
-        # Check if ssl parameters are complete
-        if (certfile and keyfile):
-            if not os.path.exists(certfile):
-               raise OSError(2, 'No such certificate file', certfile)
-            if not os.path.exists(keyfile):
-               raise OSError(2, 'No such private key file', keyfile)
-            self.certfile = certfile
-            self.keyfile = keyfile
-            self.has_ssl = True
-            if cert_verify:
-                if not cacerts:
-                    raise RuntimeError("Please provide certification authority"
-                                       " certificates file for validation")
-            self.cacerts = cacerts
-            self.cert_verify = ssl.CERT_REQUIRED if cert_verify else ssl.CERT_NONE
-
-            ssl_versions = {
-                    'sslv23': ssl.PROTOCOL_SSLv23,
-                    'tlsv1': ssl.PROTOCOL_TLSv1,
-                    'tlsv1_1': ssl.PROTOCOL_TLSv1_1,
-                    'tlsv1_2': ssl.PROTOCOL_TLSv1_2,
-            }
-            if version in ssl_versions:
-                self.ssl_version = ssl_versions[version]
-            else:
-                raise RuntimeError("The SSL/TLS version you specified is not "
-                                   "currently supported.\nPlease provide one "
-                                   "of %s." % ssl_versions.keys())
-
-            LOGGER.debug('DICOM communication over ' + version)
-        elif certfile or keyfile:
-            raise RuntimeError("In order to use SSL/TLS communication you "
-                               "need to provide both certfile and keyfile")
-        else:
-            LOGGER.debug('DICOM communication without SSL/TLS')
-
 
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
@@ -420,6 +354,9 @@ class ApplicationEntity(object):
                                                     ssl_version=self.ssl_version)
                 except Exception as e:
                     LOGGER.error(str(e))
+                    client_socket.close()
+                    return
+                    
             client_socket.setsockopt(socket.SOL_SOCKET,
                                      socket.SO_RCVTIMEO,
                                      pack('ll', 10, 0))
@@ -523,6 +460,80 @@ class ApplicationEntity(object):
             self.active_associations.append(assoc)
 
         return assoc
+
+    def add_ssl(self, certfile=None, keyfile=None,
+                cacerts='/etc/ssl/certs/ca-certificates.crt',
+                cert_verify=True, version='sslv23'):
+        """Add SSL/TLS layer to DICOM communication.
+        # ######### SSL/TLS Parameters ############################ #
+        # For more information please visit:                        #
+        # Python2.7: https://docs.python.org/2.7/library/ssl.html   #
+        # Python3: https://docs.python.org/3/library/ssl.html       #
+        # ######################################################### #
+
+
+        Parameters
+        ----------
+        certfile : File path
+            The certificate file for SSL/TLS communication over DICOM
+        keyfile : File path
+            The key file for SSL/TLS communication over DICOM
+        cert_verify: ssl.CERT_NONE or ssl.CERT_OPTIONAL or ssl.CERT_REQUIRED
+            Specifies whether a certificate is required from the other side of the
+            connection, and whether it will be validated if provided.
+            If the value of this parameter is not CERT_NONE, then the ca_certs
+            parameter must point to a file of CA certificates.
+        cacerts: File path
+            File contains a set of concatenated "certification authority"
+            certificates, which are used to validate certificates passed
+            from the other end of the connection.
+        version: tls (for sslv2 and sslv3 support), tlsv1, tlsv1_1, tlsv1_2
+            Specifies which version of the SSL protocol to use. Typically,
+            the server chooses a particular protocol version, and the client must
+            adapt to the server's choice
+        """
+
+        self.certfile = None
+        self.keyfile = None
+        self.cert_verify = None
+        self.cacerts = None
+        self.ssl_version = None
+        # Check if ssl parameters are complete
+        if (certfile and keyfile):
+            if not os.path.exists(certfile):
+                raise OSError(2, 'No such certificate file', certfile)
+            if not os.path.exists(keyfile):
+                raise OSError(2, 'No such private key file', keyfile)
+            self.certfile = certfile
+            self.keyfile = keyfile
+            self.has_ssl = True
+            if cert_verify:
+                if not cacerts:
+                    raise RuntimeError("Please provide certification authority"
+                                       " certificates file for validation")
+            self.cacerts = cacerts
+            self.cert_verify = ssl.CERT_REQUIRED if cert_verify else ssl.CERT_NONE
+
+            ssl_versions = {
+                    'sslv23': ssl.PROTOCOL_SSLv23,
+                    'tlsv1': ssl.PROTOCOL_TLSv1,
+                    'tlsv1_1': ssl.PROTOCOL_TLSv1_1,
+                    'tlsv1_2': ssl.PROTOCOL_TLSv1_2,
+            }
+            if version in ssl_versions:
+                self.ssl_version = ssl_versions[version]
+            else:
+                raise RuntimeError("The SSL/TLS version you specified is not "
+                                   "currently supported.\nPlease provide one "
+                                   "of %s." % ssl_versions.keys())
+
+            LOGGER.debug('DICOM communication over ' + version)
+        elif certfile or keyfile:
+            raise RuntimeError("In order to use SSL/TLS communication you "
+                               "need to provide both certfile and keyfile")
+        else:
+            LOGGER.debug('DICOM communication without SSL/TLS')
+
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """

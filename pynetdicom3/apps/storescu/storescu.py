@@ -84,6 +84,26 @@ def _setup_argparser():
                           type=str,
                           default='ANY-SCP')
 
+    # SSL/TLS Options
+    ssl_opts = parser.add_argument_group('SSL/TLS Options')
+    ssl_opts.add_argument("-cert", "--cert-file", metavar='[p]ath',
+                          help="set the file path of the certificate file",
+                          type=str)
+    ssl_opts.add_argument("-key", "--key-file", metavar='[p]ath',
+                          help="set the file path of the private key file",
+                          type=str)
+    ssl_opts.add_argument("-validation", "--cert-validation",
+                          help="set the file path of the private key file",
+                          action="store_true")
+    ssl_opts.add_argument("-version", "--ssl-version", metavar='[p]ath',
+                          help="set the file path of the private key file",
+                          type=str,
+                          choices=['sslv23', 'tlsv1', 'tlsv1_1', 'tlsv1_2'])
+    ssl_opts.add_argument("-cacerts", "--cacerts-file", metavar='[p]ath',
+                          help="set the file path of the certificates"
+                               " authority file",
+                          type=str)
+
     # Transfer Syntaxes
     ts_opts = parser.add_mutually_exclusive_group()
     ts_opts.add_argument("-xe", "--request-little",
@@ -140,12 +160,23 @@ elif args.request_big:
 elif args.request_implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
+# Check SSL/TLS options
+sslargs = dict()
+sslargs['certfile'] = args.cert_file
+sslargs['keyfile'] = args.key_file
+sslargs['cert_verify'] = args.cert_validation
+if args.cacerts_file:
+    sslargs['cacerts'] = args.cacerts_file
+if args.ssl_version:
+    sslargs['version'] = args.ssl_version
+
 # Bind to port 0, OS will pick an available port
 ae = AE(ae_title=args.calling_aet,
         port=0,
         scu_sop_class=StorageSOPClassList,
         scp_sop_class=[],
         transfer_syntax=transfer_syntax)
+ae.add_ssl(**sslargs)
 
 # Request association with remote
 assoc = ae.associate(args.peer, args.port, args.called_aet)

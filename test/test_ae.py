@@ -655,27 +655,20 @@ class TestAEGoodInitialisation(unittest.TestCase):
         """Check if ssl params given are enough"""
         # SSL param are None if no params given
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        self.assertFalse(ae.has_ssl)
-        self.assertIsNone(ae.certfile)
-        self.assertIsNone(ae.keyfile)
-        self.assertIsNone(ae.cert_verify)
-        self.assertIsNone(ae.cacerts)
-        self.assertIsNone(ae.ssl_version)
 
         # Check valid certificate and key files
         certfile_path = 'lala'
         keyfile_path = 'lala'
         with self.assertRaises(OSError):
-            ae = AE(scu_sop_class=[VerificationSOPClass],
-                    certfile=certfile_path, keyfile=keyfile_path)
+            ae.add_ssl(certfile=certfile_path, keyfile=keyfile_path)
 
         # Check param values if only certfile and keyfile are given
         open('certfile', 'a').close()
         open('keyfile', 'a').close()
         certfile_path = 'certfile'
         keyfile_path = 'keyfile'
-        ae = AE(scu_sop_class=[VerificationSOPClass],
-                certfile=certfile_path, keyfile=keyfile_path)
+        ae.add_ssl(certfile=certfile_path, keyfile=keyfile_path)
+
         self.assertTrue(ae.has_ssl)
         self.assertEqual(certfile_path, ae.certfile)
         self.assertEqual(keyfile_path, ae.keyfile)
@@ -686,9 +679,9 @@ class TestAEGoodInitialisation(unittest.TestCase):
         # Check param values if all params specified
         open('cacerts', 'a').close()
         cacerts_path = 'cacerts'
-        ae = AE(scu_sop_class=[VerificationSOPClass],
-                certfile=certfile_path, keyfile=keyfile_path,
-                cacerts=cacerts_path, cert_verify=True, version='tlsv1_1')
+        ae.add_ssl(certfile=certfile_path, keyfile=keyfile_path,
+                   cacerts=cacerts_path, cert_verify=True, version='tlsv1_1')
+
         self.assertTrue(ae.has_ssl)
         self.assertEqual(certfile_path, ae.certfile)
         self.assertEqual(keyfile_path, ae.keyfile)
@@ -698,27 +691,20 @@ class TestAEGoodInitialisation(unittest.TestCase):
 
         # Check wrong ssl/tls version
         with self.assertRaises(RuntimeError):
-            ae = AE(scu_sop_class=[VerificationSOPClass],
-                    certfile=certfile_path, keyfile=keyfile_path,
-                    version='sslv1')
+            ae.add_ssl(certfile=certfile_path, keyfile=keyfile_path,
+                       version='sslv1')
 
         # Check no cacerts provided with validation
         with self.assertRaises(RuntimeError):
-            ae = AE(scu_sop_class=[VerificationSOPClass],
-                    certfile=certfile_path, keyfile=keyfile_path,
-                    cacerts=None)
+            ae.add_ssl(certfile=certfile_path, keyfile=keyfile_path,
+                       cacerts=None)
 
         # Check if either certfile or keyfile are provided 
         with self.assertRaises(RuntimeError):
-            ae = AE(scu_sop_class=[VerificationSOPClass],
-                    certfile=certfile_path)
+            ae.add_ssl(certfile=certfile_path)
         with self.assertRaises(RuntimeError):
-            ae = AE(scu_sop_class=[VerificationSOPClass],
-                    keyfile=keyfile_path)
+            ae.add_ssl(keyfile=keyfile_path)
 
-        os.remove('certfile')
-        os.remove('keyfile')
-        os.remove('cacerts')
 
 
 class TestAEBadInitialisation(unittest.TestCase):

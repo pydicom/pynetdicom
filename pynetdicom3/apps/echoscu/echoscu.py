@@ -110,6 +110,26 @@ def _setup_argparser():
                           help="abort association instead of releasing it",
                           action="store_true")
 
+    # SSL/TLS Options
+    ssl_opts = parser.add_argument_group('SSL/TLS Options')
+    ssl_opts.add_argument("-cert", "--cert-file", metavar='[p]ath',
+                          help="set the file path of the certificate file",
+                          type=str)
+    ssl_opts.add_argument("-key", "--key-file", metavar='[p]ath',
+                          help="set the file path of the private key file",
+                          type=str)
+    ssl_opts.add_argument("-validation", "--cert-validation",
+                          help="set the file path of the private key file",
+                          action="store_true")
+    ssl_opts.add_argument("-version", "--ssl-version", metavar='[p]ath',
+                          help="set the file path of the private key file",
+                          type=str,
+                          choices=['sslv23', 'tlsv1', 'tlsv1_1', 'tlsv1_2'])
+    ssl_opts.add_argument("-cacerts", "--cacerts-file", metavar='[p]ath',
+                          help="set the file path of the certificates"
+                               " authority file",
+                          type=str)
+
     # TLS Options
     """
     tls_opts = parser.add_argument_group('Transport Layer Security (TLS) Options')
@@ -250,6 +270,16 @@ if args.version:
 LOGGER.debug('echoscu.py v%s %s', VERSION, '2017-02-04')
 LOGGER.debug('')
 
+# Check SSL/TLS options
+sslargs = dict()
+sslargs['certfile'] = args.cert_file
+sslargs['keyfile'] = args.key_file
+sslargs['cert_verify'] = args.cert_validation
+if args.cacerts_file:
+    sslargs['cacerts'] = args.cacerts_file
+if args.ssl_version:
+    sslargs['version'] = args.ssl_version
+
 
 # Create local AE
 # Binding to port 0, OS will pick an available port
@@ -258,6 +288,7 @@ ae = AE(ae_title=args.calling_aet,
         scu_sop_class=[VerificationSOPClass],
         scp_sop_class=[],
         transfer_syntax=transfer_syntaxes)
+ae.add_ssl(**sslargs)
 
 # Set timeouts
 ae.network_timeout = args.timeout
