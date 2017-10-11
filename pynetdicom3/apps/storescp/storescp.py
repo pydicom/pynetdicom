@@ -63,15 +63,6 @@ def _setup_argparser():
     gen_opts.add_argument("-d", "--debug",
                           help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
-                          help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)",
-                          type=str,
-                          choices=['fatal', 'error', 'warn',
-                                   'info', 'debug', 'trace'])
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
-                          help="use config file f for the logger",
-                          type=str)
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
