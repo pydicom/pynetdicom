@@ -1420,12 +1420,20 @@ class NCreateSetServiceClass(ServiceClass):
         msg : pynetdicom3.dimse_primitives.N_CREATE/N_SET
             The request primitive sent by the peer
         """
-        # Build appropriate response primitive
+        # Determine type
         if isinstance(msg, N_CREATE):
+            is_create = True
+        elif isinstance(msg, N_SET):
+            is_create = False
+        else:
+            raise ValueError("bad message type.")
+
+        # Build appropriate response primitive
+        if is_create:
             rsp = N_CREATE()
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
             rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
-        elif isinstance(msg, N_SET):
+        else:
             rsp = N_SET()
             rsp.RequestedSOPClassUID = msg.RequestedSOPClassUID
             rsp.RequestedSOPInstanceUID = msg.RequestedSOPInstanceUID
@@ -1433,10 +1441,7 @@ class NCreateSetServiceClass(ServiceClass):
         rsp = self.validate_status(0x0000, rsp)
 
         # Decode the dataset
-        if isinstance(msg, N_CREATE):
-            encoded_dataset = msg.AttributeList
-        elif isinstance(msg, N_SET):
-            encoded_dataset = msg.ModificationList
+        encoded_dataset = msg.AttributeList if is_create else msg.ModificationList
         try:
             dataset = decode(encoded_dataset,
                              self.transfersyntax.is_implicit_VR,
@@ -1453,9 +1458,9 @@ class NCreateSetServiceClass(ServiceClass):
 
         # Try and run the user on_n_create/set callback
         try:
-            if isinstance(msg, N_CREATE):
+            if is_create:
                 self.AE.on_n_create(dataset)
-            elif isinstance(msg, N_SET):
+            else:
                 self.AE.on_n_set(dataset)
         except:
             LOGGER.exception("Exception in the AE.on_n_create/set() callback")
