@@ -458,10 +458,13 @@ class DIMSEMessage(object):
         elif cls_type_name == 'N_EVENT_REPORT_RSP':
             self.data_set = primitive.EventReply
             self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name in ['N_GET_RSP', 'N_SET_RSP',
-                               'N_CREATE_RQ', 'N_CREATE_RSP']:
+        elif cls_type_name == 'N_CREATE_RQ':
             self.data_set = primitive.AttributeList
             self.command_set.CommandDataSetType = 0x0001
+        elif cls_type_name in ['N_GET_RSP', 'N_SET_RSP', 'N_CREATE_RSP']:
+            if primitive.AttributeList:
+                self.data_set = primitive.AttributeList
+                self.command_set.CommandDataSetType = 0x0001
         elif cls_type_name == 'N_SET_RQ':
             self.data_set = primitive.ModificationList
             self.command_set.CommandDataSetType = 0x0001
