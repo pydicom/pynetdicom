@@ -455,15 +455,20 @@ class Association(threading.Thread):
 
             # DIMSE message received
             if msg:
-                # Use the Message's Affected SOP Class UID to create a new
-                #   SOP Class instance, if there's no AffectedSOPClassUID
-                #   then we received a C-CANCEL request
-                # FIXME
-                if not hasattr(msg, 'AffectedSOPClassUID'):
+                # Use the Message's Affected SOP Class UID, or conversely
+                # Requested SOP Class UID, to create a new SOP Class instance.
+                # If there's no AffectedSOPClassUID then we received a C-CANCEL
+                # request.
+                if hasattr(msg, 'AffectedSOPClassUID') and msg.AffectedSOPClassUID:
+                    sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
+                elif hasattr(msg, 'RequestedSOPClassUID') and msg.RequestedSOPClassUID:
+                    sop_class = uid_to_sop_class(msg.RequestedSOPClassUID)()
+                else:
                     self.abort()
                     return
 
-                sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
+                # TODO: check that whether we have AffectedSOPClassUID or
+                # RequestedSOPClassUID matches the action.
 
                 # Check that the SOP Class is supported by the AE
                 # New method

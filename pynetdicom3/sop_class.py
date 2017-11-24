@@ -1423,11 +1423,13 @@ class NCreateSetServiceClass(ServiceClass):
         # Build appropriate response primitive
         if isinstance(msg, N_CREATE):
             rsp = N_CREATE()
+            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+            rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         elif isinstance(msg, N_SET):
             rsp = N_SET()
+            rsp.RequestedSOPClassUID = msg.RequestedSOPClassUID
+            rsp.RequestedSOPInstanceUID = msg.RequestedSOPInstanceUID
         rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-        rsp.AffectedSOPInstanceUID = msg.AffectedSOPClassUID
         rsp = self.validate_status(0x0000, rsp)
 
         # Try and run the user on_c_echo callback
