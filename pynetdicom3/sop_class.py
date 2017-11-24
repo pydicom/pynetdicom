@@ -11,11 +11,14 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom3.dsutils import decode, encode
-from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
+from pynetdicom3.dimse_primitives import (
+    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND, N_CREATE, N_SET
+)
 from pynetdicom3.status import (
     VERIFICATION_SERVICE_CLASS_STATUS, STORAGE_SERVICE_CLASS_STATUS,
     QR_FIND_SERVICE_CLASS_STATUS, QR_MOVE_SERVICE_CLASS_STATUS,
-    QR_GET_SERVICE_CLASS_STATUS, MODALITY_WORKLIST_SERVICE_CLASS_STATUS
+    QR_GET_SERVICE_CLASS_STATUS, MODALITY_WORKLIST_SERVICE_CLASS_STATUS,
+    GENERAL_STATUS
 )
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
@@ -1401,6 +1404,44 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
             rsp.Status = int(self.Success)
             self.DIMSE.send_msg(rsp, self.pcid)
 
+class NCreateSetServiceClass(ServiceClass):
+    """Represents classes supporting N-CREATE and N-SET
+    """
+    statuses = GENERAL_STATUS
+
+    def SCP(self, msg):
+        """
+        When the local AE is acting as an SCP for the VerificationSOPClass
+        and a C-ECHO request is received then create a C-ECHO response
+        primitive and send it to the peer AE via the DIMSE provider
+
+        Parameters
+        ----------
+        msg : pynetdicom3.dimse_primitives.N_CREATE/N_SET
+            The request primitive sent by the peer
+        """
+        # Build appropriate response primitive
+        if isinstance(msg, N_CREATE):
+            rsp = N_CREATE()
+        elif isinstance(msg, N_SET):
+            rsp = N_SET()
+        rsp.MessageIDBeingRespondedTo = msg.MessageID
+        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
+        rsp.AffectedSOPInstanceUID = msg.AffectedSOPClassUID
+        rsp = self.validate_status(0x0000, rsp)
+
+        # Try and run the user on_c_echo callback
+        try:
+            if isinstance(msg, N_CREATE):
+                self.AE.on_n_create()
+            elif isinstance(msg, N_SET):
+                self.AE.on_n_set()
+        except:
+            LOGGER.exception("Exception in the AE.on_n_create/set() callback")
+
+        # Send primitive
+        self.DIMSE.send_msg(rsp, self.pcid)
+
 
 # Generate the various SOP classes
 _VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}
@@ -1537,12 +1578,15 @@ _QR_GET_CLASSES = {'PatientRootQueryRetrieveInformationModelGet'      : '1.2.840
                    'StudyRootQueryRetrieveInformationModelGet'        : '1.2.840.10008.5.1.4.1.2.2.3',
                    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'}
 
+_N_CREATE_SET_CLASSES = {'ModalityPerformedProcedureStepSOPClass'          : '1.2.840.10008.3.1.2.3.3'}
+
 # pylint: enable=line-too-long
 _generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
 _generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
 _generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
 _generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
 _generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
+_generate_service_sop_classes(_N_CREATE_SET_CLASSES, NCreateSetServiceClass)
 
 # pylint: disable=no-member
 STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
