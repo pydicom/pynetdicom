@@ -1257,12 +1257,67 @@ class ApplicationEntity(object):
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
-    def on_n_set(self):
+    def on_n_set(self, dataset):
         """Callback for when a N-SET is received.
+
+        Must be defined by the user prior to calling AE.start() and must return
+        either an int or a pydicom Dataset containing a (0000,0900) Status
+        element with a valid N-SET status value.
+
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a N-SET request and prior to sending the
+        response.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Modality Performed Procedure Step SOP Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Success
+
+        Failure
+
+        - 0x0117 - Invalid SOP instance
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - FIXME: add all of them
+
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset
+            The DICOM dataset sent by the peer in the N-SET request.
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the N-SET response. Must be
+            a valid N-SET status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in the
+            DICOM Standard Part 7, Annex C).
+
+        Raises
+        ------
+        NotImplementedError
+            If the callback has not been implemented by the user
+
+        See Also
+        --------
+        association.Association.send_n_set
+        dimse_primitives.N_SET
+        sop_class.ModalityPerformedProcedureStepSOPClass
 
         References
         ----------
-        DICOM Standard Part 4, Annexes F, H, CC and DD
+        DICOM Standard Part 4, Annexes F.7, H, CC and DD
+        DICOM Standard Part 7, Section 10.1.3
         """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_set function prior to calling "
@@ -1279,12 +1334,67 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self):
+    def on_n_create(self, dataset):
         """Callback for when a N-CREATE is received.
+
+        Must be defined by the user prior to calling AE.start() and must return
+        either an int or a pydicom Dataset containing a (0000,0900) Status
+        element with a valid N-CREATE status value.
+
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a N-CREATE request and prior to sending the
+        response.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Modality Performed Procedure Step SOP Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Success
+
+        Failure
+
+        - 0x0117 - Invalid SOP instance
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - FIXME: add all of them
+
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset
+            The DICOM dataset sent by the peer in the N-CREATE request.
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the N-CREATE response. Must be
+            a valid N-CREATE status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in the
+            DICOM Standard Part 7, Annex C).
+
+        Raises
+        ------
+        NotImplementedError
+            If the callback has not been implemented by the user
+
+        See Also
+        --------
+        association.Association.send_n_create
+        dimse_primitives.N_CREATE
+        sop_class.ModalityPerformedProcedureStepSOPClass
 
         References
         ----------
-        DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
+        DICOM Standard Part 4, Annexes F.7, H, R, S, CC and DD
+        DICOM Standard Part 7, Section 10.1.5
         """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_create function prior to calling "

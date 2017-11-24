@@ -1432,12 +1432,31 @@ class NCreateSetServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp = self.validate_status(0x0000, rsp)
 
-        # Try and run the user on_c_echo callback
+        # Decode the dataset
+        if isinstance(msg, N_CREATE):
+            encoded_dataset = msg.AttributeList
+        elif isinstance(msg, N_SET):
+            encoded_dataset = msg.ModificationList
+        try:
+            dataset = decode(encoded_dataset,
+                             self.transfersyntax.is_implicit_VR,
+                             self.transfersyntax.is_little_endian)
+        except:
+            import traceback
+            LOGGER.error("Failed to decode the received dataset:")
+            LOGGER.error(traceback.format_exc())
+            # Failure: Processing Failure - a general failure in processing
+            #   the operation was encountered.
+            rsp = self.validate_status(0x0110, rsp)
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
+
+        # Try and run the user on_n_create/set callback
         try:
             if isinstance(msg, N_CREATE):
-                self.AE.on_n_create()
+                self.AE.on_n_create(dataset)
             elif isinstance(msg, N_SET):
-                self.AE.on_n_set()
+                self.AE.on_n_set(dataset)
         except:
             LOGGER.exception("Exception in the AE.on_n_create/set() callback")
 
