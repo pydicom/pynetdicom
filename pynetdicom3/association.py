@@ -255,8 +255,7 @@ class Association(threading.Thread):
         """Kill the main association thread loop."""
         self._kill = True
         self.is_established = False
-        while not self.dul.stop_dul():
-            time.sleep(0.001)
+        self.dul.kill_dul()
 
         self.ae.cleanup_associations()
 
@@ -493,75 +492,86 @@ class Association(threading.Thread):
         while not self._kill:
             time.sleep(0.001)
 
-            # Check with the DIMSE provider for incoming messages
-            #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.receive_msg(wait=False)
+            try:
 
-            # DIMSE message received
-            if msg:
-                # Use the Message's Affected SOP Class UID to create a new
-                #   SOP Class instance, if there's no AffectedSOPClassUID
-                #   then we received a C-CANCEL request
-                # FIXME
-                if not hasattr(msg, 'AffectedSOPClassUID'):
+                # Check with the DIMSE provider for incoming messages
+                #   all messages should be a DIMSEMessage subclass
+                msg, msg_context_id = self.dimse.receive_msg(wait=False)
+
+                # DIMSE message received
+                if msg:
+                    # Use the Message's Affected SOP Class UID to create a new
+                    #   SOP Class instance, if there's no AffectedSOPClassUID
+                    #   then we received a C-CANCEL request
+                    # FIXME
+                    if not hasattr(msg, 'AffectedSOPClassUID'):
+                        self.abort()
+                        return
+
+                    sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
+
+                    # Check that the SOP Class is supported by the AE
+                    # New method
+                    pc_accepted = self.acse.accepted_contexts
+                    context = [
+                        pc for pc in pc_accepted if pc.context_id == msg_context_id
+                    ]
+
+                    # Matching context
+                    if context:
+                        sop_class.presentation_context = context[0]
+                    else:
+                        # No matching presentation context
+                        pass
+
+                    # Old method
+                    # TODO: Index contexts in a dict using context ID
+                    for context in self.acse.accepted_contexts:
+                        if context.context_id == msg_context_id:
+                            sop_class.maxpdulength = self.peer_max_pdu
+                            sop_class.DIMSE = self.dimse
+                            sop_class.ACSE = self.acse
+                            sop_class.AE = self.ae
+
+                            # Run SOPClass in SCP mode
+                            sop_class.SCP(msg, context, info)
+                            break
+                    else:
+                        LOGGER.info("Received message with invalid or rejected "
+                                    "context ID %d", msg_context_id)
+                        LOGGER.debug("%s", msg)
+
+                # Check for release request
+                if self.acse.CheckRelease():
+                    # Callback trigger
+                    self.debug_association_released()
+                    self.ae.on_association_released()
+                    self.kill()
+
+                # Check for abort
+                if self.acse.CheckAbort():
+                    # Callback trigger
+                    self.debug_association_aborted()
+                    self.ae.on_association_aborted(None)
+                    self.kill()
+
+                # Check if the DULServiceProvider thread is still running
+                #   DUL.is_alive() is inherited from threading.thread
+                if not self.dul.is_alive():
+                    self.kill()
+
+                # Check if idle timer has expired
+                if self.dul.idle_timer_expired():
                     self.abort()
-                    return
 
-                sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
+            except Exception as err:
+                # Can't deal with this state, try to kill
+                self.dul.kill_dul()
+                self._kill = True
+                self.is_established = False
 
-                # Check that the SOP Class is supported by the AE
-                # New method
-                pc_accepted = self.acse.accepted_contexts
-                context = [
-                    pc for pc in pc_accepted if pc.context_id == msg_context_id
-                ]
+                self.ae.on_association_error(err)
 
-                # Matching context
-                if context:
-                    sop_class.presentation_context = context[0]
-                else:
-                    # No matching presentation context
-                    pass
-
-                # Old method
-                # TODO: Index contexts in a dict using context ID
-                for context in self.acse.accepted_contexts:
-                    if context.context_id == msg_context_id:
-                        sop_class.maxpdulength = self.peer_max_pdu
-                        sop_class.DIMSE = self.dimse
-                        sop_class.ACSE = self.acse
-                        sop_class.AE = self.ae
-
-                        # Run SOPClass in SCP mode
-                        sop_class.SCP(msg, context, info)
-                        break
-                else:
-                    LOGGER.info("Received message with invalid or rejected "
-                                "context ID %d", msg_context_id)
-                    LOGGER.debug("%s", msg)
-
-            # Check for release request
-            if self.acse.CheckRelease():
-                # Callback trigger
-                self.debug_association_released()
-                self.ae.on_association_released()
-                self.kill()
-
-            # Check for abort
-            if self.acse.CheckAbort():
-                # Callback trigger
-                self.debug_association_aborted()
-                self.ae.on_association_aborted(None)
-                self.kill()
-
-            # Check if the DULServiceProvider thread is still running
-            #   DUL.is_alive() is inherited from threading.thread
-            if not self.dul.is_alive():
-                self.kill()
-
-            # Check if idle timer has expired
-            if self.dul.idle_timer_expired():
-                self.abort()
 
     def _run_as_requestor(self):
         """Run as the Association Requestor."""

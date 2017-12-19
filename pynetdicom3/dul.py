@@ -172,6 +172,24 @@ class DULServiceProvider(Thread):
         """Immediately interrupts the thread"""
         self._kill_thread = True
 
+        if self.scp_socket is not None:
+            try:
+                self.scp_socket.close()
+                self.scp_socket = None
+            except:
+                LOGGER.exception('Can''t close SCP socket')
+
+        if self.scu_socket is not None:
+            try:
+                self.scu_socket.close()
+                self.scu_socket = None
+            except:
+                LOGGER.exception('Can''t close SCU socket')
+
+        # Release blocking get waiting for item
+        self.to_user_queue.put('')
+        self.event_queue.put('Evt17')
+
     def on_receive_pdu(self):
         """Called after the first byte of an incoming PDU is read.
         """
@@ -206,6 +224,10 @@ class DULServiceProvider(Thread):
         None
             If the queue is empty
         """
+
+        if not self.is_alive():
+            raise BaseException('DUL is not alive')
+
         try:
             # Remove and return an item from the queue
             #   If block is True and timeout is None then block until an item
@@ -252,7 +274,7 @@ class DULServiceProvider(Thread):
 
             except:
                 # FIXME: This catch all should be removed
-                self._kill_thread = True
+                self.kill_dul()
                 raise
 
             # Check the event queue to see if there is anything to do
@@ -272,6 +294,10 @@ class DULServiceProvider(Thread):
         params -
             The parameters to put on FromServiceUser [FIXME]
         """
+
+        if not self.is_alive():
+            raise BaseException('DUL is not alive')
+
         self.to_provider_queue.put(params)
 
     def stop_dul(self):
@@ -310,7 +336,7 @@ class DULServiceProvider(Thread):
             self.scu_socket.close()
             self.scu_socket = None
             LOGGER.error('DUL: Error reading data from the socket')
-            return
+            raise BaseException('Error reading data from the socket')
 
         # Remote port has been closed
         if bytestream == bytes():
@@ -318,7 +344,7 @@ class DULServiceProvider(Thread):
             self.scu_socket.close()
             self.scu_socket = None
             LOGGER.error('Peer has closed transport connection')
-            return
+            raise BaseException('Peer has closed transport connection')
 
         # Incoming data is OK
         else:

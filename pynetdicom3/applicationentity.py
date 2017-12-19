@@ -370,6 +370,12 @@ class ApplicationEntity(object):
         by checking to see if the association thread is still alive. Separated
         out from start() to enable better unit testing
         """
+
+        # Prevent persisted socket
+        deads = [assoc for assoc in self.active_associations if not assoc.is_alive()]
+        for dead_assoc in deads:
+            dead_assoc.dul.kill_dul()
+
         # We can use threading.enumerate() to list all alive threads
         #   assoc.is_alive() is inherited from threading.thread
         self.active_associations = \
@@ -1510,4 +1516,8 @@ class ApplicationEntity(object):
     def on_association_aborted(self, primitive=None):
         """Callback for when an association is aborted."""
         # FIXME: Need to standardise callback parameters for A-ABORT
+        pass
+
+    def on_association_error(self, exception, primitive=None):
+        """Callback for when an association process throw exception."""
         pass
