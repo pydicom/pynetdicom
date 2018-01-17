@@ -381,7 +381,6 @@ class ApplicationEntity(object):
     def quit(self):
         """Stop the SCP."""
         self.stop()
-        sys.exit(0)
 
     def associate(self, addr, port, ae_title='ANY-SCP',
                   max_pdu=16382, ext_neg=None):
