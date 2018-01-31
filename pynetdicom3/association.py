@@ -39,6 +39,8 @@ from pynetdicom3.utils import PresentationContextManager
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
+class NoAcceptedPresentationContext(Exception):
+    pass
 
 class Association(threading.Thread):
     """Manages Associations with peer AEs.
@@ -678,7 +680,7 @@ class Association(threading.Thread):
 
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'", uid)
-            return None
+            raise NoAcceptedPresentationContext()
 
         # Build C-STORE request primitive
         primitive = C_ECHO()
@@ -845,7 +847,7 @@ class Association(threading.Thread):
                          dataset.SOPClassUID)
             LOGGER.error("Store SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            return service_class.CannotUnderstand
+            raise NoAcceptedPresentationContext()
 
         # Build C-STORE request primitive
         primitive = C_STORE()
@@ -959,8 +961,7 @@ class Association(threading.Thread):
                          sop_class.UID)
             LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            raise NoAcceptedPresentationContext()
 
         # Build C-FIND primitive
         primitive = C_FIND()
@@ -1111,8 +1112,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context\n   for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            raise NoAcceptedPresentationContext()
 
         # Build C-MOVE primitive
         primitive = C_MOVE()
@@ -1267,8 +1267,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            raise NoAcceptedPresentationContext()
 
 
         # Build C-GET primitive
