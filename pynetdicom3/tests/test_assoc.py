@@ -1240,7 +1240,7 @@ class TestAssociationSendCFind(unittest.TestCase):
         """Test bad dataset returned by on_c_find"""
         self.scp = DummyFindSCP()
 
-        def on_c_find(ds):
+        def on_c_find(ds, sop_class):
             def test(): pass
             yield 0xFF00, test
 

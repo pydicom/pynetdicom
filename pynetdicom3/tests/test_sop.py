@@ -591,7 +591,7 @@ class TestQRFindServiceClass(unittest.TestCase):
     def test_callback_exception(self):
         """Test SCP handles on_c_find yielding an exception"""
         self.scp = DummyFindSCP()
-        def on_c_find(ds): raise ValueError
+        def on_c_find(ds, sop_class): raise ValueError
         self.scp.ae.on_c_find = on_c_find
         self.scp.start()
 

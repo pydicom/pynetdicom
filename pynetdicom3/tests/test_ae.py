@@ -201,7 +201,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_find(None)
+            ae.on_c_find(None, None)
 
     def test_on_c_find_cancel(self):
         """Test default callback raises exception"""

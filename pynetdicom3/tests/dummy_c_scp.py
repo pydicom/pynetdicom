@@ -78,7 +78,7 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_store"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_c_find(self, ds):
+    def on_c_find(self, ds, sopclass):
         """Callback for ae.on_c_find"""
         raise RuntimeError("You should not have been able to get here.")
 
@@ -161,7 +161,7 @@ class DummyFindSCP(DummyBaseSCP):
         self.identifiers = [identifier]
         self.cancel = False
 
-    def on_c_find(self, ds):
+    def on_c_find(self, ds, sop_class):
         """Callback for ae.on_c_find"""
         time.sleep(self.delay)
 

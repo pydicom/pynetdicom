@@ -499,7 +499,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         def wrap_on_c_find():
             try:
                 # We unpack here so that the error is still caught
-                for val1, val2 in self.AE.on_c_find(identifier):
+                for val1, val2 in self.AE.on_c_find(identifier, self):
                     yield val1, val2
             except Exception:
                 # TODO: special (singleton) value

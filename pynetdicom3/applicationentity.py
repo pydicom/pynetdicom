@@ -945,7 +945,7 @@ class ApplicationEntity(object):
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
-    def on_c_find(self, dataset):
+    def on_c_find(self, dataset, sop_class):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -990,6 +990,9 @@ class ApplicationEntity(object):
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-FIND
             request.
+
+        sop_class : sop_class.ServiceClass (subclass)
+            The DICOM SOPClass requested for this C-FIND command.
 
         Yields
         ------
