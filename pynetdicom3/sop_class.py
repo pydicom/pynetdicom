@@ -1459,13 +1459,18 @@ class NCreateSetServiceClass(ServiceClass):
         # Try and run the user on_n_create/set callback
         try:
             if is_create:
-                self.AE.on_n_create(dataset)
+                status = self.AE.on_n_create(dataset)
             else:
-                self.AE.on_n_set(dataset)
+                status = self.AE.on_n_set(dataset)
         except:
             LOGGER.exception("Exception in the AE.on_n_create/set() callback")
+            # Failure: Processing Failure - a general failure in processing
+            #   the operation was encountered.
+            rsp = self.validate_status(0x0110, rsp)
+            self.DIMSE.send_msg(rsp, self.pcid)
+            return
 
-        # Send primitive
+        rsp = self.validate_status(status, rsp)
         self.DIMSE.send_msg(rsp, self.pcid)
 
 
