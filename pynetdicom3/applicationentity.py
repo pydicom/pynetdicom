@@ -1257,7 +1257,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
-    def on_n_set(self, dataset):
+    def on_n_set(self, dataset, sop_class, sop_instance_uid):
         """Callback for when a N-SET is received.
 
         Must be defined by the user prior to calling AE.start() and must return
@@ -1292,6 +1292,14 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent by the peer in the N-SET request.
+
+        sop_class : sop_class.ServiceClass subclass. This is the SOP-class
+            which handled the message and called us, contains information
+            about the assocation, s.a. the remote AET and the current Abstract
+            Context.
+
+        sop_instance_uid : the SOPInstanceUID the request referred to, i.e the
+            one that should be updated by this N-SET command.
 
         Returns
         -------
@@ -1334,7 +1342,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self, dataset):
+    def on_n_create(self, dataset, sop_class, sop_instance_uid):
         """Callback for when a N-CREATE is received.
 
         Must be defined by the user prior to calling AE.start() and must return
@@ -1379,6 +1387,14 @@ class ApplicationEntity(object):
             (0000,0900) 'Status' element. If returning a Dataset object then it
             may also contain optional elements related to the Status (as in the
             DICOM Standard Part 7, Annex C).
+
+        sop_class : sop_class.ServiceClass subclass. This is the SOP-class
+            which handled the message and called us, contains information
+            about the assocation, s.a. the remote AET and the current Abstract
+            Context.
+
+        sop_instance_uid : the SOPInstanceUID the request referred to, i.e the
+            one that should be created by this N-CREATE command.
 
         Raises
         ------

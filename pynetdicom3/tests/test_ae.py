@@ -249,7 +249,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_set(None)
+            ae.on_n_set(None, None, None)
 
     def test_on_n_action(self):
         """Test default callback raises exception"""
@@ -261,7 +261,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_create(None)
+            ae.on_n_create(None, None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""

@@ -1432,11 +1432,11 @@ class NCreateSetServiceClass(ServiceClass):
         if is_create:
             rsp = N_CREATE()
             rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-            rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
+            sop_instance_uid = rsp.AffectedSOPInstanceUID = msg.AffectedSOPInstanceUID
         else:
             rsp = N_SET()
             rsp.RequestedSOPClassUID = msg.RequestedSOPClassUID
-            rsp.RequestedSOPInstanceUID = msg.RequestedSOPInstanceUID
+            sop_instance_uid = rsp.RequestedSOPInstanceUID = msg.RequestedSOPInstanceUID
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp = self.validate_status(0x0000, rsp)
 
@@ -1459,9 +1459,9 @@ class NCreateSetServiceClass(ServiceClass):
         # Try and run the user on_n_create/set callback
         try:
             if is_create:
-                status = self.AE.on_n_create(dataset)
+                status = self.AE.on_n_create(dataset, self, sop_instance_uid)
             else:
-                status = self.AE.on_n_set(dataset)
+                status = self.AE.on_n_set(dataset, self, sop_instance_uid)
         except:
             LOGGER.exception("Exception in the AE.on_n_create/set() callback")
             # Failure: Processing Failure - a general failure in processing
