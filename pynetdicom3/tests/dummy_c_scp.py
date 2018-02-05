@@ -223,6 +223,7 @@ class DummyMoveSCP(DummyBaseSCP):
                                     RTImageStorage, CTImageStorage],
                      scu_sop_class=[RTImageStorage, CTImageStorage],
                      port=port)
+        self.ae.maximum_associations = 4  # Some tests are too quick otherwise!
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
         self.store_status = 0x0000

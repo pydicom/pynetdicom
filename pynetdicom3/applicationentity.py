@@ -250,15 +250,12 @@ class ApplicationEntity(object):
         no_loops = 0
         while True:
             try:
-                # #60: Required so we don't max out the CPU
-                time.sleep(0.5)
-
                 if self._quit:
                     break
 
                 # Monitor client_socket for association requests and
                 #   appends any associations to self.active_associations
-                self._monitor_socket()
+                self._monitor_socket(timeout=1.0)
 
                 # Delete dead associations
                 self.cleanup_associations()
@@ -326,7 +323,7 @@ class ApplicationEntity(object):
                                    "included")
                     break
 
-    def _monitor_socket(self):
+    def _monitor_socket(self, timeout=1.0):
         """Monitor the local socket for connections.
 
         AE.start(): Monitors the local socket to see if anyone tries to connect
@@ -335,7 +332,7 @@ class ApplicationEntity(object):
         """
         # FIXME: this needs to be dealt with properly
         try:
-            read_list, _, _ = select.select([self.local_socket], [], [], 0)
+            read_list, _, _ = select.select([self.local_socket], [], [], timeout)
         except (socket.error, ValueError):
             return
 
