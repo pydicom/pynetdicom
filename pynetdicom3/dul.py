@@ -46,9 +46,6 @@ class DULServiceProvider(Thread):
         Queue of primitives from the DUL service to be processed by the DUL user
     event_queue : queue.Queue
         List of queued events to be processed by the state machine
-    scp_socket : socket.socket()
-        If the local AE is acting as an SCP, this is the connection from the
-        peer AE to the SCP
     scu_socket : socket.socket()
         If the local AE is acting as an SCU, this is the connection from the
         local AE to the peer AE SCP
@@ -56,24 +53,18 @@ class DULServiceProvider(Thread):
         The DICOM Upper Layer's State Machine
     """
 
-    def __init__(self, socket=None, port=None, dul_timeout=None, assoc=None):
+    def __init__(self, socket=None, dul_timeout=None, assoc=None):
         """
         Parameters
         ----------
         socket : socket.socket, optional
             The local AE's listen socket
-        port : int, optional
-            The port number on which to wait for incoming connections
         dul_timeout : float, optional
             The maximum amount of time to wait for connection responses
             (in seconds)
         assoc : pynetdicom3.association.Association
             The DUL's current Association
         """
-        if socket and port:
-            raise ValueError("DULServiceProvider can't be instantiated with "
-                             "both socket and port parameters")
-
         # The association thread
         self.assoc = assoc
 
@@ -114,34 +105,8 @@ class DULServiceProvider(Thread):
             self.event_queue.put('Evt5')
             self.scu_socket = socket
             self.peer_address = None
-            self.scp_socket = None
-        elif port:
-            # A port number has been given, so the local AE is acting as an
-            #   SCU. Create a new socket using the given port number
-            self.scp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.scp_socket.setsockopt(socket.SOL_SOCKET,
-                                       socket.SO_REUSEADDR,
-                                       1)
-
-            # The port number for the local AE to listen on
-            self.local_port = port
-            if self.local_port:
-                try:
-                    local_address = os.popen('hostname').read()[:-1]
-                    self.scp_socket.bind((local_address, self.local_port))
-                except Exception as ex:
-                    LOGGER.exception(ex)
-
-                self.scp_socket.listen(1)
-
-            else:
-                self.scp_socket = None
-
-            self.scu_socket = None
-            self.peer_address = None
         else:
             # No port nor socket
-            self.scp_socket = None
             self.scu_socket = None
             self.peer_address = None
 
@@ -432,19 +397,7 @@ class DULServiceProvider(Thread):
         # If the local AE is an SCP, listen for incoming data
         # The local AE is in Sta1, i.e. listening for Transport Connection
         #   Indications
-        if self.scp_socket and not self.scu_socket:
-            read_list, _, _ = select.select([self.scp_socket], [], [], 0)
-
-            # If theres incoming connection request, accept it
-            if read_list:
-                self.scu_socket, _ = self.scp_socket.accept()
-
-                # Add to event queue (Sta1 + Evt5 -> AE-5 -> Sta2
-                self.event_queue.put('Evt5')
-                return True
-
-        # If a local AE is an SCU, listen for incoming data
-        elif self.scu_socket:
+        if self.scu_socket:
             # If we are awaiting transport connection opening to complete
             #   (from local transport service) then issue the corresponding
             #   indication (Sta4 + Evt2 -> AE-2 -> Sta5)
