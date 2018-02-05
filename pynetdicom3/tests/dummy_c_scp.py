@@ -59,6 +59,8 @@ class DummyBaseSCP(threading.Thread):
     def stop(self):
         """Stop the SCP thread"""
         self.ae.stop()
+        self.join(timeout=5.0)
+        assert not self.isAlive(), "Timed-out on stopping SCP."
 
     def abort(self):
         """Abort any associations"""

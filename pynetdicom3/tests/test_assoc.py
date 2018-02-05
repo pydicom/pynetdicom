@@ -344,6 +344,8 @@ class TestAssociation(unittest.TestCase):
         self.assertFalse(assoc.is_established)
 
         scp.stop()
+        scp.join(timeout=5.0)
+        assert not scp.isAlive(), "Timed-out on stopping SCP."
 
     def test_scp_assoc_ap_abort_reply(self):
         """Test the SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
@@ -406,6 +408,8 @@ class TestAssociation(unittest.TestCase):
         self.assertFalse(assoc.is_established)
 
         scp.stop()
+        scp.join(timeout=5.0)
+        assert not scp.isAlive(), "Timed-out on stopping SCP."
 
     @staticmethod
     def test_bad_connection():
