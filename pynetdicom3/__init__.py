@@ -10,7 +10,7 @@ pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.' + '.'.join(version)
 import logging
 
 from pynetdicom3.applicationentity import ApplicationEntity as AE
-from pynetdicom3.association import Association
+from pynetdicom3.association import Association, NoAcceptedPresentationContext
 from pynetdicom3.acse import ACSEServiceProvider as ACSE
 from pynetdicom3.dimse import DIMSEServiceProvider as DIMSE
 from pynetdicom3.dul import DULServiceProvider as DUL
