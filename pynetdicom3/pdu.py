@@ -797,7 +797,8 @@ class A_ASSOCIATE_AC(PDU):
         bytestring : bytes
             The encoded PDU that will be sent to the peer AE
         """
-        LOGGER.debug('Constructing Associate AC PDU')
+        if self.presentation_context:
+            LOGGER.debug('Constructing Associate AC PDU')
 
         formats = '> B B I H H 16s 16s 8I'
         parameters = [self.pdu_type,

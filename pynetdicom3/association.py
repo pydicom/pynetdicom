@@ -408,6 +408,7 @@ class Association(threading.Thread):
         assoc_ac = self.acse.accept_assoc(assoc_rq)
 
         if assoc_ac is None:
+            #self.abort()
             self.kill()
             return
 

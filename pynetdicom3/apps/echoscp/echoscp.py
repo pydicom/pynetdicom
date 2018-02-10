@@ -149,7 +149,7 @@ if args.log_level:
 if args.log_config:
     fileConfig(args.log_config)
 
-LOGGER.debug('echoscp.py v{0!s} {1!s}'.format(VERSION, '2017-02-04'))
+LOGGER.debug('echoscp.py v{0!s}'.format(VERSION))
 LOGGER.debug('')
 
 # Validate port

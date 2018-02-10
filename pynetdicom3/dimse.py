@@ -230,6 +230,8 @@ class DIMSEServiceProvider(object):
         dimse_msg.primitive_to_message(primitive)
 
         # Callbacks
+        # FIXME: Make this a package level option to increase speed
+        # if LOG:
         self.on_send_dimse_message(dimse_msg)
 
         # Split the full messages into P-DATA chunks,
@@ -293,6 +295,8 @@ class DIMSEServiceProvider(object):
 
                 if self.message.decode_msg(pdu):
                     # Callback
+                    # FIXME: Make this a package level option to increase speed
+                    # if LOG:
                     self.on_receive_dimse_message(self.message)
 
                     context_id = self.message.ID
@@ -318,6 +322,8 @@ class DIMSEServiceProvider(object):
 
             if self.message.decode_msg(pdu):
                 # Callback
+                # FIXME: Make this a package level option to increase speed
+                # if LOG:
                 self.on_receive_dimse_message(self.message)
 
                 context_id = self.message.ID

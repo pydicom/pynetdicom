@@ -581,6 +581,9 @@ class ACSEServiceProvider(object):
                  '{0!s}'.format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
+        if not pres_contexts:
+            s.append('    (no valid presentation contexts)')
+
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} ({1!s})'
                      .format(item.ID, item.result_str))
@@ -677,8 +680,7 @@ class ACSEServiceProvider(object):
         a_abort : pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
-        pass
-
+        LOGGER.info('Aborting Association')
 
     # Local AE receiving PDU from peer AE
     @staticmethod
