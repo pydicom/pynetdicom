@@ -141,14 +141,14 @@ class ServiceClass(object):
                              "Status element.")
                 # Failure: Cannot Understand - callback returned
                 #   a pydicom.dataset.Dataset without a Status element
-                rsp.Status = 0xC102
+                rsp.Status = 0xC001
         elif isinstance(status, int):
             rsp.Status = status
         else:
             LOGGER.error("Invalid status returned by callback")
             # Failure: Cannot Understand - callback didn't return
             #   a valid status type
-            rsp.Status = 0xC103
+            rsp.Status = 0xC002
 
         if not self.is_valid_status(rsp.Status):
             # Failure: Cannot Understand - Unknown status returned by the
@@ -344,7 +344,7 @@ class StorageServiceClass(ServiceClass):
             LOGGER.error("Failed to decode the received dataset")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC100
+            rsp.Status = 0xC210
             rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
             return
@@ -357,7 +357,7 @@ class StorageServiceClass(ServiceClass):
                          "callback")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Error in on_c_store callback
-            rsp_status = 0xC101
+            rsp_status = 0xC211
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)
@@ -384,8 +384,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         ~~~~~~~~~~
         The C-FIND request Identifier shall contain:
 
-        * Key Attributes values to be matched against the values of storage SOP
-        Instances managed by the SCP.
+        * Key Attributes values to be matched against the values of storage
+        SOP Instances managed by the SCP.
         * (0008,0052) Query/Retrieve Level.
         * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
         Conversion has been accepted during Extended Negotiation. It shall not
@@ -393,9 +393,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if expanded or replacement
         character sets may be used in any of the Attributes in the request
         Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
-        request Identifier are to be interpreted explicitly in the designated
-        local time zone. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
+        the request Identifier are to be interpreted explicitly in the
+        designated local time zone. It shall not be present otherwise.
 
         C-FIND Response
         ---------------
@@ -418,9 +418,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if expanded or replacement
         character sets may be used in any of the Attributes in the response
         Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in the
-        response Identifier are to be interpreted explicitly in the designated
-        local time zone. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
+        the response Identifier are to be interpreted explicitly in the
+        designated local time zone. It shall not be present otherwise.
 
         The C-FIND response Identifier shall also contain either or both of:
 
@@ -428,8 +428,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         File-Set UID.
         * (0008,0054) Retrieve AE Title.
 
-        The C-FIND response Identifier may also (but is not required to) include
-        the (0008,0056) Instance Availability element.
+        The C-FIND response Identifier may also (but is not required to)
+        include the (0008,0056) Instance Availability element.
 
         Status
         ~~~~~~
@@ -489,7 +489,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.error("Failed to decode the request's Identifier dataset.")
             LOGGER.exception(ex)
             # Failure - Unable to Process - Failed to decode Identifier
-            rsp.Status = 0xC000
+            rsp.Status = 0xC310
             rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
             return
@@ -502,7 +502,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             LOGGER.error("Exception in user's on_c_find implementation.")
             LOGGER.exception(ex)
             # Failure - Unable to Process - Error in on_c_find callback
-            rsp.Status = 0xC001
+            rsp.Status = 0xC311
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -543,7 +543,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                                  "dataset")
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by on_c_find callback
-                    rsp.Status = 0xC005
+                    rsp.Status = 0xC312
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
 
@@ -558,11 +558,6 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.debug('')
 
                 self.DIMSE.send_msg(rsp, self.pcid)
-            else:
-                LOGGER.error('Find SCP Response: Unknown status')
-                rsp.Status = 0xC000
-                self.DIMSE.send_msg(rsp, self.pcid)
-                return
 
         # Send final success response
         rsp.Status = 0x0000
@@ -718,7 +713,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             LOGGER.error("Failed to decode the request's Identifier dataset")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC100
+            rsp.Status = 0xC510
             rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
             return
@@ -731,7 +726,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
             # Failure - Unable to process - Error in on_c_move callback
-            rsp.Status = 0xC001
+            rsp.Status = 0xC511
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -744,7 +739,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                              "number of sub-operations, then yield (status "
                              "dataset) pairs.")
             # Failure - Unable to process - Error in on_c_move yield
-            rsp.Status = 0xC002
+            rsp.Status = 0xC514
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -755,7 +750,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             LOGGER.error("'on_c_move' yielded an invalid number of "
                          "sub-operations value")
             LOGGER.exception(ex)
-            rsp.Status = 0xC002
+            rsp.Status = 0xC513
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -777,7 +772,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                          "port) value")
             LOGGER.exception(ex)
             # Failure - Unable to process - Bad on_c_move destination
-            rsp.Status = 0xC002
+            rsp.Status = 0xC515
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -884,7 +879,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     LOGGER.info('Move SCP Response %s (Pending)', ii)
 
                     if not isinstance(dataset, Dataset):
-                        rsp.Status = 0xC000
+                        rsp.Status = 0xC516
                         self.DIMSE.send_msg(rsp, self.pcid)
                         return
 
@@ -1109,7 +1104,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             LOGGER.error("Failed to decode the request's Identifier dataset")
             LOGGER.exception(ex)
             # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC100
+            rsp.Status = 0xC410
             rsp.ErrorComment = 'Unable to decode the dataset'
             self.DIMSE.send_msg(rsp, self.pcid)
             return
@@ -1121,7 +1116,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)
-            rsp.Status = 0xC001
+            rsp.Status = 0xC411
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -1132,7 +1127,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             LOGGER.error("'on_c_get' yielded an invalid number of "
                          "sub-operations value")
             LOGGER.exception(ex)
-            rsp.Status = 0xC002
+            rsp.Status = 0xC413
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
@@ -1228,7 +1223,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 LOGGER.info('Get SCP Response: %s (Pending)', ii + 1)
                 # Check dataset is a Dataset or None
                 if not isinstance(dataset, Dataset):
-                    rsp.Status = 0xC000
+                    rsp.Status = 0xC416
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
 

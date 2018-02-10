@@ -766,7 +766,8 @@ class Association(threading.Thread):
         dataset : pydicom.dataset.Dataset
             The DICOM dataset to send to the peer.
         msg_id : int, optional
-            The message ID, must be between 0 and 65535, inclusive, (default 1).
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
             The C-STORE operation priority (may not be supported by the peer),
             one of:
@@ -776,8 +777,8 @@ class Association(threading.Thread):
             - 2 - Low (default)
 
         originator_aet : str, optional
-            The AE title of the peer that invoked the C-MOVE operation for which
-            this C-STORE sub-operation is being performed (default None).
+            The AE title of the peer that invoked the C-MOVE operation for
+            which this C-STORE sub-operation is being performed (default None).
         originator_id : int, optional
             The Message ID of the C-MOVE request primitive from which this
             C-STORE sub-operation is being performed (default None).
@@ -792,7 +793,7 @@ class Association(threading.Thread):
             additional elements (see DICOM Standard Part 7, Annex C).
 
             The status for the requested C-STORE operation should be one of the
-            following, but as the value is depends on the peer SCP this can't be
+            following, but as the value depends on the peer SCP this can't be
             assumed:
 
             General C-STORE (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
@@ -810,7 +811,8 @@ class Association(threading.Thread):
               * 0x0211 - Unrecognised operation
               * 0x0212 - Mistyped argument
 
-            Storage Service Class specific (DICOM Standard Part 4, Annex B.2.3):
+            Storage Service Class specific (DICOM Standard Part 4, Annex
+            B.2.3):
 
             - Failure
 
