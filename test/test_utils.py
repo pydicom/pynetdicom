@@ -10,9 +10,9 @@ import unittest
 
 from pydicom.uid import UID
 
-from encoded_pdu_items import a_associate_rq
 from pynetdicom3.utils import validate_ae_title, pretty_bytes, \
                               PresentationContext, PresentationContextManager
+from .encoded_pdu_items import a_associate_rq
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)

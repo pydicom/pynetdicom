@@ -7,40 +7,26 @@ import unittest
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
-from encoded_dimse_msg import c_echo_rq_cmd, c_echo_rsp_cmd, \
-                              c_store_rq_cmd, c_store_ds, \
-                              c_store_rsp_cmd, \
-                              c_find_rq_cmd, c_find_rq_ds, \
-                              c_find_rsp_cmd, c_find_rsp_ds, \
-                              c_get_rq_cmd, c_get_rq_ds, \
-                              c_get_rsp_cmd, c_get_rsp_ds, \
-                              c_move_rq_cmd, c_move_rq_ds, \
-                              c_move_rsp_cmd, c_move_rsp_ds
-from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, DIMSEMessage, \
-                                      C_ECHO_RQ, C_ECHO_RSP, \
-                                      C_FIND_RQ, C_FIND_RSP, \
-                                      C_MOVE_RQ, C_MOVE_RSP, \
-                                      C_GET_RQ, C_GET_RSP,\
-                                      N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, \
-                                      N_SET_RQ, N_SET_RSP, \
-                                      N_GET_RQ, N_GET_RSP, \
-                                      N_ACTION_RQ, N_ACTION_RSP, \
-                                      N_CREATE_RQ, N_CREATE_RSP, \
-                                      N_DELETE_RQ, N_DELETE_RSP
-from pynetdicom3.dimse_primitives import C_STORE, \
-                                        C_ECHO, \
-                                        C_GET, \
-                                        C_MOVE, \
-                                        C_FIND, \
-                                        N_EVENT_REPORT, \
-                                        N_GET, \
-                                        N_SET, \
-                                        N_ACTION, \
-                                        N_CREATE, \
-                                        N_DELETE
+from pynetdicom3.dimse_messages import (
+    C_STORE_RQ, C_STORE_RSP, DIMSEMessage, C_ECHO_RQ, C_ECHO_RSP, C_FIND_RQ,
+    C_FIND_RSP, C_MOVE_RQ, C_MOVE_RSP, C_GET_RQ, C_GET_RSP, N_EVENT_REPORT_RQ,
+    N_EVENT_REPORT_RSP, N_SET_RQ, N_SET_RSP, N_GET_RQ, N_GET_RSP, N_ACTION_RQ,
+    N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, N_DELETE_RSP
+)
+from pynetdicom3.dimse_primitives import (
+    C_STORE, C_ECHO, C_GET, C_MOVE, C_FIND, N_EVENT_REPORT, N_GET, N_SET,
+    N_ACTION, N_CREATE, N_DELETE
+)
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
 from pynetdicom3.utils import pretty_bytes
+from .encoded_dimse_msg import (
+    c_echo_rq_cmd, c_echo_rsp_cmd, c_store_rq_cmd, c_store_ds, c_store_rsp_cmd,
+    c_find_rq_cmd, c_find_rq_ds, c_find_rsp_cmd, c_find_rsp_ds, c_get_rq_cmd,
+    c_get_rq_ds, c_get_rsp_cmd, c_get_rsp_ds, c_move_rq_cmd, c_move_rq_ds,
+    c_move_rsp_cmd, c_move_rsp_ds
+)
+
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)

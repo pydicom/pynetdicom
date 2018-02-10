@@ -6,57 +6,37 @@ import unittest
 
 from pydicom.uid import UID
 
-from encoded_pdu_items import a_associate_rq, a_associate_ac, \
-                              a_associate_rq_user_async, \
-                              asynchronous_window_ops, a_associate_rq_role, \
-                              user_identity_rq_user_nopw, \
-                              user_identity_ac, \
-                              a_associate_rq_user_id_user_pass, \
-                              a_associate_rq_user_id_ext_neg, \
-                              a_associate_ac_user, \
-                              a_associate_rq_com_ext_neg, \
-                              user_identity_rq_user_pass, a_associate_rj, \
-                              a_release_rq, a_release_rp, a_abort, \
-                              a_p_abort, application_context, \
-                              presentation_context_rq, \
-                              presentation_context_ac, abstract_syntax, \
-                              transfer_syntax, presentation_data, \
-                              presentation_data_value, \
-                              maximum_length_received, \
-                              implementation_class_uid, \
-                              implementation_version_name, \
-                              role_selection, user_information, \
-                              extended_negotiation, \
-                              common_extended_negotiation, \
-                              p_data_tf
 from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
-                            P_DATA_TF, \
-                            MaximumLengthSubItem, \
-                            ImplementationClassUIDSubItem, \
-                            ImplementationVersionNameSubItem, \
-                            AsynchronousOperationsWindowSubItem, \
-                            SCP_SCU_RoleSelectionSubItem, \
-                            SOPClassExtendedNegotiationSubItem, \
-                            SOPClassCommonExtendedNegotiationSubItem, \
-                            UserIdentitySubItemRQ, \
-                            UserIdentitySubItemAC, \
-                            ApplicationContextItem, \
-                            PresentationContextItemAC, \
-                            PresentationContextItemRQ, \
-                            UserInformationItem, \
-                            TransferSyntaxSubItem, \
-                            PresentationDataValueItem, \
-                            AbstractSyntaxSubItem
-from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation, \
-                                   SOPClassCommonExtendedNegotiation, \
-                                   MaximumLengthNegotiation, \
-                                   ImplementationClassUIDNotification, \
-                                   ImplementationVersionNameNotification, \
-                                   SCP_SCU_RoleSelectionNegotiation, \
-                                   AsynchronousOperationsWindowNegotiation, \
-                                   UserIdentityNegotiation
+from pynetdicom3.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF, MaximumLengthSubItem,
+    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem,
+    AsynchronousOperationsWindowSubItem, SCP_SCU_RoleSelectionSubItem,
+    SOPClassExtendedNegotiationSubItem,
+    SOPClassCommonExtendedNegotiationSubItem, UserIdentitySubItemRQ,
+    UserIdentitySubItemAC, ApplicationContextItem, PresentationContextItemAC,
+    PresentationContextItemRQ, UserInformationItem, TransferSyntaxSubItem,
+    PresentationDataValueItem, AbstractSyntaxSubItem
+)
+from pynetdicom3.pdu_primitives import (
+    SOPClassExtendedNegotiation, SOPClassCommonExtendedNegotiation,
+    MaximumLengthNegotiation, ImplementationClassUIDNotification,
+    ImplementationVersionNameNotification, SCP_SCU_RoleSelectionNegotiation,
+    AsynchronousOperationsWindowNegotiation, UserIdentityNegotiation
+)
 from pynetdicom3.utils import pretty_bytes, PresentationContext
+from .encoded_pdu_items import (
+    a_associate_rq, a_associate_ac, a_associate_rq_user_async,
+    asynchronous_window_ops, a_associate_rq_role, user_identity_rq_user_nopw,
+    user_identity_ac, a_associate_rq_user_id_user_pass,
+    a_associate_rq_user_id_ext_neg, a_associate_ac_user,
+    a_associate_rq_com_ext_neg, user_identity_rq_user_pass, a_associate_rj,
+    a_release_rq, a_release_rp, a_abort, a_p_abort, application_context,
+    presentation_context_rq, presentation_context_ac, abstract_syntax,
+    transfer_syntax, presentation_data, presentation_data_value,
+    maximum_length_received, implementation_class_uid,
+    implementation_version_name, role_selection, user_information,
+    extended_negotiation, common_extended_negotiation, p_data_tf
+)
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)

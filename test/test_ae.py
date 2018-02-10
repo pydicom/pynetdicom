@@ -17,14 +17,18 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from dummy_c_scp import DummyVerificationSCP, DummyStorageSCP, \
-                        DummyFindSCP, DummyGetSCP, DummyMoveSCP, DummyBaseSCP
+from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP,
+                          DummyFindSCP, DummyGetSCP, DummyMoveSCP,
+                          DummyBaseSCP)
 from pynetdicom3 import AE
 from pynetdicom3 import VerificationSOPClass, StorageSOPClassList
-from pynetdicom3.sop_class import RTImageStorage, \
-                                  PatientRootQueryRetrieveInformationModelFind, \
-                                  PatientRootQueryRetrieveInformationModelGet, \
-                                  PatientRootQueryRetrieveInformationModelMove
+from pynetdicom3.sop_class import (
+    RTImageStorage,
+    PatientRootQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove
+)
+
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
@@ -51,7 +55,7 @@ class TestAEVerificationSCP(unittest.TestCase):
             if isinstance(thread, (AE, DummyBaseSCP)):
                 thread.abort()
                 thread.stop()
-    
+
     # Causing thread exiting issues
     @unittest.skip('Causes threading issues')
     def test_stop_scp_keyboard(self):

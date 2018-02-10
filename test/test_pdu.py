@@ -6,35 +6,28 @@ import unittest
 
 from pydicom.uid import UID
 
-from encoded_pdu_items import a_associate_rq, a_associate_ac, a_associate_rj, \
-                              a_release_rq, a_release_rq, a_release_rp, \
-                              a_abort, a_p_abort, p_data_tf
-from pynetdicom3 import VerificationSOPClass, StorageSOPClassList, \
-                        QueryRetrieveSOPClassList
-from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
-                            A_ASSOCIATE_RJ, \
-                            P_DATA_TF, \
-                            A_RELEASE_RQ, \
-                            A_RELEASE_RP, \
-                            A_ABORT_RQ, \
-                            MaximumLengthSubItem, \
-                            ImplementationClassUIDSubItem, \
-                            ImplementationVersionNameSubItem, \
-                            AsynchronousOperationsWindowSubItem, \
-                            SCP_SCU_RoleSelectionSubItem, \
-                            SOPClassExtendedNegotiationSubItem, \
-                            SOPClassCommonExtendedNegotiationSubItem, \
-                            UserIdentitySubItemRQ, \
-                            UserIdentitySubItemAC, \
-                            PDU, \
-                            ApplicationContextItem, \
-                            PresentationContextItemAC, \
-                            PresentationContextItemRQ, \
-                            UserInformationItem
-from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
-                                   ImplementationClassUIDNotification, \
-                                   ImplementationVersionNameNotification, \
-                                   A_P_ABORT, A_ABORT, A_ASSOCIATE, P_DATA
+from pynetdicom3 import (
+    VerificationSOPClass, StorageSOPClassList, QueryRetrieveSOPClassList
+)
+from pynetdicom3.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, P_DATA_TF, A_RELEASE_RQ,
+    A_RELEASE_RP, A_ABORT_RQ, MaximumLengthSubItem,
+    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem,
+    AsynchronousOperationsWindowSubItem, SCP_SCU_RoleSelectionSubItem,
+    SOPClassExtendedNegotiationSubItem,
+    SOPClassCommonExtendedNegotiationSubItem, UserIdentitySubItemRQ,
+    UserIdentitySubItemAC, PDU, ApplicationContextItem,
+    PresentationContextItemAC, PresentationContextItemRQ, UserInformationItem
+)
+from pynetdicom3.pdu_primitives import (
+    MaximumLengthNegotiation, ImplementationClassUIDNotification,
+    ImplementationVersionNameNotification, A_P_ABORT, A_ABORT, A_ASSOCIATE,
+    P_DATA
+)
+from .encoded_pdu_items import (
+    a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
+    a_release_rp, a_abort, a_p_abort, p_data_tf
+)
 #from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -48,7 +41,7 @@ class TestPDU(unittest.TestCase):
         pdu.Decode(a_associate_ac)
 
         self.assertEqual(pdu.length, pdu.get_length())
-        
+
     def test_decode(self):
         """Check that encode raises not implemented"""
         pdu = A_ASSOCIATE_AC()

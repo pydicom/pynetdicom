@@ -13,8 +13,6 @@ from pydicom.dataset import Dataset
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_ECHO, C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import decode
-from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
-                         DummyBaseSCP, DummyGetSCP, DummyMoveSCP)
 from pynetdicom3.sop_class import (uid_to_sop_class,
                                    VerificationServiceClass,
                                    StorageServiceClass,
@@ -27,6 +25,8 @@ from pynetdicom3.sop_class import (uid_to_sop_class,
                                    PatientRootQueryRetrieveInformationModelFind,
                                    PatientRootQueryRetrieveInformationModelGet,
                                    PatientRootQueryRetrieveInformationModelMove)
+from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
+                         DummyBaseSCP, DummyGetSCP, DummyMoveSCP)
 
 LOGGER = logging.getLogger('pynetdicom3')
 #LOGGER.setLevel(logging.DEBUG)

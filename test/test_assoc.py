@@ -19,27 +19,31 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
-                         DummyGetSCP, DummyMoveSCP, DummyBaseSCP)
 from pynetdicom3 import AE, VerificationSOPClass
 from pynetdicom3.association import Association
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import encode, decode
-from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
-                                        SOPClassExtendedNegotiation,
-                                        SOPClassCommonExtendedNegotiation)
-from pynetdicom3.sop_class import (CTImageStorage, MRImageStorage,
-                                   RTImageStorage,
-                                   PatientRootQueryRetrieveInformationModelFind,
-                                   StudyRootQueryRetrieveInformationModelFind,
-                                   ModalityWorklistInformationFind,
-                                   PatientStudyOnlyQueryRetrieveInformationModelFind,
-                                   PatientRootQueryRetrieveInformationModelGet,
-                                   PatientStudyOnlyQueryRetrieveInformationModelGet,
-                                   StudyRootQueryRetrieveInformationModelGet,
-                                   PatientRootQueryRetrieveInformationModelMove,
-                                   PatientStudyOnlyQueryRetrieveInformationModelMove,
-                                   StudyRootQueryRetrieveInformationModelMove)
+from pynetdicom3.pdu_primitives import (
+    UserIdentityNegotiation, SOPClassExtendedNegotiation,
+    SOPClassCommonExtendedNegotiation
+)
+from pynetdicom3.sop_class import (
+    CTImageStorage, MRImageStorage, RTImageStorage,
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind,
+    ModalityWorklistInformationFind,
+    PatientStudyOnlyQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelGet,
+    PatientStudyOnlyQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove,
+    PatientStudyOnlyQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelMove
+)
+from .dummy_c_scp import (
+    DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
+    DummyMoveSCP, DummyBaseSCP
+)
 
 LOGGER = logging.getLogger('pynetdicom3')
 #LOGGER.setLevel(logging.CRITICAL)
@@ -556,7 +560,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
             assoc.send_c_echo()
 
         self.assertTrue(assoc.is_aborted)
-        
+
         self.scp.stop()
 
     def test_rsp_invalid(self):
@@ -568,7 +572,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
         class DummyResponse():
             is_valid_response = False
-        
+
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
             def receive_msg(*args, **kwargs): return DummyResponse(), None
@@ -578,7 +582,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
             assoc.send_c_echo()
 
         self.assertTrue(assoc.is_aborted)
-        
+
         self.scp.stop()
 
     def test_rsp_success(self):
@@ -626,7 +630,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
             ds.Status = 0x0122
             ds.ErrorComment = 'Some comment'
             return ds
-        
+
         self.scp = DummyVerificationSCP()
         self.scp.ae.on_c_echo = on_c_echo
         self.scp.start()
@@ -747,7 +751,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         assoc.send_c_store(DATASET)
 
         self.assertTrue(assoc.is_aborted)
-        
+
         self.scp.stop()
 
     def test_rsp_invalid(self):
@@ -759,7 +763,7 @@ class TestAssociationSendCStore(unittest.TestCase):
 
         class DummyResponse():
             is_valid_response = False
-        
+
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
             def receive_msg(*args, **kwargs): return DummyResponse(), None
@@ -768,7 +772,7 @@ class TestAssociationSendCStore(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         assoc.send_c_store(DATASET)
         self.assertTrue(assoc.is_aborted)
-       
+
         self.scp.stop()
 
     def test_rsp_failure(self):
@@ -993,7 +997,7 @@ class TestAssociationSendCFind(unittest.TestCase):
 
         class DummyResponse():
             is_valid_response = False
-        
+
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
             def receive_msg(*args, **kwargs): return DummyResponse(), None
@@ -1004,7 +1008,7 @@ class TestAssociationSendCFind(unittest.TestCase):
             pass
 
         self.assertTrue(assoc.is_aborted)
-        
+
         self.scp.stop()
 
     def test_rsp_unknown_status(self):
@@ -1057,7 +1061,7 @@ class TestAssociationSendCCancelFind(unittest.TestCase):
             if isinstance(thread, DummyBaseSCP):
                 thread.abort()
                 thread.stop()
-            
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
@@ -1767,7 +1771,7 @@ class TestAssociationSendCMove(unittest.TestCase):
         """Test unknown status value returned by peer"""
         self.scp2 = DummyStorageSCP(11113)
         self.scp2.start()
-        
+
         self.scp = DummyMoveSCP()
         self.scp.destination_ae = ('localhost', 11113)
         self.scp.statuses = [0xFFF0]
@@ -1801,7 +1805,7 @@ class TestAssociationSendCCancelMove(unittest.TestCase):
             if isinstance(thread, DummyBaseSCP):
                 thread.abort()
                 thread.stop()
-    
+
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
