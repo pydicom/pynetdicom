@@ -17,6 +17,7 @@ before_script:
 install:
     - pip install coverage
     - pip install coveralls
+    - pip install pytest pytest-cov
     - python setup.py install
 
 # Command to run tests
