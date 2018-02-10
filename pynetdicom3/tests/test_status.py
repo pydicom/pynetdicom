@@ -4,6 +4,8 @@
 import logging
 import unittest
 
+import pytest
+
 from pydicom.dataset import Dataset
 
 from pynetdicom3.status import code_to_category, code_to_status
@@ -23,6 +25,8 @@ class TestStatus(unittest.TestCase):
         del status.Status
         self.assertEqual(status, Dataset())
 
+        assert pytest.raises(ValueError, code_to_status, -0x0001)
+
     def test_code_to_category_unknown(self):
         """Test converting an unknown status code to its category"""
         self.assertEqual(code_to_category(0xDF01), 'Unknown')
@@ -36,6 +40,12 @@ class TestStatus(unittest.TestCase):
         self.assertEqual(c2c(0xFF00), 'Pending')
         self.assertEqual(c2c(0xFF01), 'Pending')
         self.assertEqual(c2c(0xFE00), 'Cancel')
+
+        assert c2c(0x0107) == 'Warning'
+
+    def test_code_to_category_negative_raises(self):
+        """Test code_to_category raises exception if negative."""
+        assert pytest.raises(ValueError, code_to_category, -0x0001)
 
     def test_code_to_category_storage(self):
         """Test converting storage service class status code to its category"""
