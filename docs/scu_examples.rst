@@ -25,7 +25,12 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
         if assoc.is_established:
             print('Association accepted by the peer')
             # Send a DIMSE C-ECHO request to the peer
-            assoc.send_c_echo()
+            # status is a pydicom Dataset object with (at a minimum) a
+            # (0000, 0900) Status element
+            status = assoc.send_c_echo()
+
+            # Output the response from the peer
+            print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
             # Release the association
             assoc.release()

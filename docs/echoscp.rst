@@ -83,7 +83,18 @@ Miscellaneous DICOM
     ``-td   --dimse-timeout [s]econdsr (int)``
               timeout for DIMSE messages (default: unlimited)
     ``-pdu  --max-pdu [n]umber of bytes (int)``
-              set maximum receive PDU bytes to n bytes (default: 16384) 
+              set maximum receive PDU bytes to n bytes (default: 16384)
+
+Preferred Transfer Syntaxes
+---------------------------
+    ``-x=   --prefer-uncompr``
+              prefer explicit VR local byte order (default)
+    ``-xe   --prefer-little``
+              prefer explicit VR little endian transfer syntax
+    ``-xb   --prefer-big``
+              prefer explicit VR big endian transfer syntax
+    ``-xi   --implicit``
+              accept implicit VR little endian transfer syntax only
 
 DICOM Conformance
 =================

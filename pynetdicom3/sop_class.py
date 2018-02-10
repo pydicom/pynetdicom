@@ -12,14 +12,14 @@ from pydicom.uid import UID
 
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
-from pynetdicom3.status import (VERIFICATION_SERVICE_CLASS_STATUS,
-                                STORAGE_SERVICE_CLASS_STATUS,
-                                QR_FIND_SERVICE_CLASS_STATUS,
-                                QR_MOVE_SERVICE_CLASS_STATUS,
-                                QR_GET_SERVICE_CLASS_STATUS,
-                                MODALITY_WORKLIST_SERVICE_CLASS_STATUS)
+from pynetdicom3.status import (
+    VERIFICATION_SERVICE_CLASS_STATUS, STORAGE_SERVICE_CLASS_STATUS,
+    QR_FIND_SERVICE_CLASS_STATUS, QR_MOVE_SERVICE_CLASS_STATUS,
+    QR_GET_SERVICE_CLASS_STATUS, MODALITY_WORKLIST_SERVICE_CLASS_STATUS
+)
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
+
 
 def _class_factory(name, uid, base_cls):
     """Generates a SOP Class subclass of `base_cls` called `name`.
@@ -50,6 +50,7 @@ def _class_factory(name, uid, base_cls):
     new_class.UID = uid
 
     return new_class
+
 
 def _generate_service_sop_classes(sop_class_list, service_class):
     """Generate the SOP Classes."""
@@ -250,8 +251,8 @@ class VerificationServiceClass(ServiceClass):
                 LOGGER.warning("Unknown 'status' value returned by 'on_c_echo' "
                                "callback - 0x{0:04x}".format(rsp.Status))
         except Exception as ex:
-            LOGGER.error("Exception in the 'on_c_echo' callback, using default "
-                         "'status' value of 0x0000 Success.")
+            LOGGER.error("Exception in the 'on_c_echo' callback, responding "
+                         "with default 'status' value of 0x0000 (Success).")
             LOGGER.exception(ex)
             rsp.Status = 0x0000
 
@@ -768,7 +769,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                 rsp.Status = 0xA801
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            
+
             store_assoc = self.AE.associate(destination[0], destination[1],
                                             req.MoveDestination)
         except Exception as ex:
@@ -828,7 +829,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     rsp.NumberOfFailedSuboperations = store_results[1]
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
-                    
+
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Failure':
@@ -853,7 +854,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     return
                 elif status[0] == 'Success':
                     store_assoc.release()
-                    
+
                     # If the user yields Success, check it
                     if store_results[1] or store_results[2]:
                         LOGGER.info('Move SCP Response: (Warning)')
@@ -1153,7 +1154,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                                "results but these will be ignored as the "
                                "sub-operations are complete")
                 break
-            
+
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
             if rsp.Status in self.statuses:

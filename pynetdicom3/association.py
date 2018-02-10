@@ -654,7 +654,8 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int, optional
-            The message ID, must be between 0 and 65535, inclusive, (default 1).
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
 
         Returns
         -------
@@ -667,7 +668,8 @@ class Association(threading.Thread):
 
             The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
             value of a C-ECHO response "shall have a value of Success". However
-            Section 9.1.5.1.4 indicates it may have any of the following values:
+            Section 9.1.5.1.4 indicates it may have any of the following
+            values:
 
             Success
 

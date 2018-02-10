@@ -111,7 +111,11 @@ Examples
 
         if assoc.is_established:
             # Send a DIMSE C-ECHO request to the peer
-            assoc.send_c_echo()
+            # `status` is a pydicom Dataset object
+            status = assoc.send_c_echo()
+
+            # Output the response from the peer
+            print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
             # Release the association
             assoc.release()

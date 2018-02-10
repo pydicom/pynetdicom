@@ -11,11 +11,13 @@ from struct import pack
 import sys
 import time
 
-from pydicom.uid import (ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-                         ExplicitVRBigEndian, UID)
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian, UID
+)
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
+
 
 def setup_logger():
     """Setup the logger."""
@@ -27,6 +29,7 @@ def setup_logger():
     logger.addHandler(handler)
 
     return logger
+
 
 LOGGER = setup_logger()
 
@@ -824,8 +827,9 @@ class ApplicationEntity(object):
         Status
         ------
         The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
-        status "shall have a value of Success", however Section 9.1.5.1.4 states
-        that the status of the response may have any of the following values:
+        status "shall have a value of Success", however Section 9.1.5.1.4
+        states that the status of the response may have any of the following
+        values:
 
         Success
 
@@ -841,8 +845,8 @@ class ApplicationEntity(object):
         Returns
         -------
         status : pydicom.dataset.Dataset or int
-            The status returned to the peer AE in the C-ECHO response. Must be a
-            valid C-ECHO/Verification Service Class status value as either an
+            The status returned to the peer AE in the C-ECHO response. Must be
+            a valid C-ECHO/Verification Service Class status value as either an
             int or a Dataset object containing (at a minimum) a (0000,0900)
             'Status' element. If returning a Dataset object then it may also
             contain optional elements related to the Status (as in the DICOM
@@ -863,7 +867,7 @@ class ApplicationEntity(object):
         return 0x0000
 
     def on_c_store(self, dataset):
-        """Callback for C-STORE request is received.
+        """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
         either an int or a pydicom Dataset containing a (0000,0900) Status
@@ -944,7 +948,7 @@ class ApplicationEntity(object):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
-        status (as either and int or pydicom Dataset containing a (0000,0900)
+        status (as either an int or pydicom Dataset containing a (0000,0900)
         Status element) and an Identifier dataset. In addition, the
         AE.on_c_find_cancel() callback must also be defined.
 
@@ -983,13 +987,14 @@ class ApplicationEntity(object):
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM Identifier dataset sent by the peer in the C-FIND request.
+            The DICOM Identifier dataset sent by the peer in the C-FIND
+            request.
 
         Yields
         ------
         status : pydicom.dataset.Dataset or int
-            The status returned to the peer AE in the C-FIND response. Must be a
-            valid C-FIND status vuale for the applicable Service Class as
+            The status returned to the peer AE in the C-FIND response. Must be
+            a valid C-FIND status vuale for the applicable Service Class as
             either an int or a Dataset object containing (at a minimum) a
             (0000,0900) 'Status' element. If returning a Dataset object then it
             may also contain optional elements related to the Status (as in
@@ -1171,8 +1176,8 @@ class ApplicationEntity(object):
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-MOVE request.
         move_aet : bytes
-            The destination AE title that matching SOP Instances will be sent to
-            using C-STORE sub-operations. `move_aet` will be a correctly
+            The destination AE title that matching SOP Instances will be sent
+            to using C-STORE sub-operations. `move_aet` will be a correctly
             formatted AE title (16 chars, with trailing spaces as padding).
 
         Yields
@@ -1181,19 +1186,19 @@ class ApplicationEntity(object):
             The first yield should be the TCP/IP address and port number of the
             destination AE (if known) or (None, None) if unknown. If (None,
             None) is yielded then the SCP will send a C-MOVE response with a
-            'Failure' Status of 0xA801 (move destination unknown), in which case
-            nothing more needs to be yielded.
+            'Failure' Status of 0xA801 (move destination unknown), in which
+            case nothing more needs to be yielded.
         int
             The second yield should be the number of C-STORE sub-operations
             required to complete the C-MOVE operation. In other words, this is
             the number of matching SOP Instances to be sent to the peer.
         status : pydiom.dataset.Dataset or int
-            The status returned to the peer AE in the C-MOVE response. Must be a
-            valid C-MOVE status value for the applicable Service Class as either
-            an int or a Dataset object containing (at a minimum) a (0000,0900)
-            'Status' element. If returning a Dataset object then it may also
-            contain optional elements related to the Status (as in DICOM
-            Standard Part 7, Annex C).
+            The status returned to the peer AE in the C-MOVE response. Must be
+            a valid C-MOVE status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
             If the status is 'Pending' then yield the dataset to send to the
             peer via a C-STORE sub-operation over a new association.

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 """
-    An echoscp application.
+An echoscp application.
 
-    Used for verifying basic DICOM connectivity and as such has a focus on
-    providing useful debugging and logging information.
+Used for verifying basic DICOM connectivity and as such has a focus on
+providing useful debugging and logging information.
 """
 
 import argparse
@@ -13,19 +13,21 @@ import os
 import socket
 import sys
 
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
 from pynetdicom3 import AE, VerificationSOPClass
 
-logger = logging.Logger('echoscp')
+LOGGER = logging.Logger('echoscp')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
-logger.addHandler(stream_logger)
-logger.setLevel(logging.ERROR)
+LOGGER.addHandler(stream_logger)
+LOGGER.setLevel(logging.ERROR)
 
-VERSION = '0.2.1'
+VERSION = '0.3.0'
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -59,13 +61,13 @@ def _setup_argparser():
                           help="debug mode, print debug information",
                           action="store_true")
     gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
-                          help="use level l for the logger (fatal, error, warn, "
+                          help="use level l for the LOGGER (fatal, error, warn, "
                                "info, debug, trace)",
                           type=str,
                           choices=['fatal', 'error', 'warn',
                                    'info', 'debug', 'trace'])
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
-                          help="use config file f for the logger",
+                          help="use config file f for the LOGGER",
                           type=str)
 
     # Network Options
@@ -106,30 +108,17 @@ def _setup_argparser():
                          help="accept implicit VR little endian TS only",
                          action="store_true")
 
-    # Association Options
-    assoc_opts = parser.add_argument_group('Association Options')
-    #assoc_opts.add_argument("--refuse",
-    #                        help="refuse all associations",
-    #                        action="store_true")
-    #assoc_opts.add_argument("--abort-after",
-    #                        help="abort association after receiving a "
-    #                            "C-ECHO-RQ (but before sending response)",
-    #                        action="store_true")
-    #assoc_opts.add_argument("--abort-during",
-    #                        help="abort association during receipt of a "
-    #                            "C-ECHO-RQ",
-    #                        action="store_true")
-
     return parser.parse_args()
+
 
 args = _setup_argparser()
 
 # Logging/Output
 if args.quiet:
-    for h in logger.handlers:
-        logger.removeHandler(h)
+    for h in LOGGER.handlers:
+        LOGGER.removeHandler(h)
 
-    logger.addHandler(logging.NullHandler())
+    LOGGER.addHandler(logging.NullHandler())
 
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     for h in pynetdicom_logger.handlers:
@@ -138,12 +127,12 @@ if args.quiet:
     pynetdicom_logger.addHandler(logging.NullHandler())
 
 if args.verbose:
-    logger.setLevel(logging.INFO)
+    LOGGER.setLevel(logging.INFO)
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.INFO)
 
 if args.debug:
-    logger.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.DEBUG)
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
@@ -153,15 +142,15 @@ if args.log_level:
               'warn'     : logging.WARNING,
               'info'     : logging.INFO,
               'debug'    : logging.DEBUG}
-    logger.setLevel(levels[args.log_level])
+    LOGGER.setLevel(levels[args.log_level])
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(levels[args.log_level])
 
 if args.log_config:
     fileConfig(args.log_config)
 
-logger.debug('echoscp.py v{0!s} {1!s}'.format(VERSION, '2017-02-04'))
-logger.debug('')
+LOGGER.debug('echoscp.py v{0!s} {1!s}'.format(VERSION, '2017-02-04'))
+LOGGER.debug('')
 
 # Validate port
 if isinstance(args.port, int):
@@ -170,7 +159,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port {}, insufficient privileges or "
+        LOGGER.error("Cannot listen on port {}, insufficient privileges or "
             "already in use".format(args.port))
         sys.exit()
 
@@ -194,6 +183,15 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
     transfer_syntax.remove(ExplicitVRBigEndian)
     transfer_syntax.insert(0, ExplicitVRBigEndian)
 
+
+def on_c_echo():
+    """Optional implementation of the AE.on_c_echo callback."""
+    # Return a Success response to the peer
+    # We could also return a pydicom Dataset with a (0000, 0900) Status
+    #   element
+    return 0x0000
+
+
 # Create application entity
 ae = AE(ae_title=args.aetitle,
         port=args.port,
@@ -207,5 +205,8 @@ ae.maximum_pdu_size = args.max_pdu
 ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
+
+# Set callback
+ae.on_c_echo = on_c_echo
 
 ae.start()
