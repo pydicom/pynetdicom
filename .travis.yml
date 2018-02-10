@@ -15,12 +15,14 @@ before_script:
 
 install:
     - pip install codecov
+    - pip install coverage
+    - pip install pytest-cov
     - pip install pytest
     - python setup.py install
 
 # Command to run tests
 script:
-    - pytest
+    - pytest --cov=pynetdicom3
 
 after_success:
     - codecov
