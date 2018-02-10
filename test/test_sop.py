@@ -35,6 +35,7 @@ LOGGER.setLevel(logging.CRITICAL)
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 
+
 class DummyAE(object):
     """Dummy class for testing callback errors"""
     @staticmethod
@@ -124,7 +125,7 @@ class TestServiceClass(unittest.TestCase):
         sop = StorageServiceClass()
         rsp = C_STORE()
         rsp = sop.validate_status('test', rsp)
-        self.assertEqual(rsp.Status, 0xC103)
+        self.assertEqual(rsp.Status, 0xC002)
 
     def test_validate_status_unknown(self):
         """Test return unknown status"""
@@ -375,7 +376,7 @@ class TestStorageServiceClass(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0xC103)
+        self.assertEqual(rsp.Status, 0xC002)
         assoc.release()
         self.scp.stop()
 
@@ -390,7 +391,7 @@ class TestStorageServiceClass(unittest.TestCase):
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0xC101)
+        self.assertEqual(rsp.Status, 0xC211)
         assoc.release()
         self.scp.stop()
 
@@ -435,7 +436,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         result, _ = assoc.dimse.receive_msg(True)
-        self.assertEqual(result.Status, 0xC000)
+        self.assertEqual(result.Status, 0xC310)
 
         assoc.release()
         self.scp.stop()
@@ -530,7 +531,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(status.Status, 0xC002)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
         self.scp.stop()
@@ -546,7 +547,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(status.Status, 0xC002)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
         self.scp.stop()
@@ -563,7 +564,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC001)
+        self.assertEqual(status.Status, 0xC311)
         self.assertRaises(StopIteration, next, result)
         assoc.release()
         self.scp.stop()
@@ -580,7 +581,7 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC005)
+        self.assertEqual(status.Status, 0xC312)
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -784,7 +785,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         result, _ = assoc.dimse.receive_msg(True)
-        self.assertEqual(result.Status, 0xC100)
+        self.assertEqual(result.Status, 0xC410)
 
         assoc.release()
         self.scp.stop()
@@ -807,7 +808,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
+        self.assertEqual(status.Status, 0xC413)
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -932,7 +933,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(status.Status, 0xC002)
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
@@ -953,7 +954,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(status.Status, 0xC002)
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
@@ -975,7 +976,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC001)
+        self.assertEqual(status.Status, 0xC411)
         self.assertEqual(identifier, Dataset())
         self.assertRaises(StopIteration, next, result)
         assoc.release()
@@ -1511,7 +1512,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         result, _ = assoc.dimse.receive_msg(True)
-        self.assertEqual(result.Status, 0xC100)
+        self.assertEqual(result.Status, 0xC510)
 
         assoc.release()
         self.scp.stop()
@@ -1532,7 +1533,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
+        self.assertEqual(status.Status, 0xC513)
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -1555,7 +1556,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
+        self.assertEqual(status.Status, 0xC515)
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -1670,7 +1671,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(status.Status, 0xC002)
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
@@ -1689,7 +1690,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC103)
+        self.assertEqual(status.Status, 0xC002)
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
@@ -1709,7 +1710,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertTrue(assoc.is_established)
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC001)
+        self.assertEqual(status.Status, 0xC511)
         self.assertEqual(identifier, Dataset())
         self.assertRaises(StopIteration, next, result)
         assoc.release()
