@@ -25,7 +25,7 @@ script:
     - pytest --cov=pynetdicom3
 
 after_success:
-    - coveralls
+    - coveralls --omit=*/tests/*
 
 notifications:
     email: false
