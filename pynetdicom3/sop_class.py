@@ -595,10 +595,10 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
           - (0008,0018) SOP Instance UIDs
 
         * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-          Conversion has been accepted during Extended Negotiation. It shall not
-          be present otherwise.
-        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is using
-          a character set other than the default character repertoire.
+          Conversion has been accepted during Extended Negotiation. It shall
+          not be present otherwise.
+        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
+          using a character set other than the default character repertoire.
 
         C-MOVE Response
         ---------------
@@ -987,10 +987,10 @@ class QueryRetrieveGetServiceClass(ServiceClass):
           - (0008,0018) SOP Instance UIDs
 
         * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-          Conversion has been accepted during Extended Negotiation. It shall not
-          be present otherwise.
-        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is using
-          a character set other than the default character repertoire.
+          Conversion has been accepted during Extended Negotiation. It shall
+          not be present otherwise.
+        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
+          using a character set other than the default character repertoire.
 
         C-GET Response
         ---------------

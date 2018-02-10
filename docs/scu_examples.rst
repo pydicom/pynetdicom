@@ -30,7 +30,8 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
             status = assoc.send_c_echo()
 
             # Output the response from the peer
-            print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
+            if status:
+                print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
             # Release the association
             assoc.release()

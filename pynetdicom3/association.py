@@ -946,6 +946,8 @@ class Association(threading.Thread):
     def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """Send a C-FIND request to the peer AE.
 
+        Yields (status, identifier) pairs.
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
@@ -953,7 +955,8 @@ class Association(threading.Thread):
             the Identifier dataset are Service Class specific (see the DICOM
             Standard, Part 4).
         msg_id : int, optional
-            The message ID, must be between 0 and 65535, inclusive, (default 1).
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
             The C-FIND operation priority (may not be supported by the peer),
             one of:
@@ -978,9 +981,9 @@ class Association(threading.Thread):
         ------
         status : pydicom.dataset.Dataset
             If the peer timed out or sent an invalid response then yields an
-            empty Dataset. If a response was received from the peer then returns
-            a Dataset containing at least a (0000,0900) Status element, and
-            depending on the returned Status value, may optionally contain
+            empty Dataset. If a response was received from the peer then
+            yields a Dataset containing at least a (0000,0900) Status element,
+            and depending on the returned Status value, may optionally contain
             additional elements (see PS3.7 9.1.2.1.5 and Annex C).
 
             The status for the requested C-FIND operation should be one of the
@@ -1020,9 +1023,9 @@ class Association(threading.Thread):
 
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' then the C-FIND response's Identifier
-            dataset. If the status is not 'Pending' this will be None. The exact
-            contents of the response Identifier are Service Class specific (see
-            the DICOM Standard, Part 4).
+            dataset. If the status is not 'Pending' this will be None. The
+            exact contents of the response Identifier are Service Class
+            specific (see the DICOM Standard, Part 4).
 
         Raises
         ------
@@ -1166,6 +1169,8 @@ class Association(threading.Thread):
                     query_model='P'):
         """Send a C-MOVE request to the peer AE.
 
+        Yields (status, identifier) pairs.
+
         The ApplicationEntity.on_c_store callback should be implemented prior
         to calling send_c_move as the peer may either return any matches
         via a C-STORE sub-operation over the current association or request a
@@ -1181,7 +1186,8 @@ class Association(threading.Thread):
             The AE title of the destination for the C-STORE sub-operations
             performed by the peer.
         msg_id : int, optional
-            The message ID, must be between 0 and 65535, inclusive, (default 1).
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
             The C-MOVE operation priority (if supported by the peer), one of:
 
@@ -1202,9 +1208,9 @@ class Association(threading.Thread):
         ------
         status : pydicom.dataset.Dataset
             If the peer timed out or sent an invalid response then yields an
-            empty Dataset. If a response was received from the peer then returns
-            a Dataset containing at least a (0000,0900) Status element, and
-            depending on the returned Status value, may optionally contain
+            empty Dataset. If a response was received from the peer then
+            yields a Dataset containing at least a (0000,0900) Status element,
+            and depending on the returned Status value, may optionally contain
             additional elements (see DICOM Standard Part 7, Section 9.1.4 and
             Annex C).
 
@@ -1231,7 +1237,8 @@ class Association(threading.Thread):
 
             - Failure
 
-              * 0xA701 - Out of resources: unable to calculate number of matches
+              * 0xA701 - Out of resources: unable to calculate number of
+                matches
               * 0xA702 - Out of resources: unable to perform sub-operations
               * 0xA801 - Move destination unknown
               * 0xA900 - Identifier does not match SOP Class
@@ -1416,6 +1423,8 @@ class Association(threading.Thread):
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request to the peer AE.
 
+        Yields (status, identifier) pairs.
+
         The ApplicationEntity.on_c_store callback should be implemented prior
         to calling send_c_get as the peer will return any matches via a C-STORE
         sub-operation over the current association.
@@ -1427,7 +1436,8 @@ class Association(threading.Thread):
             the Identifier dataset are Service Class specific (see the DICOM
             Standard, Part 4).
         msg_id : int, optional
-            The message ID, must be between 0 and 65535, inclusive, (default 1).
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
             The C-GET operation priority (may not be supported by the peer),
             one of:
@@ -1450,7 +1460,7 @@ class Association(threading.Thread):
         ------
         status : pydicom.dataset.Dataset
             If the peer timed out or sent an invalid response then yields an
-            empty Dataset. If a response was received from the peer then returns
+            empty Dataset. If a response was received from the peer then yields
             a Dataset containing at least a (0000,0900) Status element, and
             depending on the returned Status value may optionally contain
             additional elements (see DICOM Standard Part 7, Section 9.1.2.1.5
@@ -1732,7 +1742,7 @@ class Association(threading.Thread):
         except Exception as ex:
             LOGGER.error('Failed to decode the received dataset')
             LOGGER.exception(ex)
-            rsp.Status = 0xC100
+            rsp.Status = 0xC210
             rsp.ErrorComment = 'Unable to decode the dataset'
             self.dimse.send_msg(rsp, context_id)
             return
@@ -1744,7 +1754,7 @@ class Association(threading.Thread):
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")
             LOGGER.exception(ex)
-            rsp.Status = 0xC101
+            rsp.Status = 0xC211
             self.dimse.send_msg(rsp, context_id)
             return
 
@@ -1764,12 +1774,12 @@ class Association(threading.Thread):
             else:
                 LOGGER.error("User callback returned a `Dataset` "
                              "without a Status element.")
-                rsp.Status = 0xC102
+                rsp.Status = 0xC001
         elif isinstance(status, int):
             rsp.Status = status
         else:
             LOGGER.error("Invalid status returned by user callback.")
-            rsp.Status = 0xC103
+            rsp.Status = 0xC002
 
         if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
             LOGGER.warning("Unknown status value returned by callback "

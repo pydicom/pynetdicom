@@ -62,9 +62,9 @@ class C_STORE(object):
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=)] For the request/indication this specifies the SOP Instance
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -127,7 +127,7 @@ class C_STORE(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -146,7 +146,7 @@ class C_STORE(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -176,7 +176,7 @@ class C_STORE(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
+            raise TypeError("Affected SOP Class UID must be a "
                     "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
@@ -208,7 +208,7 @@ class C_STORE(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Instance UID must be a " \
+            raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
@@ -228,7 +228,7 @@ class C_STORE(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-STORE Priority parameter to " \
+            LOGGER.warning("Attempted to set C-STORE Priority parameter to "
                            "an invalid value")
             raise ValueError("C-STORE Priority must be 0, 1, or 2")
 
@@ -268,7 +268,7 @@ class C_STORE(object):
             if 0 <= value < 2**16:
                 self._move_originator_message_id = value
             else:
-                raise ValueError("Move Originator Message ID To must be " \
+                raise ValueError("Move Originator Message ID To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._move_originator_message_id = value
@@ -359,8 +359,8 @@ class C_FIND(object):
         interpreted explicitly in the designated local time zone
 
     Response Identifier Structure
-    * Key Attribute with values corresponding to Key Attributes contained in the
-    Identifier of the request
+    * Key Attribute with values corresponding to Key Attributes contained in
+    the Identifier of the request
     * QR Level (0008, 0053)
     * Conditionally, (0008,0005) if expanded or replacement character sets
         may be used in the response Identifier attributes
@@ -389,9 +389,9 @@ class C_FIND(object):
         [-, M, M] The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=), -] For the request/indication this specifies the SOP Class
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -409,8 +409,8 @@ class C_FIND(object):
         [-, C, -] An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C, -] An optional status related field containing a text description
-        of the error detected. 64 characters maximum.
+        [-, C, -] An optional status related field containing a text
+        description of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -443,7 +443,7 @@ class C_FIND(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -462,7 +462,7 @@ class C_FIND(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -492,7 +492,7 @@ class C_FIND(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
+            raise TypeError("Affected SOP Class UID must be a "
                     "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
@@ -512,7 +512,7 @@ class C_FIND(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
                     "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
@@ -615,9 +615,9 @@ class C_GET(object):
         [-, M, M] The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=), -] For the request/indication this specifies the SOP Class
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -652,8 +652,8 @@ class C_GET(object):
         [-, C, -] An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C, -] An optional status related field containing a text description
-        of the error detected. 64 characters maximum.
+        [-, C, -] An optional status related field containing a text
+        description of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -693,7 +693,7 @@ class C_GET(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -712,7 +712,7 @@ class C_GET(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -742,8 +742,8 @@ class C_GET(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -762,8 +762,8 @@ class C_GET(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
-                    "invalid value")
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
+                           "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
@@ -806,7 +806,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be " \
+                raise ValueError("Number of Remaining Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_remaining_suboperations = value
@@ -825,7 +825,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be " \
+                raise ValueError("Number of Completed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_completed_suboperations = value
@@ -844,7 +844,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be " \
+                raise ValueError("Number of Failed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_failed_suboperations = value
@@ -863,7 +863,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be " \
+                raise ValueError("Number of Warning Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_warning_suboperations = value
@@ -941,9 +941,9 @@ class C_MOVE(object):
         [-, M, M] The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=), -] For the request/indication this specifies the SOP Class
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -981,8 +981,8 @@ class C_MOVE(object):
         [-, C, -] An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C, -] An optional status related field containing a text description
-        of the error detected. 64 characters maximum.
+        [-, C, -] An optional status related field containing a text
+        description of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1021,7 +1021,7 @@ class C_MOVE(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -1040,7 +1040,7 @@ class C_MOVE(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -1070,8 +1070,8 @@ class C_MOVE(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -1090,8 +1090,8 @@ class C_MOVE(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
-                    "invalid value")
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
+                           "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
@@ -1106,8 +1106,8 @@ class C_MOVE(object):
         Parameters
         ----------
         value : str or bytes
-            The Move Destination AE Title as a string or bytes object. Cannot be
-            an empty string and will be truncated to 16 characters long
+            The Move Destination AE Title as a string or bytes object. Cannot
+            be an empty string and will be truncated to 16 characters long
         """
         if isinstance(value, str):
             value = codecs.encode(value, 'utf-8')
@@ -1157,7 +1157,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be " \
+                raise ValueError("Number of Remaining Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_remaining_suboperations = value
@@ -1176,7 +1176,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be " \
+                raise ValueError("Number of Completed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_completed_suboperations = value
@@ -1195,7 +1195,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be " \
+                raise ValueError("Number of Failed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_failed_suboperations = value
@@ -1214,7 +1214,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be " \
+                raise ValueError("Number of Warning Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_warning_suboperations = value
@@ -1306,7 +1306,7 @@ class C_ECHO(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -1325,7 +1325,7 @@ class C_ECHO(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -1355,8 +1355,8 @@ class C_ECHO(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -1430,7 +1430,7 @@ class C_CANCEL(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -1459,9 +1459,9 @@ class N_EVENT_REPORT(object):
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=)] For the request/indication this specifies the SOP Instance
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     EventTypeID :
         [M, C(=)] FIXME, PS3.4 Service Class Specifications
     EventInformation :
