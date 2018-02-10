@@ -55,6 +55,9 @@ DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
+# FIXME: Add tests for _c_store_scp
+
+
 class TestAssociation(unittest.TestCase):
     """Run tests on Associtation."""
     # Association(local_ae, client_socket, peer_ae, acse_timeout,

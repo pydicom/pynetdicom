@@ -28,6 +28,9 @@ LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
 
+# FIXME: Add tests for is_valid_response and is_valid_request
+
+
 class TestPrimitive_N_EVENT(unittest.TestCase):
     """Test DIMSE N-EVENT-REPORT operations."""
     def test_assignment(self):

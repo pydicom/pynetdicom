@@ -7,6 +7,8 @@ import threading
 import time
 import unittest
 
+import pytest
+
 from pydicom import read_file
 from pydicom.dataset import Dataset
 
@@ -113,6 +115,23 @@ class TestServiceClass(unittest.TestCase):
         self.assertEqual(rsp.Status, 0x0002)
         self.assertEqual(rsp.ErrorComment, 'test')
 
+    def test_validate_status_ds_no_status(self):
+        """Test correct status returned if ds has no Status element."""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        status = Dataset()
+        status.ErrorComment = 'Test comment'
+        rsp = sop.validate_status(status, rsp)
+        assert rsp.Status == 0xC001
+
+    def test_validate_status_ds_unknown(self):
+        """Test a status ds with an unknown element."""
+        sop = StorageServiceClass()
+        rsp = C_STORE()
+        status = Dataset()
+        status.PatientName = 'Test comment'
+        rsp = sop.validate_status(status, rsp)
+
     def test_validate_status_int(self):
         """Test that validate_status works correctly with int"""
         sop = StorageServiceClass()
@@ -196,6 +215,22 @@ class TestVerificationServiceClass(unittest.TestCase):
         rsp = assoc.send_c_echo()
         self.assertEqual(rsp.Status, 0x0001)
         self.assertEqual(rsp.ErrorComment, 'Test')
+        assoc.release()
+        self.scp.stop()
+
+    def test_scp_callback_return_dataset_unknown(self):
+        """Test a status ds with an unknown element."""
+        self.scp = DummyVerificationSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.status.PatientName = 'test name'
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        rsp = assoc.send_c_echo()
+        self.assertEqual(rsp.Status, 0x0001)
         assoc.release()
         self.scp.stop()
 
@@ -1008,6 +1043,11 @@ class TestQRGetServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
+    def test_get_callback_not_dataset(self):
+        """Test status returned correctly if not yielding a dataset."""
+        pass
+
+
     def test_store_callback_exception(self):
         """Test SCP handles send_c_store raising an exception"""
         self.scp = DummyGetSCP()
@@ -1517,6 +1557,18 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
+    def test_move_callback_bad_yield_destination(self):
+        """Test correct status returned if callback doesn't yield dest."""
+        pass
+
+    def test_move_callback_bad_yield_subops(self):
+        """Test correct status returned if callback doesn't yield subops."""
+        pass
+
+    def test_move_unknown_destination(self):
+        """Test correct status returned if destination unknown."""
+        pass
+
     def test_move_callback_bad_subops(self):
         """Test on_c_move yielding a bad no subops"""
         self.scp = DummyMoveSCP()
@@ -1740,6 +1792,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
+    def test_move_callback_not_dataset(self):
+        """Test status returned correctly if not yielding a dataset."""
+        pass
+
     def test_scp_basic(self):
         """Test on_c_move"""
         self.scp = DummyMoveSCP()
@@ -1800,6 +1856,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
+
+    def test_weird_failure_branch(self):
+        """Test that warning branch that isn't covered."""
+        pass
 
     def test_scp_store_warning(self):
         """Test when on_c_store returns warning status"""
