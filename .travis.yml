@@ -21,7 +21,7 @@ install:
 
 # Command to run tests
 script:
-    - pytest --cov=pynetdicom3 -r sx --pyargs pynetdicom3
+    - pytest --cov=pynetdicom3
 
 after_success:
     - coveralls
