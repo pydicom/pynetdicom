@@ -1044,10 +1044,45 @@ class TestQRGetServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_get_callback_not_dataset(self):
-        """Test status returned correctly if not yielding a dataset."""
-        pass
+    def test_get_callback_invalid_dataset(self):
+        """Test status returned correctly if not yielding a Dataset."""
+        self.scp = DummyGetSCP()
+        def on_c_store(ds):
+            return 0x0000
+        self.scp.no_suboperations = 3
+        self.scp.statuses = [Dataset(), Dataset(), Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.statuses[1].Status = 0xFF00
+        self.scp.statuses[2].Status = 0xFF00
+        self.scp.datasets = [self.ds, 'acbdef', self.ds]
+        self.scp.start()
 
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+        ae.on_c_store = on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_get(self.query, query_model='P')
+
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 1)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 2)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
 
     def test_store_callback_exception(self):
         """Test SCP handles send_c_store raising an exception"""
@@ -1406,7 +1441,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertEqual(status.NumberOfFailedSuboperations, 1)
         self.assertEqual(status.NumberOfWarningSuboperations, 0)
         self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -1468,7 +1503,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertEqual(status.NumberOfFailedSuboperations, 0)
         self.assertEqual(status.NumberOfWarningSuboperations, 0)
         self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -1560,15 +1595,73 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
     def test_move_callback_bad_yield_destination(self):
         """Test correct status returned if callback doesn't yield dest."""
-        pass
+        # Testing what happens if  the on_c_move callback doesn't yield
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.test_no_yield = True
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC514)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
 
     def test_move_callback_bad_yield_subops(self):
         """Test correct status returned if callback doesn't yield subops."""
-        pass
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.test_no_subops = True
+        self.scp.start()
 
-    def test_move_unknown_destination(self):
-        """Test correct status returned if destination unknown."""
-        pass
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xC514)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_move_bad_destination(self):
+        """Test correct status returned if destination bad."""
+        self.scp = DummyMoveSCP()
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.destination_ae = (None, 11112)
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xA801)
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
 
     def test_move_callback_bad_subops(self):
         """Test on_c_move yielding a bad no subops"""
@@ -1793,9 +1886,41 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_move_callback_not_dataset(self):
-        """Test status returned correctly if not yielding a dataset."""
-        pass
+    def test_move_callback_invalid_dataset(self):
+        """Test status returned correctly if not yielding a Dataset."""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 2
+        self.scp.statuses = [Dataset(), Dataset(), Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.statuses[1].Status = 0xFF00
+        self.scp.statuses[2].Status = 0xFF00
+        self.scp.datasets = [self.ds, 'acbdef', self.ds]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 1)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 2)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+        assoc.release()
+        self.scp.stop()
 
     def test_scp_basic(self):
         """Test on_c_move"""
@@ -1858,9 +1983,32 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
-    def test_weird_failure_branch(self):
-        """Test that warning branch that isn't covered."""
-        pass
+    def test_move_callback_warning(self):
+        """Test on_c_move returns warning status"""
+        self.scp = DummyMoveSCP()
+        # SCP should override final success status
+        self.scp.statuses = [0xB000, 0xFF00]
+        self.scp.datasets = [self.ds, self.ds]
+        self.scp.no_suboperations = 2
+        self.scp.store_status = 0x0000
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xB000)
+        self.assertEqual(status.NumberOfFailedSuboperations, 2)
+        self.assertEqual(status.NumberOfWarningSuboperations, 0)
+        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertRaises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
 
     def test_scp_store_warning(self):
         """Test when on_c_store returns warning status"""
@@ -2118,7 +2266,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertEqual(status.NumberOfFailedSuboperations, 1)
         self.assertEqual(status.NumberOfWarningSuboperations, 0)
         self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
@@ -2176,7 +2324,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertEqual(status.NumberOfFailedSuboperations, 0)
         self.assertEqual(status.NumberOfWarningSuboperations, 0)
         self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
+        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()

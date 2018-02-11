@@ -810,12 +810,17 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                 #   generate a final response, if Pending then do C-STORE
                 #   sub-operation
                 if status[0] == 'Cancel':
+                    # If user yields Cancel status then supposed to also
+                    # yield a dataset with FailedSOPInstanceUIDList
                     LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
                     store_assoc.release()
 
-                    ds = Dataset()
-                    ds.FailedSOPInstanceUIDList = failed_instances
-                    bytestream = encode(ds,
+                    # In case user didn't include it
+                    if 'FailedSOPInstanceUIDList' not in dataset:
+                        dataset = Dataset()
+                        dataset.FailedSOPInstanceUIDList = failed_instances
+
+                    bytestream = encode(dataset,
                                         self.transfersyntax.is_implicit_VR,
                                         self.transfersyntax.is_little_endian)
 
@@ -827,13 +832,20 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
-                elif status[0] == 'Failure':
-                    LOGGER.info('Move SCP Result (Failure - %s)', status[1])
+                elif status[0] in ['Failure', 'Warning']:
+                    # If user yields Failure/Warning status then supposed to
+                    # also yield a dataset with FailedSOPInstanceUIDList
+                    LOGGER.info('Move SCP Result (%s - %s)',
+                                status[0],
+                                status[1])
                     store_assoc.release()
 
-                    ds = Dataset()
-                    ds.FailedSOPInstanceUIDList = failed_instances
-                    bytestream = encode(ds,
+                    # In case user didn't include it
+                    if 'FailedSOPInstanceUIDList' not in dataset:
+                        dataset = Dataset()
+                        dataset.FailedSOPInstanceUIDList = failed_instances
+
+                    bytestream = encode(dataset,
                                         self.transfersyntax.is_implicit_VR,
                                         self.transfersyntax.is_little_endian)
 
@@ -873,15 +885,21 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
-                elif status[0] == 'Warning':
-                    break
                 elif status[0] == 'Pending' and dataset:
-                    LOGGER.info('Move SCP Response %s (Pending)', ii)
-
                     if not isinstance(dataset, Dataset):
-                        rsp.Status = 0xC516
+                        LOGGER.error('Received invalid dataset from callback')
+                        # Count as a sub-operation failure
+                        store_results[1] += 1
+                        failed_instances.append('')
+                        rsp.Identifier = None
+                        rsp.NumberOfRemainingSuboperations = store_results[0]
+                        rsp.NumberOfFailedSuboperations = store_results[1]
+                        rsp.NumberOfWarningSuboperations = store_results[2]
+                        rsp.NumberOfCompletedSuboperations = store_results[3]
                         self.DIMSE.send_msg(rsp, self.pcid)
-                        return
+                        continue
+
+                    LOGGER.info('Move SCP Response %s (Pending)', ii)
 
                     # Send `dataset` via C-STORE sub-operations over the
                     #   association and check that the response's Status exists
@@ -1166,16 +1184,19 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                ds = Dataset()
-                ds.FailedSOPInstanceUIDList = failed_instances
-                bytestream = encode(ds,
+                # In case user didn't include it
+                if 'FailedSOPInstanceUIDList' not in dataset:
+                    dataset = Dataset()
+                    dataset.FailedSOPInstanceUIDList = failed_instances
+
+                bytestream = encode(dataset,
                                     self.transfersyntax.is_implicit_VR,
                                     self.transfersyntax.is_little_endian)
                 rsp.Identifier = BytesIO(bytestream)
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status[0] == 'Failure':
-                LOGGER.info('Get SCP Result (Failure - %s)', status[1])
+            elif status[0] in ['Failure', 'Warning']:
+                LOGGER.info('Get SCP Result (%s - %s)', status[0], status[1])
                 rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = (
                     store_results[1] + store_results[0]
@@ -1183,9 +1204,12 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                ds = Dataset()
-                ds.FailedSOPInstanceUIDList = failed_instances
-                bytestream = encode(ds,
+                # In case user didn't include it
+                if 'FailedSOPInstanceUIDList' not in dataset:
+                    dataset = Dataset()
+                    dataset.FailedSOPInstanceUIDList = failed_instances
+
+                bytestream = encode(dataset,
                                     self.transfersyntax.is_implicit_VR,
                                     self.transfersyntax.is_little_endian)
                 rsp.Identifier = BytesIO(bytestream)
@@ -1213,19 +1237,22 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status[0] == 'Warning':
-                #LOGGER.info('Get SCP Result (Warning)')
-                #rsp.NumberOfRemainingSuboperations = None
-                #self.DIMSE.send_msg(rsp, self.pcid)
-                #return
-                break
             elif status[0] == 'Pending':
-                LOGGER.info('Get SCP Response: %s (Pending)', ii + 1)
                 # Check dataset is a Dataset or None
                 if not isinstance(dataset, Dataset):
-                    rsp.Status = 0xC416
+                    LOGGER.error('Received invalid dataset from callback')
+                    # Count as a sub-operation failure
+                    store_results[1] += 1
+                    failed_instances.append('')
+                    rsp.Identifier = None
+                    rsp.NumberOfRemainingSuboperations = store_results[0]
+                    rsp.NumberOfFailedSuboperations = store_results[1]
+                    rsp.NumberOfWarningSuboperations = store_results[2]
+                    rsp.NumberOfCompletedSuboperations = store_results[3]
                     self.DIMSE.send_msg(rsp, self.pcid)
-                    return
+                    continue
+
+                LOGGER.info('Get SCP Response: %s (Pending)', ii + 1)
 
                 # Send `dataset` via C-STORE sub-operations over the existing
                 #   association and check that the response's Status exists and

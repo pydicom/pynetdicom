@@ -83,6 +83,7 @@ QR_MOVE_SERVICE_CLASS_STATUS = {
     0xA801 : ('Failure', 'Move destination unknown'),
     0xA900 : ('Failure', 'Identifier does not match SOP class'),
     0xFF00 : ('Pending', 'Sub-operations are continuing'),
+    0xB000 : ('Warning', 'Sub-operations completed, one or more failures')
 }
 
 # Ranged values

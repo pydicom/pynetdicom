@@ -118,7 +118,7 @@ class DummyVerificationSCP(DummyBaseSCP):
             Wait `delay` seconds before sending a response
         """
         time.sleep(self.delay)
-        
+
         if self.send_abort:
             self.ae.active_associations[0].abort()
 
@@ -230,15 +230,24 @@ class DummyMoveSCP(DummyBaseSCP):
         self.no_suboperations = 1
         self.destination_ae = ('localhost', 11112)
         self.cancel = False
+        self.test_no_yield = False
+        self.test_no_subops = False
 
     def on_c_move(self, ds, move_aet):
-        """Callback for ae.on_c_find"""
+        """Callback for ae.on_c_move"""
         time.sleep(self.delay)
         ds = Dataset()
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
 
+        if self.test_no_yield:
+            return
+
         yield self.destination_ae
+
+        if self.test_no_subops:
+            return
+
         yield self.no_suboperations
         for (status, ds) in zip(self.statuses, self.datasets):
             if self.cancel:
