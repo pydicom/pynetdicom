@@ -1,6 +1,6 @@
 .. class:: center
-.. image:: https://coveralls.io/repos/github/pydicom/pynetdicom3/badge.svg?branch=master
-    :target: https://coveralls.io/github/pydicom/pynetdicom3?branch=master
+.. image:: https://codecov.io/gh/pydicom/pynetdicom3/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/pydicom/pynetdicom3
 .. image:: https://travis-ci.org/pydicom/pynetdicom3.svg?branch=master
     :target: https://travis-ci.org/pydicom/pynetdicom3
 
