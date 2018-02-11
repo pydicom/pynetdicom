@@ -519,20 +519,24 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 return
 
             if status[0] == 'Cancel':
+                # If cancel, then rsp_identifer is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info('Find SCP Response: (Cancel)')
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Failure':
+                # If failed, then rsp_identifier is None
                 LOGGER.info('Find SCP Response: (Failure - %s)', status[1])
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Success':
                 # User isn't supposed to send these, but handle anyway
+                # If success, then rsp_identifier is None
                 LOGGER.info('Find SCP Response: (Success)')
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Pending':
+                # If pending, the rsp_identifier is the Identifier dataset
                 bytestream = encode(rsp_identifier,
                                     self.transfersyntax.is_implicit_VR,
                                     self.transfersyntax.is_little_endian)
@@ -810,13 +814,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                 #   generate a final response, if Pending then do C-STORE
                 #   sub-operation
                 if status[0] == 'Cancel':
-                    # If user yields Cancel status then supposed to also
-                    # yield a dataset with FailedSOPInstanceUIDList
+                    # If cancel, then dataset is a Dataset with a
+                    #   'FailedSOPInstanceUIDList' element
                     LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
                     store_assoc.release()
 
                     # In case user didn't include it
-                    if 'FailedSOPInstanceUIDList' not in dataset:
+                    if (not isinstance(dataset, Dataset) or
+                        'FailedSOPInstanceUIDList' not in dataset):
                         dataset = Dataset()
                         dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -833,15 +838,16 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] in ['Failure', 'Warning']:
-                    # If user yields Failure/Warning status then supposed to
-                    # also yield a dataset with FailedSOPInstanceUIDList
+                    # If failed or warning, then dataset is a Dataset with a
+                    #   'FailedSOPInstanceUIDList' element
                     LOGGER.info('Move SCP Result (%s - %s)',
                                 status[0],
                                 status[1])
                     store_assoc.release()
 
                     # In case user didn't include it
-                    if 'FailedSOPInstanceUIDList' not in dataset:
+                    if (not isinstance(dataset, Dataset) or
+                        'FailedSOPInstanceUIDList' not in dataset):
                         dataset = Dataset()
                         dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -860,6 +866,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Success':
+                    # If success, then dataset is None
                     store_assoc.release()
 
                     # If the user yields Success, check it
@@ -886,6 +893,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     self.DIMSE.send_msg(rsp, self.pcid)
                     return
                 elif status[0] == 'Pending' and dataset:
+                    # If pending, then dataset is the Dataset to send
                     if not isinstance(dataset, Dataset):
                         LOGGER.error('Received invalid dataset from callback')
                         # Count as a sub-operation failure
@@ -1178,6 +1186,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 return
 
             if status[0] == 'Cancel':
+                # If cancel, dataset is a Dataset with a
+                # 'FailedSOPInstanceUIDList' element
                 LOGGER.info('Get SCP Received C-CANCEL-GET RQ from peer')
                 rsp.NumberOfRemainingSuboperations = store_results[0]
                 rsp.NumberOfFailedSuboperations = store_results[1]
@@ -1185,7 +1195,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
                 # In case user didn't include it
-                if 'FailedSOPInstanceUIDList' not in dataset:
+                if (not isinstance(dataset, Dataset) or
+                    'FailedSOPInstanceUIDList' not in dataset):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1196,6 +1207,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] in ['Failure', 'Warning']:
+                # If failure or warning, dataset is a Dataset with a
+                # 'FailedSOPInstanceUIDList' element
                 LOGGER.info('Get SCP Result (%s - %s)', status[0], status[1])
                 rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = (
@@ -1205,7 +1218,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
                 # In case user didn't include it
-                if 'FailedSOPInstanceUIDList' not in dataset:
+                if (not isinstance(dataset, Dataset) or
+                    'FailedSOPInstanceUIDList' not in dataset):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1217,6 +1231,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
                 return
             elif status[0] == 'Success':
                 # If user yields Success, check it
+                # dataset is None
                 if store_results[1] or store_results[2]:
                     LOGGER.info('Get SCP Response: (Warning)')
                     rsp.Status = 0xB000
@@ -1237,8 +1252,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
-            elif status[0] == 'Pending':
-                # Check dataset is a Dataset or None
+            elif status[0] == 'Pending' and dataset:
+                # If pending, dataset is the Dataset to send
                 if not isinstance(dataset, Dataset):
                     LOGGER.error('Received invalid dataset from callback')
                     # Count as a sub-operation failure

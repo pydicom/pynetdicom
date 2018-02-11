@@ -21,3 +21,4 @@ coverage:
         threshold: 1%
 ignore:
   - "pynetdicom3/tests"
+  - "pydicom-master"

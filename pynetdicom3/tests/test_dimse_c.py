@@ -28,9 +28,6 @@ from .encoded_dimse_msg import (
 )
 
 
-# FIXME: Add tests for is_valid_response and is_valid_request
-
-
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
