@@ -55,7 +55,201 @@ DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
-# FIXME: Add tests for _c_store_scp
+class DummyDIMSE(object):
+    def __init__(self):
+        self.status = None
+
+    def send_msg(self, rsp, context_id):
+        self.status = rsp.Status
+
+
+class TestCStoreSCP(unittest.TestCase):
+    """Tests for Association._c_store_scp"""
+    def setUp(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def tearDown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_no_presentation_context(self):
+        """Test correct status is returned if no valid presentation context."""
+        self.scp = DummyStorageSCP()
+        self.scp.raise_exception = True
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[RTImageStorage])
+        ae.on_c_store = self.scp.on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0x0122
+        assoc.release()
+        self.scp.stop()
+
+    def test_dataset_decode_failure(self):
+        """Test correct status returned if unable to decode dataset."""
+        # Not sure how to test this
+        pass
+
+    def test_on_c_store_callback_exception(self):
+        """Test correct status returned if exception raised in callback."""
+        self.scp = DummyStorageSCP()
+        self.scp.raise_exception = True
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae.on_c_store = self.scp.on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xC211
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_status_ds_no_status(self):
+        """Test correct status returned if status Dataset has no status."""
+        self.scp = DummyStorageSCP()
+        self.scp.status = Dataset()
+        self.scp.status.PatientName = 'ABCD'
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae.on_c_store = self.scp.on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xC001
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_status_ds_unknown_elem(self):
+        """Test returning a status Dataset with an unknown element."""
+        self.scp = DummyStorageSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0000
+        self.scp.status.PatientName = 'ABCD'
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae.on_c_store = self.scp.on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0x0000
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_invalid_status(self):
+        """Test returning a status Dataset with an invalid status type."""
+        self.scp = DummyStorageSCP()
+        self.scp.status = 'abcd'
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae.on_c_store = self.scp.on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xC002
+        assoc.release()
+        self.scp.stop()
+
+    def test_callback_unknown_status(self):
+        """Test returning a status Dataset with an unknown status value."""
+        self.scp = DummyStorageSCP()
+        self.scp.status = 0xDEFA
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae.on_c_store = self.scp.on_c_store
+
+        assoc = ae.associate('localhost', 11112)
+        assoc.dimse = DummyDIMSE()
+        self.assertTrue(assoc.is_established)
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xDEFA
+        assoc.release()
+        self.scp.stop()
 
 
 class TestAssociation(unittest.TestCase):

@@ -22,7 +22,7 @@ install:
 
 # Command to run tests
 script:
-    - pytest --cov=pynetdicom3
+    - pytest --cov=pynetdicom3 --ignore=pydicom-master
 
 after_success:
     - codecov

@@ -1730,9 +1730,9 @@ class Association(threading.Thread):
         if transfer_syntax is None:
             LOGGER.error("No Presentation Context for: '%s'",
                          req.AffectedSOPClassUID)
-            # SOP Class not supported
+            # SOP Class not supported, no context ID?
             rsp.Status = 0x0122
-            self.dimse.send_msg(rsp, context_id)
+            self.dimse.send_msg(rsp, 1)
             return
 
         # Attempt to decode the dataset

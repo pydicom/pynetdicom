@@ -22,7 +22,8 @@ from pynetdicom3.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
-    PatientStudyOnlyQueryRetrieveInformationModelMove)
+    PatientStudyOnlyQueryRetrieveInformationModelMove
+)
 from pynetdicom3.status import code_to_category
 
 
@@ -135,10 +136,13 @@ class DummyStorageSCP(DummyBaseSCP):
                                     RTImageStorage, MRImageStorage], port=port)
         DummyBaseSCP.__init__(self)
         self.status = 0x0000
+        self.raise_exception = False
 
     def on_c_store(self, ds):
         """Callback for ae.on_c_store"""
         time.sleep(self.delay)
+        if self.raise_exception:
+            raise ValueError('Dummy msg')
         return self.status
 
 
