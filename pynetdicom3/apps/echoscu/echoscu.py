@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-"""A dcmtk style echoscu application.
+
+"""
+An echoscu application.
 
 Used for verifying basic DICOM connectivity and as such has a focus on
 providing useful debugging and logging information.
@@ -10,10 +12,12 @@ import logging
 from logging.config import fileConfig
 import sys
 
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
 from pynetdicom3 import AE, VerificationSOPClass
+
 
 def setup_logger():
     """Setup the logging"""
@@ -26,9 +30,11 @@ def setup_logger():
 
     return logger
 
+
 LOGGER = setup_logger()
 
-VERSION = '0.5.2'
+VERSION = '0.6.0'
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -110,75 +116,8 @@ def _setup_argparser():
                           help="abort association instead of releasing it",
                           action="store_true")
 
-    # TLS Options
-    """
-    tls_opts = parser.add_argument_group('Transport Layer Security (TLS) Options')
-    tls_opts.add_argument("-dtls", "--disable-tls",
-                          help="use normal TCP/IP connection (default)",
-                          action="store_true")
-    tls_opts.add_argument("-tls", "--enable-tls",
-                          metavar="[p]rivate key file, [c]erficiate file",
-                          help="use authenticated secure TLD connection",
-                          type=str)
-    tls_opts.add_argument("-tla", "--anonymous-tls",
-                          help="use secure TLD connection without certificate",
-                          action="store_true")
-    tls_opts.add_argument("-ps", "--std-password",
-                          help="prompt user to type password on stdin (default)",
-                          action="store_true")
-    tls_opts.add_argument("-pw", "--use-password", metavar="[p]assword",
-                          help="use specified password",
-                          type=str)
-    tls_opts.add_argument("-nw", "--null-password",
-                          help="use empty string as password",
-                          action="store_true")
-    tls_opts.add_argument("-pem", "--pem-keys",
-                          help="read keys and certificates as PEM file "
-                                                                    "(default)",
-                          action="store_true")
-    tls_opts.add_argument("-der", "--der-keys",
-                          help="read keys and certificates as DER file",
-                          action="store_true")
-    tls_opts.add_argument("-cf", "--add-cert-file",
-                          metavar="[c]ertificate filename",
-                          help="add certificate file to list of certificates",
-                          type=str)
-    tls_opts.add_argument("-cd", "--add-cert-dir",
-                          metavar="[c]ertificate directory",
-                          help="add certificates in d to list of certificates",
-                          type=str)
-    tls_opts.add_argument("-cs", "--cipher",
-                          metavar="[c]iphersuite name",
-                          help="add ciphersuite to list of negotiated suites",
-                          type=str)
-    tls_opts.add_argument("-dp", "--dhparam",
-                          metavar="[f]ilename",
-                          help="read DH parameters for DH/DSS ciphersuites",
-                          type=str)
-    tls_opts.add_argument("-rs", "--seed",
-                          metavar="[f]ilename",
-                          help="seed random generator with contents of f",
-                          type=str)
-    tls_opts.add_argument("-ws", "--write-seed",
-                          help="write back modified seed (only with --seed)",
-                          action="store_true")
-    tls_opts.add_argument("-wf", "--write-seed-file",
-                          metavar="[f]ilename",
-                          help="write modified seed to file f",
-                          type=str)
-    tls_opts.add_argument("-rc", "--require-peer-cert",
-                          help="verify peer certificate, fail if absent "
-                                        "(default)",
-                          action="store_true")
-    tls_opts.add_argument("-vc", "--verify-peer-cert",
-                          help="verify peer certificate if present",
-                          action="store_true")
-    tls_opts.add_argument("-ic", "--ignore-peer-cert",
-                          help="don't verify peer certificate",
-                          action="store_true")
-    """
-
     return parser.parse_args()
+
 
 args = _setup_argparser()
 
@@ -232,22 +171,13 @@ try:
 except:
     transfer_syntaxes = [ImplicitVRLittleEndian]
 
-# Repeat presentation contexts - broken as AE checks for duplicates
-#try:
-#    if 0 < args.propose_pc <= 128:
-#        scu_sop_classes = [VerificationSOPClass] * args.propose_pc
-#    else:
-#        scu_sop_classes = [VerificationSOPClass]
-#except:
-#    scu_sop_classes = [VerificationSOPClass]
-
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
 if args.version:
-    print('echoscu.py v%s %s $' %(VERSION, '2016-04-12'))
+    print('echoscu.py v%s' %(VERSION))
     sys.exit()
 
-LOGGER.debug('echoscu.py v%s %s', VERSION, '2017-02-04')
+LOGGER.debug('echoscu.py v%s', VERSION)
 LOGGER.debug('')
 
 
@@ -271,11 +201,11 @@ assoc = ae.associate(args.peer, args.port, args.called_aet,
 # If we successfully Associated then send N DIMSE C-ECHOs
 if assoc.is_established:
     for ii in range(args.repeat):
+        # `status` is a pydicom Dataset
         status = assoc.send_c_echo()
 
-    if status is not None:
-        # Abort or release association
-        if args.abort:
-            assoc.abort()
-        else:
-            assoc.release()
+    # Abort or release association
+    if args.abort:
+        assoc.abort()
+    else:
+        assoc.release()

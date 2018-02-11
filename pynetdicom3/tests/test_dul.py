@@ -16,12 +16,19 @@ LOGGER.setLevel(logging.CRITICAL)
 
 class DummyACSE(object):
     """Dummy ACSE class"""
+    @staticmethod
     def debug_receive_associate_rq(): pass
+    @staticmethod
     def debug_receive_associate_ac(): pass
+    @staticmethod
     def debug_receive_associate_rj(): pass
+    @staticmethod
     def debug_receive_data_tf(): pass
+    @staticmethod
     def debug_receive_release_rq(): pass
+    @staticmethod
     def debug_receive_release_rp(): pass
+    @staticmethod
     def debug_receive_abort(): pass
 
 

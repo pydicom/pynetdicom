@@ -6,17 +6,17 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.pdu import MaximumLengthSubItem, \
-                            ImplementationClassUIDSubItem, \
-                            ImplementationVersionNameSubItem, \
-                            AsynchronousOperationsWindowSubItem, \
-                            SCP_SCU_RoleSelectionSubItem, \
-                            SOPClassExtendedNegotiationSubItem, \
-                            SOPClassCommonExtendedNegotiationSubItem, \
-                            UserIdentitySubItemRQ, \
-                            UserIdentitySubItemAC
+from pynetdicom3.pdu import (MaximumLengthSubItem,
+                             ImplementationClassUIDSubItem,
+                             ImplementationVersionNameSubItem,
+                             AsynchronousOperationsWindowSubItem,
+                             SCP_SCU_RoleSelectionSubItem,
+                             SOPClassExtendedNegotiationSubItem,
+                             SOPClassCommonExtendedNegotiationSubItem,
+                             UserIdentitySubItemRQ,
+                             UserIdentitySubItemAC)
 from pynetdicom3.utils import validate_ae_title, PresentationContext
-#from pynetdicom3.utils import wrap_list
+#from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
@@ -279,10 +279,9 @@ class A_ASSOCIATE(object):
             raise TypeError("application_context_name must be a " \
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None:
-            if not value.is_valid:
-                LOGGER.error("application_context_name is an invalid UID")
-                raise ValueError("application_context_name is an invalid UID")
+        if value is not None and not value.is_valid:
+            LOGGER.error("application_context_name is an invalid UID")
+            raise ValueError("application_context_name is an invalid UID")
 
         self._application_context_name = value
 
@@ -957,7 +956,7 @@ class P_DATA(object):
                          'the DIMSE message\n'
 
             # Remaining data
-            #s += wrap_list(pdv[1][1:], '    ', max_size=512)
+            #s += pretty_bytes(pdv[1][1:], '    ', max_size=512)
 
         return s
 
@@ -1216,7 +1215,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
             raise TypeError("Implementation Version Name must be a str " \
                             "or bytes")
 
-        if value is not None and not (1 < len(value) < 17):
+        if value is not None and not 1 < len(value) < 17:
             raise ValueError("Implementation Version Name must be " \
                              "between 1 and 16 characters long")
 

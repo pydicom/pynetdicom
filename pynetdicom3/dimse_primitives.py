@@ -6,8 +6,10 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 
 TODO: Implement properties for DIMSE-N parameters
+TODO: Implement status related parameters for DIMSE-N classes
 TODO: Add string output for the DIMSE-C classes
 """
+
 import codecs
 from io import BytesIO
 import logging
@@ -60,9 +62,9 @@ class C_STORE(object):
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=)] For the request/indication this specifies the SOP Instance
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -79,24 +81,13 @@ class C_STORE(object):
         [M, -] The pydicom Dataset containing the Attributes of the Composite
         SOP Instance to be stored, encoded as a BytesIO object
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
-        one of the following values:
-        Storage Service Class Specific (PS3.4 Annex B.2.3):
-            * 0xA700 to 0xA7FF: Failure (Refused: Out of resources)
-            * 0xA900 to 0xA9FF: Failure (Error: Data Set does not match SOP
-                                Class)
-            * 0xC000 to 0xCFFF: Failure (Error: Cannot understand)
-            * 0xB000: Warning (Coercion of Data Elements)
-            * 0xB007: Warning (Data Set does not match SOP Class)
-            * 0xB006: Warning (Element Discarded)
-            * 0x0000: Success
-        General C-STORE (PS3.7 9.1.1.1.9 and Annex C):
-            * 0x0122: Failure (Refused: SOP class not supported)
-            * 0x0210: Failure (Refused: Duplicate invocation)
-            * 0x0117: Failure (Refused: Invalid SOP instance)
-            * 0x0212: Failure (Refused: Mistyped argument)
-            * 0x0211: Failure (Refused: Unrecognised operation)
-            * 0x0124: Failure (Refused: Not authorised)
+        [-, M] The error or success notification of the operation.
+    OffendingElement : list of int or None
+        [-, C] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -114,14 +105,14 @@ class C_STORE(object):
         self.DataSet = None
         self.Status = None
 
-        # Optional Command Set elements used in with specific Status values
+        # Optional Command Set elements used with specific Status values
         # For Warning statuses 0xB000, 0xB006, 0xB007
         # For Failure statuses 0xCxxx, 0xA9xx,
         self.OffendingElement = None
         # For Warning statuses 0xB000, 0xB006, 0xB007
         # For Failure statuses 0xCxxx, 0xA9xx, 0xA7xx, 0x0122, 0x0124
         self.ErrorComment = None
-        # For Failure statuses 0x0117, 0x0122
+        # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
 
     @property
@@ -136,7 +127,7 @@ class C_STORE(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -155,7 +146,7 @@ class C_STORE(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -185,7 +176,7 @@ class C_STORE(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
+            raise TypeError("Affected SOP Class UID must be a "
                     "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
@@ -217,7 +208,7 @@ class C_STORE(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Instance UID must be a " \
+            raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
@@ -237,9 +228,9 @@ class C_STORE(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-STORE Priority parameter to " \
+            LOGGER.warning("Attempted to set C-STORE Priority parameter to "
                            "an invalid value")
-            raise ValueError("Priority must be 0, 1, or 2")
+            raise ValueError("C-STORE Priority must be 0, 1, or 2")
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):
@@ -277,7 +268,7 @@ class C_STORE(object):
             if 0 <= value < 2**16:
                 self._move_originator_message_id = value
             else:
-                raise ValueError("Move Originator Message ID To must be " \
+                raise ValueError("Move Originator Message ID To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._move_originator_message_id = value
@@ -307,39 +298,29 @@ class C_STORE(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            # Additional statuses needed
-            # Refused: Out of Resources
-            # Refused: SOP Class Not Supported 0x0122
-            # 0x0111 Duplicate SOP Instance
-            # Error: Cannot Understand
-            # Error: Dataset does not match SOP Class
-            # Warning
-            # Success
-            # Refused: Duplicate Invocation 0x0210
-            # Refused: Invalid SOP Instance 0x0117
-            # Refused: Mistyped Argument 0x0212
-            # Refused: Unrecognised Operation 0x0211
-            # Refused: Not Authorised 0x0124
-            valid_values = [range(0xA700, 0xA7FF + 1),
-                            range(0xA900, 0xA9FF + 1),
-                            range(0xC000, 0xCFFF + 1),
-                            [0xB000, 0xB007, 0xB006, 0x0000, 0x0122, 0x0111,
-                             0x0210, 0x0212, 0x0211, 0x0124, 0x0117]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-            if not found_valid:
-                LOGGER.debug("Unknown Status value 0x{0:04x}".format(value))
-
-            self._status = value
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
-            raise TypeError("Status must be an int")
+            raise TypeError("'C_STORE.Status' must be an int")
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'AffectedSOPInstanceUID', 'DataSet']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_FIND(object):
@@ -378,8 +359,8 @@ class C_FIND(object):
         interpreted explicitly in the designated local time zone
 
     Response Identifier Structure
-    * Key Attribute with values corresponding to Key Attributes contained in the
-    Identifier of the request
+    * Key Attribute with values corresponding to Key Attributes contained in
+    the Identifier of the request
     * QR Level (0008, 0053)
     * Conditionally, (0008,0005) if expanded or replacement character sets
         may be used in the response Identifier attributes
@@ -408,9 +389,9 @@ class C_FIND(object):
         [-, M, M] The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=), -] For the request/indication this specifies the SOP Class
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -423,23 +404,13 @@ class C_FIND(object):
         instances of the composite objects known to the performing DIMSE
         service-user
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall
-        be one of the following values:
-        Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
-            * 0xA700: Failure (Refused: Out of resources)
-            * 0xA900: Failure (Identifier does not match SOP Class)
-            * 0xC000 to 0xCFFF: Failure (Unable to process)
-            * 0xFE00: Cancel (Matching terminated due to Cancel request)
-            * 0x0000: Success (Matching is complete - no final Identifier is
-                      supplied)
-            * 0xFF00: Pending (Matches are continuing - Current match is
-                      supplied and any Optional Keys were supported in the same
-                      manner as Required Keys)
-            * 0xFF01: Pending (Matches are continuing - Warning that one or more
-                      Optional Keys were not supported for existence and/or
-                      matching for this Identifier)
-        General C-FIND PS3.7 9.1.2.1.5 and Annex C
-            * 0x0122: Failure (Refused: SOP class not supported)
+        [-, M, -] The error or success notification of the operation.
+    OffendingElement : list of int or None
+        [-, C, -] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C, -] An optional status related field containing a text
+        description of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -455,13 +426,10 @@ class C_FIND(object):
         self.Status = None
 
         # Optional Command Set elements used in with specific Status values
-        # For Failure statuses 0xA900
+        # For Failure statuses 0xA900, 0xCxxx
         self.OffendingElement = None
-        # For Failure statuses 0xA900, 0xA700, 0x0122, 0xC000
+        # For Failure statuses 0xA900, 0xA700, 0x0122, 0xCxxx
         self.ErrorComment = None
-        # For Failure statuses 0xC000
-        self.AffectedSOPInstanceUID = None
-        self.ErrorID = None
 
     @property
     def MessageID(self):
@@ -475,7 +443,7 @@ class C_FIND(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -494,7 +462,7 @@ class C_FIND(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -524,7 +492,7 @@ class C_FIND(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
+            raise TypeError("Affected SOP Class UID must be a "
                     "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
@@ -544,7 +512,7 @@ class C_FIND(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
                     "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
@@ -571,22 +539,29 @@ class C_FIND(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            valid_values = [range(0xC000, 0xCFFF + 1),
-                            [0xA700, 0xA900, 0xFE00, 0xFF00, 0xFF01, 0x0000]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-                    self._status = value
-            if not found_valid:
-                raise ValueError("Invalid Status value")
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
-            raise TypeError("Status must be an int")
+            raise TypeError("'C_FIND.Status' must be an int.")
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'Identifier']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_GET(object):
@@ -640,9 +615,9 @@ class C_GET(object):
         [-, M, M] The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=), -] For the request/indication this specifies the SOP Class
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -656,19 +631,7 @@ class C_GET(object):
         object. For the list of allowed Attributes and the rules defining their
         usage see PS3.4 Annex C.4.3.1.3
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall
-        be one of the following values:
-        * 0xA701: Failure (Refused: out of resources - unable to calculate
-            number of matches)
-        * 0xA702: Failure (Refused: out of resources - unable to perform
-            sub-operations)
-        * 0xA900: Failure (Identifier does not match SOP Class)
-        * 0xC000 to 0xCFFF: Failure (Unable to process)
-        * 0xFE00: Cancel (Sub-operations terminated due to Cancel indication)
-        * 0xB000: Warning (Sub-operations complete - one or more Failures or
-            Warnings)
-        * 0x0000: Success (Sub-operations complete - no Failures or Warnings)
-        * 0xFF00: Pending (Sub-operations are continuing)
+        [-, M, -] The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
         [-, C, -] The number of remaining C-STORE sub-operations to be invoked
         by this C-GET operation. It may be included in any response and shall
@@ -685,6 +648,12 @@ class C_GET(object):
         [-, C, -] The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
+    OffendingElement : list of int or None
+        [-, C, -] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C, -] An optional status related field containing a text
+        description of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -703,6 +672,15 @@ class C_GET(object):
         self.NumberOfFailedSuboperations = None
         self.NumberOfWarningSuboperations = None
 
+        # For Failure statuses 0xA701, 0xA900
+        self.ErrorComment = None
+        self.OffendingElement = None
+        # For 0xA702, 0xFE00, 0xB000, 0x0000
+        # self.NumberOfRemainingSuboperations
+        # self.NumberOfCompletedSuboperations
+        # self.NumberOfFailedSuboperations
+        # self.NumberOfWarningSuboperations
+
     @property
     def MessageID(self):
         """Return the Message ID parameter."""
@@ -715,7 +693,7 @@ class C_GET(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -734,7 +712,7 @@ class C_GET(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -764,8 +742,8 @@ class C_GET(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -784,8 +762,8 @@ class C_GET(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
-                    "invalid value")
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
+                           "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
@@ -811,20 +789,7 @@ class C_GET(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            valid_values = [range(0xC000, 0xCFFF + 1),
-                            [0xA701, 0xA702, 0xA900, 0xFE00,
-                             0xB000, 0x0000, 0xFF00]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-                    self._status = value
-            if not found_valid:
-                raise ValueError("Invalid Status value")
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
             raise TypeError("Status must be an int")
@@ -841,7 +806,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be " \
+                raise ValueError("Number of Remaining Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_remaining_suboperations = value
@@ -860,7 +825,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be " \
+                raise ValueError("Number of Completed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_completed_suboperations = value
@@ -879,7 +844,7 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be " \
+                raise ValueError("Number of Failed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_failed_suboperations = value
@@ -898,12 +863,31 @@ class C_GET(object):
             if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be " \
+                raise ValueError("Number of Warning Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_warning_suboperations = value
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'Identifier']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_MOVE(object):
@@ -957,9 +941,9 @@ class C_MOVE(object):
         [-, M, M] The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=), -] For the request/indication this specifies the SOP Class
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     Priority : int
         [M, -, -] The priority of the C-STORE operation. It shall be one of the
         following:
@@ -976,28 +960,7 @@ class C_MOVE(object):
         object. For the list of allowed Attributes and the rules defining their
         usage see PS3.4 Annex C.4.2.1.4
     Status : int
-        [-, M, -] The error or success notification of the operation. It shall
-        be one of the following values:
-        Query/Retrieve Service Class Specific (PS3.4 Annex C.4.2.1.5):
-            * 0xA701: Failure (Refused: Out of resources - unable to calculate
-                      number of matches)
-            * 0xA702: Failure (Refused: Out of resources - unable to perform
-                      sub-operations)
-            * 0xA801: Failure (Refused: Move destination unknown)
-            * 0xA900: Failure (Identifier does not match SOP Class)
-            * 0xC000 to 0xCFFF: Failure (Unable to process)
-            * 0xFE00: Cancel (Sub-operations terminated due to Cancel
-                      indication)
-            * 0xB000: Warning (Sub-operations complete - one or more failures)
-            * 0x0000: Success (Sub-operations complete - no failures)
-            * 0xFF00: Pending (Sub-operations are continuing)
-        General C-MOVE PS3.7 9.1.4.1.7 and Annex C:
-            * 0x0122: Failure (Refused: SOP class not supported)
-            * 0x0111: Failure (Refused: Duplicate invocation)
-            * 0x0212: Failure (Refused: Mistyped argument)
-            * 0x0211: Failure (Refused: Unrecognised operation)
-            * 0x0124: Failure (Refused: Not authorised)
-
+        [-, M, -] The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
         [-, C, -] The number of remaining C-STORE sub-operations to be invoked
         by this C-MOVE operation. It may be included in any response and shall
@@ -1014,6 +977,12 @@ class C_MOVE(object):
         [-, C, -] The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
+    OffendingElement : list of int or None
+        [-, C, -] An optional status related field containing a list of the
+        elements in which an error was detected.
+    ErrorComment : str or None
+        [-, C, -] An optional status related field containing a text
+        description of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1039,9 +1008,6 @@ class C_MOVE(object):
         # For Failure statuses 0xA801, 0xA701, 0xA702, 0x0122, 0xA900, 0xCxxx
         #   0x0124
         self.ErrorComment = None
-        # For Failure statuses 0xCxxx
-        self.AffectedSOPInstanceUID = None
-        self.ErrorID = None
 
     @property
     def MessageID(self):
@@ -1055,7 +1021,7 @@ class C_MOVE(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -1074,7 +1040,7 @@ class C_MOVE(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -1104,8 +1070,8 @@ class C_MOVE(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -1124,8 +1090,8 @@ class C_MOVE(object):
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an " \
-                    "invalid value")
+            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
+                           "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
@@ -1140,8 +1106,8 @@ class C_MOVE(object):
         Parameters
         ----------
         value : str or bytes
-            The Move Destination AE Title as a string or bytes object. Cannot be
-            an empty string and will be truncated to 16 characters long
+            The Move Destination AE Title as a string or bytes object. Cannot
+            be an empty string and will be truncated to 16 characters long
         """
         if isinstance(value, str):
             value = codecs.encode(value, 'utf-8')
@@ -1174,20 +1140,7 @@ class C_MOVE(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if isinstance(value, int):
-            # Add value range checking
-            valid_values = [range(0xC000, 0xCFFF + 1),
-                            [0xA701, 0xA702, 0xA801, 0xA900,
-                             0xFE00, 0xFF00, 0xB000, 0x0000]]
-            found_valid = False
-            for ii in valid_values:
-                if value in ii:
-                    found_valid = True
-                    self._status = value
-            if not found_valid:
-                raise ValueError("Invalid Status value")
-
-        elif value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
             raise TypeError("Status must be an int")
@@ -1204,7 +1157,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be " \
+                raise ValueError("Number of Remaining Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_remaining_suboperations = value
@@ -1223,7 +1176,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be " \
+                raise ValueError("Number of Completed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_completed_suboperations = value
@@ -1242,7 +1195,7 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be " \
+                raise ValueError("Number of Failed Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_failed_suboperations = value
@@ -1261,12 +1214,31 @@ class C_MOVE(object):
             if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be " \
+                raise ValueError("Number of Warning Suboperations must be "
                                  "greater than or equal to 0")
         elif value is None:
             self._number_of_warning_suboperations = value
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
+                        'Identifier', 'MoveDestination']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_ECHO(object):
@@ -1290,22 +1262,23 @@ class C_ECHO(object):
 
     Attributes
     ----------
-    MessageID : int
+    MessageID : int or None
         [M, U] Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
-    MessageIDBeingRespondedTo : int
+    MessageIDBeingRespondedTo : int or None
         [-, M] The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    AffectedSOPClassUID : pydicom.uid.UID, bytes or str
+    AffectedSOPClassUID : pydicom.uid.UID, bytes or str or None
         [M, U(=)] For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    Status : int
-        [-, M] The error or success notification of the operation. It shall be
-        one of the following values:
-        * 0x0000: Success
+    Status : int or None
+        [-, M] The error or success notification of the operation.
+    ErrorComment : str or None
+        [-, C] An optional status related field containing a text description
+        of the error detected. 64 characters maximum.
     """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1317,6 +1290,9 @@ class C_ECHO(object):
         self.MessageIDBeingRespondedTo = None
         self.AffectedSOPClassUID = None
         self.Status = None
+
+        # (Optional) for Failure status 0x0122
+        self.ErrorComment = None
 
     @property
     def MessageID(self):
@@ -1330,7 +1306,7 @@ class C_ECHO(object):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, " \
+                raise ValueError("Message ID must be between 0 and 65535, "
                                  "inclusive")
         elif value is None:
             self._message_id = value
@@ -1349,7 +1325,7 @@ class C_ECHO(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -1379,8 +1355,8 @@ class C_ECHO(object):
         elif value is None:
             pass
         else:
-            raise TypeError("Affected SOP Class UID must be a " \
-                    "pydicom.uid.UID, str or bytes")
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -1396,10 +1372,28 @@ class C_ECHO(object):
     @Status.setter
     def Status(self, value):
         """Set the Status parameter."""
-        if value == 0x0000 or value is None:
+        if isinstance(value, int) or value is None:
             self._status = value
         else:
-            raise ValueError("Status must be 0x0000")
+            raise TypeError("'C_ECHO.Status' must be an int.")
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class C_CANCEL(object):
@@ -1436,7 +1430,7 @@ class C_CANCEL(object):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be " \
+                raise ValueError("Message ID Being Responded To must be "
                                  "between 0 and 65535, inclusive")
         elif value is None:
             self._message_id_being_responded_to = value
@@ -1465,9 +1459,9 @@ class N_EVENT_REPORT(object):
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
+        [M, U(=)] For the request/indication this specifies the SOP Instance
+        for storage. If included in the response/confirmation, it shall be
+        equal to the value in the request/indication
     EventTypeID :
         [M, C(=)] FIXME, PS3.4 Service Class Specifications
     EventInformation :
@@ -1482,20 +1476,20 @@ class N_EVENT_REPORT(object):
     10.1.1.1.8 Status
 
     Failure
-        class-instance conflict 0x0119 PS3.7 Annex C.5.7
-        duplicate invocation 0x0210 PS3.7 Annex C.5.9
-        invalid argument value 0x0115 PS3.7 Annex C.5.10
-        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
-        mistyped argument 0x0212 PS3.7 Annex C.5.15
-        no such argument 0x0114 PS3.7 Annex C.5.16
-        no such event type 0x0113 PS3.7 Annex C.5.18
-        no such SOP class 0x0118 PS3.7 Annex C.5.20
-        no such SOP instance 0x0112 PS3.7 Annex C.5.19
-        processing failure 0x0110 PS3.7 Annex C.5.21
-        resource limitation 0x213 PS3.7 Annex C.5.22
-        unrecognised operation 0x0211 PS3.7 Annex C.5.23
+        0x0119 - class-instance conflict PS3.7 Annex C.5.7
+        0x0210 - duplicate invocation PS3.7 Annex C.5.9
+        0x0115 - invalid argument value PS3.7 Annex C.5.10
+        0x0117 - invalid SOP instance PS3.7 Annex C.5.12
+        0x0212 - mistyped argument PS3.7 Annex C.5.15
+        0x0114 - no such argument  PS3.7 Annex C.5.16
+        0x0113 - no such event type PS3.7 Annex C.5.18
+        0x0118 - no such SOP class PS3.7 Annex C.5.20
+        0x0112 - no such SOP instance PS3.7 Annex C.5.19
+        0x0110 - processing failure PS3.7 Annex C.5.21
+        0x0213 - resource limitation PS3.7 Annex C.5.22
+        0x0211 - unrecognised operation PS3.7 Annex C.5.23
     Success
-        success 0x0000
+        0x0000 - success 0x0000
     """
     def __init__(self):
         self.MessageID = None
@@ -1506,6 +1500,29 @@ class N_EVENT_REPORT(object):
         self.EventInformation = None
         self.EventReply = None
         self.Status = None
+
+        # (0000,1008) 0x0115
+        self.ActionTypeID = None
+        self.ActionInformation = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID', 'EventTypeID',
+                        'AffectedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class N_GET(object):
@@ -1572,6 +1589,25 @@ class N_GET(object):
         self.AffectedSOPInstanceUID = None
         self.AttributeList = None
         self.Status = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class N_SET(object):
@@ -1641,6 +1677,25 @@ class N_SET(object):
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.Status = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
 
 
 class N_ACTION(object):
@@ -1712,6 +1767,25 @@ class N_ACTION(object):
         self.ActionReply = None
         self.Status = None
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class N_CREATE(object):
     """Represents a N-CREATE primitive.
@@ -1773,6 +1847,24 @@ class N_CREATE(object):
         self.AttributeList = None
         self.Status = None
 
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'AffectedSOPClassUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
 
 class N_DELETE(object):
     """Represents a N-DELETE primitive.
@@ -1828,3 +1920,22 @@ class N_DELETE(object):
         self.AffectedSOPClassUID = None
         self.AffectedSOPInstanceUID = None
         self.Status = None
+
+    @property
+    def is_valid_request(self):
+        """Return True if the required parameters for a C-ECHO RQ are set."""
+        for keyword in ['MessageID', 'RequestedSOPClassUID',
+                        'RequestedSOPInstanceUID']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the required parameters for a C-ECHO RSP are set."""
+        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True

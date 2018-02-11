@@ -49,7 +49,7 @@ Logging
               debug mode, prints debugging information
     ``-ll   --log-level [l]evel (str)``
               One of ['critical', 'error', 'warning', 'info', 'debug'], prints
-              logging messages with corresponding level l or higher
+              logging messages with corresponding level or higher
     ``-lc   --log-config [f]ilename (str)``
               use python logging config [#]_ file f for the logger
 
@@ -75,7 +75,7 @@ Miscellaneous DICOM
               timeout for DIMSE messages (default: unlimited)
     ``-pdu  --max-pdu [n]umber of bytes (int)``
               set maximum receive PDU bytes to n bytes (default: 16384)
-    ``--repeat [n]umber (int)`` 
+    ``--repeat [n]umber (int)``
         repeat echo n times
     ``--abort``
         abort association instead of releasing it

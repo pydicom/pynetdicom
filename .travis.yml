@@ -14,16 +14,18 @@ before_script:
     - pip install $PWD/pydicom-master
 
 install:
+    - pip install codecov
     - pip install coverage
-    - pip install coveralls
+    - pip install pytest-cov
+    - pip install pytest
     - python setup.py install
 
 # Command to run tests
 script:
-    - coverage run --source=pynetdicom3 -m test.run_all_tests -v
+    - pytest --cov=pynetdicom3 --ignore=pydicom-master
 
 after_success:
-    - coveralls
+    - codecov
 
 notifications:
     email: false

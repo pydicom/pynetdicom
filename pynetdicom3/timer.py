@@ -84,8 +84,8 @@ class Timer(object):
         if self._start_time is None:
             if self.timeout_seconds is None:
                 return -1
-            else:
-                return self.timeout_seconds
+
+            return self.timeout_seconds
 
         seconds_elapsed = time.time() - self._start_time
         return self.timeout_seconds - seconds_elapsed

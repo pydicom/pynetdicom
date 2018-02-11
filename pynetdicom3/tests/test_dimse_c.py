@@ -5,28 +5,27 @@ from io import BytesIO
 import logging
 import unittest
 
+import pytest
+
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
-from encoded_dimse_msg import c_echo_rq_cmd, c_echo_rsp_cmd, \
-                              c_store_rq_cmd_b, c_store_rq_ds_b, \
-                              c_store_rsp_cmd, \
-                              c_find_rq_cmd, c_find_rq_ds, \
-                              c_find_rsp_cmd, c_find_rsp_ds, \
-                              c_get_rq_cmd, c_get_rq_ds, \
-                              c_get_rsp_cmd, c_get_rsp_ds, \
-                              c_move_rq_cmd, c_move_rq_ds, \
-                              c_move_rsp_cmd, c_move_rsp_ds
-from pynetdicom3.dimse_messages import C_STORE_RQ, C_STORE_RSP, \
-                                      C_MOVE_RQ, C_MOVE_RSP, \
-                                      C_ECHO_RQ, C_ECHO_RSP, \
-                                      C_FIND_RQ, C_FIND_RSP, \
-                                      C_GET_RQ, C_GET_RSP
-from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
-                                        C_FIND, C_CANCEL
-#from pynetdicom3.utils import wrap_list
+from pynetdicom3.dimse_messages import (
+    C_STORE_RQ, C_STORE_RSP,C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP,
+    C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP
+)
+from pynetdicom3.dimse_primitives import (
+    C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL
+)
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
+#from pynetdicom3.utils import pretty_bytes
+from .encoded_dimse_msg import (
+    c_echo_rq_cmd, c_echo_rsp_cmd, c_store_rq_cmd_b, c_store_rq_ds_b,
+    c_store_rsp_cmd, c_find_rq_cmd, c_find_rq_ds, c_find_rsp_cmd,
+    c_find_rsp_ds, c_get_rq_cmd, c_get_rq_ds, c_get_rsp_cmd, c_get_rsp_ds,
+    c_move_rq_cmd, c_move_rq_ds, c_move_rsp_cmd, c_move_rsp_ds
+)
 
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -45,6 +44,7 @@ class TestPrimitive_C_CANCEL(unittest.TestCase):
             primitive.MessageIDBeingRespondedTo = 100000
         with self.assertRaises(TypeError):
             primitive.MessageIDBeingRespondedTo = 'test'
+
 
 class TestPrimitive_C_STORE(unittest.TestCase):
     """Test DIMSE C-STORE operations."""
@@ -102,6 +102,9 @@ class TestPrimitive_C_STORE(unittest.TestCase):
 
         primitive.Status = 0xC123
         self.assertEqual(primitive.Status, 0xC123)
+
+        primitive.Status = 0xEE01
+        self.assertEqual(primitive.Status, 0xEE01)
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -209,10 +212,6 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.Status = 19.4
 
-        # Behaviour changed, logs instead of raising if status unknown
-        #with self.assertRaises(ValueError):
-        #    primitive.Status = 0x0010
-
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
         primitive = C_STORE()
@@ -254,6 +253,30 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_store_rsp_cmd)
 
+    def test_is_valid_request(self):
+        """Test C_STORE.is_valid_request"""
+        primitive = C_STORE()
+        assert not primitive.is_valid_request
+        primitive.MessageID = 1
+        assert not primitive.is_valid_request
+        primitive.AffectedSOPClassUID = '1.2'
+        assert not primitive.is_valid_request
+        primitive.Priority = 2
+        assert not primitive.is_valid_request
+        primitive.AffectedSOPInstanceUID = '1.2.1'
+        assert not primitive.is_valid_request
+        primitive.DataSet = BytesIO()
+        assert primitive.is_valid_request
+
+    def test_is_valid_resposne(self):
+        """Test C_STORE.is_valid_response."""
+        primitive = C_STORE()
+        assert not primitive.is_valid_response
+        primitive.MessageIDBeingRespondedTo = 1
+        assert not primitive.is_valid_response
+        primitive.Status = 0x0000
+        assert primitive.is_valid_response
+
 
 class TestPrimitive_C_FIND(unittest.TestCase):
     """Test DIMSE C-FIND operations."""
@@ -293,6 +316,9 @@ class TestPrimitive_C_FIND(unittest.TestCase):
 
         primitive.Status = 0xC123
         self.assertEqual(primitive.Status, 0xC123)
+
+        primitive.Status = 0xEE01
+        self.assertEqual(primitive.Status, 0xEE01)
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -364,9 +390,6 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.Status = 19.4
 
-        with self.assertRaises(ValueError):
-            primitive.Status = 0x0010
-
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
         primitive = C_FIND()
@@ -412,6 +435,28 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         self.assertEqual(cs_pdv, c_find_rsp_cmd)
         self.assertEqual(ds_pdv, c_find_rsp_ds)
 
+    def test_is_valid_request(self):
+        """Test C_FIND.is_valid_request"""
+        primitive = C_FIND()
+        assert not primitive.is_valid_request
+        primitive.MessageID = 1
+        assert not primitive.is_valid_request
+        primitive.AffectedSOPClassUID = '1.2'
+        assert not primitive.is_valid_request
+        primitive.Priority = 2
+        assert not primitive.is_valid_request
+        primitive.Identifier = BytesIO()
+        assert primitive.is_valid_request
+
+    def test_is_valid_resposne(self):
+        """Test C_FIND.is_valid_response."""
+        primitive = C_FIND()
+        assert not primitive.is_valid_response
+        primitive.MessageIDBeingRespondedTo = 1
+        assert not primitive.is_valid_response
+        primitive.Status = 0x0000
+        assert primitive.is_valid_response
+
 
 class TestPrimitive_C_GET(unittest.TestCase):
     """Test DIMSE C-GET operations."""
@@ -450,6 +495,9 @@ class TestPrimitive_C_GET(unittest.TestCase):
 
         primitive.Status = 0xC123
         self.assertEqual(primitive.Status, 0xC123)
+
+        primitive.Status = 0xEE01
+        self.assertEqual(primitive.Status, 0xEE01)
 
         primitive.NumberOfRemainingSuboperations = 1
         self.assertEqual(primitive.NumberOfRemainingSuboperations, 1)
@@ -565,9 +613,6 @@ class TestPrimitive_C_GET(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.Status = 19.4
 
-        with self.assertRaises(ValueError):
-            primitive.Status = 0x0010
-
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
         primitive = C_GET()
@@ -616,6 +661,28 @@ class TestPrimitive_C_GET(unittest.TestCase):
         self.assertEqual(cs_pdv, c_get_rsp_cmd)
         self.assertEqual(ds_pdv, c_get_rsp_ds)
 
+    def test_is_valid_request(self):
+        """Test C_GET.is_valid_request"""
+        primitive = C_GET()
+        assert not primitive.is_valid_request
+        primitive.MessageID = 1
+        assert not primitive.is_valid_request
+        primitive.AffectedSOPClassUID = '1.2'
+        assert not primitive.is_valid_request
+        primitive.Priority = 2
+        assert not primitive.is_valid_request
+        primitive.Identifier = BytesIO()
+        assert primitive.is_valid_request
+
+    def test_is_valid_resposne(self):
+        """Test C_GET.is_valid_response."""
+        primitive = C_GET()
+        assert not primitive.is_valid_response
+        primitive.MessageIDBeingRespondedTo = 1
+        assert not primitive.is_valid_response
+        primitive.Status = 0x0000
+        assert primitive.is_valid_response
+
 
 class TestPrimitive_C_MOVE(unittest.TestCase):
     """Test DIMSE C-MOVE operations."""
@@ -657,6 +724,9 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
 
         primitive.Status = 0xC123
         self.assertEqual(primitive.Status, 0xC123)
+
+        primitive.Status = 0xEE01
+        self.assertEqual(primitive.Status, 0xEE01)
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -773,9 +843,6 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         with self.assertRaises(TypeError):
             primitive.Status = 19.4
 
-        with self.assertRaises(ValueError):
-            primitive.Status = 0x0010
-
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
         primitive = C_MOVE()
@@ -826,6 +893,30 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         self.assertEqual(cs_pdv, c_move_rsp_cmd)
         self.assertEqual(ds_pdv, c_move_rsp_ds)
 
+    def test_is_valid_request(self):
+        """Test C_MOVE.is_valid_request"""
+        primitive = C_MOVE()
+        assert not primitive.is_valid_request
+        primitive.MessageID = 1
+        assert not primitive.is_valid_request
+        primitive.AffectedSOPClassUID = '1.2'
+        assert not primitive.is_valid_request
+        primitive.Priority = 2
+        assert not primitive.is_valid_request
+        primitive.MoveDestination = b'1234567890123456'
+        assert not primitive.is_valid_request
+        primitive.Identifier = BytesIO()
+        assert primitive.is_valid_request
+
+    def test_is_valid_resposne(self):
+        """Test C_MOVE.is_valid_response."""
+        primitive = C_MOVE()
+        assert not primitive.is_valid_response
+        primitive.MessageIDBeingRespondedTo = 1
+        assert not primitive.is_valid_response
+        primitive.Status = 0x0000
+        assert primitive.is_valid_response
+
 
 class TestPrimitive_C_ECHO(unittest.TestCase):
     """Test DIMSE C-ECHO operations."""
@@ -850,8 +941,15 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         self.assertEqual(primitive.AffectedSOPClassUID, UID('1.1.3'))
         self.assertTrue(isinstance(primitive.AffectedSOPClassUID, UID))
 
+        # Known status
         primitive.Status = 0x0000
         self.assertEqual(primitive.Status, 0x0000)
+        # Unknown status
+        primitive.Status = 0x9999
+        self.assertEqual(primitive.Status, 0x9999)
+
+        primitive.Status = 0xEE01
+        self.assertEqual(primitive.Status, 0xEE01)
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -860,45 +958,34 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         # MessageID
         with self.assertRaises(TypeError):
             primitive.MessageID = 'halp'
-
         with self.assertRaises(TypeError):
             primitive.MessageID = 1.111
-
         with self.assertRaises(ValueError):
             primitive.MessageID = 65536
-
         with self.assertRaises(ValueError):
             primitive.MessageID = -1
 
         # MessageIDBeingRespondedTo
         with self.assertRaises(TypeError):
             primitive.MessageIDBeingRespondedTo = 'halp'
-
         with self.assertRaises(TypeError):
             primitive.MessageIDBeingRespondedTo = 1.111
-
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = 65536
-
         with self.assertRaises(ValueError):
             primitive.MessageIDBeingRespondedTo = -1
 
         # AffectedSOPClassUID
         with self.assertRaises(TypeError):
             primitive.AffectedSOPClassUID = 45.2
-
         with self.assertRaises(TypeError):
             primitive.AffectedSOPClassUID = 100
-
         with self.assertRaises(ValueError):
             primitive.AffectedSOPClassUID = 'abc'
 
         # Status
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             primitive.Status = 19.4
-
-        with self.assertRaises(ValueError):
-            primitive.Status = 0x0010
 
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
@@ -926,6 +1013,24 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         pdvs = dimse_msg.encode_msg(1, 16382)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_echo_rsp_cmd)
+
+    def test_is_valid_request(self):
+        """Test C_ECHO.is_valid_request"""
+        primitive = C_ECHO()
+        assert not primitive.is_valid_request
+        primitive.MessageID = 1
+        assert not primitive.is_valid_request
+        primitive.AffectedSOPClassUID = '1.2'
+        assert primitive.is_valid_request
+
+    def test_is_valid_resposne(self):
+        """Test C_ECHO.is_valid_response."""
+        primitive = C_ECHO()
+        assert not primitive.is_valid_response
+        primitive.MessageIDBeingRespondedTo = 1
+        assert not primitive.is_valid_response
+        primitive.Status = 0x0000
+        assert primitive.is_valid_response
 
 if __name__ == "__main__":
     unittest.main()

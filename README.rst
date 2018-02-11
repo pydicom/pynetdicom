@@ -1,6 +1,6 @@
 .. class:: center
-.. image:: https://coveralls.io/repos/github/pydicom/pynetdicom3/badge.svg?branch=master
-    :target: https://coveralls.io/github/pydicom/pynetdicom3?branch=master
+.. image:: https://codecov.io/gh/pydicom/pynetdicom3/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/pydicom/pynetdicom3
 .. image:: https://travis-ci.org/pydicom/pynetdicom3.svg?branch=master
     :target: https://travis-ci.org/pydicom/pynetdicom3
 
@@ -111,12 +111,19 @@ Examples
 
         if assoc.is_established:
             # Send a DIMSE C-ECHO request to the peer
-            assoc.send_c_echo()
+            # `status` is a pydicom Dataset object with (at a minimum) a
+            # (0000,0900) Status element
+            status = assoc.send_c_echo()
+
+            # Output the response from the peer
+            if status:
+                print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
             # Release the association
             assoc.release()
 
-- Create a DICOM C-ECHO listen SCP on port 11112:
+- Create a DICOM C-ECHO listen SCP on port 11112 (you may optionally implement
+  the `AE.on_c_echo callback` if you want to return a non Success status):
 
 .. code-block:: python
 
@@ -146,6 +153,9 @@ Examples
         assoc = ae.associate(addr, port)
         if assoc.is_established:
             dataset = read_file('file-in.dcm')
-            assoc.send_c_store(dataset)
+            # `status` is the response from the peer to the store request
+            # but may be an empty pydicom Dataset if the peer timed out or
+            # sent an invalid dataset.
+            status = assoc.send_c_store(dataset)
 
             assoc.release()

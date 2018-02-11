@@ -150,9 +150,9 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
+
 def on_c_find(dataset):
     """Implement the ae.on_c_find callback."""
-
     basedir = '../../../test/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
@@ -163,7 +163,11 @@ def on_c_find(dataset):
         ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
         ds.RetrieveAETitle = args.aetitle
         ds.PatientName = data.PatientName
-        yield 0xff00, ds
+
+        status_ds = Dataset()
+        status_ds.Status = 0xFF00
+        yield status_ds, ds
+
 
 # Create application entity
 ae = AE(ae_title=args.aetitle,

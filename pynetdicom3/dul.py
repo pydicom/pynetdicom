@@ -1,4 +1,6 @@
-"""Implements the DICOM Upper Layer service provider."""
+"""
+Implements the DICOM Upper Layer service provider.
+"""
 
 import logging
 import os
@@ -13,12 +15,8 @@ from threading import Thread
 import time
 
 from pynetdicom3.fsm import StateMachine
-from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, \
-                            A_ASSOCIATE_RJ, \
-                            P_DATA_TF, \
-                            A_RELEASE_RQ, \
-                            A_RELEASE_RP, \
-                            A_ABORT_RQ
+from pynetdicom3.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
+                             P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
 from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom3.timer import Timer
 
@@ -149,7 +147,7 @@ class DULServiceProvider(Thread):
         self.daemon = False
 
         # Controls the minimum delay between loops in run()
-        self._run_loop_delay = 0.001
+        self._run_loop_delay = 0.01
 
     def idle_timer_expired(self):
         """
@@ -560,7 +558,7 @@ class DULServiceProvider(Thread):
         while read_length < n_bytes:
             tmp = sock.recv(n_bytes - read_length)
 
-            if len(tmp) == 0:
+            if not tmp:
                 return ret
 
             ret += tmp

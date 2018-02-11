@@ -203,9 +203,10 @@ def on_c_store(dataset):
 
     Returns
     -------
-    status
-        A valid return status code, see PS3.4 Annex B.2.3 or the
-        StorageServiceClass implementation for the available statuses
+    status : pydicom.dataset.Dataset
+        A Dataset containing a Status element with a value valid for the
+        Storage Service Class (see PS3.4 annex B.2.3). The dataset may also
+        contain optional elements related to the Status (see PS3.7 Annex C).
     """
     mode_prefix = 'UN'
     mode_prefixes = {'CT Image Storage' : 'CT',
@@ -248,6 +249,8 @@ def on_c_store(dataset):
     ds.is_little_endian = True
     ds.is_implicit_VR = True
 
+    status_ds = Dataset()
+
     if not args.ignore:
         # Try to save to output-directory
         if args.output_directory is not None:
@@ -255,18 +258,21 @@ def on_c_store(dataset):
 
         try:
             ds.save_as(filename)
+            status_ds.Status = 0x0000 # Success
         except IOError:
             LOGGER.error('Could not write file to specified directory:')
             LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
             LOGGER.error('Directory may not exist or you may not have write '
                     'permission')
-            return 0xA700 # Failed - Out of Resources
+            # Failed - Out of Resources - IOError
+            status_ds.Status = 0xA700
         except:
             LOGGER.error('Could not write file to specified directory:')
             LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            return 0xA700 # Failed - Out of Resources
+            # Failed - Out of Resources - Miscellaneous error
+            status_ds.Status = 0xA701
 
-    return 0x0000 # Success
+    return status_ds
 
 # Test output-directory
 if args.output_directory is not None:

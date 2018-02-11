@@ -1,5 +1,5 @@
 """
-Defines the Association class
+Defines the Association class which handles associating with peers.
 """
 from io import BytesIO
 import logging
@@ -7,35 +7,36 @@ import socket
 import threading
 import time
 
+from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
+# pylint: disable=no-name-in-module
 from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
-from pynetdicom3.dimse_primitives import C_ECHO, C_MOVE, C_STORE, C_GET, \
-                                         C_FIND, C_CANCEL
+from pynetdicom3.dimse_primitives import (C_ECHO, C_MOVE, C_STORE, C_GET,
+                                          C_FIND, C_CANCEL)
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
-from pynetdicom3.sop_class import uid_to_sop_class, VerificationServiceClass, \
-                         StorageServiceClass, \
-                         QueryRetrieveGetServiceClass, \
-                         QueryRetrieveFindServiceClass, \
-                         QueryRetrieveMoveServiceClass, \
-                         ModalityWorklistInformationFind, \
-                         ModalityWorklistServiceSOPClass, \
-                         PatientRootQueryRetrieveInformationModelFind, \
-                         StudyRootQueryRetrieveInformationModelFind, \
-                         PatientStudyOnlyQueryRetrieveInformationModelFind, \
-                         PatientRootQueryRetrieveInformationModelMove, \
-                         StudyRootQueryRetrieveInformationModelMove, \
-                         PatientStudyOnlyQueryRetrieveInformationModelMove, \
-                         PatientRootQueryRetrieveInformationModelGet, \
-                         StudyRootQueryRetrieveInformationModelGet, \
-                         PatientStudyOnlyQueryRetrieveInformationModelGet
-from pynetdicom3.pdu_primitives import UserIdentityNegotiation, \
-                                   SOPClassExtendedNegotiation, \
-                                   SOPClassCommonExtendedNegotiation, \
-                                   A_ASSOCIATE, A_ABORT, A_P_ABORT
+from pynetdicom3.sop_class import (
+    uid_to_sop_class,
+    ModalityWorklistInformationFind,
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind,
+    PatientStudyOnlyQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelMove,
+    PatientStudyOnlyQueryRetrieveInformationModelMove,
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
+    PatientStudyOnlyQueryRetrieveInformationModelGet)
+from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
+                                        SOPClassExtendedNegotiation,
+                                        SOPClassCommonExtendedNegotiation,
+                                        A_ASSOCIATE, A_ABORT, A_P_ABORT)
+from pynetdicom3.status import (code_to_status, code_to_category,
+                                STORAGE_SERVICE_CLASS_STATUS)
 from pynetdicom3.utils import PresentationContextManager
+# pylint: enable=no-name-in-module
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
@@ -89,7 +90,7 @@ class Association(threading.Thread):
         A list of the supported SOP classes when acting as an SCP.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
-                 acse_timeout=60, dimse_timeout=None, max_pdu=16382, 
+                 acse_timeout=60, dimse_timeout=None, max_pdu=16382,
                  ext_neg=None):
         """Create a new Association.
 
@@ -162,7 +163,7 @@ class Association(threading.Thread):
         #   as an SCU?
         # Q. Why do we need to feed the DUL an ACSE timeout?
         # A. ARTIM timer
-        self.dul = DULServiceProvider(client_socket,
+        self.dul = DULServiceProvider(socket=client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 
@@ -187,7 +188,7 @@ class Association(threading.Thread):
             self.dimse_timeout = dimse_timeout
         else:
             raise TypeError("dimse_timeout must be numeric or None")
-        
+
         if acse_timeout is None:
             self.acse_timeout = None
         elif isinstance(acse_timeout, (int, float)):
@@ -264,6 +265,9 @@ class Association(threading.Thread):
             self.acse.abort_assoc(source=0x00, reason=0x00)
             self.kill()
             self.is_aborted = True
+
+        # Add short delay to ensure everything shuts down
+        time.sleep(0.1)
 
     def run(self):
         """The main Association control."""
@@ -404,6 +408,7 @@ class Association(threading.Thread):
         assoc_ac = self.acse.accept_assoc(assoc_rq)
 
         if assoc_ac is None:
+            #self.abort()
             self.kill()
             return
 
@@ -441,7 +446,7 @@ class Association(threading.Thread):
         """
         self._is_running = True
         while not self._kill:
-            time.sleep(0.001)
+            time.sleep(0.1)
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
@@ -577,7 +582,7 @@ class Association(threading.Thread):
                 #
                 # Listen for further messages from the peer
                 while not self._kill:
-                    time.sleep(0.001)
+                    time.sleep(0.1)
 
                     # Check for release request
                     if self.acse.CheckRelease():
@@ -650,180 +655,223 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int, optional
-            The message ID to use (default: 1)
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
 
         Returns
         -------
-        status : pynetdicom3.sop_class.Status or None
-            Returns None if no valid presentation context or no response
-            from the peer, Success (0x0000) otherwise.
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then returns an
+            empty Dataset. If a valid response was received from the peer then
+            returns a Dataset containing at least a (0000,0900) Status element,
+            and, depending on the returned Status value, may optionally contain
+            additional elements (see DICOM Standard Part 7, Annex C).
+
+            The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
+            value of a C-ECHO response "shall have a value of Success". However
+            Section 9.1.5.1.4 indicates it may have any of the following
+            values:
+
+            Success
+
+              * 0x0000 - Success
+
+            Failure
+
+              * 0x0122 - SOP class not supported
+              * 0x0210 - Duplicate invocation
+              * 0x0211 - Unrecognised operation
+              * 0x0212 - Mistyped argument
+
+            As the actual status depends on the peer SCP, it shouldn't be
+            assumed that it will be one of these.
+
+        Raises
+        ------
+        RuntimeError
+            If called without an association to a peer SCP.
+        ValueError
+            If no accepted Presentation Context for 'Verification SOP Class'.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_echo
+        dimse_primitives.C_ECHO
+        sop_class.VerificationServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex A
+        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
+
+        Examples
+        --------
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        >>>     status = assoc.send_c_echo()
+        >>>     if status:
+        >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
+        >>>     assoc.release()
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-ECHO request")
 
-        # Service Class - used to determine Status
-        service_class = VerificationServiceClass()
-
+        # Verification SOP Class
         uid = UID('1.2.840.10008.1.1')
 
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
+        # Get the Presentation Context we are operating under
+        context_id = None
         for context in self.acse.context_manager.accepted:
             if uid == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
 
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", uid)
-            return None
+        if context_id is None:
+            LOGGER.error("No valid Presentation Context for '%s'", uid)
+            raise ValueError("No accepted Presentation Context for "
+                             "'Verification SOP Class'.")
 
         # Build C-STORE request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
         primitive = C_ECHO()
         primitive.MessageID = msg_id
         primitive.AffectedSOPClassUID = uid
 
+        # Send C-ECHO request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(primitive, context_id)
-
-        # FIXME: If Association is Aborted before we receive the response
-        #   then we hang here
-        # This occurs because we wait for a DIMSE response not an A-ABORT
         rsp, _ = self.dimse.receive_msg(wait=True)
 
-        status = None
-        if rsp is not None:
-            status = service_class.code_to_status(rsp.Status)
+        # Determine validity of the response and get the status
+        status = Dataset()
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            if getattr(rsp, 'ErrorComment') is not None:
+                status.ErrorComment = rsp.ErrorComment
         else:
-            # DIMSE service timed out
+            LOGGER.error('Received an invalid C-ECHO response from the peer')
             self.abort()
 
         return status
 
-    def send_c_store(self, dataset, msg_id=1, priority=2):
+    def send_c_store(self, dataset, msg_id=1, priority=2, originator_aet=None,
+                     originator_id=None):
         """Send a C-STORE request to the peer AE.
-
-        PS3.4 Annex B
-
-        Service Definition
-        ==================
-        Two peer DICOM AEs implement a SOP Class of the Storage Service Class
-        with one serving in the SCU role and one service in the SCP role.
-        SOP Classes are implemented using the C-STORE DIMSE service. A
-        successful completion of the C-STORE has the following semantics:
-        - Both the SCU and SCP support the type of information to be stored
-        - The information is stored in some medium
-        - For some time frame, the information may be accessed
-
-        (For JPIP Referenced Pixel Data transfer syntaxes, transfer may result
-        in storage of incomplete information in that the pixel data may be
-        partially or completely transferred by some other mechanism at the
-        discretion of the SCP)
-
-        Extended Negotiation
-        ====================
-        Extended negotiation is optional, however SCUs requesting association
-        may include:
-        - one SOP Class Extended Negotiation Sub-Item for each supported SOP
-        Class of the Storage Service Class, as described in PS3.7 Annex D.3.3.5.
-        - one SOP Class Common Extended Negotiation Sub-Item for each supported
-        SOP Class of the Storage Service Class, as described in PS3.7 Annex
-        D.3.3.6
-
-        The SCP accepting association shall optionally support:
-        - one SOP Class Extended Negotiation Sub-Item for each supported SOP
-        Class of the Storage Service Class, as described in PS3.7 Annex D.3.3.5.
-
-        Use of Extended Negotiation is left up to the end user to implement via
-        the ``AE.extended_negotiation`` attribute.
-
-
-        SOP Class Extended Negotiation
-        ------------------------------
-        Service Class Application Information (A-ASSOCIATE-RQ)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        PS3.4 Table B.3-1 shows the format of the SOP Class Extended Negotiation
-        Sub-Item's service-class-application-information field when requesting
-        association.
-
-        Service Class Application Information (A-ASSOCIATE-AC)
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        PS3.4 Table B.3-2 shows the format of the SOP Class Extended Negotiation
-        Sub-Item's service-class-application-information field when accepting
-        association.
-
-        SOP Class Common Extended Negotiation
-        -------------------------------------
-        Service Class UID
-        ~~~~~~~~~~~~~~~~~
-        The SOP-class-uid field of the SOP Class Common Extended Negotiation
-        Sub-Item shall be 1.2.840.10008.4.2
-
-        Related General SOP Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        PS3.4 Table B.3-3 identifies the Standard SOP Classes that participate
-        in this mechanism. If a Standard SOP Class is not listed, then Related
-        General SOP Classes shall not be included.
 
         Parameters
         ----------
-        dataset : pydicom.Dataset
+        dataset : pydicom.dataset.Dataset
             The DICOM dataset to send to the peer.
         msg_id : int, optional
-            The message ID, must be between 0 and 65535, inclusive, (default 1).
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
-            The C-STORE operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
-                0 - Medium
+            The C-STORE operation priority (may not be supported by the peer),
+            one of:
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
+
+        originator_aet : str, optional
+            The AE title of the peer that invoked the C-MOVE operation for
+            which this C-STORE sub-operation is being performed (default None).
+        originator_id : int, optional
+            The Message ID of the C-MOVE request primitive from which this
+            C-STORE sub-operation is being performed (default None).
 
         Returns
         -------
-        status : pynetdicom3.sop_class.Status or None
-            The status for the requested C-STORE operation (see PS3.4 Annex
-            B.2.3), should be one of the following Status objects/codes
-            (separate causes for each status can be identified through the use
-            of different codes within the available range of each status):
-                Success status
-                    sop_class.Success
-                        Success - 0000
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then returns an
+            empty Dataset. If a valid response was received from the peer then
+            returns a Dataset containing at least a (0000,0900) Status element,
+            and, depending on the returned Status value, may optionally contain
+            additional elements (see DICOM Standard Part 7, Annex C).
 
-                Failure statuses
-                    sop_class.OutOfResources
-                        Refused: Out of Resources - A7xx
-                    sop_class.DataSetDoesNotMatchSOPClassFailure
-                        Error: Data Set does not match SOP Class - A9xx
-                    sop_class.CannotUnderstand
-                        Error: Cannot understand - Cxxx
+            The status for the requested C-STORE operation should be one of the
+            following, but as the value depends on the peer SCP this can't be
+            assumed:
 
-                Warning statuses
-                    sop_class.CoercionOfDataElements
-                        Coercion of Data Elements - B000
-                    sop_class.DataSetDoesNotMatchSOPClassWarning
-                        Data Set does not matching SOP Class - B007
-                    sop_class.ElementsDiscarded
-                        Elements Discarded - B006
+            General C-STORE (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
 
-            Returns None if the DIMSE service timed out before receiving a
-            response.
+            - Success
+
+              * 0x0000 - Success
+
+            - Failure
+
+              * 0x0117 - Invalid SOP instance
+              * 0x0122 - SOP class not supported
+              * 0x0124 - Not authorised
+              * 0x0210 - Duplicate invocation
+              * 0x0211 - Unrecognised operation
+              * 0x0212 - Mistyped argument
+
+            Storage Service Class specific (DICOM Standard Part 4, Annex
+            B.2.3):
+
+            - Failure
+
+              * 0xA700 to 0xA7FF - Out of resources
+              * 0xA900 to 0xA9FF - Data set does not match SOP class
+              * 0xC000 to 0xCFFF - Cannot understand
+
+            - Warning
+
+              * 0xB000 - Coercion of data elements
+              * 0xB006 - Element discarded
+              * 0xB007 - Data set does not match SOP class
+
+            Non-Patient Object Service Class specific (DICOM Standard Part 4,
+            Annex GG.4.2)
+
+            - Failure
+
+              * 0xA700 - Out of resources
+              * 0xA900 - Data set does not match SOP class
+              * 0xC000 - Cannot understand
+
+        Raises
+        ------
+        RuntimeError
+            If send_c_store is called with no established association.
+        AttributeError
+            If `dataset` is missing (0008,0016) 'SOP Class UID' or
+            (0008,0018) 'SOP Instance UID' elements.
+        ValueError
+            If no accepted Presentation Context for `dataset` exists or if
+            unable to encode the `dataset`.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_store
+        dimse_primitives.C_STORE
+        sop_class.StorageServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes B, GG
+        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
+
+        Examples
+        --------
+        >>> ds = read_file('file-in.dcm')
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        >>>     status = assoc.send_c_store(ds)
+        >>>     if status:
+        >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
+        >>>     assoc.release()
         """
-        # No longer true?
-        # pydicom can only handle uncompressed transfer syntaxes for conversion
-        #if not dataset._is_uncompressed_transfer_syntax():
-        #    LOGGER.warning("Unable to send the dataset due to pydicom not "
-        #                   "supporting compressed datasets")
-        #    LOGGER.error('Sending file failed')
-        #    return 0xC000
-
         # Can't send a C-STORE without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
-
-
-        # Service Class - used to determine Status
-        service_class = StorageServiceClass()
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -833,118 +881,188 @@ class Association(threading.Thread):
                 if dataset.SOPClassUID == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
                     context_id = context.ID
-            except AttributeError:
-                LOGGER.error("Unable to determine Presentation Context as "
+            except AttributeError as ex:
+                LOGGER.error("Association.send_c_store - unable to determine "
+                             "Presentation Context as "
                              "Dataset has no 'SOP Class UID' element")
                 LOGGER.error("Store SCU failed due to there being no valid "
                              "presentation context for the current dataset")
-                return service_class.CannotUnderstand
+                raise ex
 
         if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'",
-                         dataset.SOPClassUID)
+            LOGGER.error("Association.send_c_store - no valid Presentation "
+                         " Context for: '%s'", dataset.SOPClassUID)
             LOGGER.error("Store SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            return service_class.CannotUnderstand
+            raise ValueError("No accepted Presentation Context for 'dataset'.")
 
         # Build C-STORE request primitive
-        primitive = C_STORE()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = dataset.SOPClassUID
-        primitive.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Affected SOP Instance UID
+        #   (M) Priority
+        #   (U) Move Originator Application Entity Title
+        #   (U) Move Originator Message ID
+        #   (M) Data Set
+        req = C_STORE()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = dataset.SOPClassUID
+        req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
+        req.Priority = priority
+        req.MoveOriginatorApplicationEntityTitle = originator_aet
+        req.MoveOriginatorMessageID = originator_id
 
-        # Message priority
-        if priority in [0x0000, 0x0001, 0x0002]:
-            primitive.Priority = priority
+        # Encode the `dataset` using the agreed transfer syntax
+        #   Will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+
+        if bytestream is not None:
+            req.DataSet = BytesIO(bytestream)
         else:
-            LOGGER.warning("C-STORE SCU: Invalid priority value '%s'",
-                           priority)
-            primitive.Priorty = 0x0002
+            LOGGER.error("Failed to encode the supplied Dataset")
+            raise ValueError('Failed to encode the supplied Dataset')
 
-        # Encode the dataset using the agreed transfer syntax
-        # Correcting ambiguous VR is handled by pydicom
-        # Will return None if failed to encode
-        ds = encode(dataset,
-                    transfer_syntax.is_implicit_VR,
-                    transfer_syntax.is_little_endian)
-
-        if ds is not None:
-            primitive.DataSet = BytesIO(ds)
-        else:
-            # If we failed to encode our dataset
-            return service_class.CannotUnderstand
-
-        # Send C-STORE request primitive to DIMSE
-        self.dimse.send_msg(primitive, context_id)
-
-        # Wait for C-STORE response primitive
-        #   returns a C_STORE primitive
+        # Send C-STORE request to the peer via DIMSE and wait for the response
+        self.dimse.send_msg(req, context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
-        status = None
-        if rsp is not None:
-            status = service_class.code_to_status(rsp.Status)
+        # Determine validity of the response and get the status
+        status = Dataset()
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            for keyword in ['ErrorComment', 'OffendingElement']:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error('Received an invalid C-STORE response from the peer')
+            self.abort()
 
         return status
 
     def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
         """Send a C-FIND request to the peer AE.
 
-        See PS3.4 Annex C - Query/Retrieve Service Class
+        Yields (status, identifier) pairs.
 
         Parameters
         ----------
-        dataset : pydicom.Dataset
-            The DICOM dataset to containing the Key Attributes the peer AE
-            should perform the match against.
+        dataset : pydicom.dataset.Dataset
+            The C-FIND request's Identifier dataset. The exact requirements for
+            the Identifier dataset are Service Class specific (see the DICOM
+            Standard, Part 4).
         msg_id : int, optional
-            The message ID.
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
-            The C-FIND operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
-                0 - Medium
+            The C-FIND operation priority (may not be supported by the peer),
+            one of:
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
+
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
-                'W' - Modality Worklist Information - FIND (default)
-                    1.2.840.10008.5.1.4.31
-                'P' - Patient Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.1.1
-                'S' - Study Root Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.2.1
-                'O' - Patient Study Only Information Model - FIND
-                    1.2.840.10008.5.1.4.1.2.3.1
+
+            - 'W' - Modality Worklist Information - FIND (default)
+              1.2.840.10008.5.1.4.31
+            - 'P' - Patient Root Information Model - FIND
+              1.2.840.10008.5.1.4.1.2.1.1
+            - 'S' - Study Root Information Model - FIND
+              1.2.840.10008.5.1.4.1.2.2.1
+            - 'O' - Patient Study Only Information Model - FIND
+              1.2.840.10008.5.1.4.1.2.3.1
 
         Yields
         ------
-        status : pynetdicom3.sop_class.Status
-            The resulting status(es) from the C-FIND operation.
-        dataset : pydicom.dataset.Dataset or None
-            The resulting dataset(s) from the C-FIND operation. Yields None if
-            no matching Presentation Context.
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty Dataset. If a response was received from the peer then
+            yields a Dataset containing at least a (0000,0900) Status element,
+            and depending on the returned Status value, may optionally contain
+            additional elements (see PS3.7 9.1.2.1.5 and Annex C).
+
+            The status for the requested C-FIND operation should be one of the
+            following Status objects/codes, but as the returned value depends
+            on the peer this can't be assumed:
+
+            General C-FIND (PS3.7 9.1.2.1.5 and Annex C)
+
+            - Cancel
+
+              * 0xFE00 - Matching terminated due to Cancel request
+
+            - Success
+
+              * 0x0000 - Matching is complete: no final Identifier is supplied
+
+            - Failure
+
+              * 0x0122 - SOP class not supported
+
+            Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
+
+            - Failure
+
+              * 0xA700 - Out of resources
+              * 0xA900 - Identifier does not match SOP Class
+              * 0xC000 to 0xCFFF - Unable to process
+
+            - Pending
+
+              * 0xFF00 - Matches are continuing: current match is supplied and
+                any Optional Keys were supported in the same manner as Required
+                Keys
+              * 0xFF01 - Matches are continuing: warning that one or more
+                Optional Keys were not supported for existence and/or matching
+                for this Identifier)
+
+        identifier : pydicom.dataset.Dataset or None
+            If the status is 'Pending' then the C-FIND response's Identifier
+            dataset. If the status is not 'Pending' this will be None. The
+            exact contents of the response Identifier are Service Class
+            specific (see the DICOM Standard, Part 4).
+
+        Raises
+        ------
+        RuntimeError
+            If send_c_find is called with no established association.
+        ValueError
+            If no accepted Presentation Context for `dataset` exists or if
+            unable to encode the Identifier `dataset`.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_find
+        dimse_primitives.C_FIND
+        sop_class.QueryRetrieveFindServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-FIND request")
 
-        service_class = QueryRetrieveFindServiceClass()
-
         if query_model == 'W':
             sop_class = ModalityWorklistInformationFind()
-            service_class = ModalityWorklistServiceSOPClass()
         elif query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
             sop_class = PatientRootQueryRetrieveInformationModelFind()
         elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
             sop_class = StudyRootQueryRetrieveInformationModelFind()
         elif query_model == "O":
-            # Retired
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
         else:
-            raise ValueError("Association.send_c_find() query_model "
-                             "must be one of ['W'|'P'|'S'|'O']")
+            raise ValueError("Association.send_c_find - 'query_model' "
+                             "must be 'W', 'P', 'S' or 'O'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -959,17 +1077,29 @@ class Association(threading.Thread):
                          sop_class.UID)
             LOGGER.error("Find SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            raise ValueError("No accepted Presentation Context for 'dataset'")
 
-        # Build C-FIND primitive
-        primitive = C_FIND()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = sop_class.UID
-        primitive.Priority = priority
-        primitive.Identifier = BytesIO(encode(dataset,
-                                              transfer_syntax.is_implicit_VR,
-                                              transfer_syntax.is_little_endian))
+        # Build C-FIND request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Priority
+        #   (M) Identifier
+        req = C_FIND()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = sop_class.UID
+        req.Priority = priority
+
+        # Encode the Identifier `dataset` using the agreed transfer syntax
+        #   Will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+
+        if bytestream is not None:
+            req.Identifier = BytesIO(bytestream)
+        else:
+            LOGGER.error("Failed to encode the supplied Dataset")
+            raise ValueError('Failed to encode the supplied Dataset')
 
         LOGGER.info('Find SCU Request Identifiers:')
         LOGGER.info('')
@@ -978,95 +1108,94 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send C-FIND request
-        self.dimse.send_msg(primitive, context_id)
+        # Send C-FIND request to the peer via DIMSE
+        self.dimse.send_msg(req, context_id)
 
         # Get the responses from the peer
         ii = 1
         while True:
-            time.sleep(0.001)
-
-            # Wait for C-FIND responses
-            rsp, _ = self.dimse.receive_msg(wait=False)
+            # Wait for C-FIND response
+            rsp, _ = self.dimse.receive_msg(wait=True)
 
             # If no response received, start loop again
             if not rsp:
                 continue
+            elif not rsp.is_valid_response:
+                LOGGER.error('Received an invalid C-FIND response from ' \
+                             'the peer')
+                self.abort()
+                return
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
-            # A700 - Failure (out of resources)
-            # A900 - Failure (identifier doesn't match SOP class)
-            # Cxxx - Failure (unable to process)
-            # FE00 - Cancel (matching terminated due to cancel request)
-            # FF00 - Pending (matches are continuing, current match supplied)
-            # FF01 - Pending (matches are continuing, optional keys
-            #                 not supported)
-            # 0000 - Success (matching complete, no final identifier supplied)
-            status = service_class.code_to_status(rsp.Status)
+            status = Dataset()
+            status.Status = rsp.Status
+            for keyword in ['OffendingElement', 'ErrorComment']:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+
+            status_category = code_to_category(status.Status)
 
             LOGGER.debug('-' * 65)
-            LOGGER.debug('Find SCP Response: %s (%s)',
-                         ii, status.status_type)
+            LOGGER.debug('Find SCP Response: {2} (0x{0:04x} - {1})'
+                         .format(status.Status, status_category, ii))
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status.status_type != 'Pending':
-                ds = None
+            if status_category != 'Pending':
+                identifier = None
                 break
 
-            # Decode the dataset
-            ds = decode(rsp.Identifier,
-                        transfer_syntax.is_implicit_VR,
-                        transfer_syntax.is_little_endian)
+            # Status must be Pending, so decode the Identifier dataset
+            try:
+                identifier = decode(rsp.Identifier,
+                                    transfer_syntax.is_implicit_VR,
+                                    transfer_syntax.is_little_endian)
 
-            LOGGER.debug('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in ds:
-                LOGGER.debug(elem)
-            LOGGER.debug('')
+                LOGGER.debug('')
+                LOGGER.debug('# DICOM Dataset')
+                for elem in identifier:
+                    LOGGER.debug(elem)
+                LOGGER.debug('')
+            except:
+                LOGGER.error("Failed to decode the received Identifier dataset")
+                yield status, None
 
             ii += 1
 
-            yield status, ds
+            yield status, identifier
 
-        yield status, ds
+        yield status, identifier
 
-    def send_c_move(self, dataset, move_aet, msg_id=1,
-                    priority=2, query_model='P'):
-        """Send a DIMSE C-MOVE request to a peer AE.
+    def send_c_move(self, dataset, move_aet, msg_id=1, priority=2,
+                    query_model='P'):
+        """Send a C-MOVE request to the peer AE.
 
-        C-MOVE Service Procedure
-        ------------------------
-        PS3.7 9.1.4.2
+        Yields (status, identifier) pairs.
 
-        Invoker
-        ~~~~~~~
-        The invoking DIMSE user requests a performing DIMSE user match an
-        Identifier against the Attributes of all SOP Instances known to the
-        performing user and generate a C-STORE sub-operation for each match.
-
-        Performer
-        ~~~~~~~~~
-        For each matching composite SOP Instance, the C-MOVE performing user
-        initiates a C-STORE sub-operation on a different Association than the
-        C-MOVE. In this sub-operation the C-MOVE performer becomes the C-STORE
-        invoker. The C-STORE performing DIMSE user may or may not be the C-MOVE
-        invoking DIMSE user.
+        The ApplicationEntity.on_c_store callback should be implemented prior
+        to calling send_c_move as the peer may either return any matches
+        via a C-STORE sub-operation over the current association or request a
+        new association over which to return any matches.
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The dataset containing the Attributes to match against.
+            The C-MOVE request's Identifier dataset. The exact requirements for
+            the Identifier dataset are Service Class specific (see the DICOM
+            Standard, Part 4).
         move_aet : str
-            The AE title for the destination of the C-STORE operations performed
-            by the C-MOVE performing DIMSE user.
+            The AE title of the destination for the C-STORE sub-operations
+            performed by the peer.
         msg_id : int, optional
-            The Message ID to use for the C-MOVE service.
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
             The C-MOVE operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
-                0 - Medium
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
+
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
                 'P' - Patient Root Information Model - MOVE (default)
@@ -1078,9 +1207,70 @@ class Association(threading.Thread):
 
         Yields
         ------
-        status : int
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty Dataset. If a response was received from the peer then
+            yields a Dataset containing at least a (0000,0900) Status element,
+            and depending on the returned Status value, may optionally contain
+            additional elements (see DICOM Standard Part 7, Section 9.1.4 and
+            Annex C).
 
-        dataset : pydicom.dataset.Dataset
+            The status for the requested C-MOVE operation should be one of the
+            following Status objects/codes, but as the returned value depends
+            on the peer this can't be assumed:
+
+            General C-MOVE (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
+
+            - Cancel
+
+              * 0xFE00 - Sub-operations terminated due to Cancel indication
+
+            - Success
+
+              * 0x0000 - Sub-operations complete: no failures
+
+            - Failure
+
+              * 0x0122 - SOP class not supported
+
+            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
+            C):
+
+            - Failure
+
+              * 0xA701 - Out of resources: unable to calculate number of
+                matches
+              * 0xA702 - Out of resources: unable to perform sub-operations
+              * 0xA801 - Move destination unknown
+              * 0xA900 - Identifier does not match SOP Class
+              * 0xC000 to 0xCFFF - Unable to process
+
+            - Pending
+
+              * 0xFF00 - Sub-operations are continuing
+
+            - Warning
+
+              * 0xB000 - Sub-operations complete: one or more failures
+
+        identifier : pydicom.dataset.Dataset or None
+            If the status is 'Pending' or 'Success' then yields None. If the
+            status is 'Warning', 'Failure' or 'Cancel' then yields a Dataset
+            which should contain an (0008,0058) 'Failed SOP Instance UID List'
+            element, however this is not guaranteed and may return an empty
+            Dataset.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_move
+        applicationentity.ApplicationEntity.on_c_store
+        dimse_primitives.C_MOVE
+        sop_class.QueryRetrieveMoveServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1094,10 +1284,8 @@ class Association(threading.Thread):
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
         else:
-            raise ValueError("Association.send_c_move() query_model must "
-                             "be one of ['P'|'S'|'O']")
-
-        service_class = QueryRetrieveMoveServiceClass()
+            raise ValueError("Association.send_c_move - 'query_model' must "
+                             "be 'P', 'S' or 'O'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1111,129 +1299,242 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context\n   for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            raise ValueError('No accepted Presentation Context')
 
-        # Build C-MOVE primitive
-        primitive = C_MOVE()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = sop_class.UID
-        primitive.MoveDestination = move_aet
-        primitive.Priority = priority
-        primitive.Identifier = BytesIO(encode(dataset,
-                                              transfer_syntax.is_implicit_VR,
-                                              transfer_syntax.is_little_endian))
+        # Build C-MOVE request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Priority
+        #   (M) Move Destination
+        #   (M) Identifier
+        req = C_MOVE()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = sop_class.UID
+        req.Priority = priority
+        req.MoveDestination = move_aet
 
-        LOGGER.info('Move SCU Request Identifiers:')
+        # Encode the Identifier `dataset` using the agreed transfer syntax;
+        #   will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+
+        if bytestream is not None:
+            req.Identifier = BytesIO(bytestream)
+        else:
+            LOGGER.error('Failed to encode the supplied Identifier dataset')
+            raise ValueError('Failed to encode the supplied Identifier '
+                             'dataset')
+
+        LOGGER.info('Move SCU Request Identifier:')
         LOGGER.info('')
         LOGGER.info('# DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send C-MOVE primitive to peer
-        self.dimse.send_msg(primitive, context_id)
+        # Send C-MOVE request to the peer via DIMSE and wait for the response
+        self.dimse.send_msg(req, context_id)
 
         # Get the responses from peer
-        ii = 1
+        operation_no = 1
         while True:
-            time.sleep(0.001)
+            rsp, context_id = self.dimse.receive_msg(wait=True)
 
-            rsp, context_id = self.dimse.receive_msg(wait=False)
+            # If nothing received from the peer, try again
+            if not rsp:
+                continue
 
+            # Received a C-MOVE response from the peer
             if rsp.__class__ == C_MOVE:
-                status = service_class.code_to_status(rsp.Status)
-                dataset = decode(rsp.Identifier,
-                                 transfer_syntax.is_implicit_VR,
-                                 transfer_syntax.is_little_endian)
+                status = Dataset()
+                status.Status = rsp.Status
+                for keyword in ['ErrorComment', 'OffendingElement',
+                                'NumberOfRemainingSuboperations',
+                                'NumberOfCompletedSuboperations',
+                                'NumberOfFailedSuboperations',
+                                'NumberOfWarningSuboperations']:
+                    if getattr(rsp, keyword) is not None:
+                        setattr(status, keyword, getattr(rsp, keyword))
 
-                # If the Status is "Pending" then the processing of
-                #   matches and suboperations is initiated or continuing
-                if status.status_type == 'Pending':
-                    remain = rsp.NumberOfRemainingSuboperations
-                    complete = rsp.NumberOfCompletedSuboperations
-                    failed = rsp.NumberOfFailedSuboperations
-                    warning = rsp.NumberOfWarningSuboperations
+                # If the Status is 'Pending' then the processing of matches
+                #   and sub-operations are initiated or continuing
+                # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
+                #   then we are finished
+                category = code_to_category(status.Status)
 
-                    # Pending Response
-                    LOGGER.debug('')
-                    LOGGER.info("Move Response: %s (Pending)", ii)
-                    LOGGER.info("    Sub-Operations Remaining: %s, "
-                                "Completed: %s, Failed: %s, Warning: %s",
-                                remain, complete, failed, warning)
-                    ii += 1
+                # Log status type
+                LOGGER.debug('')
+                if category == 'Pending':
+                    LOGGER.info("Move SCP Response: %s (Pending)", operation_no)
+                elif category in ['Success', 'Cancel', 'Warning']:
+                    LOGGER.info("Move SCP Result: (%s)", category)
+                elif category == 'Failure':
+                    LOGGER.info("Move SCP Result: (Failure - 0x%04x)",
+                                status.Status)
 
-                    yield status, dataset
+                # Log number of remaining sub-operations
+                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
+                            "Failed: %s, Warning: %s",
+                            rsp.NumberOfRemainingSuboperations or '0',
+                            rsp.NumberOfCompletedSuboperations or '0',
+                            rsp.NumberOfFailedSuboperations or '0',
+                            rsp.NumberOfWarningSuboperations or '0')
 
-                # If the Status is "Success" then processing is complete
-                # PS3.4 Section C.4.2.2
-                # Success indicates all sub-ops were successfully completed
-                #   interpreted as final response
-                # Warning indicates one or more sub-ops were unsuccessful or
-                #   had a status of warning, interpreted as final response
-                # Failure indicates all sub-ops were unsuccessful
-                #   intrepreted as final response
-                elif status.status_type == "Success":
-                    status = service_class.Success
-                    dataset = None
-                    break
-                # All other possible responses
-                elif status.status_type == "Failure":
-                    LOGGER.debug('')
-                    LOGGER.error('Move Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.description)
-                    break
-                elif status.status_type == "Cancel":
-                    LOGGER.debug('')
-                    LOGGER.info('Move Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.description)
-                    dataset = None
-                    break
-                elif status.status_type == "Warning":
-                    LOGGER.debug('')
-                    LOGGER.warning('Move Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.description)
+                # Yields - 'Success', 'Warning', 'Cancel', 'Failure' are final
+                #   yields, 'Pending' means more to come
+                identifier = None
+                if category == 'Pending':
+                    operation_no += 1
+                    yield status, identifier
+                    continue
+                elif rsp.Identifier and category in ['Cancel', 'Warning',
+                                                     'Failure']:
+                    # From Part 4, Annex C.4.2, responses with these statuses
+                    #   should contain an Identifier dataset with a
+                    #   (0008,0058) Failed SOP Instance UID List element
+                    #   however this can't be assumed
+                    try:
+                        identifier = decode(rsp.Identifier,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
 
-                    for elem in dataset:
-                        LOGGER.warning('%s: %s', elem.name, elem.value)
+                        LOGGER.debug('')
+                        LOGGER.debug('# DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
+                    except Exception as ex:
+                        LOGGER.error("Failed to decode the received Identifier "
+                                     "dataset")
+                        LOGGER.exception(ex)
 
-                    break
+                yield status, identifier
+                break
 
-        yield status, dataset
+            # Received a C-STORE request from the peer
+            #   C-STORE requests can be over the same association for C-MOVE
+            elif rsp.__class__ == C_STORE:
+                self._c_store_scp(rsp)
+
+            # Received a C-CANCEL request from the peer
+            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
+                pass
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
-        """Send a C-GET request message to the peer AE.
+        """Send a C-GET request to the peer AE.
 
-        See PS3.4 Annex C - Query/Retrieve Service Class
+        Yields (status, identifier) pairs.
+
+        The ApplicationEntity.on_c_store callback should be implemented prior
+        to calling send_c_get as the peer will return any matches via a C-STORE
+        sub-operation over the current association.
 
         Parameters
         ----------
-        dataset : pydicom.Dataset
-            The DICOM dataset to containing the Key Attributes the peer AE
-            should perform the match against
+        dataset : pydicom.dataset.Dataset
+            The C-GET request's Identifier dataset. The exact requirements for
+            the Identifier dataset are Service Class specific (see the DICOM
+            Standard, Part 4).
         msg_id : int, optional
-            The message ID
+            The message ID, must be between 0 and 65535, inclusive, (default
+            1).
         priority : int, optional
-            The C-GET operation priority (if supported by the peer), one of:
-                2 - Low (default)
-                1 - High
-                0 - Medium
+            The C-GET operation priority (may not be supported by the peer),
+            one of:
+
+            - 0 - Medium
+            - 1 - High
+            - 2 - Low (default)
+
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
-                'P' - Patient Root Information Model - GET
-                    1.2.840.10008.5.1.4.1.2.1.3
-                'S' - Study Root Information Model - GET
-                    1.2.840.10008.5.1.4.1.2.2.3
-                'O' - Patient Study Only Information Model - GET
-                    1.2.840.10008.5.1.4.1.2.3.3
+
+            - 'P' - Patient Root Information Model - GET
+              1.2.840.10008.5.1.4.1.2.1.3 (default)
+            - 'S' - Study Root Information Model - GET
+              1.2.840.10008.5.1.4.1.2.2.3
+            - 'O' - Patient Study Only Information Model - GET
+              1.2.840.10008.5.1.4.1.2.3.3
 
         Yields
         ------
-        status : pynetdicom3.sop_class.Status
-            The resulting status(es) from the C-GET operation
-        dataset : pydicom.dataset.Dataset or None
-            The resulting dataset(s) from the C-GET operation. Yields None if
-            no valid Presentation Context.
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty Dataset. If a response was received from the peer then yields
+            a Dataset containing at least a (0000,0900) Status element, and
+            depending on the returned Status value may optionally contain
+            additional elements (see DICOM Standard Part 7, Section 9.1.2.1.5
+            and Annex C).
+
+            The status for the requested C-GET operation should be one of the
+            following Status codes, but as the returned value depends on the
+            peer this can't be assumed:
+
+            General C-GET (DICOM Standard Part 7, Section 9.1.3 and Annex C)
+
+            - Success
+
+              * 0x0000 - Sub-operations complete: no failures or warnings
+
+            - Failure
+
+              * 0x0122 - SOP class not supported
+              * 0x0124 - Not authorised
+              * 0x0210 - Duplicate invocation
+              * 0x0211 - Unrecognised operation
+              * 0x0212 - Mistyped argument
+
+            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
+            C.4.3):
+
+            - Pending
+
+              * 0xFF00 - Sub-operations are continuing
+
+            - Cancel
+
+              * 0xFE00 - Sub-operations terminated due to Cancel indication
+
+            - Failure
+
+              *  0xA701 - Out of resources: unable to calculate number of
+                 matches
+              *  0xA702 - Out of resources: unable to perform sub-operations
+              *  0xA900 - Identifier does not match SOP class
+              *  0xC000 to 0xCFFF - Unable to process
+
+            - Warning
+
+              *  0xB000 - Sub-operations completed: one or more failures or
+                 warnings
+
+        identifier : pydicom.dataset.Dataset or None
+            If the status is 'Pending' or 'Success' then yields None. If the
+            status is 'Warning', 'Failure' or 'Cancel' then yields a Dataset
+            which should contain an (0008,0058) 'Failed SOP Instance UID List'
+            element, however this is not guaranteed and may return an empty
+            Dataset.
+
+        Raises
+        ------
+        RuntimeError
+            If send_c_get is called with no established association.
+        ValueError
+            If no accepted Presentation Context for `dataset` exists or if
+            unable to encode the Identifier `dataset`.
+
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_get
+        applicationentity.ApplicationEntity.on_c_store
+        sop_class.QueryRetrieveGetServiceClass
+        dimse_primitives.C_GET
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex C
+        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
@@ -1241,19 +1542,14 @@ class Association(threading.Thread):
                                "established before sending a C-GET request")
 
         if query_model == "P":
-            # Four level hierarchy, patient, study, series, composite object
             sop_class = PatientRootQueryRetrieveInformationModelGet()
         elif query_model == "S":
-            # Three level hierarchy, study, series, composite object
             sop_class = StudyRootQueryRetrieveInformationModelGet()
         elif query_model == "O":
-            # Retired
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
         else:
             raise ValueError("Association.send_c_get() query_model "
-                             "must be one of ['P'|'S'|'O']")
-
-        service_class = QueryRetrieveGetServiceClass()
+                             "must be 'P', 'S' or 'O']")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1267,110 +1563,231 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            yield service_class.IdentifierDoesNotMatchSOPClass, None
-            return
+            raise ValueError('No accepted Presentation Context')
 
+        # Build C-GET request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Priority
+        #   (M) Identifier
+        req = C_GET()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = sop_class.UID
+        req.Priority = priority
 
-        # Build C-GET primitive
-        primitive = C_GET()
-        primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = sop_class.UID
-        primitive.Priority = priority
-        primitive.Identifier = \
-            BytesIO(encode(dataset, transfer_syntax.is_implicit_VR,
-                           transfer_syntax.is_little_endian))
+        # Encode the Identifier `dataset` using the agreed transfer syntax
+        #   Will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
 
-        LOGGER.info('Get SCU Request Identifiers:')
+        if bytestream is not None:
+            req.Identifier = BytesIO(bytestream)
+        else:
+            LOGGER.error("Failed to encode the supplied Identifier dataset")
+            raise ValueError('Failed to encode the supplied Identifer '
+                             'dataset')
+
+        LOGGER.info('Get SCU Request Identifier:')
         LOGGER.info('')
         LOGGER.info('# DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
 
-        # Send primitive to peer
-        self.dimse.send_msg(primitive, context_id)
+        # Send C-GET request to the peer via DIMSE
+        self.dimse.send_msg(req, context_id)
 
-        ii = 1
+        # Get the responses from the peer
+        operation_no = 1
         while True:
+            # Wait for DIMSE message, may be either a C-GET response or a
+            #   C-STORE request
             rsp, context_id = self.dimse.receive_msg(wait=True)
 
-            # Received a C-GET response
+            # If nothing received from the peer, try again
+            if not rsp:
+                continue
+
+            # Received a C-GET response from the peer
             if rsp.__class__ == C_GET:
+                status = Dataset()
+                status.Status = rsp.Status
+                for keyword in ['ErrorComment', 'OffendingElement',
+                                'NumberOfRemainingSuboperations',
+                                'NumberOfCompletedSuboperations',
+                                'NumberOfFailedSuboperations',
+                                'NumberOfWarningSuboperations']:
+                    if getattr(rsp, keyword) is not None:
+                        setattr(status, keyword, getattr(rsp, keyword))
 
-                status = service_class.code_to_status(rsp.Status)
-                dataset = decode(rsp.Identifier,
-                                 transfer_syntax.is_implicit_VR,
-                                 transfer_syntax.is_little_endian)
+                # If the Status is 'Pending' then the processing of
+                #   matches and sub-operations are initiated or continuing
+                # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
+                #   then we are finished
+                category = code_to_category(status.Status)
 
-                # If the Status is "Pending" then the processing of
-                #   matches and suboperations is initiated or continuing
-                if status.status_type == 'Pending':
-                    remain = rsp.NumberOfRemainingSuboperations
-                    complete = rsp.NumberOfCompletedSuboperations
-                    failed = rsp.NumberOfFailedSuboperations
-                    warning = rsp.NumberOfWarningSuboperations
+                # Log status type
+                LOGGER.debug('')
+                if category == 'Pending':
+                    LOGGER.info("Get SCP Response: %s (Pending)", operation_no)
+                elif category in ['Success', 'Cancel', 'Warning']:
+                    LOGGER.info('Get SCP Result: (%s)', category)
+                elif category == "Failure":
+                    LOGGER.info('Get SCP Result: (Failure - 0x%04x)',
+                                status.Status)
 
-                    # Pending Response
-                    LOGGER.debug('')
-                    LOGGER.info("Find Response: %s (Pending)", ii)
-                    LOGGER.info("    Sub-Operations Remaining: %s, "
-                                "Completed: %s, Failed: %s, Warning: %s",
-                                remain, complete, failed, warning)
-                    ii += 1
+                # Log number of remaining sub-operations
+                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
+                            "Failed: %s, Warning: %s",
+                            rsp.NumberOfRemainingSuboperations or '0',
+                            rsp.NumberOfCompletedSuboperations or '0',
+                            rsp.NumberOfFailedSuboperations or '0',
+                            rsp.NumberOfWarningSuboperations or '0')
 
-                    yield status, dataset
+                # Yields - 'Success', 'Warning', 'Failure', 'Cancel' are
+                #   final yields, 'Pending' means more to come
+                identifier = None
+                if category in ['Pending']:
+                    operation_no += 1
+                    yield status, identifier
+                    continue
+                elif rsp.Identifier and category in ['Cancel', 'Warning',
+                                                     'Failure']:
+                    # From Part 4, Annex C.4.3, responses with these statuses
+                    #   should contain an Identifier dataset with a
+                    #   (0008,0058) Failed SOP Instance UID List element
+                    #   however this can't be assumed
+                    try:
+                        identifier = decode(rsp.Identifier,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
 
-                # If the Status is "Success" then processing is complete
-                elif status.status_type == "Success":
-                    status = service_class.Success
-                    dataset = None
-                    break
+                        LOGGER.debug('')
+                        LOGGER.debug('# DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
+                    except Exception as ex:
+                        LOGGER.error("Failed to decode the received Identifier "
+                                     "dataset")
+                        LOGGER.exception(ex)
 
-                # All other possible responses
-                elif status.status_type == "Failure":
-                    LOGGER.debug('')
-                    LOGGER.error('Find Response: %s (Failure)', ii)
-                    LOGGER.error('    %s', status.description)
+                yield status, identifier
+                break
 
-                    # Print out the status information
-                    for elem in dataset:
-                        LOGGER.error('%s: %s', elem.name, elem.value)
-
-                    break
-                elif status.status_type == "Cancel":
-                    LOGGER.debug('')
-                    LOGGER.info('Find Response: %s (Cancel)', ii)
-                    LOGGER.info('    %s', status.description)
-                    dataset = None
-                    break
-                elif status.status_type == "Warning":
-                    LOGGER.debug('')
-                    LOGGER.warning('Find Response: %s (Warning)', ii)
-                    LOGGER.warning('    %s', status.description)
-                    dataset = None
-                    break
-
-            # Received a C-STORE request in response to the C-GET
+            # Received a C-STORE request from the peer
             elif rsp.__class__ == C_STORE:
+                self._c_store_scp(rsp)
 
-                c_store_rsp = C_STORE()
-                c_store_rsp.MessageIDBeingRespondedTo = rsp.MessageID
-                c_store_rsp.AffectedSOPInstanceUID = \
-                                                rsp.AffectedSOPInstanceUID
-                c_store_rsp.AffectedSOPClassUID = rsp.AffectedSOPClassUID
+            # Received a C-CANCEL request from the peer
+            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
+                pass
 
-                ds = decode(rsp.DataSet,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+    def _c_store_scp(self, req):
+        """A C-STORE SCP implementation.
 
-                #  Callback for C-STORE SCP (user implemented)
-                status = self.ae.on_c_store(ds)
+        Handles C-STORE requests from the peer over the same assocation as the
+        local AE sent a C-MOVE or C-GET request.
 
-                # Send C-STORE confirmation back to peer
-                c_store_rsp.Status = int(status)
-                self.dimse.send_msg(c_store_rsp, context_id)
+        Must always send a C-STORE response back to the peer.
 
-        yield status, dataset
+        C-STORE Request
+        ---------------
+        Parameters
+        ~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Affected SOP Instance UID
+        (M) Priority
+        (U) Move Originator Application Entity Title
+        (U) Move Originator Message ID
+        (M) Data Set
+
+        Parameters
+        ----------
+        req : dimse_primitives.C_STORE
+            The C-STORE request primitive received from the peer.
+        """
+        # Build C-STORE response primitive
+        #   (U) Message ID
+        #   (M) Message ID Being Responded To
+        #   (U) Affected SOP Class UID
+        #   (U) Affected SOP Instance UID
+        #   (M) Status
+        rsp = C_STORE()
+        rsp.MessageID = req.MessageID
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+
+        transfer_syntax = None
+        for context in self.acse.context_manager.accepted:
+            if req.AffectedSOPClassUID == context.AbstractSyntax:
+                transfer_syntax = context.TransferSyntax[0]
+                context_id = context.ID
+
+        if transfer_syntax is None:
+            LOGGER.error("No Presentation Context for: '%s'",
+                         req.AffectedSOPClassUID)
+            # SOP Class not supported, no context ID?
+            rsp.Status = 0x0122
+            self.dimse.send_msg(rsp, 1)
+            return
+
+        # Attempt to decode the dataset
+        try:
+            ds = decode(req.DataSet,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian)
+        except Exception as ex:
+            LOGGER.error('Failed to decode the received dataset')
+            LOGGER.exception(ex)
+            rsp.Status = 0xC210
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.dimse.send_msg(rsp, context_id)
+            return
+
+        #  Attempt to run the ApplicationEntity's on_c_store callback
+        try:
+            status = self.ae.on_c_store(ds)
+        except Exception as ex:
+            LOGGER.error("Exception in the "
+                         "ApplicationEntity.on_c_store() callback")
+            LOGGER.exception(ex)
+            rsp.Status = 0xC211
+            self.dimse.send_msg(rsp, context_id)
+            return
+
+        # Check the callback's returned status
+        if isinstance(status, Dataset):
+            if 'Status' in status:
+                # For the elements in the status dataset, try and set
+                #   the corresponding response primitive attribute
+                for elem in status:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning("Status dataset returned by "
+                                       "callback contained an "
+                                       "unsupported element '%s'.",
+                                       elem.keyword)
+            else:
+                LOGGER.error("User callback returned a `Dataset` "
+                             "without a Status element.")
+                rsp.Status = 0xC001
+        elif isinstance(status, int):
+            rsp.Status = status
+        else:
+            LOGGER.error("Invalid status returned by user callback.")
+            rsp.Status = 0xC002
+
+        if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
+            LOGGER.warning("Unknown status value returned by callback "
+                           "- 0x{0:04x}".format(rsp.Status))
+
+        # Send C-STORE confirmation back to peer
+        self.dimse.send_msg(rsp, context_id)
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.
@@ -1381,6 +1798,7 @@ class Association(threading.Thread):
         ----------
         msg_id : int
             The message ID of the C-GET/MOVE/FIND operation we want to cancel.
+            Must be between 0 and 65535, inclusive.
         """
         # Can't send a C-CANCEL without an Association
         if not self.is_established:
@@ -1417,45 +1835,6 @@ class Association(threading.Thread):
 
     def send_n_get(self):
         """Send an N-GET request message to the peer AE."""
-        '''
-        service_class = QueryRetrieveGetServiceClass()
-
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-
-        for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
-
-        if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Get SCU failed due to there being no valid "
-                         "presentation context for the current dataset")
-            return service_class.IdentifierDoesNotMatchSOPClass
-
-
-        # Build N-GET primitive
-        primitive = N_GET()
-        primitive.MessageID = msg_id
-        # The SOP Class for which Attribute Values are to be retrieved
-        primitive.RequestedSOPClassUID = None
-        # The SOP Instance for which Attribute Values are to be retrieved
-        primitive.RequestedSOPInstanceUID = None
-        # A set of Attribute identifiers, if omitted then all identifiers
-        #   are assumed. The definitions of the Attributes are found
-        #   in PS3.3
-        if dataset is not None:
-            primitive.AttributeIdentifierList = \
-                    encode(dataset, transfer_syntax.is_implicit_VR,
-                           transfer_syntax.is_little_endian)
-            primitive.AttributeIdentifierList = \
-                    BytesIO(primitive.AttributeIdentifierList)
-
-        # Send primitive to peer
-        self.dimse.send_msg(primitive, context_id)
-        '''
         # Can't send an N-GET without an Association
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "

@@ -1,7 +1,7 @@
 """
 Set module shortcuts and globals
 """
-version = ['0', '1', '0']
+version = ['0', '9', '1']
 pynetdicom_version = 'PYNETDICOM3_' + ''.join(version)
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID

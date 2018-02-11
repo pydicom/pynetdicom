@@ -11,11 +11,13 @@ from struct import pack
 import sys
 import time
 
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian, UID
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian, UID
+)
 
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
+
 
 def setup_logger():
     """Setup the logger."""
@@ -27,6 +29,7 @@ def setup_logger():
     logger.addHandler(handler)
 
     return logger
+
 
 LOGGER = setup_logger()
 
@@ -345,7 +348,7 @@ class ApplicationEntity(object):
             # Create a new Association
             # Association(local_ae, local_socket=None, max_pdu=16382)
             assoc = Association(self,
-                                client_socket,
+                                client_socket=client_socket,
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
                                 dimse_timeout=self.dimse_timeout)
@@ -411,10 +414,10 @@ class ApplicationEntity(object):
             The Association thread
         """
         if not isinstance(addr, str):
-            raise TypeError("ip_address must be a valid IPv4 string")
+            raise TypeError("'addr' must be a valid IPv4 string")
 
         if not isinstance(port, int):
-            raise TypeError("port must be a valid port number")
+            raise TypeError("'port' must be a valid port number")
 
         peer_ae = {'AET' : validate_ae_title(ae_title),
                    'Address' : addr,
@@ -454,14 +457,14 @@ class ApplicationEntity(object):
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCU):\n"
-        if len(self.scu_supported_sop) == 0:
+        if not self.scu_supported_sop:
             str_out += "\tNone\n"
         for sop_class in self.scu_supported_sop:
             str_out += "\t{0!s}\n".format(sop_class)
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCP):\n"
-        if len(self.scp_supported_sop) == 0:
+        if not self.scp_supported_sop:
             str_out += "\tNone\n"
         for sop_class in self.scp_supported_sop:
             str_out += "\t{0!s}\n".format(sop_class)
@@ -809,111 +812,220 @@ class ApplicationEntity(object):
         """Callback for when a C-ECHO request is received.
 
         User implementation is not required for the C-ECHO service, but if you
-        intend to do so it should be defined prior to calling AE.start()
+        intend to do so it should be defined prior to calling AE.start() and
+        must return either an int or a pydicom Dataset containing a (0000,0900)
+        Status element with a valid C-ECHO status value.
 
-        Called during by pynetdicom3.sop_class.VerificationServiceClass.SCP()
-        after receiving a C-ECHO request and immediately prior to sending the
-        response. As the status for a C-ECHO response is always Success no
-        return value is required.
+        Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
+        after receiving a C-ECHO request and prior to sending the response.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Verification Service Class
+
+        Status
+        ------
+        The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
+        status "shall have a value of Success", however Section 9.1.5.1.4
+        states that the status of the response may have any of the following
+        values:
+
+        Success
+
+        - 0x000 - Success
+
+        Failure
+
+        - 0x0122 - SOP class not supported
+        - 0x0210 - Duplicate invocation
+        - 0x0212 - Mistyped argument
+        - 0x0211 - Unrecognised operation
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the C-ECHO response. Must be
+            a valid C-ECHO/Verification Service Class status value as either an
+            int or a Dataset object containing (at a minimum) a (0000,0900)
+            'Status' element. If returning a Dataset object then it may also
+            contain optional elements related to the Status (as in the DICOM
+            Standard Part 7, Annex C).
+
+        See Also
+        --------
+        association.Association.send_c_echo
+        dimse_primitives.C_ECHO
+        sop_class.VerificationServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annex A
+        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
         """
         # User implementation of on_c_echo is optional
-        pass
+        return 0x0000
 
     def on_c_store(self, dataset):
-        """Callback for when a dataset is received following a C-STORE request.
+        """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
-        a valid C-STORE status integer value or the corresponding
-        pynetdicom3.sop_class.Status object.
+        either an int or a pydicom Dataset containing a (0000,0900) Status
+        element with a valid C-STORE status value.
+
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a C-STORE request and prior to sending the
+        response.
+
+        If the user is storing `dataset` in the DICOM File Format (as in the
+        DICOM Standard Part 10, Section 7) then they are responsible for adding
+        the DICOM File Meta Information.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Storage Service Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Success
+
+        Warning
+
+        - 0xB000 - Coercion of data elements
+        - 0xB006 - Elements discarded
+        - 0xB007 - Dataset does not match SOP class
+
+        Failure
+
+        - 0x0117 - Invalid SOP instance
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA700 to 0xA7FF - Out of resources
+        - 0xA900 to 0xA9FF - Dataset does not match SOP class
+        - 0xC000 to 0xCFFF - Cannot understand
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent in the C-STORE request
+            The DICOM dataset sent by the peer in the C-STORE request.
 
         Returns
         -------
-        status : pynetdicom3.sop_class.Status or int
-            A valid return status for the C-STORE operation (see PS3.4 Annex
-            B.2.3), must be one of the following Status objects or the
-            corresponding integer value:
-                Success status
-                    StorageServiceClass.Success
-                        Success - 0x0000
-
-                Failure statuses
-                    StorageServiceClass.OutOfResources
-                        Refused: Out of Resources - 0xA7xx
-                    StorageServiceClass.DataSetDoesNotMatchingSOPClassFailure
-                        Error: Data Set does not match SOP Class - 0xA9xx
-                    StorageServiceClass.CannotUnderstand
-                        Error: Cannot understand - 0xCxxx
-
-                Warning statuses
-                    StorageServiceClass.CoercionOfDataElements
-                        Coercion of Data Elements - 0xB000
-                    StorageServiceClass.DataSetDoesNotMatchSOPClassWarning
-                        Data Set does not matching SOP Class - 0xB007
-                    StorageServiceClass.ElementsDiscarded
-                        Elements Discarded - 0xB006
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the C-STORE response. Must be
+            a valid C-STORE status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in the
+            DICOM Standard Part 7, Annex C).
 
         Raises
         ------
         NotImplementedError
             If the callback has not been implemented by the user
+
+        See Also
+        --------
+        association.Association.send_c_store
+        dimse_primitives.C_STORE
+        sop_class.StorageServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes B, AA, FF and GG
+        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
+        DICOM Standard Part 10, Section 7
         """
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
     def on_c_find(self, dataset):
-        """Callback for when a dataset is received following a C-FIND.
+        """Callback for when a C-FIND request is received.
 
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.sop_class.Status object. In addition,the
-        AE.on_c_find_cancel() callback must also be defined
+        Must be defined by the user prior to calling AE.start() and must yield
+        status (as either an int or pydicom Dataset containing a (0000,0900)
+        Status element) and an Identifier dataset. In addition, the
+        AE.on_c_find_cancel() callback must also be defined.
 
-        Called by QueryRetrieveFindSOPClass subclasses in SCP()
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a C-FIND request and prior to sending the
+        response.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Query/Retrieve Service Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Success
+
+        Failure
+
+        - 0xA700 - Out of resources
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
+
+        Cancel
+
+        - 0xFE00 - Matching terminated due to Cancel request
+
+        Pending
+
+        - 0xFF00 - Matches are continuing: current match is supplied and any
+          Optional Keys were supported in the same manner as Required Keys
+        - 0xFF01 - Matches are continuing: warning that one or more Optional
+          Keys were not supported for existence and/or matching for this
+          Identifier
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent via the C-FIND
+            The DICOM Identifier dataset sent by the peer in the C-FIND
+            request.
 
         Yields
         ------
-        status : pynetdicom3.sop_class.Status or int
-            A valid return status for the C-FIND operation (see PS3.4 Annex
-            C.4.1.1.4), must be one of the following Status objects or the
-            corresponding integer value. A Status of Success (0x0000) will be
-            automatically sent once all matches are processing if no Cancel or
-            Failure statuses are yielded:
-            Failure statuses
-                QueryRetrieveFindSOPClass.OutOfResources
-                    Refused: Out of Resources - 0xA700
-                QueryRetrieveFindSOPClass.IdentifierDoesNotMatchSOPClass
-                    Identifier does not match SOP Class - 0xA900
-                QueryRetrieveFindSOPClass.UnableToProcess
-                    Unable to process - 0xCxxx
-            Cancel status
-                QueryRetrieveFindSOPClass.MatchingTerminatedDueToCancelRequest
-                    Matching terminated due to Cancel request - 0xFE00
-            Pending statuses
-                QueryRetrieveFindSOPClass.Pending
-                    Matches are continuing - Current Match is supplied and
-                    any Optional Keys were supported in the same manner as
-                    Required Keys - 0xFF00
-                QueryRetrieveFindSOPClass.PendingWarning
-                    Matches are continuing - Warning that one or more
-                    Optional Keys were not supported for existence and/or
-                    matching for this Identifier - 0xFF01
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the C-FIND response. Must be
+            a valid C-FIND status vuale for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            A matching dataset if the status is Pending, None otherwise.
+            If the status is 'Pending' then the Identifier dataset for a
+            matching SOP Instance. The exact requirements for the C-FIND
+            response Identifier dataset are Service Class specific (see the
+            DICOM Standard, Part 4).
+
+            If the status is 'Failure' or 'Cancel' then yield None.
+
+            If the status is 'Success' then yield None, however yielding a
+            final 'Success' status is not required and will be ignored if
+            necessary.
+
+        See Also
+        --------
+        association.Association.send_c_find
+        dimse_primitives.C_FIND
+        sop_class.QueryRetrieveFindServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes C, K, Q, U, V, X, BB, CC and HH
+        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
 
     def on_c_find_cancel(self):
-        """Callback for when a C-FIND-CANCEL is received.
+        """Callback for when a C-FIND-CANCEL request is received.
 
         Returns
         -------
@@ -925,108 +1037,196 @@ class ApplicationEntity(object):
                                   "calling AE.start()")
 
     def on_c_get(self, dataset):
-        """Callback for when a dataset is received following a C-STORE.
+        """Callback for when a C-GET request is received.
 
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid pynetdicom3.sop_class.Status object. In addition,the
-        AE.on_c_get_cancel() callback must also be defined
+        Must be defined by the user prior to calling AE.start() and must yield
+        a int containing the total number of C-STORE sub-operations, then yield
+        (status, dataset) pairs.
+
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Query/Retrieve Service Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Sub-operations complete, no failures or warnings
+
+        Failure
+
+        - 0xA701 - Out of resources: unable to calculate the number of matches
+        - 0xA702 - Out of resources: unable to perform sub-operations
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
+
+        Cancel
+
+        - 0xFE00 - Sub-operations terminated due to Cancel request
+
+        Warning
+
+        - 0xB000 - Sub-operations complete, one or more failures or warnings
+
+        Pending
+
+        - 0xFF00 - Matches are continuing - Current Match is supplied and any
+          Optional Keys were supported in the same manner as Required Keys
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent via the C-STORE
+            The DICOM Identifier dataset sent by the peer in the C-GET request.
 
         Yields
         ------
         int
-            The first yielded value should be the total number of matches, after
-            that user should yield a status, dataset pair.
-        status : pynetdicom3.sop_class.Status or int
-            A valid return status for the C-GET operation (see PS3.4 Annex
-            C.4.3.1.4), must be one of the following Status objects or the
-            corresponding integer value. A Status of Success (0x0000) will be
-            automatically sent once all matches are processing if no Cancel or
-            Failure statuses are yielded:
-            Failure statuses
-                QueryRetrieveGetSOPClass.OutOfResourcesNumberOfMatches
-                    Refused: Out of Resources, unable to calculate the number
-                    of matches - 0xA701
-                QueryRetrieveGetSOPClass.OutOfResourcesUnableToPerform
-                    Refused: Out of Resources, unable to perform sub-operations
-                    - 0xA702
-                QueryRetrieveGetSOPClass.IdentifierDoesNotMatchSOPClass
-                    Identifier does not match SOP Class - 0xA900
-                QueryRetrieveFindSOPClass.UnableToProcess
-                    Unable to process - 0xCxxx
-            Cancel status
-                QueryRetrieveGetSOPClass.Cancel
-                    Sub-operations terminated due to Cancel request - 0xFE00
-            Warning status
-                QueryRetrieveGetSOPClass.Warning
-                    Sub-operations complete, one or more failures or warnings
-                    - 0xB000
-            Pending status
-                QueryRetrieveGetSOPClass.Pending
-                    Matches are continuing - Current Match is supplied and
-                    any Optional Keys were supported in the same manner as
-                    Required Keys - 0xFF00
+            The first yielded value should be the total number of C-STORE
+            sub-operations necessary to complete the C-GET operation. In other
+            words, this is the number of matching SOP Instances to be sent to
+            the peer.
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the C-GET response. Must be a
+            valid C-GET status value for the applicable Service Class as either
+            an int or a Dataset object containing (at a minimum) a (0000,0900)
+            'Status' element. If returning a Dataset object then it may also
+            contain optional elements related to the Status (as in DICOM
+            Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            A matching dataset if the status is Pending, None otherwise.
+            If the status is 'Pending' then yield the dataset to send to the
+            peer via a C-STORE sub-operation over the current association.
+
+            If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+            Dataset with a (0008,0058) 'Failed SOP Instance UID List' element
+            containing a list of the C-STORE sub-operation SOP Instance UIDs
+            for which the C-GET operation has failed.
+
+            If the status is 'Success' then yield None, although yielding a
+            final 'Success' status is not required and will be ignored if
+            necessary.
+
+        See Also
+        --------
+        association.Association.send_c_get
+        dimse_primitives.C_GET
+        sop_class.QueryRetrieveGetServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes C, U, X, Y, Z, BB and HH
+        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
 
     def on_c_get_cancel(self):
-        """Callback for when a C-GET-CANCEL is received."""
+        """Callback for when a C-GET-CANCEL request is received."""
         raise NotImplementedError("User must implement the "
                                   "AE.on_c_get_cancel function prior to "
                                   "calling AE.start()")
 
     def on_c_move(self, dataset, move_aet):
-        """Callback for when a dataset is received following a C-STORE.
+        """Callback for when a C-MOVE request is received.
 
-        Must be defined by the user prior to calling AE.start() and must return
-        a valid status. In addition,the AE.on_c_move_cancel() callback must
-        also be defined.
+        Must be defined by the user prior to calling AE.start().
 
-        Matching Instances will be sent to the known peer AE with AE title
+        The first yield should be the (addr, port) of the move destination, the
+        second yield the number of required C-STORE sub-operations, and the
+        remaining yields the (status, dataset) pairs.
+
+        Matching SOP Instances will be sent to the peer AE with AE title
         `move_aet` over a new association. If `move_aet` is unknown then the
-        C-MOVE will fail due to 'Move Destination Unknown'.
+        SCP will send a response with a 'Failure' status of 0xA801 (move
+        destination unknown).
 
-        A successful match should return a generator with the first value
-        the number of matching Instances, the second value the (addr, port) of
-        the move destination and the remaining values the matching Instance
-        datasets.
+        Supported Service Classes
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        Query/Retrieve Service Class
+
+        Status
+        ------
+        Success
+
+        - 0x0000 - Sub-operations complete, no failures
+
+        Pending
+
+        - 0xFF00 - Sub-operations are continuing
+
+        Cancel
+
+        - 0xFE00 - Sub-operations terminated due to Cancel indication
+
+        Failure
+
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA701 - Out of resources: unable to calculate number of matches
+        - 0xA702 - Out of resources: unable to perform sub-operations
+        - 0xA801 - Move destination unknown
+        - 0xA900 - Identifier does not match SOP class
+        - 0xC000 to 0xCFFF - Unable to process
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent via the C-MOVE
+            The DICOM Identifier dataset sent by the peer in the C-MOVE request.
         move_aet : bytes
-            The destination AE title that matching Instances will be sent to.
-            `move_aet` will be a correctly formatted AE title (16 chars,
-            with trailing spaces as padding)
+            The destination AE title that matching SOP Instances will be sent
+            to using C-STORE sub-operations. `move_aet` will be a correctly
+            formatted AE title (16 chars, with trailing spaces as padding).
 
         Yields
         ------
-        number_matches : int
-            The first yield should be the number of matching Instances.
-        addr, port : str, int
-            The second yield should be the TCP/IP address and port number of the
-            destination AE (if known) or None, None if unknown.
-        status : pynetdicom3.sop_class.Status or int
-            The remaining yields should be a status, dataset pair, where status
-            is a valid status:
-
+        addr, port : str, int or None, None
+            The first yield should be the TCP/IP address and port number of the
+            destination AE (if known) or (None, None) if unknown. If (None,
+            None) is yielded then the SCP will send a C-MOVE response with a
+            'Failure' Status of 0xA801 (move destination unknown), in which
+            case nothing more needs to be yielded.
+        int
+            The second yield should be the number of C-STORE sub-operations
+            required to complete the C-MOVE operation. In other words, this is
+            the number of matching SOP Instances to be sent to the peer.
+        status : pydiom.dataset.Dataset or int
+            The status returned to the peer AE in the C-MOVE response. Must be
+            a valid C-MOVE status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then you can (optionally) return a
-            Dataset containing the identifiers or None.
+            If the status is 'Pending' then yield the dataset to send to the
+            peer via a C-STORE sub-operation over a new association.
+
+            If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+            Dataset with a (0008,0058) 'Failed SOP Instance UID List' element
+            containing the list of the C-STORE sub-operation SOP Instance UIDs
+            for which the C-MOVE operation has failed.
+
+            If the status is 'Success' then yield None, although yielding a
+            final 'Success' status is not required and will be ignored if
+            necessary.
+
+        See Also
+        --------
+        association.Association.send_c_move
+        dimse_primitives.C_MOVE
+        sop_class.QueryRetrieveMoveServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes C, U, X, Y, BB and HH
+        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
 
     def on_c_move_cancel(self):
-        """Callback for when a C-MOVE-CANCEL is received."""
+        """Callback for when a C-MOVE-CANCEL request is received."""
         raise NotImplementedError("User must implement the "
                                   "AE.on_c_move_cancel function prior to "
                                   "calling AE.start()")
@@ -1034,37 +1234,67 @@ class ApplicationEntity(object):
 
     # High-level DIMSE-N callbacks - user should implement these as required
     def on_n_event_report(self):
-        """Callback for when a N-EVENT-REPORT is received."""
+        """Callback for when a N-EVENT-REPORT is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, J, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
     def on_n_get(self):
-        """Callback for when a N-GET is received."""
+        """Callback for when a N-GET is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
     def on_n_set(self):
-        """Callback for when a N-SET is received."""
+        """Callback for when a N-SET is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
     def on_n_action(self):
-        """Callback for when a N-ACTION is received."""
+        """Callback for when a N-ACTION is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
     def on_n_create(self):
-        """Callback for when a N-CREATE is received."""
+        """Callback for when a N-CREATE is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
     def on_n_delete(self):
-        """Callback for when a N-DELETE is received."""
+        """Callback for when a N-DELETE is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes H and DD
+        """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_delete function prior to calling "
                                   "AE.start()")

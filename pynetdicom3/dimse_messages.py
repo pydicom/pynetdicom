@@ -1,4 +1,6 @@
-"""Define the DIMSE Message classes."""
+"""
+Define the DIMSE Message classes.
+"""
 
 from io import BytesIO
 import logging
@@ -7,10 +9,10 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
 
-from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE, \
-                                         C_ECHO, C_CANCEL, N_EVENT_REPORT, \
-                                         N_GET, N_SET, N_ACTION, N_CREATE, \
-                                         N_DELETE
+from pynetdicom3.dimse_primitives import (C_STORE, C_FIND, C_GET, C_MOVE,
+                                          C_ECHO, C_CANCEL, N_EVENT_REPORT,
+                                          N_GET, N_SET, N_ACTION, N_CREATE,
+                                          N_DELETE)
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
 
@@ -38,7 +40,8 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                      'C-ECHO-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000120,  # MessageIDBeingRespondedTo
                                      0x00000800,
-                                     0x00000900], # Status
+                                     0x00000900, # Status
+                                     0x00000902], # ErrorComment
                      'C-STORE-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000110,
                                      0x00000700,  # Priority
@@ -49,28 +52,31 @@ _COMMAND_SET_ELEM = {'C-ECHO-RQ' : [0x00000000,  # CommandGroupLength
                                      0x00001031], # MoveOriginatorMessageID
                      'C-STORE-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                       0x00000120, 0x00000800, 0x00000900,
-                                      0x00001000],
+                                      0x00000901, # OffendingElement
+                                      0x00000902, 0x00001000],
                      'C-FIND-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                     0x00000110, 0x00000700, 0x00000800],
                      'C-FIND-RSP' : [0x00000000, 0x00000002, 0x00000100,
-                                     0x00000120, 0x00000800, 0x00000900],
+                                     0x00000120, 0x00000800, 0x00000900,
+                                     0x00000901, 0x00000902],
                      'C-CANCEL-RQ' : [0x00000000, 0x00000100, 0x00000120,
                                       0x00000800],
                      'C-GET-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                    0x00000110, 0x00000700, 0x00000800],
                      'C-GET-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                     0x00000120, 0x00000800, 0x00000900,
+                                    0x00000901, 0x00000902,
                                     0x00001020, # NumberOfRemainingSuboperations
                                     0x00001021, # NumberOfCompletedSuboperations
                                     0x00001022, # NumberOfFailedSuboperations
                                     0x00001023], # NumberOfWarningSuboperations
                      'C-MOVE-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                     0x00000110, 0x00000700, 0x00000800,
-                                    0x00000600],
+                                    0x00000600], # MoveDestination
                      'C-MOVE-RSP' : [0x00000000, 0x00000002, 0x00000100,
                                      0x00000120, 0x00000800, 0x00000900,
-                                     0x00001020, 0x00001021, 0x00001022,
-                                     0x00001023],
+                                     0x00000901, 0x00000902, 0x00001020,
+                                     0x00001021, 0x00001022, 0x00001023],
                      'N-EVENT-REPORT-RQ' : [0x00000000, 0x00000002, 0x00000100,
                                             0x00000110, 0x00000800, 0x00001000,
                                             0x00001002], # EventTypeID
@@ -260,9 +266,11 @@ class DIMSEMessage(object):
             # xxxxxx11 - Command information, the last fragment
             control_header_byte = pdv_item[1][0]
 
-            # Python 2 ompatibility
+            # Python 2 compatibility
             if isinstance(control_header_byte, str):
                 control_header_byte = ord(control_header_byte)
+
+            # LOGGER.debug('Control header byte %s', control_header_byte)
 
             ## COMMAND SET
             # P-DATA fragment contains Command Set information
@@ -367,9 +375,9 @@ class DIMSEMessage(object):
         return fragments
 
     def primitive_to_message(self, primitive):
-        """Convert a DIMSE primitive to the current DIMSEMessage object.
+        """Convert a DIMSE `primitive` to the current DIMSEMessage object.
 
-        Parameters
+        Parameters`
         ----------
         primitive
             The pynetdicom3.dimse_primitives DIMSE service primitive to convert
@@ -423,20 +431,20 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set.CommandDataSetType = 0x0101
 
-        # These message types should always have a Data Set
-        #   (except for C-FIND-RSP)
+        # TODO: This can probably be refactored to be cleaner
+        #   dict = {['C_STORE_RQ'] : 'DataSet',
+        #           ['C_FIND_RQ', 'C_GET_RQ'] : 'Identifier'}
+        #   for cls_names in dict.keys():
+        #       if cls_type_name in cls_names and hasattr(primitive, dict[cls_type_name]):
+        #           self.data_set = getattr(primitive.dict[cls_type_name])
+        #           self.command_set.CommandDataSetType = 0x0001
         cls_type_name = self.__class__.__name__
         if cls_type_name == 'C_STORE_RQ':
             self.data_set = primitive.DataSet
             self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name in ['C_FIND_RQ', 'C_GET_RQ', 'C_GET_RSP',
-                               'C_MOVE_RQ', 'C_MOVE_RSP']:
-            self.data_set = primitive.Identifier
-            self.command_set.CommandDataSetType = 0x0001
-        # C-FIND-RSP only has a Data Set when the Status is pending (0xFF00) or
-        #   Pending Warning (0xFF01)
-        elif cls_type_name == 'C_FIND_RSP' and \
-                        self.command_set.Status in [0xFF00, 0xFF01]:
+        elif cls_type_name in ['C_FIND_RQ', 'C_GET_RQ', 'C_MOVE_RQ',
+                                'C_FIND_RSP', 'C_GET_RSP', 'C_MOVE_RSP'] and \
+                primitive.Identifier:
             self.data_set = primitive.Identifier
             self.command_set.CommandDataSetType = 0x0001
         elif cls_type_name == 'N_EVENT_REPORT_RQ':
@@ -475,7 +483,7 @@ class DIMSEMessage(object):
             One of the pynetdicom3.dimse_primitives primitives generated from
             the current DIMSEMessage.
         """
-        # pylint: disable=redefined-variable-type,too-many-branches
+        # pylint: disable=too-many-branches
         cls_type_name = self.__class__.__name__
         if 'C_ECHO' in cls_type_name:
             primitive = C_ECHO()
@@ -599,8 +607,8 @@ def _build_message_classes(message_name):
 
     return cls
 
-for msg_type in _COMMAND_SET_ELEM:
-    _build_message_classes(msg_type)
+for __msg_type in _COMMAND_SET_ELEM:
+    _build_message_classes(__msg_type)
 
 # Values from PS3.5
 _MESSAGE_CLASS_TYPES = {0x0001 : C_STORE_RQ, 0x8001 : C_STORE_RSP,

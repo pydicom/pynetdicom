@@ -1,7 +1,5 @@
-"""Various utility functions.
+"""Various utility functions."""
 
-TODO: Rename wrap_list globally to pretty_bytes_string
-"""
 import codecs
 from io import BytesIO
 import logging
@@ -73,15 +71,15 @@ def validate_ae_title(ae_title):
 
             if is_bytes:
                 return codecs.encode(significant_characters, 'utf-8')
-            else:
-                return significant_characters
+
+            return significant_characters
 
         # AE title too long : truncate
         elif len(significant_characters.strip()) > 16:
             if is_bytes:
                 return codecs.encode(significant_characters[:16], 'utf-8')
-            else:
-                return significant_characters[:16]
+
+            return significant_characters[:16]
 
         # AE title empty str
         else:
@@ -96,9 +94,9 @@ def validate_ae_title(ae_title):
         raise TypeError("Invalid value for an AE title; must be a "
                         "non-empty string or bytes.")
 
-def wrap_list(lst, prefix='  ', delimiter='  ', items_per_line=16,
-              max_size=512, suffix=''):
-    """Given a bytestring `lst` turn it into a list of nicely formatted str.
+def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
+                 max_size=512, suffix=''):
+    """Turn the bytestring `lst` into a list of nicely formatted str.
 
     Parameters
     ----------
@@ -234,7 +232,8 @@ class PresentationContext(object):
 
         if transfer_syntax not in self.TransferSyntax and \
                                                     transfer_syntax != '':
-            if not  transfer_syntax.is_valid:
+
+            if not transfer_syntax.is_valid:
                 raise ValueError('Presentation Context attempted to add a '
                                  'invalid UID')
             # Issue #62: private transfer syntaxes may be used
@@ -283,7 +282,7 @@ class PresentationContext(object):
         FIXME: Add Parameters section
         """
         # pylint: disable=attribute-defined-outside-init
-        if not (1 <= value <= 255):
+        if not 1 <= value <= 255:
             raise ValueError("Presentation Context ID must be an odd "
                              "integer between 1 and 255 inclusive")
         elif value % 2 == 0:

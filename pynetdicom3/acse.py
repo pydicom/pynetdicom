@@ -2,19 +2,19 @@
 ACSE service provider
 """
 import logging
-import time
+import socket
 
 from pydicom.uid import UID
 
 from pynetdicom3 import pynetdicom_uid_prefix
 from pynetdicom3 import pynetdicom_version
-from pynetdicom3.pdu_primitives import MaximumLengthNegotiation, \
-                                   ImplementationClassUIDNotification, \
-                                   ImplementationVersionNameNotification
-from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, \
-                                       A_P_ABORT
+from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
+                                        ImplementationClassUIDNotification,
+                                        ImplementationVersionNameNotification)
+from pynetdicom3.pdu_primitives import (A_ASSOCIATE, A_RELEASE, A_ABORT,
+                                        A_P_ABORT)
 from pynetdicom3.utils import PresentationContextManager
-from pynetdicom3.utils import wrap_list
+from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.acse')
 
@@ -378,8 +378,8 @@ class ACSEServiceProvider(object):
             self.dul.send_pdu(release_rsp)
 
             return True
-        else:
-            return False
+
+        return False
 
     def CheckAbort(self):
         """Checks for abort indication from the remote AE. """
@@ -389,8 +389,8 @@ class ACSEServiceProvider(object):
         if primitive.__class__ in (A_ABORT, A_P_ABORT):
             self.dul.receive_pdu(wait=False)
             return True
-        else:
-            return False
+
+        return False
 
     def Status(self):
         """Return the current state of the DUL's state machine"""
@@ -482,7 +482,7 @@ class ACSEServiceProvider(object):
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
-                app_info = wrap_list(item.app_info)
+                app_info = pretty_bytes(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
                 for line in app_info:
@@ -581,6 +581,9 @@ class ACSEServiceProvider(object):
                  '{0!s}'.format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
+        if not pres_contexts:
+            s.append('    (no valid presentation contexts)')
+
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} ({1!s})'
                      .format(item.ID, item.result_str))
@@ -677,8 +680,7 @@ class ACSEServiceProvider(object):
         a_abort : pynetdicom3.pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
-        pass
-
+        LOGGER.info('Aborting Association')
 
     # Local AE receiving PDU from peer AE
     @staticmethod
@@ -751,7 +753,7 @@ class ACSEServiceProvider(object):
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
-                app_info = wrap_list(item.app_info)
+                app_info = pretty_bytes(item.app_info)
                 app_info[0] = '[' + app_info[0][1:]
                 app_info[-1] = app_info[-1] + ' ]'
                 for line in app_info:

@@ -4,9 +4,8 @@ The DUL's finite state machine representation.
 import logging
 import socket
 
-from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, \
-                            A_ASSOCIATE_AC, P_DATA_TF, \
-                            A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
+from pynetdicom3.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
+                             P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
 from pynetdicom3.pdu_primitives import A_ABORT
 
 LOGGER = logging.getLogger('pynetdicom3.sm')
@@ -671,8 +670,8 @@ def AR_8(dul):
     dul.to_user_queue.put(dul.primitive)
     if dul.requestor == 1:
         return 'Sta9'
-    else:
-        return 'Sta10'
+
+    return 'Sta10'
 
 def AR_9(dul):
     """Association release AR-9.
