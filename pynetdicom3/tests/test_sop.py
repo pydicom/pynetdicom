@@ -129,6 +129,7 @@ class TestServiceClass(unittest.TestCase):
         sop = StorageServiceClass()
         rsp = C_STORE()
         status = Dataset()
+        status.Status = 0x0000
         status.PatientName = 'Test comment'
         rsp = sop.validate_status(status, rsp)
 
