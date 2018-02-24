@@ -446,7 +446,7 @@ class Association(threading.Thread):
         """
         self._is_running = True
         while not self._kill:
-            time.sleep(0.1)
+            time.sleep(0.001)
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass

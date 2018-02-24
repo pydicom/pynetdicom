@@ -282,7 +282,7 @@ class DIMSEServiceProvider(object):
                 if not self.dul.is_alive():
                     return None, None
 
-                time.sleep(0.05)
+                time.sleep(0.001)
 
                 nxt = self.dul.peek_next_pdu()
                 if nxt is None:
