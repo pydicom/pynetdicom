@@ -1299,7 +1299,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Move SCU failed due to there being no valid "
                          "presentation context\n   for the current dataset")
-            raise ValueError('No accepted Presentation Context')
+            raise ValueError("No accepted Presentation Context for 'dataset'")
 
         # Build C-MOVE request primitive
         #   (M) Message ID
@@ -1563,7 +1563,7 @@ class Association(threading.Thread):
             LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
             LOGGER.error("Get SCU failed due to there being no valid "
                          "presentation context for the current dataset")
-            raise ValueError('No accepted Presentation Context')
+            raise ValueError("No accepted Presentation Context for 'dataset'")
 
         # Build C-GET request primitive
         #   (M) Message ID
