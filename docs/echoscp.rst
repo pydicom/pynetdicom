@@ -14,12 +14,14 @@ application can be used to verify basic DICOM connectivity.
 The following example shows what happens when it is started and receives
 a C-ECHO from a peer:
 ::
-    user@host: echoscp 11112
+    
+   user@host: echoscp 11112
 
 
 More information is available when a connection is received while running with
 the ``-v`` option:
 ::
+   
     user@host: echoscp 11112 -v
     I: Association Received
     I: Association Acknowledged
@@ -28,6 +30,7 @@ the ``-v`` option:
 
 When a peer AE attempts to send non C-ECHO message:
 ::
+   
     user@host: echoscu 192.168.2.1 11112 -v
     I: Association Received
     I: Association Acknowledged
@@ -36,6 +39,7 @@ When a peer AE attempts to send non C-ECHO message:
 Much more information is available when a connection is received while
 running with the ``-d`` option:
 ::
+   
     user@host: echoscp 11112 -d
     D: $echosco.py v0.2.0 2016-03-15 $
     D:
@@ -100,10 +104,12 @@ DICOM Conformance
 =================
 The ``echoscp`` application supports the following SOP Class as an SCP:
 ::
+   
     Verification SOP Class          1.2.840.10008.1.1
 
 The supported Transfer Syntaxes [#]_ are:
 ::
+   
     Little Endian Implicit VR       1.2.840.10008.1.2
     Little Endian Explicit VR       1.2.840.10008.1.2.1
     Big Endian Explicit VR          1.2.840.10008.1.2.2

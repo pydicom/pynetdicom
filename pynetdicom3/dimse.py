@@ -41,21 +41,24 @@ class DIMSEServiceProvider(object):
     - DIMSE-N supports operations associated with normalised SOP Classes and
       provides an extended set of object-orientated operations and notifications
 
-    Service Overview
-    ----------------
+    **Service Overview**
+
     The DIMSE service provider supports communication between peer DIMSE service
     users. A service user acts in one of two roles:
+
     - invoking DIMSE user
     - performing DIMSE user
 
     Service users make use of service primitives provided by the DIMSE service
     provider. A service primitive shall be one of the following types:
+
     - request primitive
     - indication primitive
     - response primitive
     - confirmation primitive
 
     These primitives are used as follows:
+
     - The invoking service user issues a request primitive to the DIMSE provider
     - The DIMSE provider receives the request primitive and issues an indication
       primitive to the performing service user
@@ -68,13 +71,13 @@ class DIMSEServiceProvider(object):
     - The invoking service user receives the confirmation primitive, completing
       the DIMSE service.
 
-    Service Primitive Classes
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Service Primitive Classes**
+
     DIMSE-C: C_ECHO, C_STORE, C_GET, C_FIND, C_MOVE
     DIMSE-N: N_EVENT_REPORT, N_GET, N_GET, N_ACTION, N_CREATE, N_DELETE
 
-    Protocol Machine
-    ----------------
+    **Protocol Machine**
+
     PS3.7 8.1
     The DIMSE protocol machine defines the procedures and the encoding rules
     necessary to construct Messages used to exchange command requests and
@@ -86,34 +89,35 @@ class DIMSEServiceProvider(object):
     them to the DIMSE service user by the means of indication and confirmation
     service primitives.
 
-    Messages
-    ~~~~~~~~
-    C-STORE: Request/indication    - C_STORE_RQ
-             Response/confirmation - C_STORE_RSP
-    C-FIND:  Request/indication        - C_FIND_RQ
-             Response/confirmation     - C_FIND_RSP
-             Cancel request/indication - C_CANCEL_RQ
-    C-GET:   Request/indication        - C_GET_RQ
-             Response/confirmation     - C_GET_RSP
-             Cancel request/indication - C_CANCEL_RQ
-    C-MOVE:  Request/indication    - C_MOVE_RQ
-             Response/confirmation - C_MOVE_RSP
-             Cancel request/indication - C_CANCEL_RQ
-    C-ECHO:  Request/indication    - C_ECHO_RQ
-             Response/confirmation - C_ECHO_RSP
-    C-CANCEL: Request/indication - C_CANCEL_RQ
+    **Messages**
+
+    C-STORE:        Request/indication    - C_STORE_RQ
+                    Response/confirmation - C_STORE_RSP
+    C-FIND:         Request/indication        - C_FIND_RQ
+                    Response/confirmation     - C_FIND_RSP
+                    Cancel request/indication - C_CANCEL_RQ
+    C-GET:          Request/indication        - C_GET_RQ
+                    Response/confirmation     - C_GET_RSP
+                    Cancel request/indication - C_CANCEL_RQ
+    C-MOVE:         Request/indication    - C_MOVE_RQ
+                    Response/confirmation - C_MOVE_RSP
+                    Cancel request/indication - C_CANCEL_RQ
+    C-ECHO:         Request/indication    - C_ECHO_RQ
+                    Response/confirmation - C_ECHO_RSP
+    C-CANCEL:       Request/indication - C_CANCEL_RQ
+                    Response/confirmation - None
     N-EVENT-REPORT: Request/indication    - N_EVENT_REPORT_RQ
                     Response/confirmation - N_EVENT_REPORT_RSP
-    N-GET:    Request/indication    - N_GET_RQ
-              Response/confirmation - N_GET_RSP
-    N-SET:    Request/indication    - N_SET_RQ
-              Response/confirmation - N_SET_RSP
-    N-ACTION: Request/indication    - N_ACTION_RQ
-              Response/confirmation - N_ACTION_RSP
-    N-CREATE: Request/indication    - N_CREATE_RQ
-              Response/confirmation - N_CREATE_RSP
-    N-DELETE: Request/indication    - N_DELETE_RQ
-              Response/confirmation - N_DELETE_RSP
+    N-GET:          Request/indication    - N_GET_RQ
+                    Response/confirmation - N_GET_RSP
+    N-SET:          Request/indication    - N_SET_RQ
+                    Response/confirmation - N_SET_RSP
+    N-ACTION:       Request/indication    - N_ACTION_RQ
+                    Response/confirmation - N_ACTION_RSP
+    N-CREATE:       Request/indication    - N_CREATE_RQ
+                    Response/confirmation - N_CREATE_RSP
+    N-DELETE:       Request/indication    - N_DELETE_RQ
+                    Response/confirmation - N_DELETE_RSP
 
     Attributes
     ----------
@@ -128,6 +132,7 @@ class DIMSEServiceProvider(object):
         The DIMSE message
     """
     # pylint: disable=too-many-public-methods
+
     def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
         """Start the DIMSE service provider.
 
@@ -236,7 +241,8 @@ class DIMSEServiceProvider(object):
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
-        pdata_pdu_list = dimse_msg.encode_msg(context_id, self.maximum_pdu_size)
+        pdata_pdu_list = dimse_msg.encode_msg(
+            context_id, self.maximum_pdu_size)
 
         # Send the P-DATA PDUs to the peer via the DUL provider
         for pdata_pdu in pdata_pdu_list:
@@ -339,7 +345,6 @@ class DIMSEServiceProvider(object):
 
             return None, None
 
-
     # Debugging and AE callbacks
     def on_send_dimse_message(self, message):
         """Controls which debugging function is called when sending.
@@ -352,29 +357,29 @@ class DIMSEServiceProvider(object):
         message : pynetdicom3.dimse_messages.DIMSEMessage
             The DIMSE message to be sent.
         """
-        callback = {C_ECHO_RQ  : self.debug_send_c_echo_rq,
-                    C_ECHO_RSP : self.debug_send_c_echo_rsp,
-                    C_FIND_RQ  : self.debug_send_c_find_rq,
-                    C_FIND_RSP : self.debug_send_c_find_rsp,
-                    C_GET_RQ  : self.debug_send_c_get_rq,
-                    C_GET_RSP : self.debug_send_c_get_rsp,
-                    C_MOVE_RQ  : self.debug_send_c_move_rq,
-                    C_MOVE_RSP : self.debug_send_c_move_rsp,
-                    C_STORE_RQ  : self.debug_send_c_store_rq,
-                    C_STORE_RSP : self.debug_send_c_store_rsp,
-                    C_CANCEL_RQ : self.debug_send_c_cancel_rq,
-                    N_EVENT_REPORT_RQ  : self.debug_send_n_event_report_rq,
-                    N_EVENT_REPORT_RSP : self.debug_send_n_event_report_rsp,
-                    N_SET_RQ  : self.debug_send_n_set_rq,
-                    N_SET_RSP : self.debug_send_n_set_rsp,
-                    N_GET_RQ  : self.debug_send_n_get_rq,
-                    N_GET_RSP : self.debug_send_n_get_rsp,
-                    N_ACTION_RQ  : self.debug_send_n_action_rq,
-                    N_ACTION_RSP : self.debug_send_n_action_rsp,
-                    N_CREATE_RQ  : self.debug_send_n_create_rq,
-                    N_CREATE_RSP : self.debug_send_n_create_rsp,
-                    N_DELETE_RQ  : self.debug_send_n_delete_rq,
-                    N_DELETE_RSP : self.debug_send_n_delete_rsp}
+        callback = {C_ECHO_RQ: self.debug_send_c_echo_rq,
+                    C_ECHO_RSP: self.debug_send_c_echo_rsp,
+                    C_FIND_RQ: self.debug_send_c_find_rq,
+                    C_FIND_RSP: self.debug_send_c_find_rsp,
+                    C_GET_RQ: self.debug_send_c_get_rq,
+                    C_GET_RSP: self.debug_send_c_get_rsp,
+                    C_MOVE_RQ: self.debug_send_c_move_rq,
+                    C_MOVE_RSP: self.debug_send_c_move_rsp,
+                    C_STORE_RQ: self.debug_send_c_store_rq,
+                    C_STORE_RSP: self.debug_send_c_store_rsp,
+                    C_CANCEL_RQ: self.debug_send_c_cancel_rq,
+                    N_EVENT_REPORT_RQ: self.debug_send_n_event_report_rq,
+                    N_EVENT_REPORT_RSP: self.debug_send_n_event_report_rsp,
+                    N_SET_RQ: self.debug_send_n_set_rq,
+                    N_SET_RSP: self.debug_send_n_set_rsp,
+                    N_GET_RQ: self.debug_send_n_get_rq,
+                    N_GET_RSP: self.debug_send_n_get_rsp,
+                    N_ACTION_RQ: self.debug_send_n_action_rq,
+                    N_ACTION_RSP: self.debug_send_n_action_rsp,
+                    N_CREATE_RQ: self.debug_send_n_create_rq,
+                    N_CREATE_RSP: self.debug_send_n_create_rsp,
+                    N_DELETE_RQ: self.debug_send_n_delete_rq,
+                    N_DELETE_RSP: self.debug_send_n_delete_rsp}
 
         callback[type(message)](message)
 
@@ -389,32 +394,31 @@ class DIMSEServiceProvider(object):
         message : pynetdicom3.dimse_messages.DIMSEMessage
             The DIMSE message that was received.
         """
-        callback = {C_ECHO_RQ  : self.debug_receive_c_echo_rq,
-                    C_ECHO_RSP : self.debug_receive_c_echo_rsp,
-                    C_FIND_RQ  : self.debug_receive_c_find_rq,
-                    C_FIND_RSP : self.debug_receive_c_find_rsp,
-                    C_CANCEL_RQ : self.debug_receive_c_cancel_rq,
-                    C_GET_RQ  : self.debug_receive_c_get_rq,
-                    C_GET_RSP : self.debug_receive_c_get_rsp,
-                    C_MOVE_RQ  : self.debug_receive_c_move_rq,
-                    C_MOVE_RSP : self.debug_receive_c_move_rsp,
-                    C_STORE_RQ  : self.debug_receive_c_store_rq,
-                    C_STORE_RSP : self.debug_receive_c_store_rsp,
-                    N_EVENT_REPORT_RQ  : self.debug_receive_n_event_report_rq,
-                    N_EVENT_REPORT_RSP : self.debug_receive_n_event_report_rsp,
-                    N_SET_RQ  : self.debug_receive_n_set_rq,
-                    N_SET_RSP : self.debug_receive_n_set_rsp,
-                    N_GET_RQ  : self.debug_receive_n_get_rq,
-                    N_GET_RSP : self.debug_receive_n_get_rsp,
-                    N_ACTION_RQ  : self.debug_receive_n_action_rq,
-                    N_ACTION_RSP : self.debug_receive_n_action_rsp,
-                    N_CREATE_RQ  : self.debug_receive_n_create_rq,
-                    N_CREATE_RSP : self.debug_receive_n_create_rsp,
-                    N_DELETE_RQ  : self.debug_receive_n_delete_rq,
-                    N_DELETE_RSP : self.debug_receive_n_delete_rsp}
+        callback = {C_ECHO_RQ: self.debug_receive_c_echo_rq,
+                    C_ECHO_RSP: self.debug_receive_c_echo_rsp,
+                    C_FIND_RQ: self.debug_receive_c_find_rq,
+                    C_FIND_RSP: self.debug_receive_c_find_rsp,
+                    C_CANCEL_RQ: self.debug_receive_c_cancel_rq,
+                    C_GET_RQ: self.debug_receive_c_get_rq,
+                    C_GET_RSP: self.debug_receive_c_get_rsp,
+                    C_MOVE_RQ: self.debug_receive_c_move_rq,
+                    C_MOVE_RSP: self.debug_receive_c_move_rsp,
+                    C_STORE_RQ: self.debug_receive_c_store_rq,
+                    C_STORE_RSP: self.debug_receive_c_store_rsp,
+                    N_EVENT_REPORT_RQ: self.debug_receive_n_event_report_rq,
+                    N_EVENT_REPORT_RSP: self.debug_receive_n_event_report_rsp,
+                    N_SET_RQ: self.debug_receive_n_set_rq,
+                    N_SET_RSP: self.debug_receive_n_set_rsp,
+                    N_GET_RQ: self.debug_receive_n_get_rq,
+                    N_GET_RSP: self.debug_receive_n_get_rsp,
+                    N_ACTION_RQ: self.debug_receive_n_action_rq,
+                    N_ACTION_RSP: self.debug_receive_n_action_rsp,
+                    N_CREATE_RQ: self.debug_receive_n_create_rq,
+                    N_CREATE_RSP: self.debug_receive_n_create_rsp,
+                    N_DELETE_RQ: self.debug_receive_n_delete_rq,
+                    N_DELETE_RSP: self.debug_receive_n_delete_rsp}
 
         callback[type(message)](message)
-
 
     # Mid-level DIMSE Message related logging/debugging
     # pylint: disable=unused-argument
@@ -452,9 +456,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
@@ -512,9 +516,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
@@ -584,9 +588,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
@@ -655,9 +659,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         identifier = 'None'
@@ -722,14 +726,14 @@ class DIMSEServiceProvider(object):
 
     @staticmethod
     def debug_send_c_cancel_rq(msg):
-        """Debugging function when a C-CANCEL-*-RQ is sent.
+        """Debugging function when a C-CANCEL-\*-RQ is sent.
 
         Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.
 
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_CANCEL_RQ
-            The C-CANCEL-*-RQ message to be sent.
+            The C-CANCEL-\*-RQ message to be sent.
         """
         pass
 
@@ -794,9 +798,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
@@ -880,9 +884,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
@@ -943,8 +947,8 @@ class DIMSEServiceProvider(object):
 
     @staticmethod
     def debug_receive_c_cancel_rq(msg):
-        """Debugging function when a C-CANCEL-*-RQ is received.
-
+        """Debugging function when a C-CANCEL-\*-RQ is received.
+\
         Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
         Parameters
@@ -978,9 +982,9 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        priority_str = {2 : 'Low',
-                        0 : 'Medium',
-                        1 : 'High'}
+        priority_str = {2: 'Low',
+                        0: 'Medium',
+                        1: 'High'}
         priority = priority_str[cs.Priority]
 
         dataset = 'None'

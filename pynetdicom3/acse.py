@@ -30,8 +30,9 @@ class ACSEServiceProvider(object):
 
     The ACSE provider sends Association related service primitives to the DICOM
     UL provider
-     * sending to peer AE: DUL FSM converts primitive to PDU, encodes and sends
-     * received from peer AE: DUL receives data, decodes into a PDU then
+
+      * sending to peer AE: DUL FSM converts primitive to PDU, encodes and sends
+      * received from peer AE: DUL receives data, decodes into a PDU then
         converts to primitive which is result of DUL.receive_pdu()
 
     Attributes
@@ -335,8 +336,10 @@ class ACSEServiceProvider(object):
         reason : int, optional
             The reason for aborting the association (default: 0x00 reason not
             specified).
+
             If source 0x00 (DUL user):
                 0x00 - reason field not significant
+                
             If source 0x02 (DUL provider):
                 0x00 - reason not specified
                 0x01 - unrecognised PDU

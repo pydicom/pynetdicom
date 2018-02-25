@@ -40,8 +40,9 @@ class ApplicationEntity(object):
     An AE may be either a server (Service Class Provider or SCP) or a client
     (Service Class User or SCU).
 
-    SCP
-    ---
+
+    **SCP**
+
     To use an AE as an SCP, you need to specify the listen `port` number that
     peer AE SCUs can use to request Associations over, as well as the SOP
     Classes that the SCP supports (`scp_sop_class`). If the SCP is being used
@@ -50,8 +51,8 @@ class ApplicationEntity(object):
 
     The SCP can then be started using `ApplicationEntity.start()`
 
-    C-STORE SCP Example
-    ~~~~~~~~~~~~~~~~~~~
+    **C-STORE SCP Example**
+
     .. code-block:: python
 
             from pynetdicom3 import AE, StorageSOPClassList
@@ -71,8 +72,8 @@ class ApplicationEntity(object):
             # Start the SCP
             ae.start()
 
-    SCU
-    ---
+    **SCU**
+
     To use an AE as an SCU you only need to specify the SOP Classes that the SCU
     supports (`scu_sop_class`) and then call `ApplicationEntity.associate(addr,
     port)` where *addr* and *port* are the TCP/IP address and the listen port
@@ -81,8 +82,8 @@ class ApplicationEntity(object):
     Once the Association is established you can then request any of the DIMSE-C
     or DIMSE-N services.
 
-    C-ECHO SCU Example
-    ~~~~~~~~~~~~~~~~~~
+    **C-ECHO SCU Example**
+
     .. code-block:: python
 
             from pynetdicom3 import AE, VerificationSOPClass
@@ -802,6 +803,7 @@ class ApplicationEntity(object):
               * 1 or 2, then return b''.
               * 3 then return the Kerberos Server ticket.
               * 4 then return the SAML response.
+              
             If the identity check fails then return None
         """
         raise NotImplementedError
@@ -819,12 +821,12 @@ class ApplicationEntity(object):
         Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
         after receiving a C-ECHO request and prior to sending the response.
 
-        Supported Service Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Supported Service Classes**
+       
         Verification Service Class
 
-        Status
-        ------
+        **Status**
+
         The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
         status "shall have a value of Success", however Section 9.1.5.1.4
         states that the status of the response may have any of the following
@@ -880,12 +882,12 @@ class ApplicationEntity(object):
         DICOM Standard Part 10, Section 7) then they are responsible for adding
         the DICOM File Meta Information.
 
-        Supported Service Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Supported Service Classes**
+
         Storage Service Class
 
-        Status
-        ------
+        **Status**
+
         Success
 
         - 0x0000 - Success
@@ -955,12 +957,12 @@ class ApplicationEntity(object):
         method after receiving a C-FIND request and prior to sending the
         response.
 
-        Supported Service Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Supported Service Classes**
+
         Query/Retrieve Service Class
 
-        Status
-        ------
+        **Status**
+    
         Success
 
         - 0x0000 - Success
@@ -1043,12 +1045,12 @@ class ApplicationEntity(object):
         a int containing the total number of C-STORE sub-operations, then yield
         (status, dataset) pairs.
 
-        Supported Service Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Supported Service Classes**
+
         Query/Retrieve Service Class
 
-        Status
-        ------
+        **Status**
+
         Success
 
         - 0x0000 - Sub-operations complete, no failures or warnings
@@ -1139,12 +1141,12 @@ class ApplicationEntity(object):
         SCP will send a response with a 'Failure' status of 0xA801 (move
         destination unknown).
 
-        Supported Service Classes
-        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Supported Service Classes**
+
         Query/Retrieve Service Class
 
-        Status
-        ------
+        **Status**
+
         Success
 
         - 0x0000 - Sub-operations complete, no failures

@@ -2,7 +2,7 @@
 Define the DIMSE-C and DIMSE-N service parameter primitives.
 
 Notes:
-* The class member names must match their corresponding DICOM element keyword
+  * The class member names must match their corresponding DICOM element keyword
     in order for the DIMSE messages/primitives to be created correctly.
 
 TODO: Implement properties for DIMSE-N parameters
@@ -25,14 +25,16 @@ LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
 # pylint: disable=too-many-instance-attributes
 
 # DIMSE-C Services
+
+
 class C_STORE(object):
     """Represents a C-STORE primitive.
 
     The C-STORE service is used by a DIMSE user to store a composite SOP
     Instance on a peer DISMSE user. It is a confirmed service.
 
-    C-STORE Service Procedure
-    =========================
+    **C-STORE Service Procedure**
+
     1. The invoking DIMSE user requests that the performing DIMSE user store a
        composite SOP Instance by issuing a C-STORE request primitive to the
        DIMSE provider
@@ -89,6 +91,7 @@ class C_STORE(object):
         [-, C] An optional status related field containing a text description
         of the error detected. 64 characters maximum.
     """
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -177,7 +180,7 @@ class C_STORE(object):
             pass
         else:
             raise TypeError("Affected SOP Class UID must be a "
-                    "pydicom.uid.UID, str or bytes")
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -329,50 +332,52 @@ class C_FIND(object):
     PS3.4 Annex C.4.1.1
     PS3.4 9.1.2
 
-    SOP Class UID
-    ~~~~~~~~~~~~~
+    **SOP Class UID**
+
     Identifies the QR Information Model against which the C-FIND is to be
     performed. Support for the SOP Class UID is implied by the Abstract Syntax
     UID of the Presentation Context used by this C-FIND operation.
 
-    Priority
-    ~~~~~~~~
+    **Priority**
+
     The requested priority of the C-FIND operation with respect to other DIMSE
     operations being performed by the same SCP. Processing of priority requests
     is not required of SCPs. Whether or not an SCP supports priority processing
     and the meaning of different priority levels shall be stated in the
     Conformance Statement of the SCP.
 
-    Identifier
-    ~~~~~~~~~~
+    **Identifier**
+
     Encoded as a Data Set
 
     Request Identifier Structure
+
     * Key Attribute values to be matched against the values of storage SOP
-    Instances managed by the SCP
+      Instances managed by the SCP
     * QR Level (0008,0052) Query/Retrieve Level
     * Conditionally, (0008,0053) if enhanced multi frame image conversion
-        accepted during Extended Negotiation
+      accepted during Extended Negotiation
     * Conditionally, (0008,0005) if expanded or replacement character sets
-        may be used in the request Identifier attributes
+      may be used in the request Identifier attributes
     * Conditionally, (0008,0201) if Key Attributes of time are to be
-        interpreted explicitly in the designated local time zone
+      interpreted explicitly in the designated local time zone
 
     Response Identifier Structure
+
     * Key Attribute with values corresponding to Key Attributes contained in
-    the Identifier of the request
+      the Identifier of the request
     * QR Level (0008, 0053)
     * Conditionally, (0008,0005) if expanded or replacement character sets
-        may be used in the response Identifier attributes
+      may be used in the response Identifier attributes
     * Conditionally, (0008,0201) if Key Attributes of time are to be
-        interpreted explicitly in the designated local time zone
+      interpreted explicitly in the designated local time zone
 
     The C-FIND SCP is required to support either/both the 'Retrieve AE Title'
     (0008,0054) or the 'Storage Media File-Set ID'/'Storage Media File Set UID'
     (0088,0130)/(0088,0140) data elements.
 
-    Retrieve AE Title
-    ~~~~~~~~~~~~~~~~~
+    **Retrieve AE Title**
+
     A list of AE title(s) that identify the location from which the Instance
     may be retrieved on the network. Must be present if Storage Media File Set
     ID/UID not present. The named AE shall support either C-GET or C-MOVE
@@ -412,6 +417,7 @@ class C_FIND(object):
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -493,7 +499,7 @@ class C_FIND(object):
             pass
         else:
             raise TypeError("Affected SOP Class UID must be a "
-                    "pydicom.uid.UID, str or bytes")
+                            "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Class UID is an invalid UID")
@@ -513,7 +519,7 @@ class C_FIND(object):
             self._priority = value
         else:
             LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
-                    "invalid value")
+                           "invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
@@ -569,37 +575,40 @@ class C_GET(object):
 
     The C-GET service is used
 
-    C-GET Service Procedure
-    =======================
+    **C-GET Service Procedure**
 
-    Number of Remaining Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Remaining Sub-Operations**
+
     A C-GET response with a status of:
+
     * Pending shall contain the Number of Remaining Sub-operations Attribute
     * Canceled may contain the Number of Remaining Sub-operations Attribute
     * Warning, Failure or Success shall not contain the Number of Remaining
-        Sub-operations Attribute
+      Sub-operations Attribute
 
-    Number of Completed Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Completed Sub-Operations**
+
     A C-GET response with a status of:
+
     * Pending shall contain the Number of Completed Sub-operations Attribute
     * Canceled, Warning, Failure or Success may contain the Number of Completed
-        Sub-operations Attribute
+      Sub-operations Attribute
 
-    Number of Failed Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Failed Sub-Operations**
+
     A C-GET response with a status of:
+
     * Pending shall contain the Number of Failed Sub-operations Attribute
     * Canceled, Warning, Failure or Success may contain the Number of Failed
-        Sub-operations Attribute
+      Sub-operations Attribute
 
-    Number of Warning Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Warning Sub-Operations**
+
     A C-GET response with a status of:
+
     * Pending shall contain the Number of Warning Sub-operations Attribute
     * Canceled, Warning, Failure or Success may contain the Number of Warning
-        Sub-operations Attribute
+      Sub-operations Attribute
 
     PS3.4 Annex C.4.3
     PS3.7 9.1.3
@@ -655,6 +664,7 @@ class C_GET(object):
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -895,37 +905,40 @@ class C_MOVE(object):
 
     The C-MOVE service is used
 
-    C-MOVE Service Procedure
-    =======================
+    **C-MOVE Service Procedure**
 
-    Number of Remaining Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Remaining Sub-Operations**
+
     A C-MOVE response with a status of:
+
     * Pending shall contain the Number of Remaining Sub-operations Attribute
     * Canceled may contain the Number of Remaining Sub-operations Attribute
     * Warning, Failure or Success shall not contain the Number of Remaining
-        Sub-operations Attribute
+      Sub-operations Attribute
 
-    Number of Completed Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Completed Sub-Operations**
+
     A C-MOVE response with a status of:
+
     * Pending shall contain the Number of Completed Sub-operations Attribute
     * Canceled, Warning, Failure or Success may contain the Number of Completed
-        Sub-operations Attribute
+      Sub-operations Attribute
 
-    Number of Failed Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Failed Sub-Operations**
+
     A C-MOVE response with a status of:
+
     * Pending shall contain the Number of Failed Sub-operations Attribute
     * Canceled, Warning, Failure or Success may contain the Number of Failed
-        Sub-operations Attribute
+      Sub-operations Attribute
 
-    Number of Warning Sub-Operations
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Number of Warning Sub-Operations**
+
     A C-MOVE response with a status of:
+
     * Pending shall contain the Number of Warning Sub-operations Attribute
     * Canceled, Warning, Failure or Success may contain the Number of Warning
-        Sub-operations Attribute
+      Sub-operations Attribute
 
     PS3.4 Annex C.4.2
     PS3.7 9.1.4
@@ -984,6 +997,7 @@ class C_MOVE(object):
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1244,8 +1258,9 @@ class C_MOVE(object):
 class C_ECHO(object):
     """Represents a C-ECHO primitive.
 
-    C-ECHO Service Procedure
-    ========================
+    **C-ECHO Service Procedure**
+
+
     1. The invoking DIMSE user requests verification of communication to the
         performing DIMSE user by issuing a C-ECHO request primitive to the
         DIMSE provider.
@@ -1280,6 +1295,7 @@ class C_ECHO(object):
         [-, C] An optional status related field containing a text description
         of the error detected. 64 characters maximum.
     """
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1409,6 +1425,7 @@ class C_CANCEL(object):
         [-, M] The Message ID of the operation request/indication to which this
         response/confirmation applies.
     """
+
     def __init__(self):
         """Initialise the C_CANCEL"""
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1471,26 +1488,31 @@ class N_EVENT_REPORT(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-            FIXME: Add the status values
+        FIXME: Add the status values
 
-    10.1.1.1.8 Status
+    **10.1.1.1.8 Status**
 
     Failure
-        0x0119 - class-instance conflict PS3.7 Annex C.5.7
-        0x0210 - duplicate invocation PS3.7 Annex C.5.9
-        0x0115 - invalid argument value PS3.7 Annex C.5.10
-        0x0117 - invalid SOP instance PS3.7 Annex C.5.12
-        0x0212 - mistyped argument PS3.7 Annex C.5.15
-        0x0114 - no such argument  PS3.7 Annex C.5.16
-        0x0113 - no such event type PS3.7 Annex C.5.18
-        0x0118 - no such SOP class PS3.7 Annex C.5.20
-        0x0112 - no such SOP instance PS3.7 Annex C.5.19
-        0x0110 - processing failure PS3.7 Annex C.5.21
-        0x0213 - resource limitation PS3.7 Annex C.5.22
-        0x0211 - unrecognised operation PS3.7 Annex C.5.23
+
+    0x0119 - class-instance conflict PS3.7 Annex C.5.7
+    0x0210 - duplicate invocation PS3.7 Annex C.5.9
+    0x0115 - invalid argument value PS3.7 Annex C.5.10
+    0x0117 - invalid SOP instance PS3.7 Annex C.5.12
+    0x0212 - mistyped argument PS3.7 Annex C.5.15
+    0x0114 - no such argument  PS3.7 Annex C.5.16
+    0x0113 - no such event type PS3.7 Annex C.5.18
+    0x0118 - no such SOP class PS3.7 Annex C.5.20
+    0x0112 - no such SOP instance PS3.7 Annex C.5.19
+    0x0110 - processing failure PS3.7 Annex C.5.21
+    0x0213 - resource limitation PS3.7 Annex C.5.22
+    0x0211 - unrecognised operation PS3.7 Annex C.5.23
+
     Success
-        0x0000 - success 0x0000
+
+    0x0000 - success 0x0000
+
     """
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1530,6 +1552,7 @@ class N_GET(object):
 
     PS3.7 10.1.2.1
 
+
     Attributes
     ----------
     MessageID : int
@@ -1559,9 +1582,9 @@ class N_GET(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-            FIXME: Add the status values
+        FIXME: Add the status values
 
-    10.1.2.1.9 Status
+    **10.1.2.1.9 Status**
 
     Warning
         attribute list error 0x0107 PS3.5 Annex C.4.2
@@ -1579,6 +1602,7 @@ class N_GET(object):
     Success
         success 0x0000
     """
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1644,9 +1668,9 @@ class N_SET(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-            FIXME: Add the status values
+        FIXME: Add the status values
 
-    10.1.3.1.9 Status
+    **10.1.3.1.9 Status**
 
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
@@ -1667,6 +1691,7 @@ class N_SET(object):
     Success
         success 0x0000
     """
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1734,9 +1759,9 @@ class N_ACTION(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-            FIXME: Add the status values
+        FIXME: Add the status values
 
-    10.1.4.1.10 Status
+    **10.1.4.1.10 Status**
 
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
@@ -1755,6 +1780,7 @@ class N_ACTION(object):
     Success
         success 0x0000 PS3.7 Annex C.1.1
     """
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1815,9 +1841,9 @@ class N_CREATE(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-            FIXME: Add the status values
+        FIXME: Add the status values
 
-    10.1.5.1.6 Status
+    **10.1.5.1.6 Status**
 
     Failure
         duplicate SOP instance 0x0111 PS3.7 Annex C.5.8
@@ -1839,6 +1865,7 @@ class N_CREATE(object):
     Success
         success 0x0000 PS3.7 Annex C.1.1
     """
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1896,9 +1923,11 @@ class N_DELETE(object):
     Status : int
         [-, M] The error or success notification of the operation. It shall be
         one of the following values:
-            FIXME: Add the status values
+        FIXME: Add the status values
 
-    10.1.6.1.7 Status
+    **10.1.6.1.7 Status**
+
+    Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
         duplicate invocation 0x0210 PS3.7 Annex C.5.9
         invalid SOP instance 0x0117 PS3.7 Annex C.5.12
@@ -1912,6 +1941,7 @@ class N_DELETE(object):
     Success
         success 0x0000 PS3.7 Annex C.1.1
     """
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
