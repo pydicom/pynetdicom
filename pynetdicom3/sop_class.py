@@ -170,15 +170,15 @@ class VerificationServiceClass(ServiceClass):
         Will always return 0x0000 (Success) unless the user returns a different
         (valid) status value from the AE.on_c_echo callback.
 
-        C-ECHO Request
-        --------------
+        **C-ECHO Request**
+       
         Parameters
         ~~~~~~~~~~
         (M) Message ID
         (M) Affected SOP Class UID
 
-        C-ECHO Response
-        ---------------
+        **C-ECHO Response**
+
         Parameters
         ~~~~~~~~~~
         (U) Message ID
@@ -267,8 +267,8 @@ class StorageServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Storage Service Class.
 
-        C-STORE Request
-        ---------------
+        **C-STORE Request**
+
         Parameters
         ~~~~~~~~~~
         (M) Message ID
@@ -279,8 +279,8 @@ class StorageServiceClass(ServiceClass):
         (U) Move Originator Message ID
         (M) Data Set
 
-        C-STORE Response
-        ----------------
+        **C-STORE Response**
+
         Parameters
         ~~~~~~~~~~
         (U) Message ID
@@ -371,68 +371,68 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Find Service Class.
 
-        C-FIND Request
-        --------------
-        Parameters
-        ~~~~~~~~~~
+        **C-FIND Request**
+
+        **Parameters**
+
         (M) Message ID
         (M) Affected SOP Class UID
         (M) Priority
         (M) Identifier
 
-        Identifier
-        ~~~~~~~~~~
+        **Identifier**
+
         The C-FIND request Identifier shall contain:
 
         * Key Attributes values to be matched against the values of storage
-        SOP Instances managed by the SCP.
+          SOP Instances managed by the SCP.
         * (0008,0052) Query/Retrieve Level.
         * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-        Conversion has been accepted during Extended Negotiation. It shall not
-        be present otherwise.
+          Conversion has been accepted during Extended Negotiation. It shall not
+          be present otherwise.
         * (0008,0005) Specific Character Set, if expanded or replacement
-        character sets may be used in any of the Attributes in the request
-        Identifier. It shall not be present otherwise.
+          character sets may be used in any of the Attributes in the request
+          Identifier. It shall not be present otherwise.
         * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
-        the request Identifier are to be interpreted explicitly in the
-        designated local time zone. It shall not be present otherwise.
+          the request Identifier are to be interpreted explicitly in the
+          designated local time zone. It shall not be present otherwise.
 
-        C-FIND Response
-        ---------------
-        Parameters
-        ~~~~~~~~~~
+        **C-FIND Response**
+
+        **Parameters**
+
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
         (C) Identifier
         (M) Status
 
-        Identifier
-        ~~~~~~~~~~
+        **Identifier**
+
         The C-FIND response shall only include an Identifier when the Status is
         'Pending'. When sent, the Identifier shall contain:
 
         * Key Attributes with values corresponding to Key Attributes contained
-        in the Identifier of the request.
+          in the Identifier of the request.
         * (0008,0052) Query/Retrieve Level.
         * (0008,0005) Specific Character Set, if expanded or replacement
-        character sets may be used in any of the Attributes in the response
-        Identifier. It shall not be present otherwise.
+          character sets may be used in any of the Attributes in the response
+          Identifier. It shall not be present otherwise.
         * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
-        the response Identifier are to be interpreted explicitly in the
-        designated local time zone. It shall not be present otherwise.
+          the response Identifier are to be interpreted explicitly in the
+          designated local time zone. It shall not be present otherwise.
 
         The C-FIND response Identifier shall also contain either or both of:
 
         * (0008,0130) Storage Media File-Set ID and (0088,0140) Storage Media
-        File-Set UID.
+          File-Set UID.
         * (0008,0054) Retrieve AE Title.
 
         The C-FIND response Identifier may also (but is not required to)
         include the (0008,0056) Instance Availability element.
 
-        Status
-        ~~~~~~
+        **Status**
+
         Success
 
         - 0x0000 - Success
@@ -576,18 +576,18 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Move Service Class.
 
-        C-MOVE Request
-        --------------
-        Parameters
-        ~~~~~~~~~~
+        **C-MOVE Request**
+
+        **Parameters**
+
         (M) Message ID
         (M) Affected SOP Class UID
         (M) Priority
         (M) Move Destination
         (M) Identifier
 
-        Identifier
-        ~~~~~~~~~~
+        **Identifier**
+
         The C-MOVE request Identifier shall contain:
 
         * (0008,0052) Query/Retrieve Level.
@@ -604,10 +604,10 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
           using a character set other than the default character repertoire.
 
-        C-MOVE Response
-        ---------------
-        Parameters
-        ~~~~~~~~~~
+        **C-MOVE Response**
+
+        **Parameters**
+
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
@@ -618,8 +618,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         (C) Number of Failed Sub-operations
         (C) Number of Warning Sub-operations
 
-        Identifier
-        ~~~~~~~~~~
+        **Identifier**
+
         If the C-MOVE response Status is 'Cancelled', 'Failure', 'Refused' or
         'Warning' then the Identifier shall contain:
 
@@ -627,8 +627,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         If the C-MOVE response Status is 'Pending' then there is no Identifier.
 
-        Status
-        ~~~~~~
+        **Status**
+
         Success
 
         - 0x0000 - Sub-operations complete: no failures
@@ -658,8 +658,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         - 0xB000 - Sub-operations complete: one or more failures
 
-        Number of X Sub-operations
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Number of X Sub-operations**
+
         Inclusion of the 'Number of X Sub-operations' parameters is conditional
         on the value of the response Status. For a given Status category, the
         table below states whether or not the response shall contain, shall not
@@ -991,17 +991,17 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
-        C-GET Request
-        -------------
-        Parameters
-        ~~~~~~~~~~
+        **C-GET Request**
+
+        **Parameters**
+
         (M) Message ID
         (M) Affected SOP Class UID
         (M) Priority
         (M) Identifier
 
-        Identifier
-        ~~~~~~~~~~
+        **Identifier**
+
         The C-GET request Identifier shall contain:
 
         * (0008,0052) Query/Retrieve Level.
@@ -1018,10 +1018,10 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
           using a character set other than the default character repertoire.
 
-        C-GET Response
-        ---------------
-        Parameters
-        ~~~~~~~~~~
+        **C-GET Response**
+
+        **Parameters**
+
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
@@ -1032,8 +1032,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         (C) Number of Failed Sub-operations
         (C) Number of Warning Sub-operations
 
-        Identifier
-        ~~~~~~~~~~
+        **Identifier**
+
         If the C-GET response Status is 'Cancelled', 'Failure', 'Refused' or
         'Warning' then the Identifier shall contain:
 
@@ -1041,8 +1041,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         If the C-GET response Status is 'Pending' then there is no Identifier.
 
-        Status
-        ~~~~~~
+        **Status**
+
         Success
 
         - 0x0000 - Sub-operations complete: no failures or warnings
@@ -1071,8 +1071,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         - 0xB000 - Sub-operations complete: one or more failures or warnings
 
-        Number of X Sub-operations
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Number of X Sub-operations**
+
         Inclusion of the 'Number of X Sub-operations' parameters is conditional
         on the value of the response Status. For a given Status category, the
         table below states whether or not the response shall contain, shall not
@@ -1336,8 +1336,8 @@ class BasicWorklistServiceClass(ServiceClass): pass
 class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
     """Implements the Modality Worklist Service Class.
 
-    Status
-    ------
+    **Status**
+
     Based on PS3.4 Annex K.4.1.1.4 (FIXME)
 
     * Indicates service class specific status codes
@@ -1345,17 +1345,17 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
     Success
         Success: Sub-operations complete, no failures - 0x0000
     Pending
-        *Pending: Matches are continuing - warning that one or more Optional
+        * Pending: Matches are continuing - warning that one or more Optional
             Keys were not supported for existence for this Identifier - 0xFF01
-        *Pending: Matches are continuing - current match is supplied and any
+        * Pending: Matches are continuing - current match is supplied and any
             Optional Keys were supported in the same manner as Required Keys
             - 0xFF00
     Cancel
         Cancel: Sub-operations terminated due to Cancel indication - 0xFE00
     Failure
-        *Refused: Out of Resources - 0xA700
-        *Identifier Does Not Match SOP Class - 0xA900
-        *Unable to Process - 0xCxxx
+        * Refused: Out of Resources - 0xA700
+        * Identifier Does Not Match SOP Class - 0xA900
+        * Unable to Process - 0xCxxx
     """
     statuses = MODALITY_WORKLIST_SERVICE_CLASS_STATUS
 

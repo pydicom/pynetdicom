@@ -7,7 +7,7 @@ import os
 try:
     import queue
 except ImportError:
-    import Queue as queue # Python 2 compatibility
+    import Queue as queue  # Python 2 compatibility
 import select
 import socket
 from struct import unpack
@@ -26,6 +26,7 @@ LOGGER = logging.getLogger('pynetdicom3.dul')
 class DULServiceProvider(Thread):
     """
     Three ways to call DULServiceProvider:
+
     - If a port number is given, the DUL will wait for incoming connections on
       this port.
     - If a socket is given, the DUL will use this socket as the client socket.
@@ -54,6 +55,7 @@ class DULServiceProvider(Thread):
     state_machine : pynetdicom3.fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
+
     def __init__(self, socket=None, port=None, dul_timeout=None, assoc=None):
         """
         Parameters
@@ -565,7 +567,7 @@ class DULServiceProvider(Thread):
             read_length += len(tmp)
 
         if read_length != n_bytes:
-            raise RuntimeError("_recvn(socket, {}) - Error reading data from " \
+            raise RuntimeError("_recvn(socket, {}) - Error reading data from "
                                "socket.".format(n_bytes))
 
         return ret
@@ -586,13 +588,13 @@ class DULServiceProvider(Thread):
         pdutype = unpack('B', data[0:1])[0]
         acse = self.assoc.acse
 
-        pdu_types = {0x01 : (A_ASSOCIATE_RQ(), acse.debug_receive_associate_rq),
-                     0x02 : (A_ASSOCIATE_AC(), acse.debug_receive_associate_ac),
-                     0x03 : (A_ASSOCIATE_RJ(), acse.debug_receive_associate_rj),
-                     0x04 : (P_DATA_TF(), acse.debug_receive_data_tf),
-                     0x05 : (A_RELEASE_RQ(), acse.debug_receive_release_rq),
-                     0x06 : (A_RELEASE_RP(), acse.debug_receive_release_rp),
-                     0x07 : (A_ABORT_RQ(), acse.debug_receive_abort)}
+        pdu_types = {0x01: (A_ASSOCIATE_RQ(), acse.debug_receive_associate_rq),
+                     0x02: (A_ASSOCIATE_AC(), acse.debug_receive_associate_ac),
+                     0x03: (A_ASSOCIATE_RJ(), acse.debug_receive_associate_rj),
+                     0x04: (P_DATA_TF(), acse.debug_receive_data_tf),
+                     0x05: (A_RELEASE_RQ(), acse.debug_receive_release_rq),
+                     0x06: (A_RELEASE_RP(), acse.debug_receive_release_rp),
+                     0x07: (A_ABORT_RQ(), acse.debug_receive_abort)}
 
         if pdutype in pdu_types:
             pdu = pdu_types[pdutype][0]
