@@ -494,20 +494,29 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Callback - C-FIND
-        try:
-            # yields (status, identifier), ...
-            result = self.AE.on_c_find(identifier)
-        except Exception as ex:
-            LOGGER.error("Exception in user's on_c_find implementation.")
-            LOGGER.exception(ex)
-            # Failure - Unable to Process - Error in on_c_find callback
-            rsp.Status = 0xC311
-            self.DIMSE.send_msg(rsp, self.pcid)
-            return
+        # Callback - C-FIND - generators don't raise exceptions
+        _result = self.AE.on_c_find(identifier)
+        stopper = object()
+        # This will wrap exceptions and return a good value.
+        def wrap_on_c_find():
+            try:
+                for val in _result:
+                    yield val
+            except Exception as ex:
+                # TODO: special (singleton) value
+                yield stopper, ex
 
         # Iterate through the results
-        for ii, (rsp_status, rsp_identifier) in enumerate(result):
+        for ii, (rsp_status, rsp_identifier) in enumerate(wrap_on_c_find()):
+            # We only want to catch exceptions in the user code, not in ours.
+            if rsp_status is stopper:
+                ex = rsp_identifier
+                LOGGER.error("Exception in user's on_c_find implementation.")
+                LOGGER.exception(ex)
+                # Failure - Unable to Process - Error in on_c_find callback
+                rsp.Status = 0xC311
+                self.DIMSE.send_msg(rsp, self.pcid)
+                return
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
 
@@ -519,7 +528,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 return
 
             if status[0] == 'Cancel':
-                # If cancel, then rsp_identifer is None
+                # If cancel, then rsp_identifier is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info('Find SCP Response: (Cancel)')
                 self.DIMSE.send_msg(rsp, self.pcid)
