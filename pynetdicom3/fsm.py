@@ -75,7 +75,7 @@ class StateMachine(object):
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
             self.dul.kill_dul()
-            raise ex
+            raise
 
     def transition(self, state):
         """Transition the state machine to the next state.
