@@ -565,6 +565,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         # Send final success response
         rsp.Status = 0x0000
+        rsp.Identifier = None
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
         self.DIMSE.send_msg(rsp, self.pcid)
 
