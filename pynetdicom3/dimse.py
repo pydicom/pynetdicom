@@ -791,6 +791,16 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_store_rq(msg):
         """Debugging function when a C-STORE-RQ is received.
 
+        C-STORE Request Elements
+        ~~~~~~~~~~~~~~~~~~~~~~~~
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Affected SOP Instance UID
+        (M) Priority
+        (U) Move Originator Application Entity Title
+        (U) Move Originator Message ID
+        (M) Data Set
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_STORE_RQ
@@ -830,12 +840,18 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_store_rsp(msg):
         """Debugging function when a C-STORE-RSP is received.
 
+        C-STORE Response Elements
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Affected SOP Instance UID
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_STORE_RSP
             The received C-STORE-RSP message.
-
-        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -844,13 +860,13 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
+        status_str = '0x{0:04x} - Unknown'.format(cs.Status)
         # Try and get the status from the affected SOP class UID
-        sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
-        if cs.Status in sop_class.statuses:
-            status = sop_class.statuses[cs.Status]
-            status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
-        else:
-            status_str = '0x{0:04x} - Unknown'
+        if 'AffectedSOPClassUID' in cs:
+            sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
+            if cs.Status in sop_class.statuses:
+                status = sop_class.statuses[cs.Status]
+                status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
 
         LOGGER.info('Received Store Response')
         s = []
@@ -948,7 +964,7 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_receive_c_cancel_rq(msg):
         """Debugging function when a C-CANCEL-\*-RQ is received.
-\
+
         Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
         Parameters
