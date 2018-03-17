@@ -8,6 +8,10 @@ Results:
 31-01-2016: CTImageStorage: 30 runs of 50 in 12.4 +/- 0.5 s/run (~59 MB)
             RTImageStorage: 30 runs of 50 in 138.1 +/- 3.5 s/run (~3.1 GB)
             Ratio data: 53.6; Ratio time/run: 11.1
+17-03-2018: f7ba772 : (different hardware)
+            CTImageStorage: 30 runs of 50 in 6.0 +/- 0.1 s/run (~59 MB)
+            RTImageStorage: 30 runs of 50 in 70.8 +/- 0.4 s/run (~3.1 GB)
+            Ratio time/run: 11.8
 """
 
 import logging
@@ -46,10 +50,10 @@ if assoc.is_established:
         delta_time = end_time - start_time
         results.append(delta_time)
         print('Run %d: %d/%d datasets in %.2f seconds' \
-               %(ii + 1, ds_per_run + ii * ds_per_run, 
+               %(ii + 1, ds_per_run + ii * ds_per_run,
                  no_runs * ds_per_run, delta_time))
-        
+
     print('Transfers complete, releasing association.')
     assoc.release()
-    
+
 scp.stop()
