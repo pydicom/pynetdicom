@@ -152,7 +152,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 
 def on_c_move(dataset, move_aet):
     """Implement the on_c_move callback"""
-    basedir = '../../../test/dicom_files/'
+    basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
 
