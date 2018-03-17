@@ -426,6 +426,11 @@ class DIMSEServiceProvider(object):
     def debug_send_c_echo_rq(msg):
         """Debugging function when a C-ECHO-RQ is sent.
 
+        **C-ECHO Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_ECHO_RQ
@@ -438,6 +443,13 @@ class DIMSEServiceProvider(object):
     def debug_send_c_echo_rsp(msg):
         """Debugging function when a C-ECHO-RSP is sent.
 
+        **C-ECHO Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_ECHO_RSP
@@ -448,6 +460,16 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_send_c_store_rq(msg):
         """Debugging function when a C-STORE-RQ is sent.
+
+        **C-STORE Request Elements**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Affected SOP Instance UID
+        (M) Priority
+        (U) Move Originator Application Entity Title
+        (U) Move Originator Message ID
+        (M) Data Set
 
         Parameters
         ----------
@@ -495,19 +517,31 @@ class DIMSEServiceProvider(object):
     def debug_send_c_store_rsp(msg):
         """Debugging function when a C-STORE-RSP is sent.
 
+        **C-STORE Response Elements**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Affected SOP Instance UID
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_STORE_RSP
             The C-STORE-RSP message to be sent.
-
-        TODO: Add in the extra status related elements if present
-        TODO: Add C-STORE logs
         """
         pass
 
     @staticmethod
     def debug_send_c_find_rq(msg):
         """Debugging function when a C-FIND-RQ is sent.
+
+        **C-FIND Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Identifier
 
         Parameters
         ----------
@@ -547,6 +581,14 @@ class DIMSEServiceProvider(object):
     def debug_send_c_find_rsp(msg):
         """Debugging function when a C-FIND-RSP is sent.
 
+        **C-FIND Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (C) Identifier
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_FIND_RSP
@@ -566,8 +608,9 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
@@ -580,6 +623,13 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_send_c_get_rq(msg):
         """Debugging function when a C-GET-RQ is sent.
+
+        **C-GET Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Identifier
 
         Parameters
         ----------
@@ -617,6 +667,18 @@ class DIMSEServiceProvider(object):
     def debug_send_c_get_rsp(msg):
         """Debugging function when a C-GET-RSP is sent.
 
+        **C-GET Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Identifier
+        (M) Status
+        (C) Number of Remaining Sub-operations
+        (C) Number of Completed Sub-operations
+        (C) Number of Failed Sub-operations
+        (C) Number of Warning Sub-operations
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_GET_RSP
@@ -638,7 +700,9 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'.format(affected_sop))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(affected_sop))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
@@ -651,6 +715,14 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_send_c_move_rq(msg):
         """Debugging function when a C-MOVE-RQ is sent.
+
+        **C-MOVE Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Move Destination
+        (M) Identifier
 
         Parameters
         ----------
@@ -690,6 +762,18 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_send_c_move_rsp(msg):
         """Debugging function when a C-MOVE-RSP is sent.
+
+        **C-MOVE Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Identifier
+        (M) Status
+        (C) Number of Remaining Sub-operations
+        (C) Number of Completed Sub-operations
+        (C) Number of Failed Sub-operations
+        (C) Number of Warning Sub-operations
 
         Parameters
         ----------
@@ -741,6 +825,11 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_echo_rq(msg):
         """Debugging function when a C-ECHO-RQ is received.
 
+        **C-ECHO Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_ECHO_RQ
@@ -767,12 +856,17 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_echo_rsp(msg):
         """Debugging function when a C-ECHO-RSP is received.
 
+        **C-ECHO Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_ECHO_RSP
             The received C-ECHO-RSP message.
-
-        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
         # Status is one of the following:
@@ -790,6 +884,16 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_receive_c_store_rq(msg):
         """Debugging function when a C-STORE-RQ is received.
+
+        **C-STORE Request Elements**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Affected SOP Instance UID
+        (M) Priority
+        (U) Move Originator Application Entity Title
+        (U) Move Originator Message ID
+        (M) Data Set
 
         Parameters
         ----------
@@ -819,6 +923,9 @@ class DIMSEServiceProvider(object):
                  .format(cs.AffectedSOPClassUID))
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
+        if 'MoveOriginatorApplicationEntityTitle' in cs:
+            s.append('Move Originator     : {0!s}'
+                     .format(cs.MoveOriginatorApplicationEntityTitle))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -830,12 +937,18 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_store_rsp(msg):
         """Debugging function when a C-STORE-RSP is received.
 
+        **C-STORE Response Elements**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Affected SOP Instance UID
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_STORE_RSP
             The received C-STORE-RSP message.
-
-        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -844,13 +957,13 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
+        status_str = '0x{0:04x} - Unknown'.format(cs.Status)
         # Try and get the status from the affected SOP class UID
-        sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
-        if cs.Status in sop_class.statuses:
-            status = sop_class.statuses[cs.Status]
-            status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
-        else:
-            status_str = '0x{0:04x} - Unknown'
+        if 'AffectedSOPClassUID' in cs:
+            sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
+            if cs.Status in sop_class.statuses:
+                status = sop_class.statuses[cs.Status]
+                status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
 
         LOGGER.info('Received Store Response')
         s = []
@@ -860,10 +973,12 @@ class DIMSEServiceProvider(object):
         s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPInstanceUID' in cs:
+            s.append('Affected SOP Instance UID     : {0!s}'
+                     .format(cs.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : {0!s}'.format(status_str))
 
@@ -876,6 +991,13 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_receive_c_find_rq(msg):
         """Debugging function when a C-FIND-RQ is received.
+
+        **C-FIND Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Identifier
 
         Parameters
         ----------
@@ -913,12 +1035,18 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_find_rsp(msg):
         """Debugging function when a C-FIND-RSP is received.
 
+        **C-FIND Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (C) Identifier
+        (M) Status
+
         Parameters
         ----------
         msg : pynetdicom3.dimse_messages.C_FIND_RSP
             The received C-FIND-RSP message.
-
-        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
         if cs.Status != 0x0000:
@@ -934,8 +1062,9 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
@@ -948,7 +1077,7 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_receive_c_cancel_rq(msg):
         """Debugging function when a C-CANCEL-\*-RQ is received.
-\
+
         Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
         Parameters
@@ -974,6 +1103,13 @@ class DIMSEServiceProvider(object):
     @staticmethod
     def debug_receive_c_get_rq(msg):
         """Debugging function when a C-GET-RQ is received.
+
+        **C-GET Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Identifier
 
         Parameters
         ----------
@@ -1011,6 +1147,18 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_get_rsp(msg):
         """Debugging function when a C-GET-RSP is received.
 
+        **C-GET Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Identifier
+        (M) Status
+        (C) Number of Remaining Sub-operations
+        (C) Number of Completed Sub-operations
+        (C) Number of Failed Sub-operations
+        (C) Number of Warning Sub-operations
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_GET_RSP
@@ -1031,8 +1179,9 @@ class DIMSEServiceProvider(object):
         s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
         if 'NumberOfRemainingSuboperations' in cs:
             s.append('Remaining Sub-operations      : {0!s}'
                      .format(cs.NumberOfRemainingSuboperations))
@@ -1058,6 +1207,14 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_move_rq(msg):
         """Debugging function when a C-MOVE-RQ is received.
 
+        **C-MOVE Request Parameters**
+
+        (M) Message ID
+        (M) Affected SOP Class UID
+        (M) Priority
+        (M) Move Destination
+        (M) Identifier
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_MOVE_RQ
@@ -1069,12 +1226,22 @@ class DIMSEServiceProvider(object):
     def debug_receive_c_move_rsp(msg):
         """Debugging function when a C-MOVE-RSP is received.
 
+        **C-MOVE Response Parameters**
+
+        (U) Message ID
+        (M) Message ID Being Responded To
+        (U) Affected SOP Class UID
+        (U) Identifier
+        (M) Status
+        (C) Number of Remaining Sub-operations
+        (C) Number of Completed Sub-operations
+        (C) Number of Failed Sub-operations
+        (C) Number of Warning Sub-operations
+
         Parameters
         ----------
         msg : pynetdicom3.DIMSEmessage.C_MOVE_RSP
             The received C-MOVE-RSP message.
-
-        TODO: Add in the extra status related elements if present
         """
         cs = msg.command_set
 
@@ -1088,8 +1255,9 @@ class DIMSEServiceProvider(object):
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
         if 'NumberOfRemainingSuboperations' in cs:
             s.append('Remaining Sub-operations      : {0!s}'
                      .format(cs.NumberOfRemainingSuboperations))
