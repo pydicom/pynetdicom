@@ -511,6 +511,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
 
+            # Reset the response Identifier
+            rsp.Identifier = None
+
             if rsp.Status in self.statuses:
                 status = self.statuses[rsp.Status]
             else:
