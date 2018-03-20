@@ -506,6 +506,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
+        ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
         for ii, (rsp_status, rsp_identifier) in enumerate(result):
             # Validate rsp_status and set rsp.Status accordingly
@@ -535,7 +536,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             elif status[0] == 'Success':
                 # User isn't supposed to send these, but handle anyway
                 # If success, then rsp_identifier is None
-                LOGGER.info('Find SCP Response: (Success)')
+                LOGGER.info('Find SCP Response: %s (Success)', ii + 1)
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
             elif status[0] == 'Pending':
