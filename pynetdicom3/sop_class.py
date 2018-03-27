@@ -6,6 +6,7 @@ from io import BytesIO
 import logging
 import sys
 import time
+import traceback
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
@@ -254,6 +255,7 @@ class VerificationServiceClass(ServiceClass):
             LOGGER.error("Exception in the 'on_c_echo' callback, responding "
                          "with default 'status' value of 0x0000 (Success).")
             LOGGER.exception(ex)
+            LOGGER.debug("".join(traceback.format_tb(sys.exc_info()[2])))
             rsp.Status = 0x0000
 
         # Send primitive
@@ -356,6 +358,7 @@ class StorageServiceClass(ServiceClass):
             LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
                          "callback")
             LOGGER.exception(ex)
+            LOGGER.debug("".join(traceback.format_tb(sys.exc_info()[2])))
             # Failure: Cannot Understand - Error in on_c_store callback
             rsp_status = 0xC211
 
@@ -501,6 +504,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_find implementation.")
             LOGGER.exception(ex)
+            LOGGER.debug("".join(traceback.format_tb(sys.exc_info()[2])))
             # Failure - Unable to Process - Error in on_c_find callback
             rsp.Status = 0xC311
             self.DIMSE.send_msg(rsp, self.pcid)
@@ -732,6 +736,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
+            LOGGER.debug("".join(traceback.format_tb(sys.exc_info()[2])))
             # Failure - Unable to process - Error in on_c_move callback
             rsp.Status = 0xC511
             self.DIMSE.send_msg(rsp, self.pcid)
@@ -1145,6 +1150,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)
+            LOGGER.debug("".join(traceback.format_tb(sys.exc_info()[2])))
             rsp.Status = 0xC411
             self.DIMSE.send_msg(rsp, self.pcid)
             return
