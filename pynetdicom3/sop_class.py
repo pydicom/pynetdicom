@@ -228,7 +228,7 @@ class VerificationServiceClass(ServiceClass):
         #   the Status as either an int or Dataset, and any failures in the
         #   callback results in 0x0000 'Success'
         try:
-            status = self.AE.on_c_echo()
+            status = self.AE.on_c_echo(self)
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError("The 'status' dataset returned by "
@@ -351,7 +351,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            rsp_status = self.AE.on_c_store(ds)
+            rsp_status = self.AE.on_c_store(ds, self)
         except Exception as ex:
             LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
                          "callback")
@@ -736,7 +736,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            result = self.AE.on_c_move(identifier, req.MoveDestination)
+            result = self.AE.on_c_move(identifier, req.MoveDestination, self)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
@@ -1149,7 +1149,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            result = self.AE.on_c_get(identifier)
+            result = self.AE.on_c_get(identifier, self)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)

@@ -822,7 +822,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
     def test_rsp_multi_status(self):
         """Test receiving a status with extra elements"""
-        def on_c_echo():
+        def on_c_echo(sop_class):
             ds = Dataset()
             ds.Status = 0x0122
             ds.ErrorComment = 'Some comment'
@@ -1420,7 +1420,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.scp.statuses = [0xA701]
         self.scp.start()
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
-        def on_c_store(ds): return 0x0000
+        def on_c_store(ds, sop_class): return 0x0000
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
@@ -1435,7 +1435,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             self.assertTrue('PatientName' in ds)
             return 0x0000
 
@@ -1471,7 +1471,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
-        def on_c_store(ds): return 0x0000
+        def on_c_store(ds, sop_class): return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
@@ -1500,7 +1500,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
-        def on_c_store(ds): return 0xA700
+        def on_c_store(ds, sop_class): return 0xA700
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
@@ -1529,7 +1529,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
-        def on_c_store(ds): return 0xB007
+        def on_c_store(ds, sop_class): return 0xB007
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
@@ -1573,7 +1573,7 @@ class TestAssociationSendCGet(unittest.TestCase):
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
 
-        def on_c_store(ds): return 0xB007
+        def on_c_store(ds, sop_class): return 0xB007
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)

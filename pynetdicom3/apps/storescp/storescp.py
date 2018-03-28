@@ -183,7 +183,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_store(dataset):
+def on_c_store(dataset, sop_class):
     """
     Write `dataset` to file as little endian implicit VR
 

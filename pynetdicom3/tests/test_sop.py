@@ -281,7 +281,7 @@ class TestVerificationServiceClass(unittest.TestCase):
     def test_scp_callback_exception(self):
         """Test on_c_echo raising an exception"""
         self.scp = DummyVerificationSCP()
-        def on_c_echo(): raise ValueError
+        def on_c_echo(sop_class): raise ValueError
         self.scp.ae.on_c_echo = on_c_echo
         self.scp.start()
 
@@ -419,7 +419,7 @@ class TestStorageServiceClass(unittest.TestCase):
     def test_scp_callback_exception(self):
         """Test on_c_store raising an exception"""
         self.scp = DummyStorageSCP()
-        def on_c_store(ds): raise ValueError
+        def on_c_store(ds, sop_class): raise ValueError
         self.scp.ae.on_c_store = on_c_store
         self.scp.start()
 
@@ -837,7 +837,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -861,7 +861,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -889,7 +889,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -916,7 +916,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -941,7 +941,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -962,7 +962,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -983,7 +983,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -999,13 +999,13 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_callback_exception(self):
         """Test SCP handles on_c_get yielding an exception"""
         self.scp = DummyGetSCP()
-        def on_c_get(ds): raise ValueError
+        def on_c_get(ds, sop_class): raise ValueError
         self.scp.ae.on_c_get = on_c_get
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -1027,7 +1027,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -1047,7 +1047,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_callback_invalid_dataset(self):
         """Test status returned correctly if not yielding a Dataset."""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         self.scp.no_suboperations = 3
         self.scp.statuses = [Dataset(), Dataset(), Dataset(), 0x0000]
@@ -1093,7 +1093,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
@@ -1113,7 +1113,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_scp_basic(self):
         """Test on_c_get"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.ds, self.ds]
@@ -1143,7 +1143,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_scp_store_failure(self):
         """Test when on_c_store returns failure status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xC001
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
@@ -1177,7 +1177,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_scp_store_warning(self):
         """Test when on_c_store returns warning status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xB000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
@@ -1211,7 +1211,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_pending_success(self):
         """Test when on_c_get returns success status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xB000]
@@ -1242,7 +1242,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_pending_warning(self):
         """Test when on_c_get returns warning status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xB000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0x0000]
@@ -1273,7 +1273,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_pending_failure(self):
         """Test on_c_get returns warning status after store failure"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xC000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00]
@@ -1304,7 +1304,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_multi_pending_success(self):
         """Test on_c_get returns success status after multi store success"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
@@ -1341,7 +1341,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_multi_pending_warning(self):
         """Test on_c_get returns warning status after multi store warning"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xB000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
@@ -1380,7 +1380,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_multi_pending_failure(self):
         """Test on_c_get returns warning status after multi store failure"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xC000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
@@ -1419,7 +1419,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_failure(self):
         """Test when on_c_get returns failure status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xC000]
@@ -1450,7 +1450,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_success(self):
         """Test when on_c_get returns failure status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         # SCP should override final success status
         self.scp.statuses = [0xFF00]
@@ -1481,7 +1481,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_cancel(self):
         """Test on_c_get returns cancel status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0x0000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xFE00, 0x0000]
@@ -1512,7 +1512,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_warning(self):
         """Test on_c_get returns warning status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds):
+        def on_c_store(ds, sop_class):
             return 0xB000
         # SCP should override final success status
         self.scp.statuses = [0xFF00]
@@ -1845,7 +1845,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
     def test_move_callback_exception(self):
         """Test SCP handles on_c_move yielding an exception"""
         self.scp = DummyMoveSCP()
-        def on_c_move(ds, dest): raise ValueError
+        def on_c_move(ds, dest, sop_class): raise ValueError
         self.scp.ae.on_c_move = on_c_move
         self.scp.start()
 

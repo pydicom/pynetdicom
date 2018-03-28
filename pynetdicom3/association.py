@@ -1758,7 +1758,7 @@ class Association(threading.Thread):
 
         #  Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.ae.on_c_store(ds)
+            status = self.ae.on_c_store(ds, None)
         except Exception as ex:
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")
