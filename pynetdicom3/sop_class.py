@@ -501,17 +501,16 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 # We unpack here so that the error is still caught
                 for val1, val2 in self.AE.on_c_find(identifier):
                     yield val1, val2
-            except Exception as ex:
+            except Exception:
                 # TODO: special (singleton) value
-                yield stopper, ex
+                yield stopper, sys.exc_info()
 
         # Iterate through the results
         for ii, (rsp_status, rsp_identifier) in enumerate(wrap_on_c_find()):
             # We only want to catch exceptions in the user code, not in ours.
             if rsp_status is stopper:
-                ex = rsp_identifier
-                LOGGER.error("Exception in user's on_c_find implementation.")
-                LOGGER.exception(ex)
+                exc_info = rsp_identifier
+                LOGGER.exception("Exception in user's on_c_find implementation.", exc_info=exc_info)
                 # Failure - Unable to Process - Error in on_c_find callback
                 rsp.Status = 0xC311
                 self.DIMSE.send_msg(rsp, self.pcid)
