@@ -494,14 +494,13 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, self.pcid)
             return
 
-        # Callback - C-FIND - generators don't raise exceptions
-        _result = self.AE.on_c_find(identifier)
         stopper = object()
-        # This will wrap exceptions and return a good value.
+        # This will wrap exceptions during iteration and return a good value.
         def wrap_on_c_find():
             try:
-                for val in _result:
-                    yield val
+                # We unpack here so that the error is still caught
+                for val1, val2 in self.AE.on_c_find(identifier):
+                    yield val1, val2
             except Exception as ex:
                 # TODO: special (singleton) value
                 yield stopper, ex
