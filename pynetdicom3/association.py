@@ -478,22 +478,23 @@ class Association(threading.Thread):
                     pass
 
                 # Old method
-                matching_context = False
                 for context in self.acse.accepted_contexts:
                     if context.ID == msg_context_id:
                         sop_class.pcid = context.ID
                         sop_class.sopclass = context.AbstractSyntax
                         sop_class.transfersyntax = context.TransferSyntax[0]
-                        matching_context = True
-                if matching_context:
-                    # Most of these shouldn't be necessary
-                    sop_class.maxpdulength = self.peer_max_pdu
-                    sop_class.DIMSE = self.dimse
-                    sop_class.ACSE = self.acse
-                    sop_class.AE = self.ae
+                        sop_class.maxpdulength = self.peer_max_pdu
+                        sop_class.DIMSE = self.dimse
+                        sop_class.ACSE = self.acse
+                        sop_class.AE = self.ae
 
-                    # Run SOPClass in SCP mode
-                    sop_class.SCP(msg)
+                        # Run SOPClass in SCP mode
+                        sop_class.SCP(msg)
+                        break
+                else:
+                    LOGGER.info("Received message with invalid or rejected "
+                        "context ID %d", msg_context_id)
+                    LOGGER.debug("%s", msg)
 
             # Check for release request
             if self.acse.CheckRelease():
