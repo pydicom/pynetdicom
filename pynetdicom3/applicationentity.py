@@ -18,20 +18,7 @@ from pydicom.uid import (
 from pynetdicom3.association import Association
 from pynetdicom3.utils import PresentationContext, validate_ae_title
 
-
-def setup_logger():
-    """Setup the logger."""
-    logger = logging.getLogger('pynetdicom3')
-    handler = logging.StreamHandler()
-    logger.setLevel(logging.WARNING)
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    return logger
-
-
-LOGGER = setup_logger()
+LOGGER = logging.getLogger('pynetdicom3')
 
 
 class ApplicationEntity(object):

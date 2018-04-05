@@ -10,6 +10,18 @@ pynetdicom_uid_prefix = '1.2.826.0.1.3680043.9.3811.' + '.'.join(version)
 
 import logging
 
+def setup_logger():
+    """Setup the logger."""
+    logger = logging.getLogger('pynetdicom3')
+    handler = logging.StreamHandler()
+    logger.setLevel(logging.WARNING)
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger
+
+
 from pynetdicom3.applicationentity import ApplicationEntity as AE
 from pynetdicom3.association import Association
 from pynetdicom3.acse import ACSEServiceProvider as ACSE
