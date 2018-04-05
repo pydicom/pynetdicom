@@ -527,7 +527,11 @@ class PresentationContextManager(object):
                 #   reject the current context (0x03 - abstract syntax not
                 #   supported)
                 if acc_context is None:
+                    # FIXME: make pdu not require this.
+                    result.TransferSyntax = [ii_req.TransferSyntax[0]]
                     result.Result = 0x03
+                    result = self.negotiate_scp_scu_role(ii_req, result)
+                    self.rejected.append(result)
 
                 # If there is a matching AbstractSyntax then check to see if the
                 #   Result attribute is None (indicates we are the Acceptor) or
@@ -542,19 +546,17 @@ class PresentationContextManager(object):
                         for transfer_syntax in acc_context.TransferSyntax:
                             # The local transfer syntax is used in order to
                             #   enforce preference based on position
-                            matching_ts = False
                             if transfer_syntax in ii_req.TransferSyntax:
                                 result.TransferSyntax = [transfer_syntax]
                                 result.Result = 0x00
                                 result = self.negotiate_scp_scu_role(ii_req,
                                                                      result)
                                 self.accepted.append(result)
-
-                                matching_ts = True
                                 break
 
                         # Refuse sop class because TS not supported
-                        if not matching_ts:
+                        else:
+                            # FIXME: make pdu not require this.
                             result.TransferSyntax = [transfer_syntax]
                             result.Result = 0x04
                             result = self.negotiate_scp_scu_role(ii_req, result)
