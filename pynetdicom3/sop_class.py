@@ -511,9 +511,6 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
 
-            # Reset the response Identifier
-            rsp.Identifier = None
-
             if rsp.Status in self.statuses:
                 status = self.statuses[rsp.Status]
             else:
@@ -565,6 +562,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 LOGGER.debug('')
 
                 self.DIMSE.send_msg(rsp, self.pcid)
+
+            # Reset the response Identifier
+            rsp.Identifier = None
 
         # Send final success response
         rsp.Status = 0x0000
