@@ -295,7 +295,7 @@ class DIMSEServiceProvider(object):
                     continue
 
                 if nxt.__class__ is not P_DATA:
-                    return None, None
+                    continue
 
                 pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
 
@@ -315,8 +315,6 @@ class DIMSEServiceProvider(object):
                     self.message = None
 
                     return primitive, context_id
-
-                return None, None
 
         else:
             cls = self.dul.peek_next_pdu().__class__

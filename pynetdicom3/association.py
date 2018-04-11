@@ -450,7 +450,7 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.receive_msg(wait=True)
+            msg, msg_context_id = self.dimse.receive_msg(wait=False)
 
             # DIMSE message received
             if msg:
@@ -1119,7 +1119,9 @@ class Association(threading.Thread):
 
             # If no response received, start loop again
             if not rsp:
-                continue
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
+                return
             elif not rsp.is_valid_response:
                 LOGGER.error('Received an invalid C-FIND response from ' \
                              'the peer')
@@ -1343,7 +1345,9 @@ class Association(threading.Thread):
 
             # If nothing received from the peer, try again
             if not rsp:
-                continue
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
+                return
 
             # Received a C-MOVE response from the peer
             if rsp.__class__ == C_MOVE:
@@ -1607,7 +1611,9 @@ class Association(threading.Thread):
 
             # If nothing received from the peer, try again
             if not rsp:
-                continue
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
+                return
 
             # Received a C-GET response from the peer
             if rsp.__class__ == C_GET:
