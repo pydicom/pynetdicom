@@ -149,7 +149,7 @@ class DULServiceProvider(Thread):
         self.daemon = False
 
         # Controls the minimum delay between loops in run()
-        self._run_loop_delay = 0.01
+        self._run_loop_delay = 0.001
 
     def idle_timer_expired(self):
         """
