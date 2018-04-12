@@ -286,7 +286,7 @@ class Association(threading.Thread):
         time.sleep(0.1)
 
         # Got an A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.receive_pdu(wait=True)
+        assoc_rq = self.dul.receive_pdu(wait=True, timeout=self.acse.acse_timeout)
 
         if assoc_rq is None:
             self.kill()
