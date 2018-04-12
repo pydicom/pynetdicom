@@ -515,7 +515,7 @@ class Association(threading.Thread):
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
-                self.kill()
+                self.abort()
 
     def _run_as_requestor(self):
         """Run as the Association Requestor."""
