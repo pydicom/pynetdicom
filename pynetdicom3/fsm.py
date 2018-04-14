@@ -136,6 +136,7 @@ def AE_1(dul):
         LOGGER.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
         dul.scu_socket.close()
+        return 'Sta1'
 
     return 'Sta4'
 
