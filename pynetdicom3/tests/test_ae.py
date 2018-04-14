@@ -359,22 +359,41 @@ class TestAEGoodAssociation(unittest.TestCase):
 
         self.scp.stop()
 
-    def test_association_acse_timeout(self):
-        """ Check that the Association timeouts are being set correctly """
+    def test_association_timeouts(self):
+        """ Check that the Association timeouts are being set correctly and
+        work """
         self.scp = DummyVerificationSCP()
-        self.scp.ae.acse_timeout = 0
-        self.scp.ae.dimse_timeout = 0
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        ae.acse_timeout = 0
-        ae.dimse_timeout = 0
+
+        self.scp.ae.acse_timeout = 0
+        self.scp.ae.dimse_timeout = 0
+        self.scp.ae.network_timeout = 0.2
+
+        ae.acse_timeout = 30
+        ae.dimse_timeout = 30
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(self.scp.ae.active_associations[0].acse_timeout == 0)
-        self.assertTrue(self.scp.ae.active_associations[0].dimse_timeout == 0)
-        self.assertTrue(assoc.acse_timeout == 0)
-        self.assertTrue(assoc.dimse_timeout == 0)
-        assoc.release()
+        time.sleep(1)
+        self.assertTrue(len(self.scp.ae.active_associations) == 0)
+
+        self.scp.ae.acse_timeout = None
+        self.scp.ae.dimse_timeout = None
+        self.scp.ae.network_timeout = None
+
+        ae.acse_timeout = 30
+        ae.dimse_timeout = 0
+        self.scp.delay = 1
+        assoc = ae.associate('localhost', 11112)
+        assoc.send_c_echo()
+        time.sleep(2)
+        self.assertTrue(len(self.scp.ae.active_associations) == 0)
+
+        ae.acse_timeout = 0
+        ae.dimse_timeout = 30
+        assoc = ae.associate('localhost', 11112)
+        time.sleep(1)
+        self.assertTrue(len(self.scp.ae.active_associations) == 0)
 
         self.scp.ae.acse_timeout = 21
         self.scp.ae.dimse_timeout = 22
@@ -382,6 +401,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         ae.dimse_timeout = 32
 
         assoc = ae.associate('localhost', 11112)
+        assoc.send_c_echo()
+        time.sleep(2)
         self.assertTrue(self.scp.ae.active_associations[0].acse_timeout == 21)
         self.assertTrue(self.scp.ae.active_associations[0].dimse_timeout == 22)
         self.assertTrue(assoc.acse_timeout == 31)

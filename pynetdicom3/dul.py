@@ -229,9 +229,9 @@ class DULServiceProvider(Thread):
             be nice.
         """
         # Main DUL loop
+        if self._idle_timer is not None:
+            self._idle_timer.start()
         while True:
-            if self._idle_timer is not None:
-                self._idle_timer.start()
 
             # This effectively controls how often the DUL checks the network
             time.sleep(self._run_loop_delay)

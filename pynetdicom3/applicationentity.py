@@ -377,7 +377,7 @@ class ApplicationEntity(object):
         self._quit = True
 
         for assoc in self.active_associations:
-            assoc.kill()
+            assoc.abort()
 
         if self.local_socket:
             self.local_socket.close()

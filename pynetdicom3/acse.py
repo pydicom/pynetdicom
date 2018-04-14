@@ -162,11 +162,7 @@ class ACSEServiceProvider(object):
         #   This may be an A-ASSOCIATE confirmation primitive or an
         #   A-ABORT or A-P-ABORT request primitive
         #
-        if self.acse_timeout == 0:
-            # No timeout
-            assoc_rsp = self.dul.receive_pdu(True, None)
-        else:
-            assoc_rsp = self.dul.receive_pdu(True, self.acse_timeout)
+        assoc_rsp = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
 
         # Association accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -318,7 +314,7 @@ class ACSEServiceProvider(object):
         primitive = A_RELEASE()
         self.dul.send_pdu(primitive)
 
-        return self.dul.receive_pdu(wait=True)
+        return self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
 
     def abort_assoc(self, source=0x02, reason=0x00):
         """Abort the Association with the peer Application Entity.
