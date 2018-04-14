@@ -454,21 +454,21 @@ class ApplicationEntity(object):
         str_out += "\n"
         str_out += "  Available Transfer Syntax(es):\n"
         for syntax in self.transfer_syntaxes:
-            str_out += "\t{0!s}\n".format(syntax)
+            str_out += "\t{0!s}\n".format(syntax.name)
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCU):\n"
         if not self.scu_supported_sop:
             str_out += "\tNone\n"
         for sop_class in self.scu_supported_sop:
-            str_out += "\t{0!s}\n".format(sop_class)
+            str_out += "\t{0!s}\n".format(sop_class.name)
 
         str_out += "\n"
         str_out += "  Supported SOP Classes (SCP):\n"
         if not self.scp_supported_sop:
             str_out += "\tNone\n"
         for sop_class in self.scp_supported_sop:
-            str_out += "\t{0!s}\n".format(sop_class)
+            str_out += "\t{0!s}\n".format(sop_class.name)
 
         str_out += "\n"
         str_out += "  ACSE timeout: {0!s} s\n".format(self.acse_timeout)
@@ -803,7 +803,7 @@ class ApplicationEntity(object):
               * 1 or 2, then return b''.
               * 3 then return the Kerberos Server ticket.
               * 4 then return the SAML response.
-              
+
             If the identity check fails then return None
         """
         raise NotImplementedError
@@ -822,7 +822,7 @@ class ApplicationEntity(object):
         after receiving a C-ECHO request and prior to sending the response.
 
         **Supported Service Classes**
-       
+
         Verification Service Class
 
         **Status**
@@ -962,7 +962,7 @@ class ApplicationEntity(object):
         Query/Retrieve Service Class
 
         **Status**
-    
+
         Success
 
         - 0x0000 - Success
