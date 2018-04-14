@@ -1171,6 +1171,21 @@ class TestAssociationSendCFind(unittest.TestCase):
         assoc.release()
         scp.stop()
 
+    def test_rsp_empty(self):
+        """Test receiving a success response from the peer"""
+        scp = DummyFindSCP()
+        scp.statuses = []
+        scp.identifiers = []
+        scp.start()
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+            self.assertEqual(status.Status, 0x0000)
+            self.assertEqual(ds, None)
+        assoc.release()
+        scp.stop()
+
     def test_rsp_cancel(self):
         """Test receiving a cancel response from the peer"""
         scp = DummyFindSCP()
