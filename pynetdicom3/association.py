@@ -89,6 +89,7 @@ class Association(threading.Thread):
     scp_supported_sop : list of pynetdicom3.sop_class.ServiceClass
         A list of the supported SOP classes when acting as an SCP.
     """
+
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
                  acse_timeout=60, dimse_timeout=None, max_pdu=16382,
                  ext_neg=None):

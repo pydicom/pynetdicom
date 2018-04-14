@@ -2,6 +2,7 @@
 Implementation of the DIMSE service provider.
 """
 from io import BytesIO
+from threading import Lock
 import logging
 import time
 
@@ -133,6 +134,8 @@ class DIMSEServiceProvider(object):
     """
     # pylint: disable=too-many-public-methods
 
+    _LOCK = Lock()
+
     def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
         """Start the DIMSE service provider.
 
@@ -232,7 +235,8 @@ class DIMSEServiceProvider(object):
                 dimse_msg = N_DELETE_RSP()
 
         # Convert DIMSE primitive to DIMSE Message
-        dimse_msg.primitive_to_message(primitive)
+        with DIMSEServiceProvider._LOCK:
+            dimse_msg.primitive_to_message(primitive)
 
         # Callbacks
         # FIXME: Make this a package level option to increase speed
@@ -241,8 +245,9 @@ class DIMSEServiceProvider(object):
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
-        pdata_pdu_list = dimse_msg.encode_msg(
-            context_id, self.maximum_pdu_size)
+        with DIMSEServiceProvider._LOCK:
+            pdata_pdu_list = dimse_msg.encode_msg(
+                context_id, self.maximum_pdu_size)
 
         # Send the P-DATA PDUs to the peer via the DUL provider
         for pdata_pdu in pdata_pdu_list:
