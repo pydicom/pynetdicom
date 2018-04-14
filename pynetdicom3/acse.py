@@ -289,7 +289,8 @@ class ACSEServiceProvider(object):
         # Send response
         primitive.presentation_context_definition_list = []
         primitive.presentation_context_definition_results_list = \
-                                        self.accepted_contexts
+                                        self.accepted_contexts + \
+                                        self.rejected_contexts
         primitive.result = 0
 
         self.dul.send_pdu(primitive)
