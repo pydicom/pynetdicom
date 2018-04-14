@@ -2631,7 +2631,7 @@ class AbstractSyntaxSubItem(PDU):
         s = "Abstract Syntax Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += '  Syntax name: ={0!s}\n'.format(self.abstract_syntax)
+        s += '  Syntax name: ={0!s}\n'.format(self.abstract_syntax.name)
 
         return s
 
@@ -2791,7 +2791,7 @@ class TransferSyntaxSubItem(PDU):
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += '  Transfer syntax name: ={0!s}\n'.format(
-            self.transfer_syntax_name)
+            self.transfer_syntax_name.name)
 
         return s
 
@@ -3806,7 +3806,7 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  UID length: {0:d} bytes\n".format(self.uid_length)
-        s += "  SOP Class UID: {0!s}\n".format(self.UID)
+        s += "  SOP Class UID: {0!s}\n".format(self.UID.name)
         s += "  SCU Role: {0:d}\n".format(self.SCU)
         s += "  SCP Role: {0:d}\n".format(self.SCP)
 
@@ -4040,7 +4040,7 @@ class UserIdentitySubItemRQ(PDU):
     """
     Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
 
-    The User Identity RQ Sub Item requires the following 
+    The User Identity RQ Sub Item requires the following
     parameters (see PS3.7 Annex D.3.3.7.1):
 
         * Item type (1, fixed, 0x58)
@@ -4159,7 +4159,7 @@ class UserIdentitySubItemRQ(PDU):
         Encode the Item's parameter values into a bytes string
 
         TODO:
-        
+
         * Add checking prior to encode to ensure all parameters are valid
           (should check all extended negotiation items as these are
           typically user defined when local is Requesting)
@@ -4555,7 +4555,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  SOP class UID length: {0:d} bytes\n".format(
             self.sop_class_uid_length)
-        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
+        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid.name)
 
         # Python 2 compatibility
         app_info = self.service_class_application_information
@@ -4794,16 +4794,16 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  SOP class UID length: {0:d} bytes\n".format(
             self.sop_class_uid_length)
-        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid)
+        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid.name)
         s += "  Service class UID length: {0:d} bytes\n".format(
             self.service_class_uid_length)
-        s += "  Service class UID: ={0!s}\n".format(self.service_class_uid)
+        s += "  Service class UID: ={0!s}\n".format(self.service_class_uid.name)
         s += "  Related general SOP class ID length: {0:d} bytes\n".format(
             self.related_general_sop_class_identification_length)
         s += "  Related general SOP class ID(s):\n"
 
         for ii in self.related_general_sop_class_identification:
-            s += "    ={0!s} ({1!s})\n".format(ii, ii.title())
+            s += "    ={0!s} ({1!s})\n".format(ii.name, ii.title())
 
         return s
 

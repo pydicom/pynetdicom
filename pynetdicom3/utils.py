@@ -259,11 +259,11 @@ class PresentationContext(object):
         s = 'ID: {0!s}\n'.format(self.ID)
 
         if self.AbstractSyntax is not None:
-            s += 'Abstract Syntax: {0!s}\n'.format(self.AbstractSyntax)
+            s += 'Abstract Syntax: {0!s}\n'.format(self.AbstractSyntax.name)
 
         s += 'Transfer Syntax(es):\n'
         for syntax in self.TransferSyntax:
-            s += '\t={0!s}\n'.format(syntax)
+            s += '\t={0!s}\n'.format(syntax.name)
 
         if self.Result is not None:
             s += 'Result: {0!s}\n'.format(self.status)
