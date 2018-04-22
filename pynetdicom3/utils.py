@@ -499,7 +499,6 @@ class PresentationContextManager(object):
         if self._acceptor_contexts != [] and self._requestor_contexts != []:
             # For each of the contexts available to the acceptor
             for ii_req in self._requestor_contexts:
-
                 # Get the acceptor context with the same AbstractSyntax as
                 #   the requestor context
                 acc_context = None
