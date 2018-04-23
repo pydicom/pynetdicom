@@ -4,6 +4,8 @@ from io import BytesIO
 import logging
 import unittest
 
+import pytest
+
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
@@ -44,33 +46,26 @@ class TestDIMSEMessage(unittest.TestCase):
     def test_fragment_pdv(self):
         """Test that the PDV fragmenter is working correctly."""
         dimse_msg = C_STORE_RQ()
-        frag = dimse_msg._bytestream_to_pdv
+        frag = dimse_msg._generate_pdv_fragments
 
-        result = frag(c_echo_rsp_cmd, 1000)
+        result = []
+        for fragment in frag(c_echo_rsp_cmd, 1000):
+            result.append(fragment)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], c_echo_rsp_cmd)
         self.assertTrue(isinstance(result[0], bytes))
         self.assertTrue(result[-1] != b'')
 
-        result = frag(c_echo_rsp_cmd, 10)
+        result = []
+        for fragment in frag(c_echo_rsp_cmd, 10):
+            result.append(fragment)
         self.assertEqual(len(result), 20)
         self.assertEqual(result[0], c_echo_rsp_cmd[:4])
         self.assertTrue(isinstance(result[0], bytes))
         self.assertTrue(result[-1] != b'')
 
-        byteio = BytesIO()
-        byteio.write(c_echo_rsp_cmd)
-        result = frag(byteio, 1000)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0], c_echo_rsp_cmd)
-        self.assertTrue(isinstance(result[0], bytes))
-
-        with self.assertRaises(TypeError):
-            frag([], 10)
-        with self.assertRaises(TypeError):
-            frag(c_echo_rsp_cmd, 'test')
-        with self.assertRaises(ValueError):
-            frag(c_echo_rsp_cmd, 0)
+        with pytest.raises(ValueError):
+            next(frag(c_echo_rsp_cmd, 6))
 
     def test_encode(self):
         """Test encoding of a DIMSE message."""
@@ -85,7 +80,9 @@ class TestDIMSEMessage(unittest.TestCase):
         # Test encode without dataset
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
-        p_data_list = dimse_msg.encode_msg(12, 16)
+        p_data_list = []
+        for pdata in dimse_msg.encode_msg(12, 16):
+            p_data_list.append(pdata)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0:1], b'\x01')
         self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0:1], b'\x03')
         self.assertEqual(dimse_msg.ID, 12)
@@ -99,14 +96,18 @@ class TestDIMSEMessage(unittest.TestCase):
 
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
-        p_data_list = dimse_msg.encode_msg(13, 10)
+        p_data_list = []
+        for pdata in dimse_msg.encode_msg(13, 10):
+            p_data_list.append(pdata)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0:1], b'\x01')
         self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0:1], b'\x02')
         self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0:1], b'\x00')
         self.assertEqual(p_data_list[-10].presentation_data_value_list[0][1][0:1], b'\x03')
         self.assertEqual(dimse_msg.ID, 13)
 
-        p_data_list = dimse_msg.encode_msg(1, 31682)
+        p_data_list = []
+        for pdata in dimse_msg.encode_msg(1, 31682):
+            p_data_list.append(pdata)
         self.assertEqual(p_data_list[0].presentation_data_value_list[0][1], c_store_rq_cmd)
         self.assertEqual(p_data_list[1].presentation_data_value_list[0][1], c_store_ds)
 
@@ -127,12 +128,14 @@ class TestDIMSEMessage(unittest.TestCase):
         dimse_msg.primitive_to_message(primitive)
 
         # CMD: (1x4, 3x1), DS: (0x1, 2x1)
-        p_data_list = dimse_msg.encode_msg(12, 24)
+        p_data = dimse_msg.encode_msg(12, 24)
 
         # Command set decoding
-        for pdv in p_data_list[:4]:
-            dimse_msg.decode_msg(pdv) # MCHB 1
-        dimse_msg.decode_msg(p_data_list[4]) # MCHB 3 - end of command set
+        dimse_msg.decode_msg(next(p_data)) # MCHB 1
+        dimse_msg.decode_msg(next(p_data)) # MCHB 1
+        dimse_msg.decode_msg(next(p_data)) # MCHB 1
+        dimse_msg.decode_msg(next(p_data)) # MCHB 1
+        dimse_msg.decode_msg(next(p_data)) # MCHB 3 - end of command set
         self.assertEqual(dimse_msg.__class__, C_STORE_RQ)
 
         # Test decoded command set
@@ -148,8 +151,8 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertTrue(cs.MoveOriginatorMessageID == 3)
 
         # Test decoded dataset
-        dimse_msg.decode_msg(p_data_list[5]) # MCHB 0
-        dimse_msg.decode_msg(p_data_list[6]) # MCHB 2
+        dimse_msg.decode_msg(next(p_data)) # MCHB 1 # MCHB 0
+        dimse_msg.decode_msg(next(p_data)) # MCHB 1 # MCHB 2
         self.assertTrue(dimse_msg.data_set.getvalue() == c_store_ds[1:])
 
         # Test returns false

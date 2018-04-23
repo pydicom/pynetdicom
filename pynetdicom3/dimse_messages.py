@@ -1,7 +1,7 @@
 """
 Define the DIMSE Message classes.
 """
-
+from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
@@ -33,85 +33,74 @@ _MESSAGE_TYPES = {0x0001: 'C-STORE-RQ', 0x8001: 'C-STORE-RSP',
                   0x0150: 'N-DELETE-RQ', 0x8150: 'N-DELETE-RSP'}
 
 # PS3.7 Section 9.3
-_COMMAND_SET_ELEM = {'C-ECHO-RQ': [0x00000000,  # CommandGroupLength
-                                   0x00000002,  # AffectedSOPClassUID
-                                   0x00000100,  # CommandField
-                                   0x00000110,  # MessageID
-                                   0x00000800],  # CommandDataSetType
-                     'C-ECHO-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                    0x00000120,  # MessageIDBeingRespondedTo
-                                    0x00000800,
-                                    0x00000900,  # Status
-                                    0x00000902],  # ErrorComment
-                     'C-STORE-RQ': [0x00000000, 0x00000002, 0x00000100,
-                                    0x00000110,
-                                    0x00000700,  # Priority
-                                    0x00000800,
-                                    0x00001000,  # AffectedSOPInstanceUID
-                                    # MoveOriginatorApplicationEntityTitle
-                                    0x00001030,
-                                    0x00001031],  # MoveOriginatorMessageID
-                     'C-STORE-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                     0x00000120, 0x00000800, 0x00000900,
-                                     0x00000901,  # OffendingElement
-                                     0x00000902, 0x00001000],
-                     'C-FIND-RQ': [0x00000000, 0x00000002, 0x00000100,
-                                   0x00000110, 0x00000700, 0x00000800],
-                     'C-FIND-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                    0x00000120, 0x00000800, 0x00000900,
-                                    0x00000901, 0x00000902],
-                     'C-CANCEL-RQ': [0x00000000, 0x00000100, 0x00000120,
-                                     0x00000800],
-                     'C-GET-RQ': [0x00000000, 0x00000002, 0x00000100,
-                                  0x00000110, 0x00000700, 0x00000800],
-                     'C-GET-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                   0x00000120, 0x00000800, 0x00000900,
-                                   0x00000901, 0x00000902,
-                                   0x00001020,  # NumberOfRemainingSuboperations
-                                   0x00001021,  # NumberOfCompletedSuboperations
-                                   0x00001022,  # NumberOfFailedSuboperations
-                                   0x00001023],  # NumberOfWarningSuboperations
-                     'C-MOVE-RQ': [0x00000000, 0x00000002, 0x00000100,
-                                   0x00000110, 0x00000700, 0x00000800,
-                                   0x00000600],  # MoveDestination
-                     'C-MOVE-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                    0x00000120, 0x00000800, 0x00000900,
-                                    0x00000901, 0x00000902, 0x00001020,
-                                    0x00001021, 0x00001022, 0x00001023],
-                     'N-EVENT-REPORT-RQ': [0x00000000, 0x00000002, 0x00000100,
-                                           0x00000110, 0x00000800, 0x00001000,
-                                           0x00001002],  # EventTypeID
-                     'N-EVENT-REPORT-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                            0x00000120, 0x00000800, 0x00000900,
-                                            0x00001000, 0x00001002],
-                     'N-GET-RQ': [0x00000000, 0x00000003, 0x00000100,
-                                  0x00000110, 0x00000800,
-                                  0x00001001,  # RequestedSOPInstanceUID
-                                  0x00001005],  # AttributeIdentifierList
-                     'N-GET-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                   0x00000120, 0x00000800, 0x00000900,
-                                   0x00001000],
-                     'N-SET-RQ': [0x00000000, 0x00000003, 0x00000100,
-                                  0x00000110, 0x00000800, 0x00001001],
-                     'N-SET-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                   0x00000120, 0x00000800, 0x00000900,
-                                   0x00001000],
-                     'N-ACTION-RQ': [0x00000000, 0x00000003, 0x00000100,
-                                     0x00000110, 0x00000800, 0x00001001,
-                                     0x00001008],  # ActionTypeID
-                     'N-ACTION-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                      0x00000120, 0x00000800, 0x00000900,
-                                      0x00001000, 0x00001008],
-                     'N-CREATE-RQ': [0x00000000, 0x00000002, 0x00000100,
-                                     0x00000110, 0x00000800, 0x00001000],
-                     'N-CREATE-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                      0x00000120, 0x00000800, 0x00000900,
-                                      0x00001000],
-                     'N-DELETE-RQ': [0x00000000, 0x00000003, 0x00000100,
-                                     0x00000110, 0x00000800, 0x00001001],
-                     'N-DELETE-RSP': [0x00000000, 0x00000002, 0x00000100,
-                                      0x00000120, 0x00000800, 0x00000900,
-                                      0x00001000]}
+_COMMAND_SET_ELEM = {
+    'C-ECHO-RQ': (0x00000000,  # CommandGroupLength
+                  0x00000002,  # AffectedSOPClassUID
+                  0x00000100,  # CommandField
+                  0x00000110,  # MessageID
+                  0x00000800),  # CommandDataSetType
+    'C-ECHO-RSP': (0x00000000, 0x00000002, 0x00000100,
+                   0x00000120,  # MessageIDBeingRespondedTo
+                   0x00000800,
+                   0x00000900,  # Status
+                   0x00000902),  # ErrorComment
+    'C-STORE-RQ': (0x00000000, 0x00000002, 0x00000100, 0x00000110,
+                   0x00000700,  # Priority
+                   0x00000800,
+                   0x00001000,  # AffectedSOPInstanceUID
+                   0x00001030,  # MoveOriginatorApplicationEntityTitle
+                   0x00001031),  # MoveOriginatorMessageID
+    'C-STORE-RSP': (0x00000000, 0x00000002, 0x00000100,
+                    0x00000120, 0x00000800, 0x00000900,
+                    0x00000901,  # OffendingElement
+                    0x00000902, 0x00001000),
+    'C-FIND-RQ': (0x00000000, 0x00000002, 0x00000100,
+                  0x00000110, 0x00000700, 0x00000800),
+    'C-FIND-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                   0x00000800, 0x00000900, 0x00000901, 0x00000902),
+    'C-CANCEL-RQ': (0x00000000, 0x00000100, 0x00000120, 0x00000800),
+    'C-GET-RQ': (0x00000000, 0x00000002, 0x00000100,
+                 0x00000110, 0x00000700, 0x00000800),
+    'C-GET-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                  0x00000800, 0x00000900, 0x00000901, 0x00000902,
+                  0x00001020,  # NumberOfRemainingSuboperations
+                  0x00001021,  # NumberOfCompletedSuboperations
+                  0x00001022,  # NumberOfFailedSuboperations
+                  0x00001023),  # NumberOfWarningSuboperations
+    'C-MOVE-RQ': (0x00000000, 0x00000002, 0x00000100,
+                  0x00000110, 0x00000700, 0x00000800,
+                  0x00000600),  # MoveDestination
+    'C-MOVE-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                   0x00000800, 0x00000900, 0x00000901, 0x00000902,
+                   0x00001020, 0x00001021, 0x00001022, 0x00001023),
+    'N-EVENT-REPORT-RQ': (0x00000000, 0x00000002, 0x00000100,
+                          0x00000110, 0x00000800, 0x00001000,
+                          0x00001002),  # EventTypeID
+    'N-EVENT-REPORT-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                           0x00000800, 0x00000900, 0x00001000, 0x00001002),
+    'N-GET-RQ': (0x00000000, 0x00000003, 0x00000100, 0x00000110, 0x00000800,
+                 0x00001001,  # RequestedSOPInstanceUID
+                 0x00001005),  # AttributeIdentifierList
+    'N-GET-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                  0x00000800, 0x00000900, 0x00001000),
+    'N-SET-RQ': (0x00000000, 0x00000003, 0x00000100,
+                 0x00000110, 0x00000800, 0x00001001),
+    'N-SET-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                  0x00000800, 0x00000900, 0x00001000),
+    'N-ACTION-RQ': (0x00000000, 0x00000003, 0x00000100,
+                    0x00000110, 0x00000800, 0x00001001,
+                    0x00001008),  # ActionTypeID
+    'N-ACTION-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                     0x00000800, 0x00000900, 0x00001000, 0x00001008),
+    'N-CREATE-RQ': (0x00000000, 0x00000002, 0x00000100,
+                    0x00000110, 0x00000800, 0x00001000),
+    'N-CREATE-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                     0x00000800, 0x00000900, 0x00001000),
+    'N-DELETE-RQ': (0x00000000, 0x00000003, 0x00000100,
+                    0x00000110, 0x00000800, 0x00001001),
+    'N-DELETE-RSP': (0x00000000, 0x00000002, 0x00000100, 0x00000120,
+                     0x00000800, 0x00000900, 0x00001000)
+}
 
 
 class DIMSEMessage(object):
@@ -153,8 +142,8 @@ class DIMSEMessage(object):
     ----------
     command_set : pydicom.dataset.Dataset
         The message Command Set information (see PS3.7 6.3).
-    data_set : pydicom.dataset.Dataset
-        The message Data Set (see PS3.7 6.3).
+    data_set : io.BytesIO
+        The encoded message Data Set (see PS3.7 6.3).
     encoded_command_set : BytesIO
         During decoding of an incoming P-DATA primitive this stores the
         encoded Command Set data from the fragments.
@@ -179,19 +168,19 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        pdata : pynetdicom3.pdu_primitives.P_DATA
+        primitive : pynetdicom3.pdu_primitives.P_DATA
             The P-DATA service primitive to be decoded into a DIMSE message.
 
         Returns
         -------
         bool
-            True when complete, False otherwise.
+            True when the DIMSE message is completely decoded, False otherwise.
         """
         # Make sure this is a P-DATA primitive
         if primitive.__class__ != P_DATA or primitive is None:
             return False
 
-        for [context_id, data] in primitive.presentation_data_value_list:
+        for (context_id, data) in primitive.presentation_data_value_list:
 
             # The first byte of the P-DATA is the Message Control Header
             #   See PS3.8 Annex E.2
@@ -244,9 +233,6 @@ class DIMSEMessage(object):
                                               True,
                                               True)
 
-                    # Release the encoded command set memory
-                    self.encoded_command_set = BytesIO()
-
                     # Determine which DIMSE Message class to use
                     self.__class__ = \
                         _MESSAGE_CLASS_TYPES[self.command_set.CommandField]
@@ -278,7 +264,7 @@ class DIMSEMessage(object):
         return False
 
     def encode_msg(self, context_id, max_pdu_length):
-        """Encode the DIMSE Message as one or more P-DATA service primitives.
+        """Yield P-DATE primitive(s) for the current DIMSE Message.
 
         PS3.7 6.3.1
         The encoding of the Command Set shall be Little Endian Implicit VR,
@@ -303,74 +289,74 @@ class DIMSEMessage(object):
         max_pdu_length : int
             The maximum PDV length in bytes.
 
-        Returns
-        -------
-        p_data_list : list of pynetdicom3.pdu_primitives.P_DATA
-            A list of one or more P-DATA service primitives.
+        Yields
+        ------
+        pynetdicom3.pdu_primitives.P_DATA
+            The current DIMSE message as one or more P-DATA service
+            primitives.
 
         References
         ----------
         DICOM Standard, Part 7, Section 6.3.1
         DICOM Standard, Part 8, Annex E
         """
-        # List of P-DATA primitives
-        p_data_list = []
-
         self.ID = context_id
 
         # The Command Set is always Little Endian Implicit VR (PS3.7 6.3.1)
         #   encode(dataset, is_implicit_VR, is_little_endian)
         encoded_command_set = encode(self.command_set, True, True)
+        print(len(encoded_command_set), max_pdu_length)
 
         # COMMAND SET (always)
-        # Split the command set into framents with maximum size max_pdu_length
+        # Split the command set into fragments with maximum size max_pdu_length
         no_fragments = ceil(len(encoded_command_set) / (max_pdu_length - 6))
-        fragments = self._generate_pdv_fragments(encoded_command_set,
-                                                 max_pdu_length)
+        print(no_fragments)
+        cmd_fragments = self._generate_pdv_fragments(encoded_command_set,
+                                                     max_pdu_length)
 
         # First to (n - 1)th command data fragment - bits xxxxxx01
         for ii in range(int(no_fragments - 1)):
             pdata = P_DATA()
             pdata.presentation_data_value_list.append(
-                [context_id, b'\x01' + next(fragments)]
+                [context_id, b'\x01' + next(cmd_fragments)]
             )
-            p_data_list.append(pdata)
+            yield pdata
 
         # Last command data fragment - bits xxxxxx11
         pdata = P_DATA()
         pdata.presentation_data_value_list.append(
-            [context_id, b'\x03' + next(fragments)]
+            [context_id, b'\x03' + next(cmd_fragments)]
         )
-        p_data_list.append(pdata)
+        print(pdata)
+        yield pdata
 
         # DATASET (if available)
         #   Check that the Data Set is not empty
         if self.data_set is not None:
-            bytestream = self.data_set.getvalue()
-            if bytestream:
+            encoded_data_set = self.data_set.getvalue()
+            if encoded_data_set:
                 # Split the data set into fragments with maximum
                 #   size max_pdu_length
-                no_fragments = ceil(len(bytestream) / (max_pdu_length - 6))
-                #print('dataset',no_pdv,len(self.data_set.getvalue()),max_pdu_length - 6)
-                fragments = self._generate_pdv_fragments(bytestream,
-                                                         max_pdu_length)
+                no_fragments = ceil(
+                    len(encoded_data_set) / (max_pdu_length - 6)
+                )
+                ds_fragments = self._generate_pdv_fragments(encoded_data_set,
+                                                            max_pdu_length)
 
                 # First to (n - 1)th dataset fragment - bits xxxxxx00
                 for ii in range(int(no_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
-                        [context_id, b'\x00' + next(fragments)]
+                        [context_id, b'\x00' + next(ds_fragments)]
                     )
-                    p_data_list.append(pdata)
+                    yield pdata
 
                 # Last dataset fragment - bits xxxxxx10
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
-                    [context_id, b'\x02' + next(fragments)]
+                    [context_id, b'\x02' + next(ds_fragments)]
                 )
-                p_data_list.append(pdata)
-
-        return p_data_list
+                yield pdata
 
     @staticmethod
     def _generate_pdv_fragments(bytestream, fragment_length):
@@ -407,20 +393,18 @@ class DIMSEMessage(object):
         ----------
         DICOM Standard, Part 8, Annex D.1
         """
-        if fragment_length < 8:
+        if fragment_length < 7:
             raise ValueError('fragment_length must be at least 7.')
 
-        # Because the PDU includes an extra 6 bytes of data at the start
+        # Because the PDV item includes an extra 6 bytes of data at the start
         #   we need to decrease `fragment_length` by 6 bytes.
         fragment_length -= 6
 
         offset = 0
         no_pdv = ceil(len(bytestream) / fragment_length)
         for ii in range(int(no_pdv)):
-            fragment = bytestream[offset:offset + fragment_length]
+            yield bytestream[offset:offset + fragment_length]
             offset += fragment_length
-
-            yield fragment
 
     def message_to_primitive(self):
         """Convert the DIMSEMessage class to a DIMSE primitive.

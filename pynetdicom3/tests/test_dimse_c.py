@@ -232,7 +232,9 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_store_rq_cmd_b)
@@ -249,7 +251,9 @@ class TestPrimitive_C_STORE(unittest.TestCase):
         dimse_msg = C_STORE_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_store_rsp_cmd)
 
@@ -406,7 +410,9 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         dimse_msg = C_FIND_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_find_rq_cmd)
@@ -429,7 +435,9 @@ class TestPrimitive_C_FIND(unittest.TestCase):
         dimse_msg = C_FIND_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_find_rsp_cmd)
@@ -629,7 +637,9 @@ class TestPrimitive_C_GET(unittest.TestCase):
         dimse_msg = C_GET_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_get_rq_cmd)
@@ -655,7 +665,9 @@ class TestPrimitive_C_GET(unittest.TestCase):
         dimse_msg = C_GET_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_get_rsp_cmd)
@@ -860,7 +872,9 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         dimse_msg = C_MOVE_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
 
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
@@ -887,7 +901,9 @@ class TestPrimitive_C_MOVE(unittest.TestCase):
         dimse_msg = C_MOVE_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_move_rsp_cmd)
@@ -996,7 +1012,9 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         dimse_msg = C_ECHO_RQ()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_echo_rq_cmd)
 
@@ -1010,7 +1028,9 @@ class TestPrimitive_C_ECHO(unittest.TestCase):
         dimse_msg = C_ECHO_RSP()
         dimse_msg.primitive_to_message(primitive)
 
-        pdvs = dimse_msg.encode_msg(1, 16382)
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         self.assertEqual(cs_pdv, c_echo_rsp_cmd)
 
