@@ -45,7 +45,7 @@ if assoc.is_established:
     for ii in range(no_runs):
         start_time = time.time()
         for jj in range(ds_per_run):
-            assoc.send_c_store(BIG_DATASET)
+            assoc.send_c_store(DATASET)
         end_time = time.time()
         delta_time = end_time - start_time
         results.append(delta_time)

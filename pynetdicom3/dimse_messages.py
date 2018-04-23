@@ -305,12 +305,10 @@ class DIMSEMessage(object):
         # The Command Set is always Little Endian Implicit VR (PS3.7 6.3.1)
         #   encode(dataset, is_implicit_VR, is_little_endian)
         encoded_command_set = encode(self.command_set, True, True)
-        print(len(encoded_command_set), max_pdu_length)
 
         # COMMAND SET (always)
         # Split the command set into fragments with maximum size max_pdu_length
         no_fragments = ceil(len(encoded_command_set) / (max_pdu_length - 6))
-        print(no_fragments)
         cmd_fragments = self._generate_pdv_fragments(encoded_command_set,
                                                      max_pdu_length)
 
@@ -327,7 +325,6 @@ class DIMSEMessage(object):
         pdata.presentation_data_value_list.append(
             [context_id, b'\x03' + next(cmd_fragments)]
         )
-        print(pdata)
         yield pdata
 
         # DATASET (if available)
