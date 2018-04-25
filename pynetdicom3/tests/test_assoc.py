@@ -1887,8 +1887,7 @@ class TestAssociationSendCMove(unittest.TestCase):
 
         assoc.release()
         self.scp.stop()
-
-        self.scp.stop()
+        self.scp2.stop()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
