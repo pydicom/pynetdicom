@@ -451,25 +451,25 @@ class TestAssociation(object):
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        with pytest.raises(TypeError, msg="must have client_socket or peer_ae"):
+        with pytest.raises(TypeError, match="with either the client_socket or peer_ae"):
             Association(ae)
-        with pytest.raises(TypeError, msg="must have client_socket or peer_ae"):
+        with pytest.raises(TypeError, match="with either client_socket or peer_ae"):
             Association(ae, client_socket=self.socket, peer_ae=self.peer)
-        with pytest.raises(TypeError, msg="wrong client_socket type"):
+        with pytest.raises(TypeError, match="client_socket must be"):
             Association(ae, client_socket=123)
-        with pytest.raises(TypeError, msg="wrong peer_ae type"):
+        with pytest.raises(TypeError, match="peer_ae must be a dict"):
             Association(ae, peer_ae=123)
-        with pytest.raises(KeyError, msg="missing keys in peer_ae"):
+        with pytest.raises(KeyError, match="peer_ae must contain 'AET'"):
             Association(ae, peer_ae={})
-        with pytest.raises(TypeError, msg="wrong local_ae type"):
+        with pytest.raises(TypeError, match="local_ae must be a pynetdicom"):
             Association(12345, peer_ae=self.peer)
-        with pytest.raises(TypeError, msg="wrong dimse_timeout type"):
+        with pytest.raises(TypeError, match="dimse_timeout must be numeric"):
             Association(ae, peer_ae=self.peer, dimse_timeout='a')
-        with pytest.raises(TypeError, msg="wrong acse_timeout type"):
+        with pytest.raises(TypeError, match="acse_timeout must be numeric"):
             Association(ae, peer_ae=self.peer, acse_timeout='a')
-        with pytest.raises(TypeError, msg="wrong max_pdu type"):
+        with pytest.raises(TypeError, match="max_pdu must be an int"):
             Association(ae, peer_ae=self.peer, max_pdu='a')
-        with pytest.raises(TypeError, msg="wrong ext_neg type"):
+        with pytest.raises(TypeError, match="ext_neg must be a list"):
             Association(ae, peer_ae=self.peer, ext_neg='a')
 
     def test_run_acceptor(self):
@@ -513,9 +513,8 @@ class TestAssociation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        assert assoc.is_aborted
         assert not assoc.is_established
-        #self.assertRaises(SystemExit, ae.quit)
+        assert assoc.is_aborted
         scp.stop()
 
     def test_peer_releases_assoc(self):
@@ -756,6 +755,10 @@ class TestAssociation(object):
         """Test that the ACSE timeout works"""
         pass
 
+    def test_acse_timeout_release_no_reply(self):
+        """Test that the ACSE timeout works when waiting for an A-RELEASE reply"""
+        pass
+
     def test_dimse_timeout(self):
         """Test that the DIMSE timeout works"""
         scp = DummyVerificationSCP()
@@ -778,6 +781,24 @@ class TestAssociation(object):
     def test_dul_timeout(self):
         """Test that the DUL timeout (ARTIM) works"""
         pass
+
+    def test_multiple_association_release_cycles(self):
+        """Test repeatedly associating and releasing"""
+        scp = DummyVerificationSCP()
+        scp.start()
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        for ii in range(10):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assert not assoc.is_released
+            assoc.send_c_echo()
+            assoc.release()
+            assert assoc.is_released
+            assert not assoc.is_established
+
+        scp.stop()
 
 
 class TestAssociationSendCEcho(object):
@@ -2287,6 +2308,45 @@ class TestAssociationSendCMove(object):
         assert assoc.is_released
         self.scp.stop()
 
+        self.scp2.stop()
+
+    def test_multiple_c_move(self):
+        """Test multiple C-MOVE operation requests"""
+        self.scp2 = DummyStorageSCP(11113)
+        self.scp2.start()
+
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 2
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.good, self.good]
+        self.scp.start()
+        ae = AE(
+            scu_sop_class=[
+                PatientRootQueryRetrieveInformationModelMove,
+                StudyRootQueryRetrieveInformationModelMove,
+                PatientStudyOnlyQueryRetrieveInformationModelMove
+            ]
+        )
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        for ii in range(20):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assert not assoc.is_released
+            result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            (status, ds) = next(result)
+            assert status.Status == 0x0000
+            with pytest.raises(StopIteration):
+                next(result)
+            assoc.release()
+            assert assoc.is_released
+            assert not assoc.is_established
+
+        self.scp.stop()
         self.scp2.stop()
 
 
