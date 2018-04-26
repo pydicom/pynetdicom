@@ -7,11 +7,7 @@ import threading
 import time
 import unittest
 
-try:
-    from unittest.mock import patch
-    PY2_SKIP = False
-except ImportError:
-    PY2_SKIP = True
+import pytest
 
 from pydicom import read_file
 from pydicom.dataset import Dataset
@@ -96,7 +92,6 @@ class TestAEGoodCallbacks(unittest.TestCase):
                 thread.abort()
                 thread.stop()
 
-    @unittest.skipUnless(not PY2_SKIP, "Python 2 compatibility")
     def test_on_c_echo_called(self):
         """ Check that SCP AE.on_c_echo() was called """
         self.scp = DummyVerificationSCP()
@@ -104,14 +99,17 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        with patch.object(self.scp.ae, 'on_c_echo') as mock:
-            assoc.send_c_echo()
-            self.assertTrue(mock.called)
+        status = assoc.send_c_echo()
+        assert isinstance(status, Dataset)
+        assert 'Status' in status
+        assert status.Status == 0x0000
+
         assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
 
         self.scp.stop()
 
-    @unittest.skipUnless(not PY2_SKIP, "Python 2 compatibility")
     def test_on_c_store_called(self):
         """ Check that SCP AE.on_c_store(dataset) was called """
         self.scp = DummyStorageSCP()
@@ -119,11 +117,15 @@ class TestAEGoodCallbacks(unittest.TestCase):
 
         ae = AE(scu_sop_class=[RTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        with patch.object(self.scp.ae, 'on_c_store') as mock:
-            mock.return_value = 0x0000
-            assoc.send_c_store(DATASET)
-            self.assertTrue(mock.called)
+        assert assoc.is_established
+        status = assoc.send_c_store(DATASET)
+        assert isinstance(status, Dataset)
+        assert 'Status' in status
+        assert status.Status == 0x0000
+
         assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
 
         self.scp.stop()
 
