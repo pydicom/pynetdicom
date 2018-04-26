@@ -921,10 +921,12 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        print(type(dataset))
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
 
+        print(bytestream is not None, type(bytestream), len(bytestream))
         if bytestream is not None:
             req.DataSet = BytesIO(bytestream)
         else:

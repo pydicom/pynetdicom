@@ -497,7 +497,6 @@ def AR_2(dul):
         Sta8, the next state of the state machine
     """
     # Send A-RELEASE indication primitive
-    #print('Got A-RELEASE-RQ PDU')
     dul.to_user_queue.put(dul.primitive)
 
     return 'Sta8'
