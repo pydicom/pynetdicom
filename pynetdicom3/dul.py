@@ -257,7 +257,7 @@ class DULServiceProvider(Thread):
 
             # Check the event queue to see if there is anything to do
             try:
-                event = self.event_queue.get(False)
+                event = self.event_queue.get(block=False)
             # If the queue is empty, return to the start of the loop
             except queue.Empty:
                 continue
@@ -288,7 +288,7 @@ class DULServiceProvider(Thread):
             # Fix for Issue 39
             # Give the DUL thread time to exit
             while self.is_alive():
-                time.sleep(0.001)
+                time.sleep(0.0001)
 
             return True
 

@@ -249,9 +249,14 @@ class Association(threading.Thread):
     def release(self):
         """Release the association."""
         if self.is_established:
-            _ = self.acse.release_assoc()
-            self.kill()
-            self.is_released = True
+            if self.acse.release_assoc():
+                # Got release reply within timeout window
+                self.kill()
+                self.is_released = True
+            else:
+                # No release reply within timeout window
+                print('No release reply, aborting')
+                self.abort()
 
     def abort(self):
         """Abort the association.
