@@ -25,6 +25,10 @@ stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
+
+VERSION = '0.2.0'
+
+
 def _setup_argparser():
     """Setup the command line arguments"""
     # Description
@@ -121,7 +125,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$getscp.py v{0!s} {1!s} $'.format('0.1.0', '2016-04-11'))
+logger.debug('$getscp.py v{0!s}'.format(VERSION))
 logger.debug('')
 
 # Validate port
@@ -150,7 +154,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_get(dataset):
+def on_c_get(dataset, context):
     """Implement the on_c_get callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']

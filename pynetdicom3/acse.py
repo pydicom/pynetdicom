@@ -456,7 +456,7 @@ class ACSEServiceProvider(object):
             s.append('  Context ID:        {0!s} '
                      '(Proposed)'.format((context.ID)))
             s.append('    Abstract Syntax: ='
-                     '{0!s}'.format(context.abstract_syntax))
+                     '{0!s}'.format(context.abstract_syntax.name))
 
             if 'SCU' in context.__dict__.keys():
                 scp_scu_role = '{0!s}/{1!s}'.format(context.SCP, context.SCU)
@@ -597,7 +597,7 @@ class ACSEServiceProvider(object):
                 s.append('    Accepted SCP/SCU Role: {0!s}'
                          .format(ac_scp_scu_role))
                 s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax))
+                         .format(item.transfer_syntax.name))
 
         ## Extended Negotiation
         ext_nego = 'None'
@@ -732,7 +732,7 @@ class ACSEServiceProvider(object):
         s.append('Presentation Contexts:')
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} (Proposed)'.format(item.ID))
-            s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax))
+            s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax.name))
 
             if item.SCU is None and item.SCP is None:
                 scp_scu_role = 'Default'
@@ -742,7 +742,7 @@ class ACSEServiceProvider(object):
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
             s.append('    Proposed Transfer Syntax(es):')
             for ts in item.transfer_syntax:
-                s.append('      ={0!s}'.format(ts))
+                s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
         if pdu.user_information.ext_neg is not None:
@@ -887,7 +887,7 @@ class ACSEServiceProvider(object):
                 s.append('    Accepted SCP/SCU Role: {0!s}'
                          .format(ac_scp_scu_role))
                 s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax))
+                         .format(item.transfer_syntax.name))
 
         ## Extended Negotiation
         ext_neg = 'None'

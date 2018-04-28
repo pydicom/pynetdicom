@@ -480,20 +480,17 @@ class Association(threading.Thread):
                 # Old method
                 for context in self.acse.accepted_contexts:
                     if context.ID == msg_context_id:
-                        sop_class.pcid = context.ID
-                        sop_class.sopclass = context.AbstractSyntax
-                        sop_class.transfersyntax = context.TransferSyntax[0]
                         sop_class.maxpdulength = self.peer_max_pdu
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
                         sop_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        sop_class.SCP(msg)
+                        sop_class.SCP(msg, context)
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "
-                        "context ID %d", msg_context_id)
+                                "context ID %d", msg_context_id)
                     LOGGER.debug("%s", msg)
 
             # Check for release request
@@ -1736,6 +1733,7 @@ class Association(threading.Thread):
             if req.AffectedSOPClassUID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1760,7 +1758,7 @@ class Association(threading.Thread):
 
         #  Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.ae.on_c_store(ds)
+            status = self.ae.on_c_store(ds, context)
         except Exception as ex:
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")
