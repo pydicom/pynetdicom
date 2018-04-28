@@ -233,7 +233,7 @@ datasets to peer AEs.</p>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;dcmfile&#39;</span><span class="p">)</span>
 
     <span class="c1"># Send a DIMSE C-STORE request to the peer</span>
-    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-STORE status: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">status</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
