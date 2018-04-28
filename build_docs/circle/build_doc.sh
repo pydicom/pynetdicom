@@ -114,7 +114,10 @@ conda install --yes --quiet pip setuptools numpy matplotlib sphinx \
 conda install --yes --quiet -c conda-forge gdcm
 pip install sphinx-gallery
 
-# Build and install pydicom in dev mode
+# Add pydicom
+pip install pydicom
+
+# Build and install pynetdicom in dev mode
 pip install -e .
 
 # The pipefail is requested to propagate exit code
