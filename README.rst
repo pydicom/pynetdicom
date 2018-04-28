@@ -81,11 +81,15 @@ implementing the following ``AE`` callbacks:
 Where *dataset* is a pydicom Dataset object. See the SCP Examples and the AE
 documentation for more information.
 
+Documentation
+-------------
+Documentation is available for stable releases as well as the current `development version. <https://pydicom.github.io/pynetdicom3/dev>`_
+
 Installation
 -----------
 Dependencies
 ~~~~~~~~~~~~
-`pydicom <https://github.com/pydicom/pydicom>`_ >= 1.0.0a1
+`pydicom <https://github.com/pydicom/pydicom>`_
 
 Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
