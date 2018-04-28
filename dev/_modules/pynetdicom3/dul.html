@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.dul &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom3.dul</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom3.dul</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implements the DICOM Upper Layer service provider.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">queue</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Queue</span> <span class="k">as</span> <span class="nn">queue</span>  <span class="c1"># Python 2 compatibility</span>
+<span class="kn">import</span> <span class="nn">select</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="k">import</span> <span class="n">unpack</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3.fsm</span> <span class="k">import</span> <span class="n">StateMachine</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu</span> <span class="k">import</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span>
+                             <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">P_DATA</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.timer</span> <span class="k">import</span> <span class="n">Timer</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.dul&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DULServiceProvider"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider">[docs]</a><span class="k">class</span> <span class="nc">DULServiceProvider</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Three ways to call DULServiceProvider:</span>
+
+<span class="sd">    - If a port number is given, the DUL will wait for incoming connections on</span>
+<span class="sd">      this port.</span>
+<span class="sd">    - If a socket is given, the DUL will use this socket as the client socket.</span>
+<span class="sd">    - If neither is given, the DUL will not be able to accept connections (but</span>
+<span class="sd">      will be able to initiate them.)</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    artim_timer : pynetdicom3.timer.Timer</span>
+<span class="sd">        The ARTIM timer</span>
+<span class="sd">    association : pynetdicom3.association.Association</span>
+<span class="sd">        The DUL&#39;s current Association</span>
+<span class="sd">    dul_from_user_queue : queue.Queue</span>
+<span class="sd">        Queue of PDUs from the DUL service user to be processed by the DUL</span>
+<span class="sd">        provider</span>
+<span class="sd">    dul_to_user_queue : queue.Queue</span>
+<span class="sd">        Queue of primitives from the DUL service to be processed by the DUL user</span>
+<span class="sd">    event_queue : queue.Queue</span>
+<span class="sd">        List of queued events to be processed by the state machine</span>
+<span class="sd">    scp_socket : socket.socket()</span>
+<span class="sd">        If the local AE is acting as an SCP, this is the connection from the</span>
+<span class="sd">        peer AE to the SCP</span>
+<span class="sd">    scu_socket : socket.socket()</span>
+<span class="sd">        If the local AE is acting as an SCU, this is the connection from the</span>
+<span class="sd">        local AE to the peer AE SCP</span>
+<span class="sd">    state_machine : pynetdicom3.fsm.StateMachine</span>
+<span class="sd">        The DICOM Upper Layer&#39;s State Machine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dul_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assoc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        socket : socket.socket, optional</span>
+<span class="sd">            The local AE&#39;s listen socket</span>
+<span class="sd">        port : int, optional</span>
+<span class="sd">            The port number on which to wait for incoming connections</span>
+<span class="sd">        dul_timeout : float, optional</span>
+<span class="sd">            The maximum amount of time to wait for connection responses</span>
+<span class="sd">            (in seconds)</span>
+<span class="sd">        assoc : pynetdicom3.association.Association</span>
+<span class="sd">            The DUL&#39;s current Association</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">socket</span> <span class="ow">and</span> <span class="n">port</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DULServiceProvider can&#39;t be instantiated with &quot;</span>
+                             <span class="s2">&quot;both socket and port parameters&quot;</span><span class="p">)</span>
+
+        <span class="c1"># The association thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span> <span class="o">=</span> <span class="n">assoc</span>
+
+        <span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Current primitive and PDU</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># The event_queue tracks the events the DUL state machine needs to</span>
+        <span class="c1">#   process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="c1"># These queues provide communication between the DUL service</span>
+        <span class="c1">#   user and the DUL service provider.</span>
+        <span class="c1"># An event occurs when the DUL service user adds to</span>
+        <span class="c1">#   the to_provider_queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="c1"># A primitive is sent to the service user when the DUL service provider</span>
+        <span class="c1"># adds to the to_user_queue.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="c1"># Setup the idle timer, ARTIM timer and finite state machine</span>
+        <span class="c1"># FIXME: Why do we have an idle timer?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">dul_timeout</span><span class="p">)</span>
+
+        <span class="c1"># ARTIM timer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artim_timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">dul_timeout</span><span class="p">)</span>
+
+        <span class="c1"># State machine - PS3.8 Section 9.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span> <span class="o">=</span> <span class="n">StateMachine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">socket</span><span class="p">:</span>
+            <span class="c1"># A client socket has been given, so the local AE is acting as</span>
+            <span class="c1">#   an SCP</span>
+            <span class="c1"># generate an event 5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt5&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="n">socket</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peer_address</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">port</span><span class="p">:</span>
+            <span class="c1"># A port number has been given, so the local AE is acting as an</span>
+            <span class="c1">#   SCU. Create a new socket using the given port number</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span>
+                                       <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span>
+                                       <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># The port number for the local AE to listen on</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">local_port</span> <span class="o">=</span> <span class="n">port</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_port</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">local_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="n">local_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_port</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peer_address</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No port nor socket</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peer_address</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Controls the minimum delay between loops in run()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+<div class="viewcode-block" id="DULServiceProvider.idle_timer_expired"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.idle_timer_expired">[docs]</a>    <span class="k">def</span> <span class="nf">idle_timer_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the idle timer has expired</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the idle timer has expired, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">is_expired</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.kill_dul"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.kill_dul">[docs]</a>    <span class="k">def</span> <span class="nf">kill_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Immediately interrupts the thread&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.on_receive_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.on_receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called after the first byte of an incoming PDU is read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.peek_next_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.peek_next_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">peek_next_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the next PDU to be processed.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">queue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.receive_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the next item to be processed out of the queue of items sent</span>
+<span class="sd">        from the DUL service provider to the service user</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wait : bool, optional</span>
+<span class="sd">            If `wait` is True and `timeout` is None, blocks until an item</span>
+<span class="sd">            is available. If `timeout` is a positive number, blocks at most</span>
+<span class="sd">            `timeout` seconds. Otherwise returns an item if one is immediately</span>
+<span class="sd">            available.</span>
+<span class="sd">        timeout : int or None</span>
+<span class="sd">            See the definition of `Wait`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        queue_item</span>
+<span class="sd">            The next object in the to_user_queue [FIXME]</span>
+<span class="sd">        None</span>
+<span class="sd">            If the queue is empty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Remove and return an item from the queue</span>
+            <span class="c1">#   If block is True and timeout is None then block until an item</span>
+            <span class="c1">#       is available.</span>
+            <span class="c1">#   If timeout is a positive number, blocks timeout seconds and</span>
+            <span class="c1">#       raises queue.Empty if no item was available in that time.</span>
+            <span class="c1">#   If block is False, return an item if one is immediately</span>
+            <span class="c1">#       available, otherwise raise queue.Empty</span>
+            <span class="n">queue_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">queue_item</span>
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.run"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The main threading.Thread run loop. Runs constantly, checking the</span>
+<span class="sd">        connection for incoming data. When incoming data is received it</span>
+<span class="sd">        categorises it and add its to the `to_user_queue`.</span>
+
+<span class="sd">        Ripping out this loop and replacing it with event-driven reactor would</span>
+<span class="sd">            be nice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Main DUL loop</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+            <span class="c1"># This effectively controls how often the DUL checks the network</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Check the connection for incoming data</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># If local AE is SCU also calls _check_incoming_pdu()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_transport_event</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_primitive</span><span class="p">():</span>
+                    <span class="k">pass</span>
+
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_artim_expired</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c1"># FIXME: This catch all should be removed</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">raise</span>
+
+            <span class="c1"># Check the event queue to see if there is anything to do</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># If the queue is empty, return to the start of the loop</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">do_action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.send_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.send_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">send_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params -</span>
+<span class="sd">            The parameters to put on FromServiceUser [FIXME]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DULServiceProvider.stop_dul"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.stop_dul">[docs]</a>    <span class="k">def</span> <span class="nf">stop_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interrupts the thread if state is &quot;Sta1&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if Sta1, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">current_state</span> <span class="o">==</span> <span class="s1">&#39;Sta1&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># Fix for Issue 39</span>
+            <span class="c1"># Give the DUL thread time to exit</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_incoming_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts an incoming PDU from the peer AE back into a primitive (ie one</span>
+<span class="sd">        of the following: A-ASSOCIATE, A-RELEASE, A-ABORT, P-DATA, A-P-ABORT)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">()</span>
+
+        <span class="c1"># Try and read data from the socket</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get the data from the socket</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt17&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DUL: Error reading data from the socket&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Remote port has been closed</span>
+        <span class="k">if</span> <span class="n">bytestream</span> <span class="o">==</span> <span class="nb">bytes</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt17&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Peer has closed transport connection&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Incoming data is OK</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># First byte is always PDU type</span>
+            <span class="c1">#   0x01 - A-ASSOCIATE-RQ   1, 2, 3-6</span>
+            <span class="c1">#   0x02 - A-ASSOCIATE-AC   1, 2, 3-6</span>
+            <span class="c1">#   0x03 - A-ASSOCIATE-RJ   1, 2, 3-6</span>
+            <span class="c1">#   0x04 - P-DATA-TF        1, 2, 3-6</span>
+            <span class="c1">#   0x05 - A-RELEASE-RQ     1, 2, 3-6</span>
+            <span class="c1">#   0x06 - A-RELEASE-RP     1, 2, 3-6</span>
+            <span class="c1">#   0x07 - A-ABORT          1, 2, 3-6</span>
+
+            <span class="c1"># We do all this just to get the length of the PDU</span>
+            <span class="c1"># Byte 1 is PDU type</span>
+            <span class="c1">#   (value, )</span>
+            <span class="n">pdu_type</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">bytestream</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Unrecognised PDU type - Evt19 in the State Machine</span>
+            <span class="k">if</span> <span class="n">pdu_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">,</span> <span class="mh">0x04</span><span class="p">,</span> <span class="mh">0x05</span><span class="p">,</span> <span class="mh">0x06</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">]:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unrecognised PDU type: 0x</span><span class="si">%02x</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pdu_type</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt19&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Byte 2 is Reserved</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recvn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">bytestream</span> <span class="o">+=</span> <span class="n">result</span>
+
+            <span class="c1"># Bytes 3-6 is the PDU length</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recvn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+            <span class="n">bytestream</span> <span class="o">+=</span> <span class="n">length</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&gt;L&#39;</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+
+            <span class="c1"># Bytes 7-xxxx is the rest of the PDU</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recvn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">,</span> <span class="n">length</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">bytestream</span> <span class="o">+=</span> <span class="n">result</span>
+
+            <span class="c1"># Determine the type of PDU coming on remote port, then decode</span>
+            <span class="c1"># the raw bytestream to the corresponding PDU class</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_socket_to_pdu</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+            <span class="c1"># Put the event corresponding to the incoming PDU on the queue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pdu_to_event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdu</span><span class="p">))</span>
+
+            <span class="c1"># Convert the incoming PDU to a corresponding ServiceParameters</span>
+            <span class="c1">#   object</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">ToParams</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_check_incoming_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the incoming primitive.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Check the queue and see if there are any primitives</span>
+            <span class="c1"># If so then put the corresponding event on the event queue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitive_to_event</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primitive</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_is_artim_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return if the state machine&#39;s ARTIM timer has expired.</span>
+
+<span class="sd">        If it has then &#39;Evt18&#39; is added to the event queue.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the ARTIM timer has expired, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">is_expired</span><span class="p">:</span>
+            <span class="c1">#LOGGER.debug(&#39;%s: timer expired&#39; % (self.name))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt18&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_is_transport_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check to see if the transport connection has incoming data</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if an event has been added, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sta13 is waiting for the transport connection to close</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">current_state</span> <span class="o">==</span> <span class="s1">&#39;Sta13&#39;</span><span class="p">:</span>
+            <span class="c1"># If we have no connection to the SCU</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="c1"># If we are still connected to the SCU</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># socket.Socket().recv(bufsize)</span>
+                <span class="c1"># If we are still receiving data from the socket</span>
+                <span class="c1">#   wait until its done</span>
+                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="c1"># Once we have no more incoming data close the socket and</span>
+            <span class="c1">#   add the corresponding event to the queue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Issue the Transport connection closed indication (AR-5 -&gt; Sta1)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt17&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># If the local AE is an SCP, listen for incoming data</span>
+        <span class="c1"># The local AE is in Sta1, i.e. listening for Transport Connection</span>
+        <span class="c1">#   Indications</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">:</span>
+            <span class="n">read_list</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># If theres incoming connection request, accept it</span>
+            <span class="k">if</span> <span class="n">read_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+
+                <span class="c1"># Add to event queue (Sta1 + Evt5 -&gt; AE-5 -&gt; Sta2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt5&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># If a local AE is an SCU, listen for incoming data</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">:</span>
+            <span class="c1"># If we are awaiting transport connection opening to complete</span>
+            <span class="c1">#   (from local transport service) then issue the corresponding</span>
+            <span class="c1">#   indication (Sta4 + Evt2 -&gt; AE-2 -&gt; Sta5)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">current_state</span> <span class="o">==</span> <span class="s1">&#39;Sta4&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt2&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="c1"># By this point the connection should be established</span>
+            <span class="c1">#   If theres incoming data on the connection then check the PDU</span>
+            <span class="c1">#   type</span>
+            <span class="c1"># Fix for #28 - caused by peer disconnecting before run loop is</span>
+            <span class="c1">#   stopped by assoc.release()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">read_list</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">read_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_pdu</span><span class="p">()</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pdu_to_event</span><span class="p">(</span><span class="n">pdu</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the event associated with the PDU.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdu : pynetdicom3.pdu.PDU</span>
+<span class="sd">            The PDU</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The event str associated with the PDU</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ASSOCIATE_RQ</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt6&#39;</span>
+        <span class="k">elif</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt3&#39;</span>
+        <span class="k">elif</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt4&#39;</span>
+        <span class="k">elif</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">P_DATA_TF</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt10&#39;</span>
+        <span class="k">elif</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_RELEASE_RQ</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt12&#39;</span>
+        <span class="k">elif</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_RELEASE_RP</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt13&#39;</span>
+        <span class="k">elif</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ABORT_RQ</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt16&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#&quot;Unrecognized or invalid PDU&quot;</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt19&#39;</span>
+
+        <span class="k">return</span> <span class="n">event_str</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_primitive_to_event</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the state machine event associated with sending a primitive.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        primitive : pynetdicom3.pdu_primitives.ServiceParameter</span>
+<span class="sd">            The Association primitive</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The event associated with the primitive</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ASSOCIATE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># A-ASSOCIATE Request</span>
+                <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt1&#39;</span>
+            <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>
+                <span class="c1"># A-ASSOCIATE Response (accept)</span>
+                <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt7&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># A-ASSOCIATE Response (reject)</span>
+                <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt8&#39;</span>
+        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_RELEASE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># A-Release Request</span>
+                <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt11&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># A-Release Response</span>
+                <span class="c1"># result is &#39;affirmative&#39;</span>
+                <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt14&#39;</span>
+        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ABORT</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt15&#39;</span>
+        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">P_DATA</span><span class="p">:</span>
+            <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt9&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;_primitive_to_event(): invalid primitive&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">event_str</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_recvn</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">n_bytes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read `n_bytes` from a socket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sock : socket.socket</span>
+<span class="sd">            The socket to read from</span>
+<span class="sd">        n_bytes : int</span>
+<span class="sd">            The number of bytes to read</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="n">read_length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">read_length</span> <span class="o">&lt;</span> <span class="n">n_bytes</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">n_bytes</span> <span class="o">-</span> <span class="n">read_length</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tmp</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ret</span>
+
+            <span class="n">ret</span> <span class="o">+=</span> <span class="n">tmp</span>
+            <span class="n">read_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">read_length</span> <span class="o">!=</span> <span class="n">n_bytes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;_recvn(socket, </span><span class="si">{}</span><span class="s2">) - Error reading data from &quot;</span>
+                               <span class="s2">&quot;socket.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_bytes</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">_socket_to_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the PDU object associated with an incoming data stream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : bytes</span>
+<span class="sd">            The incoming data stream</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pdu : pynetdicom3.pdu.PDU</span>
+<span class="sd">            The decoded data as a PDU object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdutype</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">acse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span>
+
+        <span class="n">pdu_types</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x01</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rq</span><span class="p">),</span>
+                     <span class="mh">0x02</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_AC</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_ac</span><span class="p">),</span>
+                     <span class="mh">0x03</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RJ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rj</span><span class="p">),</span>
+                     <span class="mh">0x04</span><span class="p">:</span> <span class="p">(</span><span class="n">P_DATA_TF</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_data_tf</span><span class="p">),</span>
+                     <span class="mh">0x05</span><span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RQ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rq</span><span class="p">),</span>
+                     <span class="mh">0x06</span><span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RP</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rp</span><span class="p">),</span>
+                     <span class="mh">0x07</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ABORT_RQ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_abort</span><span class="p">)}</span>
+
+        <span class="k">if</span> <span class="n">pdutype</span> <span class="ow">in</span> <span class="n">pdu_types</span><span class="p">:</span>
+            <span class="n">pdu</span> <span class="o">=</span> <span class="n">pdu_types</span><span class="p">[</span><span class="n">pdutype</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pdu</span><span class="o">.</span><span class="n">Decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># ACSE callbacks</span>
+            <span class="n">pdu_types</span><span class="p">[</span><span class="n">pdutype</span><span class="p">][</span><span class="mi">1</span><span class="p">](</span><span class="n">pdu</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">pdu</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.9.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

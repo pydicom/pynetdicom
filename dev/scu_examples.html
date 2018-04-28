@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Service Class User Examples &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SCP examples" href="scp_examples.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ae_intro.html">ApplicationEntity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="assoc_intro.html">Introduction to Association</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="examples.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Service Class User Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#verification-scu">Verification SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#storage-scu">Storage SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#query-retrieve-find-scu">Query/Retrieve - Find SCU</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scp_examples.html">SCP examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Package documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="examples.html">Examples</a> &raquo;</li>
+        
+      <li>Service Class User Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/scu_examples.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="service-class-user-examples">
+<h1>Service Class User Examples<a class="headerlink" href="#service-class-user-examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="verification-scu">
+<h2>Verification SCU<a class="headerlink" href="#verification-scu" title="Permalink to this headline">¶</a></h2>
+<p>The most basic way of verifying and troubleshooting a connection with a peer
+Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
+<em>Verification SOP Class</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+
+<span class="c1"># The Verification SOP Class has a UID of 1.2.840.10008.1.1</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">scu_sop_class</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">])</span>
+
+<span class="c1"># Try and associate with the peer AE</span>
+<span class="c1">#   Returns the Association thread</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Requesting Association with the peer&#39;</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association accepted by the peer&#39;</span><span class="p">)</span>
+    <span class="c1"># Send a DIMSE C-ECHO request to the peer</span>
+    <span class="c1"># status is a pydicom Dataset object with (at a minimum) a</span>
+    <span class="c1"># (0000, 0900) Status element</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">()</span>
+
+    <span class="c1"># Output the response from the peer</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-ECHO Response: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">elif</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_rejected</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association was rejected by the peer&#39;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Received an A-ABORT from the peer during Association&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="storage-scu">
+<h2>Storage SCU<a class="headerlink" href="#storage-scu" title="Permalink to this headline">¶</a></h2>
+<p>A common use of a DICOM SCU is to use a DICOM C-STORE message to send DICOM
+datasets to peer AEs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">read_file</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">StorageSOPClassList</span>
+
+<span class="c1"># StorageSOPClassList contains all the Standard SOP Classes supported</span>
+<span class="c1">#   by the Storage Service Class (see PS3.4 Annex B.5)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">scu_sop_class</span><span class="o">=</span><span class="n">StorageSOPClassList</span><span class="p">)</span>
+
+<span class="c1"># Try and associate with the peer AE</span>
+<span class="c1">#   Returns the Association thread</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Requesting Association with the peer&#39;</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association accepted by the peer&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Read the DICOM dataset from file &#39;dcmfile&#39;</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;dcmfile&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Send a DIMSE C-STORE request to the peer</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-STORE status: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">status</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="query-retrieve-find-scu">
+<h2>Query/Retrieve - Find SCU<a class="headerlink" href="#query-retrieve-find-scu" title="Permalink to this headline">¶</a></h2>
+<p>Query the peer AE to see if it contains any Instances with attributes matching
+those specified by the user-created <em>dataset</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">QueryRetrieveSOPClassList</span>
+
+<span class="c1"># QueryRetrieveSOPClassList contains the SOP Classes supported</span>
+<span class="c1">#   by the Query/Retrieve Service Class (see PS3.4 Annex C.6)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">scu_sop_class</span><span class="o">=</span><span class="n">QueryRetrieveSOPClassList</span><span class="p">)</span>
+
+<span class="c1"># Try and associate with the peer AE</span>
+<span class="c1">#   Returns the Association thread</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Requesting Association with the peer&#39;</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association accepted by the peer&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Creat a new DICOM dataset with the attributes to match against</span>
+    <span class="c1">#   In this case match any patient&#39;s name at the PATIENT query</span>
+    <span class="c1">#   level. See PS3.4 Annex C.6 for the complete list of possible</span>
+    <span class="c1">#   attributes and query levels.</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">PatientName</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s2">&quot;PATIENT&quot;</span>
+
+    <span class="c1"># Send a DIMSE C-FIND request to the peer</span>
+    <span class="c1">#   query_model is the Query/Retrieve Information Model to use</span>
+    <span class="c1">#   and is one of &#39;W&#39;, &#39;P&#39;, &#39;S&#39;, &#39;O&#39;</span>
+    <span class="c1">#       &#39;W&#39; - Modality Worklist (1.2.840.10008.5.1.4.31)</span>
+    <span class="c1">#       &#39;P&#39; - Patient Root (1.2.840.10008.5.1.4.1.2.1.1)</span>
+    <span class="c1">#       &#39;S&#39; - Study Root (1.2.840.10008.5.1.4.1.2.2.1)</span>
+    <span class="c1">#       &#39;O&#39; - Patient/Study Only (1.2.840.10008.5.1.4.1.2.3.1)</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+        <span class="c1"># While status is pending we should get the matching datasets</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND finished, releasing the association&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND cancelled, releasing the association&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Failure&#39;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND failed, releasing the association&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="scp_examples.html" class="btn btn-neutral float-right" title="SCP examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="examples.html" class="btn btn-neutral" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.9.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

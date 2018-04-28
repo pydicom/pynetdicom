@@ -1,0 +1,855 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.dimse_messages &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom3.dimse_messages</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom3.dimse_messages</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Define the DIMSE Message classes.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">pydicom.tag</span> <span class="k">import</span> <span class="n">Tag</span>
+<span class="kn">from</span> <span class="nn">pydicom._dicom_dict</span> <span class="k">import</span> <span class="n">DicomDictionary</span> <span class="k">as</span> <span class="n">dcm_dict</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span>
+                                          <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span> <span class="n">N_EVENT_REPORT</span><span class="p">,</span>
+                                          <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span> <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span>
+                                          <span class="n">N_DELETE</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.dsutils</span> <span class="k">import</span> <span class="n">encode_element</span><span class="p">,</span> <span class="n">encode</span><span class="p">,</span> <span class="n">decode</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">P_DATA</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.dimse&#39;</span><span class="p">)</span>
+
+<span class="n">_MESSAGE_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x0001</span><span class="p">:</span> <span class="s1">&#39;C-STORE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8001</span><span class="p">:</span> <span class="s1">&#39;C-STORE-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0020</span><span class="p">:</span> <span class="s1">&#39;C-FIND-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8020</span><span class="p">:</span> <span class="s1">&#39;C-FIND-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0010</span><span class="p">:</span> <span class="s1">&#39;C-GET-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8010</span><span class="p">:</span> <span class="s1">&#39;C-GET-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0021</span><span class="p">:</span> <span class="s1">&#39;C-MOVE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8021</span><span class="p">:</span> <span class="s1">&#39;C-MOVE-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0030</span><span class="p">:</span> <span class="s1">&#39;C-ECHO-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8030</span><span class="p">:</span> <span class="s1">&#39;C-ECHO-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0FFF</span><span class="p">:</span> <span class="s1">&#39;C-CANCEL-RQ&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0100</span><span class="p">:</span> <span class="s1">&#39;N-EVENT-REPORT-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8100</span><span class="p">:</span> <span class="s1">&#39;N-EVENT-REPORT-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0110</span><span class="p">:</span> <span class="s1">&#39;N-GET-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8110</span><span class="p">:</span> <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0120</span><span class="p">:</span> <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8120</span><span class="p">:</span> <span class="s1">&#39;N-SET-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0130</span><span class="p">:</span> <span class="s1">&#39;N-ACTION-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8130</span><span class="p">:</span> <span class="s1">&#39;N-ACTION-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0140</span><span class="p">:</span> <span class="s1">&#39;N-CREATE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8140</span><span class="p">:</span> <span class="s1">&#39;N-CREATE-RSP&#39;</span><span class="p">,</span>
+                  <span class="mh">0x0150</span><span class="p">:</span> <span class="s1">&#39;N-DELETE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8150</span><span class="p">:</span> <span class="s1">&#39;N-DELETE-RSP&#39;</span><span class="p">}</span>
+
+<span class="c1"># PS3.7 Section 9.3</span>
+<span class="n">_COMMAND_SET_ELEM</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C-ECHO-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span>  <span class="c1"># CommandGroupLength</span>
+                                   <span class="mh">0x00000002</span><span class="p">,</span>  <span class="c1"># AffectedSOPClassUID</span>
+                                   <span class="mh">0x00000100</span><span class="p">,</span>  <span class="c1"># CommandField</span>
+                                   <span class="mh">0x00000110</span><span class="p">,</span>  <span class="c1"># MessageID</span>
+                                   <span class="mh">0x00000800</span><span class="p">],</span>  <span class="c1"># CommandDataSetType</span>
+                     <span class="s1">&#39;C-ECHO-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                    <span class="mh">0x00000120</span><span class="p">,</span>  <span class="c1"># MessageIDBeingRespondedTo</span>
+                                    <span class="mh">0x00000800</span><span class="p">,</span>
+                                    <span class="mh">0x00000900</span><span class="p">,</span>  <span class="c1"># Status</span>
+                                    <span class="mh">0x00000902</span><span class="p">],</span>  <span class="c1"># ErrorComment</span>
+                     <span class="s1">&#39;C-STORE-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                    <span class="mh">0x00000110</span><span class="p">,</span>
+                                    <span class="mh">0x00000700</span><span class="p">,</span>  <span class="c1"># Priority</span>
+                                    <span class="mh">0x00000800</span><span class="p">,</span>
+                                    <span class="mh">0x00001000</span><span class="p">,</span>  <span class="c1"># AffectedSOPInstanceUID</span>
+                                    <span class="c1"># MoveOriginatorApplicationEntityTitle</span>
+                                    <span class="mh">0x00001030</span><span class="p">,</span>
+                                    <span class="mh">0x00001031</span><span class="p">],</span>  <span class="c1"># MoveOriginatorMessageID</span>
+                     <span class="s1">&#39;C-STORE-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                     <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                     <span class="mh">0x00000901</span><span class="p">,</span>  <span class="c1"># OffendingElement</span>
+                                     <span class="mh">0x00000902</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">],</span>
+                     <span class="s1">&#39;C-FIND-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                   <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">],</span>
+                     <span class="s1">&#39;C-FIND-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                    <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                    <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">],</span>
+                     <span class="s1">&#39;C-CANCEL-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+                                     <span class="mh">0x00000800</span><span class="p">],</span>
+                     <span class="s1">&#39;C-GET-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                  <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">],</span>
+                     <span class="s1">&#39;C-GET-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                   <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                   <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span>
+                                   <span class="mh">0x00001020</span><span class="p">,</span>  <span class="c1"># NumberOfRemainingSuboperations</span>
+                                   <span class="mh">0x00001021</span><span class="p">,</span>  <span class="c1"># NumberOfCompletedSuboperations</span>
+                                   <span class="mh">0x00001022</span><span class="p">,</span>  <span class="c1"># NumberOfFailedSuboperations</span>
+                                   <span class="mh">0x00001023</span><span class="p">],</span>  <span class="c1"># NumberOfWarningSuboperations</span>
+                     <span class="s1">&#39;C-MOVE-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                   <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span>
+                                   <span class="mh">0x00000600</span><span class="p">],</span>  <span class="c1"># MoveDestination</span>
+                     <span class="s1">&#39;C-MOVE-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                    <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                    <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span> <span class="mh">0x00001020</span><span class="p">,</span>
+                                    <span class="mh">0x00001021</span><span class="p">,</span> <span class="mh">0x00001022</span><span class="p">,</span> <span class="mh">0x00001023</span><span class="p">],</span>
+                     <span class="s1">&#39;N-EVENT-REPORT-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                           <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span>
+                                           <span class="mh">0x00001002</span><span class="p">],</span>  <span class="c1"># EventTypeID</span>
+                     <span class="s1">&#39;N-EVENT-REPORT-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                            <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                            <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00001002</span><span class="p">],</span>
+                     <span class="s1">&#39;N-GET-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                  <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span>
+                                  <span class="mh">0x00001001</span><span class="p">,</span>  <span class="c1"># RequestedSOPInstanceUID</span>
+                                  <span class="mh">0x00001005</span><span class="p">],</span>  <span class="c1"># AttributeIdentifierList</span>
+                     <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                   <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                   <span class="mh">0x00001000</span><span class="p">],</span>
+                     <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                  <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">],</span>
+                     <span class="s1">&#39;N-SET-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                   <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                   <span class="mh">0x00001000</span><span class="p">],</span>
+                     <span class="s1">&#39;N-ACTION-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                     <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">,</span>
+                                     <span class="mh">0x00001008</span><span class="p">],</span>  <span class="c1"># ActionTypeID</span>
+                     <span class="s1">&#39;N-ACTION-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                      <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                      <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00001008</span><span class="p">],</span>
+                     <span class="s1">&#39;N-CREATE-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                     <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">],</span>
+                     <span class="s1">&#39;N-CREATE-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                      <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                      <span class="mh">0x00001000</span><span class="p">],</span>
+                     <span class="s1">&#39;N-DELETE-RQ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                     <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">],</span>
+                     <span class="s1">&#39;N-DELETE-RSP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+                                      <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+                                      <span class="mh">0x00001000</span><span class="p">]}</span>
+
+
+<div class="viewcode-block" id="DIMSEMessage"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage">[docs]</a><span class="k">class</span> <span class="nc">DIMSEMessage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a DIMSE Message.</span>
+
+<span class="sd">    Information is communicated across the DICOM network interface in a DICOM</span>
+<span class="sd">    Message. A Message is composed of a Command Set followed by a</span>
+<span class="sd">    conditional Data Set. The Command Set is used to indicate the</span>
+<span class="sd">    operations/notifications to be performed on or with the Data Set (see</span>
+<span class="sd">    PS3.7 6.2-3).</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">                            primitive_to_message         Encode</span>
+<span class="sd">        .----------------------.  -----&gt;   .----------.  -----&gt;  .------------.</span>
+<span class="sd">        |        DIMSE         |           |   DIMSE  |          |   P-DATA   |</span>
+<span class="sd">        |      primitive       |           |  message |          |  primitive |</span>
+<span class="sd">        .----------------------.  &lt;-----   .----------.  &lt;-----  .------------.</span>
+<span class="sd">                            message_to_primitive         Decode</span>
+
+
+<span class="sd">    **Command Set**</span>
+
+<span class="sd">    A Command Set is constructed of Command Elements. Command Elements contain</span>
+<span class="sd">    the encoded values for each field of the Command Set per the semantics</span>
+<span class="sd">    specified in the DIMSE protocol (PS3.7 9.2 and 10.2). Each Command Element</span>
+<span class="sd">    is composed of an explicit Tag, Value Length and a Value field. The encoding</span>
+<span class="sd">    of the Command Set shall be *Little Endian Implicit VR*.</span>
+
+<span class="sd">    **Message Types**</span>
+
+<span class="sd">    The following message types are available: C_STORE_RQ, C_STORE_RSP,</span>
+<span class="sd">    C_ECHO_RQ, C_ECHO_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,</span>
+<span class="sd">    C_MOVE_RQ, C_MOVE_RSP, C_CANCEL_RQ, N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP,</span>
+<span class="sd">    N_SET_RQ, N_SET_RSP, N_GET_RQ, N_GET_RSP, N_ACTION_RQ, N_ACTION_RSP,</span>
+<span class="sd">    N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, N_DELETE_RSP.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    command_set : pydicom.dataset.Dataset</span>
+<span class="sd">        The message Command Set information (see PS3.7 6.3).</span>
+<span class="sd">    data_set : pydicom.dataset.Dataset</span>
+<span class="sd">        The message Data Set (see PS3.7 6.3).</span>
+<span class="sd">    encoded_command_set : BytesIO</span>
+<span class="sd">        During decoding of an incoming P-DATA primitive this stores the</span>
+<span class="sd">        encoded Command Set data from the fragments.</span>
+<span class="sd">    ID : int</span>
+<span class="sd">        The presentation context ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Required to save command set data from multiple fragments</span>
+        <span class="c1"># self.command_set is added by _build_message_classes()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoded_command_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DIMSEMessage.encode_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.encode_msg">[docs]</a>    <span class="k">def</span> <span class="nf">encode_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_id</span><span class="p">,</span> <span class="n">max_pdu_length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode the DIMSE Message as one or more P-DATA service primitives.</span>
+
+<span class="sd">        PS3.7 6.3.1</span>
+<span class="sd">        The encoding of the Command Set shall be Little Endian Implicit VR,</span>
+<span class="sd">        while the Data Set will be encoded as per the agreed presentation</span>
+<span class="sd">        context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        context_id : int</span>
+<span class="sd">            The ID of the agreed presentation context.</span>
+<span class="sd">        max_pdu_length : int</span>
+<span class="sd">            The maximum PDV length in bytes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        p_data_list : list of pynetdicom3.pdu_primitives.P_DATA</span>
+<span class="sd">            A list of one or more P-DATA service primitives.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">context_id</span>
+        <span class="n">p_data_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># The Command Set is always Little Endian Implicit VR (PS3.7 6.3.1)</span>
+        <span class="c1">#   encode(dataset, is_implicit_VR, is_little_endian)</span>
+        <span class="n">encoded_command_set</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># COMMAND SET (always)</span>
+        <span class="c1"># Split the command set into framents with maximum size max_pdu_length</span>
+        <span class="n">pdv_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bytestream_to_pdv</span><span class="p">(</span><span class="n">encoded_command_set</span><span class="p">,</span> <span class="n">max_pdu_length</span><span class="p">)</span>
+
+        <span class="c1"># First to (n - 1)th command data fragment - bits xxxxxx01</span>
+        <span class="k">for</span> <span class="n">pdv</span> <span class="ow">in</span> <span class="n">pdv_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">pdata</span> <span class="o">=</span> <span class="n">P_DATA</span><span class="p">()</span>
+            <span class="n">pdata</span><span class="o">.</span><span class="n">presentation_data_value_list</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x01</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pdv</span><span class="p">]]</span>
+
+            <span class="n">p_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span>
+
+        <span class="c1"># Last command data fragment - bits xxxxxx11</span>
+        <span class="n">pdata</span> <span class="o">=</span> <span class="n">P_DATA</span><span class="p">()</span>
+        <span class="n">pdata</span><span class="o">.</span><span class="n">presentation_data_value_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x03</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pdv_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]]</span>
+
+        <span class="n">p_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span>
+
+        <span class="c1"># DATASET (if available)</span>
+        <span class="c1">#   Check that the Data Set is not empty</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="c1"># Split the data set into fragments with maximum size max_pdu_length</span>
+            <span class="n">pdv_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bytestream_to_pdv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">,</span> <span class="n">max_pdu_length</span><span class="p">)</span>
+
+            <span class="c1"># First to (n - 1)th dataset fragment - bits xxxxxx00</span>
+            <span class="k">for</span> <span class="n">pdv</span> <span class="ow">in</span> <span class="n">pdv_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">pdata</span> <span class="o">=</span> <span class="n">P_DATA</span><span class="p">()</span>
+                <span class="n">pdata</span><span class="o">.</span><span class="n">presentation_data_value_list</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pdv</span><span class="p">]]</span>
+                <span class="n">p_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span>
+
+            <span class="c1"># Last dataset fragment - bits xxxxxx10</span>
+            <span class="n">pdata</span> <span class="o">=</span> <span class="n">P_DATA</span><span class="p">()</span>
+            <span class="n">pdata</span><span class="o">.</span><span class="n">presentation_data_value_list</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
+                                                   <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pdv_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]]</span>
+
+            <span class="n">p_data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">p_data_list</span></div>
+
+<div class="viewcode-block" id="DIMSEMessage.decode_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.decode_msg">[docs]</a>    <span class="k">def</span> <span class="nf">decode_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdata</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts P-DATA primitives into a DIMSEMessage sub-class.</span>
+
+<span class="sd">        Decodes the data from the P-DATA service primitive (which</span>
+<span class="sd">        may contain the results of one or more P-DATA-TF PDUs) into the</span>
+<span class="sd">        `command_set` and `data_set` attributes. Also sets the `ID` and</span>
+<span class="sd">        `encoded_command_set` attributes of the DIMSEMessage sub-class object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdata : pynetdicom3.pdu_primitives.P_DATA</span>
+<span class="sd">            The P-DATA service primitive to be decoded into a DIMSE message.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True when complete, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure this is a P-DATA primitive</span>
+        <span class="k">if</span> <span class="n">pdata</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">!=</span> <span class="n">P_DATA</span> <span class="ow">or</span> <span class="n">pdata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">pdv_item</span> <span class="ow">in</span> <span class="n">pdata</span><span class="o">.</span><span class="n">presentation_data_value_list</span><span class="p">:</span>
+            <span class="c1"># Presentation Context ID</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">pdv_item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># The first byte of the P-DATA is the Message Control Header</span>
+            <span class="c1">#   See PS3.8 Annex E.2</span>
+            <span class="c1"># The standard says that only the significant bits (ie the last</span>
+            <span class="c1">#   two) should be checked</span>
+            <span class="c1"># xxxxxx00 - Message Dataset information, not the last fragment</span>
+            <span class="c1"># xxxxxx01 - Command information, not the last fragment</span>
+            <span class="c1"># xxxxxx10 - Message Dataset information, the last fragment</span>
+            <span class="c1"># xxxxxx11 - Command information, the last fragment</span>
+            <span class="n">control_header_byte</span> <span class="o">=</span> <span class="n">pdv_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Python 2 compatibility</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">control_header_byte</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">control_header_byte</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">control_header_byte</span><span class="p">)</span>
+
+            <span class="c1"># LOGGER.debug(&#39;Control header byte %s&#39;, control_header_byte)</span>
+
+            <span class="c1"># COMMAND SET</span>
+            <span class="c1"># P-DATA fragment contains Command Set information</span>
+            <span class="c1">#   (control_header_byte is xxxxxx01 or xxxxxx11)</span>
+            <span class="k">if</span> <span class="n">control_header_byte</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># The command set may be spread out over a number</span>
+                <span class="c1">#   of fragments and we need to remember the elements</span>
+                <span class="c1">#   from previous fragments, hence the encoded_command_set</span>
+                <span class="c1">#   class attribute</span>
+                <span class="c1"># This adds all the command set data to the class object</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">encoded_command_set</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pdv_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:])</span>
+
+                <span class="c1"># The final command set fragment (xxxxxx11) has been added</span>
+                <span class="c1">#   so decode the command set</span>
+                <span class="k">if</span> <span class="n">control_header_byte</span> <span class="o">&amp;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="c1"># Command Set is always encoded Implicit VR Little Endian</span>
+                    <span class="c1">#   decode(dataset, is_implicit_VR, is_little_endian)</span>
+                    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoded_command_set</span><span class="p">,</span>
+                                              <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+                    <span class="c1"># Determine which DIMSE Message class to use</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> \
+                        <span class="n">_MESSAGE_CLASS_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandField</span><span class="p">]</span>
+
+                    <span class="c1"># Determine if a Data Set is present by checking for element</span>
+                    <span class="c1">#   (0000, 0800) CommandDataSetType US 1. If the value is</span>
+                    <span class="c1">#   0x0101 no dataset present, otherwise one is.</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">==</span> <span class="mh">0x0101</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="c1"># DATA SET</span>
+            <span class="c1"># P-DATA fragment contains Data Set information</span>
+            <span class="c1">#   (control_header_byte is xxxxxx00 or xxxxxx10)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Adds all the dataset data to the class object - still needs to</span>
+                <span class="c1">#   be decoded, however</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pdv_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:])</span>
+
+                <span class="c1"># The final data set fragment (xxxxxx10) has been added</span>
+                <span class="k">if</span> <span class="n">control_header_byte</span> <span class="o">&amp;</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_command_group_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the Command Group Length element value.</span>
+
+<span class="sd">        Once the self.command_set Dataset has been built and filled with values,</span>
+<span class="sd">        this should be called to set the CommandGroupLength element value</span>
+<span class="sd">        correctly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Remove CommandGroupLength to stop it messing up the length calculation</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandGroupLength</span>
+
+        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">:</span>
+            <span class="c1"># The Command Set is always Implicit VR Little Endian</span>
+            <span class="n">length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">encode_element</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandGroupLength</span> <span class="o">=</span> <span class="n">length</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_bytestream_to_pdv</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">fragment_length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fragment `bytestream` into chunks, each `max_size` long.</span>
+
+<span class="sd">        Fragments bytestream data for use in PDVs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bytestream : bytes or io.BytesIO</span>
+<span class="sd">            The data to be fragmented</span>
+<span class="sd">        fragment_length : int</span>
+<span class="sd">            The maximum size of each fragment</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fragments : list of bytes</span>
+<span class="sd">            The fragmented `bytestream`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="p">(</span><span class="n">BytesIO</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+
+        <span class="k">if</span> <span class="n">fragment_length</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;fragment_length must be at least 1.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Convert bytestream to bytes</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+        <span class="c1"># Note: Because the PDU includes an extra 6 bytes of data at the start</span>
+        <span class="c1">#       we need to decrease `fragment_length` by 6 bytes.</span>
+        <span class="n">fragment_length</span> <span class="o">-=</span> <span class="mi">6</span>
+
+        <span class="n">fragments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytestream</span><span class="p">):</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">fragment_length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="c1"># Add the fragment to the output</span>
+            <span class="n">fragments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bytestream</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">start</span> <span class="o">+</span> <span class="n">length</span><span class="p">])</span>
+            <span class="n">start</span> <span class="o">+=</span> <span class="n">length</span>
+        <span class="k">return</span> <span class="n">fragments</span>
+
+<div class="viewcode-block" id="DIMSEMessage.primitive_to_message"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.primitive_to_message">[docs]</a>    <span class="k">def</span> <span class="nf">primitive_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert a DIMSE `primitive` to the current DIMSEMessage object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        primitive</span>
+<span class="sd">            The pynetdicom3.dimse_primitives DIMSE service primitive to convert</span>
+<span class="sd">            to the current DIMSEMessage object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=too-many-branches,too-many-statements</span>
+        <span class="c1"># Command Set</span>
+        <span class="c1"># Due to the del self.command_set[elem.tag] line below this may</span>
+        <span class="c1">#   end up permanently removing the element from the DIMSE message class</span>
+        <span class="c1">#   so we refresh the command set elements</span>
+        <span class="n">cls_type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">command_set_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">cls_type_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t convert primitive to message for unknown &quot;</span>
+                             <span class="s2">&quot;DIMSE message type &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cls_type_name</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">[</span><span class="n">cls_type_name</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">command_set_tags</span><span class="p">:</span>
+                <span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+                <span class="n">vr</span> <span class="o">=</span> <span class="n">dcm_dict</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Convert the message command set to the primitive attributes</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">:</span>
+            <span class="c1"># Use the short version of the element names as these should</span>
+            <span class="c1">#   match the parameter names in the primitive</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">):</span>
+                <span class="c1"># If value hasn&#39;t been set for a parameter then delete</span>
+                <span class="c1">#   the corresponding element</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">attr</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span>  <span class="c1"># Careful!</span>
+
+        <span class="c1"># Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so invert</span>
+        <span class="c1">#   it for convenience</span>
+        <span class="n">rev_type</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_MESSAGE_TYPES</span><span class="p">:</span>
+            <span class="n">rev_type</span><span class="p">[</span><span class="n">_MESSAGE_TYPES</span><span class="p">[</span><span class="n">value</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandField</span> <span class="o">=</span> <span class="n">rev_type</span><span class="p">[</span><span class="n">cls_type_name</span><span class="p">]</span>
+
+        <span class="c1"># Data Set</span>
+        <span class="c1"># Default to no Data Set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0101</span>
+
+        <span class="c1"># TODO: This can probably be refactored to be cleaner</span>
+        <span class="c1">#   dict = {[&#39;C_STORE_RQ&#39;] : &#39;DataSet&#39;,</span>
+        <span class="c1">#           [&#39;C_FIND_RQ&#39;, &#39;C_GET_RQ&#39;] : &#39;Identifier&#39;}</span>
+        <span class="c1">#   for cls_names in dict.keys():</span>
+        <span class="c1">#       if cls_type_name in cls_names and hasattr(primitive, dict[cls_type_name]):</span>
+        <span class="c1">#           self.data_set = getattr(primitive.dict[cls_type_name])</span>
+        <span class="c1">#           self.command_set.CommandDataSetType = 0x0001</span>
+        <span class="n">cls_type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;C_STORE_RQ&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">DataSet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]</span> <span class="ow">and</span> \
+                <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">EventInformation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RSP&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">EventReply</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;N_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;N_SET_RSP&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;N_CREATE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;N_CREATE_RSP&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">AttributeList</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_SET_RQ&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">ModificationList</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RQ&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">ActionInformation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RSP&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">ActionReply</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+
+        <span class="c1"># The following message types don&#39;t have a dataset</span>
+        <span class="c1"># &#39;C_ECHO_RQ&#39;, &#39;C_ECHO_RSP&#39;, &#39;N_DELETE_RQ&#39;, &#39;C_STORE_RSP&#39;,</span>
+        <span class="c1"># &#39;C_CANCEL_RQ&#39;, &#39;N_DELETE_RSP&#39;, &#39;C_FIND_RSP&#39;</span>
+
+        <span class="c1"># Set the Command Set length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_command_group_length</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DIMSEMessage.message_to_primitive"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.message_to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">message_to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the DIMSEMessage class to a DIMSE primitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        primitive</span>
+<span class="sd">            One of the pynetdicom3.dimse_primitives primitives generated from</span>
+<span class="sd">            the current DIMSEMessage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=too-many-branches</span>
+        <span class="n">cls_type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="s1">&#39;C_ECHO&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_ECHO</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;C_STORE&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_STORE</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;C_FIND&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_FIND</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;C_GET&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_GET</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;C_MOVE&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_MOVE</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;C_CANCEL&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_CANCEL</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;N_EVENT&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_EVENT_REPORT</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;N_GET&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_GET</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;N_SET&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_SET</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;N_ACTION&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_ACTION</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;N_CREATE&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_CREATE</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s1">&#39;N_DELETE&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_DELETE</span><span class="p">()</span>
+        <span class="c1"># elif &#39;C_CANCEL&#39; in cls_type_name:</span>
+        <span class="c1">#    primitive = C_CANCEL()</span>
+
+        <span class="c1"># Command Set</span>
+        <span class="c1"># For each parameter in the primitive, set the appropriate value</span>
+        <span class="c1">#   from the Message&#39;s Command Set elements</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">))</span>
+
+        <span class="c1"># Datasets</span>
+        <span class="c1"># Set the primitive&#39;s DataSet/Identifier/etc attribute</span>
+        <span class="k">if</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;C_STORE_RQ&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;EventInformation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RSP&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;EventReply&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;N_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;N_SET_RSP&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;N_CREATE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;N_CREATE_RSP&#39;</span><span class="p">]:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_SET_RQ&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ModificationList&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RQ&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ActionInformation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RSP&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ActionReply&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">primitive</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_build_message_classes</span><span class="p">(</span><span class="n">message_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new subclass instance of DIMSEMessage for the given DIMSE</span>
+<span class="sd">    `message_name`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    message_name : str</span>
+<span class="sd">        The name/type of message class to construct, one of the following:</span>
+<span class="sd">        * C-ECHO-RQ</span>
+<span class="sd">        * C-ECHO-RSP</span>
+<span class="sd">        * C-STORE-RQ</span>
+<span class="sd">        * C-STORE-RSP</span>
+<span class="sd">        * C-FIND-RQ</span>
+<span class="sd">        * C-FIND-RSP</span>
+<span class="sd">        * C-GET-RQ</span>
+<span class="sd">        * C-GET-RSP</span>
+<span class="sd">        * C-MOVE-RQ</span>
+<span class="sd">        * C-MOVE-RSP</span>
+<span class="sd">        * C-CANCEL-RQ</span>
+<span class="sd">        * N-EVENT-REPORT-RQ</span>
+<span class="sd">        * N-EVENT-REPORT-RSP</span>
+<span class="sd">        * N-GET-RQ</span>
+<span class="sd">        * N-GET-RSP</span>
+<span class="sd">        * N-SET-RQ</span>
+<span class="sd">        * N-SET-RSP</span>
+<span class="sd">        * N-ACTION-RQ</span>
+<span class="sd">        * N-ACTION-RSP</span>
+<span class="sd">        * N-CREATE-RQ</span>
+<span class="sd">        * N-CREATE-RSP</span>
+<span class="sd">        * N-DELETE-RQ</span>
+<span class="sd">        * N-DELETE-RSP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">DIMSEMessage</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="c1"># Create new subclass of DIMSE Message using the supplied name</span>
+    <span class="c1">#   but replace hyphens with underscores</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">message_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">),</span>
+               <span class="p">(</span><span class="n">DIMSEMessage</span><span class="p">,</span> <span class="p">),</span>
+               <span class="p">{</span><span class="s2">&quot;__init__&quot;</span><span class="p">:</span> <span class="fm">__init__</span><span class="p">})</span>
+
+    <span class="c1"># Create a new Dataset object for the command_set attributes</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">elem_tag</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">[</span><span class="n">message_name</span><span class="p">]:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="n">elem_tag</span><span class="p">)</span>
+        <span class="n">vr</span> <span class="o">=</span> <span class="n">dcm_dict</span><span class="p">[</span><span class="n">elem_tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># If the required command set elements are expanded this will need</span>
+        <span class="c1">#   to be checked to ensure it functions OK</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add the Command Set dataset to the class</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="n">command_set</span> <span class="o">=</span> <span class="n">ds</span>
+
+    <span class="c1"># Add the class to the module</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
+
+    <span class="k">return</span> <span class="bp">cls</span>
+
+
+<span class="k">for</span> <span class="n">__msg_type</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">:</span>
+    <span class="n">_build_message_classes</span><span class="p">(</span><span class="n">__msg_type</span><span class="p">)</span>
+
+<span class="c1"># Values from PS3.5</span>
+<span class="n">_MESSAGE_CLASS_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x0001</span><span class="p">:</span> <span class="n">C_STORE_RQ</span><span class="p">,</span> <span class="mh">0x8001</span><span class="p">:</span> <span class="n">C_STORE_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0020</span><span class="p">:</span> <span class="n">C_FIND_RQ</span><span class="p">,</span> <span class="mh">0x8020</span><span class="p">:</span> <span class="n">C_FIND_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0FFF</span><span class="p">:</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
+                        <span class="mh">0x0010</span><span class="p">:</span> <span class="n">C_GET_RQ</span><span class="p">,</span> <span class="mh">0x8010</span><span class="p">:</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0021</span><span class="p">:</span> <span class="n">C_MOVE_RQ</span><span class="p">,</span> <span class="mh">0x8021</span><span class="p">:</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0030</span><span class="p">:</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span> <span class="mh">0x8030</span><span class="p">:</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0100</span><span class="p">:</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span> <span class="mh">0x8100</span><span class="p">:</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0110</span><span class="p">:</span> <span class="n">N_GET_RQ</span><span class="p">,</span> <span class="mh">0x8110</span><span class="p">:</span> <span class="n">N_GET_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0120</span><span class="p">:</span> <span class="n">N_SET_RQ</span><span class="p">,</span> <span class="mh">0x8120</span><span class="p">:</span> <span class="n">N_SET_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0130</span><span class="p">:</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span> <span class="mh">0x8130</span><span class="p">:</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0140</span><span class="p">:</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span> <span class="mh">0x8140</span><span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
+                        <span class="mh">0x0150</span><span class="p">:</span> <span class="n">N_DELETE_RQ</span><span class="p">,</span> <span class="mh">0x8150</span><span class="p">:</span> <span class="n">N_DELETE_RSP</span><span class="p">}</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.9.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>
