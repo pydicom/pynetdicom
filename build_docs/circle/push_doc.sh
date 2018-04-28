@@ -24,7 +24,7 @@ echo $dir > .git/info/sparse-checkout
 git checkout gh-pages
 git reset --hard origin/gh-pages
 git rm -rf $dir/ && rm -rf $dir/
-cp -R $HOME/pydicom/doc/_build/html $dir
+cp -R $HOME/pynetdicom3/doc/_build/html $dir
 git config --global user.email $EMAIL
 git config --global user.name $USERNAME
 git config --global push.default matching
