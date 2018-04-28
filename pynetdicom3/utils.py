@@ -6,6 +6,7 @@ import logging
 import unicodedata
 
 from pydicom.uid import UID
+from pynetdicom3.presentation import PresentationContext
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
 
@@ -94,6 +95,7 @@ def validate_ae_title(ae_title):
         raise TypeError("Invalid value for an AE title; must be a "
                         "non-empty string or bytes.")
 
+
 def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
                  max_size=512, suffix=''):
     """Turn the bytestring `lst` into a list of nicely formatted str.
@@ -152,7 +154,7 @@ def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
 
     return lines
 
-
+'''
 class PresentationContext(object):
     """
     Provides a nice interface for the A-ASSOCIATE Presentation Context item.
@@ -385,7 +387,7 @@ class PresentationContext(object):
             status = 'Unknown'
 
         return status
-
+'''
 
 class PresentationContextManager(object):
     """
