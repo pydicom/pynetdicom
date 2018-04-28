@@ -109,12 +109,15 @@ conda update --yes --quiet conda
 conda create -n $CONDA_ENV_NAME --yes --quiet python=3
 source activate $CONDA_ENV_NAME
 
-conda install --yes --quiet pip setuptools pydicom numpy sphinx \
+conda install --yes --quiet pip setuptools numpy sphinx \
       sphinx_rtd_theme numpydoc
 conda install --yes --quiet -c conda-forge gdcm
 pip install sphinx-gallery
 
-# Build and install pydicom in dev mode
+# Add pydicom
+pip install pydicom
+
+# Build and install pynetdicom in dev mode
 pip install -e .
 
 # The pipefail is requested to propagate exit code
