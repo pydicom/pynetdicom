@@ -71,12 +71,14 @@ the peer once an association has been established. With the exception of
 implementing the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo()``
-- C-STORE: ``AE.on_c_store(dataset)``
-- C-FIND: ``AE.on_c_find(dataset)`` and ``AE.on_c_find_cancel()``
-- C-GET: ``AE.on_c_get(dataset)`` and ``AE.on_c_get_cancel()``
-- C-MOVE: ``AE.on_c_move(dataset, move_aet)`` and ``AE.on_c_move_cancel()``
+- C-STORE: ``AE.on_c_store(dataset, context)``
+- C-FIND: ``AE.on_c_find(dataset, context)`` and ``AE.on_c_find_cancel()``
+- C-GET: ``AE.on_c_get(dataset, context)`` and ``AE.on_c_get_cancel()``
+- C-MOVE: ``AE.on_c_move(dataset, move_aet, context)`` and
+  ``AE.on_c_move_cancel()``
 
-Where *dataset* is a pydicom Dataset object. See the SCP Examples and the AE
+Where *dataset* is a pydicom Dataset object and *context* is the presentation
+context used to transfer *dataset*. See the SCP Examples and the AE
 documentation for more information.
 
 Installation

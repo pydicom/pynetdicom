@@ -281,7 +281,8 @@ class TestVerificationServiceClass(unittest.TestCase):
     def test_scp_callback_exception(self):
         """Test on_c_echo raising an exception"""
         self.scp = DummyVerificationSCP()
-        def on_c_echo(): raise ValueError
+        def on_c_echo(context): raise ValueError
+
         self.scp.ae.on_c_echo = on_c_echo
         self.scp.start()
 
@@ -293,6 +294,22 @@ class TestVerificationServiceClass(unittest.TestCase):
         assoc.release()
         self.scp.stop()
 
+    def test_scp_callback_context(self):
+        """Test on_c_echo context parameter."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_echo()
+        assert rsp.Status == 0x0000
+        assoc.release()
+
+        assert self.scp.context.AbstractSyntax == '1.2.840.10008.1.1'
+        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
+        self.scp.stop()
 
 class TestStorageServiceClass(unittest.TestCase):
     """Test the StorageServiceClass"""
@@ -429,6 +446,23 @@ class TestStorageServiceClass(unittest.TestCase):
         rsp = assoc.send_c_store(DATASET)
         self.assertEqual(rsp.Status, 0xC211)
         assoc.release()
+        self.scp.stop()
+
+    def test_scp_callback_context(self):
+        """Test on_c_store context parameter."""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0000
+        assoc.release()
+
+        assert self.scp.context.AbstractSyntax == CTImageStorage.UID
+        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
         self.scp.stop()
 
 
@@ -621,6 +655,28 @@ class TestQRFindServiceClass(unittest.TestCase):
         self.assertRaises(StopIteration, next, result)
 
         assoc.release()
+        self.scp.stop()
+
+    def test_callback_context(self):
+        """Test on_c_find context parameter."""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.identifers = [self.query, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+
+        assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelFind.UID
+        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
         self.scp.stop()
 
     def test_pending_cancel(self):
@@ -1083,6 +1139,41 @@ class TestQRGetServiceClass(unittest.TestCase):
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
+        self.scp.stop()
+
+    def test_get_callback_context(self):
+        """Test on_c_get context parameter."""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+
+        def on_c_store(ds, context):
+            assert context.AbstractSyntax == CTImageStorage.UID
+            assert context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+            return 0x0000
+
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelGet.UID
+        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
         self.scp.stop()
 
     def test_store_callback_exception(self):
@@ -1921,6 +2012,34 @@ class TestQRMoveServiceClass(unittest.TestCase):
         self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
         self.assertRaises(StopIteration, next, result)
         assoc.release()
+        self.scp.stop()
+
+    def test_move_callback_context(self):
+        """Test on_c_move context parameter."""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112)
+        self.assertTrue(assoc.is_established)
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelMove.UID
+        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
         self.scp.stop()
 
     def test_scp_basic(self):
