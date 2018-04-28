@@ -1,6 +1,6 @@
 checkout:
   post:
-    - ./docs/build/circle/checkout_merge_commit.sh
+    - ./build_docs/circle/checkout_merge_commit.sh
 
 machine:
   environment:
@@ -29,7 +29,7 @@ dependencies:
   # Check whether the doc build is required, install build dependencies and
   # run sphinx to build the doc.
   override:
-    - ./docs/build/circle/build_doc.sh:
+    - ./build_docs/circle/build_doc.sh:
         timeout: 3600 # seconds
 
 test:
@@ -41,7 +41,7 @@ deployment:
  push:
    branch: /^master$|^[0-9]+\.[0-9]+\.X$/
    commands:
-     - bash docs/build/circle/push_doc.sh
+     - bash build_docs/circle/push_doc.sh
 general:
   # Open the doc to the API
   artifacts:
