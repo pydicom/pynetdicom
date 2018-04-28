@@ -18,6 +18,7 @@ import sys
 import os
 
 import sphinx_rtd_theme
+import pydicom
 import pynetdicom3
 
 # If extensions (or modules to document with autodoc) are in another directory,
