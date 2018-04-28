@@ -118,7 +118,7 @@ pip install sphinx-gallery
 pip install -e .
 
 # The pipefail is requested to propagate exit code
-set -o pipefail && cd doc && make $MAKE_TARGET 2>&1 | tee ~/log.txt
+set -o pipefail && cd docs && make $MAKE_TARGET 2>&1 | tee ~/log.txt
 
 cd -
 set +o pipefail
