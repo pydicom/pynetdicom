@@ -47,7 +47,8 @@ from struct import pack, unpack
 
 from pydicom.uid import UID
 
-from pynetdicom3.utils import pretty_bytes, PresentationContext, validate_ae_title
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import pretty_bytes, validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3.pdu')

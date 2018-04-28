@@ -336,7 +336,7 @@ class ACSEServiceProvider(object):
 
             If source 0x00 (DUL user):
                 0x00 - reason field not significant
-                
+
             If source 0x02 (DUL provider):
                 0x00 - reason not specified
                 0x01 - unrecognised PDU
