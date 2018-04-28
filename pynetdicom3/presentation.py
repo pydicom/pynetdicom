@@ -148,13 +148,14 @@ class PresentationContext(object):
                                                     transfer_syntax != '':
 
             if not transfer_syntax.is_valid:
-                raise ValueError('Presentation Context attempted to add a '
-                                 'invalid UID')
+                raise ValueError("Presentation Context attempted to add an "
+                                 "invalid UID '{}'".format(transfer_syntax))
             # Issue #62: private transfer syntaxes may be used
             if not transfer_syntax.is_private and \
                                 not transfer_syntax.is_transfer_syntax:
-                raise ValueError('Presentation Context attempted to add a '
-                                 'non-transfer syntax UID')
+                raise ValueError("Presentation Context attempted to add a "
+                                 "non-transfer syntax UID '{}'"
+                                 .format(transfer_syntax))
             self.TransferSyntax.append(transfer_syntax)
 
     def __eq__(self, other):
