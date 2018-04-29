@@ -325,15 +325,27 @@
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span>
 
 <div class="viewcode-block" id="VerificationServiceClass.SCP"><a class="viewcode-back" href="../../api.html#pynetdicom3.sop_class.VerificationServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The SCP implementation for the Verification Service Class.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The SCP implementation for the Verification Service Class.</span>
 
 <span class="sd">        Will always return 0x0000 (Success) unless the user returns a different</span>
-<span class="sd">        (valid) status value from the AE.on_c_echo callback.</span>
+<span class="sd">        (valid) status value from the `AE.on_c_echo callback`.</span>
 
-<span class="sd">        C-ECHO Request</span>
-<span class="sd">        --------------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : pynetdicom3.dimse_primitives.C_ECHO</span>
+<span class="sd">            The C-ECHO request primitive sent by the peer.</span>
 
-<span class="sd">        **Parameters**</span>
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        applicationentity.ApplicationEntity.on_c_echo</span>
+<span class="sd">        association.Association.send_c_echo</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **C-ECHO Request**</span>
+
+<span class="sd">        *Parameters*</span>
 
 <span class="sd">        (M) Message ID</span>
 <span class="sd">        (M) Affected SOP Class UID</span>
@@ -343,50 +355,32 @@
 
 <span class="sd">        **Parameters**</span>
 
+<span class="sd">        *Parameters*</span>
+
 <span class="sd">        (U) Message ID</span>
 <span class="sd">        (M) Message ID Being Responded To</span>
 <span class="sd">        (U) Affected SOP Class UID</span>
 <span class="sd">        (M) Status</span>
 
-<span class="sd">        Status</span>
-<span class="sd">        ~~~~~~</span>
+<span class="sd">        *Status*</span>
 
 <span class="sd">        The DICOM Standard [2]_ (Table 9.3-13) indicates that the Status value</span>
 <span class="sd">        of a C-ECHO response &quot;shall have a value of Success&quot;. However Section</span>
 <span class="sd">        9.1.5.1.4 indicates it may have any of the following values:</span>
 
-<span class="sd">        *Success*</span>
+<span class="sd">        Success</span>
+<span class="sd">          - 0x000 - Success</span>
 
-<span class="sd">        - 0x000 - Success</span>
-
-<span class="sd">        *Failure*</span>
-
-<span class="sd">        - 0x0122 - Refused: SOP Class Not Supported</span>
-<span class="sd">        - 0x0210 - Refused: Duplicate Invocation</span>
-<span class="sd">        - 0x0211 - Refused: Unrecognised Operation</span>
-<span class="sd">        - 0x0212 - Refused: Mistyped Argument</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-
-<span class="sd">        req : pynetdicom3.dimse_primitives.C_ECHO</span>
-<span class="sd">            The C-ECHO request primitive sent by the peer.</span>
-
-<span class="sd">        See Also</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        applicationentity.ApplicationEntity.on_c_echo</span>
-<span class="sd">        association.Association.send_c_echo</span>
+<span class="sd">        Failure</span>
+<span class="sd">          - 0x0122 - Refused: SOP Class Not Supported</span>
+<span class="sd">          - 0x0210 - Refused: Duplicate Invocation</span>
+<span class="sd">          - 0x0211 - Refused: Unrecognised Operation</span>
+<span class="sd">          - 0x0212 - Refused: Mistyped Argument</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-
-<span class="sd">        .. [1] DICOM Standard Part 4, `Annex A&lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`__</span>
-
-<span class="sd">        .. [2] DICOM Standard Part 7,</span>
-<span class="sd">        `Sections 9.1.5&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`__,</span>
-<span class="sd">        `9.3.5&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`__ and</span>
-<span class="sd">        `Annex C&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">        .. [1] DICOM Standard Part 4, `Annex A&lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`_</span>
+<span class="sd">        .. [2] DICOM Standard Part 7, `Sections 9.1.5&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`_, `9.3.5&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_ and `Annex C&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-ECHO response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_ECHO</span><span class="p">()</span>
