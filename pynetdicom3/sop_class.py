@@ -206,13 +206,13 @@ class VerificationServiceClass(ServiceClass):
         9.1.5.1.4 indicates it may have any of the following values:
 
         Success
-          | ``0x000`` - Success
+          | ``0x0000`` Success
 
         Failure
-          | ``0x0122`` - Refused: SOP Class Not Supported
-          | ``0x0210`` - Refused: Duplicate Invocation
-          | ``0x0211`` - Refused: Unrecognised Operation
-          | ``0x0212`` - Refused: Mistyped Argument
+          | ``0x0122`` Refused: SOP Class Not Supported
+          | ``0x0210`` Refused: Duplicate Invocation
+          | ``0x0211`` Refused: Unrecognised Operation
+          | ``0x0212`` Refused: Mistyped Argument
 
         References
         ----------
@@ -309,29 +309,29 @@ class StorageServiceClass(ServiceClass):
         *Status*
 
         Success
-          | ``0x0000`` - Success
+          | ``0x0000`` Success
 
         Warning
-          | ``0xB000`` - Warning: Coercion of Data Elements
-          | ``0xB006`` - Warning: Elements Discarded
-          | ``0xB007`` - Warning: Data Set Does Not Match SOP Class
+          | ``0xB000`` Warning: Coercion of Data Elements
+          | ``0xB006`` Warning: Elements Discarded
+          | ``0xB007`` Warning: Data Set Does Not Match SOP Class
 
         Failure
-          | ``0x0117`` - Refused: Invalid SOP Instance
-          | ``0x0122`` - Refused: SOP Class Not Supported
-          | ``0x0124`` - Refused: Not Authorised
-          | ``0x0210`` - Refused: Duplicate Invocation
-          | ``0x0211`` - Refused: Unrecognised Operation
-          | ``0x0212`` - Refused: Mistyped Argument
-          | ``0xA700`` to ``0xA7FF`` - Refused: Out of Resources
-          | ``0xA900`` to ``0xA9FF`` - Error: Data Set Does Not Match SOP Class
-          | ``0xC000`` to ``0xCFFF`` - Error: Cannot Understand
+          | ``0x0117`` Refused: Invalid SOP Instance
+          | ``0x0122`` Refused: SOP Class Not Supported
+          | ``0x0124`` Refused: Not Authorised
+          | ``0x0210`` Refused: Duplicate Invocation
+          | ``0x0211`` Refused: Unrecognised Operation
+          | ``0x0212`` Refused: Mistyped Argument
+          | ``0xA700`` to ``0xA7FF`` Refused: Out of Resources
+          | ``0xA900`` to ``0xA9FF`` Error: Data Set Does Not Match SOP Class
+          | ``0xC000`` to ``0xCFFF`` Error: Cannot Understand
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_`.
+        .. [1] DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
         .. [2] DICOM Standard, Part 7, Sections
-           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_`,
+           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
            `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
@@ -453,24 +453,24 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         *Status*
 
         Success
-          | ``0x0000`` - Success
+          | ``0x0000`` Success
 
         Pending
-          | ``0xFF00`` - Matches are continuing, current match supplied
-          | ``0xFF01`` - Matches are continuing, warning
+          | ``0xFF00`` Matches are continuing, current match supplied
+          | ``0xFF01`` Matches are continuing, warning
 
         Cancel
-          | ``0xFE00`` - Cancel
+          | ``0xFE00`` Cancel
 
         Failure
-          | ``0x0122`` - SOP class not supported
-          | ``0xA700`` - Out of resources
-          | ``0xA900`` - Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` - Unable to process
+          | ``0x0122`` SOP class not supported
+          | ``0xA700`` Out of resources
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, Annex C.
+        .. [1] DICOM Standard, Part 4, 'Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>'_.
         .. [2] DICOM Standard, Part 7, Sections
            `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
            `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
@@ -661,28 +661,28 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         *Status*
 
         Success
-          | ``0x0000`` - Sub-operations complete: no failures
+          | ``0x0000`` Sub-operations complete: no failures
 
         Pending
-          | ``0xFF00`` - Sub-operations are continuing
+          | ``0xFF00`` Sub-operations are continuing
 
         Cancel
-          | ``0xFE00`` - Sub-operations terminated due to Cancel indication
+          | ``0xFE00`` Sub-operations terminated due to Cancel indication
 
         Failure
-          | ``0x0122`` - SOP class not supported
-          | ``0x0124`` - Not authorised
-          | ``0x0210`` - Duplicate invocation
-          | ``0x0211`` - Unrecognised operation
-          | ``0x0212`` - Mistyped argument
-          | ``0xA701`` - Out of resources: unable to calculate number of matches
-          | ``0xA702`` - Out of resources, unable to perform sub-operations
-          | ``0xA801`` - Move destination unknown
-          | ``0xA900`` - Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` - Unable to process
+          | ``0x0122`` SOP class not supported
+          | ``0x0124`` Not authorised
+          | ``0x0210`` Duplicate invocation
+          | ``0x0211`` Unrecognised operation
+          | ``0x0212`` Mistyped argument
+          | ``0xA701`` Out of resources: unable to calculate number of matches
+          | ``0xA702`` Out of resources, unable to perform sub-operations
+          | ``0xA801`` Move destination unknown
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Warning
-          | ``0xB000`` - Sub-operations complete: one or more failures
+          | ``0xB000`` Sub-operations complete: one or more failures
 
         *Number of X Sub-operations*
 
@@ -709,8 +709,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
-        .. [2] DICOM Standard Part 7, Sections
+        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
+        .. [2] DICOM Standard, Part 7, Sections
            `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
            `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
@@ -1075,27 +1075,27 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         *Status*
 
         Success
-          | ``0x0000`` - Sub-operations complete: no failures or warnings
+          | ``0x0000`` Sub-operations complete: no failures or warnings
 
         Pending
-          | ``0xFF00`` - Sub-operations are continuing
+          | ``0xFF00`` Sub-operations are continuing
 
         Cancel
-          | ``0xFE00`` - Sub-operations terminated due to Cancel indication
+          | ``0xFE00`` Sub-operations terminated due to Cancel indication
 
         Failure
-          | ``0x0122`` - SOP class not supported
-          | ``0x0124`` - Not authorised
-          | ``0x0210`` - Duplicate invocation
-          | ``0x0211`` - Unrecognised operation
-          | ``0x0212`` - Mistyped argument
-          | ``0xA701`` - Out of resources: unable to calculate number of matches
-          | ``0xA702`` - Out of resources: unable to perform sub-operations
-          | ``0xA900`` - Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` - Unable to process
+          | ``0x0122`` SOP class not supported
+          | ``0x0124`` Not authorised
+          | ``0x0210`` Duplicate invocation
+          | ``0x0211`` Unrecognised operation
+          | ``0x0212`` Mistyped argument
+          | ``0xA701`` Out of resources: unable to calculate number of matches
+          | ``0xA702`` Out of resources: unable to perform sub-operations
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Warning
-          | ``0xB000`` - Sub-operations complete: one or more failures or warnings
+          | ``0xB000`` Sub-operations complete: one or more failures or warnings
 
         *Number of X Sub-operations*
 
@@ -1122,9 +1122,9 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
-        .. [2] DICOM Standard Part 7, Sections
-           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`-,
+        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
+        .. [2] DICOM Standard, Part 7, Sections
+           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
            `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
