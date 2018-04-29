@@ -17,7 +17,7 @@ Association
 
 SOP Class
 +++++++++
-.. autoclass:: pynetdicom3.sop_class
+.. automodule:: pynetdicom3.sop_class
     :members:
     :show-inheritance:
 
