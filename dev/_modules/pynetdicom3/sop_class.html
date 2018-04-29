@@ -330,17 +330,19 @@
 <span class="sd">        Will always return 0x0000 (Success) unless the user returns a different</span>
 <span class="sd">        (valid) status value from the AE.on_c_echo callback.</span>
 
-<span class="sd">        **C-ECHO Request**</span>
-<span class="sd">       </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ~~~~~~~~~~</span>
+<span class="sd">        C-ECHO Request</span>
+<span class="sd">        --------------</span>
+
+<span class="sd">        **Parameters**</span>
+
 <span class="sd">        (M) Message ID</span>
 <span class="sd">        (M) Affected SOP Class UID</span>
 
-<span class="sd">        **C-ECHO Response**</span>
+<span class="sd">        C-ECHO Response</span>
+<span class="sd">        ---------------</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ~~~~~~~~~~</span>
+<span class="sd">        **Parameters**</span>
+
 <span class="sd">        (U) Message ID</span>
 <span class="sd">        (M) Message ID Being Responded To</span>
 <span class="sd">        (U) Affected SOP Class UID</span>
@@ -348,15 +350,16 @@
 
 <span class="sd">        Status</span>
 <span class="sd">        ~~~~~~</span>
-<span class="sd">        The DICOM Standard Part 7, Table 9.3-13 indicates that the Status value</span>
+
+<span class="sd">        The DICOM Standard [2]_ (Table 9.3-13) indicates that the Status value</span>
 <span class="sd">        of a C-ECHO response &quot;shall have a value of Success&quot;. However Section</span>
 <span class="sd">        9.1.5.1.4 indicates it may have any of the following values:</span>
 
-<span class="sd">        Success</span>
+<span class="sd">        *Success*</span>
 
 <span class="sd">        - 0x000 - Success</span>
 
-<span class="sd">        Failure</span>
+<span class="sd">        *Failure*</span>
 
 <span class="sd">        - 0x0122 - Refused: SOP Class Not Supported</span>
 <span class="sd">        - 0x0210 - Refused: Duplicate Invocation</span>
@@ -365,18 +368,25 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+
 <span class="sd">        req : pynetdicom3.dimse_primitives.C_ECHO</span>
 <span class="sd">            The C-ECHO request primitive sent by the peer.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
+
 <span class="sd">        applicationentity.ApplicationEntity.on_c_echo</span>
 <span class="sd">        association.Association.send_c_echo</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annex A</span>
-<span class="sd">        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C</span>
+
+<span class="sd">        .. [1] DICOM Standard Part 4, `Annex A&lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`__</span>
+
+<span class="sd">        .. [2] DICOM Standard Part 7,</span>
+<span class="sd">        `Sections 9.1.5&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`__,</span>
+<span class="sd">        `9.3.5&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`__ and</span>
+<span class="sd">        `Annex C&lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-ECHO response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_ECHO</span><span class="p">()</span>
@@ -427,10 +437,11 @@
 <div class="viewcode-block" id="StorageServiceClass.SCP"><a class="viewcode-back" href="../../api.html#pynetdicom3.sop_class.StorageServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Storage Service Class.</span>
 
-<span class="sd">        **C-STORE Request**</span>
+<span class="sd">        C-STORE Request</span>
+<span class="sd">        ---------------</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ~~~~~~~~~~</span>
+<span class="sd">        **Parameters**</span>
+
 <span class="sd">        (M) Message ID</span>
 <span class="sd">        (M) Affected SOP Class UID</span>
 <span class="sd">        (M) Affected SOP Instance UID</span>
@@ -439,10 +450,11 @@
 <span class="sd">        (U) Move Originator Message ID</span>
 <span class="sd">        (M) Data Set</span>
 
-<span class="sd">        **C-STORE Response**</span>
+<span class="sd">        C-STORE Response</span>
+<span class="sd">        ----------------</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ~~~~~~~~~~</span>
+<span class="sd">        **Parameters**</span>
+
 <span class="sd">        (U) Message ID</span>
 <span class="sd">        (M) Message ID Being Responded To</span>
 <span class="sd">        (U) Affected SOP Class UID</span>
@@ -451,17 +463,18 @@
 
 <span class="sd">        Status</span>
 <span class="sd">        ~~~~~~</span>
-<span class="sd">        Success</span>
+
+<span class="sd">        *Success*</span>
 
 <span class="sd">        - 0x0000 - Success</span>
 
-<span class="sd">        Warning</span>
+<span class="sd">        *Warning*</span>
 
 <span class="sd">        - 0xB000 - Warning: Coercion of Data Elements</span>
 <span class="sd">        - 0xB006 - Warning: Elements Discarded</span>
 <span class="sd">        - 0xB007 - Warning: Data Set Does Not Match SOP Class</span>
 
-<span class="sd">        Failure</span>
+<span class="sd">        *Failure*</span>
 
 <span class="sd">        - 0x0117 - Refused: Invalid SOP Instance</span>
 <span class="sd">        - 0x0122 - Refused: SOP Class Not Supported</span>
@@ -531,7 +544,8 @@
 <div class="viewcode-block" id="QueryRetrieveFindServiceClass.SCP"><a class="viewcode-back" href="../../api.html#pynetdicom3.sop_class.QueryRetrieveFindServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Query/Retrieve Find Service Class.</span>
 
-<span class="sd">        **C-FIND Request**</span>
+<span class="sd">        C-FIND Request</span>
+<span class="sd">        --------------</span>
 
 <span class="sd">        **Parameters**</span>
 
@@ -540,7 +554,8 @@
 <span class="sd">        (M) Priority</span>
 <span class="sd">        (M) Identifier</span>
 
-<span class="sd">        **Identifier**</span>
+<span class="sd">        Identifier</span>
+<span class="sd">        ~~~~~~~~~~</span>
 
 <span class="sd">        The C-FIND request Identifier shall contain:</span>
 
@@ -557,7 +572,8 @@
 <span class="sd">          the request Identifier are to be interpreted explicitly in the</span>
 <span class="sd">          designated local time zone. It shall not be present otherwise.</span>
 
-<span class="sd">        **C-FIND Response**</span>
+<span class="sd">        C-FIND Response</span>
+<span class="sd">        ---------------</span>
 
 <span class="sd">        **Parameters**</span>
 
@@ -567,7 +583,8 @@
 <span class="sd">        (C) Identifier</span>
 <span class="sd">        (M) Status</span>
 
-<span class="sd">        **Identifier**</span>
+<span class="sd">        Identifier</span>
+<span class="sd">        ~~~~~~~~~~</span>
 
 <span class="sd">        The C-FIND response shall only include an Identifier when the Status is</span>
 <span class="sd">        &#39;Pending&#39;. When sent, the Identifier shall contain:</span>
@@ -591,22 +608,23 @@
 <span class="sd">        The C-FIND response Identifier may also (but is not required to)</span>
 <span class="sd">        include the (0008,0056) Instance Availability element.</span>
 
-<span class="sd">        **Status**</span>
+<span class="sd">        Status</span>
+<span class="sd">        ~~~~~~</span>
 
-<span class="sd">        Success</span>
+<span class="sd">        *Success*</span>
 
 <span class="sd">        - 0x0000 - Success</span>
 
-<span class="sd">        Pending</span>
+<span class="sd">        *Pending*</span>
 
 <span class="sd">        - 0xFF00 - Matches are continuing, current match supplied</span>
 <span class="sd">        - 0xFF01 - Matches are continuing, warning</span>
 
-<span class="sd">        Cancel</span>
+<span class="sd">        *Cancel*</span>
 
 <span class="sd">        - 0xFE00 - Cancel</span>
 
-<span class="sd">        Failure</span>
+<span class="sd">        *Failure*</span>
 
 <span class="sd">        - 0x0122 - SOP class not supported</span>
 <span class="sd">        - 0xA700 - Out of resources</span>
@@ -747,7 +765,8 @@
 <div class="viewcode-block" id="QueryRetrieveMoveServiceClass.SCP"><a class="viewcode-back" href="../../api.html#pynetdicom3.sop_class.QueryRetrieveMoveServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Query/Retrieve Move Service Class.</span>
 
-<span class="sd">        **C-MOVE Request**</span>
+<span class="sd">        C-MOVE Request</span>
+<span class="sd">        --------------</span>
 
 <span class="sd">        **Parameters**</span>
 
@@ -757,7 +776,8 @@
 <span class="sd">        (M) Move Destination</span>
 <span class="sd">        (M) Identifier</span>
 
-<span class="sd">        **Identifier**</span>
+<span class="sd">        Identifier</span>
+<span class="sd">        ~~~~~~~~~~</span>
 
 <span class="sd">        The C-MOVE request Identifier shall contain:</span>
 
@@ -775,7 +795,8 @@
 <span class="sd">        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is</span>
 <span class="sd">          using a character set other than the default character repertoire.</span>
 
-<span class="sd">        **C-MOVE Response**</span>
+<span class="sd">        C-MOVE Response</span>
+<span class="sd">        ---------------</span>
 
 <span class="sd">        **Parameters**</span>
 
@@ -789,7 +810,8 @@
 <span class="sd">        (C) Number of Failed Sub-operations</span>
 <span class="sd">        (C) Number of Warning Sub-operations</span>
 
-<span class="sd">        **Identifier**</span>
+<span class="sd">        Identifier</span>
+<span class="sd">        ~~~~~~~~~~</span>
 
 <span class="sd">        If the C-MOVE response Status is &#39;Cancelled&#39;, &#39;Failure&#39;, &#39;Refused&#39; or</span>
 <span class="sd">        &#39;Warning&#39; then the Identifier shall contain:</span>
@@ -798,21 +820,22 @@
 
 <span class="sd">        If the C-MOVE response Status is &#39;Pending&#39; then there is no Identifier.</span>
 
-<span class="sd">        **Status**</span>
+<span class="sd">        Status</span>
+<span class="sd">        ~~~~~~</span>
 
-<span class="sd">        Success</span>
+<span class="sd">        *Success*</span>
 
 <span class="sd">        - 0x0000 - Sub-operations complete: no failures</span>
 
-<span class="sd">        Pending</span>
+<span class="sd">        *Pending*</span>
 
 <span class="sd">        - 0xFF00 - Sub-operations are continuing</span>
 
-<span class="sd">        Cancel</span>
+<span class="sd">        *Cancel*</span>
 
 <span class="sd">        - 0xFE00 - Sub-operations terminated due to Cancel indication</span>
 
-<span class="sd">        Failure</span>
+<span class="sd">        *Failure*</span>
 
 <span class="sd">        - 0x0122 - SOP class not supported</span>
 <span class="sd">        - 0x0124 - Not authorised</span>
@@ -825,11 +848,12 @@
 <span class="sd">        - 0xA900 - Identifier does not match SOP class</span>
 <span class="sd">        - 0xC000 to 0xCFFF - Unable to process</span>
 
-<span class="sd">        Warning</span>
+<span class="sd">        *Warning*</span>
 
 <span class="sd">        - 0xB000 - Sub-operations complete: one or more failures</span>
 
-<span class="sd">        **Number of X Sub-operations**</span>
+<span class="sd">        Number of X Sub-operations</span>
+<span class="sd">        ~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">        Inclusion of the &#39;Number of X Sub-operations&#39; parameters is conditional</span>
 <span class="sd">        on the value of the response Status. For a given Status category, the</span>
@@ -1162,7 +1186,8 @@
 <div class="viewcode-block" id="QueryRetrieveGetServiceClass.SCP"><a class="viewcode-back" href="../../api.html#pynetdicom3.sop_class.QueryRetrieveGetServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Query/Retrieve Get Service Class.</span>
 
-<span class="sd">        **C-GET Request**</span>
+<span class="sd">        C-GET Request</span>
+<span class="sd">        -------------</span>
 
 <span class="sd">        **Parameters**</span>
 
@@ -1171,7 +1196,8 @@
 <span class="sd">        (M) Priority</span>
 <span class="sd">        (M) Identifier</span>
 
-<span class="sd">        **Identifier**</span>
+<span class="sd">        Identifier</span>
+<span class="sd">        ~~~~~~~~~~</span>
 
 <span class="sd">        The C-GET request Identifier shall contain:</span>
 
@@ -1189,7 +1215,8 @@
 <span class="sd">        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is</span>
 <span class="sd">          using a character set other than the default character repertoire.</span>
 
-<span class="sd">        **C-GET Response**</span>
+<span class="sd">        C-GET Response</span>
+<span class="sd">        --------------</span>
 
 <span class="sd">        **Parameters**</span>
 
@@ -1203,7 +1230,8 @@
 <span class="sd">        (C) Number of Failed Sub-operations</span>
 <span class="sd">        (C) Number of Warning Sub-operations</span>
 
-<span class="sd">        **Identifier**</span>
+<span class="sd">        Identifier</span>
+<span class="sd">        ~~~~~~~~~~</span>
 
 <span class="sd">        If the C-GET response Status is &#39;Cancelled&#39;, &#39;Failure&#39;, &#39;Refused&#39; or</span>
 <span class="sd">        &#39;Warning&#39; then the Identifier shall contain:</span>
@@ -1212,21 +1240,22 @@
 
 <span class="sd">        If the C-GET response Status is &#39;Pending&#39; then there is no Identifier.</span>
 
-<span class="sd">        **Status**</span>
+<span class="sd">        Status</span>
+<span class="sd">        ~~~~~~</span>
 
-<span class="sd">        Success</span>
+<span class="sd">        *Success*</span>
 
 <span class="sd">        - 0x0000 - Sub-operations complete: no failures or warnings</span>
 
-<span class="sd">        Pending</span>
+<span class="sd">        *Pending*</span>
 
 <span class="sd">        - 0xFF00 - Sub-operations are continuing</span>
 
-<span class="sd">        Cancel</span>
+<span class="sd">        *Cancel*</span>
 
 <span class="sd">        - 0xFE00 - Sub-operations terminated due to Cancel indication</span>
 
-<span class="sd">        Failure</span>
+<span class="sd">        *Failure*</span>
 
 <span class="sd">        - 0x0122 - SOP class not supported</span>
 <span class="sd">        - 0x0124 - Not authorised</span>
@@ -1238,11 +1267,12 @@
 <span class="sd">        - 0xA900 - Identifier does not match SOP class</span>
 <span class="sd">        - 0xC000 to 0xCFFF - Unable to process</span>
 
-<span class="sd">        Warning</span>
+<span class="sd">        *Warning*</span>
 
 <span class="sd">        - 0xB000 - Sub-operations complete: one or more failures or warnings</span>
 
-<span class="sd">        **Number of X Sub-operations**</span>
+<span class="sd">        Number of X Sub-operations</span>
+<span class="sd">        ~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">        Inclusion of the &#39;Number of X Sub-operations&#39; parameters is conditional</span>
 <span class="sd">        on the value of the response Status. For a given Status category, the</span>
