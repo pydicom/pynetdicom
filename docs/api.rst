@@ -17,16 +17,9 @@ Association
 
 SOP Class
 +++++++++
-.. autoclass:: pynetdicom3.sop_class.VerificationServiceClass
+.. autoclass:: pynetdicom3.sop_class
     :members:
-.. autoclass:: pynetdicom3.sop_class.StorageServiceClass
-    :members:
-.. autoclass:: pynetdicom3.sop_class.QueryRetrieveFindServiceClass
-    :members:
-.. autoclass:: pynetdicom3.sop_class.QueryRetrieveGetServiceClass
-    :members:
-.. autoclass:: pynetdicom3.sop_class.QueryRetrieveMoveServiceClass
-    :members:
+    :show-inheritance:
 
 ACSE
 ++++
