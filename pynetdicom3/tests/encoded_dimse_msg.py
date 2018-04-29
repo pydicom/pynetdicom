@@ -67,7 +67,6 @@ c_store_rsp_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4c' \
 #(0000, 0100) Command Field                       US: 48
 #(0000, 0110) Message ID                          US: 7
 #(0000, 0800) Command Data Set Type               US: 257
-#(0000, 0000) Command Group Length                UL: 66
 c_echo_rq_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38' \
                 b'\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00' \
                 b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \

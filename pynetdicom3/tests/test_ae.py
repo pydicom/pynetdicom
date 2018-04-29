@@ -189,19 +189,19 @@ class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_c_echo(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        ae.on_c_echo()
+        ae.on_c_echo(None, None)
 
     def test_on_c_store(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_store(None)
+            ae.on_c_store(None, None, None)
 
     def test_on_c_find(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_find(None)
+            ae.on_c_find(None, None, None)
 
     def test_on_c_find_cancel(self):
         """Test default callback raises exception"""
@@ -213,7 +213,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_get(None)
+            ae.on_c_get(None, None, None)
 
     def test_on_c_get_cancel(self):
         """Test default callback raises exception"""
@@ -225,7 +225,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_move(None, None)
+            ae.on_c_move(None, None, None, None)
 
     def test_on_c_move_cancel(self):
         """Test default callback raises exception"""
@@ -237,37 +237,37 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_event_report()
+            ae.on_n_event_report(None, None)
 
     def test_on_n_get(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_get()
+            ae.on_n_get(None, None)
 
     def test_on_n_set(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_set()
+            ae.on_n_set(None, None)
 
     def test_on_n_action(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_action()
+            ae.on_n_action(None, None)
 
     def test_on_n_create(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_create()
+            ae.on_n_create(None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_delete()
+            ae.on_n_delete(None, None)
 
     def test_on_receive_connection(self):
         """Test default callback raises exception"""

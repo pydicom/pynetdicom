@@ -15,6 +15,8 @@ import time
 import threading
 import unittest
 
+import pytest
+
 from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
@@ -262,9 +264,9 @@ class TestAssociation(unittest.TestCase):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(('', 0))
         self.socket.listen(1)
-        self.peer = {'AET' : 'PEER_AET',
-                     'Port' : 11112,
-                     'Address' : 'localhost'}
+        self.peer = {'ae_title' : 'PEER_AET',
+                     'port' : 11112,
+                     'address' : 'localhost'}
         self.ext_neg = []
 
         self.scp = None
@@ -822,7 +824,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
     def test_rsp_multi_status(self):
         """Test receiving a status with extra elements"""
-        def on_c_echo():
+        def on_c_echo(context, peer_ae):
             ds = Dataset()
             ds.Status = 0x0122
             ds.ErrorComment = 'Some comment'
@@ -833,10 +835,10 @@ class TestAssociationSendCEcho(unittest.TestCase):
         self.scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_echo()
-        self.assertEqual(result.Status, 0x0122)
-        self.assertEqual(result.ErrorComment, 'Some comment')
+        assert result.Status == 0x0122
+        assert result.ErrorComment == 'Some comment'
         assoc.release()
         self.scp.stop()
 
@@ -1435,7 +1437,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds):
+        def on_c_store(ds, context, peer_ae):
             self.assertTrue('PatientName' in ds)
             return 0x0000
 
@@ -1471,22 +1473,25 @@ class TestAssociationSendCGet(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
-        def on_c_store(ds): return 0x0000
+
+        def on_c_store(ds, context, peer_ae): return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
         # We have 2 status, ds and 1 success
         (status, ds) = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertTrue(ds is None)
+        assert status.Status == 0xFF00
+        assert ds is None
         (status, ds) = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertTrue(ds is None)
+        assert status.Status == 0xFF00
+        assert ds is None
         (status, ds) = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertTrue(ds is None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert ds is None
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 

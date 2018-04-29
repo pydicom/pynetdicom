@@ -73,17 +73,20 @@ the peer once an association has been established. With the exception of
 implementing the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo()``
-- C-STORE: ``AE.on_c_store(dataset)``
-- C-FIND: ``AE.on_c_find(dataset)`` and ``AE.on_c_find_cancel()``
-- C-GET: ``AE.on_c_get(dataset)`` and ``AE.on_c_get_cancel()``
-- C-MOVE: ``AE.on_c_move(dataset, move_aet)`` and ``AE.on_c_move_cancel()``
+- C-STORE: ``AE.on_c_store(dataset, context, peer_ae)``
+- C-FIND: ``AE.on_c_find(dataset, context, peer_ae)`` and ``AE.on_c_find_cancel()``
+- C-GET: ``AE.on_c_get(dataset, context, peer_ae)`` and ``AE.on_c_get_cancel()``
+- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, peer_ae)`` and
+  ``AE.on_c_move_cancel()``
 
-Where *dataset* is a pydicom Dataset object. See the SCP Examples and the AE
-documentation for more information.
+Where *dataset* is a pydicom Dataset object,  *context* is the presentation
+context used to transfer *dataset* and *peer_ae* is a dict containing details
+of the peer Application Entity that requested the DIMSE-C service. See the SCP
+Examples and the AE documentation for more information.
 
 Documentation
 -------------
-Documentation is available for stable releases as well as the current `development version. <https://pydicom.github.io/pynetdicom3/dev>`_
+Documentation is available for the current `development version. <https://pydicom.github.io/pynetdicom3/dev>`_
 
 Installation
 -----------

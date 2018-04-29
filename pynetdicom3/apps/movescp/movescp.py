@@ -11,7 +11,7 @@ import socket
 import sys
 import time
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
@@ -24,6 +24,10 @@ formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
+
+
+VERSION = '0.2.0'
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -121,7 +125,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$movescp.py v{0!s} {1!s} $'.format('0.1.0', '2016-04-12'))
+logger.debug('$movescp.py v{0!s}'.format(VERSION))
 logger.debug('')
 
 # Validate port
@@ -150,24 +154,25 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_move(dataset, move_aet):
+def on_c_move(dataset, move_aet, context, peer_ae):
     """Implement the on_c_move callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
 
-    # Number of matches
-    yield len(dcm_files)
-
     # Address and port to send to
     if move_aet == b'ANY-SCP         ':
-        yield '10.40.94.43', 104
+        yield '127.0.0.1', 104
     else:
         yield None, None
 
+    # Number of matches
+    no_suboperations = len(dcm_files)
+    yield no_suboperations
+
     # Matching datasets to send
     for dcm in dcm_files:
-        ds = read_file(dcm, force=True)
+        ds = dcmread(dcm, force=True)
         yield 0xff00, ds
 
 # Create application entity
