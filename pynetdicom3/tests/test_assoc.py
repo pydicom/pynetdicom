@@ -264,9 +264,9 @@ class TestAssociation(unittest.TestCase):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(('', 0))
         self.socket.listen(1)
-        self.peer = {'AET' : 'PEER_AET',
-                     'Port' : 11112,
-                     'Address' : 'localhost'}
+        self.peer = {'ae_title' : 'PEER_AET',
+                     'port' : 11112,
+                     'address' : 'localhost'}
         self.ext_neg = []
 
         self.scp = None
@@ -824,7 +824,7 @@ class TestAssociationSendCEcho(unittest.TestCase):
 
     def test_rsp_multi_status(self):
         """Test receiving a status with extra elements"""
-        def on_c_echo(context):
+        def on_c_echo(context, peer_ae):
             ds = Dataset()
             ds.Status = 0x0122
             ds.ErrorComment = 'Some comment'
@@ -1437,7 +1437,7 @@ class TestAssociationSendCGet(unittest.TestCase):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             self.assertTrue('PatientName' in ds)
             return 0x0000
 
@@ -1474,7 +1474,7 @@ class TestAssociationSendCGet(unittest.TestCase):
                                CTImageStorage],
                 scp_sop_class=[CTImageStorage])
 
-        def on_c_store(ds, context): return 0x0000
+        def on_c_store(ds, context, peer_ae): return 0x0000
 
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)

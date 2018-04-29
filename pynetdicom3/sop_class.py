@@ -161,7 +161,7 @@ class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req, context, peer_ae):
         """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
@@ -206,6 +206,8 @@ class VerificationServiceClass(ServiceClass):
             The C-ECHO request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
+        peer_ae : dict
+            A dict containing details of the peer AE.
 
         See Also
         --------
@@ -227,7 +229,7 @@ class VerificationServiceClass(ServiceClass):
         #   the Status as either an int or Dataset, and any failures in the
         #   callback results in 0x0000 'Success'
         try:
-            status = self.AE.on_c_echo(context)
+            status = self.AE.on_c_echo(context, peer_ae)
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError("The 'status' dataset returned by "
@@ -263,7 +265,7 @@ class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req, context, peer_ae):
         """The SCP implementation for the Storage Service Class.
 
         **C-STORE Request**
@@ -318,6 +320,7 @@ class StorageServiceClass(ServiceClass):
             The C-STORE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
+        peer_ae : dict
 
         See Also
         --------
@@ -353,7 +356,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            rsp_status = self.AE.on_c_store(ds, context)
+            rsp_status = self.AE.on_c_store(ds, context, peer_ae)
         except Exception as ex:
             LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
                          "callback")
@@ -370,7 +373,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Find Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req, context, peer_ae):
         """The SCP implementation for the Query/Retrieve Find Service Class.
 
         **C-FIND Request**
@@ -461,6 +464,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
+        peer_ae : dict
 
         See Also
         --------
@@ -504,7 +508,9 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         def wrap_on_c_find():
             try:
                 # We unpack here so that the error is still caught
-                for val1, val2 in self.AE.on_c_find(identifier, context):
+                for val1, val2 in self.AE.on_c_find(identifier,
+                                                    context,
+                                                    peer_ae):
                     yield val1, val2
             except Exception:
                 # TODO: special (singleton) value
@@ -589,7 +595,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     """Implements the Query/Retrieve Move Service Class."""
     statuses = QR_MOVE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req, context, peer_ae):
         """The SCP implementation for the Query/Retrieve Move Service Class.
 
         **C-MOVE Request**
@@ -703,7 +709,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             The C-MOVE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
+        peer_ae : dict
 
         See Also
         --------
@@ -745,7 +751,10 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            result = self.AE.on_c_move(identifier, req.MoveDestination, context)
+            result = self.AE.on_c_move(identifier,
+                                       req.MoveDestination,
+                                       context,
+                                       peer_ae)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
@@ -1008,7 +1017,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the Query/Retrieve Get Service Class."""
     statuses = QR_GET_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req, context, peer_ae):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
         **C-GET Request**
@@ -1120,6 +1129,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             The C-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
+        peer_ae : dict
 
         See Also
         --------
@@ -1161,7 +1171,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            result = self.AE.on_c_get(identifier, context)
+            result = self.AE.on_c_get(identifier, context, peer_ae)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)
@@ -1383,7 +1393,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
     statuses = MODALITY_WORKLIST_SERVICE_CLASS_STATUS
 
     # FIXME
-    def SCP(self, msg, context):
+    def SCP(self, msg, context, peer_ae):
         """SCP"""
         transfer_syntax = context.TransferSyntax[0]
         ds = decode(msg.Identifier,
@@ -1395,7 +1405,7 @@ class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
         rsp.MessageIDBeingRespondedTo = msg.MessageID
         rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
 
-        gen = self.AE.OnReceiveFind(self, ds)
+        gen = self.AE.OnReceiveFind(ds, context, peer_ae)
         try:
             while 1:
                 time.sleep(0.001)

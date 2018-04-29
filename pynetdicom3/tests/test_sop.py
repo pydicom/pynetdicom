@@ -15,18 +15,20 @@ from pydicom.dataset import Dataset
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_ECHO, C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import decode
-from pynetdicom3.sop_class import (uid_to_sop_class,
-                                   VerificationServiceClass,
-                                   StorageServiceClass,
-                                   QueryRetrieveGetServiceClass,
-                                   QueryRetrieveFindServiceClass,
-                                   QueryRetrieveMoveServiceClass,
-                                   ModalityWorklistServiceSOPClass,
-                                   VerificationSOPClass,
-                                   CTImageStorage,
-                                   PatientRootQueryRetrieveInformationModelFind,
-                                   PatientRootQueryRetrieveInformationModelGet,
-                                   PatientRootQueryRetrieveInformationModelMove)
+from pynetdicom3.sop_class import (
+    uid_to_sop_class,
+    VerificationServiceClass,
+    StorageServiceClass,
+    QueryRetrieveGetServiceClass,
+    QueryRetrieveFindServiceClass,
+    QueryRetrieveMoveServiceClass,
+    ModalityWorklistServiceSOPClass,
+    VerificationSOPClass,
+    CTImageStorage,
+    PatientRootQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove
+)
 from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP, DummyFindSCP,
                          DummyBaseSCP, DummyGetSCP, DummyMoveSCP)
 
@@ -46,12 +48,12 @@ class DummyAE(object):
         raise ValueError
 
     @staticmethod
-    def on_c_store(ds, context):
+    def on_c_store(ds, context, peer_ae):
         """Dummy method to test callback errors"""
         raise ValueError
 
     @staticmethod
-    def on_c_find(ds, context):
+    def on_c_find(ds, context, peer_ae):
         """Dummy method to test callback errors"""
         raise ValueError
 
@@ -61,7 +63,7 @@ class DummyAE(object):
         raise ValueError
 
     @staticmethod
-    def on_c_get(ds, context):
+    def on_c_get(ds, context, peer_ae):
         """Dummy method to test callback errors"""
         raise ValueError
 
@@ -71,7 +73,7 @@ class DummyAE(object):
         raise ValueError
 
     @staticmethod
-    def on_c_move(ds, move_aet, context):
+    def on_c_move(ds, move_aet, context, peer_ae):
         """Dummy method to test callback errors"""
         raise ValueError
 
@@ -88,12 +90,12 @@ class DummyDIMSE(object):
         pass
 
 
-class TestServiceClass(unittest.TestCase):
+class TestServiceClass(object):
     def test_is_valid_status(self):
         """Test that is_valid_status returns correct values"""
         sop = StorageServiceClass()
-        self.assertFalse(sop.is_valid_status(0x0101))
-        self.assertTrue(sop.is_valid_status(0x0000))
+        assert not sop.is_valid_status(0x0101)
+        assert sop.is_valid_status(0x0000)
 
     def test_validate_status_ds(self):
         """Test that validate_status works correctly with dataset"""
@@ -102,7 +104,7 @@ class TestServiceClass(unittest.TestCase):
         status = Dataset()
         status.Status = 0x0001
         rsp = sop.validate_status(status, rsp)
-        self.assertEqual(rsp.Status, 0x0001)
+        assert rsp.Status == 0x0001
 
     def test_validate_status_ds_multi(self):
         """Test that validate_status works correctly with dataset multi"""
@@ -112,8 +114,8 @@ class TestServiceClass(unittest.TestCase):
         status.Status = 0x0002
         status.ErrorComment = 'test'
         rsp = sop.validate_status(status, rsp)
-        self.assertEqual(rsp.Status, 0x0002)
-        self.assertEqual(rsp.ErrorComment, 'test')
+        assert rsp.Status == 0x0002
+        assert rsp.ErrorComment == 'test'
 
     def test_validate_status_ds_no_status(self):
         """Test correct status returned if ds has no Status element."""
@@ -132,36 +134,37 @@ class TestServiceClass(unittest.TestCase):
         status.Status = 0x0000
         status.PatientName = 'Test comment'
         rsp = sop.validate_status(status, rsp)
+        assert not hasattr(rsp, 'PatientName')
 
     def test_validate_status_int(self):
         """Test that validate_status works correctly with int"""
         sop = StorageServiceClass()
         rsp = C_STORE()
         rsp = sop.validate_status(0x0000, rsp)
-        self.assertEqual(rsp.Status, 0x0000)
+        assert rsp.Status == 0x0000
 
     def test_validate_status_invalid(self):
         """Test exception raised if invalid status value"""
         sop = StorageServiceClass()
         rsp = C_STORE()
         rsp = sop.validate_status('test', rsp)
-        self.assertEqual(rsp.Status, 0xC002)
+        assert rsp.Status == 0xC002
 
     def test_validate_status_unknown(self):
         """Test return unknown status"""
         sop = StorageServiceClass()
         rsp = C_STORE()
         rsp = sop.validate_status(0xD011, rsp)
-        self.assertEqual(rsp.Status, 0xD011)
+        assert rsp.Status == 0xD011
 
 
-class TestVerificationServiceClass(unittest.TestCase):
+class TestVerificationServiceClass(object):
     """Test the VerifictionSOPClass"""
-    def setUp(self):
+    def setup(self):
         """Run prior to each test"""
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -182,9 +185,9 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0001)
+        assert rsp.Status == 0x0001
         assoc.release()
         self.scp.stop()
 
@@ -196,9 +199,9 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0000)
+        assert rsp.Status == 0x0000
         assoc.release()
         self.scp.stop()
 
@@ -212,10 +215,10 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0001)
-        self.assertEqual(rsp.ErrorComment, 'Test')
+        assert rsp.Status == 0x0001
+        assert rsp.ErrorComment == 'Test'
         assoc.release()
         self.scp.stop()
 
@@ -229,9 +232,9 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0001)
+        assert rsp.Status == 0x0001
         assoc.release()
         self.scp.stop()
 
@@ -243,10 +246,10 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0002)
-        self.assertFalse('ErrorComment' in rsp)
+        assert rsp.Status == 0x0002
+        assert not 'ErrorComment' in rsp
         assoc.release()
         self.scp.stop()
 
@@ -258,9 +261,9 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0000)
+        assert rsp.Status == 0x0000
         assoc.release()
         self.scp.stop()
 
@@ -272,9 +275,9 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0000)
+        assert rsp.Status == 0x0000
         assoc.release()
         self.scp.stop()
 
@@ -288,9 +291,9 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_echo()
-        self.assertEqual(rsp.Status, 0x0000)
+        assert rsp.Status == 0x0000
         assoc.release()
         self.scp.stop()
 
@@ -311,13 +314,32 @@ class TestVerificationServiceClass(unittest.TestCase):
 
         self.scp.stop()
 
-class TestStorageServiceClass(unittest.TestCase):
+    def test_scp_callback_peer(self):
+        """Test on_c_echo peer_ae parameter."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE(ae_title='ECHOSCU', scu_sop_class=[VerificationSOPClass])
+        assoc = ae.associate('localhost', 11112, max_pdu=16380)
+        assert assoc.is_established
+        rsp = assoc.send_c_echo()
+        assert rsp.Status == 0x0000
+        assoc.release()
+
+        assert self.scp.peer_ae['address'] == '127.0.0.1'
+        assert self.scp.peer_ae['pdv_size'] == 16380
+        assert self.scp.peer_ae['ae_title'] == b'ECHOSCU         '
+
+        self.scp.stop()
+
+
+class TestStorageServiceClass(object):
     """Test the StorageServiceClass"""
-    def setUp(self):
+    def setup(self):
         """Run prior to each test"""
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -332,13 +354,14 @@ class TestStorageServiceClass(unittest.TestCase):
     @unittest.skip('Difficult to test correctly')
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
+        # Although we managed to get a failure with issue #632 in pydicom
         self.scp = DummyStorageSCP()
         self.scp.status = 0x0000
         self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         req = C_STORE()
         req.MessageID = 1
@@ -351,8 +374,8 @@ class TestStorageServiceClass(unittest.TestCase):
         assoc.dimse.send_msg(req, 1)
         rsp, _ = assoc.dimse.receive_msg(True)
 
-        self.assertEqual(rsp.Status, 0xC100)
-        self.assertEqual(rsp.ErrorComment, 'Unable to decode the dataset')
+        assert rsp.Status == 0xC100
+        assert rsp.ErrorComment == 'Unable to decode the dataset'
         assoc.release()
         self.scp.stop()
 
@@ -365,9 +388,9 @@ class TestStorageServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0x0001)
+        assert rsp.Status == 0x0001
         assoc.release()
         self.scp.stop()
 
@@ -382,11 +405,11 @@ class TestStorageServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0x0001)
-        self.assertEqual(rsp.ErrorComment, 'Test')
-        self.assertEqual(rsp.OffendingElement, 0x00080010)
+        assert rsp.Status == 0x0001
+        assert rsp.ErrorComment == 'Test'
+        assert rsp.OffendingElement == 0x00080010
         assoc.release()
         self.scp.stop()
 
@@ -398,10 +421,10 @@ class TestStorageServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0x0000)
-        self.assertFalse('ErrorComment' in rsp)
+        assert rsp.Status == 0x0000
+        assert not 'ErrorComment' in rsp
         assoc.release()
         self.scp.stop()
 
@@ -413,9 +436,9 @@ class TestStorageServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0xFFF0)
+        assert rsp.Status == 0xFFF0
         assoc.release()
         self.scp.stop()
 
@@ -427,24 +450,24 @@ class TestStorageServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0xC002)
+        assert rsp.Status == 0xC002
         assoc.release()
         self.scp.stop()
 
     def test_scp_callback_exception(self):
         """Test on_c_store raising an exception"""
         self.scp = DummyStorageSCP()
-        def on_c_store(ds, context): raise ValueError
+        def on_c_store(ds, context, peer_ae): raise ValueError
         self.scp.ae.on_c_store = on_c_store
         self.scp.start()
 
         ae = AE(scu_sop_class=[CTImageStorage])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
-        self.assertEqual(rsp.Status, 0xC211)
+        assert rsp.Status == 0xC211
         assoc.release()
         self.scp.stop()
 
@@ -462,6 +485,25 @@ class TestStorageServiceClass(unittest.TestCase):
 
         assert self.scp.context.AbstractSyntax == CTImageStorage.UID
         assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
+        self.scp.stop()
+
+    def test_scp_callback_peer(self):
+        """Test on_c_store peer_ae parameter."""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+
+        ae = AE(ae_title='STORESCU', scu_sop_class=[CTImageStorage])
+        assoc = ae.associate('localhost', 11112, max_pdu=16380)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0000
+        assoc.release()
+
+        # Note: can't guarantee the port number
+        assert self.scp.peer_ae['address'] == '127.0.0.1'
+        assert self.scp.peer_ae['pdv_size'] == 16380
+        assert self.scp.peer_ae['ae_title'] == b'STORESCU        '
 
         self.scp.stop()
 
@@ -497,7 +539,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         req = C_FIND()
         req.MessageID = 1
@@ -521,7 +563,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -543,7 +585,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -564,7 +606,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -582,7 +624,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFFF0)
@@ -598,7 +640,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC002)
@@ -614,7 +656,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC002)
@@ -631,7 +673,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC311)
@@ -648,7 +690,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC312)
@@ -679,6 +721,31 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         self.scp.stop()
 
+    def test_callback_peer(self):
+        """Test on_c_find peer_ae parameter."""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.identifers = [self.query, None]
+        self.scp.start()
+
+        ae = AE(ae_title='FINDSCU',
+                scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        assoc = ae.associate('localhost', 11112, max_pdu=12345)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+
+        # Note: can't guarantee the port number
+        assert self.scp.peer_ae['address'] == '127.0.0.1'
+        assert self.scp.peer_ae['pdv_size'] == 12345
+        assert self.scp.peer_ae['ae_title'] == b'FINDSCU         '
+
+        self.scp.stop()
+
     def test_pending_cancel(self):
         """Test on_c_find yielding pending then cancel status"""
         self.scp = DummyFindSCP()
@@ -688,7 +755,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -710,7 +777,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF01)
@@ -732,7 +799,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -754,7 +821,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -782,7 +849,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -810,7 +877,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -868,7 +935,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         req = C_GET()
         req.MessageID = 1
@@ -893,11 +960,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC413)
@@ -917,11 +984,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -945,11 +1012,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -972,11 +1039,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -997,11 +1064,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFFF0)
@@ -1018,11 +1085,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC002)
@@ -1039,11 +1106,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC002)
@@ -1061,11 +1128,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC411)
@@ -1083,11 +1150,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1103,7 +1170,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_callback_invalid_dataset(self):
         """Test status returned correctly if not yielding a Dataset."""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
 
         self.scp.no_suboperations = 3
@@ -1119,7 +1186,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         ae.on_c_store = on_c_store
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
 
         status, identifier = next(result)
@@ -1153,7 +1220,7 @@ class TestQRGetServiceClass(unittest.TestCase):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
 
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             assert context.AbstractSyntax == CTImageStorage.UID
             assert context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
             return 0x0000
@@ -1176,6 +1243,46 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         self.scp.stop()
 
+    def test_get_callback_peer(self):
+        """Test on_c_get peer_ae parameter."""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(ae_title='TEST_TITLE',
+                scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
+                               CTImageStorage])
+
+        def on_c_store(ds, context, peer_ae):
+            assert peer_ae['ae_title'] == 'ANY-SCP         '
+            assert peer_ae['port'] == 11112
+            assert peer_ae['pdv_size'] == 16382
+            assert peer_ae['address'] == 'localhost'
+            return 0x0000
+
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112, max_pdu=16380)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        # Note: can't guarantee the port number
+        assert self.scp.peer_ae['address'] == '127.0.0.1'
+        assert self.scp.peer_ae['pdv_size'] == 16380
+        assert self.scp.peer_ae['ae_title'] == b'TEST_TITLE      '
+
+        self.scp.stop()
+
     def test_store_callback_exception(self):
         """Test SCP handles send_c_store raising an exception"""
         self.scp = DummyGetSCP()
@@ -1185,11 +1292,11 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1205,7 +1312,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_scp_basic(self):
         """Test on_c_get"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.ds, self.ds]
@@ -1216,7 +1323,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1235,7 +1342,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_scp_store_failure(self):
         """Test when on_c_store returns failure status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xC001
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
@@ -1247,7 +1354,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1269,7 +1376,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_scp_store_warning(self):
         """Test when on_c_store returns warning status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xB000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
@@ -1281,7 +1388,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1303,7 +1410,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_pending_success(self):
         """Test when on_c_get returns success status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xB000]
@@ -1315,7 +1422,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1334,7 +1441,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_pending_warning(self):
         """Test when on_c_get returns warning status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xB000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0x0000]
@@ -1346,7 +1453,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1365,7 +1472,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_pending_failure(self):
         """Test on_c_get returns warning status after store failure"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xC000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00]
@@ -1377,7 +1484,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1396,7 +1503,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_multi_pending_success(self):
         """Test on_c_get returns success status after multi store success"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
@@ -1408,7 +1515,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1433,7 +1540,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_multi_pending_warning(self):
         """Test on_c_get returns warning status after multi store warning"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xB000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
@@ -1445,7 +1552,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1472,7 +1579,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_multi_pending_failure(self):
         """Test on_c_get returns warning status after multi store failure"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xC000
         # SCP should override final warning status
         self.scp.statuses = [0xFF00, 0xFF00, 0xFF00, 0xB000]
@@ -1484,7 +1591,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1511,7 +1618,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_failure(self):
         """Test when on_c_get returns failure status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xC000]
@@ -1523,7 +1630,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1542,7 +1649,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_success(self):
         """Test when on_c_get returns failure status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         # SCP should override final success status
         self.scp.statuses = [0xFF00]
@@ -1554,7 +1661,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1573,7 +1680,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_cancel(self):
         """Test on_c_get returns cancel status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0x0000
         # SCP should override final success status
         self.scp.statuses = [0xFF00, 0xFE00, 0x0000]
@@ -1585,7 +1692,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1604,7 +1711,7 @@ class TestQRGetServiceClass(unittest.TestCase):
     def test_get_warning(self):
         """Test on_c_get returns warning status"""
         self.scp = DummyGetSCP()
-        def on_c_store(ds, context):
+        def on_c_store(ds, context, peer_ae):
             return 0xB000
         # SCP should override final success status
         self.scp.statuses = [0xFF00]
@@ -1616,7 +1723,7 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1671,7 +1778,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         req = C_GET()
         req.MessageID = 1
@@ -1699,7 +1806,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
@@ -1722,7 +1829,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
@@ -1745,7 +1852,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
@@ -1768,7 +1875,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC513)
@@ -1791,7 +1898,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC515)
@@ -1813,7 +1920,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1839,7 +1946,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1864,7 +1971,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1887,7 +1994,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFFF0)
@@ -1906,7 +2013,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC002)
@@ -1925,7 +2032,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC002)
@@ -1945,7 +2052,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xC511)
@@ -1965,7 +2072,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -1993,7 +2100,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2027,7 +2134,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2039,6 +2146,37 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelMove.UID
         assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+
+        self.scp.stop()
+
+    def test_move_callback_peer(self):
+        """Test on_c_move peer_ae parameter."""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.scp.datasets = [self.ds, None]
+        self.scp.start()
+
+        ae = AE(ae_title='MOVESCU',
+                scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
+                               CTImageStorage])
+
+        assoc = ae.associate('localhost', 11112, max_pdu=54321)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0xFF00)
+        self.assertEqual(identifier, None)
+        status, identifier = next(result)
+        self.assertEqual(status.Status, 0x0000)
+        self.assertEqual(identifier, None)
+        self.assertRaises(StopIteration, next, result)
+
+        # Note: can't guarantee the port number
+        assert self.scp.peer_ae['address'] == '127.0.0.1'
+        assert self.scp.peer_ae['pdv_size'] == 54321
+        assert self.scp.peer_ae['ae_title'] == b'MOVESCU         '
 
         self.scp.stop()
 
@@ -2054,7 +2192,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2084,7 +2222,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2117,7 +2255,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xB000)
@@ -2144,7 +2282,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2176,7 +2314,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2206,7 +2344,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2236,7 +2374,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2265,7 +2403,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2301,7 +2439,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2339,7 +2477,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2376,7 +2514,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2405,7 +2543,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2434,7 +2572,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2464,7 +2602,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xFF00)
@@ -2494,7 +2632,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
                                CTImageStorage])
 
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
         self.assertEqual(status.Status, 0xA801)
@@ -2510,7 +2648,3 @@ class TestUIDtoSOPlass(unittest.TestCase):
         """Test raise if SOP Class not found."""
         with self.assertRaises(NotImplementedError):
             uid_to_sop_class('1.2.3.4')
-
-
-if __name__ == "__main__":
-    unittest.main()

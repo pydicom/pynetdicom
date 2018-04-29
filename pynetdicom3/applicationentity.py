@@ -421,9 +421,9 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
-        peer_ae = {'AET' : validate_ae_title(ae_title),
-                   'Address' : addr,
-                   'Port' : port}
+        peer_ae = {'ae_title' : validate_ae_title(ae_title),
+                   'address' : addr,
+                   'port' : port}
 
         # Associate
         assoc = Association(local_ae=self,
@@ -494,9 +494,9 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
-                       .format(assoc.peer_ae['AET'],
-                               assoc.peer_ae['Address'],
-                               assoc.peer_ae['Port'])
+                       .format(assoc.peer_ae['ae_title'],
+                               assoc.peer_ae['address'],
+                               assoc.peer_ae['port'])
 
         return str_out
 
@@ -811,7 +811,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-C callbacks - user should implement these as required
-    def on_c_echo(self, context):
+    def on_c_echo(self, context, peer_ae):
         """Callback for when a C-ECHO request is received.
 
         User implementation is not required for the C-ECHO service, but if you
@@ -874,7 +874,7 @@ class ApplicationEntity(object):
         # User implementation of on_c_echo is optional
         return 0x0000
 
-    def on_c_store(self, dataset, context):
+    def on_c_store(self, dataset, context, peer_ae):
         """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
@@ -955,7 +955,7 @@ class ApplicationEntity(object):
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
-    def on_c_find(self, dataset, context):
+    def on_c_find(self, dataset, context, peer_ae):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -1051,7 +1051,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_find_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_get(self, dataset, context):
+    def on_c_get(self, dataset, context, peer_ae):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -1143,7 +1143,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_get_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_move(self, dataset, move_aet, context):
+    def on_c_move(self, dataset, move_aet, context, peer_ae):
         """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling AE.start().
@@ -1254,7 +1254,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_event_report(self, context):
+    def on_n_event_report(self, context, peer_ae):
         """Callback for when a N-EVENT-REPORT is received.
 
         References
@@ -1265,7 +1265,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self, context):
+    def on_n_get(self, context, peer_ae):
         """Callback for when a N-GET is received.
 
         References
@@ -1276,7 +1276,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
-    def on_n_set(self, context):
+    def on_n_set(self, context, peer_ae):
         """Callback for when a N-SET is received.
 
         References
@@ -1287,7 +1287,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
-    def on_n_action(self, context):
+    def on_n_action(self, context, peer_ae):
         """Callback for when a N-ACTION is received.
 
         References
@@ -1298,7 +1298,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self, context):
+    def on_n_create(self, context, peer_ae):
         """Callback for when a N-CREATE is received.
 
         References
@@ -1309,7 +1309,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
-    def on_n_delete(self, context):
+    def on_n_delete(self, context, peer_ae):
         """Callback for when a N-DELETE is received.
 
         References
