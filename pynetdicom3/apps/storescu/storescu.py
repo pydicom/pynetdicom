@@ -12,7 +12,7 @@ import os
 import socket
 import sys
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
@@ -26,7 +26,7 @@ stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -111,17 +111,17 @@ if args.debug:
     pynetdicom_logger.setLevel(logging.DEBUG)
 
 if args.version:
-    print('storescu.py v{0!s} {1!s} $'.format(VERSION, '2017-02-04'))
+    print('storescu.py v{0!s}'.format(VERSION))
     sys.exit()
 
-logger.debug('storescu.py v{0!s} {1!s}'.format(VERSION, '2017-02-04'))
+logger.debug('storescu.py v{0!s}'.format(VERSION))
 logger.debug('')
 
 # Check file exists and is readable and DICOM
 logger.debug('Checking input files')
 try:
     f = open(args.dcmfile_in, 'rb')
-    dataset = read_file(f, force=True)
+    dataset = dcmread(f, force=True)
     f.close()
 except IOError:
     logger.error('Cannot read input file {0!s}'.format(args.dcmfile_in))

@@ -13,7 +13,6 @@ import socket
 import sys
 
 from pydicom.dataset import Dataset, FileDataset
-from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
@@ -185,9 +184,8 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_store(dataset, context):
-    """
-    Write `dataset` to file as little endian implicit VR
+def on_c_store(dataset, context, peer_ae):
+    """Write `dataset` to file in the DICOM File Format.
 
     Parameters
     ----------
@@ -195,6 +193,8 @@ def on_c_store(dataset, context):
         The DICOM dataset sent via the C-STORE
     context : pynetdicom3.presentation.PresentationContext
         The presentation context the dataset was sent under.
+    peer_ae : dict
+        A dict containing information about the peer Application Entity.
 
     Returns
     -------

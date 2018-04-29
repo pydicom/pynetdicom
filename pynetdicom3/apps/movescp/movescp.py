@@ -11,7 +11,7 @@ import socket
 import sys
 import time
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
@@ -154,7 +154,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_move(dataset, move_aet, context):
+def on_c_move(dataset, move_aet, context, peer_ae):
     """Implement the on_c_move callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
@@ -162,7 +162,7 @@ def on_c_move(dataset, move_aet, context):
 
     # Address and port to send to
     if move_aet == b'ANY-SCP         ':
-        yield '10.40.94.43', 104
+        yield '127.0.0.1', 104
     else:
         yield None, None
 
@@ -172,7 +172,7 @@ def on_c_move(dataset, move_aet, context):
 
     # Matching datasets to send
     for dcm in dcm_files:
-        ds = read_file(dcm, force=True)
+        ds = dcmread(dcm, force=True)
         yield 0xff00, ds
 
 # Create application entity

@@ -12,7 +12,6 @@ import sys
 import time
 
 from pydicom.dataset import Dataset, FileDataset
-from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian, UID
 
@@ -26,6 +25,8 @@ formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
+
+VERSION = '0.2.0'
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -108,7 +109,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$getscu.py v{0!s} {1!s} $'.format('0.1.0', '2016-02-15'))
+logger.debug('$getscu.py v{0!s}'.format(VERSION))
 logger.debug('')
 
 
@@ -153,23 +154,25 @@ elif args.psonly:
 else:
     query_model = 'W'
 
-def on_c_store(dataset):
-    """
-    Function replacing ApplicationEntity.on_store(). Called when a dataset is
-    received following a C-STORE. Write the received dataset to file
+def on_c_store(dataset, context, peer_ae):
+    """Write `dataset` to file in the DICOM File Format.
 
     Parameters
     ----------
-    dataset - pydicom.Dataset
+    dataset : pydicom.dataset.Dataset
         The DICOM dataset sent via the C-STORE
+    context : pynetdicom3.presentation.PresentationContext
+        The presentation context the dataset was sent under.
+    peer_ae : dict
+        A dict containing information about the peer Application Entity.
 
     Returns
     -------
-    status : pynetdicom.sop_class.Status or int
-        A valid return status code, see PS3.4 Annex B.2.3 or the
-        StorageServiceClass implementation for the available statuses
+    status : pydicom.dataset.Dataset
+        A Dataset containing a Status element with a value valid for the
+        Storage Service Class (see PS3.4 annex B.2.3). The dataset may also
+        contain optional elements related to the Status (see PS3.7 Annex C).
     """
-    mode_prefix = 'UN'
     mode_prefixes = {'CT Image Storage' : 'CT',
                      'Enhanced CT Image Storage' : 'CTE',
                      'MR Image Storage' : 'MR',
@@ -189,28 +192,70 @@ def on_c_store(dataset):
                      'Secondary Capture Image Storage' : 'SC'}
 
     try:
-        mode_prefix = mode_prefixes[dataset.SOPClassUID.__str__()]
+        mode_prefix = mode_prefixes[dataset.SOPClassUID.name]
     except:
-        pass
+        mode_prefix = 'UN'
 
     filename = '{0!s}.{1!s}'.format(mode_prefix, dataset.SOPInstanceUID)
-    logger.info('Storing DICOM file: {0!s}'.format(filename))
+    LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
-        logger.warning('DICOM file already exists, overwriting')
+        LOGGER.warning('DICOM file already exists, overwriting')
 
+    ## DICOM File Format - File Meta Information Header
+    # If a DICOM dataset is to be stored in the DICOM File Format then the
+    # File Meta Information Header is required. At a minimum it requires:
+    #   * (0002,0000) FileMetaInformationGroupLength, UL, 4
+    #   * (0002,0001) FileMetaInformationVersion, OB, 2
+    #   * (0002,0002) MediaStorageSOPClassUID, UI, N
+    #   * (0002,0003) MediaStorageSOPInstanceUID, UI, N
+    #   * (0002,0010) TransferSyntaxUID, UI, N
+    #   * (0002,0012) ImplementationClassUID, UI, N
+    # (from the DICOM Standard, Part 10, Section 7.1)
+    # Of these, we should update the following as pydicom will take care of
+    #   the remainder
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
     meta.ImplementationClassUID = pynetdicom_uid_prefix
+    meta.TransferSyntaxUID = context.TransferSyntax[0]
 
+    # The following is not mandatory, set for convenience
+    meta.ImplementationVersionName = pynetdicom_version
+
+    # We don't need to use the preamble, so set it as 0x00
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
-    ds.is_little_endian = True
-    ds.is_implicit_VR = True
-    ds.save_as(filename)
 
-    return 0x0000 # Success
+    ds.is_little_endian = context.TransferSyntax[0].is_little_endian
+    ds.is_implicit_VR = context.TransferSyntax[0].is_implicit_VR
+
+    status_ds = Dataset()
+
+    if not args.ignore:
+        # Try to save to output-directory
+        if args.output_directory is not None:
+            filename = os.path.join(args.output_directory, filename)
+
+        try:
+            # We use `write_like_original=False` to ensure that a compliant
+            #   File Meta Information Header is written
+            ds.save_as(filename, write_like_original=False)
+            status_ds.Status = 0x0000 # Success
+        except IOError:
+            LOGGER.error('Could not write file to specified directory:')
+            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+            LOGGER.error('Directory may not exist or you may not have write '
+                    'permission')
+            # Failed - Out of Resources - IOError
+            status_ds.Status = 0xA700
+        except:
+            LOGGER.error('Could not write file to specified directory:')
+            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+            # Failed - Out of Resources - Miscellaneous error
+            status_ds.Status = 0xA701
+
+    return status_ds
 
 ae.on_c_store = on_c_store
 

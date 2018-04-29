@@ -11,7 +11,7 @@ import socket
 import sys
 import time
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
@@ -154,7 +154,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_get(dataset, context):
+def on_c_get(dataset, context, peer_ae):
     """Implement the on_c_get callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
@@ -162,7 +162,7 @@ def on_c_get(dataset, context):
     yield len(dcm_files)
 
     for dcm in dcm_files:
-        ds = read_file(dcm, force=True)
+        ds = dcmread(dcm, force=True)
         yield 0xFF00, ds
 
 scp_classes = [x for x in StorageSOPClassList]
