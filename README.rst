@@ -3,6 +3,8 @@
     :target: https://codecov.io/gh/pydicom/pynetdicom3
 .. image:: https://travis-ci.org/pydicom/pynetdicom3.svg?branch=master
     :target: https://travis-ci.org/pydicom/pynetdicom3
+.. image:: https://circleci.com/gh/pydicom/pynetdicom3/tree/master.svg?style=svg
+    :target: https://circleci.com/gh/pydicom/pynetdicom3/tree/master
 
 pynetdicom3
 ===========
@@ -81,11 +83,15 @@ Where *dataset* is a pydicom Dataset object and *context* is the presentation
 context used to transfer *dataset*. See the SCP Examples and the AE
 documentation for more information.
 
+Documentation
+-------------
+Documentation is available for stable releases as well as the current `development version. <https://pydicom.github.io/pynetdicom3/dev>`_
+
 Installation
 -----------
 Dependencies
 ~~~~~~~~~~~~
-`pydicom <https://github.com/pydicom/pydicom>`_ >= 1.0.0a1
+`pydicom <https://github.com/pydicom/pydicom>`_
 
 Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
