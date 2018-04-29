@@ -366,13 +366,13 @@
 <span class="sd">        9.1.5.1.4 indicates it may have any of the following values:</span>
 
 <span class="sd">        Success</span>
-<span class="sd">          | ``0x000`` - Success</span>
+<span class="sd">          | ``0x0000`` Success</span>
 
 <span class="sd">        Failure</span>
-<span class="sd">          | ``0x0122`` - Refused: SOP Class Not Supported</span>
-<span class="sd">          | ``0x0210`` - Refused: Duplicate Invocation</span>
-<span class="sd">          | ``0x0211`` - Refused: Unrecognised Operation</span>
-<span class="sd">          | ``0x0212`` - Refused: Mistyped Argument</span>
+<span class="sd">          | ``0x0122`` Refused: SOP Class Not Supported</span>
+<span class="sd">          | ``0x0210`` Refused: Duplicate Invocation</span>
+<span class="sd">          | ``0x0211`` Refused: Unrecognised Operation</span>
+<span class="sd">          | ``0x0212`` Refused: Mistyped Argument</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -469,29 +469,29 @@
 <span class="sd">        *Status*</span>
 
 <span class="sd">        Success</span>
-<span class="sd">          | ``0x0000`` - Success</span>
+<span class="sd">          | ``0x0000`` Success</span>
 
 <span class="sd">        Warning</span>
-<span class="sd">          | ``0xB000`` - Warning: Coercion of Data Elements</span>
-<span class="sd">          | ``0xB006`` - Warning: Elements Discarded</span>
-<span class="sd">          | ``0xB007`` - Warning: Data Set Does Not Match SOP Class</span>
+<span class="sd">          | ``0xB000`` Warning: Coercion of Data Elements</span>
+<span class="sd">          | ``0xB006`` Warning: Elements Discarded</span>
+<span class="sd">          | ``0xB007`` Warning: Data Set Does Not Match SOP Class</span>
 
 <span class="sd">        Failure</span>
-<span class="sd">          | ``0x0117`` - Refused: Invalid SOP Instance</span>
-<span class="sd">          | ``0x0122`` - Refused: SOP Class Not Supported</span>
-<span class="sd">          | ``0x0124`` - Refused: Not Authorised</span>
-<span class="sd">          | ``0x0210`` - Refused: Duplicate Invocation</span>
-<span class="sd">          | ``0x0211`` - Refused: Unrecognised Operation</span>
-<span class="sd">          | ``0x0212`` - Refused: Mistyped Argument</span>
-<span class="sd">          | ``0xA700`` to ``0xA7FF`` - Refused: Out of Resources</span>
-<span class="sd">          | ``0xA900`` to ``0xA9FF`` - Error: Data Set Does Not Match SOP Class</span>
-<span class="sd">          | ``0xC000`` to ``0xCFFF`` - Error: Cannot Understand</span>
+<span class="sd">          | ``0x0117`` Refused: Invalid SOP Instance</span>
+<span class="sd">          | ``0x0122`` Refused: SOP Class Not Supported</span>
+<span class="sd">          | ``0x0124`` Refused: Not Authorised</span>
+<span class="sd">          | ``0x0210`` Refused: Duplicate Invocation</span>
+<span class="sd">          | ``0x0211`` Refused: Unrecognised Operation</span>
+<span class="sd">          | ``0x0212`` Refused: Mistyped Argument</span>
+<span class="sd">          | ``0xA700`` to ``0xA7FF`` Refused: Out of Resources</span>
+<span class="sd">          | ``0xA900`` to ``0xA9FF`` Error: Data Set Does Not Match SOP Class</span>
+<span class="sd">          | ``0xC000`` to ``0xCFFF`` Error: Cannot Understand</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        .. [1] DICOM Standard, Part 4, `Annex B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B&gt;`_`.</span>
+<span class="sd">        .. [1] DICOM Standard, Part 4, `Annex B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B&gt;`_.</span>
 <span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
-<span class="sd">           `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_`,</span>
+<span class="sd">           `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_,</span>
 <span class="sd">           `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_ and</span>
 <span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -613,24 +613,24 @@
 <span class="sd">        *Status*</span>
 
 <span class="sd">        Success</span>
-<span class="sd">          | ``0x0000`` - Success</span>
+<span class="sd">          | ``0x0000`` Success</span>
 
 <span class="sd">        Pending</span>
-<span class="sd">          | ``0xFF00`` - Matches are continuing, current match supplied</span>
-<span class="sd">          | ``0xFF01`` - Matches are continuing, warning</span>
+<span class="sd">          | ``0xFF00`` Matches are continuing, current match supplied</span>
+<span class="sd">          | ``0xFF01`` Matches are continuing, warning</span>
 
 <span class="sd">        Cancel</span>
-<span class="sd">          | ``0xFE00`` - Cancel</span>
+<span class="sd">          | ``0xFE00`` Cancel</span>
 
 <span class="sd">        Failure</span>
-<span class="sd">          | ``0x0122`` - SOP class not supported</span>
-<span class="sd">          | ``0xA700`` - Out of resources</span>
-<span class="sd">          | ``0xA900`` - Identifier does not match SOP class</span>
-<span class="sd">          | ``0xC000`` to ``0xCFFF`` - Unable to process</span>
+<span class="sd">          | ``0x0122`` SOP class not supported</span>
+<span class="sd">          | ``0xA700`` Out of resources</span>
+<span class="sd">          | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">          | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        .. [1] DICOM Standard, Part 4, Annex C.</span>
+<span class="sd">        .. [1] DICOM Standard, Part 4, &#39;Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;&#39;_.</span>
 <span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
 <span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
@@ -821,28 +821,28 @@
 <span class="sd">        *Status*</span>
 
 <span class="sd">        Success</span>
-<span class="sd">          | ``0x0000`` - Sub-operations complete: no failures</span>
+<span class="sd">          | ``0x0000`` Sub-operations complete: no failures</span>
 
 <span class="sd">        Pending</span>
-<span class="sd">          | ``0xFF00`` - Sub-operations are continuing</span>
+<span class="sd">          | ``0xFF00`` Sub-operations are continuing</span>
 
 <span class="sd">        Cancel</span>
-<span class="sd">          | ``0xFE00`` - Sub-operations terminated due to Cancel indication</span>
+<span class="sd">          | ``0xFE00`` Sub-operations terminated due to Cancel indication</span>
 
 <span class="sd">        Failure</span>
-<span class="sd">          | ``0x0122`` - SOP class not supported</span>
-<span class="sd">          | ``0x0124`` - Not authorised</span>
-<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
-<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
-<span class="sd">          | ``0x0212`` - Mistyped argument</span>
-<span class="sd">          | ``0xA701`` - Out of resources: unable to calculate number of matches</span>
-<span class="sd">          | ``0xA702`` - Out of resources, unable to perform sub-operations</span>
-<span class="sd">          | ``0xA801`` - Move destination unknown</span>
-<span class="sd">          | ``0xA900`` - Identifier does not match SOP class</span>
-<span class="sd">          | ``0xC000`` to ``0xCFFF`` - Unable to process</span>
+<span class="sd">          | ``0x0122`` SOP class not supported</span>
+<span class="sd">          | ``0x0124`` Not authorised</span>
+<span class="sd">          | ``0x0210`` Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` Mistyped argument</span>
+<span class="sd">          | ``0xA701`` Out of resources: unable to calculate number of matches</span>
+<span class="sd">          | ``0xA702`` Out of resources, unable to perform sub-operations</span>
+<span class="sd">          | ``0xA801`` Move destination unknown</span>
+<span class="sd">          | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">          | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
 <span class="sd">        Warning</span>
-<span class="sd">          | ``0xB000`` - Sub-operations complete: one or more failures</span>
+<span class="sd">          | ``0xB000`` Sub-operations complete: one or more failures</span>
 
 <span class="sd">        *Number of X Sub-operations*</span>
 
@@ -869,8 +869,8 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        .. [1] DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
-<span class="sd">        .. [2] DICOM Standard Part 7, Sections</span>
+<span class="sd">        .. [1] DICOM Standard, Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
+<span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4&gt;`_,</span>
 <span class="sd">           `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_ and</span>
 <span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
@@ -1235,27 +1235,27 @@
 <span class="sd">        *Status*</span>
 
 <span class="sd">        Success</span>
-<span class="sd">          | ``0x0000`` - Sub-operations complete: no failures or warnings</span>
+<span class="sd">          | ``0x0000`` Sub-operations complete: no failures or warnings</span>
 
 <span class="sd">        Pending</span>
-<span class="sd">          | ``0xFF00`` - Sub-operations are continuing</span>
+<span class="sd">          | ``0xFF00`` Sub-operations are continuing</span>
 
 <span class="sd">        Cancel</span>
-<span class="sd">          | ``0xFE00`` - Sub-operations terminated due to Cancel indication</span>
+<span class="sd">          | ``0xFE00`` Sub-operations terminated due to Cancel indication</span>
 
 <span class="sd">        Failure</span>
-<span class="sd">          | ``0x0122`` - SOP class not supported</span>
-<span class="sd">          | ``0x0124`` - Not authorised</span>
-<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
-<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
-<span class="sd">          | ``0x0212`` - Mistyped argument</span>
-<span class="sd">          | ``0xA701`` - Out of resources: unable to calculate number of matches</span>
-<span class="sd">          | ``0xA702`` - Out of resources: unable to perform sub-operations</span>
-<span class="sd">          | ``0xA900`` - Identifier does not match SOP class</span>
-<span class="sd">          | ``0xC000`` to ``0xCFFF`` - Unable to process</span>
+<span class="sd">          | ``0x0122`` SOP class not supported</span>
+<span class="sd">          | ``0x0124`` Not authorised</span>
+<span class="sd">          | ``0x0210`` Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` Mistyped argument</span>
+<span class="sd">          | ``0xA701`` Out of resources: unable to calculate number of matches</span>
+<span class="sd">          | ``0xA702`` Out of resources: unable to perform sub-operations</span>
+<span class="sd">          | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">          | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
 <span class="sd">        Warning</span>
-<span class="sd">          | ``0xB000`` - Sub-operations complete: one or more failures or warnings</span>
+<span class="sd">          | ``0xB000`` Sub-operations complete: one or more failures or warnings</span>
 
 <span class="sd">        *Number of X Sub-operations*</span>
 
@@ -1282,9 +1282,9 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        .. [1] DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
-<span class="sd">        .. [2] DICOM Standard Part 7, Sections</span>
-<span class="sd">           `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`-,</span>
+<span class="sd">        .. [1] DICOM Standard, Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
+<span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
+<span class="sd">           `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`_,</span>
 <span class="sd">           `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_ and</span>
 <span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
