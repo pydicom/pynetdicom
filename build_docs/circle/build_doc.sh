@@ -93,25 +93,26 @@ sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes \
     latexmk
 
 # deactivate circleci virtualenv and setup a miniconda env instead
-if [[ `type -t deactivate` ]]; then
-  deactivate
-fi
+#if [[ `type -t deactivate` ]]; then
+#  deactivate
+#fi
 
 # Install dependencies with miniconda
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-   -O miniconda.sh
-chmod +x miniconda.sh && ./miniconda.sh -b -p $MINICONDA_PATH
-export PATH="$MINICONDA_PATH/bin:$PATH"
-conda update --yes --quiet conda
+#wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+#   -O miniconda.sh
+#chmod +x miniconda.sh && ./miniconda.sh -b -p $MINICONDA_PATH
+#export PATH="$MINICONDA_PATH/bin:$PATH"
+#conda update --yes --quiet conda
 
 # Configure the conda environment and put it in the path using the
 # provided versions
-conda create -n $CONDA_ENV_NAME --yes --quiet python=3
-source activate $CONDA_ENV_NAME
+#conda create -n $CONDA_ENV_NAME --yes --quiet python=3
+#source activate $CONDA_ENV_NAME
 
-conda install --yes --quiet pip setuptools numpy matplotlib sphinx \
-      pillow sphinx_rtd_theme numpydoc
-conda install --yes --quiet -c conda-forge gdcm
+#conda install --yes --quiet pip setuptools numpy matplotlib sphinx \
+#      pillow sphinx_rtd_theme numpydoc
+#conda install --yes --quiet -c conda-forge gdcm
+pip install numpy matplotlib sphinx pillow sphinx_rtd_theme numpydoc
 pip install sphinx-gallery sphinxcontrib-napoleon
 
 # Add pydicom
