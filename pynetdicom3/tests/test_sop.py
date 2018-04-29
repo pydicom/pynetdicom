@@ -1,11 +1,10 @@
-"""Unit tests for the Status class."""
+"""Tests for the sop_class module."""
 
 import logging
 from io import BytesIO
 import os
 import threading
 import time
-import unittest
 
 import pytest
 
@@ -351,7 +350,7 @@ class TestStorageServiceClass(object):
                 thread.abort()
                 thread.stop()
 
-    @unittest.skip('Difficult to test correctly')
+    @pytest.mark.skip('Difficult to test correctly')
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
         # Although we managed to get a failure with issue #632 in pydicom
@@ -508,9 +507,9 @@ class TestStorageServiceClass(object):
         self.scp.stop()
 
 
-class TestQRFindServiceClass(unittest.TestCase):
+class TestQRFindServiceClass(object):
     """Test the QueryRetrieveFindServiceClass"""
-    def setUp(self):
+    def setup(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.QueryRetrieveLevel = "PATIENT"
@@ -518,7 +517,7 @@ class TestQRFindServiceClass(unittest.TestCase):
 
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -547,8 +546,8 @@ class TestQRFindServiceClass(unittest.TestCase):
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
-        result, _ = assoc.dimse.receive_msg(True)
-        self.assertEqual(result.Status, 0xC310)
+        rsp, _ = assoc.dimse.receive_msg(True)
+        assert rsp.Status == 0xC310
 
         assoc.release()
         self.scp.stop()
@@ -566,9 +565,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
+        assert status.Status == 0xFF00
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
+        assert status.Status == 0x0000
 
         assoc.release()
         self.scp.stop()
@@ -588,11 +587,11 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(status.ErrorComment, 'Test')
-        self.assertEqual(status.OffendingElement, 0x00010001)
+        assert status.Status == 0xFF00
+        assert status.ErrorComment == 'Test'
+        assert status.OffendingElement == 0x00010001
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
+        assert status.Status == 0x0000
 
         assoc.release()
         self.scp.stop()
@@ -609,9 +608,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
+        assert status.Status == 0xFF00
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
+        assert status.Status == 0x0000
 
         assoc.release()
         self.scp.stop()
@@ -627,8 +626,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFFF0)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFFF0
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -643,8 +643,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC002
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -659,8 +660,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC002
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -676,8 +678,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC311)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC311
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -693,8 +696,9 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC312)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC312
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -758,12 +762,13 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFE00)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFE00
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -780,12 +785,13 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF01)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -802,12 +808,13 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xA700)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xA700
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -824,18 +831,19 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF01)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFE00)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFE00
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -852,18 +860,19 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF01)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -880,25 +889,26 @@ class TestQRFindServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF01)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, self.query)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xA700)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xA700
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
 
 
-class TestQRGetServiceClass(unittest.TestCase):
-    def setUp(self):
+class TestQRGetServiceClass(object):
+    def setup(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.PatientName = '*'
@@ -914,7 +924,7 @@ class TestQRGetServiceClass(unittest.TestCase):
 
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -943,8 +953,8 @@ class TestQRGetServiceClass(unittest.TestCase):
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
-        result, _ = assoc.dimse.receive_msg(True)
-        self.assertEqual(result.Status, 0xC410)
+        rsp, _ = assoc.dimse.receive_msg(True)
+        assert rsp.Status == 0xC410
 
         assoc.release()
         self.scp.stop()
@@ -962,13 +972,15 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC413)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC413
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -986,17 +998,19 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1019,14 +1033,15 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(status.ErrorComment, 'Test')
-        self.assertEqual(status.OffendingElement, 0x00010001)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert status.ErrorComment == 'Test'
+        assert status.OffendingElement == 0x00010001
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1041,17 +1056,19 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1066,14 +1083,16 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFFF0)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFFF0
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -1087,14 +1106,16 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC002
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -1108,14 +1129,16 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC002
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -1130,14 +1153,16 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC411)
-        self.assertEqual(identifier, Dataset())
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC411
+        assert identifier == Dataset()
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -1152,17 +1177,19 @@ class TestQRGetServiceClass(unittest.TestCase):
                                CTImageStorage])
         def on_c_store(ds, context, peer_ae):
             return 0x0000
+
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1190,21 +1217,22 @@ class TestQRGetServiceClass(unittest.TestCase):
         result = assoc.send_c_get(self.query, query_model='P')
 
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 1)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 2)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 2
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -1299,12 +1327,13 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1326,15 +1355,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1357,18 +1387,19 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 2)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 2
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1391,18 +1422,19 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 2)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 2
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1425,15 +1457,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1456,15 +1489,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 1)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 1
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1487,15 +1521,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 1)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1518,21 +1553,22 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 3)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 3
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1555,23 +1591,24 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 3)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1',
-                                                               '1.1.1',
-                                                               '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 3
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1',
+                                                       '1.1.1',
+                                                       '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1594,23 +1631,24 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 3)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1',
-                                                               '1.1.1',
-                                                               '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 3
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1',
+                                                       '1.1.1',
+                                                       '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1633,15 +1671,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 1)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier.FailedSOPInstanceUIDList == '1.2.3'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1664,15 +1703,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1695,15 +1735,16 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFE00)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFE00
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier.FailedSOPInstanceUIDList == '1.2.3'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1726,22 +1767,23 @@ class TestQRGetServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 1)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 1
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList =='1.1.1'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
 
 
-class TestQRMoveServiceClass(unittest.TestCase):
-    def setUp(self):
+class TestQRMoveServiceClass(object):
+    def setup(self):
         """Run prior to each test"""
         self.query = Dataset()
         self.query.PatientName = '*'
@@ -1757,7 +1799,7 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -1786,8 +1828,8 @@ class TestQRMoveServiceClass(unittest.TestCase):
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
-        result, _ = assoc.dimse.receive_msg(True)
-        self.assertEqual(result.Status, 0xC510)
+        rsp, _ = assoc.dimse.receive_msg(True)
+        assert rsp.Status == 0xC510
 
         assoc.release()
         self.scp.stop()
@@ -1810,8 +1852,9 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC514)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC514
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1833,8 +1876,9 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC514)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC514
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1856,8 +1900,9 @@ class TestQRMoveServiceClass(unittest.TestCase):
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xA801)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xA801
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1878,8 +1923,9 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC513)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC513
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1901,8 +1947,9 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC515)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC515
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1923,12 +1970,13 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1949,14 +1997,15 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(status.ErrorComment, 'Test')
-        self.assertEqual(status.OffendingElement, 0x00010001)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert status.ErrorComment == 'Test'
+        assert status.OffendingElement == 0x00010001
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1974,12 +2023,13 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -1997,9 +2047,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFFF0)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFFF0
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -2016,9 +2067,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC002
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -2035,9 +2087,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC002)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC002
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -2055,9 +2108,10 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC511)
-        self.assertEqual(identifier, Dataset())
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC511
+        assert identifier == Dataset()
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -2075,12 +2129,13 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2103,21 +2158,22 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 1)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 2)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 2
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
         assoc.release()
         self.scp.stop()
 
@@ -2137,12 +2193,13 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelMove.UID
         assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
@@ -2166,12 +2223,13 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         # Note: can't guarantee the port number
         assert self.scp.peer_ae['address'] == '127.0.0.1'
@@ -2195,15 +2253,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2225,18 +2284,19 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 2)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 2
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2258,12 +2318,13 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 2)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 2
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ''
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2285,18 +2346,19 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 2)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1', '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 2
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2317,15 +2379,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2347,15 +2410,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 1)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 1
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2377,15 +2441,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 1)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2406,21 +2471,22 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 3)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 3
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2442,23 +2508,24 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 3)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1',
-                                                               '1.1.1',
-                                                               '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 3
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1',
+                                                       '1.1.1',
+                                                       '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2480,23 +2547,24 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 3)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, ['1.1.1',
-                                                               '1.1.1',
-                                                               '1.1.1'])
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 3
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == ['1.1.1',
+                                                       '1.1.1',
+                                                       '1.1.1']
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2517,15 +2585,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xC000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 1)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xC000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier.FailedSOPInstanceUIDList == '1.2.3'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2546,15 +2615,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0x0000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier, None)
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2575,15 +2645,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFE00)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 0)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 1)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.2.3')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xFE00
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier.FailedSOPInstanceUIDList == '1.2.3'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2605,15 +2676,16 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xFF00)
-        self.assertEqual(identifier, None)
+        assert status.Status == 0xFF00
+        assert identifier is None
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xB000)
-        self.assertEqual(status.NumberOfFailedSuboperations, 0)
-        self.assertEqual(status.NumberOfWarningSuboperations, 1)
-        self.assertEqual(status.NumberOfCompletedSuboperations, 0)
-        self.assertEqual(identifier.FailedSOPInstanceUIDList, '1.1.1')
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 1
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
@@ -2635,16 +2707,17 @@ class TestQRMoveServiceClass(unittest.TestCase):
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
         status, identifier = next(result)
-        self.assertEqual(status.Status, 0xA801)
-        self.assertEqual(identifier, Dataset())
-        self.assertRaises(StopIteration, next, result)
+        assert status.Status == 0xA801
+        assert identifier == Dataset()
+        with pytest.raises(StopIteration):
+            next(result)
 
         assoc.release()
         self.scp.stop()
 
 
-class TestUIDtoSOPlass(unittest.TestCase):
+class TestUIDtoSOPlass(object):
     def test_missing_sop(self):
         """Test raise if SOP Class not found."""
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             uid_to_sop_class('1.2.3.4')
