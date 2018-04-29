@@ -217,7 +217,6 @@ class VerificationServiceClass(ServiceClass):
         References
         ----------
         .. [1] DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-
         .. [2] DICOM Standard, Part 7, Sections
            `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
            `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
@@ -707,7 +706,6 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         +-----------+-----------+-----------+--------+---------+
         | Success   | shall not | may       | may    | may     |
         +-----------+-----------+-----------+--------+---------+
-
 
         References
         ----------
