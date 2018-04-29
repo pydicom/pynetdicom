@@ -170,17 +170,19 @@ class VerificationServiceClass(ServiceClass):
         Will always return 0x0000 (Success) unless the user returns a different
         (valid) status value from the AE.on_c_echo callback.
 
-        **C-ECHO Request**
-       
-        Parameters
-        ~~~~~~~~~~
+        C-ECHO Request
+        --------------
+
+        **Parameters**
+
         (M) Message ID
         (M) Affected SOP Class UID
 
-        **C-ECHO Response**
+        C-ECHO Response
+        ---------------
 
-        Parameters
-        ~~~~~~~~~~
+        **Parameters**
+
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
@@ -188,15 +190,16 @@ class VerificationServiceClass(ServiceClass):
 
         Status
         ~~~~~~
-        The DICOM Standard Part 7, Table 9.3-13 indicates that the Status value
+
+        The DICOM Standard [2]_ (Table 9.3-13) indicates that the Status value
         of a C-ECHO response "shall have a value of Success". However Section
         9.1.5.1.4 indicates it may have any of the following values:
 
-        Success
+        *Success*
 
         - 0x000 - Success
 
-        Failure
+        *Failure*
 
         - 0x0122 - Refused: SOP Class Not Supported
         - 0x0210 - Refused: Duplicate Invocation
@@ -205,18 +208,25 @@ class VerificationServiceClass(ServiceClass):
 
         Parameters
         ----------
+
         req : pynetdicom3.dimse_primitives.C_ECHO
             The C-ECHO request primitive sent by the peer.
 
         See Also
         --------
+
         applicationentity.ApplicationEntity.on_c_echo
         association.Association.send_c_echo
 
         References
         ----------
-        DICOM Standard Part 4, Annex A
-        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
+
+        .. [1] DICOM Standard Part 4, `Annex A<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`__
+
+        .. [2] DICOM Standard Part 7,
+        `Sections 9.1.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`__,
+        `9.3.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`__ and
+        `Annex C<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
         """
         # Build C-ECHO response primitive
         rsp = C_ECHO()
@@ -267,10 +277,11 @@ class StorageServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Storage Service Class.
 
-        **C-STORE Request**
+        C-STORE Request
+        ---------------
 
-        Parameters
-        ~~~~~~~~~~
+        **Parameters**
+
         (M) Message ID
         (M) Affected SOP Class UID
         (M) Affected SOP Instance UID
@@ -279,10 +290,11 @@ class StorageServiceClass(ServiceClass):
         (U) Move Originator Message ID
         (M) Data Set
 
-        **C-STORE Response**
+        C-STORE Response
+        ----------------
 
-        Parameters
-        ~~~~~~~~~~
+        **Parameters**
+
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
@@ -291,17 +303,18 @@ class StorageServiceClass(ServiceClass):
 
         Status
         ~~~~~~
-        Success
+
+        *Success*
 
         - 0x0000 - Success
 
-        Warning
+        *Warning*
 
         - 0xB000 - Warning: Coercion of Data Elements
         - 0xB006 - Warning: Elements Discarded
         - 0xB007 - Warning: Data Set Does Not Match SOP Class
 
-        Failure
+        *Failure*
 
         - 0x0117 - Refused: Invalid SOP Instance
         - 0x0122 - Refused: SOP Class Not Supported
@@ -371,7 +384,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Find Service Class.
 
-        **C-FIND Request**
+        C-FIND Request
+        --------------
 
         **Parameters**
 
@@ -380,7 +394,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         (M) Priority
         (M) Identifier
 
-        **Identifier**
+        Identifier
+        ~~~~~~~~~~
 
         The C-FIND request Identifier shall contain:
 
@@ -397,7 +412,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
           the request Identifier are to be interpreted explicitly in the
           designated local time zone. It shall not be present otherwise.
 
-        **C-FIND Response**
+        C-FIND Response
+        ---------------
 
         **Parameters**
 
@@ -407,7 +423,8 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         (C) Identifier
         (M) Status
 
-        **Identifier**
+        Identifier
+        ~~~~~~~~~~
 
         The C-FIND response shall only include an Identifier when the Status is
         'Pending'. When sent, the Identifier shall contain:
@@ -431,22 +448,23 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         The C-FIND response Identifier may also (but is not required to)
         include the (0008,0056) Instance Availability element.
 
-        **Status**
+        Status
+        ~~~~~~
 
-        Success
+        *Success*
 
         - 0x0000 - Success
 
-        Pending
+        *Pending*
 
         - 0xFF00 - Matches are continuing, current match supplied
         - 0xFF01 - Matches are continuing, warning
 
-        Cancel
+        *Cancel*
 
         - 0xFE00 - Cancel
 
-        Failure
+        *Failure*
 
         - 0x0122 - SOP class not supported
         - 0xA700 - Out of resources
@@ -587,7 +605,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Move Service Class.
 
-        **C-MOVE Request**
+        C-MOVE Request
+        --------------
 
         **Parameters**
 
@@ -597,7 +616,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         (M) Move Destination
         (M) Identifier
 
-        **Identifier**
+        Identifier
+        ~~~~~~~~~~
 
         The C-MOVE request Identifier shall contain:
 
@@ -615,7 +635,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
           using a character set other than the default character repertoire.
 
-        **C-MOVE Response**
+        C-MOVE Response
+        ---------------
 
         **Parameters**
 
@@ -629,7 +650,8 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         (C) Number of Failed Sub-operations
         (C) Number of Warning Sub-operations
 
-        **Identifier**
+        Identifier
+        ~~~~~~~~~~
 
         If the C-MOVE response Status is 'Cancelled', 'Failure', 'Refused' or
         'Warning' then the Identifier shall contain:
@@ -638,21 +660,22 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         If the C-MOVE response Status is 'Pending' then there is no Identifier.
 
-        **Status**
+        Status
+        ~~~~~~
 
-        Success
+        *Success*
 
         - 0x0000 - Sub-operations complete: no failures
 
-        Pending
+        *Pending*
 
         - 0xFF00 - Sub-operations are continuing
 
-        Cancel
+        *Cancel*
 
         - 0xFE00 - Sub-operations terminated due to Cancel indication
 
-        Failure
+        *Failure*
 
         - 0x0122 - SOP class not supported
         - 0x0124 - Not authorised
@@ -665,11 +688,12 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         - 0xA900 - Identifier does not match SOP class
         - 0xC000 to 0xCFFF - Unable to process
 
-        Warning
+        *Warning*
 
         - 0xB000 - Sub-operations complete: one or more failures
 
-        **Number of X Sub-operations**
+        Number of X Sub-operations
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         Inclusion of the 'Number of X Sub-operations' parameters is conditional
         on the value of the response Status. For a given Status category, the
@@ -1002,7 +1026,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     def SCP(self, req):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
-        **C-GET Request**
+        C-GET Request
+        -------------
 
         **Parameters**
 
@@ -1011,7 +1036,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         (M) Priority
         (M) Identifier
 
-        **Identifier**
+        Identifier
+        ~~~~~~~~~~
 
         The C-GET request Identifier shall contain:
 
@@ -1029,7 +1055,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
           using a character set other than the default character repertoire.
 
-        **C-GET Response**
+        C-GET Response
+        --------------
 
         **Parameters**
 
@@ -1043,7 +1070,8 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         (C) Number of Failed Sub-operations
         (C) Number of Warning Sub-operations
 
-        **Identifier**
+        Identifier
+        ~~~~~~~~~~
 
         If the C-GET response Status is 'Cancelled', 'Failure', 'Refused' or
         'Warning' then the Identifier shall contain:
@@ -1052,21 +1080,22 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         If the C-GET response Status is 'Pending' then there is no Identifier.
 
-        **Status**
+        Status
+        ~~~~~~
 
-        Success
+        *Success*
 
         - 0x0000 - Sub-operations complete: no failures or warnings
 
-        Pending
+        *Pending*
 
         - 0xFF00 - Sub-operations are continuing
 
-        Cancel
+        *Cancel*
 
         - 0xFE00 - Sub-operations terminated due to Cancel indication
 
-        Failure
+        *Failure*
 
         - 0x0122 - SOP class not supported
         - 0x0124 - Not authorised
@@ -1078,11 +1107,12 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         - 0xA900 - Identifier does not match SOP class
         - 0xC000 to 0xCFFF - Unable to process
 
-        Warning
+        *Warning*
 
         - 0xB000 - Sub-operations complete: one or more failures or warnings
 
-        **Number of X Sub-operations**
+        Number of X Sub-operations
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         Inclusion of the 'Number of X Sub-operations' parameters is conditional
         on the value of the response Status. For a given Status category, the

@@ -14,3 +14,16 @@
 {{references}}
 {{examples}}
 {{methods}}
+{{status}}
+{{identifier}}
+{{c-echo_request}}
+{{c-echo_response}}
+{{c-store_request}}
+{{c-store_response}}
+{{c-find_request}}
+{{c-find_response}}
+{{c-move_request}}
+{{c-move_response}}
+{{c-get_request}}
+{{c-get_response}}
+{{number_of_x_sub-operations}}
