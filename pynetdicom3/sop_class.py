@@ -206,19 +206,20 @@ class VerificationServiceClass(ServiceClass):
         9.1.5.1.4 indicates it may have any of the following values:
 
         Success
-          - 0x000 - Success
+          | ``0x000`` - Success
 
         Failure
-          - 0x0122 - Refused: SOP Class Not Supported
-          - 0x0210 - Refused: Duplicate Invocation
-          - 0x0211 - Refused: Unrecognised Operation
-          - 0x0212 - Refused: Mistyped Argument
+          | ``0x0122`` - Refused: SOP Class Not Supported
+          | ``0x0210`` - Refused: Duplicate Invocation
+          | ``0x0211`` - Refused: Unrecognised Operation
+          | ``0x0212`` - Refused: Mistyped Argument
 
         References
         ----------
-        .. [1] DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-        .. [2] DICOM Standard Part 7,
-           `Sections 9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+        .. [1] DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+
+        .. [2] DICOM Standard, Part 7, Sections
+           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
            `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
@@ -309,28 +310,31 @@ class StorageServiceClass(ServiceClass):
         *Status*
 
         Success
-          - 0x0000 - Success
+          | ``0x0000`` - Success
 
         Warning
-          - 0xB000 - Warning: Coercion of Data Elements
-          - 0xB006 - Warning: Elements Discarded
-          - 0xB007 - Warning: Data Set Does Not Match SOP Class
+          | ``0xB000`` - Warning: Coercion of Data Elements
+          | ``0xB006`` - Warning: Elements Discarded
+          | ``0xB007`` - Warning: Data Set Does Not Match SOP Class
 
         Failure
-          - 0x0117 - Refused: Invalid SOP Instance
-          - 0x0122 - Refused: SOP Class Not Supported
-          - 0x0124 - Refused: Not Authorised
-          - 0x0210 - Refused: Duplicate Invocation
-          - 0x0211 - Refused: Unrecognised Operation
-          - 0x0212 - Refused: Mistyped Argument
-          - 0xA700 to 0xA7FF - Refused: Out of Resources
-          - 0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
-          - 0xC000 to 0xCFFF - Error: Cannot Understand
+          | ``0x0117`` - Refused: Invalid SOP Instance
+          | ``0x0122`` - Refused: SOP Class Not Supported
+          | ``0x0124`` - Refused: Not Authorised
+          | ``0x0210`` - Refused: Duplicate Invocation
+          | ``0x0211`` - Refused: Unrecognised Operation
+          | ``0x0212`` - Refused: Mistyped Argument
+          | ``0xA700`` to ``0xA7FF`` - Refused: Out of Resources
+          | ``0xA900`` to ``0xA9FF`` - Error: Data Set Does Not Match SOP Class
+          | ``0xC000`` to ``0xCFFF`` - Error: Cannot Understand
 
         References
         ----------
-        DICOM Standard Part 4, Annex B.
-        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C.
+        .. [1] DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_`.
+        .. [2] DICOM Standard, Part 7, Sections
+           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_`,
+           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-STORE response primitive
         rsp = C_STORE()
@@ -375,18 +379,28 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     def SCP(self, request):
         """The SCP implementation for the Query/Retrieve Find Service Class.
 
-        C-FIND Request
-        --------------
+        Parameters
+        ----------
+        request : pynetdicom3.dimse_primitives.C_FIND
+            The C-FIND request primitive received from the peer.
 
-        **Parameters**
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_find
+        association.Association.send_c_find
 
-        (M) Message ID
-        (M) Affected SOP Class UID
-        (M) Priority
-        (M) Identifier
+        Notes
+        -----
+        **C-FIND Request**
 
-        Identifier
-        ~~~~~~~~~~
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Identifier
+
+        *Identifier*
 
         The C-FIND request Identifier shall contain:
 
@@ -403,19 +417,17 @@ class QueryRetrieveFindServiceClass(ServiceClass):
           the request Identifier are to be interpreted explicitly in the
           designated local time zone. It shall not be present otherwise.
 
-        C-FIND Response
-        ---------------
+        **C-FIND Response**
 
-        **Parameters**
+        *Parameters*
 
-        (U) Message ID
-        (M) Message ID Being Responded To
-        (U) Affected SOP Class UID
-        (C) Identifier
-        (M) Status
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (C) Identifier
+        | (M) Status
 
-        Identifier
-        ~~~~~~~~~~
+        *Identifier*
 
         The C-FIND response shall only include an Identifier when the Status is
         'Pending'. When sent, the Identifier shall contain:
@@ -439,43 +451,31 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         The C-FIND response Identifier may also (but is not required to)
         include the (0008,0056) Instance Availability element.
 
-        Status
-        ~~~~~~
+        *Status*
 
-        *Success*
+        Success
+          | ``0x0000`` - Success
 
-        - 0x0000 - Success
+        Pending
+          | ``0xFF00`` - Matches are continuing, current match supplied
+          | ``0xFF01`` - Matches are continuing, warning
 
-        *Pending*
+        Cancel
+          | ``0xFE00`` - Cancel
 
-        - 0xFF00 - Matches are continuing, current match supplied
-        - 0xFF01 - Matches are continuing, warning
-
-        *Cancel*
-
-        - 0xFE00 - Cancel
-
-        *Failure*
-
-        - 0x0122 - SOP class not supported
-        - 0xA700 - Out of resources
-        - 0xA900 - Identifier does not match SOP class
-        - 0xC000 to 0xCFFF - Unable to process
-
-        Parameters
-        ----------
-        request : pynetdicom3.dimse_primitives.C_FIND
-            The C-FIND request primitive received from the peer.
-
-        See Also
-        --------
-        applicationentity.ApplicationEntity.on_c_find
-        association.Association.send_c_find
+        Failure
+          | ``0x0122`` - SOP class not supported
+          | ``0xA700`` - Out of resources
+          | ``0xA900`` - Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` - Unable to process
 
         References
         ----------
-        DICOM Standard Part 4, Annex C.
-        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C.
+        .. [1] DICOM Standard, Part 4, Annex C.
+        .. [2] DICOM Standard, Part 7, Sections
+           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
@@ -596,19 +596,29 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     def SCP(self, request):
         """The SCP implementation for the Query/Retrieve Move Service Class.
 
-        C-MOVE Request
-        --------------
+        Parameters
+        ----------
+        request : pynetdicom3.dimse_primitives.C_MOVE
+            The C-MOVE request primitive sent by the peer.
 
-        **Parameters**
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_move
+        association.Association.send_c_move
 
-        (M) Message ID
-        (M) Affected SOP Class UID
-        (M) Priority
-        (M) Move Destination
-        (M) Identifier
+        Notes
+        -----
+        **C-MOVE Request**
 
-        Identifier
-        ~~~~~~~~~~
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Move Destination
+        | (M) Identifier
+
+        *Identifier*
 
         The C-MOVE request Identifier shall contain:
 
@@ -626,23 +636,21 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
           using a character set other than the default character repertoire.
 
-        C-MOVE Response
-        ---------------
+        **C-MOVE Response**
 
-        **Parameters**
+        *Parameters*
 
-        (U) Message ID
-        (M) Message ID Being Responded To
-        (U) Affected SOP Class UID
-        (U) Identifier
-        (M) Status
-        (C) Number of Remaining Sub-operations
-        (C) Number of Completed Sub-operations
-        (C) Number of Failed Sub-operations
-        (C) Number of Warning Sub-operations
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (U) Identifier
+        | (M) Status
+        | (C) Number of Remaining Sub-operations
+        | (C) Number of Completed Sub-operations
+        | (C) Number of Failed Sub-operations
+        | (C) Number of Warning Sub-operations
 
-        Identifier
-        ~~~~~~~~~~
+        *Identifier*
 
         If the C-MOVE response Status is 'Cancelled', 'Failure', 'Refused' or
         'Warning' then the Identifier shall contain:
@@ -651,40 +659,33 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         If the C-MOVE response Status is 'Pending' then there is no Identifier.
 
-        Status
-        ~~~~~~
+        *Status*
 
-        *Success*
+        Success
+          | ``0x0000`` - Sub-operations complete: no failures
 
-        - 0x0000 - Sub-operations complete: no failures
+        Pending
+          | ``0xFF00`` - Sub-operations are continuing
 
-        *Pending*
+        Cancel
+          | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
-        - 0xFF00 - Sub-operations are continuing
+        Failure
+          | ``0x0122`` - SOP class not supported
+          | ``0x0124`` - Not authorised
+          | ``0x0210`` - Duplicate invocation
+          | ``0x0211`` - Unrecognised operation
+          | ``0x0212`` - Mistyped argument
+          | ``0xA701`` - Out of resources: unable to calculate number of matches
+          | ``0xA702`` - Out of resources, unable to perform sub-operations
+          | ``0xA801`` - Move destination unknown
+          | ``0xA900`` - Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` - Unable to process
 
-        *Cancel*
+        Warning
+          | ``0xB000`` - Sub-operations complete: one or more failures
 
-        - 0xFE00 - Sub-operations terminated due to Cancel indication
-
-        *Failure*
-
-        - 0x0122 - SOP class not supported
-        - 0x0124 - Not authorised
-        - 0x0210 - Duplicate invocation
-        - 0x0211 - Unrecognised operation
-        - 0x0212 - Mistyped argument
-        - 0xA701 - Out of resources: unable to calculate number of matches
-        - 0xA702 - Out of resources, unable to perform sub-operations
-        - 0xA801 - Move destination unknown
-        - 0xA900 - Identifier does not match SOP class
-        - 0xC000 to 0xCFFF - Unable to process
-
-        *Warning*
-
-        - 0xB000 - Sub-operations complete: one or more failures
-
-        Number of X Sub-operations
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        *Number of X Sub-operations*
 
         Inclusion of the 'Number of X Sub-operations' parameters is conditional
         on the value of the response Status. For a given Status category, the
@@ -707,20 +708,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         | Success   | shall not | may       | may    | may     |
         +-----------+-----------+-----------+--------+---------+
 
-        Parameters
-        ----------
-        request : pynetdicom3.dimse_primitives.C_MOVE
-            The C-MOVE request primitive sent by the peer.
-
-        See Also
-        --------
-        applicationentity.ApplicationEntity.on_c_move
-        association.Association.send_c_move
 
         References
         ----------
-        DICOM Standard Part 4, Annex C.
-        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C.
+        .. [1] DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
+        .. [2] DICOM Standard Part 7, Sections
+           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
+           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-MOVE response primitive
         rsp = C_MOVE()
@@ -1017,18 +1012,28 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     def SCP(self, request):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
-        C-GET Request
-        -------------
+        Parameters
+        ----------
+        request : pynetdicom3.dimse_primitives.C_GET
+            The C-GET request primitive sent by the peer.
 
-        **Parameters**
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_get
+        association.Association.send_c_get
 
-        (M) Message ID
-        (M) Affected SOP Class UID
-        (M) Priority
-        (M) Identifier
+        Notes
+        -----
+        **C-GET Request**
 
-        Identifier
-        ~~~~~~~~~~
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Identifier
+
+        *Identifier*
 
         The C-GET request Identifier shall contain:
 
@@ -1046,23 +1051,21 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
           using a character set other than the default character repertoire.
 
-        C-GET Response
-        --------------
+        **C-GET Response**
 
-        **Parameters**
+        *Parameters*
 
-        (U) Message ID
-        (M) Message ID Being Responded To
-        (U) Affected SOP Class UID
-        (U) Identifier
-        (M) Status
-        (C) Number of Remaining Sub-operations
-        (C) Number of Completed Sub-operations
-        (C) Number of Failed Sub-operations
-        (C) Number of Warning Sub-operations
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (U) Identifier
+        | (M) Status
+        | (C) Number of Remaining Sub-operations
+        | (C) Number of Completed Sub-operations
+        | (C) Number of Failed Sub-operations
+        | (C) Number of Warning Sub-operations
 
-        Identifier
-        ~~~~~~~~~~
+        *Identifier*
 
         If the C-GET response Status is 'Cancelled', 'Failure', 'Refused' or
         'Warning' then the Identifier shall contain:
@@ -1071,39 +1074,32 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         If the C-GET response Status is 'Pending' then there is no Identifier.
 
-        Status
-        ~~~~~~
+        *Status*
 
-        *Success*
+        Success
+          | ``0x0000`` - Sub-operations complete: no failures or warnings
 
-        - 0x0000 - Sub-operations complete: no failures or warnings
+        Pending
+          | ``0xFF00`` - Sub-operations are continuing
 
-        *Pending*
+        Cancel
+          | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
-        - 0xFF00 - Sub-operations are continuing
+        Failure
+          | ``0x0122`` - SOP class not supported
+          | ``0x0124`` - Not authorised
+          | ``0x0210`` - Duplicate invocation
+          | ``0x0211`` - Unrecognised operation
+          | ``0x0212`` - Mistyped argument
+          | ``0xA701`` - Out of resources: unable to calculate number of matches
+          | ``0xA702`` - Out of resources: unable to perform sub-operations
+          | ``0xA900`` - Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` - Unable to process
 
-        *Cancel*
+        Warning
+          | ``0xB000`` - Sub-operations complete: one or more failures or warnings
 
-        - 0xFE00 - Sub-operations terminated due to Cancel indication
-
-        *Failure*
-
-        - 0x0122 - SOP class not supported
-        - 0x0124 - Not authorised
-        - 0x0210 - Duplicate invocation
-        - 0x0211 - Unrecognised operation
-        - 0x0212 - Mistyped argument
-        - 0xA701 - Out of resources: unable to calculate number of matches
-        - 0xA702 - Out of resources: unable to perform sub-operations
-        - 0xA900 - Identifier does not match SOP class
-        - 0xC000 to 0xCFFF - Unable to process
-
-        *Warning*
-
-        - 0xB000 - Sub-operations complete: one or more failures or warnings
-
-        Number of X Sub-operations
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        *Number of X Sub-operations*
 
         Inclusion of the 'Number of X Sub-operations' parameters is conditional
         on the value of the response Status. For a given Status category, the
@@ -1126,20 +1122,13 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         | Success   | shall not | may       | may    | may     |
         +-----------+-----------+-----------+--------+---------+
 
-        Parameters
-        ----------
-        request : pynetdicom3.dimse_primitives.C_GET
-            The C-GET request primitive sent by the peer.
-
-        See Also
-        --------
-        applicationentity.ApplicationEntity.on_c_get
-        association.Association.send_c_get
-
         References
         ----------
-        DICOM Standard Part 4, Annex C.
-        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C.
+        .. [1] DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
+        .. [2] DICOM Standard Part 7, Sections
+           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`-,
+           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-GET response primitive
         rsp = C_GET()
