@@ -190,7 +190,10 @@ class VerificationServiceClass(ServiceClass):
         (M) Message ID
         (M) Affected SOP Class UID
 
-        **C-ECHO Response**
+        C-ECHO Response
+        ---------------
+
+        **Parameters**
 
         *Parameters*
 
