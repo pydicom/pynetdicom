@@ -164,16 +164,16 @@ class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req):
+    def SCP(self, request):
         """
         The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
-        (valid) status value from the `AE.on_c_echo callback`.
+        (valid) status value from the `AE.on_c_echo` callback.
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_ECHO
+        request : pynetdicom3.dimse_primitives.C_ECHO
             The C-ECHO request primitive sent by the peer.
 
         See Also
@@ -187,20 +187,17 @@ class VerificationServiceClass(ServiceClass):
 
         *Parameters*
 
-        (M) Message ID
-        (M) Affected SOP Class UID
+        | (M) Message ID
+        | (M) Affected SOP Class UID
 
-        C-ECHO Response
-        ---------------
-
-        **Parameters**
+        **C-ECHO Response**
 
         *Parameters*
 
-        (U) Message ID
-        (M) Message ID Being Responded To
-        (U) Affected SOP Class UID
-        (M) Status
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (M) Status
 
         *Status*
 
@@ -219,14 +216,17 @@ class VerificationServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard Part 4, `Annex A<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-        .. [2] DICOM Standard Part 7, `Sections 9.1.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_, `9.3.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and `Annex C<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        .. [1] DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        .. [2] DICOM Standard Part 7,
+           `Sections 9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+           `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build C-ECHO response primitive
         rsp = C_ECHO()
-        rsp.MessageID = req.MessageID
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        rsp.MessageID = request.MessageID
+        rsp.MessageIDBeingRespondedTo = request.MessageID
+        rsp.AffectedSOPClassUID = request.AffectedSOPClassUID
 
         # Try and run the user's on_c_echo callback. The callback should return
         #   the Status as either an int or Dataset, and any failures in the
@@ -268,67 +268,64 @@ class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req):
+    def SCP(self, request):
         """The SCP implementation for the Storage Service Class.
-
-        C-STORE Request
-        ---------------
-
-        **Parameters**
-
-        (M) Message ID
-        (M) Affected SOP Class UID
-        (M) Affected SOP Instance UID
-        (M) Priority
-        (U) Move Originator Application Entity Title
-        (U) Move Originator Message ID
-        (M) Data Set
-
-        C-STORE Response
-        ----------------
-
-        **Parameters**
-
-        (U) Message ID
-        (M) Message ID Being Responded To
-        (U) Affected SOP Class UID
-        (U) Affected SOP Instance UID
-        (M) Status
-
-        Status
-        ~~~~~~
-
-        *Success*
-
-        - 0x0000 - Success
-
-        *Warning*
-
-        - 0xB000 - Warning: Coercion of Data Elements
-        - 0xB006 - Warning: Elements Discarded
-        - 0xB007 - Warning: Data Set Does Not Match SOP Class
-
-        *Failure*
-
-        - 0x0117 - Refused: Invalid SOP Instance
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0x0124 - Refused: Not Authorised
-        - 0x0210 - Refused: Duplicate Invocation
-        - 0x0211 - Refused: Unrecognised Operation
-        - 0x0212 - Refused: Mistyped Argument
-        - 0xA700 to 0xA7FF - Refused: Out of Resources
-        - 0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
-        - 0xC000 to 0xCFFF - Error: Cannot Understand
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_STORE
+        request : pynetdicom3.dimse_primitives.C_STORE
             The C-STORE request primitive sent by the peer.
 
         See Also
         --------
         applicationentity.ApplicationEntity.on_c_store
         association.Association.send_c_store
+
+        Notes
+        -----
+
+        **C-STORE Request**
+
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Affected SOP Instance UID
+        | (M) Priority
+        | (U) Move Originator Application Entity Title
+        | (U) Move Originator Message ID
+        | (M) Data Set
+
+        **C-STORE Response**
+
+        *Parameters*
+
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (U) Affected SOP Instance UID
+        | (M) Status
+
+        *Status*
+
+        Success
+          - 0x0000 - Success
+
+        Warning
+          - 0xB000 - Warning: Coercion of Data Elements
+          - 0xB006 - Warning: Elements Discarded
+          - 0xB007 - Warning: Data Set Does Not Match SOP Class
+
+        Failure
+          - 0x0117 - Refused: Invalid SOP Instance
+          - 0x0122 - Refused: SOP Class Not Supported
+          - 0x0124 - Refused: Not Authorised
+          - 0x0210 - Refused: Duplicate Invocation
+          - 0x0211 - Refused: Unrecognised Operation
+          - 0x0212 - Refused: Mistyped Argument
+          - 0xA700 to 0xA7FF - Refused: Out of Resources
+          - 0xA900 to 0xA9FF - Error: Data Set Does Not Match SOP Class
+          - 0xC000 to 0xCFFF - Error: Cannot Understand
 
         References
         ----------
@@ -337,14 +334,14 @@ class StorageServiceClass(ServiceClass):
         """
         # Build C-STORE response primitive
         rsp = C_STORE()
-        rsp.MessageID = req.MessageID
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        rsp.MessageID = request.MessageID
+        rsp.MessageIDBeingRespondedTo = request.MessageID
+        rsp.AffectedSOPInstanceUID = request.AffectedSOPInstanceUID
+        rsp.AffectedSOPClassUID = request.AffectedSOPClassUID
 
         # Attempt to decode the request's dataset
         try:
-            ds = decode(req.DataSet,
+            ds = decode(request.DataSet,
                         self.transfersyntax.is_implicit_VR,
                         self.transfersyntax.is_little_endian)
         except Exception as ex:
@@ -375,7 +372,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Find Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def SCP(self, req):
+    def SCP(self, request):
         """The SCP implementation for the Query/Retrieve Find Service Class.
 
         C-FIND Request
@@ -467,7 +464,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_FIND
+        request : pynetdicom3.dimse_primitives.C_FIND
             The C-FIND request primitive received from the peer.
 
         See Also
@@ -482,13 +479,13 @@ class QueryRetrieveFindServiceClass(ServiceClass):
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
-        rsp.MessageID = req.MessageID
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        rsp.MessageID = request.MessageID
+        rsp.MessageIDBeingRespondedTo = request.MessageID
+        rsp.AffectedSOPClassUID = request.AffectedSOPClassUID
 
         # Decode and log Identifier
         try:
-            identifier = decode(req.Identifier,
+            identifier = decode(request.Identifier,
                                 self.transfersyntax.is_implicit_VR,
                                 self.transfersyntax.is_little_endian)
             LOGGER.info('Find SCP Request Identifiers:')
@@ -596,7 +593,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     """Implements the Query/Retrieve Move Service Class."""
     statuses = QR_MOVE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req):
+    def SCP(self, request):
         """The SCP implementation for the Query/Retrieve Move Service Class.
 
         C-MOVE Request
@@ -712,7 +709,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_MOVE
+        request : pynetdicom3.dimse_primitives.C_MOVE
             The C-MOVE request primitive sent by the peer.
 
         See Also
@@ -727,13 +724,13 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         """
         # Build C-MOVE response primitive
         rsp = C_MOVE()
-        rsp.MessageID = req.MessageID
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        rsp.MessageID = request.MessageID
+        rsp.MessageIDBeingRespondedTo = request.MessageID
+        rsp.AffectedSOPClassUID = request.AffectedSOPClassUID
 
         # Attempt to decode the request's Identifier dataset
         try:
-            identifier = decode(req.Identifier,
+            identifier = decode(request.Identifier,
                                 self.transfersyntax.is_implicit_VR,
                                 self.transfersyntax.is_little_endian)
             LOGGER.info('Move SCP Request Identifier:')
@@ -754,7 +751,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            result = self.AE.on_c_move(identifier, req.MoveDestination)
+            result = self.AE.on_c_move(identifier, request.MoveDestination)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
@@ -792,14 +789,14 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             # Unknown Move Destination
             if None in destination:
                 LOGGER.error('Unknown Move Destination: %s',
-                             req.MoveDestination.decode('utf-8'))
+                             request.MoveDestination.decode('utf-8'))
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
                 self.DIMSE.send_msg(rsp, self.pcid)
                 return
 
             store_assoc = self.AE.associate(destination[0], destination[1],
-                                            req.MoveDestination)
+                                            request.MoveDestination)
         except Exception as ex:
             LOGGER.error("'on_c_move' yielded an invalid destination AE (addr, "
                          "port) value")
@@ -1017,7 +1014,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the Query/Retrieve Get Service Class."""
     statuses = QR_GET_SERVICE_CLASS_STATUS
 
-    def SCP(self, req):
+    def SCP(self, request):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
         C-GET Request
@@ -1131,7 +1128,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_GET
+        request : pynetdicom3.dimse_primitives.C_GET
             The C-GET request primitive sent by the peer.
 
         See Also
@@ -1146,13 +1143,13 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         """
         # Build C-GET response primitive
         rsp = C_GET()
-        rsp.MessageID = req.MessageID
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+        rsp.MessageID = request.MessageID
+        rsp.MessageIDBeingRespondedTo = request.MessageID
+        rsp.AffectedSOPClassUID = request.AffectedSOPClassUID
 
         # Attempt to decode the request's Identifier dataset
         try:
-            identifier = decode(req.Identifier,
+            identifier = decode(request.Identifier,
                                 self.transfersyntax.is_implicit_VR,
                                 self.transfersyntax.is_little_endian)
             LOGGER.info('Get SCP Request Identifier:')
