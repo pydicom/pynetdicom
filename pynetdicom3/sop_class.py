@@ -165,15 +165,27 @@ class VerificationServiceClass(ServiceClass):
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req):
-        """The SCP implementation for the Verification Service Class.
+        """
+        The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
-        (valid) status value from the AE.on_c_echo callback.
+        (valid) status value from the `AE.on_c_echo callback`.
 
-        C-ECHO Request
-        --------------
+        Parameters
+        ----------
+        req : pynetdicom3.dimse_primitives.C_ECHO
+            The C-ECHO request primitive sent by the peer.
 
-        **Parameters**
+        See Also
+        --------
+        applicationentity.ApplicationEntity.on_c_echo
+        association.Association.send_c_echo
+
+        Notes
+        -----
+        **C-ECHO Request**
+
+        *Parameters*
 
         (M) Message ID
         (M) Affected SOP Class UID
@@ -183,50 +195,32 @@ class VerificationServiceClass(ServiceClass):
 
         **Parameters**
 
+        *Parameters*
+
         (U) Message ID
         (M) Message ID Being Responded To
         (U) Affected SOP Class UID
         (M) Status
 
-        Status
-        ~~~~~~
+        *Status*
 
         The DICOM Standard [2]_ (Table 9.3-13) indicates that the Status value
         of a C-ECHO response "shall have a value of Success". However Section
         9.1.5.1.4 indicates it may have any of the following values:
 
-        *Success*
+        Success
+          - 0x000 - Success
 
-        - 0x000 - Success
-
-        *Failure*
-
-        - 0x0122 - Refused: SOP Class Not Supported
-        - 0x0210 - Refused: Duplicate Invocation
-        - 0x0211 - Refused: Unrecognised Operation
-        - 0x0212 - Refused: Mistyped Argument
-
-        Parameters
-        ----------
-
-        req : pynetdicom3.dimse_primitives.C_ECHO
-            The C-ECHO request primitive sent by the peer.
-
-        See Also
-        --------
-
-        applicationentity.ApplicationEntity.on_c_echo
-        association.Association.send_c_echo
+        Failure
+          - 0x0122 - Refused: SOP Class Not Supported
+          - 0x0210 - Refused: Duplicate Invocation
+          - 0x0211 - Refused: Unrecognised Operation
+          - 0x0212 - Refused: Mistyped Argument
 
         References
         ----------
-
-        .. [1] DICOM Standard Part 4, `Annex A<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`__
-
-        .. [2] DICOM Standard Part 7,
-        `Sections 9.1.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`__,
-        `9.3.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`__ and
-        `Annex C<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+        .. [1] DICOM Standard Part 4, `Annex A<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        .. [2] DICOM Standard Part 7, `Sections 9.1.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_, `9.3.5<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and `Annex C<http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build C-ECHO response primitive
         rsp = C_ECHO()
