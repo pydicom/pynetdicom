@@ -9,9 +9,9 @@ DICOM
 `DICOM <http://dicom.nema.org/>`_ is the international standard for medical
 images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and
-other medical domains. If you've ever had an X-ray or an ultrasound or
-many other medical procedures, then the chances are that data generated was
-stored as a DICOM dataset and sent using the DICOM networking protocol.
+other medical domains. If you've ever had an X-ray or an ultrasound or one of
+many other medical procedures, then the chances are that the DICOM standard was
+involved in some way.
 
 pynetdicom3
 ~~~~~~~~~~~
