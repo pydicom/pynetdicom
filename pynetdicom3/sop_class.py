@@ -470,7 +470,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, 'Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>'_.
+        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
         .. [2] DICOM Standard, Part 7, Sections
            `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
            `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and

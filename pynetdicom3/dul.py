@@ -257,7 +257,7 @@ class DULServiceProvider(Thread):
 
             # Check the event queue to see if there is anything to do
             try:
-                event = self.event_queue.get(False)
+                event = self.event_queue.get(block=False)
             # If the queue is empty, return to the start of the loop
             except queue.Empty:
                 continue
