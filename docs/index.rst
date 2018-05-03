@@ -34,7 +34,7 @@ pynetdicom3 currently supports the following DICOM service classes:
 
 User Guide
 ----------
-The user guide is intended as an introduction to pynetdicom3 and explains how
+The :ref:`user_guide` is intended as an introduction to pynetdicom3 and explains how
 to install and use the API, as well as covering the basics of DICOM. For
 detailed reference documentation of the functions and classes see the
 :ref:`reference`.

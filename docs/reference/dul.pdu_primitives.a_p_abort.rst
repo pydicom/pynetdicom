@@ -15,5 +15,5 @@ at the Presentation Layer and below.
 References
 ----------
 
-.. [1] DICOM Standard, Part 8, Section
+1. DICOM Standard, Part 8, Section
    `7.5 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.5>`_

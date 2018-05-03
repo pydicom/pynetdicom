@@ -20,7 +20,7 @@ LOGGER = logging.getLogger('pynetdicom3.acse')
 
 
 class ACSEServiceProvider(object):
-    """Association Control Service Element service provider.
+    """Association Control Service Element (ACSE) service provider.
 
     The ACSE protocol handles association establishment, normal release of an
     association and the abnormal release of an association.
@@ -31,13 +31,31 @@ class ACSEServiceProvider(object):
     The ACSE provider sends Association related service primitives to the DICOM
     UL provider
 
-      * sending to peer AE: DUL FSM converts primitive to PDU, encodes and sends
-      * received from peer AE: DUL receives data, decodes into a PDU then
-        converts to primitive which is result of DUL.receive_pdu()
+    * sending to peer AE: DUL FSM converts primitive to PDU, encodes and sends
+    * received from peer AE: DUL receives data, decodes into a PDU then
+      converts to primitive which is result of DUL.receive_pdu()
 
     Attributes
     ----------
-    dul : pynetdicom.dul.DULServiceProvider
+    parent : association.Association
+        The Association that is utilising the ACSE services.
+    acse_timeout : int, optional
+        The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
+        from the peer (default: 30)
+    local_ae : dict
+        A dict containing details of the local AE.
+    remote_ae : dict
+        A dict containing details of the peer AE.
+    local_max_pdu : int
+        The maximum PDV size accepted by the local AE.
+    peer_max_pdu : int
+        The maximum PDV size accepted by the peer.
+    accepted_contexts : list of utils.PresentationContext
+        A list of accepted presentation contexts.
+    rejected_contexts : list of utils.PresentationContext
+        A list of rejected presentation contexts.
+    context_manager : utils.PresentationContextManager
+        The presentation context manager.
     """
     def __init__(self, assoc, acse_timeout=30):
         """Create the ACSE provider.
@@ -51,7 +69,6 @@ class ACSEServiceProvider(object):
             from the peer (default: 30)
         """
         self.parent = assoc
-        self.dul = assoc.dul
 
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
@@ -66,6 +83,11 @@ class ACSEServiceProvider(object):
         self.rejected_contexts = None
 
         self.context_manager = PresentationContextManager()
+
+    @property
+    def dul(self):
+        """Return the DUL Service Provider."""
+        return self.parent.dul
 
     def request_assoc(self, local_ae, peer_ae, max_pdu_size, pcdl,
                       userspdu=None):
@@ -336,7 +358,7 @@ class ACSEServiceProvider(object):
 
             If source 0x00 (DUL user):
                 0x00 - reason field not significant
-                
+
             If source 0x02 (DUL provider):
                 0x00 - reason not specified
                 0x01 - unrecognised PDU

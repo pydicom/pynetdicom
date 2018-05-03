@@ -30,21 +30,29 @@ class PresentationContext(object):
 
     The same Abstract Syntax can be used in more than one Presentation Context.
 
-    Rules
+    Notes
     -----
+
+    **Rules**
+
     - Each Presentation Context (request) contains:
-      - One ID, an odd integer between 0 and 255
-      - One Abstract Syntax
-      - One or more Transfer Syntaxes
+
+      - One ID, an odd integer between 0 and 255.
+      - One Abstract Syntax as UID.
+      - One or more Transfer Syntaxes as UIDs.
+
     - Each Presentation Context (response) contains:
+
       - One ID, corresponding to a Presentation Context received from the
-        Requestor
-      - A Result, one of 0x00, 0x01, 0x02, 0x03 or 0x04
-      - A Transfer Syntax
+        Requestor.
+      - A Result, one of ``0x00``, ``0x01``, ``0x02``, ``0x03`` or ``0x04``.
+      - A Transfer Syntax as UID.
+
     - If the Result is not 0x00 then the Transfer Syntax in the reply shall be
-      ignored
+      ignored.
     - The same Abstract Syntax can be present in more than one Presententation
-      Context
+      Context provided that all contexts with the same Abstract Syntax have no
+      overlap in Transfer Syntaxes.
     - Only one Transfer Syntax can be accepted per Presentation Context.
     - The Presentation Contexts may be sent by the Requestor in any order.
     - The Presentation Contexts may be sent by the Acceptor in any order.
@@ -55,54 +63,64 @@ class PresentationContext(object):
         The presentation context ID, must be an odd integer between 1 and 255,
         inclusive.
     AbstractSyntax : pydicom.uid.UID
-        The abstract syntax
+        The abstract syntax.
     TransferSyntax : list of pydicom.uid.UID
-        The transfer syntax(es)
+        The transfer syntax(es).
+    status : str
+        The string representation of the Result:
+        | ``0x00`` 'acceptance'
+        | ``0x01`` 'user rejection'
+        | ``0x02`` 'provider rejection'
+        | ``0x03`` 'abstract syntax not supported'
+        | ``0x04`` 'transfer syntaxes not supported'
+
+    References
+    ----------
+    1. DICOM Standard, Part 7, Annex D.3.2, D.3.3.4
+    """
+    '''
+    Result : int or None
+        If part of the A-ASSOCIATE request then None.
+        If part of the A-ASSOCIATE response then one of ``0x00``, ``0x01``,
+        ``0x02``, ``0x03``, ``0x04``.
     SCU : bool or None
         If an Association acceptor:
+
         - True to accept a requestor SCP/SCU Role Selection proposal for the
           requestor to support the SCU role.to acting as an SCU for the current context
         - False to disallow the requestor acting as an SCU (the requestor and
           acceptor then revert to their default roles)
         - None to not perform SCP/SCU Role Negotation.
+
         If an Association requestor then you should add one or more
         SCP_SCU_RoleSelectionSubItem items to the User Information items. If
         that is the case then the following values will be set:
+
         - True if the requestor act as an SCU for the current context
         - False if the requestor not act as an SCU for the current
           context
         - None if no SCP_SCU_RoleSelectionSubItem has been added for the
           context's AbstractSyntax.
+
     SCP : bool or None
         If an Association acceptor:
+
         - True to allow requestor to acting as an SCP for the current context
         - False to disallow the requestor acting as an SCP (the requestor and
           acceptor then revert to their default roles)
         - None to not perform SCP/SCU Role Negotation.
+
         If an Association requestor then you should add one or more
         SCP_SCU_RoleSelectionSubItem items to the User Information items. If
         that is the case then the following values will be set:
+
         - True if the requestor act as an SCP for the current context
         - False if the requestor not act as an SCP for the current
           context
         - None if no SCP_SCU_RoleSelectionSubItem has been added for the
           context's AbstractSyntax.
-    Result : int or None
-        If part of the A-ASSOCIATE request then None.
-        If part of the A-ASSOCIATE resposne then one of:
-            0x00, 0x01, 0x02, 0x03, 0x04
-    status : str
-        The string representation of the Result:
-            0x00 : 'acceptance',
-            0x01 : 'user rejection',
-            0x02 : 'provider rejection'
-            0x03 : 'abstract syntax not supported'
-            0x04 : 'transfer syntaxes not supported'
 
-    References
-    ----------
-    DICOM Standard, Part 7, Annex D.3.2, D.3.3.4
-    """
+    '''
     def __init__(self, ID=None, abstract_syntax=None, transfer_syntaxes=None):
         """Create a new PresentaionContext.
 
@@ -205,7 +223,6 @@ class PresentationContext(object):
                                  "integer between 1 and 255 inclusive")
 
         self._id = value
-
 
     @property
     def AbstractSyntax(self):
@@ -311,16 +328,16 @@ class PresentationService(object):
     Abstract Syntax and a suitable Transfer Syntax.
 
     * The Association requestor may off multiple Presentation Contexts per
-    Association.
+      Association.
     * Each Presentation Context supports one Abstract Syntax and one or more
-    Transfer Syntaxes.
+      Transfer Syntaxes.
     * The Association acceptor may accept or reject each Presentation Context
-    individually.
+      individually.
     * The Association acceptor selects a suitable Transfer Syntax for each
-    Presentation Context accepted.
+      Presentation Context accepted.
 
-    SCP/SCU Role Selection Negotiation
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **SCP/SCU Role Selection Negotiation**
+
     The SCP/SCU role selection negotiation allows peer AEs to negotiate the
     roles in which they will server for each SOP Class or Meta SOP Class
     supported on the Association. This negotiation is optional.
@@ -329,6 +346,7 @@ class PresentationService(object):
     may use one SCP/SCU Role Selection item, with the SOP Class or Meta SOP
     Class identified by its corresponding Abstract Syntax Name, followed by
     one of the three role values:
+
     * Association requestor is SCU only
     * Association requestor is SCP only
     * Association requestor is both SCU and SCP
@@ -480,17 +498,20 @@ class PresentationService(object):
 
         The acceptor has processed the requestor's presentation context
         definition list and returned the results. We want to do two things:
+
         - Process the SCP/SCU Role Selection Negotiation (if any) (TO BE
           IMPLEMENTED)
         - Return a nice list of PresentationContexts with the Results and
           original Abstract Syntax values to make things easier to use.
 
         Presentation Context Item (RQ)
+
         - Presentation context ID
         - Abstract Syntax: one
         - Transfer syntax: one or more
 
         Presentation Context Item (AC)
+
         - Presentation context ID
         - Result: 0x00, 0x01, 0x02, 0x03, 0x04
         - Transfer syntax: one, not to be tested if result is not 0x00

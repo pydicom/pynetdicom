@@ -48,7 +48,8 @@ class C_STORE(object):
 
     PS3.4 Annex B
     PS3.7 9.1.1
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -90,8 +91,7 @@ class C_STORE(object):
     ErrorComment : str or None
         [-, C] An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-    """
-
+    '''
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -382,7 +382,8 @@ class C_FIND(object):
     may be retrieved on the network. Must be present if Storage Media File Set
     ID/UID not present. The named AE shall support either C-GET or C-MOVE
     SOP Class of the QR Service Class.
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -416,8 +417,7 @@ class C_FIND(object):
     ErrorComment : str or None
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-    """
-
+    '''
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -612,7 +612,8 @@ class C_GET(object):
 
     PS3.4 Annex C.4.3
     PS3.7 9.1.3
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -663,8 +664,7 @@ class C_GET(object):
     ErrorComment : str or None
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-    """
-
+    '''
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -942,7 +942,8 @@ class C_MOVE(object):
 
     PS3.4 Annex C.4.2
     PS3.7 9.1.4
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -996,8 +997,7 @@ class C_MOVE(object):
     ErrorComment : str or None
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-    """
-
+    '''
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1274,7 +1274,8 @@ class C_ECHO(object):
     So, local AE sends C-ECHO-RQ to peer, peer sends C-ECHO-RP to local.
 
     PS3.7 Section 9.1.5
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int or None
@@ -1294,8 +1295,7 @@ class C_ECHO(object):
     ErrorComment : str or None
         [-, C] An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-    """
-
+    '''
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1460,7 +1460,8 @@ class N_EVENT_REPORT(object):
     """Represents a N-EVENT-REPORT primitive.
 
     PS3.7 10.1.1.1
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -1490,6 +1491,9 @@ class N_EVENT_REPORT(object):
         one of the following values:
         FIXME: Add the status values
 
+    Notes
+    -----
+
     **10.1.1.1.8 Status**
 
     Failure
@@ -1510,8 +1514,7 @@ class N_EVENT_REPORT(object):
     Success
 
     0x0000 - success 0x0000
-
-    """
+    '''
 
     def __init__(self):
         self.MessageID = None
@@ -1551,8 +1554,8 @@ class N_GET(object):
     """Represents a N-GET primitive.
 
     PS3.7 10.1.2.1
-
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -1601,8 +1604,7 @@ class N_GET(object):
         not authorised 0x0124 PS3.5 Annex C.5.25
     Success
         success 0x0000
-    """
-
+    '''
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1638,7 +1640,8 @@ class N_SET(object):
     """Represents a N-SET primitive.
 
     PS3.7 10.1.3.1
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -1690,8 +1693,7 @@ class N_SET(object):
         attribute list error 0x0107 PS3.5 Annex C.4.2
     Success
         success 0x0000
-    """
-
+    '''
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1727,7 +1729,8 @@ class N_ACTION(object):
     """Represents a N-ACTION primitive.
 
     PS3.7 10.1.4.1
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -1779,8 +1782,7 @@ class N_ACTION(object):
         not authorised 0x0124 PS3.5 Annex C.5.25
     Success
         success 0x0000 PS3.7 Annex C.1.1
-    """
-
+    '''
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1817,7 +1819,8 @@ class N_CREATE(object):
     """Represents a N-CREATE primitive.
 
     PS3.7 10.1.5.1
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -1864,8 +1867,7 @@ class N_CREATE(object):
         attribute value out of range 0x0116 PS3.7 Annex C.4.3
     Success
         success 0x0000 PS3.7 Annex C.1.1
-    """
-
+    '''
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1897,7 +1899,8 @@ class N_DELETE(object):
     """Represents a N-DELETE primitive.
 
     PS3.7 10.1.6.1
-
+    """
+    '''
     Attributes
     ----------
     MessageID : int
@@ -1940,8 +1943,7 @@ class N_DELETE(object):
         not authorised 0x0124 PS3.5 Annex C.5.25
     Success
         success 0x0000 PS3.7 Annex C.1.1
-    """
-
+    '''
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None

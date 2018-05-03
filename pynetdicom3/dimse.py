@@ -118,21 +118,21 @@ class DIMSEServiceProvider(object):
                     Response/confirmation - N_CREATE_RSP
     N-DELETE:       Request/indication    - N_DELETE_RQ
                     Response/confirmation - N_DELETE_RSP
-
+    """
+    '''
     Attributes
     ----------
-    dimse_timeout : int or float or None
+    dimse_timeout : numeric or None
         The number of seconds before the DIMSE service timeout. A value of None
         indicates no timeout.
-    DUL : pynetdicom3.dul.DULServiceProvider
+    dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer service provider.
     maximum_pdu_size : int
             The maximum PDU size when sending DIMSE messages
     message : pynetdicom3.dimse_messages.DIMSEMessage
         The DIMSE message
-    """
+    '''
     # pylint: disable=too-many-public-methods
-
     def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
         """Start the DIMSE service provider.
 
@@ -149,7 +149,6 @@ class DIMSEServiceProvider(object):
         self.dimse_timeout = dimse_timeout
         self.dul = dul
         self.maximum_pdu_size = maximum_pdu_size
-
         self.message = None
 
     def send_msg(self, primitive, context_id):

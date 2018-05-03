@@ -22,5 +22,5 @@ The DICOM Upper Layer Services are:
 
 References
 ----------
-.. [1] DICOM Standard, Part 8, Section
+1. DICOM Standard, Part 8, Section
    `7 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_7>`_

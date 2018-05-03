@@ -1071,9 +1071,9 @@ class A_ASSOCIATE_RJ(PDU):
     Attributes
     ----------
     length : int
-        The length of the encoded PDU in bytes
-    reason : int
-        The raw Reason/Diagnostic parameter value
+        The length of the encoded PDU in bytes.
+    reason_diagnostic : int
+        The raw Reason/Diagnostic parameter value.
     reason_str : str
         The reason for the rejection as a string
     result : int
@@ -1088,7 +1088,6 @@ class A_ASSOCIATE_RJ(PDU):
         'DUL service-provider (ACSE related)', 'DUL service-provider
         (presentation related)')
     """
-
     def __init__(self):
         self.pdu_type = 0x03
         self.pdu_length = 0x04
@@ -2089,20 +2088,20 @@ class PresentationContextItemRQ(PDU):
     Attributes
     ----------
     abstract_syntax : pydicom.uid.UID
-        The presentation context's Abstract Syntax value
+        The presentation context's Abstract Syntax value.
     length : int
-        The length of the encoded Item in bytes
+        The length of the encoded Item in bytes.
     ID : int
-        The presentation context's ID
+        The presentation context's ID.
     transfer_syntax : list of pydicom.uid.UID
-        The presentation context's Transfer Syntax(es)
-
-    SCP : None or int
-        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
-    SCU : None or int
-        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
+        The presentation context's Transfer Syntax(es).
     """
-
+    '''
+    SCP : None or int
+        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used.
+    SCU : None or int
+        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used.
+    '''
     def __init__(self):
         self.item_type = 0x20
         self.item_length = None
@@ -3009,7 +3008,7 @@ class UserInformationItem(PDU):
     common_ext_neg : list of
         pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem or None
         The common extended negotiation items, or None if there aren't any
-    ext_neg : list of pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem or None
+    ext_neg : list of pdu.SOPClassExtendedNegotiationSubItem or None
         The extended negotiation items, or None if there aren't any
     implementation_class_uid : pydicom.uid.UID
         The implementation class UID for the Implementation Class UID sub-item
@@ -3024,15 +3023,13 @@ class UserInformationItem(PDU):
         , or None if the sub-item is not present.
     maximum_length : int
         The maximum length received value for the Maximum Length sub-item
-    role_selection : list of pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem or
-    None
+    role_selection : list of pdu.SCP_SCU_RoleSelectionSubItem or None
         The SCP_SCU_RoleSelectionSubItem object or None if there aren't any
     user_identity : pynetdicom3.pdu.UserIdentitySubItemRQ or
         pynetdicom3.pdu.UserIdentitySubItemAC or None
         The UserIdentitySubItemRQ/UserIdentitySubItemAC object, or None if the
         sub-item is not present.
     """
-
     def __init__(self):
         self.item_type = 0x50
         self.item_length = None
@@ -4287,11 +4284,9 @@ class UserIdentitySubItemAC(PDU):
           * 2: b''
           * 3: the Kerberos server ticket, encoded as per RFC-1510
           * 4: the SAML response
-
-    TODO: Add user interface - setter for server_response, automatic length
-            determination
     """
-
+    # TODO: Add user interface - setter for server_response, automatic length
+    #       determination
     def __init__(self):
         self.item_type = 0x59
         self.item_length = None
@@ -4434,7 +4429,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         The length of the encoded Item in bytes
     UID : pydicom.uid.UID
         The UID of the abstract syntax that this sub-item pertains
-    application_information :
+    app_info :
         The application information specific to the service class identified
         by `sop_class_uid`
     """
@@ -4638,9 +4633,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     ----------
     length : int
         The length of the encoded Item in bytes
-    FIXME
     """
-
     def __init__(self):
         self.item_type = 0x57
         self.sub_item_version = 0x00

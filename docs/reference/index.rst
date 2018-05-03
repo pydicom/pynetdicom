@@ -26,5 +26,4 @@ pynetdicom3. For learning how to use pynetdicom3, see the :ref:`user`.
    service_classes
    status
    timer
-   transport
    utils

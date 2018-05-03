@@ -39,8 +39,8 @@ except ImportError:
 # directory, add these directories to sys.path here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
-from github_link import make_linkcode_resolve
+#sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
+#from github_link import make_linkcode_resolve
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
@@ -56,11 +56,19 @@ from github_link import make_linkcode_resolve
 # They can be extensions coming with Sphinx
 # (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
-    'sphinx.ext.todo', 'sphinx.ext.imgmath', 'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode', 'sphinx_gallery.gen_gallery',
-    'sphinx.ext.autosummary', 'numpydoc',
-    'sphinx_issues', 'sphinx.ext.linkcode'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.imgmath',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx_gallery.gen_gallery',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
+    #'sphinx_issues',
+    #'sphinx.ext.linkcode',
+    # 'numpydoc',
 ]
 
 autosummary_generate = True
@@ -87,6 +95,9 @@ sphinx_gallery_conf = {
         'pynetdicom3': None
     }
 }
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -289,7 +300,7 @@ def setup(app):
 
 
 # The following is used by sphinx.ext.linkcode to provide links to github
-linkcode_resolve = make_linkcode_resolve('pynetdicom3',
-                                         u'https://github.com/pydicom/'
-                                         'pynetdicom3/blob/{revision}/'
-                                         '{package}/{path}#L{lineno}')
+#linkcode_resolve = make_linkcode_resolve('pynetdicom3',
+#                                         u'https://github.com/pydicom/'
+#                                         'pynetdicom3/blob/{revision}/'
+#                                         '{package}/{path}#L{lineno}')

@@ -26,5 +26,5 @@ Variable Items
 References
 ----------
 
-.. [1] DICOM Standard, Part 8, Section
+1. DICOM Standard, Part 8, Section
    `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5>`_

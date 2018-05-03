@@ -1,4 +1,4 @@
-.. _acse:
+.. _association:
 
 Association (:mod:`pynetdicom3.association`)
 ============================================

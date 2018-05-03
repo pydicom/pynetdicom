@@ -59,8 +59,8 @@ class A_ASSOCIATE(object):
     See PS3.8 Section 7.1.1
 
     The A-ASSOCIATE primitive is used by the DUL provider to send/receive
-    information about the association. It gets converted to 
-    A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and 
+    information about the association. It gets converted to
+    A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and
     gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.
 
     It may be better to simply extend this with methods for containing
@@ -212,7 +212,7 @@ class A_ASSOCIATE(object):
             * 3: called presentation address unknown
             * 4: presentation protocol version not supported
             * 5: no presentation service access point available
-            
+
         PS3.8 7.1.1.9, [-, -, U, C(=)]
     calling_presentation_address : str
         TCP/IP address of the Requestor
@@ -1695,10 +1695,9 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         The UID of the SOP Class
     service_class_uid : pydicom.uid.UID, bytes or str
         The UID of the corresponding Service Class
-    related_general_sop_class_uid : list of (pydicom.uid.UID, bytes or str)
+    related_general_sop_class_identification : list of (pydicom.uid.UID, bytes or str)
         Related General SOP Class UIDs (optional)
     """
-
     def __init__(self):
         self.sop_class_uid = None
         self.service_class_uid = None

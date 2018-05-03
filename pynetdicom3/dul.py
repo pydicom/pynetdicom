@@ -32,7 +32,8 @@ class DULServiceProvider(Thread):
     - If a socket is given, the DUL will use this socket as the client socket.
     - If neither is given, the DUL will not be able to accept connections (but
       will be able to initiate them.)
-
+    """
+    '''
     Attributes
     ----------
     artim_timer : pynetdicom3.timer.Timer
@@ -54,8 +55,7 @@ class DULServiceProvider(Thread):
         local AE to the peer AE SCP
     state_machine : pynetdicom3.fsm.StateMachine
         The DICOM Upper Layer's State Machine
-    """
-
+    '''
     def __init__(self, socket=None, port=None, dul_timeout=None, assoc=None):
         """
         Parameters

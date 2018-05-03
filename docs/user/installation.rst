@@ -1,5 +1,5 @@
-Installing Packages
-===================
+Installation
+============
 *Note that you need to have Python and pip already installed on your system*
 
 Installing current release
