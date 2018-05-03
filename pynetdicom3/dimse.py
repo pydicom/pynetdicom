@@ -317,9 +317,10 @@ class DIMSEServiceProvider(object):
                     return primitive, context_id
 
         else:
-            cls = self.dul.peek_next_pdu().__class__
-
-            if cls not in (type(None), P_DATA):
+            # Check to make sure the next PDU is a P-DATA-TF PDU
+            #   if not then return
+            pdu = self.dul.peek_next_pdu()
+            if not pdu or pdu.__class__ != P_DATA:
                 return None, None
 
             pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
