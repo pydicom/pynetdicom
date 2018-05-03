@@ -2180,7 +2180,6 @@ class TestAssociationSendCMove(object):
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
-
         self.scp2.stop()
 
     def test_rsp_warning(self):

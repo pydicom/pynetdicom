@@ -734,7 +734,7 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if context_id is None:
-            LOGGER.error("No valid Presentation Context for '%s'", uid)
+            LOGGER.error("No accepted Presentation Context for '%s'", uid)
             raise ValueError("No accepted Presentation Context for "
                              "'Verification SOP Class'.")
 
@@ -896,9 +896,9 @@ class Association(threading.Thread):
                 raise ex
 
         if transfer_syntax is None:
-            LOGGER.error("Association.send_c_store - no valid Presentation "
+            LOGGER.error("Association.send_c_store - no accepted Presentation "
                          " Context for: '%s'", dataset.SOPClassUID)
-            LOGGER.error("Store SCU failed due to there being no valid "
+            LOGGER.error("Store SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'.")
 
@@ -1079,9 +1079,9 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'",
+            LOGGER.error("No accepted Presentation Context for: '%s'",
                          sop_class.UID)
-            LOGGER.error("Find SCU failed due to there being no valid "
+            LOGGER.error("Find SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
 
@@ -1304,8 +1304,9 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Move SCU failed due to there being no valid "
+            LOGGER.error("No accepted Presentation Context for: '%s'",
+                         sop_class.UID)
+            LOGGER.error("Move SCU failed due to there being no accepted "
                          "presentation context\n   for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
 
@@ -1570,8 +1571,9 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'", sop_class.UID)
-            LOGGER.error("Get SCU failed due to there being no valid "
+            LOGGER.error("No accepted Presentation Context for: '%s'",
+                         sop_class.UID)
+            LOGGER.error("Get SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
 
@@ -1740,7 +1742,7 @@ class Association(threading.Thread):
                 context_id = context.ID
 
         if transfer_syntax is None:
-            LOGGER.error("No Presentation Context for: '%s'",
+            LOGGER.error("No accepted Presentation Context for: '%s'",
                          req.AffectedSOPClassUID)
             # SOP Class not supported, no context ID?
             rsp.Status = 0x0122

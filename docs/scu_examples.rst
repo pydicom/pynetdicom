@@ -67,7 +67,7 @@ datasets to peer AEs.
             dataset = read_file('dcmfile')
 
             # Send a DIMSE C-STORE request to the peer
-            status = assoc.send_c_echo(dataset)
+            status = assoc.send_c_store(dataset)
             print('C-STORE status: %s' %status)
 
             # Release the association
