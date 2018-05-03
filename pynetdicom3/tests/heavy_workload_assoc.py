@@ -41,7 +41,7 @@ ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
 print('Starting...')
 for ii in range(no_runs):
     start_time = time.time()
-    assoc = ae.associate('localhost', 11113)
+    assoc = ae.associate('localhost', 11112)
     for jj in range(ds_per_run):
         if assoc.is_established:
             assoc.send_c_store(DATASET)
