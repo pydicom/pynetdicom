@@ -288,7 +288,7 @@ class DULServiceProvider(Thread):
             # Fix for Issue 39
             # Give the DUL thread time to exit
             while self.is_alive():
-                time.sleep(0.0001)
+                time.sleep(0.001)
 
             return True
 
