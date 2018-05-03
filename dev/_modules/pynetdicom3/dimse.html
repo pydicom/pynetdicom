@@ -187,6 +187,30 @@
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.dimse&#39;</span><span class="p">)</span>
 
+<span class="n">_RQ_TO_MESSAGE</span> <span class="o">=</span> <span class="p">{</span><span class="n">C_ECHO</span> <span class="p">:</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span>
+                 <span class="n">C_STORE</span> <span class="p">:</span> <span class="n">C_STORE_RQ</span><span class="p">,</span>
+                 <span class="n">C_FIND</span> <span class="p">:</span> <span class="n">C_FIND_RQ</span><span class="p">,</span>
+                 <span class="n">C_MOVE</span> <span class="p">:</span> <span class="n">C_MOVE_RQ</span><span class="p">,</span>
+                 <span class="n">C_GET</span> <span class="p">:</span> <span class="n">C_GET_RQ</span><span class="p">,</span>
+                 <span class="n">N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span>
+                 <span class="n">N_GET</span> <span class="p">:</span> <span class="n">N_GET_RQ</span><span class="p">,</span>
+                 <span class="n">N_SET</span> <span class="p">:</span> <span class="n">N_SET_RQ</span><span class="p">,</span>
+                 <span class="n">N_ACTION</span> <span class="p">:</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span>
+                 <span class="n">N_CREATE</span> <span class="p">:</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span>
+                 <span class="n">N_DELETE</span> <span class="p">:</span> <span class="n">N_DELETE_RQ</span><span class="p">}</span>
+<span class="n">_RSP_TO_MESSAGE</span> <span class="o">=</span> <span class="p">{</span><span class="n">C_ECHO</span> <span class="p">:</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span>
+                  <span class="n">C_STORE</span> <span class="p">:</span> <span class="n">C_STORE_RSP</span><span class="p">,</span>
+                  <span class="n">C_FIND</span> <span class="p">:</span> <span class="n">C_FIND_RSP</span><span class="p">,</span>
+                  <span class="n">C_MOVE</span> <span class="p">:</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span>
+                  <span class="n">C_GET</span> <span class="p">:</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
+                  <span class="n">C_CANCEL</span> <span class="p">:</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
+                  <span class="n">N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
+                  <span class="n">N_GET</span> <span class="p">:</span> <span class="n">N_GET_RSP</span><span class="p">,</span>
+                  <span class="n">N_SET</span> <span class="p">:</span> <span class="n">N_SET_RSP</span><span class="p">,</span>
+                  <span class="n">N_ACTION</span> <span class="p">:</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
+                  <span class="n">N_CREATE</span> <span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
+                  <span class="n">N_DELETE</span> <span class="p">:</span> <span class="n">N_DELETE_RSP</span><span class="p">}</span>
+
 
 <div class="viewcode-block" id="DIMSEServiceProvider"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider">[docs]</a><span class="k">class</span> <span class="nc">DIMSEServiceProvider</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The DIMSE service provider.</span>
@@ -322,91 +346,21 @@
 <span class="sd">        context_id : int</span>
 <span class="sd">            The ID of the presentation context to be sent under.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_ECHO</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_ECHO_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_ECHO_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_STORE</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_STORE_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_STORE_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_FIND</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_FIND_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_FIND_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_GET</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_GET_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_GET_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_MOVE</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_MOVE_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_MOVE_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_CANCEL</span><span class="p">:</span>
-            <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">C_CANCEL_RQ</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">N_EVENT_REPORT</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">N_GET</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_GET_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_GET_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">N_SET</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_SET_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_SET_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">N_ACTION</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_ACTION_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_ACTION_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">N_CREATE</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_CREATE_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_CREATE_RSP</span><span class="p">()</span>
-
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">N_DELETE</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_DELETE_RQ</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">N_DELETE_RSP</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">_RQ_TO_MESSAGE</span><span class="p">[</span><span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span><span class="p">]()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">_RSP_TO_MESSAGE</span><span class="p">[</span><span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span><span class="p">]()</span>
 
         <span class="c1"># Convert DIMSE primitive to DIMSE Message</span>
         <span class="n">dimse_msg</span><span class="o">.</span><span class="n">primitive_to_message</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
 
         <span class="c1"># Callbacks</span>
-        <span class="c1"># FIXME: Make this a package level option to increase speed</span>
-        <span class="c1"># if LOG:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_send_dimse_message</span><span class="p">(</span><span class="n">dimse_msg</span><span class="p">)</span>
 
         <span class="c1"># Split the full messages into P-DATA chunks,</span>
         <span class="c1">#   each below the max_pdu size</span>
-        <span class="n">pdata_pdu_list</span> <span class="o">=</span> <span class="n">dimse_msg</span><span class="o">.</span><span class="n">encode_msg</span><span class="p">(</span>
-            <span class="n">context_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span><span class="p">)</span>
-
-        <span class="c1"># Send the P-DATA PDUs to the peer via the DUL provider</span>
-        <span class="k">for</span> <span class="n">pdata_pdu</span> <span class="ow">in</span> <span class="n">pdata_pdu_list</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">pdata_pdu</span><span class="p">)</span></div>
+        <span class="k">for</span> <span class="n">pdata</span> <span class="ow">in</span> <span class="n">dimse_msg</span><span class="o">.</span><span class="n">encode_msg</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DIMSEServiceProvider.receive_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.receive_msg">[docs]</a>    <span class="k">def</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Receive a DIMSE message from the peer.</span>
