@@ -477,9 +477,10 @@
                     <span class="k">return</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">peek_next_pdu</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span>
-
-            <span class="k">if</span> <span class="bp">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="n">P_DATA</span><span class="p">):</span>
+            <span class="c1"># Check to make sure the next PDU is a P-DATA-TF PDU</span>
+            <span class="c1">#   if not then return</span>
+            <span class="n">pdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">peek_next_pdu</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pdu</span> <span class="ow">or</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">!=</span> <span class="n">P_DATA</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
             <span class="n">pdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>

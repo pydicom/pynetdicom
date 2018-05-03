@@ -409,9 +409,13 @@
 <div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Release the association.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">release_assoc</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span></div>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">release_assoc</span><span class="p">():</span>
+                <span class="c1"># Got release reply within timeout window</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># No release reply within timeout window</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Abort the association.</span>

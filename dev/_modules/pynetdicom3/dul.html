@@ -417,7 +417,7 @@
 
             <span class="c1"># Check the event queue to see if there is anything to do</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="c1"># If the queue is empty, return to the start of the loop</span>
             <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
                 <span class="k">continue</span>
