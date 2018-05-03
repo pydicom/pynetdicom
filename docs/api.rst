@@ -9,7 +9,7 @@ ApplicationEntity
 +++++++++++++++++
 .. autoclass:: pynetdicom3.applicationentity.ApplicationEntity
     :members:
-  
+
 Association
 +++++++++++
 .. autoclass:: pynetdicom3.association.Association
