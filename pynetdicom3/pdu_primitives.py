@@ -15,7 +15,8 @@ from pynetdicom3.pdu import (MaximumLengthSubItem,
                              SOPClassCommonExtendedNegotiationSubItem,
                              UserIdentitySubItemRQ,
                              UserIdentitySubItemAC)
-from pynetdicom3.utils import validate_ae_title, PresentationContext
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import validate_ae_title
 #from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
@@ -59,8 +60,8 @@ class A_ASSOCIATE(object):
     See PS3.8 Section 7.1.1
 
     The A-ASSOCIATE primitive is used by the DUL provider to send/receive
-    information about the association. It gets converted to 
-    A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and 
+    information about the association. It gets converted to
+    A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and
     gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.
 
     It may be better to simply extend this with methods for containing
@@ -212,7 +213,7 @@ class A_ASSOCIATE(object):
             * 3: called presentation address unknown
             * 4: presentation protocol version not supported
             * 5: no presentation service access point available
-            
+
         PS3.8 7.1.1.9, [-, -, U, C(=)]
     calling_presentation_address : str
         TCP/IP address of the Requestor

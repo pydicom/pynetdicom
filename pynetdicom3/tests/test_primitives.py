@@ -17,7 +17,7 @@ from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation, \
                                    SCP_SCU_RoleSelectionNegotiation, \
                                    AsynchronousOperationsWindowNegotiation, \
                                    UserIdentityNegotiation
-from pynetdicom3.utils import PresentationContext
+from pynetdicom3.presentation import PresentationContext
 from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3')

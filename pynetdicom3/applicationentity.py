@@ -16,7 +16,8 @@ from pydicom.uid import (
 )
 
 from pynetdicom3.association import Association
-from pynetdicom3.utils import PresentationContext, validate_ae_title
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import validate_ae_title
 
 
 def setup_logger():

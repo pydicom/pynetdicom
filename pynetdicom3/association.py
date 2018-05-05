@@ -549,6 +549,7 @@ class Association(threading.Thread):
                     'AET'     : self.ae.ae_title}
 
         # Request an Association via the ACSE
+        print('requesting')
         is_accepted, assoc_rsp = \
                 self.acse.request_assoc(local_ae, self.peer_ae,
                                         self.local_max_pdu,

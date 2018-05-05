@@ -47,7 +47,8 @@ from struct import pack, unpack, Struct, pack_into, unpack_from
 
 from pydicom.uid import UID
 
-from pynetdicom3.utils import pretty_bytes, PresentationContext, validate_ae_title
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import pretty_bytes, validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3.pdu')
@@ -176,34 +177,28 @@ class PDU(object):
 
     @staticmethod
     def _next_item_type(bytestream):
-        """Return the first byte of `bytestream`.
+        """Return the first byte of `bytestream` as an unsigned char.
 
         Parameters
         ----------
-        bytestream : io.BytesIO
+        bytestream : bytes
             The bytestream to get the first byte from.
 
         Returns
         -------
         int or None
-            The first byte of the stream, None if the stream is empty.
+            The value of the first byte as an unsigned char or None if no
+            bytes in `bytestream`.
         """
-        first_byte = bytestream.read(1)
-
-        # If the stream is empty
-        if first_byte == b'':
+        if not bytestream:
             return None
 
-        # Reverse our peek
-        bytestream.seek(-1, 1)
-
         # first_byte is always a 1-byte unsigned integer
-        item_type = UNPACK_UCHAR(first_byte)[0]
+        return UNPACK_UCHAR(bytestream[:1])[0]
 
-        return item_type
-
-    def _next_item(self, bytestream):
-        """Return the PDU or PDU item/sub-item corresponding to `bytestream`.
+    @staticmethod
+    def _next_item(bytestream):
+        """Return the item/sub-item corresponding to `bytestream`.
 
         Peek at the stream `bytestream` and see what the next item type
         it is. Each valid PDU/item/sub-item has an PDU-type/Item-type as the
@@ -213,32 +208,37 @@ class PDU(object):
         Parameters
         ----------
         bytestream : io.BytesIO
-            The stream to peek.
+            The bytestream containing the PDU data, offset to the start of
+            the next PDU item/sub-item.
 
         Returns
         -------
         PDU : pynetdicom3.pdu.PDU subclass
-            A PDU subclass instance corresponding to the next item in the
-            bytestream.
+            A PDU item or sub-item instance corresponding to the next item in
+            the bytestream.
         None
-            If the stream is empty
+            If the bytestream is empty (and therefore we are at the end of
+            the PDU).
 
         Raises
         ------
         ValueError
             If the item type is not a known value
         """
-
-        item_type = self._next_item_type(bytestream)
-
-        if item_type is None:
+        first_byte = bytestream.read(1)
+        if first_byte == b'':
             return None
 
-        if item_type not in PDU_ITEM_TYPES:
-            raise ValueError("During PDU decoding we received an invalid "
-                             "item type: \\x{0:02x}".format(item_type))
+        bytestream.seek(-1, 1)
 
-        return PDU_ITEM_TYPES[item_type]()
+        # item_type is a 1-byte unsigned char
+        item_type = UNPACK_UCHAR(first_byte)[0]
+
+        if item_type in PDU_ITEM_TYPES:
+            return PDU_ITEM_TYPES[item_type]()
+
+        raise ValueError("During PDU decoding we received an unknown "
+                         "item type: \\x{0:02x}".format(item_type))
 
     @property
     def length(self):
@@ -448,6 +448,7 @@ class A_ASSOCIATE_RQ(PDU):
         bytestring : bytes
             The bytes string received from the peer
         """
+        print(type(bytestring))
         LOGGER.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
                      'PDU header', len(bytestring) - 6)
 
@@ -4889,7 +4890,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
 
 # PDUs, PDU items and sub-items, indexed by their item type
-PDU_ITEM_TYPES = {
+PDU_TYPES = {
     0x01 : A_ASSOCIATE_RQ,
     0x02 : A_ASSOCIATE_AC,
     0x03 : A_ASSOCIATE_RJ,
@@ -4897,6 +4898,9 @@ PDU_ITEM_TYPES = {
     0x05 : A_RELEASE_RQ,
     0x06 : A_RELEASE_RP,
     0x07 : A_ABORT_RQ,
+}
+
+PDU_ITEM_TYPES = {
     0x10 : ApplicationContextItem,
     0x20 : PresentationContextItemRQ,
     0x21 : PresentationContextItemAC,
