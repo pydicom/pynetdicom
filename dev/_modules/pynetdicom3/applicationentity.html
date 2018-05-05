@@ -307,7 +307,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: disable=too-many-instance-attributes,too-many-public-methods</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;PYNETDICOM&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scu_sop_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">scp_sop_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">scp_sop_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bind_addr</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new Application Entity.</span>
 
 <span class="sd">        Parameters</span>
@@ -317,6 +318,9 @@
 <span class="sd">        port : int, optional</span>
 <span class="sd">            The port number to listen for connections on when acting as an SCP</span>
 <span class="sd">            (default: the first available port)</span>
+<span class="sd">        bind_addr : str, optional</span>
+<span class="sd">            The network interface to listen to.</span>
+<span class="sd">            (default: all availabel network interfaces on the machine)</span>
 <span class="sd">        scu_sop_class : list of pydicom.uid.UID or list of str or list of</span>
 <span class="sd">        pynetdicom3.sop_class.ServiceClass subclasses, optional</span>
 <span class="sd">            List of the supported SOP Class UIDs when running as an SCU.</span>
@@ -332,6 +336,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">node</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bind_addr</span> <span class="o">=</span> <span class="n">bind_addr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span>
 
         <span class="c1"># Avoid dangerous default values</span>
@@ -442,7 +447,7 @@
         <span class="c1"># The socket to listen for connections on, port is always specified</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">bind_addr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
         <span class="c1"># Listen for connections made to the socket, the backlog argument</span>
         <span class="c1">#   specifies the maximum number of queued connections.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
