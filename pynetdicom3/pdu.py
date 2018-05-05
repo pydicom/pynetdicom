@@ -448,7 +448,6 @@ class A_ASSOCIATE_RQ(PDU):
         bytestring : bytes
             The bytes string received from the peer
         """
-        print(type(bytestring))
         LOGGER.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
                      'PDU header', len(bytestring) - 6)
 
@@ -473,6 +472,49 @@ class A_ASSOCIATE_RQ(PDU):
 
         # Decode the Variable Items section of the PDU
         item = self._next_item(s)
+        while item is not None:
+            item.Decode(s)
+            self.variable_items.append(item)
+
+            item = self._next_item(s)
+
+        self._update_parameters()
+
+    def _opt_Decode(self, bytestring):
+        """
+        Decode the parameter values for the PDU from the bytes string sent
+        by the peer AE
+
+        Parameters
+        ----------
+        bytestring : bytes
+            The bytes string received from the peer
+        """
+        LOGGER.debug('PDU Type: Associate Request, PDU Length: %s + 6 bytes '
+                     'PDU header', len(bytestring) - 6)
+
+        for line in pretty_bytes(bytestring, max_size=1024):
+            LOGGER.debug('  ' + line)
+
+        LOGGER.debug('Parsing an A-ASSOCIATE PDU')
+
+        # Convert `bytestring` to a bytes stream to make things easier
+        #   during decoding of the Variable Items section
+        s = BytesIO(bytestring)
+
+        # Decode the A-ASSOCIATE-RQ PDU up to the Variable Items section
+        (self.pdu_type,
+         _,
+         self.pdu_length,
+         self.protocol_version,
+         _,
+         self.called_ae_title,
+         self.calling_ae_title,
+         _) = unpack('> B B I H H 16s 16s 32s', s.read(74))
+
+        # Decode the Variable Items section of the PDU
+        item = self._next_item(s)
+        # Use generator here
         while item is not None:
             item.Decode(s)
             self.variable_items.append(item)
@@ -602,13 +644,6 @@ class A_ASSOCIATE_RQ(PDU):
                 contexts.append(ii)
         return contexts
 
-    @property
-    def user_information(self):
-        """Return the user information item."""
-        for ii in self.variable_items:
-            if isinstance(ii, UserInformationItem):
-                return ii
-
     def __str__(self):
         s = 'A-ASSOCIATE-RQ PDU\n'
         s += '==================\n'
@@ -643,6 +678,13 @@ class A_ASSOCIATE_RQ(PDU):
                 s += '      {0!s}\n'.format(jj)
 
         return s
+
+    @property
+    def user_information(self):
+        """Return the user information item."""
+        for ii in self.variable_items:
+            if isinstance(ii, UserInformationItem):
+                return ii
 
 
 class A_ASSOCIATE_AC(PDU):
