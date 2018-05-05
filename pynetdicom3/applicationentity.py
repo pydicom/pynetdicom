@@ -10,6 +10,7 @@ import socket
 from struct import pack
 import sys
 import time
+from contextlib import contextmanager
 
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian, UID
@@ -449,6 +450,21 @@ class ApplicationEntity(object):
             self.active_associations.append(assoc)
 
         return assoc
+
+    @contextmanager
+    def create_association(self, addr, port, ae_title='ANY-SCP',
+                           max_pdu=16382, ext_neg=None):
+        """
+        Context manager to provide a scoped association.
+        """
+        association = self.associate(addr, port, aet_title=ae_title, 
+                                    max_pdu=max_pdu, ext_neg=ext_neg)
+        try:
+            yield association
+        except:
+            raise
+        finally:
+            association.release()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
