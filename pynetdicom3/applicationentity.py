@@ -147,7 +147,8 @@ class ApplicationEntity(object):
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
-                 scp_sop_class=None, transfer_syntax=None):
+                 scp_sop_class=None, transfer_syntax=None,
+                 bind_addr=''):
         """Create a new Application Entity.
 
         Parameters
@@ -157,6 +158,9 @@ class ApplicationEntity(object):
         port : int, optional
             The port number to listen for connections on when acting as an SCP
             (default: the first available port)
+        bind_addr : str, optional
+            The network interface to listen to.
+            (default: all availabel network interfaces on the machine)
         scu_sop_class : list of pydicom.uid.UID or list of str or list of
         pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.
@@ -172,6 +176,7 @@ class ApplicationEntity(object):
         """
         self.address = platform.node()
         self.port = port
+        self.bind_addr = bind_addr
         self.ae_title = ae_title
 
         # Avoid dangerous default values
@@ -282,7 +287,7 @@ class ApplicationEntity(object):
         # The socket to listen for connections on, port is always specified
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.local_socket.bind(('', self.port))
+        self.local_socket.bind((self.bind_addr, self.port))
         # Listen for connections made to the socket, the backlog argument
         #   specifies the maximum number of queued connections.
         self.local_socket.listen(1)
