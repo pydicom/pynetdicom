@@ -1,4 +1,4 @@
-"""Performance tests for the pyndx.presentation module."""
+"""Performance tests for the presentation module."""
 
 from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID

@@ -43,7 +43,7 @@ TODO: Make encoding/decoding more generic
 import codecs
 from io import BytesIO
 import logging
-from struct import pack, unpack
+from struct import pack, unpack, Struct, pack_into, unpack_from
 
 from pydicom.uid import UID
 
@@ -52,9 +52,23 @@ from pynetdicom3.utils import pretty_bytes, PresentationContext, validate_ae_tit
 
 LOGGER = logging.getLogger('pynetdicom3.pdu')
 
+# Predefine some structs to make decoding and encoding faster
+UNPACK_UCHAR = Struct('B').unpack
 
+
+# PDU classes
 class PDU(object):
-    """ Base class for PDUs """
+    """Base class for PDUs.
+
+    Protocol Data Units (PDUs) are the message formats exchanged between peer
+    entities within a layer. A PDU consists of protocol control information
+    and user data. PDUs are constructed by mandatory fixed fields followed by
+    optional variable fields that contain one or more items and/or sub-items.
+
+    References
+    ----------
+    DICOM Standard, Part 8, `Section 9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
+    """
 
     def __init__(self):
         self.formats = None
@@ -111,15 +125,23 @@ class PDU(object):
 
         return bytestream
 
-    def decode(self, encoded_data):
-        """
-        Decode the binary encoded PDU and sets the PDU class' values using the
-        decoded data
+    def decode(self, bytestream):
+        """Set the parameters of the PDU by decoding `bytestream`.
 
         Parameters
         ----------
-        encoded_data - ?
-            The binary encoded PDU
+        bytestream : bytes
+            The PDU data to be decoded.
+
+        Notes
+        -----
+        **Encoding**
+        The encoding of DICOM PDUs is Big Endian [1]_.
+
+        References
+        ----------
+        .. [1] DICOM Standard, Part 8,
+           `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         '''
         s = BytesIO(encoded_data)
@@ -153,51 +175,51 @@ class PDU(object):
         raise NotImplementedError
 
     @staticmethod
-    def _next_item_type(s):
-        """
-        Peek at the stream `s` and see what PDU sub-item type
-        it is by checking the value of the first byte, then reversing back to
-        the start of the stream.
+    def _next_item_type(bytestream):
+        """Return the first byte of `bytestream`.
 
         Parameters
         ----------
-        s : io.BytesIO
-            The stream to peek
+        bytestream : io.BytesIO
+            The bytestream to get the first byte from.
 
         Returns
         -------
         int or None
             The first byte of the stream, None if the stream is empty.
         """
-        first_byte = s.read(1)
+        first_byte = bytestream.read(1)
 
         # If the stream is empty
         if first_byte == b'':
             return None
 
         # Reverse our peek
-        s.seek(-1, 1)
+        bytestream.seek(-1, 1)
 
-        first_byte = unpack('B', first_byte)[0]
+        # first_byte is always a 1-byte unsigned integer
+        item_type = UNPACK_UCHAR(first_byte)[0]
 
-        return first_byte
+        return item_type
 
-    def _next_item(self, s):
-        """
-        Peek at the stream `s` and see what the next item type
-        it is. Each valid PDU/item/subitem has an PDU-type/Item-type as the
+    def _next_item(self, bytestream):
+        """Return the PDU or PDU item/sub-item corresponding to `bytestream`.
+
+        Peek at the stream `bytestream` and see what the next item type
+        it is. Each valid PDU/item/sub-item has an PDU-type/Item-type as the
         first byte, so we look at the first byte in the stream, then
-        reverse back to the start of the stream
+        reverse back to the start of the stream.
 
         Parameters
         ----------
-        s : io.BytesIO
-            The stream to peek
+        bytestream : io.BytesIO
+            The stream to peek.
 
         Returns
         -------
         PDU : pynetdicom3.pdu.PDU subclass
-            A PDU subclass instance corresponding to the next item in the stream
+            A PDU subclass instance corresponding to the next item in the
+            bytestream.
         None
             If the stream is empty
 
@@ -207,39 +229,16 @@ class PDU(object):
             If the item type is not a known value
         """
 
-        item_type = self._next_item_type(s)
+        item_type = self._next_item_type(bytestream)
 
         if item_type is None:
             return None
 
-        item_types = {0x01: A_ASSOCIATE_RQ,
-                      0x02: A_ASSOCIATE_AC,
-                      0x03: A_ASSOCIATE_RJ,
-                      0x04: P_DATA_TF,
-                      0x05: A_RELEASE_RQ,
-                      0x06: A_RELEASE_RP,
-                      0x07: A_ABORT_RQ,
-                      0x10: ApplicationContextItem,
-                      0x20: PresentationContextItemRQ,
-                      0x21: PresentationContextItemAC,
-                      0x30: AbstractSyntaxSubItem,
-                      0x40: TransferSyntaxSubItem,
-                      0x50: UserInformationItem,
-                      0x51: MaximumLengthSubItem,
-                      0x52: ImplementationClassUIDSubItem,
-                      0x53: AsynchronousOperationsWindowSubItem,
-                      0x54: SCP_SCU_RoleSelectionSubItem,
-                      0x55: ImplementationVersionNameSubItem,
-                      0x56: SOPClassExtendedNegotiationSubItem,
-                      0x57: SOPClassCommonExtendedNegotiationSubItem,
-                      0x58: UserIdentitySubItemRQ,
-                      0x59: UserIdentitySubItemAC}
-
-        if item_type not in item_types.keys():
+        if item_type not in PDU_ITEM_TYPES:
             raise ValueError("During PDU decoding we received an invalid "
                              "item type: \\x{0:02x}".format(item_type))
 
-        return item_types[item_type]()
+        return PDU_ITEM_TYPES[item_type]()
 
     @property
     def length(self):
@@ -247,7 +246,6 @@ class PDU(object):
         return len(self.Encode())
 
 
-# PDU Classes
 class A_ASSOCIATE_RQ(PDU):
     """Represents an A-ASSOCIATE-RQ PDU.
 
@@ -259,41 +257,41 @@ class A_ASSOCIATE_RQ(PDU):
     An A-ASSOCIATE-RQ requires the following parameters (see PS3.8 Section
     9.3.2):
 
-        * PDU type (1, fixed value, 0x01)
-        * PDU length (1)
-        * Protocol version (1, fixed value, 0x01)
-        * Called AE title (1)
-        * Calling AE title (1)
-        * Variable items (1)
+    * PDU type (1, fixed value, 0x01)
+    * PDU length (1)
+    * Protocol version (1, fixed value, 0x01)
+    * Called AE title (1)
+    * Calling AE title (1)
+    * Variable items (1)
 
-          * Application Context Item (1)
-            * Item type (1, fixed value, 0x10)
+      * Application Context Item (1)
+        * Item type (1, fixed value, 0x10)
+        * Item length (1)
+        * Application Context Name (1, fixed in an application)
+      * Presentation Context Item(s) (1 or more)
+
+        * Item type (1, fixed value, 0x21)
+        * Item length (1)
+        * Context ID (1)
+        * Abstract/Transfer Syntax Sub-items (1)
+
+          * Abstract Syntax Sub-item (1)
+            * Item type (1, fixed, 0x30)
             * Item length (1)
-            * Application Context Name (1, fixed in an application)
-          * Presentation Context Item(s) (1 or more)
-
-            * Item type (1, fixed value, 0x21)
+            * Abstract syntax name (1)
+          * Transfer Syntax Sub-items (1 or more)
+            * Item type (1, fixed, 0x40)
             * Item length (1)
-            * Context ID (1)
-            * Abstract/Transfer Syntax Sub-items (1)
+            * Transfer syntax name(s) (1 or more)
+      * User Information Item (1)
 
-              * Abstract Syntax Sub-item (1)
-                * Item type (1, fixed, 0x30)
-                * Item length (1)
-                * Abstract syntax name (1)
-              * Transfer Syntax Sub-items (1 or more)
-                * Item type (1, fixed, 0x40)
-                * Item length (1)
-                * Transfer syntax name(s) (1 or more)
-          * User Information Item (1)
+        * Item type (1, fixed, 0x50)
+        * Item length (1)
+        * User data Sub-items (2 or more)
 
-            * Item type (1, fixed, 0x50)
-            * Item length (1)
-            * User data Sub-items (2 or more)
-
-                * Maximum Length Received Sub-item (1)
-                * Implementation Class UID Sub-item (1)
-                * Optional User Data Sub-items (0 or more)
+            * Maximum Length Received Sub-item (1)
+            * Implementation Class UID Sub-item (1)
+            * Optional User Data Sub-items (0 or more)
 
     See PS3.8 Section 9.3.2 for the structure of the PDU, especially Table 9-11.
 
@@ -341,6 +339,10 @@ class A_ASSOCIATE_RQ(PDU):
                            0x00, 0x00, 0x00, 0x00,  # Reserved
                            0x00, 0x00, 0x00, 0x00,  # Reserved
                            self.variable_items]
+
+        self._formats = ['H', 'H', '16s', '16s',
+                        'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I']
+        self._has_variable_items = True
 
     def FromParams(self, primitive):
         """
@@ -509,6 +511,26 @@ class A_ASSOCIATE_RQ(PDU):
         return 6 + self.pdu_length
 
     @property
+    def application_context_name(self):
+        """Return the application context name."""
+        for ii in self.variable_items:
+            if isinstance(ii, ApplicationContextItem):
+                return ii.application_context_name
+
+    @application_context_name.setter
+    def application_context_name(self, value):
+        """Set the Association request's Application Context Name.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, str or bytes
+            The value of the Application Context Name's UID.
+        """
+        for ii in self.variable_items:
+            if isinstance(ii, ApplicationContextItem):
+                ii.application_context_name = value
+
+    @property
     def called_ae_title(self):
         """Return the called AE title."""
         return self._called_aet
@@ -547,26 +569,6 @@ class A_ASSOCIATE_RQ(PDU):
             s = codecs.encode(s, 'utf-8')
 
         self._calling_aet = validate_ae_title(s)
-
-    @property
-    def application_context_name(self):
-        """Return the application context name."""
-        for ii in self.variable_items:
-            if isinstance(ii, ApplicationContextItem):
-                return ii.application_context_name
-
-    @application_context_name.setter
-    def application_context_name(self, value):
-        """Set the Association request's Application Context Name.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, str or bytes
-            The value of the Application Context Name's UID
-        """
-        for ii in self.variable_items:
-            if isinstance(ii, ApplicationContextItem):
-                ii.application_context_name = value
 
     @property
     def presentation_context(self):
@@ -1909,7 +1911,13 @@ class A_ABORT_RQ(PDU):
             return 'No reason given'
 
 
-# PDU Item Classes
+
+# PDU item and sub-item classes
+class PDUItem(object):
+    """"""
+    pass
+
+
 class ApplicationContextItem(PDU):
     """
     Represents the Application Context Item used in A-ASSOCIATE-RQ and
@@ -4878,3 +4886,30 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
             self._related_general_sop_class_identification.append(value)
             self.related_general_sop_class_identification_length += len(value)
+
+
+# PDUs, PDU items and sub-items, indexed by their item type
+PDU_ITEM_TYPES = {
+    0x01 : A_ASSOCIATE_RQ,
+    0x02 : A_ASSOCIATE_AC,
+    0x03 : A_ASSOCIATE_RJ,
+    0x04 : P_DATA_TF,
+    0x05 : A_RELEASE_RQ,
+    0x06 : A_RELEASE_RP,
+    0x07 : A_ABORT_RQ,
+    0x10 : ApplicationContextItem,
+    0x20 : PresentationContextItemRQ,
+    0x21 : PresentationContextItemAC,
+    0x30 : AbstractSyntaxSubItem,
+    0x40 : TransferSyntaxSubItem,
+    0x50 : UserInformationItem,
+    0x51 : MaximumLengthSubItem,
+    0x52 : ImplementationClassUIDSubItem,
+    0x53 : AsynchronousOperationsWindowSubItem,
+    0x54 : SCP_SCU_RoleSelectionSubItem,
+    0x55 : ImplementationVersionNameSubItem,
+    0x56 : SOPClassExtendedNegotiationSubItem,
+    0x57 : SOPClassCommonExtendedNegotiationSubItem,
+    0x58 : UserIdentitySubItemRQ,
+    0x59 : UserIdentitySubItemAC
+}

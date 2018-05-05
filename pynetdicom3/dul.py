@@ -585,23 +585,26 @@ class DULServiceProvider(Thread):
         pdu : pynetdicom3.pdu.PDU
             The decoded data as a PDU object
         """
-        pdutype = unpack('B', data[0:1])[0]
+        pdutype = unpack('B', data[:1])[0]
+
         acse = self.assoc.acse
+        PDU_TYPES = {
+            0x01 : (A_ASSOCIATE_RQ, acse.debug_receive_associate_rq),
+            0x02 : (A_ASSOCIATE_AC, acse.debug_receive_associate_ac),
+            0x03 : (A_ASSOCIATE_RJ, acse.debug_receive_associate_rj),
+            0x04 : (P_DATA_TF, acse.debug_receive_data_tf),
+            0x05 : (A_RELEASE_RQ, acse.debug_receive_release_rq),
+            0x06 : (A_RELEASE_RP, acse.debug_receive_release_rp),
+            0x07 : (A_ABORT_RQ, acse.debug_receive_abort)
+        }
 
-        pdu_types = {0x01: (A_ASSOCIATE_RQ(), acse.debug_receive_associate_rq),
-                     0x02: (A_ASSOCIATE_AC(), acse.debug_receive_associate_ac),
-                     0x03: (A_ASSOCIATE_RJ(), acse.debug_receive_associate_rj),
-                     0x04: (P_DATA_TF(), acse.debug_receive_data_tf),
-                     0x05: (A_RELEASE_RQ(), acse.debug_receive_release_rq),
-                     0x06: (A_RELEASE_RP(), acse.debug_receive_release_rp),
-                     0x07: (A_ABORT_RQ(), acse.debug_receive_abort)}
-
-        if pdutype in pdu_types:
-            pdu = pdu_types[pdutype][0]
+        if pdutype in PDU_TYPES:
+            (pdu, acse_callback) = PDU_TYPES[pdutype]
+            pdu = pdu()
             pdu.Decode(data)
 
             # ACSE callbacks
-            pdu_types[pdutype][1](pdu)
+            acse_callback(pdu)
 
             return pdu
 
