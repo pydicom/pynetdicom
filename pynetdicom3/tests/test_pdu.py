@@ -29,7 +29,8 @@ from pynetdicom3.pdu_primitives import (
 )
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
-    a_release_rp, a_abort, a_p_abort, p_data_tf
+    a_release_rp, a_abort, a_p_abort, p_data_tf,
+    a_associate_rq_user_id_ext_neg
 )
 #from pynetdicom3.utils import pretty_bytes
 
@@ -85,26 +86,6 @@ class TestPDU_NextItem(unittest.TestCase):
             as_bytes = bytes([item_type])
             pdu = pdu._next_item(BytesIO(as_bytes))
             assert isinstance(pdu, PDU_ITEM_TYPES[item_type])
-
-
-class TestPDU_NextItemType(unittest.TestCase):
-    def test_empty_stream(self):
-        """ Check that an empty stream returns None """
-        pdu = PDU()
-        item_type = pdu._next_item_type(b'')
-        assert item_type is None
-
-    def test_normal_stream(self):
-        """ Check that a stream returns the value of the first byte  """
-        pdu = PDU()
-        item_type = pdu._next_item_type(b'\x01\x02\x03\x04\x04')
-        assert item_type == 1
-
-    def test_return_type(self):
-        """ Check stream returns the value of the first byte as an int """
-        pdu = PDU()
-        item_type = pdu._next_item_type(b'\x01\x02\x03\x04\x04')
-        assert isinstance(item_type, int)
 
 
 class TestPDU_Equality(unittest.TestCase):
@@ -210,6 +191,15 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
 
         assert s == a_associate_rq
 
+    def test_new_decode(self):
+        pdu = A_ASSOCIATE_RQ()
+        #pdu.Decode(a_associate_rq)
+        #print(pdu)
+        #for key in pdu.__dict__:
+        #    print(key)
+        pdu._dev_decode(a_associate_rq_user_id_ext_neg)
+        print(pdu)
+
     def test_stream_encode(self):
         """ Check encoding an assoc_rq produces the correct output """
         pdu = A_ASSOCIATE_RQ()
@@ -248,7 +238,7 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
 
         # Test Presentation Contexts
         for context in primitive.presentation_context_definition_list:
-            assert context.ID == 1)
+            assert context.ID == 1
             assert context.AbstractSyntax == UID('1.2.840.10008.1.1')
             for syntax in context.TransferSyntax:
                 assert syntax == UID('1.2.840.10008.1.2')
@@ -289,14 +279,14 @@ class TestPDU_A_ASSOC_RQ(unittest.TestCase):
         orig_pdu = A_ASSOCIATE_RQ()
         orig_pdu.Decode(a_associate_rq)
         orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
-        orig_pdu.get_length()
+        orig_pdu._length
 
         primitive = orig_pdu.ToParams()
 
         new_pdu = A_ASSOCIATE_RQ()
         new_pdu.FromParams(primitive)
 
-        assert new_pdu == orig_pdu)
+        assert new_pdu == orig_pdu
 
     def test_generic_encode(self):
         """ Check using the new pdu.encode produces the correct output """

@@ -226,7 +226,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        assoc_primtive : pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters
+        assoc_primtive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The Association request primitive to be rejected
         result : int
             The association rejection: 0x01 or 0x02
