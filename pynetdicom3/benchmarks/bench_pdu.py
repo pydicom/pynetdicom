@@ -31,5 +31,5 @@ class TimePDU(object):
     def time_opt_decode_pdu(self):
         """Time PDU._next_item_type"""
         pdu = PDU_TYPES[0x01]()
-        for ii in range(1000):
-            pdu._dev_decode(self.pdu_bytestream)
+        for ii in range(1):
+            pdu.decode(self.pdu_bytestream)
