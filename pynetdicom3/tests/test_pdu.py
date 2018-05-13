@@ -2,7 +2,6 @@
 
 from io import BytesIO
 import logging
-import unittest
 
 import pytest
 
@@ -32,60 +31,10 @@ from .encoded_pdu_items import (
     a_release_rp, a_abort, a_p_abort, p_data_tf,
     a_associate_rq_user_id_ext_neg
 )
-#from pynetdicom3.utils import pretty_bytes
+from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
-
-
-class TestPDU(object):
-    def test_length_property(self):
-        """ Check that the length property returns the correct value """
-        pdu = A_ASSOCIATE_AC()
-        pdu.decode(a_associate_ac)
-
-        assert pdu.length == pdu.get_length()
-
-    def test_decode(self):
-        """Check that decode raises not implemented"""
-        pdu = A_ASSOCIATE_AC()
-        with pytest.raises(NotImplementedError):
-            pdu.decode(a_associate_ac)
-
-
-class TestPDU_NextItem(object):
-    def test_unknown_item_type(self):
-        """ Check that an unknown item value raises ValueError """
-        s = BytesIO(b'\x00\x02\x03\x04\x04')
-        pdu = PDU()
-
-        with pytest.raises(ValueError):
-            pdu._next_item(s)
-
-    def test_empty_stream(self):
-        """ Check that an empty stream returns None """
-        s = BytesIO(b'')
-        pdu = PDU()
-
-        item = pdu._next_item(s)
-
-        assert item is None
-
-    def test_check_pdu_raises(self):
-        """ Check that _next_item raises if PDU bytestream supplied."""
-        pdu = PDU()
-        for pdu_type in PDU_TYPES:
-            with pytest.raises(ValueError):
-                pdu._next_item(BytesIO(bytes([pdu_type])))
-
-    def test_correct_item(self):
-        """ Check that _next_item returns the correct item."""
-        pdu = PDU()
-
-        for item_type in PDU_ITEM_TYPES:
-            as_bytes = bytes([item_type])
-            pdu = pdu._next_item(BytesIO(as_bytes))
-            assert isinstance(pdu, PDU_ITEM_TYPES[item_type])
 
 
 class TestPDU_Equality(object):
@@ -116,8 +65,6 @@ class TestPDU_A_ASSOC_RQ(object):
         item = ApplicationContextItem()
         pdu.variable_items = [item]
         assert pdu.application_context_name == ''
-        pdu.application_context_name = 'TEST'
-        assert pdu.application_context_name == 'TEST'
 
         # pdu.presentation_context
         pdu = A_ASSOCIATE_RQ()
@@ -183,19 +130,11 @@ class TestPDU_A_ASSOC_RQ(object):
         user_info = pdu.user_information
         assert isinstance(user_info, UserInformationItem)
 
-    def test_new_encode(self):
-        """ Check encoding using new generic method """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-        s = pdu.encode()
-
-        assert s == a_associate_rq
-
     def test_stream_encode(self):
         """ Check encoding an assoc_rq produces the correct output """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
-        s = pdu.Encode()
+        s = pdu.encode()
 
         assert s == a_associate_rq
 
@@ -270,7 +209,6 @@ class TestPDU_A_ASSOC_RQ(object):
         orig_pdu = A_ASSOCIATE_RQ()
         orig_pdu.decode(a_associate_rq)
         orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
-        orig_pdu._length
 
         primitive = orig_pdu.ToParams()
 
@@ -278,15 +216,6 @@ class TestPDU_A_ASSOC_RQ(object):
         new_pdu.FromParams(primitive)
 
         assert new_pdu == orig_pdu
-
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t
 
 
 class TestPDU_A_ASSOC_RQ_ApplicationContext(object):
@@ -453,19 +382,19 @@ class TestPDU_A_ASSOC_AC(object):
         """Test the property getters"""
         # called_ae_title
         pdu = A_ASSOCIATE_AC()
-        pdu.reserved_aet = b'TESTA'
+        pdu._reserved_aet = b'TESTA'
         assert pdu.called_ae_title == b'TESTA'
         assert isinstance(pdu.called_ae_title, bytes)
-        pdu.reserved_aet = 'TESTB'
+        pdu._reserved_aet = 'TESTB'
         assert pdu.called_ae_title == b'TESTB'
         assert isinstance(pdu.called_ae_title, bytes)
 
         # calling_ae_title
         pdu = A_ASSOCIATE_AC()
-        pdu.reserved_aec = b'TESTA'
+        pdu._reserved_aec = b'TESTA'
         assert pdu.calling_ae_title == b'TESTA'
         assert isinstance(pdu.calling_ae_title, bytes)
-        pdu.reserved_aec = 'TESTB'
+        pdu._reserved_aec = 'TESTB'
         assert pdu.calling_ae_title == b'TESTB'
         assert isinstance(pdu.calling_ae_title, bytes)
 
@@ -500,10 +429,10 @@ class TestPDU_A_ASSOC_AC(object):
         pdu.decode(a_associate_ac)
 
         # Check AE titles
-        assert pdu.reserved_aec.decode('utf-8') == 'ECHOSCU         '
-        assert pdu.reserved_aet.decode('utf-8') == 'ANY-SCP         '
-        assert isinstance(pdu.reserved_aec, bytes)
-        assert isinstance(pdu.reserved_aet, bytes)
+        assert pdu._reserved_aec.decode('utf-8') == 'ECHOSCU         '
+        assert pdu._reserved_aet.decode('utf-8') == 'ANY-SCP         '
+        assert isinstance(pdu._reserved_aec, bytes)
+        assert isinstance(pdu._reserved_aet, bytes)
 
         # Check application_context_name property
         app_name = pdu.application_context_name
@@ -522,14 +451,6 @@ class TestPDU_A_ASSOC_AC(object):
 
     def test_stream_encode(self):
         """ Check encoding an assoc_ac produces the correct output """
-        pdu = A_ASSOCIATE_AC()
-        pdu.decode(a_associate_ac)
-        s = pdu.Encode()
-
-        assert s == a_associate_ac
-
-    def test_new_encode(self):
-        """ Check encoding using new generic method """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
         s = pdu.encode()
@@ -606,7 +527,6 @@ class TestPDU_A_ASSOC_AC(object):
         original = A_ASSOCIATE_AC()
         original.decode(a_associate_ac)
         original.user_information.user_data = [original.user_information.user_data[1]]
-        original.get_length()
 
         primitive = original.ToParams()
 
@@ -614,15 +534,6 @@ class TestPDU_A_ASSOC_AC(object):
         new.FromParams(primitive)
 
         assert original == new
-
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = A_ASSOCIATE_AC()
-        pdu.decode(a_associate_ac)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t
 
 
 class TestPDU_A_ASSOC_AC_ApplicationContext(object):
@@ -775,14 +686,6 @@ class TestPDU_A_ASSOC_RJ(object):
         """ Check encoding an assoc_rj produces the correct output """
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
-        s = pdu.Encode()
-
-        assert s == a_associate_rj
-
-    def test_new_encode(self):
-        """ Check encoding using new generic method """
-        pdu = A_ASSOCIATE_RJ()
-        pdu.decode(a_associate_rj)
         s = pdu.encode()
 
         assert s == a_associate_rj
@@ -924,15 +827,6 @@ class TestPDU_A_ASSOC_RJ(object):
         with pytest.raises(ValueError):
             pdu.reason_str
 
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = A_ASSOCIATE_RJ()
-        pdu.decode(a_associate_rj)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t
-
 
 class TestPDU_P_DATA_TF(object):
     def test_string_output(self):
@@ -958,19 +852,11 @@ class TestPDU_P_DATA_TF(object):
         pdu.decode(p_data_tf)
 
         # Check PDVs
-        assert isinstance(pdu.PDVs, list)
+        assert isinstance(pdu.presentation_data_value_items, list)
         assert len(pdu) == 90
 
     def test_stream_encode(self):
         """ Check encoding an p_data produces the correct output """
-        pdu = P_DATA_TF()
-        pdu.decode(p_data_tf)
-        s = pdu.Encode()
-
-        assert s == p_data_tf
-
-    def test_new_encode(self):
-        """ Check encoding using new generic method """
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
         s = pdu.encode()
@@ -991,22 +877,13 @@ class TestPDU_P_DATA_TF(object):
         """ Check converting PDU to primitive """
         orig_pdu = P_DATA_TF()
         orig_pdu.decode(p_data_tf)
-
         primitive = orig_pdu.ToParams()
 
         new_pdu = P_DATA_TF()
         new_pdu.FromParams(primitive)
+        pdv = new_pdu.presentation_data_value_items[0]
 
         assert new_pdu == orig_pdu
-
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = P_DATA_TF()
-        pdu.decode(p_data_tf)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t
 
 
 class TestPDU_A_RELEASE_RQ(object):
@@ -1030,14 +907,6 @@ class TestPDU_A_RELEASE_RQ(object):
 
     def test_stream_encode(self):
         """ Check encoding an release_rq produces the correct output """
-        pdu = A_RELEASE_RQ()
-        pdu.decode(a_release_rq)
-        s = pdu.Encode()
-
-        assert s == a_release_rq
-
-    def test_new_encode(self):
-        """ Check encoding using new generic method """
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
         s = pdu.encode()
@@ -1066,15 +935,6 @@ class TestPDU_A_RELEASE_RQ(object):
 
         assert new_pdu == orig_pdu
 
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = A_RELEASE_RQ()
-        pdu.decode(a_release_rq)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t
-
 
 class TestPDU_A_RELEASE_RP(object):
     def test_string_output(self):
@@ -1097,14 +957,6 @@ class TestPDU_A_RELEASE_RP(object):
 
     def test_stream_encode(self):
         """ Check encoding an release_rp produces the correct output """
-        pdu = A_RELEASE_RP()
-        pdu.decode(a_release_rp)
-        s = pdu.Encode()
-
-        assert s == a_release_rp
-
-    def test_new_encode(self):
-        """ Check encoding using new generic method """
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
         s = pdu.encode()
@@ -1132,15 +984,6 @@ class TestPDU_A_RELEASE_RP(object):
         new_pdu.FromParams(primitive)
 
         assert new_pdu == orig_pdu
-
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = A_RELEASE_RP()
-        pdu.decode(a_release_rp)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t
 
 
 class TestPDU_A_ABORT(object):
@@ -1185,28 +1028,12 @@ class TestPDU_A_ABORT(object):
         """ Check encoding an a_abort produces the correct output """
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
-        s = pdu.Encode()
-
-        assert s == a_abort
-
-    def test_new_encode_a_abort(self):
-        """ Check encoding using new generic method """
-        pdu = A_ABORT_RQ()
-        pdu.decode(a_abort)
         s = pdu.encode()
 
         assert s == a_abort
 
     def test_a_p_abort_stream_encode(self):
         """ Check encoding an a_abort produces the correct output """
-        pdu = A_ABORT_RQ()
-        pdu.decode(a_p_abort)
-        s = pdu.Encode()
-
-        assert s == a_p_abort
-
-    def test_new_encode_a_p_abort(self):
-        """ Check encoding using new generic method """
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
         s = pdu.encode()
@@ -1288,12 +1115,3 @@ class TestPDU_A_ABORT(object):
         assert pdu.reason_str == "Unexpected PDU parameter"
         pdu.reason_diagnostic = 6
         assert pdu.reason_str == "Invalid PDU parameter value"
-
-    def test_generic_encode(self):
-        """ Check using the new pdu.encode produces the correct output """
-        pdu = A_ABORT_RQ()
-        pdu.decode(a_abort)
-        s = pdu.Encode()
-        t = pdu.encode()
-
-        assert s == t

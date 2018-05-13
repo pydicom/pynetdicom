@@ -170,7 +170,7 @@ def AE_2(dul):
     # Callback
     dul.assoc.acse.debug_send_associate_rq(dul.pdu)
 
-    bytestream = dul.pdu.Encode()
+    bytestream = dul.pdu.encode()
     dul.scu_socket.send(bytestream)
 
     return 'Sta5'
@@ -307,7 +307,7 @@ def AE_6(dul):
         # Callback
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
-        dul.scu_socket.send(dul.pdu.Encode())
+        dul.scu_socket.send(dul.pdu.encode())
 
         dul.artim_timer.start()
 
@@ -346,7 +346,7 @@ def AE_7(dul):
     # Callback
     dul.assoc.acse.debug_send_associate_ac(dul.pdu)
 
-    bytestream = dul.pdu.Encode()
+    bytestream = dul.pdu.encode()
     dul.scu_socket.send(bytestream)
 
     return 'Sta6'
@@ -378,7 +378,7 @@ def AE_8(dul):
     # Callback
     dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.Encode())
+    dul.scu_socket.send(dul.pdu.encode())
 
     dul.artim_timer.start()
 
@@ -413,7 +413,7 @@ def DT_1(dul):
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
-    bytestream = dul.pdu.Encode()
+    bytestream = dul.pdu.encode()
     dul.scu_socket.send(bytestream)
 
     return 'Sta6'
@@ -471,7 +471,7 @@ def AR_1(dul):
     # Callback
     dul.assoc.acse.debug_send_release_rq(dul.pdu)
 
-    bytestream = dul.pdu.Encode()
+    bytestream = dul.pdu.encode()
     dul.scu_socket.send(bytestream)
 
     return 'Sta7'
@@ -556,7 +556,7 @@ def AR_4(dul):
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.Encode())
+    dul.scu_socket.send(dul.pdu.encode())
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -641,7 +641,7 @@ def AR_7(dul):
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
-    bytestream = dul.pdu.Encode()
+    bytestream = dul.pdu.encode()
     dul.scu_socket.send(bytestream)
 
     return 'Sta8'
@@ -701,7 +701,7 @@ def AR_9(dul):
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.Encode())
+    dul.scu_socket.send(dul.pdu.encode())
 
     return 'Sta11'
 
@@ -772,7 +772,7 @@ def AA_1(dul):
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.Encode())
+    dul.scu_socket.send(dul.pdu.encode())
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -945,7 +945,7 @@ def AA_7(dul):
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.Encode())
+    dul.scu_socket.send(dul.pdu.encode())
 
     return 'Sta13'
 
@@ -990,7 +990,7 @@ def AA_8(dul):
 
         try:
             # Encode and send A-ABORT to peer
-            dul.scu_socket.send(dul.pdu.Encode())
+            dul.scu_socket.send(dul.pdu.encode())
         except socket.error:
             dul.scu_socket.close()
         except ConnectionResetError:

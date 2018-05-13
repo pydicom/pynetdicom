@@ -20,16 +20,10 @@ class TimePDU(object):
     def time_next_item(self):
         """Time PDU._next_item_type"""
         for ii in range(1000):
-            self.pdu._next_item(self.item_bytestream_io)
+            self.pdu._next_item(self.item_bytestream_io)m)
 
     def time_decode_pdu(self):
         """Time PDU._next_item_type"""
         pdu = PDU_TYPES[0x01]()
         for ii in range(1000):
-            pdu.Decode(self.pdu_bytestream)
-
-    def time_opt_decode_pdu(self):
-        """Time PDU._next_item_type"""
-        pdu = PDU_TYPES[0x01]()
-        for ii in range(1):
             pdu.decode(self.pdu_bytestream)

@@ -454,7 +454,7 @@ class ACSEServiceProvider(object):
 
         for context in pres_contexts:
             s.append('  Context ID:        {0!s} '
-                     '(Proposed)'.format((context.ID)))
+                     '(Proposed)'.format((context.context_id)))
             s.append('    Abstract Syntax: ='
                      '{0!s}'.format(context.abstract_syntax))
 
@@ -478,7 +478,7 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation:')
 
             for item in pdu.user_information.ext_neg:
-                s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
+                s.append('  Abstract Syntax: ={0!s}'.format(item.uid))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
@@ -586,7 +586,7 @@ class ACSEServiceProvider(object):
 
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.ID, item.result_str))
+                     .format(item.context_id, item.result_str))
 
             # If Presentation Context was accepted
             if item.result == 0:
@@ -731,7 +731,7 @@ class ACSEServiceProvider(object):
         ## Presentation Contexts
         s.append('Presentation Contexts:')
         for item in pres_contexts:
-            s.append('  Context ID:        {0!s} (Proposed)'.format(item.ID))
+            s.append('  Context ID:        {0!s} (Proposed)'.format(item.context_id))
             s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax))
 
             if item.SCU is None and item.SCP is None:
@@ -749,7 +749,7 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation:')
 
             for item in pdu.user_information.ext_neg:
-                s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
+                s.append('  Abstract Syntax: ={0!s}'.format(item.uid))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
@@ -874,7 +874,7 @@ class ACSEServiceProvider(object):
 
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.ID, item.result_str))
+                     .format(item.context_id, item.result_str))
 
             if item.result == 0:
                 if item.SCP is None and item.SCU is None:

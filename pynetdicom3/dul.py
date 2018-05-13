@@ -601,7 +601,7 @@ class DULServiceProvider(Thread):
         if pdutype in PDU_TYPES:
             (pdu, acse_callback) = PDU_TYPES[pdutype]
             pdu = pdu()
-            pdu.Decode(data)
+            pdu.decode(data)
 
             # ACSE callbacks
             acse_callback(pdu)

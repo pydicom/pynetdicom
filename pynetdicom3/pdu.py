@@ -61,6 +61,10 @@ UNPACK_UCHAR = UCHAR.unpack
 UNPACK_UINT2 = UINT2.unpack
 UNPACK_UINT4 = UINT4.unpack
 
+PACK_UCHAR = UCHAR.pack
+PACK_UINT2 = UINT2.pack
+PACK_UINT4 = UINT4.pack
+
 STRUCT_ASSOC = Struct('> B B I H H 16s 16s 32s')
 
 
@@ -77,22 +81,6 @@ class PDU(object):
     ----------
     DICOM Standard, Part 8, `Section 9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
     """
-    __hash__ = None
-
-    def __init__(self):
-        self.formats = None
-        self.parameters = None
-
-    def __eq__(self, other):
-        """Return True if self equals other."""
-        if isinstance(other, self.__class__):
-            return other.__dict__ == self.__dict__
-
-        return False
-
-    def __ne__(self, other):
-        """Return True if self does not equal other."""
-        return not self == other
 
     def decode(self, bytestream):
         """Decode `bytestream` and set the parameters of the PDU.
@@ -112,21 +100,40 @@ class PDU(object):
         .. [1] DICOM Standard, Part 8,
            `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
-        for dest, (start, stop), (func, args) in zip(self._parameters,
-                                                     self._offsets,
-                                                     self._decoders):
-            if func:
-                setattr(self, dest, func(bytestream[start:stop], *args))
+        for (start, stop), attr_name, func, args in self._decoders:
+            if not hasattr(self, attr_name):
+                raise ValueError('Unknown attribute name ', attr_name)
+            setattr(self, attr_name, func(bytestream[start:stop], *args))
 
     def encode(self):
-        """
-        Encode the DUL
+        """Return the encoded PDU as bytes.
 
         Returns
         -------
         bytes
-            The encoded PDU
+            The encoded PDU.
+
+        Notes
+        -----
+        **Encoding**
+        The encoding of DICOM PDUs is Big Endian [1]_.
+
+        References
+        ----------
+        .. [1] DICOM Standard, Part 8,
+           `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
+        bytestream = bytes()
+        for attr_name, func, args in self._encoders:
+            if attr_name:
+                bytestream += func(getattr(self, attr_name), *args)
+            else:
+                bytestream += func(*args)
+
+        return bytestream
+
+    def _encode(self):
+        """Return the encoded the PDU as bytes."""
         no_formats = len(self.formats)
 
         # If a parameter is already a bytestream then determine its length
@@ -159,6 +166,19 @@ class PDU(object):
 
         return bytestream
 
+    def __eq__(self, other):
+        """Return True if self equals other."""
+        if isinstance(other, self.__class__):
+            _sdict = {
+                kk : vv for kk, vv in self.__dict__.items() if kk[0] != '_'
+            }
+            _odict = {
+                kk : vv for kk, vv in other.__dict__.items() if kk[0] != '_'
+            }
+            return _odict == _sdict
+
+        return False
+
     @staticmethod
     def _generate_items(bytestream):
         """Yield the variable item data from `bytestream`.
@@ -182,20 +202,26 @@ class PDU(object):
         int, bytes
             The variable item's 'Item Type' parameter as int, and encoded data
             as bytes.
+
+        Notes
+        -----
+        Can be used with the following PDU items/sub-items:
+
+        - Application Context Item
+        - Presentation Context Item (RQ/AC)
+
+          - Abstract Syntax Sub-item
+          - Transfer Syntax Sub-item
+        - User Information Item
+
+          - Implementation Class UID Sub-item (RQ/AC)
+          - Implementation Version Name Sub-item (RQ/AC)
+          - Asynchronous Operations Window Sub-item (RQ/AC)
+          - SCP/SCU Role Selection Sub-item (RQ/AC)
+          - SOP Class Extended Negotiation Sub-item (RQ/AC)
+          - SOP Class Common Extended Negotiation Sub-item (RQ/AC)
+          - User Identity Sub-item (RQ/AC)
         """
-        # Variable PDU items are:
-        #   Application Context Item
-        #   Presentation Context Item (RQ/AC)
-        #     Abstract Syntax Sub-item
-        #     Transfer Syntax Sub-item
-        #   User Information Item
-        #     Implementation Class UID Sub-item (RQ/AC)
-        #     Implementation Version Name Sub-item (RQ/AC)
-        #     Asynchronous Operations Window Sub-item (RQ/AC)
-        #     SCP/SCU Role Selection Sub-item (RQ/AC)
-        #     SOP Class Extended Negotiation Sub-item (RQ/AC)
-        #     SOP Class Common Extended Negotiation Sub-item (RQ/AC)
-        #     User Identity Sub-item (RQ/AC)
         offset = 0
         while bytestream[offset:offset + 1]:
             item_type = bytestream[offset:offset + 1]
@@ -204,6 +230,8 @@ class PDU(object):
             yield item_type, item_data
             # Change `offset` to the start of the next item
             offset += 4 + item_length
+
+    __hash__ = None
 
     @property
     def item_length(self):
@@ -215,6 +243,10 @@ class PDU(object):
         """Return the item type as an int."""
         raise NotImplementedError
 
+    def __ne__(self, other):
+        """Return True if self does not equal other."""
+        return not self == other
+
     @property
     def pdu_length(self):
         """Return the 'PDU Length' parameter value."""
@@ -222,26 +254,36 @@ class PDU(object):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         raise NotImplementedError
 
     @staticmethod
-    def _wrap_unpack(bytestream, unpacker):
-        """Return the first value when `unpacker` is run on `bytestream`.
+    def _wrap_ascii(bytestream):
+        return codecs.encode(bytestream, 'ascii')
+
+    @staticmethod
+    def _wrap_bytes(bytestream):
+        """Return the `bytestream`."""
+        return bytestream
+
+    @staticmethod
+    def _wrap_encode_items(items):
+        """Return `items` encoded as bytes.
 
         Parameters
         ----------
-        bytestream : bytes
-            The encoded data to unpack.
-        unpacker : callable
-            A callable function to use to unpack the data in bytestream.
-            Example: struct.Struct('>I').unpack
-        """
-        return unpacker(bytestream)[0]
+        items : list of PDU items
+            The items to encode.
 
-    @staticmethod
-    def _wrap_slice(bytestream):
-        """Return `bytestream`."""
+        Returns
+        -------
+        bytes
+            The encoded items.
+        """
+        bytestream = bytes()
+        for item in items:
+            bytestream += item.encode()
+
         return bytestream
 
     def _wrap_generate_items(self, bytestream):
@@ -254,17 +296,85 @@ class PDU(object):
 
         return item_list
 
+    @staticmethod
+    def _wrap_pack(value, packer):
+        """Return `value` encoded as bytes using `packer`.
+
+        Parameters
+        ----------
+        value
+            The value to encode.
+        packer : callable
+            A callable function to use to pack the data as bytes. The
+            `packer` should return the packed bytes. Example:
+            struct.Struct('>I').pack
+
+        Returns
+        -------
+        bytes
+        """
+        return packer(value)
+
+    @staticmethod
+    def _wrap_slice(bytestream):
+        """Return `bytestream`."""
+        return bytestream
+
+    @staticmethod
+    def _wrap_unpack(bytestream, unpacker):
+        """Return the first value when `unpacker` is run on `bytestream`.
+
+        Parameters
+        ----------
+        bytestream : bytes
+            The encoded data to unpack.
+        unpacker : callable
+            A callable function to use to unpack the data in `bytestream`. The
+            `unpacker` should return a tuple containing unpacked values.
+            Example: struct.Struct('>I').unpack.
+        """
+        return unpacker(bytestream)[0]
+
 
 class A_ASSOCIATE_RQ(PDU):
     """An A-ASSOCIATE-RQ PDU.
 
-    When encoded, is received from/sent to the peer AE.
+    An A-ASSOCIATE-RQ PDU is sent by an association requestor to initiate
+    association negotiation with an acceptor.
 
-    The A-ASSOCIATE-RQ PDU is sent at the start of association negotiation when
-    either the local or the peer AE wants to to request an association.
+    Attributes
+    ----------
+    application_context_name : pydicom.uid.UID
+        The requestor's 'Application Context Name'.
+    called_ae_title : bytes
+        The 'Called AE Title', which is the destination DICOM application name,
+        as a fixed length 16-byte value (padded with trailing spaces 0x20).
+        Leading and trailing spaces are non-significant and a value of 16
+        spaces is not allowed.
+    calling_ae_title : bytes
+        The 'Calling AE Title', which is the source DICOM application name,
+        as a fixed length 16-byte value (padded with trailing spaces 0x20).
+        Leading and trailing spaces are non-significant and a value of 16
+        spaces is not allowed.
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x01.
+    presentation_context : list of pynetdicom3.pdu.PresentationContextItemRQ
+        The A-ASSOCIATE-RQ's Presentation Context item(s).
+    protocol_version : int
+        The 'Protocol Version', 0x00 (default).
+    user_information : pynetdicom3.pdu.UserInformationItem
+        The A-ASSOCIATE-RQ's User Information item.
+    variable_items : list
+        A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
+        one Application Context item, one or more Presentation Context items
+        and one User Information item.
 
-    An A-ASSOCIATE-RQ requires the following parameters (see PS3.8 Section
-    9.3.2):
+    Notes
+    -----
+    An A-ASSOCIATE-RQ PDU requires the following parameters:
 
     * PDU type (1, fixed value, 0x01)
     * PDU length (1)
@@ -274,6 +384,7 @@ class A_ASSOCIATE_RQ(PDU):
     * Variable items (1)
 
       * Application Context Item (1)
+
         * Item type (1, fixed value, 0x10)
         * Item length (1)
         * Application Context Name (1, fixed in an application)
@@ -285,10 +396,12 @@ class A_ASSOCIATE_RQ(PDU):
         * Abstract/Transfer Syntax Sub-items (1)
 
           * Abstract Syntax Sub-item (1)
+
             * Item type (1, fixed, 0x30)
             * Item length (1)
             * Abstract syntax name (1)
           * Transfer Syntax Sub-items (1 or more)
+
             * Item type (1, fixed, 0x40)
             * Item length (1)
             * Transfer syntax name(s) (1 or more)
@@ -302,27 +415,37 @@ class A_ASSOCIATE_RQ(PDU):
             * Implementation Class UID Sub-item (1)
             * Optional User Data Sub-items (0 or more)
 
-    See PS3.8 Section 9.3.2 for the structure of the PDU, especially Table 9-11.
+    **Encoding**
+    When encoded, an A-ASSOCIATE-RQ PDU has the following structure, taken
+    from Table 9-11 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+------------------+
+    | Offset | Length      | Description      |
+    +========+=============+==================+
+    | 0      | 1           | PDU type         |
+    | 1      | 1           | Reserved         |
+    | 2      | 4           | PDU length       |
+    | 6      | 2           | Protocol version |
+    | 8      | 2           | Reserved         |
+    | 10     | 16          | Called AE title  |
+    | 26     | 16          | Calling AE title |
+    | 42     | 32          | Reserved         |
+    | 74     | Variable    | Variable items   |
+    +--------+-------------+------------------+
 
-    Attributes
+    References
     ----------
-    application_context_name : pydicom.uid.UID
-        The Association Requestor's Application Context Name as a UID. See
-        PS3.8 9.3.2, 7.1.1.2
-    called_ae_title : bytes
-        The destination AE title as a 16-byte bytestream.
-    calling_ae_title : bytes
-        The source AE title as a 16-byte bytestream.
-    length : int
-        The length of the encoded PDU in bytes
-    presentation_context : list of pynetdicom3.pdu.PresentationContextItemRQ
-        The A-ASSOCIATE-RQ's Presentation Context items
-    user_information : pynetdicom3.pdu.UserInformationItem
-        The A-ASSOCIATE-RQ's User Information item. See PS3.8 9.3.2, 7.1.1.6
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
+        """Initialise a new A-ASSOCIATE-RQ PDU."""
+        # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
+        # Set some default values
         self.called_ae_title = "Default"
         self.calling_ae_title = "Default"
 
@@ -333,26 +456,33 @@ class A_ASSOCIATE_RQ(PDU):
         # The order of the items in the list may not be as given above
         self.variable_items = []
 
-
-        #  Used internally for decoding and encoding
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, 8),  # Protocol version
-                         (8, 10),  # Reserved
-                         (10, 26),  # Called AE title
-                         (26, 42),  # Calling AE title
-                         (42, 74),  # Reserved
-                         (74, None)]  # Variable items
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (self._wrap_unpack, [UNPACK_UINT2]),
-                          (None, []),
-                          (self._wrap_slice, []),
-                          (self._wrap_slice, []),
-                          (None, []),
-                          (self._wrap_generate_items, [])]
+        # Used for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = [
+            ((6, 8), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
+            ((10, 26), 'called_ae_title', self._wrap_slice, []),
+            ((26, 42), 'calling_ae_title', self._wrap_slice, []),
+            ((74, None), 'variable_items', self._wrap_generate_items, [])
+        ]
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            ('protocol_version', PACK_UINT2, []),
+            (None, self._wrap_pack, [0x0000, PACK_UINT2]),
+            ('called_ae_title', self._wrap_bytes, []),
+            ('calling_ae_title', self._wrap_bytes, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            ('variable_items', self._wrap_encode_items, [])
+        ]
 
     def FromParams(self, primitive):
         """Setup the current PDU using an A-ASSOCIATE `primitive`.
@@ -414,73 +544,33 @@ class A_ASSOCIATE_RQ(PDU):
     def to_primitive(self):
         return self.ToParams()
 
-    def Encode(self):
-        """Encode the PDU's parameter values into a bytes string.
+    @property
+    def application_context_name(self):
+        """Return the 'Application Context Name', if available.
 
         Returns
         -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
+        pydicom.uid.UID or None
+            The requestor's 'Application Context Name' or None if not
+            available.
         """
-        LOGGER.debug('Constructing Associate RQ PDU')
-
-        # Encode the PDU parameters up to the Variable Items
-        #   See PS3.8 Table 9-11
-        bytestream = bytes()
-        bytestream += STRUCT_ASSOC.pack(*self._parameters[:-1])
-
-        # Encode the Variable Items
-        for item in self.variable_items:
-            bytestream += item.Encode()
-
-        return bytestream
-
-    @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',  # Fixed, 1 byte
-                0x00,  # Reserved, 1 byte
-                'pdu_length',  # Variable, 2 bytes
-                'protocol_version',  # Fixed, 2 bytes
-                0x0000,  # Reserved, 2 bytes
-                'called_ae_title',  # Variable, 16 bytes
-                'calling_ae_title',  # Variable, 16 bytes
-                b'\x00\x00\x00\x00\x00\x00\x00\x00',  # Reserved, 32 bytes
-                'variable_items')  # Variable, N bytes
-
-    @property
-    def application_context_name(self):
-        """Return the application context name."""
         for item in self.variable_items:
             if isinstance(item, ApplicationContextItem):
                 return item.application_context_name
 
-    @application_context_name.setter
-    def application_context_name(self, value):
-        """Set the A-ASSOCIATE-RQ's Application Context Name.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, str or bytes
-            The value of the Application Context Name's UID.
-        """
-        for item in self.variable_items:
-            if isinstance(item, ApplicationContextItem):
-                item.application_context_name = value
-
     @property
     def called_ae_title(self):
-        """Return the called AE title."""
+        """Return the 'Called AE Title' as bytes."""
         return self._called_aet
 
     @called_ae_title.setter
     def called_ae_title(self, s):
-        """Set the Called-AE-title parameter to a 16-byte length byte string.
+        """Set the 'Called AE Title' to a 16-byte length byte string.
 
         Parameters
         ----------
         s : str or bytes
-            The called AE title value you wish to set
+            The called AE title value you wish to set.
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(s, str):
@@ -490,12 +580,12 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def calling_ae_title(self):
-        """Return the calling AE title."""
+        """Return the 'Calling AE Title' as bytes."""
         return self._calling_aet
 
     @calling_ae_title.setter
     def calling_ae_title(self, s):
-        """Set the Calling-AE-title parameter to a 16-byte length byte string.
+        """Set the 'Calling AE Title' to a 16-byte length byte string.
 
         Parameters
         ----------
@@ -514,7 +604,7 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' parameter value as an int."""
+        """Return the 'PDU Length' as an int."""
         length = 68
         for item in self.variable_items:
             length += len(item)
@@ -523,45 +613,23 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x01
 
     @property
     def presentation_context(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.13
-
-        A list of PresentationContextItemRQ. If extended negotiation Role
-        Selection is used then the SCP/SCU roles will also be set.
-
-        See the PresentationContextItemRQ and documentation for more information
+        """Return a list of the Presentation Contexts.
 
         Returns
         -------
         list of pynetdicom3.pdu.PresentationContextItemRQ
-            The Requestor AE's Presentation Context objects
+            The Requestor AE's Presentation Context items.
         """
-        contexts = []
-        for item in self.variable_items:
-            if isinstance(item, PresentationContextItemRQ):
-                # We determine if there are any SCP/SCU Role Negotiations
-                #   for each Transfer Syntax in each Presentation Context
-                #   and if so we set the SCP and SCU attributes.
-                if self.user_information.role_selection:
-                    # Iterate through the role negotiations looking for a
-                    #   SOP Class match to the Abstract Syntax
-                    # TODO: optimise
-                    role_selection = self.user_information.role_selection
-                    if item.abstract_syntax in role_selection:
-                        role = role_selection[item.abstract_syntax]
-                        item.SCP = role.SCP
-                        item.SCU = role.SCU
-
-                contexts.append(item)
-
-        return contexts
+        return [item for item in self.variable_items if
+                            isinstance(item, PresentationContextItemRQ)]
 
     def __str__(self):
+        """Return a string representation of the PDU."""
         s = 'A-ASSOCIATE-RQ PDU\n'
         s += '==================\n'
         s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
@@ -598,85 +666,122 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def user_information(self):
-        """Return the user information item."""
+        """Return the User Information item, if available.
+
+        Returns
+        -------
+        pynetdicom3.pdu.UserInformationItem or None
+            The requestor's User Information object or None, if not
+            available.
+        """
         for item in self.variable_items:
             if isinstance(item, UserInformationItem):
                 return item
 
 
 class A_ASSOCIATE_AC(PDU):
-    """
-    Represents the A-ASSOCIATE-AC PDU that, when encoded, is received from/sent
-    to the peer AE
+    """An A-ASSOCIATE-AC PDU.
 
-    The A-ASSOCIATE-AC PDU is sent when the association request is accepted
-    by either the local or the peer AE
-
-    An A-ASSOCIATE-AC requires the following parameters (see PS3.8 Section
-    9.3.2):
-
-        * PDU type (1, fixed value, 0x02)
-        * PDU length (1)
-        * Protocol version (1, fixed value, 0x01)
-        * Variable items (1)
-
-          * Application Context Item (1)
-
-            * Item type (1, fixed value, 0x10)
-            * Item length (1)
-            * Application Context Name (1, fixed in an application)
-          * Presentation Context Item(s) (1 or more)
-            * Item type (1, fixed value, 0x21)
-            * Item length (1)
-            StorageSOPClassList, \
-                                 VerificationSOPClass, \
-                                 QueryRetrieveSOPClassList* Context ID (1)
-            * Transfer Syntax Sub-items (1)
-
-              * Item type (1, fixed, 0x40)
-              * Item length (1)
-              * Transfer syntax name(s) (1)
-          * User Information Item (1)
-
-            * Item type (1, fixed, 0x50)
-            * Item length (1)
-            * User data Sub-items (2 or more)
-
-                * Maximum Length Received Sub-item (1)
-                * Implementation Class UID Sub-item (1)
-                * Optional User Data Sub-items (0 or more)
-
-    See PS3.8 Section 9.3.3 for the structure of the PDU, especially Table 9-17.
+    An A-ASSOCIATE-AC PDU is sent by an association acceptor to indicate that
+    association negotiation has been successful.
 
     Attributes
     ----------
     application_context_name : pydicom.uid.UID
-        The Association Requestor's Application Context Name as a UID. See
-        PS3.8 9.3.2, 7.1.1.2
+        The acceptor's 'Application Context Name'.
     called_ae_title : bytes
         The destination AE title as a 16-byte bytestream. The value is not
         guaranteed to be the actual title and shall not be tested.
     calling_ae_title : bytes
         The source AE title as a 16-byte bytestream. The value is not
         guaranteed to be the actual title and shall not be tested.
-    length : int
-        The length of the encoded PDU in bytes
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x02.
     presentation_context : list of pynetdicom3.pdu.PresentationContextItemAC
-        The A-ASSOCIATE-AC's Presentation Context items
+        The A-ASSOCIATE-AC's Presentation Context item(s).
+    protocol_version : int
+        The 'Protocol Version', 0x00 (default).
     user_information : pynetdicom3.pdu.UserInformationItem
-        The A-ASSOCIATE-AC's User Information item. See PS3.8 9.3.2, 7.1.1.6
+        The A-ASSOCIATE-AC's User Information item.
+    variable_items : list
+        A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
+        one Application Context item, one or more Presentation Context items
+        and one User Information item.
+
+    Notes
+    -----
+    An A-ASSOCIATE-AC PDU requires the following parameters:
+
+    * PDU type (1, fixed value, 0x02)
+    * PDU length (1)
+    * Protocol version (1, fixed value, 0x01)
+    * Variable items (1)
+
+      * Application Context Item (1)
+
+        * Item type (1, fixed value, 0x10)
+        * Item length (1)
+        * Application Context Name (1, fixed in an application)
+      * Presentation Context Item(s) (1 or more)
+
+        * Item type (1, fixed value, 0x21)
+        * Item length (1)
+        * Context ID (1)
+        * Result/reason (1)
+        * Transfer Syntax Sub-items (1)
+
+          * Item type (1, fixed, 0x40)
+          * Item length (1)
+          * Transfer syntax name(s) (1)
+      * User Information Item (1)
+
+        * Item type (1, fixed, 0x50)
+        * Item length (1)
+        * User data Sub-items (2 or more)
+
+            * Maximum Length Received Sub-item (1)
+            * Implementation Class UID Sub-item (1)
+            * Optional User Data Sub-items (0 or more)
+
+    **Encoding**
+    When encoded, an A-ASSOCIATE-AC PDU has the following structure, taken
+    from Table 9-17 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+------------------+
+    | Offset | Length      | Description      |
+    +========+=============+==================+
+    | 0      | 1           | PDU type         |
+    | 1      | 1           | Reserved         |
+    | 2      | 4           | PDU length       |
+    | 6      | 2           | Protocol version |
+    | 8      | 2           | Reserved         |
+    | 10     | 16          | Reserved^        |
+    | 26     | 16          | Reserved^        |
+    | 42     | 32          | Reserved         |
+    | 74     | Variable    | Variable items   |
+    +--------+-------------+------------------+
+    ^ The reserved fields shall be sent with a value identical to the value
+      received in the A-ASSOCIATE-RQ but its value shall not be tested.
+
+    References
+    ----------
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
-        # These either have a fixed value or are set programatically
-        #'pdu_type' = 0x02
-        #self.pdu_length = None
+        """Initialise a new A-ASSOCIATE-AC PDU."""
+        # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
-
-        # Shall be set to called AE title value, but no guarantee
-        self.reserved_aet = None
-        # Shall be set to calling AE title value, but no guarantee
-        self.reserved_aec = None
+        # Called AE Title, should be present, but no guarantees
+        self._reserved_aet = None
+        # Calling AE Title, should be present, but no guarantees
+        self._reserved_aec = None
 
         # variable_items is a list containing the following:
         #   1 ApplicationContextItem
@@ -685,28 +790,34 @@ class A_ASSOCIATE_AC(PDU):
         # The order of the items in the list may not be as given above
         self.variable_items = []
 
-        #self.formats = ['B', 'B', 'I', 'H', 'H', '16s', '16s',
-        #                'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I']
-
-        #  Used internally for decoding and encoding
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, 8),  # Protocol version
-                         (8, 10),  # Reserved
-                         (10, 26),  # Called AE title
-                         (26, 42),  # Calling AE title
-                         (42, 74),  # Reserved
-                         (74, None)]  # Variable items
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (self._wrap_unpack, [UNPACK_UINT2]),
-                          (None, []),
-                          (self._wrap_slice, []),
-                          (self._wrap_slice, []),
-                          (None, []),
-                          (self._wrap_generate_items, [])]
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = [
+            ((6, 8), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
+            ((10, 26), '_reserved_aet', self._wrap_slice, []),
+            ((26, 42), '_reserved_aec', self._wrap_slice, []),
+            ((74, None), 'variable_items', self._wrap_generate_items, [])
+        ]
+        #
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            ('protocol_version', PACK_UINT2, []),
+            (None, self._wrap_pack, [0x0000, PACK_UINT2]),
+            ('_reserved_aet', self._wrap_bytes, []),
+            ('_reserved_aec', self._wrap_bytes, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            ('variable_items', self._wrap_encode_items, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -718,8 +829,8 @@ class A_ASSOCIATE_AC(PDU):
         primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The parameters to use for setting up the PDU
         """
-        self.reserved_aet = primitive.called_ae_title
-        self.reserved_aec = primitive.calling_ae_title
+        self._reserved_aet = primitive.called_ae_title
+        self._reserved_aec = primitive.calling_ae_title
 
         # Make application context
         application_context = ApplicationContextItem()
@@ -737,10 +848,6 @@ class A_ASSOCIATE_AC(PDU):
         user_information.FromParams(primitive.user_information)
         self.variable_items.append(user_information)
 
-        # Compute PDU length parameter value
-        self._update_pdu_length()
-        self._update_parameters()
-
     def ToParams(self):
         """
         Convert the current A-ASSOCIATE-AC PDU to a primitive
@@ -757,8 +864,8 @@ class A_ASSOCIATE_AC(PDU):
         # The two reserved parameters at byte offsets 11 and 27 shall be set
         #    to called and calling AET byte the value shall not be
         #   tested when received (PS3.8 Table 9-17)
-        primitive.called_ae_title = self.reserved_aet
-        primitive.calling_ae_title = self.reserved_aec
+        primitive.called_ae_title = self._reserved_aet
+        primitive.calling_ae_title = self._reserved_aec
 
         for ii in self.variable_items:
             # Add application context
@@ -779,46 +886,14 @@ class A_ASSOCIATE_AC(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the PDU's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
-        """
-        if self.presentation_context:
-            LOGGER.debug('Constructing Associate AC PDU')
-
-        formats = '> B B I H H 16s 16s 8I'
-        parameters = ['pdu_type',
-                      0x00,  # Reserved
-                      self.pdu_length,
-                      self.protocol_version,
-                      0x00,  # Reserved
-                      self.reserved_aet,
-                      self.reserved_aec,
-                      0x00, 0x00, 0x00, 0x00,  # Reserved
-                      0x00, 0x00, 0x00, 0x00]  # Reserved
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        for ii in self.variable_items:
-            bytestream += ii.Encode()
-
-        return bytestream
-
     @property
     def application_context_name(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.2
+        """Return the 'Application Context Name', if available.
 
         Returns
         -------
-        pydicom.uid.UID
-            The Acceptor AE's Application Context Name
+        pydicom.uid.UID or None
+            The acceptor's 'Application Context Name' or None if not available.
         """
         for ii in self.variable_items:
             if isinstance(ii, ApplicationContextItem):
@@ -826,60 +901,45 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def called_ae_title(self):
-        """
+        """Return the value sent in the 'Called AE Title' reserved space.
+
         While the standard says this value should match the A-ASSOCIATE-RQ
         value there is no guarantee and this should not be used as a check
-        value
+        value.
 
         Returns
         -------
         bytes
-            The Requestor's AE Called AE Title
+            The value the A-ASSOCIATE-AC sent in the 'Called AE Title' reserved
+            space.
         """
-        ae_title = self.reserved_aet
-        if isinstance(ae_title, str):
-            ae_title = codecs.encode(self.reserved_aet, 'utf-8')
-        elif isinstance(ae_title, bytes):
-            pass
+        if isinstance(self._reserved_aet, str):
+            return codecs.encode(self._reserved_aet, 'utf-8')
 
-        return ae_title
+        return self._reserved_aet
 
     @property
     def calling_ae_title(self):
-        """
+        """Return the value sent in the 'Calling AE Title' reserved space.
+
         While the standard says this value should match the A-ASSOCIATE-RQ
         value there is no guarantee and this should not be used as a check
-        value
+        value.
 
         Returns
         -------
         bytes
-            The Requestor's AE Calling AE Title
+            The value the A-ASSOCIATE-AC sent in the 'Calling AE Title'
+            reserved space.
         """
-        ae_title = self.reserved_aec
-        if isinstance(ae_title, str):
-            ae_title = codecs.encode(self.reserved_aec, 'utf-8')
-        elif isinstance(ae_title, bytes):
-            pass
+        if isinstance(self._reserved_aec, str):
+            return codecs.encode(self._reserved_aec, 'utf-8')
 
-        return ae_title
+        return self._reserved_aec
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
         return 6 + self.pdu_length
-
-    @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',  # Fixed, 1 byte
-                0x00,  # Reserved, 1 byte
-                'pdu_length',  # Variable, 2 bytes
-                'protocol_version',  # Fixed, 2 bytes
-                0x00,  # Reserved, 2 bytes
-                'reserved_aet',  # Variable, 16 bytes
-                'reserved_aec',  # Variable, 16 bytes
-                b'\x00\x00\x00\x00\x00\x00\x00\x00',  # Reserved, 32 bytes
-                'variable_items')  # Variable, N bytes
 
     @property
     def pdu_length(self):
@@ -892,53 +952,30 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x02
 
     @property
     def presentation_context(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.13
+        """Return a list of the Presentation Contexts.
 
         Returns
         -------
         list of pynetdicom3.pdu.PresentationContextItemAC
-
-            The Acceptor AE's Presentation Context objects. Each of the
-            Presentation Context items instances in the list has been extended
-            with two variables for tracking if SCP/SCU role negotiation has been
-            accepted:
-
-                SCP: Defaults to None if not used, 0 or 1 if used
-                SCU: Defaults to None if not used, 0 or 1 if used
+            The acceptor AE's Presentation Context items.
         """
-        contexts = []
-        for item in self.variable_items:
-            if isinstance(item, PresentationContextItemAC):
-                # We determine if there are any SCP/SCU Role Negotiations
-                #   for each Transfer Syntax in each Presentation Context
-                #   and if so we set the SCP and SCU attributes
-                if self.user_information.role_selection:
-                    # Iterate through the role negotiations looking for a
-                    #   SOP Class match to the Abstract Syntaxes
-                    #for role in self.user_information.role_selection:
-                    # -AC has no Abstract Syntax, not sure how to indicate
-                    #   role selection
-                    # FIXME
-                    pass
-
-                contexts.append(item)
-
-        return contexts
+        return [item for item in self.variable_items if
+                            isinstance(item, PresentationContextItemAC)]
 
     def __str__(self):
+        """Return a string representation of the PDU."""
         s = 'A-ASSOCIATE-AC PDU\n'
         s += '==================\n'
         s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
         s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
         s += '  Protocol version: {0:d}\n'.format(self.protocol_version)
-        s += '  Reserved (Called AET):  {0!s}\n'.format(self.reserved_aet)
-        s += '  Reserved (Calling AET): {0!s}\n'.format(self.reserved_aec)
+        s += '  Reserved (Called AET):  {0!s}\n'.format(self._reserved_aet)
+        s += '  Reserved (Calling AET): {0!s}\n'.format(self._reserved_aec)
         s += '\n'
 
         s += '  Variable Items:\n'
@@ -957,8 +994,8 @@ class A_ASSOCIATE_AC(PDU):
                 s += '       {0!s}\n'.format(jj)
 
         s += '  * User Information Item(s):\n'
-        for ii in self.user_information.user_data:
-            item_str = '{0!s}'.format(ii)
+        for item in self.user_information.user_data:
+            item_str = '{0!s}'.format(item)
             item_str_list = item_str.split('\n')
             s += '    -  {0!s}\n'.format(item_str_list[0])
             for jj in item_str_list[1:-1]:
@@ -968,85 +1005,96 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def user_information(self):
-        """
-        See PS3.8 9.3.2, 7.1.1.6
+        """Return the User Information item, if available.
 
         Returns
         -------
-        pynetdicom3.pdu.UserInformationItem
-            The Acceptor AE's User Information object
+        pynetdicom3.pdu.UserInformationItem or None
+            The acceptor's User Information object or None, if not
+            available.
         """
-        for ii in self.variable_items:
-            if isinstance(ii, UserInformationItem):
-                return ii
+        for item in self.variable_items:
+            if isinstance(item, UserInformationItem):
+                return item
 
 
 class A_ASSOCIATE_RJ(PDU):
-    """
-    Represents the A-ASSOCIATE-RJ PDU that, when encoded, is received from/sent
-    to the peer AE.
+    """An A-ASSOCIATE-RJ PDU.
 
-    The A-ASSOCIATE-RJ PDU is sent during association negotiation when
-    either the local or the peer AE rejects the association request.
-
-    An A-ASSOCIATE-RJ requires the following parameters (see PS3.8 Section
-        9.3.4):
-        * PDU type (1, fixed value, 0x03)
-        * PDU length (1)
-        * Result (1)
-        * Source (1)
-        * Reason/Diagnostic (1)
-
-    See PS3.8 Section 9.3.4 for the structure of the PDU, especially Table 9-21.
+    An A-ASSOCIATE-RJ PDU is sent by an association acceptor to indicate that
+    association negotiation has been unsuccessful.
 
     Attributes
     ----------
-    length : int
-        The length of the encoded PDU in bytes
-    reason : int
-        The raw Reason/Diagnostic parameter value
-    reason_str : str
-        The reason for the rejection as a string
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x03.
+    reason_diagnostic : int
+        The A-ASSOCIATE-RJ's 'Reason/Diagnostic' value.
     result : int
-        The raw Result parameter value
-    result_str : str
-        The result of the rejection, one of ('Rejected (Permanent)',
-        'Rejected (Transient)')
+        The A-ASSOCIATE-RJ's 'Result' value.
     source : int
-        The raw Source parameter value
-    source_str : str
-        The source of the rejection, one of ('DUL service-user',
-        'DUL service-provider (ACSE related)', 'DUL service-provider
-        (presentation related)')
+        The A-ASSOCIATE-RJ's 'Source' value.
+
+    Notes
+    -----
+    An A-ASSOCIATE-RJ PDU requires the following parameters:
+
+    * PDU type (1, fixed value, 0x03)
+    * PDU length (1)
+    * Result (1)
+    * Source (1)
+    * Reason/Diagnostic (1)
+
+    **Encoding**
+    When encoded, an A-ASSOCIATE-RJ PDU has the following structure, taken
+    from Table 9-21 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+-------------------+
+    | Offset | Length      | Description       |
+    +========+=============+===================+
+    | 0      | 1           | PDU type          |
+    | 1      | 1           | Reserved          |
+    | 2      | 4           | PDU length        |
+    | 6      | 1           | Reserved          |
+    | 7      | 1           | Result            |
+    | 8      | 1           | Source            |
+    | 9      | 1           | Reason/diagnostic |
+    +--------+-------------+-------------------+
+
+    References
+    ----------
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.4>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
+        """Initialise a new A-ASSOCIATE-RJ PDU."""
         self.result = None
         self.source = None
         self.reason_diagnostic = None
 
-        #self.formats = ['B', 'B', 'I', 'B', 'B', 'B', 'B']
-        #self.parameters = ['pdu_type',
-        #                   0x00,  # Reserved
-        #                   self.pdu_length,
-        #                   0x00,
-        #                   self.result,
-        #                   self.source,
-        #                   self.reason_diagnostic]
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, 7),  # Reserved
-                         (7, 8),  # Result
-                         (8, 9),  # Source
-                         (9, 10)]  # Reason
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (None, []),
-                          (self._wrap_unpack, [UNPACK_UCHAR]),
-                          (self._wrap_unpack, [UNPACK_UCHAR]),
-                          (self._wrap_unpack, [UNPACK_UCHAR])]
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = [
+            ((7, 8), 'result', self._wrap_unpack, [UNPACK_UCHAR]),
+            ((8, 9), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
+            ((9, 10), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
+        ]
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('result', PACK_UCHAR, []),
+            ('source', PACK_UCHAR, []),
+            ('reason_diagnostic', PACK_UCHAR, []),
+        ]
 
     def FromParams(self, primitive):
         """
@@ -1061,8 +1109,6 @@ class A_ASSOCIATE_RJ(PDU):
         self.result = primitive.result
         self.source = primitive.result_source
         self.reason_diagnostic = primitive.diagnostic
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -1082,45 +1128,9 @@ class A_ASSOCIATE_RJ(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the PDU's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
-        """
-        LOGGER.debug('Constructing Associate RJ PDU')
-
-        formats = '> B B I B B B B'
-        parameters = ['pdu_type',
-                      0x00,  # Reserved
-                      self.pdu_length,
-                      0x00,
-                      self.result,
-                      self.source,
-                      self.reason_diagnostic]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        return bytestream
-
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
         return 10
-
-    @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',
-                0x00,  # Reserved
-                'pdu_length',
-                0x00,  # Reserved
-                'result',
-                'source',
-                'reason_diagnostic')
 
     @property
     def pdu_length(self):
@@ -1129,118 +1139,83 @@ class A_ASSOCIATE_RJ(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x03
 
     @property
-    def reason_diagnostic(self):
-        """Get the reason diagnostic parameter."""
-        return self._reason
-
-    @reason_diagnostic.setter
-    def reason_diagnostic(self, value):
-        """Set the reason diagnostic parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        self._reason = value
-
-    @property
     def reason_str(self):
-        """Get a string describing the reason parameter."""
-        reasons = {
-            1: {
-                1: "No reason given",
-                2: "Application context name not supported",
-                3: "Calling AE title not recognised",
-                4: "Reserved",
-                5: "Reserved",
-                6: "Reserved",
-                7: "Called AE title not recognised",
-                8: "Reserved",
-                9: "Reserved",
-                10: "Reserved"
+        """Return a str describing the 'Reason/Diagnostic' parameter."""
+        _reasons = {
+            1 : {
+                1 : "No reason given",
+                2 : "Application context name not supported",
+                3 : "Calling AE title not recognised",
+                4 : "Reserved",
+                5 : "Reserved",
+                6 : "Reserved",
+                7 : "Called AE title not recognised",
+                8 : "Reserved",
+                9 : "Reserved",
+                10 : "Reserved"
             },
-            2: {
-                1: "No reason given",
-                2: "Protocol version not supported"
+            2 : {
+                1 : "No reason given",
+                2 : "Protocol version not supported"
             },
-            3: {
-                0: "Reserved",
-                1: "Temporary congestion",
-                2: "Local limit exceeded",
-                3: "Reserved",
-                4: "Reserved",
+            3 : {
+                0 : "Reserved",
+                1 : "Temporary congestion",
+                2 : "Local limit exceeded",
+                3 : "Reserved",
+                4 : "Reserved",
                 5: "Reserved",
-                6: "Reserved",
-                7: "Reserved"
+                6 : "Reserved",
+                7 : "Reserved"
             }
         }
 
-        if self.source not in reasons.keys():
+        if self.source not in _reasons:
             LOGGER.error('Invalid value in Source parameter in '
                          'A-ASSOCIATE-RJ PDU')
             raise ValueError('Invalid value in Source parameter in '
                              'A-ASSOCIATE-RJ PDU')
 
-        source_reasons = reasons[self.source]
-
-        if self.reason_diagnostic not in source_reasons.keys():
+        if self.reason_diagnostic not in _reasons[self.source]:
             LOGGER.error('Invalid value in Reason parameter in '
                          'A-ASSOCIATE-RJ PDU')
             raise ValueError('Invalid value in Reason parameter in '
                              'A-ASSOCIATE-RJ PDU')
 
-        return source_reasons[self.reason_diagnostic]
-
-    @property
-    def result(self):
-        """Get the Result parameter."""
-        return self._result
-
-    @result.setter
-    def result(self, value):
-        """Set the Result parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        self._result = value
+        return _reasons[self.source][self.reason_diagnostic]
 
     @property
     def result_str(self):
-        """Get the Result parameter in the form of a string."""
-        results = {1: 'Rejected (Permanent)',
-                   2: 'Rejected (Transient)'}
+        """Return a str describing the 'Result'."""
+        _results = {1 : 'Rejected (Permanent)',
+                    2 : 'Rejected (Transient)'}
 
-        if self.result not in results.keys():
+        if self.result not in _results:
             LOGGER.error('Invalid value in Result parameter in '
                          'A-ASSOCIATE-RJ PDU')
             raise ValueError('Invalid value in Result parameter in '
                              'A-ASSOCIATE-RJ PDU')
 
-        return results[self.result]
-
-    @property
-    def source(self):
-        """Get the Source parameter."""
-        return self._source
-
-    @source.setter
-    def source(self, value):
-        """Set the source parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        self._source = value
+        return _results[self.result]
 
     @property
     def source_str(self):
-        """Get the source parameter in the form of a string."""
-        sources = {1: 'DUL service-user',
+        """Return a str describing the 'Source' parameter."""
+        _sources = {1: 'DUL service-user',
                    2: 'DUL service-provider (ACSE related)',
                    3: 'DUL service-provider (presentation related)'}
 
-        if self.source not in sources.keys():
+        if self.source not in _sources:
             LOGGER.error('Invalid value in Source parameter in '
                          'A-ASSOCIATE-RJ PDU')
             raise ValueError('Invalid value in Source parameter in '
                              'A-ASSOCIATE-RJ PDU')
 
-        return sources[self.source]
+        return _sources[self.source]
 
     def __str__(self):
         """Return a string representation of the PDU."""
@@ -1256,40 +1231,69 @@ class A_ASSOCIATE_RJ(PDU):
 
 # FIXME non-generic _generate-items and _wrap_generate_items
 class P_DATA_TF(PDU):
-    """
-    Represents the P-DATA-TF PDU that, when encoded, is received from/sent
-    to the peer AE.
+    """A P-DATA-TF PDU.
 
-    The P-DATA-TF PDU contains data to be transmitted between two associated
-    AEs.
-
-    A P-DATA-TF requires the following parameters (see PS3.8 Section
-        9.3.5):
-        * PDU type (1, fixed value, 0x04)
-        * PDU length (1)
-        * Presentation data value Item(s) (1 or more)
-
-    See PS3.8 Section 9.3.5 for the structure of the PDU, especially Table 9-22.
+    A P-DATA-TF PDU is used once an association has been established to send
+    DIMSE message data.
 
     Attributes
     ----------
-    length : int
-        The length of the encoded PDU in bytes
-    PDVs : list of pynetdicom3.pdu.PresentationDataValueItem
-        The presentation data value items
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x04.
+    presentation_data_value_items : list of pdu.PresentationDataValueItem
+        The 'Presentation Data Value' items.
+
+    Notes
+    -----
+    A P-DATA-TF PDU requires the following parameters:
+
+    * PDU type (1, fixed value, 0x04)
+    * PDU length (1)
+    * Presentation data value Item(s) (1 or more)
+
+    **Encoding**
+    When encoded, a P-DATA-TF PDU has the following structure, taken
+    from Table 9-22 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+-------------------------------+
+    | Offset | Length      | Description                   |
+    +========+=============+===============================+
+    | 0      | 1           | PDU type                      |
+    | 1      | 1           | Reserved                      |
+    | 2      | 4           | PDU length                    |
+    | 6      | Variable    | Presentation data value items |
+    +--------+-------------+-------------------------------+
+
+    References
+    ----------
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
+        """Initialise a new P-DATA-TF PDU."""
         self.presentation_data_value_items = []
 
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, None)]  # PDV items
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (self._wrap_generate_items, [])]
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = [
+            ((6, None),
+             'presentation_data_value_items',
+             self._wrap_generate_items,
+             [])
+        ]
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            ('presentation_data_value_items', self._wrap_encode_items, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -1304,9 +1308,6 @@ class P_DATA_TF(PDU):
             presentation_data_value = PresentationDataValueItem()
             presentation_data_value.FromParams(ii)
             self.presentation_data_value_items.append(presentation_data_value)
-
-        self._update_pdu_length()
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -1326,29 +1327,6 @@ class P_DATA_TF(PDU):
             primitive.presentation_data_value_list.append(
                 [ii.presentation_context_id, ii.presentation_data_value])
         return primitive
-
-    def Encode(self):
-        """
-        Encode the PDU's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
-        """
-
-        formats = '> B B I'
-        parameters = ['pdu_type',
-                      0x00,  # Reserved
-                      self.pdu_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        for ii in self.presentation_data_value_items:
-            bytestream += ii.Encode()
-
-        return bytestream
 
     @staticmethod
     def _generate_items(bytestream):
@@ -1387,14 +1365,6 @@ class P_DATA_TF(PDU):
         return 6 + self.pdu_length
 
     @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',
-                0x00,
-                'pdu_length',
-                'presentation_data_value_items')
-
-    @property
     def pdu_length(self):
         """Return the 'PDU Length' parameter value as an int."""
         length = 0
@@ -1405,15 +1375,11 @@ class P_DATA_TF(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x04
 
-    @property
-    def PDVs(self):
-        """Get the PDVs."""
-        return self.presentation_data_value_items
-
     def __str__(self):
+        """Return a string representation of the PDU."""
         s = 'P-DATA-TF PDU\n'
         s += '=============\n'
         s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
@@ -1444,35 +1410,59 @@ class P_DATA_TF(PDU):
 
 
 class A_RELEASE_RQ(PDU):
-    """
-    Represents the A-RELEASE-RQ PDU that, when encoded, is received from/sent
-    to the peer AE.
+    """An A-RELEASE-RQ PDU.
 
-    The A-RELEASE-RQ PDU requests that the association be released
-
-    A A-RELEASE-RQ requires the following parameters (see PS3.8 Section
-        9.3.6):
-        * PDU type (1, fixed value, 0x05)
-        * PDU length (1)
-
-    See PS3.8 Section 9.3.6 for the structure of the PDU, especially Table 9-24.
+    An A-RELEASE-RQ PDU is used once an association has been established to
+    initiate the release of the association.
 
     Attributes
     ----------
-    length : int
-        The length of the encoded PDU in bytes
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x05.
+
+    Notes
+    -----
+    An A-RELEASE-RQ PDU requires the following parameters:
+
+    * PDU type (1, fixed value, 0x05)
+    * PDU length (1, fixed value, 0x00000004)
+
+    **Encoding**
+    When encoded, an A-RELEASE-RQ PDU has the following structure, taken
+    from Table 9-24 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+---------------+
+    | Offset | Length      | Description   |
+    +========+=============+===============+
+    | 0      | 1           | PDU type      |
+    | 1      | 1           | Reserved      |
+    | 2      | 4           | PDU length    |
+    | 6      | 4           | Reserved      |
+    +--------+-------------+---------------+
+
+    References
+    ----------
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.6>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
-
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, 10)]  # Reserved
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (None, [])]
+        """Initialise a new A-RELEASE-RQ PDU."""
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = []
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4])
+        ]
 
     def FromParams(self, _):
         """
@@ -1483,7 +1473,7 @@ class A_RELEASE_RQ(PDU):
         primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The parameters to use for setting up the PDU
         """
-        self._update_parameters()
+        pass
 
     def ToParams(self):
         """
@@ -1499,37 +1489,9 @@ class A_RELEASE_RQ(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the PDU's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
-        """
-        formats = '> B B I I'
-        parameters = ['pdu_type',
-                      0x00,  # Reserved
-                      self.pdu_length,
-                      0x0000]  # Reserved
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        return bytestream
-
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
         return 10
-
-    @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',
-                0x00,  # Reserved
-                'pdu_length',
-                0x0000)  # Reserved
 
     @property
     def pdu_length(self):
@@ -1538,10 +1500,11 @@ class A_RELEASE_RQ(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x05
 
     def __str__(self):
+        """Return a string representation of the PDU."""
         s = 'A-RELEASE-RQ PDU\n'
         s += '================\n'
         s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
@@ -1551,39 +1514,59 @@ class A_RELEASE_RQ(PDU):
 
 
 class A_RELEASE_RP(PDU):
-    """
-    Represents the A-RELEASE-RP PDU that, when encoded, is received from/sent
-    to the peer AE.
+    """An A-RELEASE-RP PDU.
 
-    The A-RELEASE-RP PDU confirms that the association will be released
-
-    A A-RELEASE-RP requires the following parameters (see PS3.8 Section
-        9.3.7):
-        * PDU type (1, fixed value, 0x06)
-        * PDU length (1)
-
-    See PS3.8 Section 9.3.7 for the structure of the PDU, especially Table 9-25.
+    An A-RELEASE-RP PDU is used once an association has been established to
+    confirm the release of the association.
 
     Attributes
     ----------
-    length : int
-        The length of the encoded PDU in bytes
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x06.
+
+    Notes
+    -----
+    An A-RELEASE-RP PDU requires the following parameters:
+
+    * PDU type (1, fixed value, 0x06)
+    * PDU length (1, fixed value, 0x00000004)
+
+    **Encoding**
+    When encoded, an A-RELEASE-RP PDU has the following structure, taken
+    from Table 9-25 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+---------------+
+    | Offset | Length      | Description   |
+    +========+=============+===============+
+    | 0      | 1           | PDU type      |
+    | 1      | 1           | Reserved      |
+    | 2      | 4           | PDU length    |
+    | 6      | 4           | Reserved      |
+    +--------+-------------+---------------+
+
+    References
+    ----------
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.7 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.7>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
-        #self.formats = ['B', 'B', 'I', 'I']
-        #self.parameters = ['pdu_type',
-        #                   0x00,  # Reserved
-        #                   self.pdu_length,
-        #                   0x0000]  # Reserved
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, 10)]  # Reserved
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (None, [])]
+        """Initialise a new A-RELEASE-RP PDU."""
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = []
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4])
+        ]
 
     def FromParams(self, _):
         """
@@ -1594,7 +1577,7 @@ class A_RELEASE_RP(PDU):
         primitive : pynetdicom3.pdu_primitives.A_RELEASE
             The parameters to use for setting up the PDU
         """
-        self._update_parameters()
+        pass
 
     def ToParams(self):
         """
@@ -1611,37 +1594,9 @@ class A_RELEASE_RP(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the PDU's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
-        """
-        formats = '> B B I I'
-        parameters = ['pdu_type',
-                      0x00,  # Reserved
-                      self.pdu_length,
-                      0x0000]  # Reserved
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        return bytestream
-
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
         return 10
-
-    @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',
-                0x00,  # Reserved
-                'pdu_length',
-                0x0000)  # Reserved
 
     @property
     def pdu_length(self):
@@ -1650,10 +1605,11 @@ class A_RELEASE_RP(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x06
 
     def __str__(self):
+        """Return a string representation of the PDU."""
         s = 'A-RELEASE-RP PDU\n'
         s += '================\n'
         s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
@@ -1663,59 +1619,77 @@ class A_RELEASE_RP(PDU):
 
 
 class A_ABORT_RQ(PDU):
-    """
-    Represents the A-ABORT PDU that, when encoded, is received from/sent
-    to the peer AE.
+    """An A-ABORT-RQ PDU.
 
-    The A-ABORT PDU signals that the association will be aborted
-
-    A A-ABORT requires the following parameters (see PS3.8 Section
-        9.3.8):
-        * PDU type (1, fixed value, 0x06)
-        * PDU length (1)
-        * Source (1)
-        * Reason/Diagnostic (1)
-
-    See PS3.8 Section 9.3.7 for the structure of the PDU, especially Table 9-25.
+    An A-ABORT-RQ PDU is used once an association has been established to
+    abort the association.
 
     Attributes
     ----------
-    length : int
-        The length of the encoded PDU in bytes
-    reason_str : str
-        The reason for the abort
-    source_str : str
-        The source of the abort, one of ('DUL service-user',
-        'DUL service-provider')
+    pdu_length : int
+        The number of bytes from the first byte following the 'PDU Length' to
+        the last byte of the variable field.
+    pdu_type : int
+        The 'PDU Type', 0x07.
+    reason_diagnostic : int
+        The 'Reason/Diagnostic' parameter value.
+    source : int
+        The 'Source' parameter value.
+
+    Notes
+    -----
+    An A-ABORT-RQ PDU requires the following parameters:
+
+    * PDU type (1, fixed value, 0x06)
+    * PDU length (1, fixed value, 0x00000004)
+    * Source (1)
+    * Reason/Diagnostic (1)
+
+    **Encoding**
+    When encoded, an A-ABORT-RQ PDU has the following structure, taken
+    from Table 9-26 [1]_ (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian [2]_.
+    +--------+-------------+-------------------+
+    | Offset | Length      | Description       |
+    +========+=============+===================+
+    | 0      | 1           | PDU type          |
+    | 1      | 1           | Reserved          |
+    | 2      | 4           | PDU length        |
+    | 6      | 1           | Reserved          |
+    | 7      | 1           | Reserved          |
+    | 8      | 1           | Source            |
+    | 9      | 1           | Reason/Diagnostic |
+    +--------+-------------+-------------------+
+
+    References
+    ----------
+    .. [1] DICOM Standard, Part 8, Section
+       `9.3.8 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.8>`_
+    .. [2] DICOM Standard, Part 8, Section
+       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
+        """Initialise a new A-ABORT-RQ PDU."""
         self.source = None
         self.reason_diagnostic = None
 
-        #self.formats = ['B', 'B', 'I', 'B', 'B', 'B', 'B']
-        #self.parameters = ['pdu_type',
-        #                   0x00,  # Reserved
-        #                   self.pdu_length,
-        #                   0x00,  # Reserved
-        #                   0x00,  # Reserved
-        #                   self.source,
-        #                   self.reason_diagnostic]  # Reserved
-
-        self._offsets = [(0, 1),  # PDU type
-                         (1, 2),  # Reserved
-                         (2, 6),  # PDU length
-                         (6, 7),  # Reserved
-                         (7, 8),  # Reserved
-                         (8, 9),  # Source
-                         (9, 10)]  # Reason/Diagnostic
-        self._decoders = [(None, []),
-                          (None, []),
-                          (None, []),
-                          (None, []),
-                          (None, []),
-                          (self._wrap_unpack, [UNPACK_UCHAR]),
-                          (self._wrap_unpack, [UNPACK_UCHAR])]
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
+        self._decoders = [
+            ((8, 9), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
+            ((9, 10), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
+        ]
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('source', PACK_UCHAR, []),
+            ('reason_diagnostic', PACK_UCHAR, []),
+        ]
 
     def FromParams(self, primitive):
         """
@@ -1739,8 +1713,6 @@ class A_ABORT_RQ(PDU):
         elif primitive.__class__ == A_P_ABORT:
             self.reason_diagnostic = primitive.provider_reason
             self.source = 2
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -1766,43 +1738,9 @@ class A_ABORT_RQ(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the PDU's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded PDU that will be sent to the peer AE
-        """
-        formats = '> B B I B B B B'
-        parameters = ['pdu_type',
-                      0x00,  # Reserved
-                      self.pdu_length,
-                      0x00,  # Reserved
-                      0x00,  # Reserved
-                      self.source,
-                      self.reason_diagnostic]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        return bytestream
-
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
         return 10
-
-    @property
-    def _parameters(self):
-        """Return a tuple containing the PDU parameters."""
-        return ('pdu_type',
-                0x00,  # Reserved
-                'pdu_length',
-                0x00,  # Reserved
-                0x00,  # Reserved
-                'source',
-                'reason_diagnostic')
 
     @property
     def pdu_length(self):
@@ -1811,10 +1749,11 @@ class A_ABORT_RQ(PDU):
 
     @property
     def pdu_type(self):
-        """Return the PDU type as an int."""
+        """Return the 'PDU Type' as an int."""
         return 0x07
 
     def __str__(self):
+        """Return a string representation of the PDU."""
         s = "A-ABORT PDU\n"
         s += "===========\n"
         s += "  PDU type: 0x{0:02x}\n".format(self.pdu_type)
@@ -1826,46 +1765,33 @@ class A_ABORT_RQ(PDU):
 
     @property
     def source_str(self):
-        """
-        See PS3.8 9.3.8
-
-        Returns
-        -------
-        str
-            The source of the Association abort
-        """
-        sources = {0: 'DUL service-user',
+        """Return a str description of the 'Source' parameter."""
+        _sources = {0: 'DUL service-user',
                    1: 'Reserved',
                    2: 'DUL service-provider'}
 
-        return sources[self.source]
+        return _sources[self.source]
 
     @property
     def reason_str(self):
-        """
-        See PS3.8 9.3.8
-
-        Returns
-        -------
-        str
-            The reason given for the Association abort
-        """
+        """Return a str description of the 'Reason/Diagnostic' parameter."""
         if self.source == 2:
-            reason_str = {0: "No reason given",
+            _reason_str = {0: "No reason given",
                           1: "Unrecognised PDU",
                           2: "Unexpected PDU",
                           3: "Reserved",
                           4: "Unrecognised PDU parameter",
                           5: "Unexpected PDU parameter",
                           6: "Invalid PDU parameter value"}
-            return reason_str[self.reason_diagnostic]
-        else:
-            return 'No reason given'
+            return _reason_str[self.reason_diagnostic]
+
+        return 'No reason given'
 
 
 # PDU item and sub-item classes
 class ApplicationContextItem(PDU):
-    """
+    """An Application Context item.
+
     Represents the Application Context Item used in A-ASSOCIATE-RQ and
     A-ASSOCIATE-AC PDUs.
 
@@ -1888,16 +1814,43 @@ class ApplicationContextItem(PDU):
         The UID for the Application Context Name
     length : int
         The length of the encoded Item in bytes
+
+    Notes
+    -----
+    Application context names are encoded as in Annex F, structured as UIDs as
+    defined in PS3.5. and registered in PS3.7.
+
+    Each component of a UID is encoded as an ISO 646:1990-Basic G0 Set Numeric
+    String of bytes (characters 0-9). Leading 0's of each component are not
+    significant and shall not be sent. Components shall not be padded.
+    Components shall be separated by the character '.' (0x2e). Null components
+    (no numeric value between two separators) shall not exist. Components with
+    the value of zero (0) shall be encoded as (nnn.0.ppp). No separator or
+    padding shall be present before the first digit of the first component or
+    after the last digit of the last component.
+
+    Application context names shall not exceed 64 total characters.
+
+    A single DICOM Application Context Name is defined for the current version
+    of the Standard and it is '1.2.840.10008.3.1.1.1'.
+
+    References
+    ----------
+    DICOM Standard, Part 8, Annex F
     """
 
     def __init__(self):
         self.application_context_name = ''
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_slice, [])]  # Application context name
+        self._decoders = [
+            ((4, None), 'application_context_name', self._wrap_slice, [])
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('application_context_name', self._wrap_ascii, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -1910,8 +1863,6 @@ class ApplicationContextItem(PDU):
         """
         self.application_context_name = primitive
 
-        self._update_parameters()
-
     def ToParams(self):
         """
         Convert the current Item to a primitive
@@ -1922,27 +1873,6 @@ class ApplicationContextItem(PDU):
             The Application Context Name's UID value
         """
         return self.application_context_name
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H'
-        parameters = [self.item_type,
-                      0x00,  # Reserved
-                      self.item_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += codecs.encode(
-            self.application_context_name.title(), 'utf-8')
-
-        return bytestream
 
     @property
     def application_context_name(self):
@@ -1985,14 +1915,6 @@ class ApplicationContextItem(PDU):
         """Return the item type as an int."""
         return 0x10
 
-    @property
-    def _parameters(self):
-        """Update the PDU parameters."""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'application_context_name')
-
     def __str__(self):
         s = '{0!s} ({1!s})\n'.format(self.application_context_name,
                                      self.application_context_name.title())
@@ -2000,7 +1922,8 @@ class ApplicationContextItem(PDU):
 
 
 class PresentationContextItemRQ(PDU):
-    """
+    """A Presentation Context (RQ) item.
+
     Represents a Presentation Context Item used in A-ASSOCIATE-RQ PDUs.
 
     The Presentation Context Item requires the following parameters (see PS3.8
@@ -2057,26 +1980,33 @@ class PresentationContextItemRQ(PDU):
         #   Used for tracking SCP/SCU Role Negotiation
         # Consider shifting to properties?
         #   or removing...
+        # FIXME
         self.SCP = None
         self.SCU = None
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 5),
-                         (5, 6),
-                         (6, 7),
-                         (7, 8),
-                         (8, None)]
         self._decoders = [
-            (None, []),  # Item type
-            (None, []),  # Reserved
-            (None, []),  # Item length
-            (self._wrap_unpack, [UNPACK_UCHAR]),  # Presentation context ID
-            (None, []),  # Reserved
-            (None, []),  # Reserved
-            (None, []),  # Reserved
-            (self._wrap_generate_items, [])  #  Abstract/Transfer syntax items
+            (
+                (4, 5),
+                'presentation_context_id',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (8, None),
+                'abstract_transfer_syntax_sub_items',
+                self._wrap_generate_items,
+                []
+            )
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('presentation_context_id', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('abstract_transfer_syntax_sub_items', self._wrap_encode_items, [])
         ]
 
     def FromParams(self, primitive):
@@ -2102,9 +2032,6 @@ class PresentationContextItemRQ(PDU):
             transfer_syntax.FromParams(syntax)
             self.abstract_transfer_syntax_sub_items.append(transfer_syntax)
 
-        self.get_length()
-        self._update_parameters()
-
     def ToParams(self):
         """
         Convert the current Item to a primitive
@@ -2124,32 +2051,6 @@ class PresentationContextItemRQ(PDU):
                 context.AbstractSyntax = syntax.ToParams()
 
         return context
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H B B B B'
-        parameters = [self.item_type,
-                      0x00,  # Reserved
-                      self.item_length,
-                      self.presentation_context_id,
-                      0x00,  # Reserved
-                      0x00,  # Reserved
-                      0x00]  # Reserved
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        for ii in self.abstract_transfer_syntax_sub_items:
-            bytestream += ii.Encode()
-
-        return bytestream
 
     @property
     def abstract_syntax(self):
@@ -2189,23 +2090,11 @@ class PresentationContextItemRQ(PDU):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
 
-    @property
-    def _parameters(self):
-        """Update the PDU parameters."""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'presentation_context_id',
-                0x00,  # Reserved
-                0x00,  # Reserved
-                0x00,  # Reserved
-                'abstract_transfer_syntax_sub_items')
-
     def __str__(self):
         s = "Presentation Context (RQ) Item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Context ID: {0:d}\n".format(self.ID)
+        s += "  Context ID: {0:d}\n".format(self.context_id)
         if self.SCP is not None:
             s += "  SCP Role: {0:d}\n".format(self.SCP)
         if self.SCU is not None:
@@ -2232,7 +2121,8 @@ class PresentationContextItemRQ(PDU):
 
 # FIXME: Transfer Syntax should be list
 class PresentationContextItemAC(PDU):
-    """
+    """A Presentation Context (AC) item.
+
     Represents a Presentation Context Item used in A-ASSOCIATE-AC PDUs.
 
     The Presentation Context Item requires the following parameters (see PS3.8
@@ -2284,23 +2174,35 @@ class PresentationContextItemAC(PDU):
         self.SCP = None
         self.SCU = None
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 5),
-                         (5, 6),
-                         (6, 7),
-                         (7, 8),
-                         (8, None)]
         self._decoders = [
-            (None, []),  # Item type
-            (None, []),  # Reserved
-            (None, []),  # Item length
-            (self._wrap_unpack, [UNPACK_UCHAR]),  # Presentation context ID
-            (None, []),  # Reserved
-            (self._wrap_unpack, [UNPACK_UCHAR]),  # Result/reason
-            (None, []),  # Reserved
-            (self._wrap_generate_items, [])  #  Transfer syntax item
+            (
+                (4, 5),
+                'presentation_context_id',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (6, 7),
+                'result_reason',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (8, None),
+                'transfer_syntax_sub_item',
+                self._wrap_generate_items,
+                []
+            )
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('presentation_context_id', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('result_reason', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('transfer_syntax_sub_item', self._wrap_encode_items, [])
         ]
 
     def FromParams(self, primitive):
@@ -2319,11 +2221,9 @@ class PresentationContextItemAC(PDU):
         self.result_reason = primitive.Result
 
         # Add transfer syntax
-        self.transfer_syntax_sub_item = TransferSyntaxSubItem()
-        self.transfer_syntax_sub_item.FromParams(primitive.TransferSyntax[0])
-
-        self.get_length()
-        self._update_parameters()
+        transfer_syntax = TransferSyntaxSubItem()
+        transfer_syntax.FromParams(primitive.TransferSyntax[0])
+        self.transfer_syntax_sub_item = [transfer_syntax]
 
     def ToParams(self):
         """
@@ -2336,33 +2236,9 @@ class PresentationContextItemAC(PDU):
         """
         primitive = PresentationContext(self.presentation_context_id)
         primitive.Result = self.result_reason
-        primitive.add_transfer_syntax(self.transfer_syntax_sub_item.ToParams())
+        primitive.add_transfer_syntax(self.transfer_syntax_sub_item[0].ToParams())
 
         return primitive
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H B B B B'
-        parameters = [self.item_type,
-                      0x00,  # Reserved
-                      self.item_length,
-                      self.presentation_context_id,
-                      0x00,  # Reserved
-                      self.result_reason,  # Reserved
-                      0x00]  # Reserved
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += self.transfer_syntax_sub_item.Encode()
-
-        return bytestream
 
     @property
     def item_length(self):
@@ -2378,18 +2254,6 @@ class PresentationContextItemAC(PDU):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
 
-    @property
-    def _parameters(self):
-        """Update the parameters"""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'presentation_context_id',
-                0x00,  # Reserved
-                'result_reason',
-                0x00,  # Reserved
-                'transfer_syntax_sub_item')
-
     def __str__(self):
         s = "Presentation Context (AC) Item\n"
         s += "  Item type:   0x{0:02x}\n".format(self.item_type)
@@ -2397,7 +2261,7 @@ class PresentationContextItemAC(PDU):
         s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
         s += "  Result/Reason: {0!s}\n".format(self.result_str)
 
-        item_str = '{0!s}'.format(self.transfer_syntax_sub_item)
+        item_str = '{0!s}'.format(self.transfer_syntax.name)
         item_str_list = item_str.split('\n')
         s += '  +  {0!s}\n'.format(item_str_list[0])
         for jj in item_str_list[1:-1]:
@@ -2459,11 +2323,15 @@ class AbstractSyntaxSubItem(PDU):
     def __init__(self):
         self.abstract_syntax_name = None
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_slice, [])]  # Abstract syntax name
+        self._decoders = [
+            ((4, None), 'abstract_syntax_name', self._wrap_slice, [])
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('abstract_syntax_name', self._wrap_ascii, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -2475,9 +2343,6 @@ class AbstractSyntaxSubItem(PDU):
             The abstract syntax name
         """
         self.abstract_syntax_name = primitive
-        self.item_length = len(self.abstract_syntax_name)
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -2489,26 +2354,6 @@ class AbstractSyntaxSubItem(PDU):
             The Abstract Syntax Name's UID value
         """
         return self.abstract_syntax_name
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H'
-        parameters = [self.item_type,
-                      0x00,  # Reserved
-                      self.item_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += codecs.encode(self.abstract_syntax_name.title(), 'utf-8')
-
-        return bytestream
 
     @property
     def abstract_syntax(self):
@@ -2561,14 +2406,6 @@ class AbstractSyntaxSubItem(PDU):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
 
-    @property
-    def _parameters(self):
-        """Update the PDU parameters."""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'abstract_syntax_name')
-
     def __str__(self):
         s = "Abstract Syntax Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
@@ -2609,11 +2446,15 @@ class TransferSyntaxSubItem(PDU):
     def __init__(self):
         self.transfer_syntax_name = None
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_slice, [])]  # Transfer syntax name
+        self._decoders = [
+            ((4, None), 'transfer_syntax_name', self._wrap_slice, [])
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('transfer_syntax_name', self._wrap_ascii, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -2625,9 +2466,6 @@ class TransferSyntaxSubItem(PDU):
             The transfer syntax name
         """
         self.transfer_syntax_name = primitive
-        self.item_length = len(self.transfer_syntax_name)
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -2639,26 +2477,6 @@ class TransferSyntaxSubItem(PDU):
             The Transfer Syntax Name's UID value
         """
         return self.transfer_syntax_name
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H'
-        parameters = [self.item_type,
-                      0x00,  # Reserved
-                      self.item_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += codecs.encode(self.transfer_syntax_name.title(), 'utf-8')
-
-        return bytestream
 
     @property
     def item_length(self):
@@ -2676,14 +2494,6 @@ class TransferSyntaxSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
-
-    @property
-    def _parameters(self):
-        """Update the parameters."""
-        return ('item_type',
-                0x00,
-                'item_length',
-                'transfer_syntax_name')
 
     def __str__(self):
         s = "Transfer syntax sub item\n"
@@ -2785,11 +2595,15 @@ class UserInformationItem(PDU):
     def __init__(self):
         self.user_data = []
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_generate_items, [])]  # User data
+        self._decoders = [
+            ((4, None), 'user_data', self._wrap_generate_items, [])
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('user_data', self._wrap_encode_items, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -2799,11 +2613,8 @@ class UserInformationItem(PDU):
         ----------
         primitive : list
         """
-        for ii in primitive:
-            self.user_data.append(ii.FromParams())
-
-        self._update_item_length()
-        self._update_parameters()
+        for item in primitive:
+            self.user_data.append(item.FromParams())
 
     def ToParams(self):
         """
@@ -2819,28 +2630,6 @@ class UserInformationItem(PDU):
             primitive.append(ii.ToParams())
 
         return primitive
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H'
-        parameters = [self.item_type,
-                      0x00,  # Reserved
-                      self.item_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        for ii in self.user_data:
-            bytestream += ii.Encode()
-
-        return bytestream
 
     @property
     def async_ops_window(self):
@@ -2953,20 +2742,19 @@ class UserInformationItem(PDU):
         return None
 
     @property
-    def _parameters(self):
-        """Update the parameters."""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'user_data')
-
-    @property
     def role_selection(self):
-        """Return the SCP/SCU Role Selection item or None if none present."""
+        """Return the SCP/SCU Role Selection items or None if none present.
+
+        Returns
+        -------
+        dict or None
+            The SCP/SCU Role Selection items as {item.uid : item} or None if
+            no items.
+        """
         roles = {}
         for item in self.user_data:
             if isinstance(item, SCP_SCU_RoleSelectionSubItem):
-                roles[item.UID] = item
+                roles[item.uid] = item
 
         if roles:
             return roles
@@ -2980,8 +2768,8 @@ class UserInformationItem(PDU):
         s += "  Item length: {0:d}\n".format(self.item_length)
         s += "  User Data:\n "
 
-        for ii in self.user_data[1:]:
-            s += "  {0!s}".format(ii)
+        for item in self.user_data:
+            s += "  {0!s}".format(item)
 
         return s
 
@@ -3024,11 +2812,20 @@ class MaximumLengthSubItem(PDU):
     def __init__(self):
         self.maximum_length_received = None
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_unpack, [UNPACK_UINT4])]  # Max length
+        self._decoders = [
+            (
+                (4, None),
+                'maximum_length_received',
+                self._wrap_unpack,
+                [UNPACK_UINT4]
+            )
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('maximum_length_received', PACK_UINT4, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -3040,8 +2837,6 @@ class MaximumLengthSubItem(PDU):
             The primitive to use when setting up the Item
         """
         self.maximum_length_received = primitive.maximum_length_received
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -3059,26 +2854,6 @@ class MaximumLengthSubItem(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H I'
-        parameters = [self.item_type,
-                      0x00,
-                      0x0004,
-                      self.maximum_length_received]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        return bytestream
-
     @property
     def item_length(self):
         """Return the Item Length parameter value."""
@@ -3092,14 +2867,6 @@ class MaximumLengthSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 0x08
-
-    @property
-    def _parameters(self):
-        """Update the parameters."""
-        return ('item_type',
-                0x00,
-                'item_length',
-                'maximum_length_received')
 
     def __str__(self):
         s = "Maximum length Sub-item\n"
@@ -3139,11 +2906,15 @@ class ImplementationClassUIDSubItem(PDU):
     def __init__(self):
         self.implementation_class_uid = None
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_slice, [])]  # Max length
+        self._decoders = [
+            ((4, None), 'implementation_class_uid', self._wrap_slice, [])
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('implementation_class_uid', self._wrap_ascii, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -3156,9 +2927,6 @@ class ImplementationClassUIDSubItem(PDU):
             The primitive to use when setting up the Item
         """
         self.implementation_class_uid = primitive.implementation_class_uid
-        self.item_length = len(self.implementation_class_uid)
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -3176,15 +2944,6 @@ class ImplementationClassUIDSubItem(PDU):
         primitive.implementation_class_uid = self.implementation_class_uid
 
         return primitive
-
-    def Encode(self):
-        """Encode the item"""
-        s = b''
-        s += pack('B', self.item_type)
-        s += pack('B', 0x00)
-        s += pack('>H', self.item_length)
-        s += codecs.encode(self.implementation_class_uid.title(), 'utf-8')
-        return s
 
     @property
     def implementation_class_uid(self):
@@ -3234,14 +2993,6 @@ class ImplementationClassUIDSubItem(PDU):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
 
-    @property
-    def _parameters(self):
-        """Update the parameters."""
-        return ('item_type',
-                0x00,
-                'item_length',
-                'implementation_class_uid')
-
     def __str__(self):
         s = "Implementation Class UID Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
@@ -3285,12 +3036,27 @@ class AsynchronousOperationsWindowSubItem(PDU):
         self.maximum_number_operations_invoked = None
         self.maximum_number_operations_performed = None
 
-        self._offsets = [(0, 1), (1, 2), (2, 4), (4, 6), (6, 8)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_unpack, [UNPACK_UINT2]),  # Max invoked
-                          (self._wrap_unpack, [UNPACK_UINT2])]  # Max performed
+        self._decoders = [
+            (
+                (4, 6),
+                'maximum_number_operations_invoked',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (6, 8),
+                'maximum_number_operations_performed',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            )
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('maximum_number_operations_invoked', PACK_UINT2, []),
+            ('maximum_number_operations_performed', PACK_UINT2, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -3306,8 +3072,6 @@ class AsynchronousOperationsWindowSubItem(PDU):
             primitive.maximum_number_operations_invoked
         self.maximum_number_operations_performed = \
             primitive.maximum_number_operations_performed
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -3329,27 +3093,6 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H H H'
-        parameters = [self.item_type,
-                      0x00,
-                      self.item_length,
-                      self.maximum_number_operations_invoked,
-                      self.maximum_number_operations_performed]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-
-        return bytestream
-
     @property
     def item_length(self):
         """Return the Item Length parameter value."""
@@ -3363,15 +3106,6 @@ class AsynchronousOperationsWindowSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 0x08
-
-    @property
-    def _parameters(self):
-        """Update the parameters"""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'maximum_number_operations_invoked',
-                'maximum_number_operations_performed')
 
     @property
     def max_operations_invoked(self):
@@ -3394,7 +3128,7 @@ class AsynchronousOperationsWindowSubItem(PDU):
 
         return s
 
-# FIXME: Non generic decode
+
 class SCP_SCU_RoleSelectionSubItem(PDU):
     """
     Represents the SCP/SCU Role Selection Sub Item used in
@@ -3433,20 +3167,35 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
         self.scu_role = None
         self.scp_role = None
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 6),
-                         (6, 'FIXME'),
-                         ('FIXME', 'FIXME + 1'),
-                         ('FIXME + 1', 'FIXME + 2')]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (None, []),  # UID length
-                          (self._wrap_slice, []),  # SOP Class UID
-                          (self._wrap_unpack, [UNPACK_UCHAR]),  # SCU role
-                          (self._wrap_unpack, [UNPACK_UCHAR])]  # SCP role
+        self._decoders = [
+            (
+                (6, -2),
+                'sop_class_uid',
+                self._wrap_slice,
+                []
+            ),
+            (
+                (-2, -1),
+                'scu_role',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (-1, None),
+                'scp_role',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            )
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('uid_length', PACK_UINT2, []),
+            ('sop_class_uid', self._wrap_ascii, []),
+            ('scu_role', PACK_UCHAR, []),
+            ('scp_role', PACK_UCHAR, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -3460,11 +3209,6 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
         self.sop_class_uid = primitive.sop_class_uid
         self.scu_role = int(primitive.scu_role)
         self.scp_role = int(primitive.scp_role)
-
-        self.item_length = 4 + len(self.sop_class_uid)
-        self.uid_length = len(self.sop_class_uid)
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -3484,27 +3228,6 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
 
         return primitive
 
-    def Encode(self):
-        """Encode the item"""
-        formats = '> B B H H'
-        parameters = [self.item_type,
-                      0x00,
-                      self.item_length,
-                      self.uid_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += codecs.encode(self.sop_class_uid.title(), 'utf-8')
-        bytestream += pack('> B B', self.scu_role, self.scp_role)
-
-        return bytestream
-
-    def decode(self, bytestream):
-        uid_length = UNPACK_UINT2(bytestream[4:6])[0]
-        self.sop_class_uid = bytestream[6:6 + uid_length]
-        self.scu_role = UNPACK_UCHAR(bytestream[6 + uid_length])
-        self.scp_role = UNPACK_UCHAR(bytestream[7 + uid_length])
-
     @property
     def item_length(self):
         """Return the Item Length parameter value."""
@@ -3518,54 +3241,6 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
-
-    @property
-    def _parameters(self):
-        """Update the parameters"""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'uid_length',
-                'sop_class_uid',
-                'scu_role',
-                'scp_role')
-
-    def __str__(self):
-        s = "SCP/SCU Role Selection Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  UID length: {0:d} bytes\n".format(self.uid_length)
-        s += "  SOP Class UID: {0!s}\n".format(self.UID.name)
-        s += "  SCU Role: {0:d}\n".format(self.SCU)
-        s += "  SCP Role: {0:d}\n".format(self.SCP)
-
-        return s
-
-    @property
-    def sop_class_uid(self):
-        """Get the SOP class uid."""
-        return self._sop_class_uid
-
-    @sop_class_uid.setter
-    def sop_class_uid(self, value):
-        """Set the SOP class uid."""
-        # pylint: disable=attribute-defined-outside-init
-        # UID is a str subclass
-        if isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise TypeError('sop_class_uid must be str, bytes or '
-                            'pydicom.uid.UID')
-
-        self._sop_class_uid = value
-
-        if value is not None:
-            self.uid_length = len(value)
-            self.item_length = 4 + self.uid_length
 
     @property
     def scu(self):
@@ -3604,6 +3279,39 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
             raise ValueError('SCP Role parameter value must be 0 or 1')
         else:
             self._scp_role = value
+
+    @property
+    def sop_class_uid(self):
+        """Get the SOP class uid."""
+        return self._sop_class_uid
+
+    @sop_class_uid.setter
+    def sop_class_uid(self, value):
+        """Set the SOP class uid."""
+        # pylint: disable=attribute-defined-outside-init
+        # UID is a str subclass
+        if isinstance(value, bytes):
+            value = UID(value.decode('utf-8'))
+        elif isinstance(value, str):
+            value = UID(value)
+        elif value is None:
+            pass
+        else:
+            raise TypeError('sop_class_uid must be str, bytes or '
+                            'pydicom.uid.UID')
+
+        self._sop_class_uid = value
+
+    def __str__(self):
+        s = "SCP/SCU Role Selection Sub-item\n"
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  UID length: {0:d} bytes\n".format(self.uid_length)
+        s += "  SOP Class UID: {0!s}\n".format(self.uid.name)
+        s += "  SCU Role: {0:d}\n".format(self.scu)
+        s += "  SCP Role: {0:d}\n".format(self.scp)
+
+        return s
 
     @property
     def uid(self):
@@ -3645,14 +3353,15 @@ class ImplementationVersionNameSubItem(PDU):
     def __init__(self):
         self.implementation_version_name = None
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_slice, [])]  # Version name
+        self._decoders = [
+            ((4, None), 'implementation_version_name', self._wrap_slice, [])
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('implementation_version_name', self._wrap_bytes, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -3666,8 +3375,6 @@ class ImplementationVersionNameSubItem(PDU):
         """
         self.implementation_version_name = \
             primitive.implementation_version_name
-
-        self._update_parameters()
 
     def ToParams(self):
         """Convert the current Item to a primitive.
@@ -3685,16 +3392,6 @@ class ImplementationVersionNameSubItem(PDU):
 
         return tmp
 
-    def Encode(self):
-        """Encode the item."""
-        s = bytes()
-        s += pack('B', self.item_type)
-        s += pack('B', 0x00)
-        s += pack('>H', self.item_length)
-        s += self.implementation_version_name
-
-        return s
-
     @property
     def implementation_version_name(self):
         """Returns the implementation version name as bytes."""
@@ -3702,12 +3399,10 @@ class ImplementationVersionNameSubItem(PDU):
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
-        """Get the implementation version name."""
+        """Set the implementation version name."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            pass
-        elif isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+        if isinstance(value, str):
+            value = codecs.encode(value, 'ascii')
 
         self._implementation_version_name = value
 
@@ -3727,14 +3422,6 @@ class ImplementationVersionNameSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
-
-    @property
-    def _parameters(self):
-        """Update the parameters."""
-        return ('item_type',
-                0x00,  # Reserved
-                'item_length',
-                'implementation_version_name')
 
     def __str__(self):
         s = "Implementation Version Name Sub-item\n"
@@ -3778,21 +3465,39 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     """
 
     def __init__(self):
+        self._sop_class_uid_length = None
         self.sop_class_uid = None
         self.service_class_application_information = None
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 6),
-                         (6, 'FIXME'),
-                         ('FIXME', None)]
-        self._decoders = [(None, []),  # Item type
-                          (None, []),  # Reserved
-                          (None, []),  # Item length
-                          (self._wrap_unpack, [UNPACK_UINT2]),  # UID length
-                          (self._wrap_slice, []), # SOP Class UID
-                          (self._wrap_slice, [])]  # Service class info
+        '''
+        self._decoders = [
+            (
+                (4, 6),
+                '_sop_class_uid_length',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (6, 6 + self._sop_class_uid_length),
+                'sop_class_uid',
+                self._wrap_unpack, [UNPACK_UINT2]
+            ),
+            (
+                (6 + self._sop_class_uid_length, None),
+                'service_class_application_information',
+                self._wrap_slice,
+                []
+            ),
+        ]
+        '''
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('sop_class_uid_length', PACK_UINT2, []),
+            ('sop_class_uid', self._wrap_ascii, []),
+            ('service_class_application_information', self._wrap_bytes, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -3804,13 +3509,8 @@ class SOPClassExtendedNegotiationSubItem(PDU):
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
-        self.sop_class_uid_length = len(self.sop_class_uid)
         self.service_class_application_information = \
             primitive.service_class_application_information
-        self.item_length = 2 + self.sop_class_uid_length \
-                             + len(self.service_class_application_information)
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -3830,37 +3530,15 @@ class SOPClassExtendedNegotiationSubItem(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H H'
-        parameters = [self.item_type,
-                      0x00,
-                      self.item_length,
-                      self.sop_class_uid_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += codecs.encode(self.sop_class_uid.title(), 'utf-8')
-        bytestream += self.service_class_application_information
-
-        return bytestream
-
     @property
     def app_info(self):
         """Set the application information"""
         return self.service_class_application_information
 
     def decode(self, bytestream):
-        sop_class_uid_length = UNPACK_UINT2(bytestream[4:6])[0]
-        self.sop_class_uid = bytestream[6:6 + sop_class_uid_length]
-        self.service_class_application_information = bytestream[8 + sop_class_uid_length:]
+        uid_length = UNPACK_UINT2(bytestream[4:6])[0]
+        self.sop_class_uid = bytestream[6:6 + uid_length]
+        self.service_class_application_information = bytestream[6 + uid_length:]
 
     @property
     def item_length(self):
@@ -3875,15 +3553,6 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
-
-    @property
-    def _parameters(self):
-        return ('item_type',
-                0x00,
-                'item_length',
-                'sop_class_uid_length',
-                'sop_class_uid',
-                'service_class_application_information')
 
     @property
     def sop_class_uid(self):
@@ -3938,7 +3607,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         """Get the SOP class uid"""
         return self.sop_class_uid
 
-# FIXME: Non generic decode, non-generic _generate-items and _wrap_generate_items
+# FIXME: Check generic decode, non generic _generate-items and _wrap_generate_items
 class SOPClassCommonExtendedNegotiationSubItem(PDU):
     """
     Represents the SOP Class Common Extended Negotiation Sub Item used in
@@ -3974,31 +3643,61 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     ----------
     length : int
         The length of the encoded Item in bytes
-    FIXME
     """
 
     def __init__(self):
         self.sub_item_version = 0x00
+        self._sop_length = None
         self.sop_class_uid = None
+        self._service_length = None
         self.service_class_uid = None
         self.related_general_sop_class_identification = []
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 6),
-                         (6, 'FIXME'),
-                         ('FIXME', None)]
+        '''
         self._decoders = [
-            (None, []),  # Item type
-            (None, []),  # Reserved
-            (None, []),  # Item length
-            (self._wrap_unpack, [UNPACK_UINT2]),  # SOP UID length
-            (self._wrap_slice, []), # SOP Class UID
-            (self._wrap_unpack, [UNPACK_UINT2]),  # Service UID length
-            (self._wrap_slice, []),   # Service Class UID
-            (self._wrap_unpack, [UNPACK_UINT2]),  # Related info length
-            (self._generate_items, [])   # Related general information
+            (
+                (4, 6),
+                '_sop_length' ,
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (6, 6 + self._sop_length),
+                'sop_class_uid',
+                self._wrap_slice,
+                []
+            ),
+            (
+                (6 + self._sop_length, 8 + self._sop_length),
+                '_service_length',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (8 + self._sop_length, 8 + self._sop_length + self._service_length),
+                'service_class_uid',
+                self._wrap_slice,
+                []
+            ),
+            (
+                (10 + self._sop_length + self._service_length, None),
+                'related_general_sop_class_identification',
+                self._generate_items,
+                []
+            )
+        ]
+        '''
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            ('sub_item_version', PACK_UCHAR, []),
+            ('item_length', PACK_UINT2, []),
+            ('sop_class_uid_length', PACK_UINT2, []),
+            ('sop_class_uid', self._wrap_ascii, []),
+            ('service_class_uid_length', PACK_UINT2, []),
+            ('service_class_uid', self._wrap_ascii, []),
+            ('related_general_sop_class_identification_length', PACK_UINT2, []),
+            ('related_general_sop_class_identification', self._wrap_list, []),
+            # (None, )
         ]
 
     def FromParams(self, primitive):
@@ -4011,19 +3710,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             The primitive to use when setting up the Item
         """
         self.sop_class_uid = primitive.sop_class_uid
-        self.sop_class_uid_length = len(self.sop_class_uid)
         self.service_class_uid = primitive.service_class_uid
-        self.service_class_uid_length = len(self.service_class_uid)
         self.related_general_sop_class_identification = \
             primitive.related_general_sop_class_identification
-
-        self.related_general_sop_class_identification_length = 0
-        for uid in self.related_general_sop_class_identification:
-            self.related_general_sop_class_identification_length += len(uid)
-
-        self.item_length = 2 + self.sop_class_uid_length + 2 + \
-            self.service_class_uid_length + 2 + \
-            self.related_general_sop_class_identification_length
 
     def ToParams(self):
         """
@@ -4043,10 +3732,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
             self.related_general_sop_class_identification
 
         return primitive
-
-    def encode(self):
-        """Encode the item"""
-        return self.Encode()
 
     def Encode(self):
         """
@@ -4077,53 +3762,18 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         return bytestream
 
-    def Decode(self, bytestream):
-        """
-        Decode the parameter values for the Item from the parent PDU's byte
-        stream
-
-        Parameters
-        ----------
-        bytestream : io.BytesIO
-            The byte stream to decode
-        """
-        (self.item_type,
-         self.sub_item_version,
-         self.item_length,
-         self.sop_class_uid_length) = unpack('>B B H H', bytestream.read(6))
-
-        self.sop_class_uid = bytestream.read(self.sop_class_uid_length)
-
-        (self.service_class_uid_length,) = unpack('>H', bytestream.read(2))
-        self.service_class_uid = bytestream.read(self.service_class_uid_length)
-
-        (self.related_general_sop_class_identification_length,) = \
-            unpack('>H', bytestream.read(2))
-
-        # Read remaining bytes in item
-        remaining = self.related_general_sop_class_identification_length
-        uids = []
-        while remaining > 0:
-            (uid_length,) = unpack('>H', bytestream.read(2))
-            uid = bytestream.read(uid_length)
-            uids.append(uid)
-
-            remaining -= 2 + uid_length
-
-        self.related_general_sop_class_identification = uids
-
     def decode(self, bytestream):
-        #bytestream = BytesIO(bytestream)
-        #self.Decode(bytestream)
-
+        self.sub_item_version = UNPACK_UCHAR(bytestream[1:2])[0]
         sop_length = UNPACK_UINT2(bytestream[4:6])[0]
         self.sop_class_uid = bytestream[6:6 + sop_length]
         service_length = UNPACK_UINT2(bytestream[6 + sop_length:8 + sop_length])[0]
         self.service_class_uid = bytestream[8 + sop_length:8 + sop_length + service_length]
 
+        # Note, reserved field after related general, but zero length
         for uid in self._generate_items(bytestream[10 + sop_length + service_length:]):
             self.related_general_sop_class_identification.append(uid)
 
+    @staticmethod
     def _generate_items(bytestream):
         """Yield the related general SOP Class UIDs from `bytestream`.
 
@@ -4147,13 +3797,15 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         offset = 0
         while bytestream[offset:offset + 1]:
             uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
-            yield UID(bytestream[offset + 2:offset + 2 + uid_length])
+            yield UID(bytestream[offset + 2:offset + 2 + uid_length].decode('ascii'))
             offset += 2 + uid_length
 
     @property
     def item_length(self):
         """Return the Item Length parameter value."""
-        return 6 + self.sop_class_uid_length + self.service_class_uid_length + self.related_general_sop_class_identification_length
+        return (2 + self.sop_class_uid_length +
+                2 + self.service_class_uid_length +
+                2 + self.related_general_sop_class_identification_length)
 
     @property
     def item_type(self):
@@ -4163,19 +3815,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
-
-    @property
-    def _parameters(self):
-        return ('item_type',
-                0x00,
-                'item_length',
-                'sop_class_uid_length',
-                'sop_class_uid',
-                'service_class_uid_length',
-                'service_class_uid',
-                'related_general_sop_class_identification_length',
-                'related_general_sop_class_identification',
-                0x00)
 
     @property
     def related_general_sop_class_identification(self):
@@ -4206,7 +3845,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         """Return the "Related General SOP Class Identification Length" parameter value."""
         length = 0
         for uid in self._related_general_sop_class_identification:
-            length += len(uid)
+            length += 2 + len(uid)
 
         return length
 
@@ -4230,9 +3869,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
                             'pydicom.uid.UID')
 
         self._sop_class_uid = value
-
-        if value is not None:
-            self.sop_class_uid_length = len(value)
 
     @property
     def sop_class_uid_length(self):
@@ -4259,9 +3895,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
                             'pydicom.uid.UID')
 
         self._service_class_uid = value
-
-        if value is not None:
-            self.service_class_uid_length = len(value)
 
     @property
     def service_class_uid_length(self):
@@ -4295,7 +3928,15 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         return item_list
 
-# FIXME: Non generic decode
+    def _wrap_list(self, uid_list):
+        bytestream = bytes()
+        for uid in uid_list:
+            bytestream += PACK_UINT2(len(uid))
+            bytestream += self._wrap_ascii(uid)
+
+        return bytestream
+
+# FIXME: non generic decode
 class UserIdentitySubItemRQ(PDU):
     """
     Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
@@ -4338,49 +3979,58 @@ class UserIdentitySubItemRQ(PDU):
         self.user_identity_type = None
         self.positive_response_requested = None
         self.primary_field = None
-        self.secondary_field = None
+        self.secondary_field = b''
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 5),
-                         (5, 6),
-                         (6, 8),
-                         (8, 'FIXME'),
-                         ('FIXME', 'FIXME + 2'),
-                         ('FIXME + 2', None)]
+        '''
         self._decoders = [
-            (None, []),  # Item type
-            (None, []),  # Reserved
-            (None, []),  # Item length
-            (self._wrap_unpack, [UNPACK_UCHAR]),  # Identity type
-            (self._wrap_unpack, [UNPACK_UCHAR]), # Response requested
-            (self._wrap_unpack, [UNPACK_UINT2]),  # Primary field length
-            (self._wrap_slice, []),   # Primary field
-            (self._wrap_unpack, [UNPACK_UINT2]),  # Secondary field length
-            (self._generate_items, [])   # Secondary field, may not be present
+            (
+                (4, 5),
+                'user_identity_type',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (5, 6),
+                'positive_response_requested',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (6, 8),
+                '_primary_length',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (8, 8 + self._primary_length),
+                'primary_field',
+                self._wrap_slice,
+                []
+            ),
+            (
+                (8 + self._primary_length, 10 + self._primary_length),
+                '_secondary_length',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (10 + self._secondary_length, None),
+                'secondary_field',
+                self._generate_items, []
+            )
         ]
-
-    def __str__(self):
-        s = "User Identity (RQ) Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  User identity type: {0:d}\n".format(self.user_identity_type)
-        s += "  Positive response requested: {0:d}\n".format(
-            self.positive_response_requested)
-        s += "  Primary field length: {0:d} bytes\n".format(
-            self.primary_field_length)
-        s += "  Primary field: {0!s}\n".format(self.primary_field)
-
-        if self.user_identity_type == 0x02:
-            s += "  Secondary field length: {0:d} bytes\n".format(
-                self.secondary_field_length)
-            s += "  Secondary field: {0!s}\n".format(self.secondary_field)
-        else:
-            s += "  Secondary field length: (not used)\n"
-            s += "  Secondary field: (not used)\n"
-
-        return s
+        '''
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('user_identity_type', PACK_UCHAR, []),
+            ('positive_response_requested', PACK_UCHAR, []),
+            ('primary_field_length', PACK_UINT2, []),
+            ('primary_field', self._wrap_bytes, []),
+            ('secondary_field_length', PACK_UINT2, []),
+            ('secondary_field', self._wrap_bytes, [])
+        ]
 
     def FromParams(self, primitive):
         """
@@ -4395,16 +4045,7 @@ class UserIdentitySubItemRQ(PDU):
         self.positive_response_requested = \
             int(primitive.positive_response_requested)
         self.primary_field = primitive.primary_field
-        self.primary_field_length = len(self.primary_field)
         self.secondary_field = primitive.secondary_field
-
-        if self.secondary_field is not None:
-            self.secondary_field_length = len(self.secondary_field)
-        else:
-            self.secondary_field_length = 0
-
-        self.item_length = 6 + self.primary_field_length \
-                             + self.secondary_field_length
 
     def ToParams(self):
         """
@@ -4425,68 +4066,6 @@ class UserIdentitySubItemRQ(PDU):
         primitive.secondary_field = self.secondary_field
 
         return primitive
-
-    def encode(self):
-        """Encode the item"""
-        # Override the default
-        return self.Encode()
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        TODO:
-
-        * Add checking prior to encode to ensure all parameters are valid
-          (should check all extended negotiation items as these are
-          typically user defined when local is Requesting)
-        * If local requests positive response but doesn't receive then
-          abort association if established
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H B B H'
-        parameters = [self.item_type,
-                      0x00,
-                      self.item_length,
-                      self.user_identity_type,
-                      self.positive_response_requested,
-                      self.primary_field_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += bytes(self.primary_field)
-        bytestream += pack('>H', self.secondary_field_length)
-        if self.user_identity_type == 0x02:
-            bytestream += bytes(self.secondary_field)
-
-        return bytestream
-
-    def Decode(self, bytestream):
-        """
-        Decode the parameter values for the Item from the parent PDU's byte
-        stream
-
-        Parameters
-        ----------
-        bytestream : io.BytesIO
-            The byte stream to decode
-        """
-        (self.item_type,
-         _,
-         item_length,
-         self.user_identity_type,
-         self.positive_response_requested,
-         primary_field_length) = unpack('>B B H B B H', bytestream.read(8))
-
-        self.primary_field = bytestream.read(primary_field_length)
-        (secondary_field_length,) = unpack('>H', bytestream.read(2))
-
-        if self.user_identity_type == 0x02:
-            self.secondary_field = bytestream.read(secondary_field_length)
 
     def decode(self, bytestream):
         self.user_identity_type = UNPACK_UCHAR(bytestream[4:5])[0]
@@ -4537,28 +4116,6 @@ class UserIdentitySubItemRQ(PDU):
         return 4 + self.item_length
 
     @property
-    def _parameters(self):
-        if self.secondary_field_length:
-            return ('item_type',
-                    0x00,
-                    'item_length',
-                    'user_identity_type',
-                    'positive_response_requested',
-                    'primary_field_length',
-                    'primary_field',
-                    'secondary_field_length',
-                    'secondary_field')
-
-        return ('item_type',
-                0x00,
-                'item_length',
-                'user_identity_type',
-                'positive_response_requested',
-                'primary_field_length',
-                'primary_field',
-                'secondary_field_length')
-
-    @property
     def primary(self):
         """Get the primary field"""
         return self.primary_field
@@ -4585,6 +4142,27 @@ class UserIdentitySubItemRQ(PDU):
             return len(self.secondary_field)
 
         return 0x00
+
+    def __str__(self):
+        s = "User Identity (RQ) Sub-item\n"
+        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
+        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += "  User identity type: {0:d}\n".format(self.user_identity_type)
+        s += "  Positive response requested: {0:d}\n".format(
+            self.positive_response_requested)
+        s += "  Primary field length: {0:d} bytes\n".format(
+            self.primary_field_length)
+        s += "  Primary field: {0!s}\n".format(self.primary_field)
+
+        if self.user_identity_type == 0x02:
+            s += "  Secondary field length: {0:d} bytes\n".format(
+                self.secondary_field_length)
+            s += "  Secondary field: {0!s}\n".format(self.secondary_field)
+        else:
+            s += "  Secondary field length: (not used)\n"
+            s += "  Secondary field: (not used)\n"
+
+        return s
 
 
 class UserIdentitySubItemAC(PDU):
@@ -4621,17 +4199,15 @@ class UserIdentitySubItemAC(PDU):
     def __init__(self):
         self.server_response = None
 
-        self._offsets = [(0, 1),
-                         (1, 2),
-                         (2, 4),
-                         (4, 6),
-                         (6, None)]
         self._decoders = [
-            (None, []),  # Item type
-            (None, []),  # Reserved
-            (None, []),  # Item length
-            (None, []),  # Response length
-            (self._wrap_slice, []),   # Server response
+            ((6, None), 'server_response', self._wrap_slice, []),
+        ]
+        self._encoders = [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('server_response_length', PACK_UINT2, []),
+            ('server_response', self._wrap_bytes, [])
         ]
 
     def FromParams(self, primitive):
@@ -4644,11 +4220,6 @@ class UserIdentitySubItemAC(PDU):
             The primitive to use when setting up the Item
         """
         self.server_response = primitive.server_response
-        self.server_response_length = len(self.server_response)
-
-        self.item_length = 2 + self.server_response_length
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -4666,27 +4237,6 @@ class UserIdentitySubItemAC(PDU):
 
         return primitive
 
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> B B H H'
-        parameters = [self.item_type,
-                      0x00,
-                      self.item_length,
-                      self.server_response_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += bytes(self.server_response)
-
-        return bytestream
-
     @property
     def item_length(self):
         """Return the Item Length parameter value."""
@@ -4700,15 +4250,6 @@ class UserIdentitySubItemAC(PDU):
     def __len__(self):
         """Return the total encoded length of the item."""
         return 4 + self.item_length
-
-    @property
-    def _parameters(self):
-        """Update the parameters"""
-        return ('item_type',
-                0x00,
-                'item_length',
-                'server_response_length',
-                'server_response')
 
     @property
     def response(self):
@@ -4765,13 +4306,27 @@ class PresentationDataValueItem(PDU):
         self.presentation_context_id = None
         self.presentation_data_value = None
 
-        self._offsets = [(0, 4),
-                         (4, 5),
-                         (5, None)]
+        # Used internally for decoding and encoding
+        # (start, stop), attr name, decoder, [args]
         self._decoders = [
-            (None, []),  # Item length
-            (self._wrap_unpack, [UNPACK_UCHAR]),  # Presentation context ID
-            (self._wrap_slice, []),   # PDV
+            (
+                (4, 5),
+                'presentation_context_id',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (5, None),
+                'presentation_data_value',
+                self._wrap_slice,
+                []
+            )
+        ]
+        # attr name, encoder, [args]
+        self._encoders = [
+            ('item_length', PACK_UINT4, []),
+            ('presentation_context_id', PACK_UCHAR, []),
+            ('presentation_data_value', self._wrap_bytes, [])
         ]
 
     def FromParams(self, primitive):
@@ -4785,9 +4340,6 @@ class PresentationDataValueItem(PDU):
         """
         self.presentation_context_id = primitive[0]
         self.presentation_data_value = primitive[1]
-        self.item_length = 1 + len(self.presentation_data_value)
-
-        self._update_parameters()
 
     def ToParams(self):
         """
@@ -4799,25 +4351,6 @@ class PresentationDataValueItem(PDU):
             The Presentation Data as a list
         """
         return [self.presentation_context_id, self.presentation_data_value]
-
-    def Encode(self):
-        """
-        Encode the Item's parameter values into a bytes string
-
-        Returns
-        -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
-        """
-        formats = '> I B'
-        parameters = [self.item_length,
-                      self.presentation_context_id]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += self.presentation_data_value
-
-        return bytestream
 
     @property
     def context_id(self):
@@ -4843,13 +4376,6 @@ class PresentationDataValueItem(PDU):
         """Return the message control header byte as a formatted string."""
         return "{:08b}".format(ord(self.presentation_data_value[0:1]))
 
-    @property
-    def _parameters(self):
-        """Update the parameters."""
-        return ('item_length',
-                'presentation_context_id',
-                'presentation_data_value')
-
     def __str__(self):
         s = "Presentation Value Data Item\n"
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
@@ -4866,7 +4392,7 @@ class PresentationDataValueItem(PDU):
         return s
 
 
-# PDUs, PDU items and sub-items, indexed by their item type
+# PDUs, PDU items and sub-items, indexed by their type
 PDU_TYPES = {
     0x01 : A_ASSOCIATE_RQ,
     0x02 : A_ASSOCIATE_AC,
