@@ -23,29 +23,15 @@ import codecs
 import logging
 from struct import Struct
 
-from pydicom.uid import UID
-
 from pynetdicom3.pdu_items import (
     ApplicationContextItem,
     PresentationContextItemRQ,
     PresentationContextItemAC,
-    AbstractSyntaxSubItem,
-    TransferSyntaxSubItem,
     UserInformationItem,
-    MaximumLengthSubItem,
-    ImplementationClassUIDSubItem,
-    AsynchronousOperationsWindowSubItem,
-    SCP_SCU_RoleSelectionSubItem,
-    ImplementationVersionNameSubItem,
-    SOPClassExtendedNegotiationSubItem,
-    SOPClassCommonExtendedNegotiationSubItem,
-    UserIdentitySubItemRQ,
-    UserIdentitySubItemAC,
     PresentationDataValueItem,
     PDU_ITEM_TYPES
 )
-from pynetdicom3.presentation import PresentationContext
-from pynetdicom3.utils import pretty_bytes, validate_ae_title
+from pynetdicom3.utils import validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3.pdu')
@@ -109,6 +95,11 @@ class PDU(object):
                 self, attr_name, func(bytestream[sl], *args)
             )
 
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders."""
+        raise NotImplementedError
+
     def encode(self):
         """Return the encoded PDU as bytes.
 
@@ -135,6 +126,11 @@ class PDU(object):
                 bytestream += func(*args)
 
         return bytestream
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field encoders."""
+        raise NotImplementedError
 
     def __eq__(self, other):
         """Return True if self equals other."""
@@ -321,7 +317,8 @@ class A_ASSOCIATE_RQ(PDU):
         the last byte of the variable field.
     pdu_type : int
         The 'PDU Type', 0x01.
-    presentation_context : list of pynetdicom3.pdu_items.PresentationContextItemRQ
+    presentation_context : list of
+    pynetdicom3.pdu_items.PresentationContextItemRQ
         The A-ASSOCIATE-RQ's Presentation Context item(s).
     protocol_version : int
         The 'Protocol Version', 0x00 (default).
@@ -490,6 +487,8 @@ class A_ASSOCIATE_RQ(PDU):
             if isinstance(item, ApplicationContextItem):
                 return item.application_context_name
 
+        return None
+
     @property
     def called_ae_title(self):
         """Return the 'Called AE Title' as bytes."""
@@ -613,7 +612,7 @@ class A_ASSOCIATE_RQ(PDU):
             The Requestor AE's Presentation Context items.
         """
         return [item for item in self.variable_items if
-                            isinstance(item, PresentationContextItemRQ)]
+                isinstance(item, PresentationContextItemRQ)]
 
     def __str__(self):
         """Return a string representation of the PDU."""
@@ -665,6 +664,8 @@ class A_ASSOCIATE_RQ(PDU):
             if isinstance(item, UserInformationItem):
                 return item
 
+        return None
+
 
 class A_ASSOCIATE_AC(PDU):
     """An A-ASSOCIATE-AC PDU.
@@ -687,7 +688,8 @@ class A_ASSOCIATE_AC(PDU):
         the last byte of the variable field.
     pdu_type : int
         The 'PDU Type', 0x02.
-    presentation_context : list of pynetdicom3.pdu_items.PresentationContextItemAC
+    presentation_context : list of
+    pynetdicom3.pdu_items.PresentationContextItemAC
         The A-ASSOCIATE-AC's Presentation Context item(s).
     protocol_version : int
         The 'Protocol Version', 0x00 (default).
@@ -857,6 +859,8 @@ class A_ASSOCIATE_AC(PDU):
             if isinstance(ii, ApplicationContextItem):
                 return ii.application_context_name
 
+        return None
+
     @property
     def called_ae_title(self):
         """Return the value sent in the 'Called AE Title' reserved space.
@@ -978,7 +982,7 @@ class A_ASSOCIATE_AC(PDU):
             The acceptor AE's Presentation Context items.
         """
         return [item for item in self.variable_items if
-                            isinstance(item, PresentationContextItemAC)]
+                isinstance(item, PresentationContextItemAC)]
 
     def __str__(self):
         """Return a string representation of the PDU."""
@@ -1029,6 +1033,8 @@ class A_ASSOCIATE_AC(PDU):
         for item in self.variable_items:
             if isinstance(item, UserInformationItem):
                 return item
+
+        return None
 
 
 class A_ASSOCIATE_RJ(PDU):
@@ -1231,8 +1237,10 @@ class A_ASSOCIATE_RJ(PDU):
     @property
     def result_str(self):
         """Return a str describing the 'Result'."""
-        _results = {1 : 'Rejected (Permanent)',
-                    2 : 'Rejected (Transient)'}
+        _results = {
+            1 : 'Rejected (Permanent)',
+            2 : 'Rejected (Transient)'
+        }
 
         if self.result not in _results:
             LOGGER.error('Invalid value in Result parameter in '
@@ -1245,9 +1253,11 @@ class A_ASSOCIATE_RJ(PDU):
     @property
     def source_str(self):
         """Return a str describing the 'Source' parameter."""
-        _sources = {1: 'DUL service-user',
-                   2: 'DUL service-provider (ACSE related)',
-                   3: 'DUL service-provider (presentation related)'}
+        _sources = {
+            1 : 'DUL service-user',
+            2 : 'DUL service-provider (ACSE related)',
+            3 : 'DUL service-provider (presentation related)'
+        }
 
         if self.source not in _sources:
             LOGGER.error('Invalid value in Source parameter in '
@@ -1533,7 +1543,8 @@ class A_RELEASE_RQ(PDU):
         """
         pass
 
-    def ToParams(self):
+    @staticmethod
+    def ToParams():
         """
         Convert the current A-RELEASE-RQ PDU to a primitive
 
@@ -1666,7 +1677,8 @@ class A_RELEASE_RP(PDU):
         """
         pass
 
-    def ToParams(self):
+    @staticmethod
+    def ToParams():
         """
         Convert the current A-RELEASE-RP PDU to a primitive
 
@@ -1918,9 +1930,11 @@ class A_ABORT_RQ(PDU):
     @property
     def source_str(self):
         """Return a str description of the 'Source' parameter."""
-        _sources = {0: 'DUL service-user',
-                   1: 'Reserved',
-                   2: 'DUL service-provider'}
+        _sources = {
+            0 : 'DUL service-user',
+            1 : 'Reserved',
+            2 : 'DUL service-provider'
+        }
 
         return _sources[self.source]
 
@@ -1928,13 +1942,15 @@ class A_ABORT_RQ(PDU):
     def reason_str(self):
         """Return a str description of the 'Reason/Diagnostic' parameter."""
         if self.source == 2:
-            _reason_str = {0: "No reason given",
-                          1: "Unrecognised PDU",
-                          2: "Unexpected PDU",
-                          3: "Reserved",
-                          4: "Unrecognised PDU parameter",
-                          5: "Unexpected PDU parameter",
-                          6: "Invalid PDU parameter value"}
+            _reason_str = {
+                0 : "No reason given",
+                1 : "Unrecognised PDU",
+                2 : "Unexpected PDU",
+                3 : "Reserved",
+                4 : "Unrecognised PDU parameter",
+                5 : "Unexpected PDU parameter",
+                6 : "Invalid PDU parameter value"
+            }
             return _reason_str[self.reason_diagnostic]
 
         return 'No reason given'

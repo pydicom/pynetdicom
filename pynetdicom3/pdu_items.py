@@ -9,7 +9,6 @@ from struct import Struct
 from pydicom.uid import UID
 
 from pynetdicom3.presentation import PresentationContext
-from pynetdicom3.utils import pretty_bytes, validate_ae_title
 
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_items')
@@ -73,6 +72,11 @@ class PDUItem(object):
                 self, attr_name, func(bytestream[sl], *args)
             )
 
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders."""
+        raise NotImplementedError
+
     def encode(self):
         """Return the encoded PDU as bytes.
 
@@ -99,6 +103,11 @@ class PDUItem(object):
                 bytestream += func(*args)
 
         return bytestream
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field encoders."""
+        raise NotImplementedError
 
     def __eq__(self, other):
         """Return True if self equals other."""
@@ -519,6 +528,8 @@ class PresentationContextItemRQ(PDUItem):
             if isinstance(item, AbstractSyntaxSubItem):
                 return item.abstract_syntax_name
 
+        return None
+
     @property
     def context_id(self):
         """
@@ -706,7 +717,9 @@ class PresentationContextItemAC(PDUItem):
         """
         primitive = PresentationContext(self.presentation_context_id)
         primitive.Result = self.result_reason
-        primitive.add_transfer_syntax(self.transfer_syntax_sub_item[0].ToParams())
+        primitive.add_transfer_syntax(
+            self.transfer_syntax_sub_item[0].ToParams()
+        )
 
         return primitive
 
@@ -855,7 +868,8 @@ class UserInformationItem(PDUItem):
     common_ext_neg : list of
         pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem or None
         The common extended negotiation items, or None if there aren't any
-    ext_neg : list of pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem or None
+    ext_neg : list of pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem
+    or None
         The extended negotiation items, or None if there aren't any
     implementation_class_uid : pydicom.uid.UID
         The implementation class UID for the Implementation Class UID sub-item
@@ -870,8 +884,8 @@ class UserInformationItem(PDUItem):
         , or None if the sub-item is not present.
     maximum_length : int
         The maximum length received value for the Maximum Length sub-item
-    role_selection : list of pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem or
-    None
+    role_selection : list of pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem
+    or None
         The SCP_SCU_RoleSelectionSubItem object or None if there aren't any
     user_identity : pynetdicom3.pdu_items.UserIdentitySubItemRQ or
         pynetdicom3.pdu_items.UserIdentitySubItemAC or None
@@ -990,9 +1004,11 @@ class UserInformationItem(PDUItem):
             if isinstance(item, ImplementationClassUIDSubItem):
                 return item.implementation_class_uid
 
+        return None
+
     @property
     def implementation_version_name(self):
-        """Return the Implementation Version Name item or None if none present."""
+        """Return the Implementation Version Name item or None."""
         for item in self.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
                 return item.implementation_version_name.decode('utf-8')
@@ -1023,6 +1039,8 @@ class UserInformationItem(PDUItem):
         for item in self.user_data:
             if isinstance(item, MaximumLengthSubItem):
                 return item.maximum_length_received
+
+        return None
 
     @property
     def max_operations_invoked(self):
@@ -2353,7 +2371,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     @property
     def item_length(self):
         """Return the Item Length parameter value."""
-        return 2 + self.sop_class_uid_length + len(self.service_class_application_information)
+        return (2 +
+                self.sop_class_uid_length +
+                len(self.service_class_application_information))
 
     @property
     def item_type(self):
@@ -2517,7 +2537,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         """
         yield (
             (4, 2),
-            '_sop_length' ,
+            '_sop_length',
             self._wrap_unpack,
             [UNPACK_UINT2]
         )
@@ -2600,7 +2620,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         offset = 0
         while bytestream[offset:offset + 1]:
             uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
-            yield UID(bytestream[offset + 2:offset + 2 + uid_length].decode('ascii'))
+            yield UID(
+                bytestream[offset + 2:offset + 2 + uid_length].decode('ascii')
+            )
             offset += 2 + uid_length
 
     @property
@@ -2645,7 +2667,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification_length(self):
-        """Return the "Related General SOP Class Identification Length" parameter value."""
+        """Return the "Related General SOP Class Identification Length"."""
         length = 0
         for uid in self._related_general_sop_class_identification:
             length += 2 + len(uid)
