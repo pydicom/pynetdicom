@@ -65,8 +65,6 @@ PACK_UCHAR = UCHAR.pack
 PACK_UINT2 = UINT2.pack
 PACK_UINT4 = UINT4.pack
 
-STRUCT_ASSOC = Struct('> B B I H H 16s 16s 32s')
-
 
 # PDU classes
 class PDU(object):
@@ -100,10 +98,21 @@ class PDU(object):
         .. [1] DICOM Standard, Part 8,
            `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
-        for (start, stop), attr_name, func, args in self._decoders:
+        for (start, length), attr_name, func, args in self._decoders:
             if not hasattr(self, attr_name):
                 raise ValueError('Unknown attribute name ', attr_name)
-            setattr(self, attr_name, func(bytestream[start:stop], *args))
+
+            #print(attr_name, start, length)
+
+            # Allow us to use None as a `length`
+            if length:
+                sl = slice(start, start + length)
+            else:
+                sl = slice(start, None)
+
+            setattr(
+                self, attr_name, func(bytestream[sl], *args)
+            )
 
     def encode(self):
         """Return the encoded PDU as bytes.
@@ -129,40 +138,6 @@ class PDU(object):
                 bytestream += func(getattr(self, attr_name), *args)
             else:
                 bytestream += func(*args)
-
-        return bytestream
-
-    def _encode(self):
-        """Return the encoded the PDU as bytes."""
-        no_formats = len(self.formats)
-
-        # If a parameter is already a bytestream then determine its length
-        #   and update the format
-        for (ii, ff) in enumerate(self.formats):
-            if ff == 's':
-                if isinstance(self.parameters[ii], UID):
-                    self.parameters[ii] = \
-                        codecs.encode(self.parameters[ii].title(), 'utf-8')
-
-                self.formats[ii] = '{0:d}s'.format(len(self.parameters[ii]))
-                # Make sure the parameter is a bytes
-
-        # Encode using Big Endian as per PS3.8 9.3.1 - PDU headers are Big
-        #   Endian byte ordering while the encoding of PDV message fragments
-        #   is defined by the negotiated Transfer Syntax
-        pack_format = '> ' + ' '.join(self.formats)
-
-        bytestream = bytes()
-        bytestream += pack(pack_format, *self.parameters[:no_formats])
-
-        # When we have more parameters then format we assume that the extra
-        #   parameters is a list of objects needing their own encoding
-        for ii in self.parameters[no_formats:]:
-            if isinstance(ii, list):
-                for item in ii:
-                    bytestream += item.encode()
-            else:
-                bytestream += ii.encode()
 
         return bytestream
 
@@ -456,34 +431,6 @@ class A_ASSOCIATE_RQ(PDU):
         # The order of the items in the list may not be as given above
         self.variable_items = []
 
-        # Used for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = [
-            ((6, 8), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
-            ((10, 26), 'called_ae_title', self._wrap_slice, []),
-            ((26, 42), 'calling_ae_title', self._wrap_slice, []),
-            ((74, None), 'variable_items', self._wrap_generate_items, [])
-        ]
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            ('protocol_version', PACK_UINT2, []),
-            (None, self._wrap_pack, [0x0000, PACK_UINT2]),
-            ('called_ae_title', self._wrap_bytes, []),
-            ('calling_ae_title', self._wrap_bytes, []),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            ('variable_items', self._wrap_encode_items, [])
-        ]
-
     def FromParams(self, primitive):
         """Setup the current PDU using an A-ASSOCIATE `primitive`.
 
@@ -597,6 +544,61 @@ class A_ASSOCIATE_RQ(PDU):
             s = codecs.encode(s, 'utf-8')
 
         self._calling_aet = validate_ae_title(s)
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((6, 2), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
+            ((10, 16), 'called_ae_title', self._wrap_slice, []),
+            ((26, 16), 'calling_ae_title', self._wrap_slice, []),
+            ((74, None), 'variable_items', self._wrap_generate_items, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            ('protocol_version', PACK_UINT2, []),
+            (None, self._wrap_pack, [0x0000, PACK_UINT2]),
+            ('called_ae_title', self._wrap_bytes, []),
+            ('calling_ae_title', self._wrap_bytes, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            ('variable_items', self._wrap_encode_items, [])
+        ]
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
@@ -790,35 +792,6 @@ class A_ASSOCIATE_AC(PDU):
         # The order of the items in the list may not be as given above
         self.variable_items = []
 
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = [
-            ((6, 8), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
-            ((10, 26), '_reserved_aet', self._wrap_slice, []),
-            ((26, 42), '_reserved_aec', self._wrap_slice, []),
-            ((74, None), 'variable_items', self._wrap_generate_items, [])
-        ]
-        #
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            ('protocol_version', PACK_UINT2, []),
-            (None, self._wrap_pack, [0x0000, PACK_UINT2]),
-            ('_reserved_aet', self._wrap_bytes, []),
-            ('_reserved_aec', self._wrap_bytes, []),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            ('variable_items', self._wrap_encode_items, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-ASSOCIATE
@@ -936,6 +909,61 @@ class A_ASSOCIATE_AC(PDU):
             return codecs.encode(self._reserved_aec, 'utf-8')
 
         return self._reserved_aec
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((6, 2), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
+            ((10, 16), '_reserved_aet', self._wrap_slice, []),
+            ((26, 16), '_reserved_aec', self._wrap_slice, []),
+            ((74, None), 'variable_items', self._wrap_generate_items, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            ('protocol_version', PACK_UINT2, []),
+            (None, self._wrap_pack, [0x0000, PACK_UINT2]),
+            ('_reserved_aet', self._wrap_bytes, []),
+            ('_reserved_aec', self._wrap_bytes, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
+            ('variable_items', self._wrap_encode_items, [])
+        ]
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
@@ -1078,24 +1106,6 @@ class A_ASSOCIATE_RJ(PDU):
         self.source = None
         self.reason_diagnostic = None
 
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = [
-            ((7, 8), 'result', self._wrap_unpack, [UNPACK_UCHAR]),
-            ((8, 9), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
-            ((9, 10), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
-        ]
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('result', PACK_UCHAR, []),
-            ('source', PACK_UCHAR, []),
-            ('reason_diagnostic', PACK_UCHAR, []),
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-ASSOCIATE
@@ -1127,6 +1137,51 @@ class A_ASSOCIATE_RJ(PDU):
         primitive.diagnostic = self.reason_diagnostic
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((7, 1), 'result', self._wrap_unpack, [UNPACK_UCHAR]),
+            ((8, 1), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
+            ((9, 1), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('result', PACK_UCHAR, []),
+            ('source', PACK_UCHAR, []),
+            ('reason_diagnostic', PACK_UCHAR, []),
+        ]
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
@@ -1279,22 +1334,6 @@ class P_DATA_TF(PDU):
         """Initialise a new P-DATA-TF PDU."""
         self.presentation_data_value_items = []
 
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = [
-            ((6, None),
-             'presentation_data_value_items',
-             self._wrap_generate_items,
-             [])
-        ]
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            ('presentation_data_value_items', self._wrap_encode_items, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the P-DATA `primitive`
@@ -1327,6 +1366,49 @@ class P_DATA_TF(PDU):
             primitive.presentation_data_value_list.append(
                 [ii.presentation_context_id, ii.presentation_data_value])
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((6, None),
+             'presentation_data_value_items',
+             self._wrap_generate_items,
+             [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            ('presentation_data_value_items', self._wrap_encode_items, [])
+        ]
 
     @staticmethod
     def _generate_items(bytestream):
@@ -1453,16 +1535,7 @@ class A_RELEASE_RQ(PDU):
 
     def __init__(self):
         """Initialise a new A-RELEASE-RQ PDU."""
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = []
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            (None, self._wrap_pack, [0x00, PACK_UINT4])
-        ]
+        pass
 
     def FromParams(self, _):
         """
@@ -1488,6 +1561,44 @@ class A_RELEASE_RQ(PDU):
         primitive = A_RELEASE()
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return []
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4])
+        ]
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
@@ -1557,16 +1668,7 @@ class A_RELEASE_RP(PDU):
 
     def __init__(self):
         """Initialise a new A-RELEASE-RP PDU."""
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = []
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            (None, self._wrap_pack, [0x00, PACK_UINT4])
-        ]
+        pass
 
     def FromParams(self, _):
         """
@@ -1593,6 +1695,44 @@ class A_RELEASE_RP(PDU):
         primitive.result = 'affirmative'
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return []
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4])
+        ]
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
@@ -1674,23 +1814,6 @@ class A_ABORT_RQ(PDU):
         self.source = None
         self.reason_diagnostic = None
 
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = [
-            ((8, 9), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
-            ((9, 10), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
-        ]
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('pdu_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('source', PACK_UCHAR, []),
-            ('reason_diagnostic', PACK_UCHAR, []),
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the PDU using the parameter values from the A-RELEASE `primitive`
@@ -1737,6 +1860,50 @@ class A_ABORT_RQ(PDU):
             primitive.provider_reason = self.reason_diagnostic
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((8, 1), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
+            ((9, 1), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('pdu_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('pdu_length', PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('source', PACK_UCHAR, []),
+            ('reason_diagnostic', PACK_UCHAR, []),
+        ]
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""
@@ -1842,16 +2009,6 @@ class ApplicationContextItem(PDU):
     def __init__(self):
         self.application_context_name = ''
 
-        self._decoders = [
-            ((4, None), 'application_context_name', self._wrap_slice, [])
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('application_context_name', self._wrap_ascii, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -1900,6 +2057,46 @@ class ApplicationContextItem(PDU):
                             'str or bytes')
 
         self._application_context_name = value
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((4, None), 'application_context_name', self._wrap_slice, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('application_context_name', self._wrap_ascii, [])
+        ]
 
     def __len__(self):
         """Return the total encoded length of the item."""
@@ -1984,31 +2181,6 @@ class PresentationContextItemRQ(PDU):
         self.SCP = None
         self.SCU = None
 
-        self._decoders = [
-            (
-                (4, 5),
-                'presentation_context_id',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (8, None),
-                'abstract_transfer_syntax_sub_items',
-                self._wrap_generate_items,
-                []
-            )
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('presentation_context_id', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('abstract_transfer_syntax_sub_items', self._wrap_encode_items, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2070,6 +2242,61 @@ class PresentationContextItemRQ(PDU):
             Odd number between 1 and 255 (inclusive)
         """
         return self.presentation_context_id
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            (
+                (4, 1),
+                'presentation_context_id',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (8, None),
+                'abstract_transfer_syntax_sub_items',
+                self._wrap_generate_items,
+                []
+            )
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('presentation_context_id', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('abstract_transfer_syntax_sub_items', self._wrap_encode_items, [])
+        ]
 
     @property
     def item_length(self):
@@ -2174,37 +2401,6 @@ class PresentationContextItemAC(PDU):
         self.SCP = None
         self.SCU = None
 
-        self._decoders = [
-            (
-                (4, 5),
-                'presentation_context_id',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (6, 7),
-                'result_reason',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (8, None),
-                'transfer_syntax_sub_item',
-                self._wrap_generate_items,
-                []
-            )
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('presentation_context_id', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('result_reason', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('transfer_syntax_sub_item', self._wrap_encode_items, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2239,6 +2435,67 @@ class PresentationContextItemAC(PDU):
         primitive.add_transfer_syntax(self.transfer_syntax_sub_item[0].ToParams())
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            (
+                (4, 1),
+                'presentation_context_id',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (6, 1),
+                'result_reason',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (8, None),
+                'transfer_syntax_sub_item',
+                self._wrap_generate_items,
+                []
+            )
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('presentation_context_id', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('result_reason', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('transfer_syntax_sub_item', self._wrap_encode_items, [])
+        ]
 
     @property
     def item_length(self):
@@ -2323,16 +2580,6 @@ class AbstractSyntaxSubItem(PDU):
     def __init__(self):
         self.abstract_syntax_name = None
 
-        self._decoders = [
-            ((4, None), 'abstract_syntax_name', self._wrap_slice, [])
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('abstract_syntax_name', self._wrap_ascii, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2388,6 +2635,46 @@ class AbstractSyntaxSubItem(PDU):
                             'str or bytes')
 
         self._abstract_syntax_name = value
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((4, None), 'abstract_syntax_name', self._wrap_slice, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('abstract_syntax_name', self._wrap_ascii, [])
+        ]
 
     @property
     def item_length(self):
@@ -2446,16 +2733,6 @@ class TransferSyntaxSubItem(PDU):
     def __init__(self):
         self.transfer_syntax_name = None
 
-        self._decoders = [
-            ((4, None), 'transfer_syntax_name', self._wrap_slice, [])
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('transfer_syntax_name', self._wrap_ascii, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2477,6 +2754,46 @@ class TransferSyntaxSubItem(PDU):
             The Transfer Syntax Name's UID value
         """
         return self.transfer_syntax_name
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((4, None), 'transfer_syntax_name', self._wrap_slice, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('transfer_syntax_name', self._wrap_ascii, [])
+        ]
 
     @property
     def item_length(self):
@@ -2595,16 +2912,6 @@ class UserInformationItem(PDU):
     def __init__(self):
         self.user_data = []
 
-        self._decoders = [
-            ((4, None), 'user_data', self._wrap_generate_items, [])
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('user_data', self._wrap_encode_items, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2652,6 +2959,46 @@ class UserInformationItem(PDU):
             return items
 
         return None
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((4, None), 'user_data', self._wrap_generate_items, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('user_data', self._wrap_encode_items, [])
+        ]
 
     @property
     def ext_neg(self):
@@ -2812,21 +3159,6 @@ class MaximumLengthSubItem(PDU):
     def __init__(self):
         self.maximum_length_received = None
 
-        self._decoders = [
-            (
-                (4, None),
-                'maximum_length_received',
-                self._wrap_unpack,
-                [UNPACK_UINT4]
-            )
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('maximum_length_received', PACK_UINT4, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2853,6 +3185,51 @@ class MaximumLengthSubItem(PDU):
         primitive.maximum_length_received = self.maximum_length_received
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            (
+                (4, None),
+                'maximum_length_received',
+                self._wrap_unpack,
+                [UNPACK_UINT4]
+            )
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('maximum_length_received', PACK_UINT4, [])
+        ]
 
     @property
     def item_length(self):
@@ -2906,16 +3283,6 @@ class ImplementationClassUIDSubItem(PDU):
     def __init__(self):
         self.implementation_class_uid = None
 
-        self._decoders = [
-            ((4, None), 'implementation_class_uid', self._wrap_slice, [])
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('implementation_class_uid', self._wrap_ascii, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -2944,6 +3311,46 @@ class ImplementationClassUIDSubItem(PDU):
         primitive.implementation_class_uid = self.implementation_class_uid
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((4, None), 'implementation_class_uid', self._wrap_slice, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('implementation_class_uid', self._wrap_ascii, [])
+        ]
 
     @property
     def implementation_class_uid(self):
@@ -3036,28 +3443,6 @@ class AsynchronousOperationsWindowSubItem(PDU):
         self.maximum_number_operations_invoked = None
         self.maximum_number_operations_performed = None
 
-        self._decoders = [
-            (
-                (4, 6),
-                'maximum_number_operations_invoked',
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            ),
-            (
-                (6, 8),
-                'maximum_number_operations_performed',
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            )
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('maximum_number_operations_invoked', PACK_UINT2, []),
-            ('maximum_number_operations_performed', PACK_UINT2, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -3092,6 +3477,58 @@ class AsynchronousOperationsWindowSubItem(PDU):
             self.maximum_number_operations_performed
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            (
+                (4, 2),
+                'maximum_number_operations_invoked',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            ),
+            (
+                (6, 2),
+                'maximum_number_operations_performed',
+                self._wrap_unpack,
+                [UNPACK_UINT2]
+            )
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('maximum_number_operations_invoked', PACK_UINT2, []),
+            ('maximum_number_operations_performed', PACK_UINT2, [])
+        ]
 
     @property
     def item_length(self):
@@ -3163,39 +3600,10 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
     """
 
     def __init__(self):
+        self._uid_length = None
         self.sop_class_uid = None
         self.scu_role = None
         self.scp_role = None
-
-        self._decoders = [
-            (
-                (6, -2),
-                'sop_class_uid',
-                self._wrap_slice,
-                []
-            ),
-            (
-                (-2, -1),
-                'scu_role',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (-1, None),
-                'scp_role',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            )
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_ascii, []),
-            ('scu_role', PACK_UCHAR, []),
-            ('scp_role', PACK_UCHAR, [])
-        ]
 
     def FromParams(self, primitive):
         """
@@ -3227,6 +3635,76 @@ class SCP_SCU_RoleSelectionSubItem(PDU):
         primitive.scp_role = bool(self.scp_role)
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Yield tuples that contain field decoders.
+
+        We use a generator because some of the offset values aren't known until
+        a precursor field has been decoded.
+
+        Yields
+        -------
+        tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        yield (
+            (4, 2),
+            '_uid_length',
+            self._wrap_unpack,
+            [UNPACK_UINT2]
+        )
+
+        yield (
+            (6, self._uid_length),
+            'sop_class_uid',
+            self._wrap_slice,
+            []
+        )
+
+        yield (
+            (6 + self._uid_length, 1),
+            'scu_role',
+            self._wrap_unpack,
+            [UNPACK_UCHAR]
+        )
+
+        yield (
+            (7 + self._uid_length, 1),
+            'scp_role',
+            self._wrap_unpack,
+            [UNPACK_UCHAR]
+        )
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('uid_length', PACK_UINT2, []),
+            ('sop_class_uid', self._wrap_ascii, []),
+            ('scu_role', PACK_UCHAR, []),
+            ('scp_role', PACK_UCHAR, [])
+        ]
 
     @property
     def item_length(self):
@@ -3353,16 +3831,6 @@ class ImplementationVersionNameSubItem(PDU):
     def __init__(self):
         self.implementation_version_name = None
 
-        self._decoders = [
-            ((4, None), 'implementation_version_name', self._wrap_slice, [])
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('implementation_version_name', self._wrap_bytes, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -3391,6 +3859,46 @@ class ImplementationVersionNameSubItem(PDU):
         tmp.implementation_version_name = self.implementation_version_name
 
         return tmp
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((4, None), 'implementation_version_name', self._wrap_slice, [])
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('implementation_version_name', self._wrap_bytes, [])
+        ]
 
     @property
     def implementation_version_name(self):
@@ -3432,7 +3940,7 @@ class ImplementationVersionNameSubItem(PDU):
 
         return s
 
-# FIXME: Non generic decode
+
 class SOPClassExtendedNegotiationSubItem(PDU):
     """
     Represents the SOP Class Extended Negotiation Sub Item used in
@@ -3468,36 +3976,6 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         self._sop_class_uid_length = None
         self.sop_class_uid = None
         self.service_class_application_information = None
-
-        '''
-        self._decoders = [
-            (
-                (4, 6),
-                '_sop_class_uid_length',
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            ),
-            (
-                (6, 6 + self._sop_class_uid_length),
-                'sop_class_uid',
-                self._wrap_unpack, [UNPACK_UINT2]
-            ),
-            (
-                (6 + self._sop_class_uid_length, None),
-                'service_class_application_information',
-                self._wrap_slice,
-                []
-            ),
-        ]
-        '''
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_ascii, []),
-            ('service_class_application_information', self._wrap_bytes, [])
-        ]
 
     def FromParams(self, primitive):
         """
@@ -3535,10 +4013,67 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         """Set the application information"""
         return self.service_class_application_information
 
-    def decode(self, bytestream):
-        uid_length = UNPACK_UINT2(bytestream[4:6])[0]
-        self.sop_class_uid = bytestream[6:6 + uid_length]
-        self.service_class_application_information = bytestream[6 + uid_length:]
+    @property
+    def _decoders(self):
+        """Yield tuples that contain field decoders.
+
+        We use a generator because some of the offset values aren't known until
+        a precursor field has been decoded.
+
+        Yields
+        -------
+        tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        yield (
+            (4, 2),
+            '_sop_class_uid_length',
+            self._wrap_unpack,
+            [UNPACK_UINT2]
+        )
+
+        yield (
+            (6, self._sop_class_uid_length),
+            'sop_class_uid',
+            self._wrap_slice,
+            []
+        )
+
+        yield (
+            (6 + self._sop_class_uid_length, None),
+            'service_class_application_information',
+            self._wrap_slice,
+            []
+        )
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('sop_class_uid_length', PACK_UINT2, []),
+            ('sop_class_uid', self._wrap_ascii, []),
+            ('service_class_application_information', self._wrap_bytes, [])
+        ]
 
     @property
     def item_length(self):
@@ -3563,6 +4098,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
     def sop_class_uid(self, value):
         """Set the SOP class UID"""
         # pylint: disable=attribute-defined-outside-init
+        print(value)
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):
@@ -3607,7 +4143,7 @@ class SOPClassExtendedNegotiationSubItem(PDU):
         """Get the SOP class uid"""
         return self.sop_class_uid
 
-# FIXME: Check generic decode, non generic _generate-items and _wrap_generate_items
+# FIXME: non generic _generate-items and _wrap_generate_items
 class SOPClassCommonExtendedNegotiationSubItem(PDU):
     """
     Represents the SOP Class Common Extended Negotiation Sub Item used in
@@ -3653,53 +4189,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
         self.service_class_uid = None
         self.related_general_sop_class_identification = []
 
-        '''
-        self._decoders = [
-            (
-                (4, 6),
-                '_sop_length' ,
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            ),
-            (
-                (6, 6 + self._sop_length),
-                'sop_class_uid',
-                self._wrap_slice,
-                []
-            ),
-            (
-                (6 + self._sop_length, 8 + self._sop_length),
-                '_service_length',
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            ),
-            (
-                (8 + self._sop_length, 8 + self._sop_length + self._service_length),
-                'service_class_uid',
-                self._wrap_slice,
-                []
-            ),
-            (
-                (10 + self._sop_length + self._service_length, None),
-                'related_general_sop_class_identification',
-                self._generate_items,
-                []
-            )
-        ]
-        '''
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            ('sub_item_version', PACK_UCHAR, []),
-            ('item_length', PACK_UINT2, []),
-            ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_ascii, []),
-            ('service_class_uid_length', PACK_UINT2, []),
-            ('service_class_uid', self._wrap_ascii, []),
-            ('related_general_sop_class_identification_length', PACK_UINT2, []),
-            ('related_general_sop_class_identification', self._wrap_list, []),
-            # (None, )
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -3733,45 +4222,85 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         return primitive
 
-    def Encode(self):
+    @property
+    def _decoders(self):
+        """Yield tuples that contain field decoders.
+
+        We use a generator because some of the offset values aren't known until
+        a precursor field has been decoded.
+
+        Yields
+        -------
+        tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
         """
-        Encode the Item's parameter values into a bytes string
+        yield (
+            (4, 2),
+            '_sop_length' ,
+            self._wrap_unpack,
+            [UNPACK_UINT2]
+        )
+
+        yield (
+            (6, self._sop_length),
+            'sop_class_uid',
+            self._wrap_slice,
+            []
+        )
+
+        yield (
+            (6 + self._sop_length, 2),
+            '_service_length',
+            self._wrap_unpack,
+            [UNPACK_UINT2]
+        )
+
+        yield (
+            (8 + self._sop_length, self._service_length),
+            'service_class_uid',
+            self._wrap_slice,
+            []
+        )
+
+        yield (
+            (10 + self._sop_length + self._service_length, None),
+            'related_general_sop_class_identification',
+            self._generate_items,
+            []
+        )
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
 
         Returns
         -------
-        bytestream : bytes
-            The encoded Item used in the parent PDU
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
         """
-        formats = '> B B H H'
-        parameters = [self.item_type,
-                      self.sub_item_version,
-                      self.item_length,
-                      self.sop_class_uid_length]
-
-        bytestream = bytes()
-        bytestream += pack(formats, *parameters)
-        bytestream += codecs.encode(self.sop_class_uid.title(), 'utf-8')
-        bytestream += pack('>H', self.service_class_uid_length)
-        bytestream += codecs.encode(self.service_class_uid, 'utf-8')
-        bytestream += \
-            pack('>H', self.related_general_sop_class_identification_length)
-
-        for sub_fields in self.related_general_sop_class_identification:
-            bytestream += pack('>H', len(sub_fields))
-            bytestream += codecs.encode(sub_fields.title(), 'utf-8')
-
-        return bytestream
-
-    def decode(self, bytestream):
-        self.sub_item_version = UNPACK_UCHAR(bytestream[1:2])[0]
-        sop_length = UNPACK_UINT2(bytestream[4:6])[0]
-        self.sop_class_uid = bytestream[6:6 + sop_length]
-        service_length = UNPACK_UINT2(bytestream[6 + sop_length:8 + sop_length])[0]
-        self.service_class_uid = bytestream[8 + sop_length:8 + sop_length + service_length]
-
-        # Note, reserved field after related general, but zero length
-        for uid in self._generate_items(bytestream[10 + sop_length + service_length:]):
-            self.related_general_sop_class_identification.append(uid)
+        return [
+            ('item_type', PACK_UCHAR, []),
+            ('sub_item_version', PACK_UCHAR, []),
+            ('item_length', PACK_UINT2, []),
+            ('sop_class_uid_length', PACK_UINT2, []),
+            ('sop_class_uid', self._wrap_ascii, []),
+            ('service_class_uid_length', PACK_UINT2, []),
+            ('service_class_uid', self._wrap_ascii, []),
+            ('related_general_sop_class_identification_length', PACK_UINT2, []),
+            ('related_general_sop_class_identification', self._wrap_list, []),
+            # (None, )
+        ]
 
     @staticmethod
     def _generate_items(bytestream):
@@ -3936,7 +4465,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDU):
 
         return bytestream
 
-# FIXME: non generic decode
+# FIXME: decode
 class UserIdentitySubItemRQ(PDU):
     """
     Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
@@ -3978,59 +4507,10 @@ class UserIdentitySubItemRQ(PDU):
     def __init__(self):
         self.user_identity_type = None
         self.positive_response_requested = None
+        self._primary_length = None
         self.primary_field = None
+        self._secondary_length = None
         self.secondary_field = b''
-
-        '''
-        self._decoders = [
-            (
-                (4, 5),
-                'user_identity_type',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (5, 6),
-                'positive_response_requested',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (6, 8),
-                '_primary_length',
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            ),
-            (
-                (8, 8 + self._primary_length),
-                'primary_field',
-                self._wrap_slice,
-                []
-            ),
-            (
-                (8 + self._primary_length, 10 + self._primary_length),
-                '_secondary_length',
-                self._wrap_unpack,
-                [UNPACK_UINT2]
-            ),
-            (
-                (10 + self._secondary_length, None),
-                'secondary_field',
-                self._generate_items, []
-            )
-        ]
-        '''
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('user_identity_type', PACK_UCHAR, []),
-            ('positive_response_requested', PACK_UCHAR, []),
-            ('primary_field_length', PACK_UINT2, []),
-            ('primary_field', self._wrap_bytes, []),
-            ('secondary_field_length', PACK_UINT2, []),
-            ('secondary_field', self._wrap_bytes, [])
-        ]
 
     def FromParams(self, primitive):
         """
@@ -4067,14 +4547,83 @@ class UserIdentitySubItemRQ(PDU):
 
         return primitive
 
-    def decode(self, bytestream):
-        self.user_identity_type = UNPACK_UCHAR(bytestream[4:5])[0]
-        self.positive_response_requested = UNPACK_UCHAR(bytestream[5:6])[0]
-        primary_length = UNPACK_UINT2(bytestream[6:8])[0]
-        self.primary_field = bytestream[8:8 + primary_length]
-        secondary_length = UNPACK_UINT2(bytestream[8 + primary_length:10 + primary_length])
-        if secondary_length:
-            self.secondary_field = bytestream[10 + primary_length:]
+    @property
+    def _decoders(self):
+        """Yield tuples that contain field decoders.
+
+        We use a generator because some of the offset values aren't known until
+        a precursor field has been decoded.
+
+        Yields
+        -------
+        tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        yield (
+            (4, 1),
+            'user_identity_type',
+            self._wrap_unpack,
+            [UNPACK_UCHAR]
+        )
+
+        yield (
+            (5, 1),
+            'positive_response_requested',
+            self._wrap_unpack,
+            [UNPACK_UCHAR]
+        )
+
+        yield (
+            (6, 2),
+            '_primary_length',
+            self._wrap_unpack,
+            [UNPACK_UINT2]
+        )
+
+        yield (
+            (8, self._primary_length),
+            'primary_field',
+            self._wrap_slice,
+            []
+        )
+
+        yield (
+            (10 + self._primary_length, None),
+            'secondary_field',
+            self._generate_items, []
+        )
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('user_identity_type', PACK_UCHAR, []),
+            ('positive_response_requested', PACK_UCHAR, []),
+            ('primary_field_length', PACK_UINT2, []),
+            ('primary_field', self._wrap_bytes, []),
+            ('secondary_field_length', PACK_UINT2, []),
+            ('secondary_field', self._wrap_bytes, [])
+        ]
 
     @property
     def id_type(self):
@@ -4199,17 +4748,6 @@ class UserIdentitySubItemAC(PDU):
     def __init__(self):
         self.server_response = None
 
-        self._decoders = [
-            ((6, None), 'server_response', self._wrap_slice, []),
-        ]
-        self._encoders = [
-            ('item_type', PACK_UCHAR, []),
-            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('item_length', PACK_UINT2, []),
-            ('server_response_length', PACK_UINT2, []),
-            ('server_response', self._wrap_bytes, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -4236,6 +4774,47 @@ class UserIdentitySubItemAC(PDU):
         primitive.server_response = self.server_response
 
         return primitive
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ((6, None), 'server_response', self._wrap_slice, []),
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_type', PACK_UCHAR, []),
+            (None, self._wrap_pack, [0x00, PACK_UCHAR]),
+            ('item_length', PACK_UINT2, []),
+            ('server_response_length', PACK_UINT2, []),
+            ('server_response', self._wrap_bytes, [])
+        ]
 
     @property
     def item_length(self):
@@ -4306,29 +4885,6 @@ class PresentationDataValueItem(PDU):
         self.presentation_context_id = None
         self.presentation_data_value = None
 
-        # Used internally for decoding and encoding
-        # (start, stop), attr name, decoder, [args]
-        self._decoders = [
-            (
-                (4, 5),
-                'presentation_context_id',
-                self._wrap_unpack,
-                [UNPACK_UCHAR]
-            ),
-            (
-                (5, None),
-                'presentation_data_value',
-                self._wrap_slice,
-                []
-            )
-        ]
-        # attr name, encoder, [args]
-        self._encoders = [
-            ('item_length', PACK_UINT4, []),
-            ('presentation_context_id', PACK_UCHAR, []),
-            ('presentation_data_value', self._wrap_bytes, [])
-        ]
-
     def FromParams(self, primitive):
         """
         Set up the Item using the parameter values from the `primitive`
@@ -4361,6 +4917,56 @@ class PresentationDataValueItem(PDU):
     def data(self):
         """Get the presentation data value."""
         return self.presentation_data_value
+
+    @property
+    def _decoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of ((offset, length), attr_name, callable, [args]), where
+
+            - offset is the byte offset to start at
+            - length is how many bytes to slice (if None then will slice to the
+              end of the data),
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is a decoding function that returns the decoded value,
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            (
+                (4, 1),
+                'presentation_context_id',
+                self._wrap_unpack,
+                [UNPACK_UCHAR]
+            ),
+            (
+                (5, None),
+                'presentation_data_value',
+                self._wrap_slice,
+                []
+            )
+        ]
+
+    @property
+    def _encoders(self):
+        """Return an iterable of tuples that contain field decoders.
+
+        Returns
+        -------
+        list of tuple
+            A list of (attr_name, callable, [args]), where
+
+            - attr_name is the name of the attribute corresponding to the field
+            - callable is an encoding function that returns bytes
+            - args is a list of arguments to pass callable.
+        """
+        return [
+            ('item_length', PACK_UINT4, []),
+            ('presentation_context_id', PACK_UCHAR, []),
+            ('presentation_data_value', self._wrap_bytes, [])
+        ]
 
     @property
     def item_length(self):
