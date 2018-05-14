@@ -17,11 +17,6 @@ class TimePDU(object):
         self.pdu = PDU()
         self.pdu_bytestream = a_associate_rq_user_id_ext_neg
 
-    def time_next_item(self):
-        """Time PDU._next_item_type"""
-        for ii in range(1000):
-            self.pdu._next_item(self.item_bytestream_io)m)
-
     def time_decode_pdu(self):
         """Time PDU._next_item_type"""
         pdu = PDU_TYPES[0x01]()

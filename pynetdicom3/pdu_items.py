@@ -63,8 +63,6 @@ class PDUItem(object):
             if not hasattr(self, attr_name):
                 raise ValueError('Unknown attribute name ', attr_name)
 
-            #print(attr_name, start, length)
-
             # Allow us to use None as a `length`
             if length:
                 sl = slice(start, start + length)
@@ -2406,7 +2404,6 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     def sop_class_uid(self, value):
         """Set the SOP class UID"""
         # pylint: disable=attribute-defined-outside-init
-        print(value)
         if isinstance(value, bytes):
             value = UID(value.decode('utf-8'))
         elif isinstance(value, str):

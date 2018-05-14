@@ -99,8 +99,6 @@ class PDU(object):
             if not hasattr(self, attr_name):
                 raise ValueError('Unknown attribute name ', attr_name)
 
-            #print(attr_name, start, length)
-
             # Allow us to use None as a `length`
             if length:
                 sl = slice(start, start + length)
