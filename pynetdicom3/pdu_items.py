@@ -110,17 +110,20 @@ class PDUItem(object):
         raise NotImplementedError
 
     def __eq__(self, other):
-        """Return True if self equals other."""
-        if isinstance(other, self.__class__):
-            _sdict = {
-                kk : vv for kk, vv in self.__dict__.items() if kk[0] != '_'
-            }
-            _odict = {
-                kk : vv for kk, vv in other.__dict__.items() if kk[0] != '_'
-            }
-            return _odict == _sdict
+        """Return True if `self` equals `other`."""
+        if other is self:
+            return True
 
-        return False
+        if isinstance(other, self.__class__):
+            self_dict = {
+                enc[0] : getattr(self, enc[0]) for enc in self._encoders if enc[0]
+            }
+            other_dict = {
+                enc[0] : getattr(other, enc[0]) for enc in other._encoders if enc[0]
+            }
+            return self_dict == other_dict
+
+        return NotImplemented
 
     @staticmethod
     def _generate_items(bytestream):
@@ -191,7 +194,7 @@ class PDUItem(object):
         return not self == other
 
     @staticmethod
-    def _wrap_ascii(bytestream):
+    def _wrap_encode_uid(bytestream):
         return codecs.encode(bytestream, 'ascii')
 
     @staticmethod
@@ -247,11 +250,6 @@ class PDUItem(object):
         bytes
         """
         return packer(value)
-
-    @staticmethod
-    def _wrap_slice(bytestream):
-        """Return `bytestream`."""
-        return bytestream
 
     @staticmethod
     def _wrap_unpack(bytestream, unpacker):
@@ -389,7 +387,7 @@ class ApplicationContextItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'application_context_name', self._wrap_slice, [])
+            ((4, None), 'application_context_name', self._wrap_bytes, [])
         ]
 
     @property
@@ -409,7 +407,7 @@ class ApplicationContextItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('application_context_name', self._wrap_ascii, [])
+            ('application_context_name', self._wrap_encode_uid, [])
         ]
 
     def __len__(self):
@@ -1221,7 +1219,7 @@ class AbstractSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'abstract_syntax_name', self._wrap_slice, [])
+            ((4, None), 'abstract_syntax_name', self._wrap_bytes, [])
         ]
 
     @property
@@ -1241,7 +1239,7 @@ class AbstractSyntaxSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('abstract_syntax_name', self._wrap_ascii, [])
+            ('abstract_syntax_name', self._wrap_encode_uid, [])
         ]
 
     @property
@@ -1340,7 +1338,7 @@ class TransferSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'transfer_syntax_name', self._wrap_slice, [])
+            ((4, None), 'transfer_syntax_name', self._wrap_bytes, [])
         ]
 
     @property
@@ -1360,7 +1358,7 @@ class TransferSyntaxSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('transfer_syntax_name', self._wrap_ascii, [])
+            ('transfer_syntax_name', self._wrap_encode_uid, [])
         ]
 
     @property
@@ -1622,7 +1620,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'implementation_class_uid', self._wrap_slice, [])
+            ((4, None), 'implementation_class_uid', self._wrap_bytes, [])
         ]
 
     @property
@@ -1642,7 +1640,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('implementation_class_uid', self._wrap_ascii, [])
+            ('implementation_class_uid', self._wrap_encode_uid, [])
         ]
 
     @property
@@ -1778,7 +1776,7 @@ class ImplementationVersionNameSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'implementation_version_name', self._wrap_slice, [])
+            ((4, None), 'implementation_version_name', self._wrap_bytes, [])
         ]
 
     @property
@@ -2097,7 +2095,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         yield (
             (6, self._uid_length),
             'sop_class_uid',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
@@ -2133,7 +2131,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_ascii, []),
+            ('sop_class_uid', self._wrap_encode_uid, []),
             ('scu_role', PACK_UCHAR, []),
             ('scp_role', PACK_UCHAR, [])
         ]
@@ -2335,14 +2333,14 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         yield (
             (6, self._sop_class_uid_length),
             'sop_class_uid',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
         yield (
             (6 + self._sop_class_uid_length, None),
             'service_class_application_information',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
@@ -2364,7 +2362,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_ascii, []),
+            ('sop_class_uid', self._wrap_encode_uid, []),
             ('service_class_application_information', self._wrap_bytes, [])
         ]
 
@@ -2545,7 +2543,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         yield (
             (6, self._sop_length),
             'sop_class_uid',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
@@ -2559,7 +2557,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         yield (
             (8 + self._sop_length, self._service_length),
             'service_class_uid',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
@@ -2588,9 +2586,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             ('sub_item_version', PACK_UCHAR, []),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_ascii, []),
+            ('sop_class_uid', self._wrap_encode_uid, []),
             ('service_class_uid_length', PACK_UINT2, []),
-            ('service_class_uid', self._wrap_ascii, []),
+            ('service_class_uid', self._wrap_encode_uid, []),
             ('related_general_sop_class_identification_length', PACK_UINT2, []),
             ('related_general_sop_class_identification', self._wrap_list, []),
             # (None, )
@@ -2757,7 +2755,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         bytestream = bytes()
         for uid in uid_list:
             bytestream += PACK_UINT2(len(uid))
-            bytestream += self._wrap_ascii(uid)
+            bytestream += self._wrap_encode_uid(uid)
 
         return bytestream
 
@@ -2886,14 +2884,14 @@ class UserIdentitySubItemRQ(PDUItem):
         yield (
             (8, self._primary_length),
             'primary_field',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
         yield (
             (10 + self._primary_length, None),
             'secondary_field',
-            self._wrap_slice,
+            self._wrap_bytes,
             []
         )
 
@@ -3089,7 +3087,7 @@ class UserIdentitySubItemAC(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((6, None), 'server_response', self._wrap_slice, []),
+            ((6, None), 'server_response', self._wrap_bytes, []),
         ]
 
     @property
@@ -3241,7 +3239,7 @@ class PresentationDataValueItem(PDUItem):
             (
                 (5, None),
                 'presentation_data_value',
-                self._wrap_slice,
+                self._wrap_bytes,
                 []
             )
         ]

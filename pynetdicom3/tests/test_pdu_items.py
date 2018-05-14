@@ -10,14 +10,18 @@ from pydicom.uid import UID
 
 from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3.pdu import (
-    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF, MaximumLengthSubItem,
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
+)
+from pynetdicom3.pdu_items import (
+    MaximumLengthSubItem,
     ImplementationClassUIDSubItem, ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem, SCP_SCU_RoleSelectionSubItem,
+    AsynchronousOperationsWindowSubItem,
     SOPClassExtendedNegotiationSubItem,
     SOPClassCommonExtendedNegotiationSubItem, UserIdentitySubItemRQ,
     UserIdentitySubItemAC, ApplicationContextItem, PresentationContextItemAC,
     PresentationContextItemRQ, UserInformationItem, TransferSyntaxSubItem,
-    PresentationDataValueItem, AbstractSyntaxSubItem
+    PresentationDataValueItem, AbstractSyntaxSubItem,
+    SCP_SCU_RoleSelectionSubItem,
 )
 from pynetdicom3.pdu_primitives import (
     SOPClassExtendedNegotiation, SOPClassCommonExtendedNegotiation,

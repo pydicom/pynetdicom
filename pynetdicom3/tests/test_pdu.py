@@ -41,19 +41,23 @@ class TestPDU_Equality(object):
     """Test the PDU equality/inequality operators."""
     def test_equality(self):
         """Test the equality operator"""
-        assert PDU() == PDU()
-        assert not PDU() == 'TEST'
-        pdu = PDU()
-        pdu.formats = ['a']
-        assert not pdu == PDU()
+        aa = A_ASSOCIATE_RQ()
+        bb = A_ASSOCIATE_RQ()
+        assert aa == bb
+        assert not aa == 'TEST'
+
+        aa.decode(a_associate_rq)
+        assert not aa == bb
 
     def test_inequality(self):
         """Test the inequality operator"""
-        assert not PDU() != PDU()
-        assert PDU() != 'TEST'
-        pdu = PDU()
-        pdu.formats = ['a']
-        assert pdu != PDU()
+        aa = A_ASSOCIATE_RQ()
+        bb = A_ASSOCIATE_RQ()
+        assert not aa != bb
+        assert aa != 'TEST'
+
+        aa.decode(a_associate_rq)
+        assert aa != bb
 
 
 class TestPDU_A_ASSOC_RQ(object):
