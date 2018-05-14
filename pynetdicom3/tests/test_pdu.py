@@ -66,18 +66,6 @@ class TestPDU_A_ASSOC_RQ(object):
         pdu.variable_items = [item]
         assert pdu.application_context_name == ''
 
-        # pdu.presentation_context
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-        role_selection = SCP_SCU_RoleSelectionSubItem()
-        role_selection.sop_class_uid = '1.2.840.10008.1.1'
-        role_selection.scu_role = 1
-        role_selection.scp_role = 1
-        pdu.user_information.user_data.append(role_selection)
-        context = pdu.presentation_context[0]
-        assert context.SCP == 1
-        assert context.SCU == 1
-
     def test_string_output(self):
         """Check the string output works"""
         pdu = A_ASSOCIATE_RQ()

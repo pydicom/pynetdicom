@@ -6,15 +6,17 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.pdu import (MaximumLengthSubItem,
-                             ImplementationClassUIDSubItem,
-                             ImplementationVersionNameSubItem,
-                             AsynchronousOperationsWindowSubItem,
-                             SCP_SCU_RoleSelectionSubItem,
-                             SOPClassExtendedNegotiationSubItem,
-                             SOPClassCommonExtendedNegotiationSubItem,
-                             UserIdentitySubItemRQ,
-                             UserIdentitySubItemAC)
+from pynetdicom3.pdu_items import (
+    MaximumLengthSubItem,
+    ImplementationClassUIDSubItem,
+    ImplementationVersionNameSubItem,
+    AsynchronousOperationsWindowSubItem,
+    SCP_SCU_RoleSelectionSubItem,
+    SOPClassExtendedNegotiationSubItem,
+    SOPClassCommonExtendedNegotiationSubItem,
+    UserIdentitySubItemRQ,
+    UserIdentitySubItemAC
+)
 from pynetdicom3.presentation import PresentationContext
 from pynetdicom3.utils import validate_ae_title
 #from pynetdicom3.utils import pretty_bytes
@@ -1013,7 +1015,7 @@ class MaximumLengthNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.MaximumLengthSubItem
+        item : pynetdicom3.pdu_items.MaximumLengthSubItem
         """
         item = MaximumLengthSubItem()
         item.FromParams(self)
@@ -1102,7 +1104,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.ImplementationClassUIDSubItem
+        item : pynetdicom3.pdu_items.ImplementationClassUIDSubItem
 
         Raises
         ------
@@ -1193,7 +1195,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.ImplementationVersionNameSubItem
+        item : pynetdicom3.pdu_items.ImplementationVersionNameSubItem
 
         Raises
         ------
@@ -1287,7 +1289,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.AsynchronousOperationsWindowSubItem
+        item : pynetdicom3.pdu_items.AsynchronousOperationsWindowSubItem
         """
         item = AsynchronousOperationsWindowSubItem()
         item.FromParams(self)
@@ -1419,7 +1421,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem
+        item : pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem
 
         Raises
         ------
@@ -1582,7 +1584,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem
+        item : pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1710,7 +1712,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem
+        item : pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1928,7 +1930,7 @@ class UserIdentityNegotiation(ServiceParameter):
         self.user_identity_type = None
         self.positive_response_requested = False
         self.primary_field = None
-        self.secondary_field = None
+        self.secondary_field = b''
         self.server_response = None
 
     def from_primitive(self):
@@ -1936,8 +1938,8 @@ class UserIdentityNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.UserIdentitySubItemRQ or
-            pynetdicom3.pdu.UserIdentitySubItemAC
+        item : pynetdicom3.pdu_items.UserIdentitySubItemRQ or
+            pynetdicom3.pdu_items.UserIdentitySubItemAC
 
         Raises
         ------
@@ -1957,7 +1959,7 @@ class UserIdentityNegotiation(ServiceParameter):
                 raise ValueError("User Identity Type and Primary Field "
                                  "must be set prior to Association negotiation")
 
-            if self.user_identity_type == 2 and self.secondary_field is None:
+            if self.user_identity_type == 2 and self.secondary_field == b'':
                 LOGGER.error("Secondary Field must be set when User Identity"
                              "is 2")
                 raise ValueError("Secondary Field must be set when User "

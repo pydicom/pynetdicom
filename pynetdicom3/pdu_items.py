@@ -456,35 +456,18 @@ class PresentationContextItemRQ(PDUItem):
     ----------
     abstract_syntax : pydicom.uid.UID
         The presentation context's Abstract Syntax value
+    abstract_transfer_syntax_sub_items
     length : int
         The length of the encoded Item in bytes
-    ID : int
+    presentation_context_id : int
         The presentation context's ID
     transfer_syntax : list of pydicom.uid.UID
         The presentation context's Transfer Syntax(es)
-
-    SCP : None or int
-        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
-    SCU : None or int
-        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
     """
 
     def __init__(self):
         self.presentation_context_id = None
-
-        # AbstractTransferSyntaxSubItems is a list
-        # containing the following elements:
-        #   One AbstractSyntaxSubItem
-        #   One or more TransferSyntaxSubItem
         self.abstract_transfer_syntax_sub_items = []
-
-        # Non-standard parameters
-        #   Used for tracking SCP/SCU Role Negotiation
-        # Consider shifting to properties?
-        #   or removing...
-        # FIXME
-        self.SCP = None
-        self.SCU = None
 
     def FromParams(self, primitive):
         """
@@ -532,9 +515,9 @@ class PresentationContextItemRQ(PDUItem):
     @property
     def abstract_syntax(self):
         """Get the abstract syntax."""
-        for ii in self.abstract_transfer_syntax_sub_items:
-            if isinstance(ii, AbstractSyntaxSubItem):
-                return ii.abstract_syntax_name
+        for item in self.abstract_transfer_syntax_sub_items:
+            if isinstance(item, AbstractSyntaxSubItem):
+                return item.abstract_syntax_name
 
     @property
     def context_id(self):
@@ -627,10 +610,6 @@ class PresentationContextItemRQ(PDUItem):
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  Context ID: {0:d}\n".format(self.context_id)
-        if self.SCP is not None:
-            s += "  SCP Role: {0:d}\n".format(self.SCP)
-        if self.SCU is not None:
-            s += "  SCU Role: {0:d}\n".format(self.SCU)
 
         for ii in self.abstract_transfer_syntax_sub_items:
             item_str = '{0!s}'.format(ii)
@@ -677,34 +656,24 @@ class PresentationContextItemAC(PDUItem):
 
     Attributes
     ----------
-    length : int
-        The length of the encoded Item in bytes
-    ID : int
+    presentation_context_id : int
         The presentation context's ID
     result : int
         The presentation context's result/reason value
+    result_reason
     result_str : str
         The result as a string, one of ('Accepted', 'User Rejected',
         'No Reason', 'Abstract Syntax Not Supported',
         'Transfer Syntaxes Not Supported')
     transfer_syntax : pydicom.uid.UID
         The presentation context's Transfer Syntax
-
-    SCP : None or int
-        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
-    SCU : None or int
-        Defaults to None if SCP/SCU role negotiation not used, 0 or 1 if used
+    transfer_syntax_sub_item
     """
 
     def __init__(self):
         self.presentation_context_id = None
         self.result_reason = None
         self.transfer_syntax_sub_item = None
-
-        # Used for tracking SCP/SCU Role Negotiation
-        # TODO: Remove
-        self.SCP = None
-        self.SCU = None
 
     def FromParams(self, primitive):
         """
@@ -884,9 +853,9 @@ class UserInformationItem(PDUItem):
         The AsynchronousOperationsWindowSubItem object, or None if the sub-item
         is not present.
     common_ext_neg : list of
-        pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem or None
+        pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem or None
         The common extended negotiation items, or None if there aren't any
-    ext_neg : list of pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem or None
+    ext_neg : list of pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem or None
         The extended negotiation items, or None if there aren't any
     implementation_class_uid : pydicom.uid.UID
         The implementation class UID for the Implementation Class UID sub-item
@@ -901,11 +870,11 @@ class UserInformationItem(PDUItem):
         , or None if the sub-item is not present.
     maximum_length : int
         The maximum length received value for the Maximum Length sub-item
-    role_selection : list of pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem or
+    role_selection : list of pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem or
     None
         The SCP_SCU_RoleSelectionSubItem object or None if there aren't any
-    user_identity : pynetdicom3.pdu.UserIdentitySubItemRQ or
-        pynetdicom3.pdu.UserIdentitySubItemAC or None
+    user_identity : pynetdicom3.pdu_items.UserIdentitySubItemRQ or
+        pynetdicom3.pdu_items.UserIdentitySubItemAC or None
         The UserIdentitySubItemRQ/UserIdentitySubItemAC object, or None if the
         sub-item is not present.
     """
@@ -2902,7 +2871,8 @@ class UserIdentitySubItemRQ(PDUItem):
         yield (
             (10 + self._primary_length, None),
             'secondary_field',
-            self._generate_items, []
+            self._wrap_slice,
+            []
         )
 
     @property

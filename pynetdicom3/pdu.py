@@ -321,11 +321,11 @@ class A_ASSOCIATE_RQ(PDU):
         the last byte of the variable field.
     pdu_type : int
         The 'PDU Type', 0x01.
-    presentation_context : list of pynetdicom3.pdu.PresentationContextItemRQ
+    presentation_context : list of pynetdicom3.pdu_items.PresentationContextItemRQ
         The A-ASSOCIATE-RQ's Presentation Context item(s).
     protocol_version : int
         The 'Protocol Version', 0x00 (default).
-    user_information : pynetdicom3.pdu.UserInformationItem
+    user_information : pynetdicom3.pdu_items.UserInformationItem
         The A-ASSOCIATE-RQ's User Information item.
     variable_items : list
         A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
@@ -609,7 +609,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Returns
         -------
-        list of pynetdicom3.pdu.PresentationContextItemRQ
+        list of pynetdicom3.pdu_items.PresentationContextItemRQ
             The Requestor AE's Presentation Context items.
         """
         return [item for item in self.variable_items if
@@ -657,7 +657,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu.UserInformationItem or None
+        pynetdicom3.pdu_items.UserInformationItem or None
             The requestor's User Information object or None, if not
             available.
         """
@@ -687,11 +687,11 @@ class A_ASSOCIATE_AC(PDU):
         the last byte of the variable field.
     pdu_type : int
         The 'PDU Type', 0x02.
-    presentation_context : list of pynetdicom3.pdu.PresentationContextItemAC
+    presentation_context : list of pynetdicom3.pdu_items.PresentationContextItemAC
         The A-ASSOCIATE-AC's Presentation Context item(s).
     protocol_version : int
         The 'Protocol Version', 0x00 (default).
-    user_information : pynetdicom3.pdu.UserInformationItem
+    user_information : pynetdicom3.pdu_items.UserInformationItem
         The A-ASSOCIATE-AC's User Information item.
     variable_items : list
         A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
@@ -974,7 +974,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Returns
         -------
-        list of pynetdicom3.pdu.PresentationContextItemAC
+        list of pynetdicom3.pdu_items.PresentationContextItemAC
             The acceptor AE's Presentation Context items.
         """
         return [item for item in self.variable_items if
@@ -1022,7 +1022,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu.UserInformationItem or None
+        pynetdicom3.pdu_items.UserInformationItem or None
             The acceptor's User Information object or None, if not
             available.
         """

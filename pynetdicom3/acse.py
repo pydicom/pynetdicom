@@ -458,11 +458,13 @@ class ACSEServiceProvider(object):
             s.append('    Abstract Syntax: ='
                      '{0!s}'.format(context.abstract_syntax))
 
+            '''
             if 'SCU' in context.__dict__.keys():
                 scp_scu_role = '{0!s}/{1!s}'.format(context.SCP, context.SCU)
             else:
                 scp_scu_role = 'Default'
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
+            '''
 
             # Transfer Syntaxes
             if len(context.transfer_syntax) == 1:
@@ -590,12 +592,14 @@ class ACSEServiceProvider(object):
 
             # If Presentation Context was accepted
             if item.result == 0:
+                '''
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                 else:
                     ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
                 s.append('    Accepted SCP/SCU Role: {0!s}'
                          .format(ac_scp_scu_role))
+                '''
                 s.append('    Accepted Transfer Syntax: ={0!s}'
                          .format(item.transfer_syntax))
 
@@ -734,12 +738,14 @@ class ACSEServiceProvider(object):
             s.append('  Context ID:        {0!s} (Proposed)'.format(item.context_id))
             s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax))
 
+            '''
             if item.SCU is None and item.SCP is None:
                 scp_scu_role = 'Default'
             else:
                 scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
 
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
+            '''
             s.append('    Proposed Transfer Syntax(es):')
             for ts in item.transfer_syntax:
                 s.append('      ={0!s}'.format(ts))
@@ -877,6 +883,7 @@ class ACSEServiceProvider(object):
                      .format(item.context_id, item.result_str))
 
             if item.result == 0:
+                '''
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                     rq_scp_scu_role = 'Default'
@@ -886,8 +893,10 @@ class ACSEServiceProvider(object):
                          .format(rq_scp_scu_role))
                 s.append('    Accepted SCP/SCU Role: {0!s}'
                          .format(ac_scp_scu_role))
+                '''
                 s.append('    Accepted Transfer Syntax: ={0!s}'
                          .format(item.transfer_syntax))
+
 
         ## Extended Negotiation
         ext_neg = 'None'

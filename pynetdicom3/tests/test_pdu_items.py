@@ -187,8 +187,6 @@ class TestPDUItem_PresentationContextRQ(object):
             if isinstance(item, PresentationContextItemRQ):
                 assert 'CT Image Storage' in item.__str__()
                 assert 'Explicit VR Little Endian' in item.__str__()
-                assert 'SCP Role: 1' in item.__str__()
-                assert 'SCU Role: 0' in item.__str__()
 
     def test_stream_decode(self):
         """ Check decoding produces the correct presentation context """
@@ -200,8 +198,6 @@ class TestPDUItem_PresentationContextRQ(object):
         assert pres_context.item_type == 0x20
         assert pres_context.item_length == 46
         assert pres_context.presentation_context_id == 1
-        assert pres_context.SCP is None
-        assert pres_context.SCU is None
         assert isinstance(pres_context.abstract_transfer_syntax_sub_items, list)
 
     def test_encode(self):
@@ -268,8 +264,6 @@ class TestPDUItem_PresentationContextAC(object):
         assert pres_context.item_type == 0x21
         assert pres_context.item_length == 25
         assert pres_context.presentation_context_id == 1
-        assert pres_context.SCP is None
-        assert pres_context.SCU is None
         assert isinstance(pres_context.transfer_syntax_sub_item[0], TransferSyntaxSubItem)
 
     def test_encode(self):
@@ -1211,7 +1205,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(object):
 
         assert orig == new
 
-    def test_properies(self):
+    def test_properties(self):
         """ Check property setters and getters """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_id_user_pass)
@@ -1298,7 +1292,6 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
         pdu.decode(a_associate_ac_user)
         ui = pdu.user_information.user_identity
         self.assertEqual(ui.response, b'Accepted')
-
 
 
 # FIXME: Add tests for UserIdentityAC SAML
