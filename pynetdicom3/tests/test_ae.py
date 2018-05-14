@@ -99,7 +99,10 @@ class TestAEGoodCallbacks(unittest.TestCase):
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
         status = assoc.send_c_echo()
         assert isinstance(status, Dataset)
         assert 'Status' in status
@@ -117,6 +120,8 @@ class TestAEGoodCallbacks(unittest.TestCase):
         self.scp.start()
 
         ae = AE(scu_sop_class=[RTImageStorage])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -140,6 +145,8 @@ class TestAEGoodCallbacks(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_find(ds, query_model='P'):
@@ -157,6 +164,8 @@ class TestAEGoodCallbacks(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_get(ds, query_model='P'):
@@ -175,6 +184,8 @@ class TestAEGoodCallbacks(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         self.assertTrue(assoc.is_established)
         for (status, ds) in assoc.send_c_move(ds, query_model='P', move_aet=b'TEST'):
@@ -333,10 +344,13 @@ class TestAEGoodAssociation(unittest.TestCase):
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established == True)
+        assert assoc.is_established
         assoc.release()
-        self.assertTrue(assoc.is_established == False)
+        assert not assoc.is_established
+        assert assoc.is_released
 
         self.scp.stop()
 
@@ -347,6 +361,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, max_pdu=12345)
         self.assertTrue(self.scp.ae.active_associations[0].local_max_pdu == 54321)
         self.assertTrue(self.scp.ae.active_associations[0].peer_max_pdu == 12345)
@@ -828,6 +844,7 @@ class TestAE_GoodRelease(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
         # Test N associate/release cycles
         for ii in range(5):
@@ -869,6 +886,7 @@ class TestAE_GoodAbort(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
         # Test N associate/abort cycles
         for ii in range(5):
@@ -884,8 +902,3 @@ class TestAE_GoodAbort(unittest.TestCase):
                 #self.assertTrue(ae.active_associations == [])
 
         self.scp.stop()
-
-
-if __name__ == "__main__":
-    #unittest.main(warnings='ignore')
-    unittest.main()

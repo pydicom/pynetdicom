@@ -214,7 +214,7 @@ class PDU(object):
         """
         offset = 0
         while bytestream[offset:offset + 1]:
-            item_type = bytestream[offset:offset + 1]
+            item_type = UNPACK_UCHAR(bytestream[offset:offset + 1])[0]
             item_length = UNPACK_UINT2(bytestream[offset + 2:offset + 4])[0]
             item_data = bytestream[offset:offset + 4 + item_length]
             yield item_type, item_data
@@ -297,7 +297,7 @@ class PDU(object):
         """Return a list of encoded PDU items generated from `bytestream`."""
         item_list = []
         for item_type, item_bytes in self._generate_items(bytestream):
-            item = PDU_ITEM_TYPES[item_type[0]]()
+            item = PDU_ITEM_TYPES[item_type]()
             item.decode(item_bytes)
             item_list.append(item)
 
