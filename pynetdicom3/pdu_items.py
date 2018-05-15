@@ -195,7 +195,11 @@ class PDUItem(object):
     @property
     def item_type(self):
         """Return the 'Item Type' field value as an int."""
-        raise NotImplementedError
+        key_val = PDU_ITEM_TYPES.items()
+        keys = [key for (key, val) in key_val]
+        vals = [val for (key, val) in key_val]
+
+        return keys[vals.index(self.__class__)]
 
     def __ne__(self, other):
         """Return True if `self` does not equal `other`."""
@@ -442,11 +446,6 @@ class ApplicationContextItem(PDUItem):
         """Return the 'Item Length' field value as an int."""
         return len(self.application_context_name)
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x10
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -660,11 +659,6 @@ class PresentationContextItemRQ(PDUItem):
 
         return length
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x20
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -875,11 +869,6 @@ class PresentationContextItemAC(PDUItem):
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
         return 4 + len(self.transfer_syntax_sub_item[0])
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x21
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -1149,11 +1138,6 @@ class UserInformationItem(PDUItem):
 
         return length
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x50
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -1353,11 +1337,6 @@ class AbstractSyntaxSubItem(PDUItem):
 
         return 0x00
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x30
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -1484,11 +1463,6 @@ class TransferSyntaxSubItem(PDUItem):
             return len(self.transfer_syntax_name)
 
         return 0x00
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x40
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -1664,11 +1638,6 @@ class MaximumLengthSubItem(PDUItem):
         """Return the 'Item Length' field value as an int."""
         return 0x04
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x51
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 8
@@ -1841,11 +1810,6 @@ class ImplementationClassUIDSubItem(PDUItem):
 
         return 0x00
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x52
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -2004,11 +1968,6 @@ class ImplementationVersionNameSubItem(PDUItem):
             return len(self.implementation_version_name)
 
         return 0x00
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x55
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2178,11 +2137,6 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
         return 0x04
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x53
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2380,11 +2334,6 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
         return 4 + self.uid_length
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x54
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2642,11 +2591,6 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return (2 +
                 self.sop_class_uid_length +
                 len(self.service_class_application_information))
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x56
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2965,11 +2909,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
                 2 + self.service_class_uid_length +
                 2 + self.related_general_sop_class_identification_length)
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x57
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -3087,7 +3026,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         s += "  Related general SOP class ID(s):\n"
 
         for uid in self.related_general_sop_class_identification:
-            s += "    ={0!s} ({1!s})\n".format(uid, uid.name))
+            s += "    ={0!s} ({1!s})\n".format(uid, uid.name)
 
         return s
 
@@ -3334,11 +3273,6 @@ class UserIdentitySubItemRQ(PDUItem):
         """Return the 'Item Length' field value as an int."""
         return 6 + self.primary_field_length + self.secondary_field_length
 
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x58
-
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -3521,11 +3455,6 @@ class UserIdentitySubItemAC(PDUItem):
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
         return 2 + self.server_response_length
-
-    @property
-    def item_type(self):
-        """Return the 'Item Type' field value as an int."""
-        return 0x59
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""

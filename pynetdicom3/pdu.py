@@ -236,7 +236,11 @@ class PDU(object):
     @property
     def pdu_type(self):
         """Return the 'PDU Type' field value an int."""
-        raise NotImplementedError
+        key_val = PDU_TYPES.items()
+        keys = [key for (key, val) in key_val]
+        vals = [val for (key, val) in key_val]
+
+        return keys[vals.index(self.__class__)]
 
     @staticmethod
     def _wrap_bytes(bytestream):
@@ -650,11 +654,6 @@ class A_ASSOCIATE_RQ(PDU):
         return length
 
     @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x01
-
-    @property
     def presentation_context(self):
         """Return a list of the Presentation Context Items.
 
@@ -846,7 +845,9 @@ class A_ASSOCIATE_AC(PDU):
 
         # Make application context
         application_context = ApplicationContextItem()
-        application_context.FromParams(primitive.application_context_name)
+        application_context.application_context_name = (
+            primitive.application_context_name
+        )
         self.variable_items.append(application_context)
 
         # Make presentation contexts
@@ -878,19 +879,22 @@ class A_ASSOCIATE_AC(PDU):
         primitive.called_ae_title = self._reserved_aet
         primitive.calling_ae_title = self._reserved_aec
 
-        for ii in self.variable_items:
+        for item in self.variable_items:
             # Add application context
-            if isinstance(ii, ApplicationContextItem):
-                primitive.application_context_name = ii.application_context_name
+            if isinstance(item, ApplicationContextItem):
+                primitive.application_context_name = (
+                    item.application_context_name
+                )
 
             # Add presentation contexts
-            elif isinstance(ii, PresentationContextItemAC):
+            elif isinstance(item, PresentationContextItemAC):
                 primitive.presentation_context_definition_results_list.append(
-                    ii.ToParams())
+                    item.ToParams()
+                )
 
             # Add user information
-            elif isinstance(ii, UserInformationItem):
-                primitive.user_information = ii.ToParams()
+            elif isinstance(item, UserInformationItem):
+                primitive.user_information = item.ToParams()
 
         # 0x00 = Accepted
         primitive.result = 0x00
@@ -1017,11 +1021,6 @@ class A_ASSOCIATE_AC(PDU):
             length += len(item)
 
         return length
-
-    @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x02
 
     @property
     def presentation_context(self):
@@ -1229,11 +1228,6 @@ class A_ASSOCIATE_RJ(PDU):
     def pdu_length(self):
         """Return the 'PDU Length' field value as an int."""
         return 4
-
-    @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x03
 
     @property
     def reason_str(self):
@@ -1512,11 +1506,6 @@ class P_DATA_TF(PDU):
 
         return length
 
-    @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x04
-
     def __str__(self):
         """Return a string representation of the PDU."""
         s = 'P-DATA-TF PDU\n'
@@ -1676,11 +1665,6 @@ class A_RELEASE_RQ(PDU):
         """Return the 'PDU Length' field value as an int."""
         return 4
 
-    @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x05
-
     def __str__(self):
         """Return a string representation of the PDU."""
         s = 'A-RELEASE-RQ PDU\n'
@@ -1810,11 +1794,6 @@ class A_RELEASE_RP(PDU):
     def pdu_length(self):
         """Return the 'PDU Length' field value as an int."""
         return 4
-
-    @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x06
 
     def __str__(self):
         """Return a string representation of the PDU."""
@@ -1976,11 +1955,6 @@ class A_ABORT_RQ(PDU):
     def pdu_length(self):
         """Return the 'PDU Length' field value as an int."""
         return 4
-
-    @property
-    def pdu_type(self):
-        """Return the 'PDU Type' field value as an int."""
-        return 0x07
 
     def __str__(self):
         """Return a string representation of the PDU."""
