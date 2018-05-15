@@ -23,7 +23,7 @@ from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
-
+# TODO: Rename to UserInformation
 class ServiceParameter(object):
     """ Base class for Service Parameters """
 
@@ -1064,6 +1064,8 @@ class MaximumLengthNegotiation(ServiceParameter):
         return s
 
 
+# TODO: Combine ImplementationClass and ImplementationVersion
+#   into ImplementationIdentificationNotification
 class ImplementationClassUIDNotification(ServiceParameter):
     """The Implementation Class UID Notification primitive.
 

@@ -239,6 +239,31 @@ class PDU(object):
         raise NotImplementedError
 
     @staticmethod
+    def _wrap_bytes(bytestream):
+        """Return `bytestream` without changing it."""
+        return bytestream
+
+    @staticmethod
+    def _wrap_encode_items(items):
+        """Return `items` encoded as bytes.
+
+        Parameters
+        ----------
+        items : list of PDU items
+            The items to encode.
+
+        Returns
+        -------
+        bytes
+            The encoded items.
+        """
+        bytestream = bytes()
+        for item in items:
+            bytestream += item.encode()
+
+        return bytestream
+
+    @staticmethod
     def _wrap_encode_uid(uid):
         """Return `uid` as bytes encoded using ASCII.
 
@@ -266,32 +291,7 @@ class PDU(object):
         .. [2] `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
         .. [3] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return codecs.encode(bytestream, 'ascii')
-
-    @staticmethod
-    def _wrap_bytes(bytestream):
-        """Return `bytestream` without changing it."""
-        return bytestream
-
-    @staticmethod
-    def _wrap_encode_items(items):
-        """Return `items` encoded as bytes.
-
-        Parameters
-        ----------
-        items : list of PDU items
-            The items to encode.
-
-        Returns
-        -------
-        bytes
-            The encoded items.
-        """
-        bytestream = bytes()
-        for item in items:
-            bytestream += item.encode()
-
-        return bytestream
+        return codecs.encode(uid, 'ascii')
 
     def _wrap_generate_items(self, bytestream):
         """Return a list of encoded PDU items generated from `bytestream`."""
@@ -473,7 +473,9 @@ class A_ASSOCIATE_RQ(PDU):
 
         # Add Application Context
         application_context = ApplicationContextItem()
-        application_context.FromParams(primitive.application_context_name)
+        application_context.application_context_name = (
+            primitive.application_context_name
+        )
         self.variable_items.append(application_context)
 
         # Add Presentation Context(s)
@@ -550,9 +552,9 @@ class A_ASSOCIATE_RQ(PDU):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(ae_title, str):
-            s = codecs.encode(s, 'ascii')
+            ae_title = codecs.encode(ae_title, 'ascii')
 
-        self._called_aet = validate_ae_title(s)
+        self._called_aet = validate_ae_title(ae_title)
 
     @property
     def calling_ae_title(self):
@@ -560,7 +562,7 @@ class A_ASSOCIATE_RQ(PDU):
         return self._calling_aet
 
     @calling_ae_title.setter
-    def calling_ae_title(self, s):
+    def calling_ae_title(self, ae_title):
         """Set the 'Calling AE Title' field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
@@ -574,10 +576,10 @@ class A_ASSOCIATE_RQ(PDU):
             allowed and values longer than 16 characters will be truncated.
         """
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(s, str):
-            s = codecs.encode(s, 'ascii')
+        if isinstance(ae_title, str):
+            ae_title = codecs.encode(ae_title, 'ascii')
 
-        self._calling_aet = validate_ae_title(s)
+        self._calling_aet = validate_ae_title(ae_title)
 
     @property
     def _decoders(self):
