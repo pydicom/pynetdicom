@@ -85,6 +85,7 @@ class TestPDUItem_ApplicationContext(object):
         pdu.decode(a_associate_rq)
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
+                print(item)
                 assert '1.2.840.10008.3.1.1.1' in item.__str__()
 
     def test_stream_decode_assoc_rq(self):
@@ -131,28 +132,6 @@ class TestPDUItem_ApplicationContext(object):
                 s = item.encode()
 
         assert s == application_context
-
-    def test_to_primitive(self):
-        """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-
-        for item in pdu.variable_items:
-            if isinstance(item, ApplicationContextItem):
-                result = item.ToParams()
-
-        assert result == '1.2.840.10008.3.1.1.1'
-        assert isinstance(result, str)
-
-    def test_from_primitive(self):
-        """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-
-        for item in pdu.variable_items:
-            if isinstance(item, ApplicationContextItem):
-                item.FromParams('1.2.840.10008.3.1.1.1.1')
-                assert item.application_context_name == '1.2.840.10008.3.1.1.1.1'
 
     def test_update(self):
         """ Test that changing the item's parameters correctly updates the length """
@@ -348,31 +327,6 @@ class TestPDUItem_AbstractSyntax(object):
 
         assert s == abstract_syntax
 
-    def test_to_primitive(self):
-        """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-
-        contexts = pdu.presentation_context
-        ab_syntax = contexts[0].abstract_transfer_syntax_sub_items[0]
-
-        result = ab_syntax.ToParams()
-
-        assert result == UID('1.2.840.10008.1.1')
-
-    def test_from_primitive(self):
-        """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-
-        contexts = pdu.presentation_context
-        orig_ab_syntax = contexts[0].abstract_transfer_syntax_sub_items[0]
-
-        new_ab_syntax = AbstractSyntaxSubItem()
-        new_ab_syntax.FromParams('1.2.840.10008.1.1')
-
-        assert orig_ab_syntax == new_ab_syntax
-
     def test_properies(self):
         """ Check property setters and getters """
         ab_syntax = AbstractSyntaxSubItem()
@@ -423,31 +377,6 @@ class TestPDUItem_TransferSyntax(object):
 
         assert s == transfer_syntax
 
-    def test_to_primitive(self):
-        """ Check converting to primitive """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-
-        contexts = pdu.presentation_context
-        tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
-
-        result = tran_syntax.ToParams()
-
-        assert result == UID('1.2.840.10008.1.2')
-
-    def test_from_primitive(self):
-        """ Check converting from primitive """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq)
-
-        contexts = pdu.presentation_context
-        orig_tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
-
-        new_tran_syntax = TransferSyntaxSubItem()
-        new_tran_syntax.FromParams('1.2.840.10008.1.2')
-
-        assert orig_tran_syntax == new_tran_syntax
-
     def test_properies(self):
         """ Check property setters and getters """
         tran_syntax = TransferSyntaxSubItem()
@@ -495,30 +424,6 @@ class TestPDUItem_PresentationDataValue(object):
         s = pdvs[0].encode()
 
         assert s == presentation_data_value
-
-    def test_to_primitive(self):
-        """ Check converting to primitive """
-        pdu = P_DATA_TF()
-        pdu.decode(p_data_tf)
-
-        pdvs = pdu.presentation_data_value_items
-
-        result = pdvs[0].ToParams()
-
-        assert result == [1, presentation_data]
-
-    def test_from_primitive(self):
-        """ Check converting from primitive """
-        pdu = P_DATA_TF()
-        pdu.decode(p_data_tf)
-
-        pdvs = pdu.presentation_data_value_items
-        orig_pdv = pdvs[0]
-
-        new_pdv = PresentationDataValueItem()
-        new_pdv.FromParams([1, presentation_data])
-
-        assert orig_pdv == new_pdv
 
     def test_properies(self):
         """ Check property setters and getters """
@@ -645,16 +550,8 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
         ui = pdu.user_information
 
-        self.assertEqual(ui.max_operations_invoked, 5)
-        self.assertEqual(ui.max_operations_performed, 5)
-
-        self.assertTrue(isinstance(ui.async_ops_window, AsynchronousOperationsWindowSubItem))
-
-        for item in ui.user_data:
-            if isinstance(item, AsynchronousOperationsWindowSubItem):
-                ui.user_data.remove(item)
-        self.assertTrue(ui.max_operations_performed is None)
-        self.assertTrue(ui.max_operations_invoked is None)
+        assert isinstance(ui.async_ops_window,
+                          AsynchronousOperationsWindowSubItem)
 
     def test_properties_max_pdu(self):
         """ Check max receive properties are OK """
