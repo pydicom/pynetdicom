@@ -346,34 +346,35 @@ class A_ASSOCIATE_RQ(PDU):
 
     Attributes
     ----------
-    application_context_name : pydicom.uid.UID
-        The requestor's 'Application Context Name'.
+    application_context_name : pydicom.uid.UID or None.
+        The 'Application Context Item's' 'Application Context Name' field value
+        (if available).
     called_ae_title : bytes
-        The 'Called AE Title', which is the destination DICOM application name,
-        as a fixed length 16-byte value (padded with trailing spaces 0x20).
-        Leading and trailing spaces are non-significant and a value of 16
-        spaces is not allowed.
+        The 'Called AE Title' field value, which is the destination DICOM
+        application name as a fixed length 16-byte value (padded with trailing
+        spaces 0x20). Leading and trailing spaces are non-significant and a
+        value of 16 spaces is not allowed.
     calling_ae_title : bytes
-        The 'Calling AE Title', which is the source DICOM application name,
-        as a fixed length 16-byte value (padded with trailing spaces 0x20).
-        Leading and trailing spaces are non-significant and a value of 16
-        spaces is not allowed.
+        The 'Calling AE Title' field value, which is the destination DICOM
+        application name as a fixed length 16-byte value (padded with trailing
+        spaces 0x20). Leading and trailing spaces are non-significant and a
+        value of 16 spaces is not allowed.
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x01.
+        The 'PDU Type' field value (0x01).
     presentation_context : list of
     pynetdicom3.pdu_items.PresentationContextItemRQ
-        The A-ASSOCIATE-RQ's Presentation Context item(s).
+        The 'Presentation Context Item(s)'.
     protocol_version : int
-        The 'Protocol Version', 0x00 (default).
+        The 'Protocol Version' field value (default 0x01).
     user_information : pynetdicom3.pdu_items.UserInformationItem
-        The A-ASSOCIATE-RQ's User Information item.
+        The 'User Information Item' (if available).
     variable_items : list
         A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
         one Application Context item, one or more Presentation Context items
-        and one User Information item.
+        and one User Information item. The order of the items is not guaranteed.
 
     Notes
     -----
@@ -381,7 +382,7 @@ class A_ASSOCIATE_RQ(PDU):
 
     * PDU type (1, fixed value, 0x01)
     * PDU length (1)
-    * Protocol version (1, fixed value, 0x01)
+    * Protocol version (1, default value, 0x01)
     * Called AE title (1)
     * Calling AE title (1)
     * Variable items (1)
@@ -465,29 +466,29 @@ class A_ASSOCIATE_RQ(PDU):
         Parameters
         ----------
         primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
-            The primitive to use for setting up the current PDU.
+            The primitive to use to set the current PDU field values.
         """
         self.calling_ae_title = primitive.calling_ae_title
         self.called_ae_title = primitive.called_ae_title
 
-        # Make Application Context
+        # Add Application Context
         application_context = ApplicationContextItem()
         application_context.FromParams(primitive.application_context_name)
         self.variable_items.append(application_context)
 
-        # Make Presentation Context(s)
+        # Add Presentation Context(s)
         for contexts in primitive.presentation_context_definition_list:
             presentation_context = PresentationContextItemRQ()
             presentation_context.FromParams(contexts)
             self.variable_items.append(presentation_context)
 
-        # Make User Information
+        # Add User Information
         user_information = UserInformationItem()
         user_information.FromParams(primitive.user_information)
         self.variable_items.append(user_information)
 
     def ToParams(self):
-        """Return an A-ASSOCIATE primitive repesentation of the current PDU.
+        """Return an A-ASSOCIATE (request) primitive from the current PDU.
 
         Returns
         -------
@@ -520,8 +521,7 @@ class A_ASSOCIATE_RQ(PDU):
         Returns
         -------
         pydicom.uid.UID or None
-            The requestor's 'Application Context Name' or None if not
-            available.
+            The requestor's 'Application Context Name' or None if not available.
         """
         for item in self.variable_items:
             if isinstance(item, ApplicationContextItem):
@@ -531,41 +531,51 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def called_ae_title(self):
-        """Return the 'Called AE Title' as bytes."""
+        """Return the 'Called AE Title' field value as bytes."""
         return self._called_aet
 
     @called_ae_title.setter
-    def called_ae_title(self, s):
-        """Set the 'Called AE Title' to a 16-byte length byte string.
+    def called_ae_title(self, ae_title):
+        """Set the 'Called AE Title' field value.
+
+        Will be converted to a fixed length 16-byte value (padded with trailing
+        spaces 0x20). Leading and trailing spaces are non-significant and a
+        value of 16 spaces is not allowed.
 
         Parameters
         ----------
-        s : str or bytes
-            The called AE title value you wish to set.
+        ae_title : str or bytes
+            The value you wish to set. A value consisting of spaces is not
+            allowed and values longer than 16 characters will be truncated.
         """
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(s, str):
-            s = codecs.encode(s, 'utf-8')
+        if isinstance(ae_title, str):
+            s = codecs.encode(s, 'ascii')
 
         self._called_aet = validate_ae_title(s)
 
     @property
     def calling_ae_title(self):
-        """Return the 'Calling AE Title' as bytes."""
+        """Return the 'Calling AE Title' field value as bytes."""
         return self._calling_aet
 
     @calling_ae_title.setter
     def calling_ae_title(self, s):
-        """Set the 'Calling AE Title' to a 16-byte length byte string.
+        """Set the 'Calling AE Title' field value.
+
+        Will be converted to a fixed length 16-byte value (padded with trailing
+        spaces 0x20). Leading and trailing spaces are non-significant and a
+        value of 16 spaces is not allowed.
 
         Parameters
         ----------
-        s : str or bytes
-            The calling AE title value you wish to set
+        ae_title : str or bytes
+            The value you wish to set. A value consisting of spaces is not
+            allowed and values longer than 16 characters will be truncated.
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(s, str):
-            s = codecs.encode(s, 'utf-8')
+            s = codecs.encode(s, 'ascii')
 
         self._calling_aet = validate_ae_title(s)
 
@@ -644,12 +654,12 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def presentation_context(self):
-        """Return a list of the Presentation Contexts.
+        """Return a list of the Presentation Context Items.
 
         Returns
         -------
         list of pynetdicom3.pdu_items.PresentationContextItemRQ
-            The Requestor AE's Presentation Context items.
+            The Presentation Context Items.
         """
         return [item for item in self.variable_items if
                 isinstance(item, PresentationContextItemRQ)]
@@ -692,13 +702,12 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def user_information(self):
-        """Return the User Information item, if available.
+        """Return the User Information Item, if available.
 
         Returns
         -------
         pynetdicom3.pdu_items.UserInformationItem or None
-            The requestor's User Information object or None, if not
-            available.
+            The requestor's User Information object or None, if not available.
         """
         for item in self.variable_items:
             if isinstance(item, UserInformationItem):
@@ -716,29 +725,32 @@ class A_ASSOCIATE_AC(PDU):
     Attributes
     ----------
     application_context_name : pydicom.uid.UID
-        The acceptor's 'Application Context Name'.
+        The 'Application Context Item's' 'Application Context Name' field value
+        (if available).
     called_ae_title : bytes
-        The destination AE title as a 16-byte bytestream. The value is not
+        The requestor's 'Called AE Title' field value, which is the destination
+        DICOM application name as a 16-byte value. The value is not
         guaranteed to be the actual title and shall not be tested.
     calling_ae_title : bytes
-        The source AE title as a 16-byte bytestream. The value is not
+        The requestor's 'Calling AE Title' field value, which is the source
+        DICOM application name as a 16-byte value. The value is not
         guaranteed to be the actual title and shall not be tested.
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x02.
+        The 'PDU Type' field value (0x02).
     presentation_context : list of
     pynetdicom3.pdu_items.PresentationContextItemAC
-        The A-ASSOCIATE-AC's Presentation Context item(s).
+        The 'Presentation Context Item(s)'.
     protocol_version : int
-        The 'Protocol Version', 0x00 (default).
+        The 'Protocol Version' field value (default 0x01).
     user_information : pynetdicom3.pdu_items.UserInformationItem
-        The A-ASSOCIATE-AC's User Information item.
+        The 'User Information Item' (if available).
     variable_items : list
-        A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
+        A list containing the A-ASSOCIATE-AC's 'Variable Items'. Contains
         one Application Context item, one or more Presentation Context items
-        and one User Information item.
+        and one User Information item. The order of the items is not guaranteed.
 
     Notes
     -----
@@ -746,7 +758,7 @@ class A_ASSOCIATE_AC(PDU):
 
     * PDU type (1, fixed value, 0x02)
     * PDU length (1)
-    * Protocol version (1, fixed value, 0x01)
+    * Protocol version (1, default value, 0x01)
     * Variable items (1)
 
       * Application Context Item (1)
@@ -793,7 +805,7 @@ class A_ASSOCIATE_AC(PDU):
     | 74     | Variable    | Variable items   |
     +--------+-------------+------------------+
     ^ The reserved fields shall be sent with a value identical to the value
-      received in the A-ASSOCIATE-RQ but its value shall not be tested.
+      received in the A-ASSOCIATE-RQ but their values shall not be tested.
 
     References
     ----------
@@ -812,7 +824,7 @@ class A_ASSOCIATE_AC(PDU):
         # Calling AE Title, should be present, but no guarantees
         self._reserved_aec = None
 
-        # variable_items is a list containing the following:
+        # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemAC
         #   1 UserInformationItem
@@ -820,14 +832,12 @@ class A_ASSOCIATE_AC(PDU):
         self.variable_items = []
 
     def FromParams(self, primitive):
-        """
-        Set up the PDU using the parameter values from the A-ASSOCIATE
-        `primitive`
+        """Setup the current PDU using an A-ASSOCIATE (accept) primitive.
 
         Parameters
         ----------
         primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
-            The parameters to use for setting up the PDU
+            The primitive to use to set the current PDU field values.
         """
         self._reserved_aet = primitive.called_ae_title
         self._reserved_aec = primitive.calling_ae_title
@@ -849,13 +859,12 @@ class A_ASSOCIATE_AC(PDU):
         self.variable_items.append(user_information)
 
     def ToParams(self):
-        """
-        Convert the current A-ASSOCIATE-AC PDU to a primitive
+        """Return an A-ASSOCIATE (accept) primitive from the current PDU.
 
         Returns
         -------
         pynetdicom3.pdu_primitives.A_ASSOCIATE
-            The primitive to convert the PDU to
+            The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
@@ -895,9 +904,9 @@ class A_ASSOCIATE_AC(PDU):
         pydicom.uid.UID or None
             The acceptor's 'Application Context Name' or None if not available.
         """
-        for ii in self.variable_items:
-            if isinstance(ii, ApplicationContextItem):
-                return ii.application_context_name
+        for item in self.variable_items:
+            if isinstance(item, ApplicationContextItem):
+                return item.application_context_name
 
         return None
 
@@ -916,7 +925,7 @@ class A_ASSOCIATE_AC(PDU):
             space.
         """
         if isinstance(self._reserved_aet, str):
-            return codecs.encode(self._reserved_aet, 'utf-8')
+            return codecs.encode(self._reserved_aet, 'ascii')
 
         return self._reserved_aet
 
@@ -935,7 +944,7 @@ class A_ASSOCIATE_AC(PDU):
             reserved space.
         """
         if isinstance(self._reserved_aec, str):
-            return codecs.encode(self._reserved_aec, 'utf-8')
+            return codecs.encode(self._reserved_aec, 'ascii')
 
         return self._reserved_aec
 
@@ -1014,12 +1023,12 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def presentation_context(self):
-        """Return a list of the Presentation Contexts.
+        """Return a list of the Presentation Context Items.
 
         Returns
         -------
         list of pynetdicom3.pdu_items.PresentationContextItemAC
-            The acceptor AE's Presentation Context items.
+            The Presentation Context Items.
         """
         return [item for item in self.variable_items if
                 isinstance(item, PresentationContextItemAC)]
@@ -1062,13 +1071,12 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def user_information(self):
-        """Return the User Information item, if available.
+        """Return the User Information Item, if available.
 
         Returns
         -------
         pynetdicom3.pdu_items.UserInformationItem or None
-            The acceptor's User Information object or None, if not
-            available.
+            The acceptor's User Information object or None, if not available.
         """
         for item in self.variable_items:
             if isinstance(item, UserInformationItem):
@@ -1086,16 +1094,16 @@ class A_ASSOCIATE_RJ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x03.
+        The 'PDU Type' field value (0x03).
     reason_diagnostic : int
-        The A-ASSOCIATE-RJ's 'Reason/Diagnostic' value.
+        The 'Reason/Diagnostic' field value.
     result : int
-        The A-ASSOCIATE-RJ's 'Result' value.
+        The 'Result' field value.
     source : int
-        The A-ASSOCIATE-RJ's 'Source' value.
+        The 'Source' field value.
 
     Notes
     -----
@@ -1138,27 +1146,24 @@ class A_ASSOCIATE_RJ(PDU):
         self.reason_diagnostic = None
 
     def FromParams(self, primitive):
-        """
-        Set up the PDU using the parameter values from the A-ASSOCIATE
-        `primitive`
+        """Setup the current PDU using an A-ASSOCIATE (reject) primitive.
 
         Parameters
         ----------
         primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
-            The parameters to use for setting up the PDU
+            The primitive to use to set the current PDU field values.
         """
         self.result = primitive.result
         self.source = primitive.result_source
         self.reason_diagnostic = primitive.diagnostic
 
     def ToParams(self):
-        """
-        Convert the current A-ASSOCIATE-RQ PDU to a primitive
+        """Return an A-ASSOCIATE (reject) primitive from the current PDU.
 
         Returns
         -------
         pynetdicom3.pdu_primitives.A_ASSOCIATE
-            The primitive to convert the PDU to
+            The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ASSOCIATE
 
@@ -1230,7 +1235,7 @@ class A_ASSOCIATE_RJ(PDU):
 
     @property
     def reason_str(self):
-        """Return a str describing the 'Reason/Diagnostic' parameter."""
+        """Return a str describing the 'Reason/Diagnostic' field value."""
         _reasons = {
             1 : {
                 1 : "No reason given",
@@ -1261,38 +1266,38 @@ class A_ASSOCIATE_RJ(PDU):
         }
 
         if self.source not in _reasons:
-            LOGGER.error('Invalid value in Source parameter in '
+            LOGGER.error('Invalid value in Source field in '
                          'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Source parameter in '
+            raise ValueError('Invalid value in Source field in '
                              'A-ASSOCIATE-RJ PDU')
 
         if self.reason_diagnostic not in _reasons[self.source]:
-            LOGGER.error('Invalid value in Reason parameter in '
+            LOGGER.error('Invalid value in Reason field in '
                          'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Reason parameter in '
+            raise ValueError('Invalid value in Reason field in '
                              'A-ASSOCIATE-RJ PDU')
 
         return _reasons[self.source][self.reason_diagnostic]
 
     @property
     def result_str(self):
-        """Return a str describing the 'Result'."""
+        """Return a str describing the 'Result' field value."""
         _results = {
             1 : 'Rejected (Permanent)',
             2 : 'Rejected (Transient)'
         }
 
         if self.result not in _results:
-            LOGGER.error('Invalid value in Result parameter in '
+            LOGGER.error('Invalid value in Result field in '
                          'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Result parameter in '
+            raise ValueError('Invalid value in Result field in '
                              'A-ASSOCIATE-RJ PDU')
 
         return _results[self.result]
 
     @property
     def source_str(self):
-        """Return a str describing the 'Source' parameter."""
+        """Return a str describing the 'Source' field value."""
         _sources = {
             1 : 'DUL service-user',
             2 : 'DUL service-provider (ACSE related)',
@@ -1300,9 +1305,9 @@ class A_ASSOCIATE_RJ(PDU):
         }
 
         if self.source not in _sources:
-            LOGGER.error('Invalid value in Source parameter in '
+            LOGGER.error('Invalid value in Source field in '
                          'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Source parameter in '
+            raise ValueError('Invalid value in Source field in '
                              'A-ASSOCIATE-RJ PDU')
 
         return _sources[self.source]
@@ -1319,7 +1324,7 @@ class A_ASSOCIATE_RJ(PDU):
 
         return s
 
-# FIXME non-generic _generate-items and _wrap_generate_items
+
 class P_DATA_TF(PDU):
     """A P-DATA-TF PDU.
 
@@ -1329,12 +1334,13 @@ class P_DATA_TF(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x04.
-    presentation_data_value_items : list of pdu.PresentationDataValueItem
-        The 'Presentation Data Value' items.
+        The 'PDU Type' field value (0x04).
+    presentation_data_value_items : list of
+    pynetdicom3.pdu.PresentationDataValueItem
+        The 'Presentation Data Value Item(s)' field value.
 
     Notes
     -----
@@ -1370,13 +1376,12 @@ class P_DATA_TF(PDU):
         self.presentation_data_value_items = []
 
     def FromParams(self, primitive):
-        """
-        Set up the PDU using the parameter values from the P-DATA `primitive`
+        """Setup the current PDU using a P-DATA primitive.
 
         Parameters
         ----------
         primitive : pynetdicom3.pdu_primitives.P_DATA
-            The parameters to use for setting up the PDU
+            The primitive to use to set the current PDU field values.
         """
         for item in primitive.presentation_data_value_list:
             presentation_data_value = PresentationDataValueItem()
@@ -1384,13 +1389,12 @@ class P_DATA_TF(PDU):
             self.presentation_data_value_items.append(presentation_data_value)
 
     def ToParams(self):
-        """
-        Convert the current P-DATA-TF PDU to a primitive
+        """Return a P-DATA primitive from the current PDU.
 
         Returns
         -------
         pynetdicom3.pdu_primitives.P_DATA
-            The primitive to convert the PDU to
+            The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import P_DATA
 
@@ -1450,14 +1454,6 @@ class P_DATA_TF(PDU):
     def _generate_items(bytestream):
         """Yield the variable PDV item data from `bytestream`.
 
-        +--------+-------------+-------------------------+
-        | Offset | Length      | Description             |
-        +========+=============+=========================+
-        | 0      | 4           | Item length             |
-        | 4      | 1           | Context ID              |
-        | 5      | NN          | Presentation data value |
-        +--------+-------------+-------------------------+
-
         Parameters
         ----------
         bytestream : bytes
@@ -1468,6 +1464,29 @@ class P_DATA_TF(PDU):
         int, bytes
             The PDV's Presentation Context ID as int, and the PDV item's
             encoded data as bytes.
+
+        Notes
+        -----
+        **Encoding**
+        When encoded, a Presentation Data Value Item has the following
+        structure, taken from Table 9-23 [1]_ (offset shown with Python
+        indexing). The item is encoded using Big Endian, but the encoding of
+        of the presentation data message fragments is dependent on the
+        negotiated transfer syntax [2]_.
+        +--------+-------------+-------------------------+
+        | Offset | Length      | Description             |
+        +========+=============+=========================+
+        | 0      | 4           | Item length             |
+        | 4      | 1           | Context ID              |
+        | 5      | NN          | Presentation data value |
+        +--------+-------------+-------------------------+
+
+        References
+        ----------
+        .. [1] DICOM Standard, Part 8, Section
+           `9.3.5.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5.1>`_
+        .. [2] DICOM Standard, Part 8, Section
+           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         offset = 0
         while bytestream[offset:offset + 1]:
@@ -1516,7 +1535,18 @@ class P_DATA_TF(PDU):
         return s
 
     def _wrap_generate_items(self, bytestream):
-        """Return a list of PDV items generated from `bytestream`."""
+        """Return a list of PDV Items generated from `bytestream`.
+
+        Parameters
+        ----------
+        bytestream : bytes
+            The encoded presentation data value items.
+
+        Returns
+        -------
+        list of pynetdicom3.pdu_items.PresentationDataValueItem
+            The presentation data value items contained in `bytestream`.
+        """
         item_list = []
         for context_id, data in self._generate_items(bytestream):
             pdv_item = PresentationDataValueItem()
@@ -1536,17 +1566,17 @@ class A_RELEASE_RQ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x05.
+        The 'PDU Type' field value (0x05).
 
     Notes
     -----
     An A-RELEASE-RQ PDU requires the following parameters:
 
     * PDU type (1, fixed value, 0x05)
-    * PDU length (1, fixed value, 0x00000004)
+    * PDU length (1, fixed value, 4)
 
     **Encoding**
     When encoded, an A-RELEASE-RQ PDU has the following structure, taken
@@ -1575,25 +1605,23 @@ class A_RELEASE_RQ(PDU):
 
     @staticmethod
     def FromParams(primitive):
-        """
-        Set up the PDU using the parameter values from the A-RELEASE `primitive`
+        """Setup the current PDU using an A-RELEASE (request) primitive.
 
         Parameters
         ----------
         primitive : pynetdicom3.pdu_primitives.A_RELEASE
-            The parameters to use for setting up the PDU
+            The primitive to use to set the current PDU field values.
         """
         pass
 
     @staticmethod
     def ToParams():
-        """
-        Convert the current A-RELEASE-RQ PDU to a primitive
+        """Return an A-RELEASE (request) primitive from the current PDU.
 
         Returns
         -------
         pynetdicom3.pdu_primitives.A_RELEASE
-            The primitive to convert the PDU to
+            The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_RELEASE
 
@@ -1670,10 +1698,10 @@ class A_RELEASE_RP(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x06.
+        The 'PDU Type' field value (0x06).
 
     Notes
     -----
@@ -1709,25 +1737,23 @@ class A_RELEASE_RP(PDU):
 
     @staticmethod
     def FromParams(primitive):
-        """
-        Set up the PDU using the parameter values from the A-RELEASE `primitive`
+        """Setup the current PDU using an A-release (response) primitive.
 
         Parameters
         ----------
         primitive : pynetdicom3.pdu_primitives.A_RELEASE
-            The parameters to use for setting up the PDU
+            The primitive to use to set the current PDU field values.
         """
         pass
 
     @staticmethod
     def ToParams():
-        """
-        Convert the current A-RELEASE-RP PDU to a primitive
+        """Return an A-RELEASE (response) primitive from the current PDU.
 
         Returns
         -------
         pynetdicom3.pdu_primitives.A_RELEASE
-            The primitive to convert the PDU to
+            The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_RELEASE
 
@@ -1801,27 +1827,26 @@ class A_RELEASE_RP(PDU):
 class A_ABORT_RQ(PDU):
     """An A-ABORT-RQ PDU.
 
-    An A-ABORT-RQ PDU is used once an association has been established to
-    abort the association.
+    An A-ABORT-RQ PDU is used to abort the association.
 
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' to
-        the last byte of the variable field.
+        The number of bytes from the first byte following the 'PDU Length' field
+        to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type', 0x07.
+        The 'PDU Type' field value (0x07).
     reason_diagnostic : int
-        The 'Reason/Diagnostic' parameter value.
+        The 'Reason/Diagnostic' field value.
     source : int
-        The 'Source' parameter value.
+        The 'Source' field value.
 
     Notes
     -----
     An A-ABORT-RQ PDU requires the following parameters:
 
     * PDU type (1, fixed value, 0x06)
-    * PDU length (1, fixed value, 0x00000004)
+    * PDU length (1, fixed value, 4)
     * Source (1)
     * Reason/Diagnostic (1)
 
@@ -1855,14 +1880,12 @@ class A_ABORT_RQ(PDU):
         self.reason_diagnostic = None
 
     def FromParams(self, primitive):
-        """
-        Set up the PDU using the parameter values from the A-RELEASE `primitive`
+        """Setup the current PDU using an A-ABORT or A-P-ABORT primitive.
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_ABORT or
-        pynetdicom3.pdu_primitives.A_P_ABORT
-            The parameters to use for setting up the PDU
+        primitive : pynetdicom3.pdu_primitives.A_ABORT or A_P_ABORT
+            The primitive to use to set the current PDU field values.
         """
         from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
 
@@ -1878,14 +1901,12 @@ class A_ABORT_RQ(PDU):
             self.source = 2
 
     def ToParams(self):
-        """
-        Convert the current A-ABORT PDU to a primitive
+        """Return an A-ABORT or A-P-ABORT primitive from the current PDU.
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_ABORT_ServiceParameters or
-        pynetdicom3.pdu_primitives.A_P_ABORT_ServiceParameters
-            The primitive to convert the PDU to
+        pynetdicom3.pdu_primitives.A_ABORT or A_P_ABORT
+            The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
 
@@ -1972,7 +1993,7 @@ class A_ABORT_RQ(PDU):
 
     @property
     def source_str(self):
-        """Return a str description of the 'Source' parameter."""
+        """Return a str description of the 'Source' field value."""
         _sources = {
             0 : 'DUL service-user',
             1 : 'Reserved',
@@ -1983,7 +2004,7 @@ class A_ABORT_RQ(PDU):
 
     @property
     def reason_str(self):
-        """Return a str description of the 'Reason/Diagnostic' parameter."""
+        """Return a str description of the 'Reason/Diagnostic' field value."""
         if self.source == 2:
             _reason_str = {
                 0 : "No reason given",
