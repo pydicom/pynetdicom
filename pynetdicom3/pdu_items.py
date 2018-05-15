@@ -3151,7 +3151,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
     Notes
     -----
-    The User Identity RQ Sub Item requires the following parameters:
+    A User Identity (RQ) Sub-item requires the following parameters:
 
         * Item type (1, fixed, 0x58)
         * Item length (1)
@@ -3398,34 +3398,52 @@ class UserIdentitySubItemRQ(PDUItem):
 
 
 class UserIdentitySubItemAC(PDUItem):
-    """
-    Represents the User Identity RQ Sub Item used in A-ASSOCIATE-RQ PDUs.
+    """A User Identity (AC) Sub-item.
 
-    The User Identity AC Sub Item requires the following parameters
-    (see PS3.7 Annex D.3.3.7.2):
+    A User Identity (AC) Sub-item is used to response with the server identity
+    to the association requestor.
+
+    Attributes
+    ----------
+    item_length : int
+        The number of bytes from the first byte following the 'Item Length'
+        field to the last byte of the Item.
+    item_type : int
+        The 'Item Type' field value (0x59).
+    server_response_length : int
+        The 'Server Response Length' field value.
+    server_response : bytes
+        The 'Server Response' field value.
+
+    Notes
+    -----
+    A User Identity (RQ) Sub-item requires the following parameters:
 
         * Item type (1, fixed, 0x59)
         * Item length (1)
         * Server response length (1)
         * Server response (1)
 
-    See PS3.7 Annex D.3.3.7.2 for the structure of the item, especially
-    Table D.3-15.
+    **Encoding**
+    When encoded, a User Identity (AC) Sub-item has the following
+    structure, taken from Tables D.3-15 [1]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [2]_.
+    +-----------+----------+-----------------------------+
+    | Offset    | Length   | Description                 |
+    +===========+==========+=============================+
+    | 0         | 1        | Item type                   |
+    | 1         | 1        | Reserved                    |
+    | 2         | 2        | Item length                 |
+    | 4         | 2        | Server response length      |
+    | 6         | Variable | Server response             |
+    +-----------+----------+-----------------------------+
 
-    Used in A_ASSOCIATE_AC - Variable items - User Information - User Data
-
-    Attributes
+    References
     ----------
-    length : int
-        The length of the encoded Item in bytes
-    response : bytes
-        The value for the server response. For user identity type value of
-          * 1: b''
-          * 2: b''
-          * 3: the Kerberos server ticket, encoded as per RFC-1510
-          * 4: the SAML response
-
-    TODO: Add user interface - setter for server_response
+    .. [1] DICOM Standard, Part 7,
+       `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.7>`_
+    .. [2] DICOM Standard, Part 8,
+       `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
