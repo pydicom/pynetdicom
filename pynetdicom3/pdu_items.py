@@ -3142,7 +3142,7 @@ class UserIdentitySubItemRQ(PDUItem):
         Parameters
         ----------
         primitive :
-        pynetdicom3.pdu_primitives.UserIdentityParameters
+        pynetdicom3.pdu_primitives.UserIdentityNegotiation
             The primitive to use to setup the current Item's field values.
         """
         self.user_identity_type = primitive.user_identity_type
@@ -3157,7 +3157,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.UserIdentityParameters
+        pynetdicom3.pdu_primitives.UserIdentityNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import UserIdentityNegotiation
@@ -3381,27 +3381,27 @@ class UserIdentitySubItemAC(PDUItem):
     """
 
     def __init__(self):
+        """Initialise a new User Identity (AC) Item."""
         self.server_response = None
 
     def FromParams(self, primitive):
-        """
-        Set up the Item using the parameter values from the `primitive`
+        """Setup the current Item using an User Identity primitive.
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.UserIdentityParameters
-            The primitive to use when setting up the Item
+        primitive :
+        pynetdicom3.pdu_primitives.UserIdentityNegotiation
+            The primitive to use to setup the current Item's field values.
         """
         self.server_response = primitive.server_response
 
     def ToParams(self):
-        """
-        Convert the current Item to a primitive
+        """Return an  User Identity primitive from the current Item.
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.UseIdentityParameters
-            The primitive to convert to
+        pynetdicom3.pdu_primitives.UserIdentityNegotiation
+            The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import UserIdentityNegotiation
 
@@ -3462,15 +3462,19 @@ class UserIdentitySubItemAC(PDUItem):
 
     @property
     def response(self):
-        """Get the response"""
+        """Return the 'Server Response' field value."""
         return self.server_response
 
     @property
     def server_response_length(self):
-        """Return the "Server Response Length" parameter value."""
-        return len(self.server_response)
+        """Return the 'Server Response Length' field value."""
+        if self.server_response:
+            return len(self.server_response)
+
+        return 0
 
     def __str__(self):
+        """Return a string representation of the Item."""
         s = "User Identity (AC) Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
@@ -3483,69 +3487,64 @@ class UserIdentitySubItemAC(PDUItem):
 
 ## P-DATA-TF Item
 class PresentationDataValueItem(PDUItem):
-    """
-    Represents a Presentation Data Value Item used in P-DATA-TF PDUs.
+    """A Presentation Data Value Item.
 
-    The Presentation Data Value Item requires the following parameters (see
-    PS3.8 Section 9.3.5.1):
+    Presentation Data Value (PDV) Items are used to contain DIMSE Messages
+    that have been fragmented into Command and Data fragments [1]_, with each
+    fragment placed into its own PDV Item.
+
+    Attributes
+    ----------
+    item_length : int
+        The 'Item Length' field value.
+    presentation_context_id : int
+        The 'Presentation Context ID' field value.
+    presentation_data_value : bytes
+        The 'Presentation Data Value' field value.
+
+    Notes
+    -----
+    A Presentation Data Value Item requires the following parameters:
 
         * Item length (1)
         * Presentation context ID (1)
         * Presentation data value (1)
 
-    See PS3.8 Section 9.3.5.1 for the structure of the item, especially
-    Table 9-23.
+    **Encoding**
+    When encoded, a Presentation Data Value Item has the following
+    structure, taken from Tables 9.24 [2]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [3]_.
+    +---------------------------+----------+-----------------------------+
+    | Offset                    | Length   | Description                 |
+    +===========================+==========+=============================+
+    | 0                         | 4        | Item length                 |
+    | 4                         | 1        | Presentation context ID     |
+    | 5                         | Variable | Presentation data value     |
+    +---------------------------+----------+-----------------------------+
 
-    Used in P_DATA_TF - Presentation data value items
-
-    Attributes
+    References
     ----------
-    data : FIXME
-        The presentation data value
-    ID : int
-        The presentation context ID
-    length : int
-        The length of the encoded item in bytes
-    message_control_header_byte : str
-        A string containing the contents of the message control header byte
-        formatted as an 8-bit binary. See PS3.8 FIXME
+    .. [1] DICOM Standard, Part 8,
+       `Annex E <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_E>`_
+    .. [2] DICOM Standard, Part 8,
+       `Section 9.3.5.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5.1>`_
+    .. [3] DICOM Standard, Part 8,
+       `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
     def __init__(self):
+        """Initialise a new Presentation Data Value Item."""
         self.presentation_context_id = None
         self.presentation_data_value = None
 
-    def FromParams(self, primitive):
-        """
-        Set up the Item using the parameter values from the `primitive`
-
-        Parameters
-        ----------
-        primitive : list of [int, bytes]
-            The Presentation Data as a list [context ID, data]
-        """
-        self.presentation_context_id = primitive[0]
-        self.presentation_data_value = primitive[1]
-
-    def ToParams(self):
-        """
-        Convert the current Item to a primitive
-
-        Returns
-        -------
-        list
-            The Presentation Data as a list
-        """
-        return [self.presentation_context_id, self.presentation_data_value]
-
     @property
     def context_id(self):
-        """Get the presentation context ID."""
+        """Return the 'Presentation Context ID' field value."""
         return self.presentation_context_id
 
     @property
     def data(self):
-        """Get the presentation data value."""
+        """Return the 'Presentation Data Value' field value."""
         return self.presentation_data_value
 
     @property
@@ -3603,6 +3602,13 @@ class PresentationDataValueItem(PDUItem):
         """Return the 'Item Length' field value as an int."""
         return 1 + len(self.presentation_data_value)
 
+    @property
+    def item_type(self):
+        """Raise NotImplementedError as Presentation Data Value Items have no
+        'Item Type' field.
+        """
+        raise NotImplementedError
+
     def __len__(self):
         """Return the total length of the encoded item as an int."""
         return 4 + self.item_length
@@ -3613,6 +3619,7 @@ class PresentationDataValueItem(PDUItem):
         return "{:08b}".format(ord(self.presentation_data_value[0:1]))
 
     def __str__(self):
+        """Return a string representation of the Item."""
         s = "Presentation Value Data Item\n"
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  Context ID: {0:d}\n".format(self.presentation_context_id)

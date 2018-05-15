@@ -1381,7 +1381,8 @@ class P_DATA_TF(PDU):
         """
         for item in primitive.presentation_data_value_list:
             presentation_data_value = PresentationDataValueItem()
-            presentation_data_value.FromParams(item)
+            presentation_data_value.presentation_context_id = item[0]
+            presentation_data_value.presentation_data_value = item[1]
             self.presentation_data_value_items.append(presentation_data_value)
 
     def ToParams(self):
