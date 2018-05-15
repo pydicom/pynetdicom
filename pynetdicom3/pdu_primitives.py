@@ -23,6 +23,7 @@ from pynetdicom3.utils import validate_ae_title
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
+
 # TODO: Rename to UserInformation
 class ServiceParameter(object):
     """ Base class for Service Parameters """

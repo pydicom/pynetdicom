@@ -202,7 +202,7 @@ class PDU(object):
         | 0      | 1           | Item type   |
         | 1      | 1           | Reserved    |
         | 2      | 2           | Item length |
-        | 3      | Item length | Item data   |
+        | 4      | Item length | Item data   |
         +--------+-------------+-------------+
 
         References
@@ -217,6 +217,7 @@ class PDU(object):
             item_type = UNPACK_UCHAR(bytestream[offset:offset + 1])[0]
             item_length = UNPACK_UINT2(bytestream[offset + 2:offset + 4])[0]
             item_data = bytestream[offset:offset + 4 + item_length]
+            assert len(item_data) == 4 + item_length
             yield item_type, item_data
             # Move `offset` to the start of the next item
             offset += 4 + item_length
@@ -291,7 +292,8 @@ class PDU(object):
 
         References
         ----------
-        .. [1] DICOM Standard, part 8, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
+        .. [1] DICOM Standard, part 8,
+           `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
         .. [2] `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
         .. [3] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """

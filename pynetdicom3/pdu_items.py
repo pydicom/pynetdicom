@@ -165,7 +165,7 @@ class PDUItem(object):
         | 0      | 1           | Item type   |
         | 1      | 1           | Reserved    |
         | 2      | 2           | Item length |
-        | 3      | Item length | Item data   |
+        | 4      | Item length | Item data   |
         +--------+-------------+-------------+
 
         References
@@ -180,6 +180,7 @@ class PDUItem(object):
             item_type = UNPACK_UCHAR(bytestream[offset:offset + 1])[0]
             item_length = UNPACK_UINT2(bytestream[offset + 2:offset + 4])[0]
             item_data = bytestream[offset:offset + 4 + item_length]
+            assert len(item_data) == 4 + item_length
             yield item_type, item_data
             # Move `offset` to the start of the next item
             offset += 4 + item_length
