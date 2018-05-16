@@ -190,8 +190,22 @@ class TestPDU(object):
         assert out == 1
 
 
-class TestPDU_A_ASSOC_RQ(object):
+class TestASSOC_RQ(object):
     """Test the A_ASSOCIATE_RQ class."""
+    def test_init(self):
+        pdu = A_ASSOCIATE_RQ()
+        assert pdu.protocol_version == 0x01
+        assert pdu.calling_ae_title == b'Default         '
+        assert pdu.called_ae_title == b'Default         '
+        assert pdu.variable_items == []
+        assert pdu.pdu_type == 0x01
+        assert pdu.pdu_length == 68
+        assert len(pdu) == 74
+
+        assert pdu.application_context_name is None
+        assert pdu.presentation_context == []
+        assert pdu.user_information is None
+
     def test_property_setters(self):
         """Check the property setters are working correctly."""
         # pdu.application_context_name
@@ -208,20 +222,24 @@ class TestPDU_A_ASSOC_RQ(object):
         assert "Implicit VR Little Endian" in pdu.__str__()
         assert "3680043.9.3811.0.9.0" in pdu.__str__()
 
-    def test_stream_decode_values_types(self):
+    def test_decode(self):
         """ Check decoding the assoc_rq stream produces the correct objects """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
+        assert pdu.protocol_version == 0x01
+        assert pdu.calling_ae_title == b'ECHOSCU         '
+        assert pdu.called_ae_title == b'ANY-SCP         '
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 209
-        assert pdu.protocol_version == 0x0001
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
-        assert isinstance(pdu.protocol_version, int)
+        assert len(pdu) == 215
+
+        assert len(pdu.presentation_context) == 1
+        assert len(pdu.user_information.user_data) == 3
 
         # Check VariableItems
         #   The actual items will be tested separately
+        assert len(pdu.variable_items) == 3
         assert isinstance(pdu.variable_items[0], ApplicationContextItem)
         assert isinstance(pdu.variable_items[1], PresentationContextItemRQ)
         assert isinstance(pdu.variable_items[2], UserInformationItem)
@@ -230,12 +248,6 @@ class TestPDU_A_ASSOC_RQ(object):
         """ Check decoding the assoc_rq stream produces the correct properties """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
-
-        # Check AE titles
-        assert pdu.calling_ae_title.decode('utf-8') == 'ECHOSCU         '
-        assert pdu.called_ae_title.decode('utf-8') == 'ANY-SCP         '
-        assert isinstance(pdu.calling_ae_title, bytes)
-        assert isinstance(pdu.called_ae_title, bytes)
 
         # Check application_context_name property
         app_name = pdu.application_context_name
@@ -252,27 +264,27 @@ class TestPDU_A_ASSOC_RQ(object):
         user_info = pdu.user_information
         assert isinstance(user_info, UserInformationItem)
 
-    def test_stream_encode(self):
+    def test_encode(self):
         """ Check encoding an assoc_rq produces the correct output """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
-        s = pdu.encode()
+        out = pdu.encode()
 
-        assert s == a_associate_rq
+        assert out == a_associate_rq
 
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
-        primitive = pdu.to_primitive()
+        pr = pdu.to_primitive()
 
-        assert primitive.application_context_name == UID('1.2.840.10008.3.1.1.1')
-        assert primitive.calling_ae_title == b'ECHOSCU         '
-        assert primitive.called_ae_title == b'ANY-SCP         '
+        assert pr.application_context_name == UID('1.2.840.10008.3.1.1.1')
+        assert pr.calling_ae_title == b'ECHOSCU         '
+        assert pr.called_ae_title == b'ANY-SCP         '
 
         # Test User Information
-        for item in primitive.user_information:
+        for item in pr.user_information:
             # Maximum PDU Length (required)
             if isinstance(item, MaximumLengthNegotiation):
                 assert item.maximum_length_received == 16382
@@ -280,7 +292,9 @@ class TestPDU_A_ASSOC_RQ(object):
 
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDNotification):
-                assert item.implementation_class_uid == UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+                assert item.implementation_class_uid == UID(
+                    '1.2.826.0.1.3680043.9.3811.0.9.0'
+                )
                 assert isinstance(item.implementation_class_uid, UID)
 
             # Implementation Version Name (optional)
@@ -289,30 +303,32 @@ class TestPDU_A_ASSOC_RQ(object):
                 assert isinstance(item.implementation_version_name, bytes)
 
         # Test Presentation Contexts
-        for context in primitive.presentation_context_definition_list:
+        for context in pr.presentation_context_definition_list:
             assert context.ID == 1
             assert context.AbstractSyntax == UID('1.2.840.10008.1.1')
             for syntax in context.TransferSyntax:
                 assert syntax == UID('1.2.840.10008.1.2')
 
-        assert isinstance(primitive.application_context_name, UID)
-        assert isinstance(primitive.calling_ae_title, bytes)
-        assert isinstance(primitive.called_ae_title, bytes)
-        assert isinstance(primitive.user_information, list)
-        assert isinstance(primitive.presentation_context_definition_list, list)
+        assert isinstance(pr.application_context_name, UID)
+        assert isinstance(pr.calling_ae_title, bytes)
+        assert isinstance(pr.called_ae_title, bytes)
+        assert isinstance(pr.user_information, list)
+        assert isinstance(pr.presentation_context_definition_list, list)
 
         # Not used by A-ASSOCIATE-RQ or fixed value
-        assert primitive.mode == "normal"
-        assert primitive.responding_ae_title == primitive.called_ae_title
-        assert primitive.result is None
-        assert primitive.result_source is None
-        assert primitive.diagnostic is None
-        assert primitive.calling_presentation_address is None
-        assert primitive.called_presentation_address is None
-        assert primitive.responding_presentation_address == primitive.called_presentation_address
-        assert primitive.presentation_context_definition_results_list == []
-        assert primitive.presentation_requirements == "Presentation Kernel"
-        assert primitive.session_requirements == ""
+        assert pr.mode == "normal"
+        assert pr.responding_ae_title == pr.called_ae_title
+        assert pr.result is None
+        assert pr.result_source is None
+        assert pr.diagnostic is None
+        assert pr.calling_presentation_address is None
+        assert pr.called_presentation_address is None
+        assert pr.responding_presentation_address == (
+            pr.called_presentation_address
+        )
+        assert pr.presentation_context_definition_results_list == []
+        assert pr.presentation_requirements == "Presentation Kernel"
+        assert pr.session_requirements == ""
 
     def test_from_primitive(self):
         """ Check converting PDU to primitive """
@@ -325,12 +341,15 @@ class TestPDU_A_ASSOC_RQ(object):
         new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
+        assert new_pdu.encode() == a_associate_rq
 
     def test_update_data(self):
-        """ Check that updating the PDU data works correctly """
+        """Check that updating the PDU data works correctly."""
         orig_pdu = A_ASSOCIATE_RQ()
         orig_pdu.decode(a_associate_rq)
-        orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
+        orig_pdu.user_information.user_data = [
+            orig_pdu.user_information.user_data[1]
+        ]
 
         primitive = orig_pdu.to_primitive()
 
@@ -338,6 +357,7 @@ class TestPDU_A_ASSOC_RQ(object):
         new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
+        assert new_pdu.encode() == a_associate_rq
 
 
 class TestPDU_A_ASSOC_RQ_ApplicationContext(object):
