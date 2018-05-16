@@ -201,7 +201,7 @@ class TestPDUItem_PresentationContextRQ(object):
 
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemRQ):
-                result = item.ToParams()
+                result = item.to_primitive()
 
         context = PresentationContext(1)
         context.AbstractSyntax = '1.2.840.10008.1.1'
@@ -223,7 +223,7 @@ class TestPDUItem_PresentationContextRQ(object):
         context.add_transfer_syntax('1.2.840.10008.1.2')
 
         new_item = PresentationContextItemRQ()
-        new_item.FromParams(context)
+        new_item.from_primitive(context)
         assert orig_item == new_item
 
 
@@ -267,7 +267,7 @@ class TestPDUItem_PresentationContextAC(object):
 
         for item in pdu.variable_items:
             if isinstance(item, PresentationContextItemAC):
-                result = item.ToParams()
+                result = item.to_primitive()
 
         context = PresentationContext(1)
         context.add_transfer_syntax('1.2.840.10008.1.2')
@@ -289,7 +289,7 @@ class TestPDUItem_PresentationContextAC(object):
         context.Result = 0
 
         new_item = PresentationContextItemAC()
-        new_item.FromParams(context)
+        new_item.from_primitive(context)
 
         assert orig_item == new_item
 
@@ -480,7 +480,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
 
         ui = pdu.user_information
 
-        result = ui.ToParams()
+        result = ui.to_primitive()
 
         check = []
         max_pdu = MaximumLengthNegotiation()
@@ -501,10 +501,10 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         pdu.decode(a_associate_rq_user_async)
 
         orig = pdu.user_information
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = UserInformationItem()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         self.assertEqual(orig, new)
 
@@ -617,7 +617,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
         max_length = pdu.user_information.user_data[0]
-        result = max_length.ToParams()
+        result = max_length.to_primitive()
         check = MaximumLengthNegotiation()
         check.maximum_length_received = 16382
         self.assertEqual(result, check)
@@ -627,9 +627,9 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
         orig_max_length = pdu.user_information.user_data[0]
-        params = orig_max_length.ToParams()
+        params = orig_max_length.to_primitive()
         new_max_length = MaximumLengthSubItem()
-        new_max_length.FromParams(params)
+        new_max_length.from_primitive(params)
         self.assertEqual(orig_max_length, new_max_length)
 
 
@@ -670,7 +670,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
 
         uid = pdu.user_information.user_data[1]
 
-        result = uid.ToParams()
+        result = uid.to_primitive()
 
         check = ImplementationClassUIDNotification()
         check.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
@@ -682,10 +682,10 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
         pdu.decode(a_associate_rq)
 
         orig_uid = pdu.user_information.user_data[1]
-        params = orig_uid.ToParams()
+        params = orig_uid.to_primitive()
 
         new_uid = ImplementationClassUIDSubItem()
-        new_uid.FromParams(params)
+        new_uid.from_primitive(params)
 
         self.assertEqual(orig_uid, new_uid)
 
@@ -744,7 +744,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
 
         version = pdu.user_information.user_data[2]
 
-        result = version.ToParams()
+        result = version.to_primitive()
 
         check = ImplementationVersionNameNotification()
         check.implementation_version_name = b'PYNETDICOM_090'
@@ -756,10 +756,10 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
         pdu.decode(a_associate_rq)
 
         orig_version = pdu.user_information.user_data[2]
-        params = orig_version.ToParams()
+        params = orig_version.to_primitive()
 
         new_version = ImplementationVersionNameSubItem()
-        new_version.FromParams(params)
+        new_version.from_primitive(params)
 
         self.assertEqual(orig_version, new_version)
 
@@ -821,7 +821,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
             if isinstance(item, AsynchronousOperationsWindowSubItem):
                 async = item
 
-                result = async.ToParams()
+                result = async.to_primitive()
 
                 check = AsynchronousOperationsWindowNegotiation()
                 check.maximum_number_operations_invoked = 5
@@ -836,10 +836,10 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
                 orig = item
-                params = orig.ToParams()
+                params = orig.to_primitive()
 
                 new = AsynchronousOperationsWindowSubItem()
-                new.FromParams(params)
+                new.from_primitive(params)
 
                 self.assertEqual(orig, new)
 
@@ -897,7 +897,7 @@ class TestPDUItem_UserInformation_RoleSelection(object):
 
         rs = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
 
-        result = rs.ToParams()
+        result = rs.to_primitive()
 
         check = SCP_SCU_RoleSelectionNegotiation()
         check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
@@ -912,10 +912,10 @@ class TestPDUItem_UserInformation_RoleSelection(object):
         pdu.decode(a_associate_rq_role)
 
         orig = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = SCP_SCU_RoleSelectionSubItem()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         assert orig == new
 
@@ -1003,7 +1003,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(object):
         pdu.decode(a_associate_rq_user_async)
         ui = pdu.user_information.user_identity
 
-        result = ui.ToParams()
+        result = ui.to_primitive()
         check = UserIdentityNegotiation()
         check.user_identity_type = 1
         check.positive_response_requested = True
@@ -1017,10 +1017,10 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(object):
         pdu.decode(a_associate_rq_user_async)
 
         orig = pdu.user_information.user_identity
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = UserIdentitySubItemRQ()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         assert orig == new
 
@@ -1083,7 +1083,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(object):
 
         ui = pdu.user_information.user_identity
 
-        result = ui.ToParams()
+        result = ui.to_primitive()
 
         check = UserIdentityNegotiation()
         check.user_identity_type = 2
@@ -1099,10 +1099,10 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(object):
         pdu.decode(a_associate_rq_user_id_user_pass)
 
         orig = pdu.user_information.user_identity
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = UserIdentitySubItemRQ()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         assert orig == new
 
@@ -1170,7 +1170,7 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
         pdu.decode(a_associate_ac_user)
 
         ui = pdu.user_information.user_identity
-        result = ui.ToParams()
+        result = ui.to_primitive()
         check = UserIdentityNegotiation()
         check.server_response = b'Accepted'
         self.assertEqual(result, check)
@@ -1180,10 +1180,10 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)
         orig = pdu.user_information.user_identity
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = UserIdentitySubItemAC()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         self.assertEqual(orig, new)
 
@@ -1246,7 +1246,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(object):
 
         item = pdu.user_information.ext_neg[0]
 
-        result = item.ToParams()
+        result = item.to_primitive()
 
         check = SOPClassExtendedNegotiation()
 
@@ -1261,10 +1261,10 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(object):
         pdu.decode(a_associate_rq_user_id_ext_neg)
 
         orig = pdu.user_information.ext_neg[0]
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = SOPClassExtendedNegotiationSubItem()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         assert orig == new
 
@@ -1337,7 +1337,7 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(object):
 
         item = pdu.user_information.common_ext_neg[0]
 
-        result = item.ToParams()
+        result = item.to_primitive()
 
         check = SOPClassCommonExtendedNegotiation()
 
@@ -1353,10 +1353,10 @@ class TestPDUItem_UserInformation_CommonExtendedNegotiation(object):
         pdu.decode(a_associate_rq_com_ext_neg)
 
         orig = pdu.user_information.common_ext_neg[0]
-        params = orig.ToParams()
+        params = orig.to_primitive()
 
         new = SOPClassCommonExtendedNegotiationSubItem()
-        new.FromParams(params)
+        new.from_primitive(params)
 
         assert orig == new
 

@@ -12,11 +12,11 @@ There are seven different PDUs:
 
 ::
 
-                    FromParams                 encode
+                  from_primitive               encode
   +----------------+  ------>  +------------+  ----->  +-------------+
   | DUL Primitive  |           |    PDU     |          |   Peer AE   |
   +----------------+  <------  +------------+  <-----  +-------------+
-                     ToParams                  decode
+                    to_primitive               decode
 """
 
 import codecs
@@ -466,7 +466,7 @@ class A_ASSOCIATE_RQ(PDU):
         # The order of the items in the list may not be as given above
         self.variable_items = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current PDU using an A-ASSOCIATE (request) primitive.
 
         Parameters
@@ -487,15 +487,15 @@ class A_ASSOCIATE_RQ(PDU):
         # Add Presentation Context(s)
         for contexts in primitive.presentation_context_definition_list:
             presentation_context = PresentationContextItemRQ()
-            presentation_context.FromParams(contexts)
+            presentation_context.from_primitive(contexts)
             self.variable_items.append(presentation_context)
 
         # Add User Information
         user_information = UserInformationItem()
-        user_information.FromParams(primitive.user_information)
+        user_information.from_primitive(primitive.user_information)
         self.variable_items.append(user_information)
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an A-ASSOCIATE (request) primitive from the current PDU.
 
         Returns
@@ -514,11 +514,11 @@ class A_ASSOCIATE_RQ(PDU):
             # Add presentation contexts
             if isinstance(item, PresentationContextItemRQ):
                 primitive.presentation_context_definition_list.append(
-                    item.ToParams())
+                    item.to_primitive())
 
             # Add user information
             elif isinstance(item, UserInformationItem):
-                primitive.user_information = item.ToParams()
+                primitive.user_information = item.to_primitive()
 
         return primitive
 
@@ -834,7 +834,7 @@ class A_ASSOCIATE_AC(PDU):
         # The order of the items in the list may not be as given above
         self.variable_items = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current PDU using an A-ASSOCIATE (accept) primitive.
 
         Parameters
@@ -855,15 +855,15 @@ class A_ASSOCIATE_AC(PDU):
         # Make presentation contexts
         for ii in primitive.presentation_context_definition_results_list:
             presentation_context = PresentationContextItemAC()
-            presentation_context.FromParams(ii)
+            presentation_context.from_primitive(ii)
             self.variable_items.append(presentation_context)
 
         # Make user information
         user_information = UserInformationItem()
-        user_information.FromParams(primitive.user_information)
+        user_information.from_primitive(primitive.user_information)
         self.variable_items.append(user_information)
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an A-ASSOCIATE (accept) primitive from the current PDU.
 
         Returns
@@ -891,12 +891,12 @@ class A_ASSOCIATE_AC(PDU):
             # Add presentation contexts
             elif isinstance(item, PresentationContextItemAC):
                 primitive.presentation_context_definition_results_list.append(
-                    item.ToParams()
+                    item.to_primitive()
                 )
 
             # Add user information
             elif isinstance(item, UserInformationItem):
-                primitive.user_information = item.ToParams()
+                primitive.user_information = item.to_primitive()
 
         # 0x00 = Accepted
         primitive.result = 0x00
@@ -1148,7 +1148,7 @@ class A_ASSOCIATE_RJ(PDU):
         self.source = None
         self.reason_diagnostic = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current PDU using an A-ASSOCIATE (reject) primitive.
 
         Parameters
@@ -1160,7 +1160,7 @@ class A_ASSOCIATE_RJ(PDU):
         self.source = primitive.result_source
         self.reason_diagnostic = primitive.diagnostic
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an A-ASSOCIATE (reject) primitive from the current PDU.
 
         Returns
@@ -1373,7 +1373,7 @@ class P_DATA_TF(PDU):
         """Initialise a new P-DATA-TF PDU."""
         self.presentation_data_value_items = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current PDU using a P-DATA primitive.
 
         Parameters
@@ -1387,7 +1387,7 @@ class P_DATA_TF(PDU):
             presentation_data_value.presentation_data_value = item[1]
             self.presentation_data_value_items.append(presentation_data_value)
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return a P-DATA primitive from the current PDU.
 
         Returns
@@ -1598,7 +1598,7 @@ class A_RELEASE_RQ(PDU):
         pass
 
     @staticmethod
-    def FromParams(primitive):
+    def from_primitive(primitive):
         """Setup the current PDU using an A-RELEASE (request) primitive.
 
         Parameters
@@ -1609,7 +1609,7 @@ class A_RELEASE_RQ(PDU):
         pass
 
     @staticmethod
-    def ToParams():
+    def to_primitive():
         """Return an A-RELEASE (request) primitive from the current PDU.
 
         Returns
@@ -1725,7 +1725,7 @@ class A_RELEASE_RP(PDU):
         pass
 
     @staticmethod
-    def FromParams(primitive):
+    def from_primitive(primitive):
         """Setup the current PDU using an A-release (response) primitive.
 
         Parameters
@@ -1736,7 +1736,7 @@ class A_RELEASE_RP(PDU):
         pass
 
     @staticmethod
-    def ToParams():
+    def to_primitive():
         """Return an A-RELEASE (response) primitive from the current PDU.
 
         Returns
@@ -1863,7 +1863,7 @@ class A_ABORT_RQ(PDU):
         self.source = None
         self.reason_diagnostic = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current PDU using an A-ABORT or A-P-ABORT primitive.
 
         Parameters
@@ -1884,7 +1884,7 @@ class A_ABORT_RQ(PDU):
             self.reason_diagnostic = primitive.provider_reason
             self.source = 2
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an A-ABORT or A-P-ABORT primitive from the current PDU.
 
         Returns

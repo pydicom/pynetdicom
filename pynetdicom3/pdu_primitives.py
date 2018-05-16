@@ -43,7 +43,7 @@ class ServiceParameter(object):
         """FIXME"""
         raise NotImplementedError
 
-    def FromParams(self):
+    def from_primitive(self):
         """FIXME"""
         return self.from_primitive()
 
@@ -1019,7 +1019,7 @@ class MaximumLengthNegotiation(ServiceParameter):
         item : pynetdicom3.pdu_items.MaximumLengthSubItem
         """
         item = MaximumLengthSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1121,7 +1121,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
                              "prior to requesting Association")
 
         item = ImplementationClassUIDSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1210,7 +1210,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
                              "to Association")
 
         item = ImplementationVersionNameSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1295,7 +1295,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         item : pynetdicom3.pdu_items.AsynchronousOperationsWindowSubItem
         """
         item = AsynchronousOperationsWindowSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1448,7 +1448,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
                              "for {}".format(self.sop_class_uid))
 
         item = SCP_SCU_RoleSelectionSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1605,7 +1605,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
                              "negotiation")
 
         item = SOPClassExtendedNegotiationSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1729,7 +1729,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                              "set prior to Association negotiation")
 
         item = SOPClassCommonExtendedNegotiationSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1974,7 +1974,7 @@ class UserIdentityNegotiation(ServiceParameter):
             # Then an -AC
             item = UserIdentitySubItemAC()
 
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 

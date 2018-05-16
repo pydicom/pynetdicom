@@ -536,7 +536,7 @@ class PresentationContextItemRQ(PDUItem):
         self.presentation_context_id = None
         self.abstract_transfer_syntax_sub_items = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using a Presentation Context primitive.
 
         Parameters
@@ -558,7 +558,7 @@ class PresentationContextItemRQ(PDUItem):
             transfer_syntax.transfer_syntax_name = syntax
             self.abstract_transfer_syntax_sub_items.append(transfer_syntax)
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return a PresentationContext primitive from the current Item.
 
         Returns
@@ -765,7 +765,7 @@ class PresentationContextItemAC(PDUItem):
         self.result_reason = None
         self.transfer_syntax_sub_item = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using a Presentation Context primitive.
 
         Parameters
@@ -784,7 +784,7 @@ class PresentationContextItemAC(PDUItem):
         transfer_syntax.transfer_syntax_name = primitive.TransferSyntax[0]
         self.transfer_syntax_sub_item = [transfer_syntax]
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return a PresentationContext primitive from the current Item.
 
         Returns
@@ -996,7 +996,7 @@ class UserInformationItem(PDUItem):
         """Initialise a new User Information Item."""
         self.user_data = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using User Information primitives.
 
         Parameters
@@ -1016,9 +1016,9 @@ class UserInformationItem(PDUItem):
             - UserIdentityNegotiation
         """
         for item in primitive:
-            self.user_data.append(item.FromParams())
+            self.user_data.append(item.from_primitive())
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return a list of User Information primitives from the current Item.
 
         Returns
@@ -1039,7 +1039,7 @@ class UserInformationItem(PDUItem):
         """
         primitive = []
         for item in self.user_data:
-            primitive.append(item.ToParams())
+            primitive.append(item.to_primitive())
 
         return primitive
 
@@ -1564,7 +1564,7 @@ class MaximumLengthSubItem(PDUItem):
         """Initialise a new Maximum Length Item."""
         self.maximum_length_received = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using a Maximum Length primitive.
 
         Parameters
@@ -1574,7 +1574,7 @@ class MaximumLengthSubItem(PDUItem):
         """
         self.maximum_length_received = primitive.maximum_length_received
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return a Maximum Length primitive from the current Item.
 
         Returns
@@ -1702,7 +1702,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         """Initialise a new Implementation Class UID Item."""
         self.implementation_class_uid = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using an Implementation Identification
         primitive.
 
@@ -1714,7 +1714,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         """
         self.implementation_class_uid = primitive.implementation_class_uid
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an Implementation Identification primitive from the current
         Item.
 
@@ -1879,7 +1879,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         """Initialise a new Implementation Version Name Item."""
         self.implementation_version_name = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using an Implementation Identification
         primitive.
 
@@ -1891,7 +1891,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         """
         self.implementation_version_name = primitive.implementation_version_name
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an Implementation Identification primitive from the current
         Item.
 
@@ -2042,7 +2042,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         self.maximum_number_operations_invoked = None
         self.maximum_number_operations_performed = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using an Asynchronous Operations Window
         primitive.
 
@@ -2059,7 +2059,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
             primitive.maximum_number_operations_performed
         )
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an Asynchronous Operations Window primitive from the current
         Item.
 
@@ -2231,7 +2231,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         self.scu_role = None
         self.scp_role = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using an SCP/SCU Role Selection primitive.
 
         Parameters
@@ -2244,7 +2244,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         self.scu_role = int(primitive.scu_role)
         self.scp_role = int(primitive.scp_role)
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an SCP/SCU Role Selection primitive from the current Item.
 
         Returns
@@ -2485,7 +2485,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         self.sop_class_uid = None
         self.service_class_application_information = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using a SOP Class Extended Negotiation
         primitive.
 
@@ -2500,7 +2500,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             primitive.service_class_application_information
         )
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return a SOP Class Extended Negotiation primitive from the current
         Item.
 
@@ -2746,7 +2746,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         self.service_class_uid = None
         self.related_general_sop_class_identification = []
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using a SOP Class Common Extended Negotiation
         primitive.
 
@@ -2761,7 +2761,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             primitive.related_general_sop_class_identification
         )
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an SOP Class Common Extended Negotiation primitive from the
         current Item.
 
@@ -3137,7 +3137,7 @@ class UserIdentitySubItemRQ(PDUItem):
         self._secondary_length = None
         self.secondary_field = b''
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using an User Identity primitive.
 
         Parameters
@@ -3153,7 +3153,7 @@ class UserIdentitySubItemRQ(PDUItem):
         self.primary_field = primitive.primary_field
         self.secondary_field = primitive.secondary_field
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an  User Identity primitive from the current Item.
 
         Returns
@@ -3385,7 +3385,7 @@ class UserIdentitySubItemAC(PDUItem):
         """Initialise a new User Identity (AC) Item."""
         self.server_response = None
 
-    def FromParams(self, primitive):
+    def from_primitive(self, primitive):
         """Setup the current Item using an User Identity primitive.
 
         Parameters
@@ -3396,7 +3396,7 @@ class UserIdentitySubItemAC(PDUItem):
         """
         self.server_response = primitive.server_response
 
-    def ToParams(self):
+    def to_primitive(self):
         """Return an  User Identity primitive from the current Item.
 
         Returns

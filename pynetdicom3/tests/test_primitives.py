@@ -800,7 +800,7 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
             [PresentationContext(1, '1.2.840.10008.1.1', ['1.2.840.10008.1.2'])]
 
         pdu = A_ASSOCIATE_RQ()
-        pdu.FromParams(assoc)
+        pdu.from_primitive(assoc)
         data = pdu.encode()
 
         ref = b"\x01\x00\x00\x00\x00\xd1\x00\x01\x00\x00\x41\x4e\x59\x2d\x53\x43" \
@@ -866,7 +866,7 @@ class TestPrimitive_A_ABORT(unittest.TestCase):
         primitive.abort_source = 0
 
         pdu = A_ABORT_RQ()
-        pdu.FromParams(primitive)
+        pdu.from_primitive(primitive)
         data = pdu.encode()
 
         self.assertEqual(data, b"\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00")
@@ -904,7 +904,7 @@ class TestPrimitive_A_P_ABORT(unittest.TestCase):
         primitive.provider_reason = 4
 
         pdu = A_ABORT_RQ()
-        pdu.FromParams(primitive)
+        pdu.from_primitive(primitive)
         data = pdu.encode()
 
         self.assertEqual(data, b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04")
@@ -945,7 +945,7 @@ class TestPrimitive_P_DATA(unittest.TestCase):
         primitive.presentation_data_value_list = [[1, pdv]]
 
         pdu = P_DATA_TF()
-        pdu.FromParams(primitive)
+        pdu.from_primitive(primitive)
         data = pdu.encode()
 
         self.assertEqual(data,

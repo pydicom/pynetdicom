@@ -265,7 +265,7 @@ class TestPDU_A_ASSOC_RQ(object):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert primitive.application_context_name == UID('1.2.840.10008.3.1.1.1')
         assert primitive.calling_ae_title == b'ECHOSCU         '
@@ -319,10 +319,10 @@ class TestPDU_A_ASSOC_RQ(object):
         orig_pdu = A_ASSOCIATE_RQ()
         orig_pdu.decode(a_associate_rq)
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ASSOCIATE_RQ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -332,10 +332,10 @@ class TestPDU_A_ASSOC_RQ(object):
         orig_pdu.decode(a_associate_rq)
         orig_pdu.user_information.user_data = [orig_pdu.user_information.user_data[1]]
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ASSOCIATE_RQ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -584,7 +584,7 @@ class TestPDU_A_ASSOC_AC(object):
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert primitive.application_context_name == UID('1.2.840.10008.3.1.1.1')
         assert primitive.calling_ae_title == b'ECHOSCU         '
@@ -637,10 +637,10 @@ class TestPDU_A_ASSOC_AC(object):
         orig = A_ASSOCIATE_AC()
         orig.decode(a_associate_ac)
 
-        primitive = orig.ToParams()
+        primitive = orig.to_primitive()
 
         new = A_ASSOCIATE_AC()
-        new.FromParams(primitive)
+        new.from_primitive(primitive)
 
         assert new == orig
 
@@ -650,10 +650,10 @@ class TestPDU_A_ASSOC_AC(object):
         original.decode(a_associate_ac)
         original.user_information.user_data = [original.user_information.user_data[1]]
 
-        primitive = original.ToParams()
+        primitive = original.to_primitive()
 
         new = A_ASSOCIATE_AC()
-        new.FromParams(primitive)
+        new.from_primitive(primitive)
 
         assert original == new
 
@@ -817,7 +817,7 @@ class TestPDU_A_ASSOC_RJ(object):
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert primitive.result == 1
         assert primitive.result_source == 1
@@ -846,10 +846,10 @@ class TestPDU_A_ASSOC_RJ(object):
         orig_pdu = A_ASSOCIATE_RJ()
         orig_pdu.decode(a_associate_rj)
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ASSOCIATE_RJ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -861,10 +861,10 @@ class TestPDU_A_ASSOC_RJ(object):
         orig_pdu.reason_diagnostic = 2
         orig_pdu.result = 2
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ASSOCIATE_RJ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -990,7 +990,7 @@ class TestPDU_P_DATA_TF(object):
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert primitive.presentation_data_value_list == [[1, p_data_tf[11:]]]
         assert isinstance(primitive.presentation_data_value_list, list)
@@ -999,10 +999,10 @@ class TestPDU_P_DATA_TF(object):
         """ Check converting PDU to primitive """
         orig_pdu = P_DATA_TF()
         orig_pdu.decode(p_data_tf)
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = P_DATA_TF()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
         pdv = new_pdu.presentation_data_value_items[0]
 
         assert new_pdu == orig_pdu
@@ -1040,7 +1040,7 @@ class TestPDU_A_RELEASE_RQ(object):
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert primitive.reason == "normal"
         assert primitive.result is None
@@ -1050,10 +1050,10 @@ class TestPDU_A_RELEASE_RQ(object):
         orig_pdu = A_RELEASE_RQ()
         orig_pdu.decode(a_release_rq)
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_RELEASE_RQ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -1090,7 +1090,7 @@ class TestPDU_A_RELEASE_RP(object):
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert primitive.reason == "normal"
         assert primitive.result == "affirmative"
@@ -1100,10 +1100,10 @@ class TestPDU_A_RELEASE_RP(object):
         orig_pdu = A_RELEASE_RP()
         orig_pdu.decode(a_release_rp)
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_RELEASE_RP()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -1167,7 +1167,7 @@ class TestPDU_A_ABORT(object):
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert isinstance(primitive, A_ABORT)
         assert primitive.abort_source == 0
@@ -1177,7 +1177,7 @@ class TestPDU_A_ABORT(object):
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
 
-        primitive = pdu.ToParams()
+        primitive = pdu.to_primitive()
 
         assert isinstance(primitive, A_P_ABORT)
         assert primitive.provider_reason == 4
@@ -1187,10 +1187,10 @@ class TestPDU_A_ABORT(object):
         orig_pdu = A_ABORT_RQ()
         orig_pdu.decode(a_abort)
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ABORT_RQ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 
@@ -1199,10 +1199,10 @@ class TestPDU_A_ABORT(object):
         orig_pdu = A_ABORT_RQ()
         orig_pdu.decode(a_p_abort)
 
-        primitive = orig_pdu.ToParams()
+        primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ABORT_RQ()
-        new_pdu.FromParams(primitive)
+        new_pdu.from_primitive(primitive)
 
         assert new_pdu == orig_pdu
 

@@ -165,7 +165,7 @@ def AE_2(dul):
     """
     # Send A-ASSOCIATE-RQ PDU
     dul.pdu = A_ASSOCIATE_RQ()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_associate_rq(dul.pdu)
@@ -302,7 +302,7 @@ def AE_6(dul):
         dul.primitive.diagnostic = 0x02
 
         dul.pdu = A_ASSOCIATE_RJ()
-        dul.pdu.FromParams(dul.primitive)
+        dul.pdu.from_primitive(dul.primitive)
 
         # Callback
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
@@ -341,7 +341,7 @@ def AE_7(dul):
     """
     # Send A-ASSOCIATE-AC PDU
     dul.pdu = A_ASSOCIATE_AC()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_associate_ac(dul.pdu)
@@ -373,7 +373,7 @@ def AE_8(dul):
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     dul.pdu = A_ASSOCIATE_RJ()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_associate_rj(dul.pdu)
@@ -407,7 +407,7 @@ def DT_1(dul):
     """
     # Send P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
     dul.primitive = None # Why this?
 
     # Callback
@@ -466,7 +466,7 @@ def AR_1(dul):
     """
     # Send A-RELEASE-RQ PDU
     dul.pdu = A_RELEASE_RQ()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_release_rq(dul.pdu)
@@ -551,7 +551,7 @@ def AR_4(dul):
     """
     # Issue A-RELEASE-RP PDU and start ARTIM timer
     dul.pdu = A_RELEASE_RP()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
@@ -636,7 +636,7 @@ def AR_7(dul):
     """
     # Issue P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
@@ -696,7 +696,7 @@ def AR_9(dul):
     """
     # Send A-RELEASE-RP PDU
     dul.pdu = A_RELEASE_RP()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
@@ -767,7 +767,7 @@ def AA_1(dul):
         # Reason not specified
         dul.pdu.reason_diagnostic = 0x00
 
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
@@ -940,7 +940,7 @@ def AA_7(dul):
     """
     # Send A-ABORT PDU.
     dul.pdu = A_ABORT_RQ()
-    dul.pdu.FromParams(dul.primitive)
+    dul.pdu.from_primitive(dul.primitive)
 
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
@@ -979,7 +979,7 @@ def AA_8(dul):
     dul.pdu.source = 0x02
     dul.pdu.reason_diagnostic = 0x00
 
-    dul.primitive = dul.pdu.ToParams()
+    dul.primitive = dul.pdu.to_primitive()
     dul.primitive.abort_source = 0x02
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01

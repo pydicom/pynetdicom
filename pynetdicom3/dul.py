@@ -366,7 +366,7 @@ class DULServiceProvider(Thread):
 
             # Convert the incoming PDU to a corresponding ServiceParameters
             #   object
-            self.primitive = self.pdu.ToParams()
+            self.primitive = self.pdu.to_primitive()
 
     def _check_incoming_primitive(self):
         """Check the incoming primitive."""
