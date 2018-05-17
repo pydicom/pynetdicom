@@ -1323,6 +1323,7 @@ class A_ASSOCIATE_RJ(PDU):
         return s
 
 
+# Non-standard _generate_items and _wrap_generate_items
 class P_DATA_TF(PDU):
     """A P-DATA-TF PDU.
 
@@ -1491,10 +1492,11 @@ class P_DATA_TF(PDU):
         while bytestream[offset:offset + 1]:
             item_length = UNPACK_UINT4(bytestream[offset:offset + 4])[0]
             context_id = UNPACK_UCHAR(bytestream[offset + 4:offset + 5])[0]
-            data = bytestream[offset + 5:offset + 5 + item_length]
+            data = bytestream[offset + 5:offset + 4 + item_length]
+            assert len(data) == item_length - 1
             yield context_id, data
             # Change `offset` to the start of the next PDV item
-            offset += 5 + item_length
+            offset += 4 + item_length
 
     def __len__(self):
         """Return the total length of the encoded PDU as an int."""

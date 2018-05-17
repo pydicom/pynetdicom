@@ -1126,7 +1126,7 @@ class UserInformationItem(PDUItem):
         """Return the 'Implementation Version Name' field value, if available."""
         for item in self.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
-                return item.implementation_version_name.decode('ascii')
+                return item.implementation_version_name
 
         return None
 

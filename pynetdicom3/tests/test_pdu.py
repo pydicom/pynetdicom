@@ -22,6 +22,10 @@ from pynetdicom3.pdu import (
     PDU_ITEM_TYPES, PDU_TYPES,
     PACK_UCHAR, UNPACK_UCHAR
 )
+from pynetdicom3.pdu_items import (
+    PresentationDataValueItem,
+    TransferSyntaxSubItem
+)
 from pynetdicom3.pdu_primitives import (
     MaximumLengthNegotiation, ImplementationClassUIDNotification,
     ImplementationVersionNameNotification, A_P_ABORT, A_ABORT, A_ASSOCIATE,
@@ -208,11 +212,17 @@ class TestASSOC_RQ(object):
 
     def test_property_setters(self):
         """Check the property setters are working correctly."""
-        # pdu.application_context_name
         pdu = A_ASSOCIATE_RQ()
-        item = ApplicationContextItem()
-        pdu.variable_items = [item]
-        assert pdu.application_context_name == ''
+
+        # pdu.called_ae_title
+        assert pdu.called_ae_title == b'Default         '
+        pdu.called_ae_title = 'TEST_SCP'
+        assert pdu.called_ae_title == b'TEST_SCP        '
+
+        # pdu.calling_ae_title
+        assert pdu.calling_ae_title == b'Default         '
+        pdu.calling_ae_title = 'TEST_SCP2'
+        assert pdu.calling_ae_title == b'TEST_SCP2       '
 
     def test_string_output(self):
         """Check the string output works"""
@@ -223,7 +233,7 @@ class TestASSOC_RQ(object):
         assert "3680043.9.3811.0.9.0" in pdu.__str__()
 
     def test_decode(self):
-        """ Check decoding the assoc_rq stream produces the correct objects """
+        """Check decoding assoc_rq produces the correct attribute values."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -245,7 +255,7 @@ class TestASSOC_RQ(object):
         assert isinstance(pdu.variable_items[2], UserInformationItem)
 
     def test_decode_properties(self):
-        """ Check decoding the assoc_rq stream produces the correct properties """
+        """Check decoding produces the correct property values."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -265,7 +275,7 @@ class TestASSOC_RQ(object):
         assert isinstance(user_info, UserInformationItem)
 
     def test_encode(self):
-        """ Check encoding an assoc_rq produces the correct output """
+        """Check encoding produces the correct output."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
         out = pdu.encode()
@@ -273,7 +283,7 @@ class TestASSOC_RQ(object):
         assert out == a_associate_rq
 
     def test_to_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -331,26 +341,9 @@ class TestASSOC_RQ(object):
         assert pr.session_requirements == ""
 
     def test_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting primitive to PDU."""
         orig_pdu = A_ASSOCIATE_RQ()
         orig_pdu.decode(a_associate_rq)
-
-        primitive = orig_pdu.to_primitive()
-
-        new_pdu = A_ASSOCIATE_RQ()
-        new_pdu.from_primitive(primitive)
-
-        assert new_pdu == orig_pdu
-        assert new_pdu.encode() == a_associate_rq
-
-    def test_update_data(self):
-        """Check that updating the PDU data works correctly."""
-        orig_pdu = A_ASSOCIATE_RQ()
-        orig_pdu.decode(a_associate_rq)
-        orig_pdu.user_information.user_data = [
-            orig_pdu.user_information.user_data[1]
-        ]
-
         primitive = orig_pdu.to_primitive()
 
         new_pdu = A_ASSOCIATE_RQ()
@@ -360,9 +353,9 @@ class TestASSOC_RQ(object):
         assert new_pdu.encode() == a_associate_rq
 
 
-class TestPDU_A_ASSOC_RQ_ApplicationContext(object):
-    def test_stream_decode_values_types(self):
-        """ Check decoding an assoc_rq produces the correct application context """
+class TestASSOC_RQ_ApplicationContext(object):
+    def test_decode(self):
+        """Check decoding assoc_rq produces the correct application context."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -370,63 +363,55 @@ class TestPDU_A_ASSOC_RQ_ApplicationContext(object):
 
         assert app_context.item_type == 0x10
         assert app_context.item_length == 21
+        assert len(app_context) == 25
         assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert isinstance(app_context.item_type, int)
-        assert isinstance(app_context.item_length, int)
-        assert isinstance(app_context.application_context_name, UID)
-
-        assert app_context.application_context_name, '1.2.840.10008.3.1.1.1'
         assert isinstance(app_context.application_context_name, UID)
 
 
-class TestPDU_A_ASSOC_RQ_PresentationContext(object):
-    def test_stream_decode_values_types(self):
-        """ Check decoding an assoc_rq produces the correct presentation context """
+class TestASSOC_RQ_PresentationContext(object):
+    def test_decode(self):
+        """Check decoding assoc_rq produces the correct presentation context."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         # Check PresentationContextItemRQ attributes
-        presentation_context = pdu.variable_items[1]
-        assert presentation_context.item_type == 0x20
-        assert presentation_context.presentation_context_id == 0x001
-        assert presentation_context.item_length == 46
-        assert isinstance(presentation_context.item_type, int)
-        assert isinstance(presentation_context.presentation_context_id, int)
-        assert isinstance(presentation_context.item_length, int)
+        context = pdu.variable_items[1]
+        assert context.item_type == 0x20
+        assert context.item_length == 46
+        assert len(context) == 50
+        assert context.presentation_context_id == 0x001
+
+        assert len(context.abstract_transfer_syntax_sub_items) == 2
 
     def test_decode_properties(self):
-        """ Check decoding the stream produces the correct properties """
+        """Check decoding produces the correct property values."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         context = pdu.presentation_context[0]
 
-        # Check ID property
-        context_id = context.context_id
-        assert isinstance(context_id, int)
-        assert context_id == 1
+        # Check context_id property
+        assert context.context_id == 1
 
-        # Check Abstract Syntax property
-        context = pdu.presentation_context[0]
+        # Check abstract_syntax property
         assert isinstance(context.abstract_syntax, UID)
         assert context.abstract_syntax == UID('1.2.840.10008.1.1')
 
-        # Check TransferSyntax property is a list
+        # Check transfer_syntax property
         assert isinstance(context.transfer_syntax, list)
+        assert len(context.transfer_syntax) == 1
 
-        # Check TransferSyntax list contains transfer syntax type UIDs
         for syntax in pdu.presentation_context[0].transfer_syntax:
             assert isinstance(syntax, UID)
-            assert syntax.is_transfer_syntax
 
         # Check first transfer syntax is little endian implicit
         syntax = pdu.presentation_context[0].transfer_syntax[0]
         assert syntax == UID('1.2.840.10008.1.2')
 
 
-class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(object):
-    def test_decode_value_type(self):
-        """ Check decoding an assoc_rq produces the correct abstract syntax """
+class TestASSOC_RQ_PresentationContext_AbstractSyntax(object):
+    def test_decode(self):
+        """Check decoding assoc_rq produces the correct abstract syntax."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -436,14 +421,13 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_AbstractSyntax(object):
 
         assert abstract_syntax.item_type == 0x30
         assert abstract_syntax.item_length == 17
+        assert len(abstract_syntax) == 21
         assert abstract_syntax.abstract_syntax_name == UID('1.2.840.10008.1.1')
-        assert isinstance(abstract_syntax.item_type, int)
-        assert isinstance(abstract_syntax.item_length, int)
         assert isinstance(abstract_syntax.abstract_syntax_name, UID)
 
 
-class TestPDU_A_ASSOC_RQ_PresentationContext_TransferSyntax(object):
-    def test_decode_value_type(self):
+class TestASSOC_RQ_PresentationContext_TransferSyntax(object):
+    def test_decode(self):
         """ Check decoding an assoc_rq produces the correct transfer syntax """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
@@ -457,16 +441,15 @@ class TestPDU_A_ASSOC_RQ_PresentationContext_TransferSyntax(object):
         # Check TransferSyntax list contains transfer syntax type UIDs
         for syntax in transfer_syntaxes:
             assert isinstance(syntax, UID)
-            assert syntax.is_transfer_syntax
 
         # Check first transfer syntax is little endian implicit
         syntax = transfer_syntaxes[0]
         assert syntax, UID('1.2.840.10008.1.2')
 
 
-class TestPDU_A_ASSOC_RQ_UserInformation(object):
-    def test_decode_value_type(self):
-        """ Check decoding an assoc_rq produces the correct user information """
+class TestASSOC_RQ_UserInformation(object):
+    def test_decode(self):
+        """Check decoding an assoc_rq produces the correct user information."""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -474,8 +457,7 @@ class TestPDU_A_ASSOC_RQ_UserInformation(object):
 
         assert user_info.item_type == 0x50
         assert user_info.item_length == 62
-        assert isinstance(user_info.item_type, int)
-        assert isinstance(user_info.item_length, int)
+        assert len(user_info) == 66
         assert isinstance(user_info.user_data, list)
 
         # Test user items
@@ -484,14 +466,14 @@ class TestPDU_A_ASSOC_RQ_UserInformation(object):
             if isinstance(item, MaximumLengthSubItem):
                 assert item.maximum_length_received == 16382
                 assert user_info.maximum_length == 16382
-                assert isinstance(item.maximum_length_received, int)
-                assert isinstance(user_info.maximum_length, int)
 
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDSubItem):
                 assert item.item_type == 0x52
                 assert item.item_length == 32
-                assert item.implementation_class_uid == UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+                assert item.implementation_class_uid == UID(
+                    '1.2.826.0.1.3680043.9.3811.0.9.0'
+                )
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
                 assert isinstance(item.implementation_class_uid, UID)
@@ -505,40 +487,41 @@ class TestPDU_A_ASSOC_RQ_UserInformation(object):
                 assert isinstance(item.item_length, int)
                 assert isinstance(item.implementation_version_name, bytes)
 
+    def test_decode_properties(self):
+        """Check decoding produces the correct property values."""
+        pdu = A_ASSOCIATE_RQ()
+        pdu.decode(a_associate_rq)
 
-class TestPDU_A_ASSOC_AC(object):
-    def test_property_setters(self):
-        """Test the property setters"""
-        # presentation_context
-        pdu = A_ASSOCIATE_AC()
-        pdu.decode(a_associate_ac)
-        role_selection = SCP_SCU_RoleSelectionSubItem()
-        role_selection.sop_class_uid = '1.2.840.10008.1.1'
-        role_selection.scu_role = 1
-        role_selection.scp_role = 1
-        pdu.user_information.user_data.append(role_selection)
-        context = pdu.presentation_context[0]
-        assert context.transfer_syntax == '1.2.840.10008.1.2'
+        user_info = pdu.variable_items[2]
+        assert user_info.async_ops_window is None
+        assert user_info.common_ext_neg == []
+        assert user_info.ext_neg == []
+        assert user_info.implementation_class_uid == (
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
+        assert user_info.implementation_version_name == b'PYNETDICOM_090'
+        assert user_info.maximum_length == 16382
+        assert user_info.role_selection == {}
+        assert user_info.user_identity is None
 
-    def test_property_getters(self):
-        """Test the property getters"""
-        # called_ae_title
-        pdu = A_ASSOCIATE_AC()
-        pdu._reserved_aet = b'TESTA'
-        assert pdu.called_ae_title == b'TESTA'
-        assert isinstance(pdu.called_ae_title, bytes)
-        pdu._reserved_aet = 'TESTB'
-        assert pdu.called_ae_title == b'TESTB'
-        assert isinstance(pdu.called_ae_title, bytes)
 
-        # calling_ae_title
+class TestASSOC_AC(object):
+    def test_init(self):
+        """Test a new A_ASSOCIATE_AC PDU."""
         pdu = A_ASSOCIATE_AC()
-        pdu._reserved_aec = b'TESTA'
-        assert pdu.calling_ae_title == b'TESTA'
-        assert isinstance(pdu.calling_ae_title, bytes)
-        pdu._reserved_aec = 'TESTB'
-        assert pdu.calling_ae_title == b'TESTB'
-        assert isinstance(pdu.calling_ae_title, bytes)
+        assert pdu.protocol_version == 0x01
+        assert pdu._reserved_aet is None
+        assert pdu._reserved_aec is None
+        assert pdu.variable_items == []
+        assert pdu.pdu_type == 0x02
+        assert pdu.pdu_length == 68
+        assert len(pdu) ==  74
+
+        assert pdu.application_context_name is None
+        assert pdu.called_ae_title is None
+        assert pdu.calling_ae_title is None
+        assert pdu.presentation_context == []
+        assert pdu.user_information is None
 
     def test_string_output(self):
         """Test the string output"""
@@ -547,7 +530,7 @@ class TestPDU_A_ASSOC_AC(object):
         assert "Implicit VR Little Endian" in pdu.__str__()
         assert "1.2.276.0.7230010" in pdu.__str__()
 
-    def test_stream_decode_values_types(self):
+    def test_decode(self):
         """ Check decoding the assoc_ac stream produces the correct objects """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
@@ -566,24 +549,24 @@ class TestPDU_A_ASSOC_AC(object):
         assert isinstance(pdu.variable_items[2], UserInformationItem)
 
     def test_decode_properties(self):
-        """ Check decoding the assoc_ac stream produces the correct properties """
+        """Check decoding produces the correct property values."""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
         # Check AE titles
-        assert pdu._reserved_aec.decode('utf-8') == 'ECHOSCU         '
-        assert pdu._reserved_aet.decode('utf-8') == 'ANY-SCP         '
-        assert isinstance(pdu._reserved_aec, bytes)
-        assert isinstance(pdu._reserved_aet, bytes)
+        assert pdu._reserved_aec == b'ECHOSCU         '
+        assert pdu._reserved_aet == b'ANY-SCP         '
+        assert pdu.calling_ae_title == b'ECHOSCU         '
+        assert pdu.called_ae_title == b'ANY-SCP         '
 
         # Check application_context_name property
-        app_name = pdu.application_context_name
-        assert isinstance(app_name, UID)
-        assert app_name == '1.2.840.10008.3.1.1.1'
+        assert isinstance(pdu.application_context_name, UID)
+        assert pdu.application_context_name == '1.2.840.10008.3.1.1.1'
 
         # Check presentation_context property
         contexts = pdu.presentation_context
         assert isinstance(contexts, list)
+        assert len(contexts) == 1
         for context in contexts:
             assert isinstance(context, PresentationContextItemAC)
 
@@ -595,9 +578,8 @@ class TestPDU_A_ASSOC_AC(object):
         """ Check encoding an assoc_ac produces the correct output """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
-        s = pdu.encode()
 
-        assert s == a_associate_ac
+        assert pdu.encode() == a_associate_ac
 
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
@@ -606,7 +588,9 @@ class TestPDU_A_ASSOC_AC(object):
 
         primitive = pdu.to_primitive()
 
-        assert primitive.application_context_name == UID('1.2.840.10008.3.1.1.1')
+        assert primitive.application_context_name == UID(
+            '1.2.840.10008.3.1.1.1'
+        )
         assert primitive.calling_ae_title == b'ECHOSCU         '
         assert primitive.called_ae_title == b'ANY-SCP         '
 
@@ -619,7 +603,9 @@ class TestPDU_A_ASSOC_AC(object):
 
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDNotification):
-                assert item.implementation_class_uid == UID('1.2.276.0.7230010.3.0.3.6.0')
+                assert item.implementation_class_uid == UID(
+                    '1.2.276.0.7230010.3.0.3.6.0'
+                )
                 assert isinstance(item.implementation_class_uid, UID)
 
             # Implementation Version Name (optional)
@@ -647,7 +633,9 @@ class TestPDU_A_ASSOC_AC(object):
         assert primitive.diagnostic is None
         assert primitive.calling_presentation_address is None
         assert primitive.called_presentation_address is None
-        assert primitive.responding_presentation_address == primitive.called_presentation_address
+        assert primitive.responding_presentation_address == (
+            primitive.called_presentation_address
+        )
         assert primitive.presentation_context_definition_list == []
         assert primitive.presentation_requirements == "Presentation Kernel"
         assert primitive.session_requirements == ""
@@ -664,23 +652,10 @@ class TestPDU_A_ASSOC_AC(object):
 
         assert new == orig
 
-    def test_update_data(self):
-        """ Check that updating the PDU data works correctly """
-        original = A_ASSOCIATE_AC()
-        original.decode(a_associate_ac)
-        original.user_information.user_data = [original.user_information.user_data[1]]
 
-        primitive = original.to_primitive()
-
-        new = A_ASSOCIATE_AC()
-        new.from_primitive(primitive)
-
-        assert original == new
-
-
-class TestPDU_A_ASSOC_AC_ApplicationContext(object):
-    def test_stream_decode_values_types(self):
-        """ Check decoding an assoc_ac produces the correct application context """
+class TestASSOC_AC_ApplicationContext(object):
+    def test_decode(self):
+        """Check decoding produces the correct application context."""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
@@ -689,70 +664,64 @@ class TestPDU_A_ASSOC_AC_ApplicationContext(object):
         assert app_context.item_type == 0x10
         assert app_context.item_length == 21
         assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert isinstance(app_context.item_type, int)
-        assert isinstance(app_context.item_length, int)
-        assert isinstance(app_context.application_context_name, UID)
-
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
         assert isinstance(app_context.application_context_name, UID)
 
 
-class TestPDU_A_ASSOC_AC_PresentationContext(object):
-    def test_stream_decode_values_types(self):
-        """ Check decoding an assoc_ac produces the correct presentation context """
+class TestASSOC_AC_PresentationContext(object):
+    def test_decode(self):
+        """Check decoding produces the correct presentation context."""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
         # Check PresentationContextItemRQ attributes
-        presentation_context = pdu.variable_items[1]
-        assert presentation_context.item_type == 0x21
-        assert presentation_context.presentation_context_id == 0x0001
-        assert presentation_context.item_length == 25
-        assert presentation_context.result_reason == 0
-        assert isinstance(presentation_context.item_type, int)
-        assert isinstance(presentation_context.presentation_context_id, int)
-        assert isinstance(presentation_context.item_length, int)
+        context = pdu.variable_items[1]
+        assert context.item_type == 0x21
+        assert context.item_length == 25
+        assert len(context) == 29
+        assert context.presentation_context_id == 0x01
+        assert context.result_reason == 0
+        assert len(context.transfer_syntax_sub_item) == 1
+        syntax = context.transfer_syntax_sub_item[0]
+        assert isinstance(syntax, TransferSyntaxSubItem)
+        assert isinstance(syntax.transfer_syntax_name, UID)
+        assert syntax.transfer_syntax_name == UID('1.2.840.10008.1.2')
 
     def test_decode_properties(self):
-        """ Check decoding the stream produces the correct properties """
+        """ Check decoding the produces the correct properties """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
         context = pdu.presentation_context[0]
 
-        # Check ID property
-        context_id = context.context_id
-        assert isinstance(context_id, int)
-        assert context_id == 1
+        # Check context_id property
+        assert context.context_id == 1
 
-        # Check Result
-        result = pdu.presentation_context[0].result_reason
-        assert result == 0
-        assert isinstance(result, int)
+        # Check result
+        assert context.result == 0
+        assert context.result == context.result_reason
 
         # Check transfer syntax
-        syntax = pdu.presentation_context[0].transfer_syntax
-        assert syntax.is_transfer_syntax
-        assert isinstance(syntax, UID)
-        assert syntax == UID('1.2.840.10008.1.2')
+        assert isinstance(context.transfer_syntax, UID)
+        assert context.transfer_syntax == UID('1.2.840.10008.1.2')
+
+        # result_str
+        assert context.result_str == 'Accepted'
 
 
-class TestPDU_A_ASSOC_AC_PresentationContext_TransferSyntax(object):
-    def test_decode_value_type(self):
+class TestASSOC_AC_PresentationContext_TransferSyntax(object):
+    def test_decode(self):
         """ Check decoding an assoc_ac produces the correct transfer syntax """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
-        context = pdu.presentation_context[0]
-        syntax = context.transfer_syntax
+        syntax = pdu.presentation_context[0].transfer_syntax
 
         assert isinstance(syntax, UID)
-        assert syntax.is_transfer_syntax
         assert syntax == UID('1.2.840.10008.1.2')
 
 
-class TestPDU_A_ASSOC_AC_UserInformation(object):
-    def test_decode_value_type(self):
+class TestASSOC_AC_UserInformation(object):
+    def test_decode(self):
         """ Check decoding an assoc_rq produces the correct user information """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
@@ -761,8 +730,7 @@ class TestPDU_A_ASSOC_AC_UserInformation(object):
 
         assert user_info.item_type == 0x50
         assert user_info.item_length == 58
-        assert isinstance(user_info.item_type, int)
-        assert isinstance(user_info.item_length, int)
+        assert len(user_info) == 62
         assert isinstance(user_info.user_data, list)
 
         # Test user items
@@ -771,14 +739,14 @@ class TestPDU_A_ASSOC_AC_UserInformation(object):
             if isinstance(item, MaximumLengthSubItem):
                 assert item.maximum_length_received == 16384
                 assert user_info.maximum_length == 16384
-                assert isinstance(item.maximum_length_received, int)
-                assert isinstance(user_info.maximum_length, int)
 
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDSubItem):
                 assert item.item_type == 0x52
                 assert item.item_length == 27
-                assert item.implementation_class_uid == UID('1.2.276.0.7230010.3.0.3.6.0')
+                assert item.implementation_class_uid == UID(
+                    '1.2.276.0.7230010.3.0.3.6.0'
+                )
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
                 assert isinstance(item.implementation_class_uid, UID)
@@ -792,8 +760,44 @@ class TestPDU_A_ASSOC_AC_UserInformation(object):
                 assert isinstance(item.item_length, int)
                 assert isinstance(item.implementation_version_name, bytes)
 
+    def test_decode_properties(self):
+        """Check decoding produces the correct property values."""
+        pdu = A_ASSOCIATE_RQ()
+        pdu.decode(a_associate_ac)
 
-class TestPDU_A_ASSOC_RJ(object):
+        user_info = pdu.variable_items[2]
+        assert user_info.async_ops_window is None
+        assert user_info.common_ext_neg == []
+        assert user_info.ext_neg == []
+        assert user_info.implementation_class_uid == (
+            '1.2.276.0.7230010.3.0.3.6.0'
+        )
+        assert user_info.implementation_version_name == b'OFFIS_DCMTK_360'
+        assert user_info.maximum_length == 16384
+        assert user_info.role_selection == {}
+        assert user_info.user_identity is None
+
+
+class TestASSOC_RJ(object):
+    def test_init(self):
+        """Test a new A_ASSOCIATE_RJ PDU."""
+        pdu = A_ASSOCIATE_RJ()
+        assert pdu.result is None
+        assert pdu.source is None
+        assert pdu.reason_diagnostic is None
+        assert pdu.pdu_type == 0x03
+        assert pdu.pdu_length == 4
+        assert len(pdu) == 10
+
+        with pytest.raises(ValueError):
+            pdu.reason_str
+
+        with pytest.raises(ValueError):
+            pdu.result_str
+
+        with pytest.raises(ValueError):
+            pdu.source_str
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RJ()
@@ -801,36 +805,34 @@ class TestPDU_A_ASSOC_RJ(object):
         assert "Rejected (Permanent)" in pdu.__str__()
         assert "DUL service-user" in pdu.__str__()
 
-    def test_stream_decode_values_types(self):
-        """ Check decoding the assoc_rj stream produces the correct objects """
+    def test_decod(self):
+        """ Check decoding produces the correct objects """
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
         assert pdu.pdu_type == 0x03
         assert pdu.pdu_length == 4
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
+        assert len(pdu) == 10
+        assert pdu.result == 1
+        assert pdu.source == 1
+        assert pdu.reason_diagnostic == 1
 
     def test_decode_properties(self):
-        """ Check decoding the assoc_rj stream produces the correct properties """
+        """ Check decoding produces the correct properties """
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
         # Check reason/source/result
-        assert pdu.result ==1
-        assert pdu.reason_diagnostic == 1
-        assert pdu.source == 1
-        assert isinstance(pdu.result, int)
-        assert isinstance(pdu.reason_diagnostic, int)
-        assert isinstance(pdu.source, int)
+        assert pdu.result_str == 'Rejected (Permanent)'
+        assert pdu.reason_str == 'No reason given'
+        assert pdu.source_str == 'DUL service-user'
 
-    def test_stream_encode(self):
+    def test_encode(self):
         """ Check encoding an assoc_rj produces the correct output """
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
-        s = pdu.encode()
 
-        assert s == a_associate_rj
+        assert pdu.encode() == a_associate_rj
 
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
@@ -855,7 +857,9 @@ class TestPDU_A_ASSOC_RJ(object):
         assert primitive.user_information == []
         assert primitive.calling_presentation_address is None
         assert primitive.called_presentation_address is None
-        assert primitive.responding_presentation_address == primitive.called_presentation_address
+        assert primitive.responding_presentation_address == (
+            primitive.called_presentation_address
+        )
         assert primitive.presentation_context_definition_list == []
         assert primitive.presentation_context_definition_results_list == []
         assert primitive.presentation_requirements == "Presentation Kernel"
@@ -865,21 +869,6 @@ class TestPDU_A_ASSOC_RJ(object):
         """ Check converting PDU to primitive """
         orig_pdu = A_ASSOCIATE_RJ()
         orig_pdu.decode(a_associate_rj)
-
-        primitive = orig_pdu.to_primitive()
-
-        new_pdu = A_ASSOCIATE_RJ()
-        new_pdu.from_primitive(primitive)
-
-        assert new_pdu == orig_pdu
-
-    def test_update_data(self):
-        """ Check that updating the PDU data works correctly """
-        orig_pdu = A_ASSOCIATE_RJ()
-        orig_pdu.decode(a_associate_rj)
-        orig_pdu.source = 2
-        orig_pdu.reason_diagnostic = 2
-        orig_pdu.result = 2
 
         primitive = orig_pdu.to_primitive()
 
@@ -970,7 +959,15 @@ class TestPDU_A_ASSOC_RJ(object):
             pdu.reason_str
 
 
-class TestPDU_P_DATA_TF(object):
+class TestP_DATA_TF(object):
+    def test_init(self):
+        """Test a new P_DATA_TF"""
+        pdu = P_DATA_TF()
+        assert pdu.presentation_data_value_items == []
+        assert pdu.pdu_type == 0x04
+        assert pdu.pdu_length == 0
+        assert len(pdu) == 6
+
     def test_string_output(self):
         """Test the string output"""
         pdu = P_DATA_TF()
@@ -978,32 +975,34 @@ class TestPDU_P_DATA_TF(object):
         assert "80 bytes" in pdu.__str__()
         assert "0x03 0x00" in pdu.__str__()
 
-    def test_stream_decode_values_types(self):
+    def test_decode(self):
         """ Check decoding the p_data stream produces the correct objects """
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
 
         assert pdu.pdu_type == 0x04
         assert pdu.pdu_length == 84
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
-
-    def test_decode_properties(self):
-        """ Check decoding the p_data stream produces the correct properties """
-        pdu = P_DATA_TF()
-        pdu.decode(p_data_tf)
-
-        # Check PDVs
-        assert isinstance(pdu.presentation_data_value_items, list)
         assert len(pdu) == 90
 
-    def test_stream_encode(self):
+        assert len(pdu.presentation_data_value_items) == 1
+        assert isinstance(pdu.presentation_data_value_items[0],
+                          PresentationDataValueItem)
+        pdv = pdu.presentation_data_value_items[0]
+        assert pdv.presentation_context_id == 1
+        assert pdv.presentation_data_value == (
+            b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00'
+            b'\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38'
+            b'\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00'
+            b'\x20\x01\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01'
+            b'\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00'
+        )
+
+    def test_encode(self):
         """ Check encoding an p_data produces the correct output """
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
-        s = pdu.encode()
 
-        assert s == p_data_tf
+        assert pdu.encode() == p_data_tf
 
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
@@ -1027,8 +1026,68 @@ class TestPDU_P_DATA_TF(object):
 
         assert new_pdu == orig_pdu
 
+    def test_generate_items(self):
+        """Test ._generate_items"""
+        pdu = P_DATA_TF()
+        gen = pdu._generate_items(b'')
+        with pytest.raises(StopIteration):
+            next(gen)
 
-class TestPDU_A_RELEASE_RQ(object):
+        data = b'\x00\x00\x00\x04\x01\x01\x02\x03'
+        gen = pdu._generate_items(data)
+        assert next(gen) == (1, b'\x01\x02\x03')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        data += b'\x00\x00\x00\x05\x02\x03\x01\x02\x03'
+        gen = pdu._generate_items(data)
+        assert next(gen) == (1, b'\x01\x02\x03')
+        assert next(gen) == (2, b'\x03\x01\x02\x03')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+    def test_generate_items_raises(self):
+        """Test failure modes of ._generate_items method."""
+        pdu = P_DATA_TF()
+
+        # Short data
+        data = b'\x00\x00\x00\x04\x01\x01\x02'
+        gen = pdu._generate_items(data)
+        with pytest.raises(AssertionError):
+            next(gen)
+
+    def test_wrap_generate_items(self):
+        """Test ._wrap_generate_items"""
+        pdu = P_DATA_TF()
+        out = pdu._wrap_generate_items(b'')
+        assert out == []
+
+        data = b'\x00\x00\x00\x04\x01\x01\x02\x03'
+        out = pdu._wrap_generate_items(data)
+        assert len(out) == 1
+        assert isinstance(out[0], PresentationDataValueItem)
+        assert out[0].context_id == 1
+        assert out[0].presentation_data_value == b'\x01\x02\x03'
+
+        data += b'\x00\x00\x00\x05\x02\x03\x01\x02\x03'
+        out = pdu._wrap_generate_items(data)
+        assert len(out) == 2
+        assert isinstance(out[0], PresentationDataValueItem)
+        assert isinstance(out[1], PresentationDataValueItem)
+        assert out[0].context_id == 1
+        assert out[1].context_id == 2
+        assert out[0].presentation_data_value == b'\x01\x02\x03'
+        assert out[1].presentation_data_value == b'\x03\x01\x02\x03'
+
+
+class TestRELEASE_RQ(object):
+    def test_init(self):
+        """Test a new A_RELEASE_RQ PDU"""
+        pdu = A_RELEASE_RQ()
+        assert pdu.pdu_type == 0x05
+        assert pdu.pdu_length == 4
+        assert len(pdu) == 10
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_RELEASE_RQ()
@@ -1036,7 +1095,7 @@ class TestPDU_A_RELEASE_RQ(object):
         assert "0x05" in pdu.__str__()
         assert "4 bytes" in pdu.__str__()
 
-    def test_stream_decode_values_types(self):
+    def test_decode(self):
         """ Check decoding the release_rq stream produces the correct objects """
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
@@ -1044,16 +1103,13 @@ class TestPDU_A_RELEASE_RQ(object):
         assert pdu.pdu_type == 0x05
         assert pdu.pdu_length == 4
         assert len(pdu) == 10
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
 
-    def test_stream_encode(self):
+    def test_encode(self):
         """ Check encoding an release_rq produces the correct output """
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
-        s = pdu.encode()
 
-        assert s == a_release_rq
+        assert pdu.encode() == a_release_rq
 
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
@@ -1078,7 +1134,14 @@ class TestPDU_A_RELEASE_RQ(object):
         assert new_pdu == orig_pdu
 
 
-class TestPDU_A_RELEASE_RP(object):
+class TestRELEASE_RP(object):
+    def test_init(self):
+        """Test a new A_RELEASE_RQ PDU"""
+        pdu = A_RELEASE_RP()
+        assert pdu.pdu_type == 0x06
+        assert pdu.pdu_length == 4
+        assert len(pdu) == 10
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_RELEASE_RP()
@@ -1086,7 +1149,7 @@ class TestPDU_A_RELEASE_RP(object):
         assert "0x06" in pdu.__str__()
         assert "4 bytes" in pdu.__str__()
 
-    def test_stream_decode_values_types(self):
+    def test_decode(self):
         """ Check decoding the release_rp stream produces the correct objects """
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
@@ -1094,16 +1157,13 @@ class TestPDU_A_RELEASE_RP(object):
         assert pdu.pdu_type == 0x06
         assert pdu.pdu_length == 4
         assert len(pdu) == 10
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
 
-    def test_stream_encode(self):
+    def test_encode(self):
         """ Check encoding an release_rp produces the correct output """
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
-        s = pdu.encode()
 
-        assert s == a_release_rp
+        assert pdu.encode() == a_release_rp
 
     def test_to_primitive(self):
         """ Check converting PDU to primitive """
@@ -1128,7 +1188,21 @@ class TestPDU_A_RELEASE_RP(object):
         assert new_pdu == orig_pdu
 
 
-class TestPDU_A_ABORT(object):
+class TestABORT(object):
+    def test_init(self):
+        """Test a new A_ABORT_RQ PDU"""
+        pdu = A_ABORT_RQ()
+        assert pdu.pdu_type == 0x07
+        assert pdu.pdu_length == 4
+        assert len(pdu) == 10
+        assert pdu.source is None
+        assert pdu.reason_diagnostic is None
+
+        with pytest.raises(KeyError):
+            pdu.source_str
+
+        pdu.reason_str == 'No reason given'
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ABORT_RQ()
@@ -1137,7 +1211,7 @@ class TestPDU_A_ABORT(object):
         assert "4 bytes" in pdu.__str__()
         assert "DUL service-user" in pdu.__str__()
 
-    def test_a_abort_stream_decode_values_types(self):
+    def test_a_abort_decode(self):
         """ Check decoding the a_abort stream produces the correct objects """
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
@@ -1147,12 +1221,8 @@ class TestPDU_A_ABORT(object):
         assert pdu.source == 0
         assert pdu.reason_diagnostic == 0
         assert len(pdu) == 10
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
-        assert isinstance(pdu.source, int)
-        assert isinstance(pdu.reason_diagnostic, int)
 
-    def test_a_p_abort_stream_decode_values_types(self):
+    def test_a_p_abort_decode(self):
         """ Check decoding the a_abort stream produces the correct objects """
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
@@ -1161,26 +1231,20 @@ class TestPDU_A_ABORT(object):
         assert pdu.pdu_length == 4
         assert pdu.source == 2
         assert pdu.reason_diagnostic == 4
-        assert isinstance(pdu.pdu_type, int)
-        assert isinstance(pdu.pdu_length, int)
-        assert isinstance(pdu.source, int)
-        assert isinstance(pdu.reason_diagnostic, int)
 
-    def test_a_abort_stream_encode(self):
+    def test_a_abort_encode(self):
         """ Check encoding an a_abort produces the correct output """
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
-        s = pdu.encode()
 
-        assert s == a_abort
+        assert pdu.encode() == a_abort
 
-    def test_a_p_abort_stream_encode(self):
+    def test_a_p_abort_encode(self):
         """ Check encoding an a_abort produces the correct output """
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
-        s = pdu.encode()
 
-        assert s == a_p_abort
+        assert pdu.encode() == a_p_abort
 
     def test_to_a_abort_primitive(self):
         """ Check converting PDU to a_abort primitive """
