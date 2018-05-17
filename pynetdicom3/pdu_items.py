@@ -1679,7 +1679,7 @@ class MaximumLengthSubItem(PDUItem):
     @property
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
-        return 0x04
+        return 4
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -1851,7 +1851,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         if self.implementation_class_uid:
             return len(self.implementation_class_uid)
 
-        return 0x00
+        return 0
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2010,7 +2010,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         if self.implementation_version_name:
             return len(self.implementation_version_name)
 
-        return 0x00
+        return 0
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2179,11 +2179,11 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
     @property
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
-        return 0x04
+        return 4
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
-        return 0x08
+        return 8
 
     @property
     def max_operations_invoked(self):
@@ -2631,9 +2631,11 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     @property
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
-        return (2 +
-                self.sop_class_uid_length +
-                len(self.service_class_application_information))
+        length = 2 + self.sop_class_uid_length
+        if self.service_class_application_information:
+            return length + len(self.service_class_application_information)
+
+        return length
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -2694,6 +2696,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return self.sop_class_uid
 
 
+# Overriden _generate_items, _wrap_generate_items
 class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     """A SOP Class Common Extended Negotiation Sub-item.
 
@@ -2940,9 +2943,11 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         offset = 0
         while bytestream[offset:offset + 1]:
             uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
-            yield UID(
+            uid = UID(
                 bytestream[offset + 2:offset + 2 + uid_length].decode('ascii')
             )
+            assert len(uid) == uid_length
+            yield uid
             offset += 2 + uid_length
 
     @property
@@ -3336,7 +3341,10 @@ class UserIdentitySubItemRQ(PDUItem):
     @property
     def response_requested(self):
         """Return the 'Positive Response Requested' field value as bool."""
-        return bool(self.positive_response_requested)
+        if self.positive_response_requested is not None:
+            return bool(self.positive_response_requested)
+
+        return None
 
     @property
     def secondary(self):
@@ -3529,6 +3537,7 @@ class UserIdentitySubItemAC(PDUItem):
 
 
 ## P-DATA-TF Item
+# Overriden item_type
 class PresentationDataValueItem(PDUItem):
     """A Presentation Data Value Item.
 
@@ -3643,7 +3652,10 @@ class PresentationDataValueItem(PDUItem):
     @property
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
-        return 1 + len(self.presentation_data_value)
+        if self.presentation_data_value:
+            return 1 + len(self.presentation_data_value)
+
+        return 1
 
     @property
     def item_type(self):
@@ -3659,7 +3671,10 @@ class PresentationDataValueItem(PDUItem):
     @property
     def message_control_header_byte(self):
         """Return the message control header byte as a formatted string."""
-        return "{:08b}".format(ord(self.presentation_data_value[0:1]))
+        if self.presentation_data_value:
+            return "{:08b}".format(ord(self.presentation_data_value[0:1]))
+
+        raise ValueError("No 'Presentation Data Value' field value")
 
     def __str__(self):
         """Return a string representation of the Item."""

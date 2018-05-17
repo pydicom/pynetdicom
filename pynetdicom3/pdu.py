@@ -1323,7 +1323,7 @@ class A_ASSOCIATE_RJ(PDU):
         return s
 
 
-# Non-standard _generate_items and _wrap_generate_items
+# Overridden _generate_items and _wrap_generate_items
 class P_DATA_TF(PDU):
     """A P-DATA-TF PDU.
 

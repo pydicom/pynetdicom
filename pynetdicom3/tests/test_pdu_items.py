@@ -2,7 +2,6 @@
 
 import codecs
 import logging
-import unittest
 
 import pytest
 
@@ -465,6 +464,20 @@ class TestTransferSyntax(object):
 
 
 class TestPresentationDataValue(object):
+    def test_init(self):
+        """Test a new PresentationDataValueItem"""
+        item = PresentationDataValueItem()
+        assert item.item_length == 1
+        assert len(item) == 5
+        assert item.presentation_context_id is None
+        assert item.presentation_data_value is None
+
+        with pytest.raises(ValueError):
+            item.message_control_header_byte
+
+        with pytest.raises(NotImplementedError):
+            item.item_type
+
     def test_string_output(self):
         """Test the string output"""
         pdu = P_DATA_TF()
@@ -474,7 +487,7 @@ class TestPresentationDataValue(object):
         assert '80 bytes' in item.__str__()
         assert '0x03 0x00' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct presentation data value """
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
@@ -482,18 +495,17 @@ class TestPresentationDataValue(object):
         pdvs = pdu.presentation_data_value_items
 
         assert pdvs[0].item_length == 80
+        assert len(pdvs[0]) == 84
         assert pdvs[0].presentation_data_value == presentation_data
+        assert pdvs[0].message_control_header_byte == "00000011"
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
-
         pdvs = pdu.presentation_data_value_items
 
-        s = pdvs[0].encode()
-
-        assert s == presentation_data_value
+        assert pdvs[0].encode() == presentation_data_value
 
     def test_properies(self):
         """ Check property setters and getters """
@@ -508,40 +520,63 @@ class TestPresentationDataValue(object):
         assert pdv.data == presentation_data
         assert pdv.message_control_header_byte == '00000011'
 
+    def test_message_control_header_byte(self):
+        item = PresentationDataValueItem()
+        ref = {
+            b'\x00' : '00000000',
+            b'\x01' : '00000001',
+            b'\x02' : '00000010',
+            b'\x03' : '00000011',
+        }
+        for value in [b'\x00\x99', b'\x01\x99', b'\x02\x99', b'\x03\x99']:
+            item.presentation_data_value = value
+            assert item.message_control_header_byte == ref[value[0:1]]
 
-class TestUserInformation(unittest.TestCase):
+
+class TestUserInformation(object):
+    def test_init(self):
+        """Test a new UserInformationItem."""
+        item = UserInformationItem()
+        assert item.item_type == 0x50
+        assert item.item_length == 0
+        assert len(item) == 4
+        assert item.user_data == []
+
+        assert item.async_ops_window is None
+        assert item.common_ext_neg == []
+        assert item.ext_neg == []
+        assert item.implementation_class_uid is None
+        assert item.implementation_version_name is None
+        assert item.role_selection == {}
+        assert item.user_identity is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
         item = pdu.user_information
-        self.assertTrue('Implementation Class UID Sub-item' in item.__str__())
-        self.assertTrue('Implementation Version Name Sub-item' in item.__str__())
-        self.assertTrue('SCP/SCU Role Selection Sub-item' in item.__str__())
+        assert 'Implementation Class UID Sub-item' in item.__str__()
+        assert 'Implementation Version Name Sub-item' in item.__str__()
+        assert 'SCP/SCU Role Selection Sub-item' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
+        item = pdu.user_information
 
-        user_info = pdu.user_information
-
-        self.assertEqual(user_info.item_type, 0x50)
-        self.assertEqual(user_info.item_length, 95)
+        assert item.item_type == 0x50
+        assert item.item_length == 95
+        assert len(item) == 99
+        assert len(item.user_data) == 4
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
-
         user_info = pdu.user_information
 
-        s = user_info.encode()
-
-        #for ii in pretty_bytes(s):
-        #        print(ii)
-
-        self.assertEqual(s, user_information)
+        assert user_info.encode(), user_information
 
     def test_to_primitive(self):
         """ Check converting to primitive """
@@ -557,13 +592,15 @@ class TestUserInformation(unittest.TestCase):
         max_pdu.maximum_length_received = 16382
         check.append(max_pdu)
         class_uid = ImplementationClassUIDNotification()
-        class_uid.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        class_uid.implementation_class_uid = UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
         check.append(class_uid)
         v_name = ImplementationVersionNameNotification()
         v_name.implementation_version_name = b'PYNETDICOM_090'
         check.append(v_name)
 
-        self.assertEqual(result, check)
+        assert result == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -576,20 +613,20 @@ class TestUserInformation(unittest.TestCase):
         new = UserInformationItem()
         new.from_primitive(params)
 
-        self.assertEqual(orig, new)
+        assert orig == new
 
     def test_properties_usr_id(self):
         """ Check user id properties are OK """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
         ui = pdu.user_information
-        self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemRQ))
+        assert isinstance(ui.user_identity, UserIdentitySubItemRQ)
 
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
         ui = pdu.user_information
         ui.user_data.append(UserIdentitySubItemAC())
-        self.assertTrue(isinstance(ui.user_identity, UserIdentitySubItemAC))
+        assert isinstance(ui.user_identity, UserIdentitySubItemAC)
 
     def test_properties_ext_neg(self):
         """ Check extended neg properties are OK """
@@ -611,7 +648,8 @@ class TestUserInformation(unittest.TestCase):
         ui = pdu.user_information
 
         for uid in ui.role_selection:
-            assert isinstance(ui.role_selection[uid], SCP_SCU_RoleSelectionSubItem)
+            assert isinstance(ui.role_selection[uid],
+                              SCP_SCU_RoleSelectionSubItem)
 
     def test_properties_async(self):
         """ Check async window ops properties are OK """
@@ -630,12 +668,12 @@ class TestUserInformation(unittest.TestCase):
 
         ui = pdu.user_information
 
-        self.assertEqual(ui.maximum_length, 16382)
+        assert ui.maximum_length == 16382
 
         for item in ui.user_data:
             if isinstance(item, MaximumLengthSubItem):
                 ui.user_data.remove(item)
-        self.assertTrue(ui.maximum_length is None)
+        assert ui.maximum_length is None
 
     def test_properties_implementation(self):
         """ Check async window ops properties are OK """
@@ -643,33 +681,43 @@ class TestUserInformation(unittest.TestCase):
         pdu.decode(a_associate_rq_role)
         ui = pdu.user_information
 
-        self.assertEqual(ui.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
-        self.assertEqual(ui.implementation_version_name, 'PYNETDICOM_090')
+        assert ui.implementation_class_uid == UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
+        assert ui.implementation_version_name == b'PYNETDICOM_090'
 
         for item in ui.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
                 ui.user_data.remove(item)
-        self.assertTrue(ui.implementation_version_name is None)
+        assert ui.implementation_version_name is None
 
 
-class TestUserInformation_MaximumLength(unittest.TestCase):
+class TestUserInformation_MaximumLength(object):
+    def test_init(self):
+        """Test a new MaximumLengthSubItem."""
+        item = MaximumLengthSubItem()
+        assert item.item_type == 0x51
+        assert item.item_length == 4
+        assert len(item) == 8
+        assert item.maximum_length_received is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
         item = pdu.user_information.user_data[0]
-        self.assertTrue('16382' in item.__str__())
+        assert '16382' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         max_length = pdu.user_information.user_data[0]
 
-        self.assertEqual(max_length.item_length, 4)
+        assert max_length.item_length == 4
         assert len(max_length) == 8
-        self.assertEqual(max_length.maximum_length_received, 16382)
+        assert max_length.maximum_length_received == 16382
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -678,9 +726,7 @@ class TestUserInformation_MaximumLength(unittest.TestCase):
 
         max_length = pdu.user_information.user_data[0]
 
-        s = max_length.encode()
-
-        self.assertEqual(s, maximum_length_received)
+        assert max_length.encode(), maximum_length_received
 
     def test_to_primitive(self):
         """ Check converting to primitive """
@@ -690,7 +736,7 @@ class TestUserInformation_MaximumLength(unittest.TestCase):
         result = max_length.to_primitive()
         check = MaximumLengthNegotiation()
         check.maximum_length_received = 16382
-        self.assertEqual(result, check)
+        assert result == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -700,27 +746,37 @@ class TestUserInformation_MaximumLength(unittest.TestCase):
         params = orig_max_length.to_primitive()
         new_max_length = MaximumLengthSubItem()
         new_max_length.from_primitive(params)
-        self.assertEqual(orig_max_length, new_max_length)
+        assert orig_max_length == new_max_length
 
 
-class TestUserInformation_ImplementationUID(unittest.TestCase):
+class TestUserInformation_ImplementationUID(object):
+    def test_init(self):
+        """Test a new ImplementationClassUIDSubItem."""
+        item = ImplementationClassUIDSubItem()
+        assert item.item_type == 0x52
+        assert item.item_length == 0
+        assert len(item) == 4
+        assert item.implementation_class_uid is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
         item = pdu.user_information.user_data[1]
-        self.assertTrue('1.2.826.0.1.3680043' in item.__str__())
+        assert '1.2.826.0.1.3680043' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         uid = pdu.user_information.user_data[1]
 
-        self.assertEqual(uid.item_length, 32)
+        assert uid.item_length == 32
         assert len(uid) == 36
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.0'))
+        assert uid.implementation_class_uid == UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -729,9 +785,7 @@ class TestUserInformation_ImplementationUID(unittest.TestCase):
 
         uid = pdu.user_information.user_data[1]
 
-        s = uid.encode()
-
-        self.assertEqual(s, implementation_class_uid)
+        assert uid.encode() == implementation_class_uid
 
     def test_to_primitive(self):
         """ Check converting to primitive """
@@ -743,8 +797,10 @@ class TestUserInformation_ImplementationUID(unittest.TestCase):
         result = uid.to_primitive()
 
         check = ImplementationClassUIDNotification()
-        check.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
-        self.assertEqual(result, check)
+        check.implementation_class_uid = UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
+        assert result == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -757,43 +813,57 @@ class TestUserInformation_ImplementationUID(unittest.TestCase):
         new_uid = ImplementationClassUIDSubItem()
         new_uid.from_primitive(params)
 
-        self.assertEqual(orig_uid, new_uid)
+        assert orig_uid == new_uid
 
     def test_properies(self):
         """ Check property setters and getters """
         uid = ImplementationClassUIDSubItem()
         uid.implementation_class_uid = '1.2.826.0.1.3680043.9.3811.0.9.1'
 
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.1'))
+        assert uid.implementation_class_uid == UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.1'
+        )
 
         uid.implementation_class_uid = b'1.2.826.0.1.3680043.9.3811.0.9.2'
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.2'))
+        assert uid.implementation_class_uid == UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.2'
+        )
 
         uid.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.3')
-        self.assertEqual(uid.implementation_class_uid, UID('1.2.826.0.1.3680043.9.3811.0.9.3'))
+        assert uid.implementation_class_uid == UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.3'
+        )
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             uid.implementation_class_uid = 10002
 
 
-class TestUserInformation_ImplementationVersion(unittest.TestCase):
+class TestUserInformation_ImplementationVersion(object):
+    def test_init(self):
+        """Test a new ImplementationVersionNameSubItem."""
+        item = ImplementationVersionNameSubItem()
+        assert item.item_type == 0x55
+        assert item.item_length == 0
+        assert len(item) == 4
+        assert item.implementation_version_name is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
         item = pdu.user_information.user_data[2]
-        self.assertTrue('PYNETDICOM_090' in item.__str__())
+        assert 'PYNETDICOM_090' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         version = pdu.user_information.user_data[2]
 
-        self.assertEqual(version.item_length, 14)
+        assert version.item_length == 14
         assert len(version) == 18
-        self.assertEqual(version.implementation_version_name, b'PYNETDICOM_090')
+        assert version.implementation_version_name == b'PYNETDICOM_090'
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -803,9 +873,7 @@ class TestUserInformation_ImplementationVersion(unittest.TestCase):
         version = pdu.user_information.user_data[2]
         version.implementation_version_name = b'PYNETDICOM_090'
 
-        s = version.encode()
-
-        self.assertEqual(s, implementation_version_name)
+        assert version.encode() == implementation_version_name
 
     def test_to_primitive(self):
         """ Check converting to primitive """
@@ -818,7 +886,7 @@ class TestUserInformation_ImplementationVersion(unittest.TestCase):
 
         check = ImplementationVersionNameNotification()
         check.implementation_version_name = b'PYNETDICOM_090'
-        self.assertEqual(result, check)
+        assert result == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -831,42 +899,57 @@ class TestUserInformation_ImplementationVersion(unittest.TestCase):
         new_version = ImplementationVersionNameSubItem()
         new_version.from_primitive(params)
 
-        self.assertEqual(orig_version, new_version)
+        assert orig_version == new_version
 
     def test_properies(self):
         """ Check property setters and getters """
         version = ImplementationVersionNameSubItem()
 
         version.implementation_version_name = 'PYNETDICOM'
-        self.assertEqual(version.implementation_version_name, b'PYNETDICOM')
+        assert version.implementation_version_name == b'PYNETDICOM'
 
         version.implementation_version_name = b'PYNETDICOM_090'
-        self.assertEqual(version.implementation_version_name, b'PYNETDICOM_090')
+        assert version.implementation_version_name == b'PYNETDICOM_090'
 
 
-class TestUserInformation_Asynchronous(unittest.TestCase):
+class TestUserInformation_Asynchronous(object):
+    def test_init(self):
+        """Test a new AsynchronousOperationsWindowSubItem."""
+        item = AsynchronousOperationsWindowSubItem()
+        assert item.item_type == 0x53
+        assert item.item_length == 4
+        assert len(item) == 8
+        assert item.maximum_number_operations_invoked is None
+        assert item.maximum_number_operations_performed is None
+
+        assert item.max_operations_invoked is None
+        assert item.max_operations_performed is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
-                self.assertTrue('invoked: 5' in item.__str__())
-                self.assertTrue('performed: 5' in item.__str__())
+                assert 'invoked: 5' in item.__str__()
+                assert 'performed: 5' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
 
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
-                async = item
+                break
 
-                self.assertEqual(async.item_length, 4)
-                assert len(async) == 8
-                self.assertEqual(async.maximum_number_operations_invoked, 5)
-                self.assertEqual(async.maximum_number_operations_performed, 5)
+        assert item.item_length == 4
+        assert len(item) == 8
+        assert item.maximum_number_operations_invoked == 5
+        assert item.maximum_number_operations_performed == 5
+
+        assert item.max_operations_invoked == 5
+        assert item.max_operations_performed == 5
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -874,14 +957,9 @@ class TestUserInformation_Asynchronous(unittest.TestCase):
         pdu.decode(a_associate_rq_user_async)
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
-                async = item
+                break
 
-                s = async.encode()
-
-                #for ii in pretty_bytes(s):
-                #    print(ii)
-
-                self.assertEqual(s, asynchronous_window_ops)
+        assert item.encode() == asynchronous_window_ops
 
     def test_to_primitive(self):
         """ Check converting to primitive """
@@ -889,14 +967,12 @@ class TestUserInformation_Asynchronous(unittest.TestCase):
         pdu.decode(a_associate_rq_user_async)
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
-                async = item
+                break
 
-                result = async.to_primitive()
-
-                check = AsynchronousOperationsWindowNegotiation()
-                check.maximum_number_operations_invoked = 5
-                check.maximum_number_operations_performed = 5
-                self.assertEqual(result, check)
+        check = AsynchronousOperationsWindowNegotiation()
+        check.maximum_number_operations_invoked = 5
+        check.maximum_number_operations_performed = 5
+        assert item.to_primitive() == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -905,13 +981,12 @@ class TestUserInformation_Asynchronous(unittest.TestCase):
 
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
-                orig = item
-                params = orig.to_primitive()
+                break
 
-                new = AsynchronousOperationsWindowSubItem()
-                new.from_primitive(params)
+        new = AsynchronousOperationsWindowSubItem()
+        new.from_primitive(item.to_primitive())
 
-                self.assertEqual(orig, new)
+        assert item == new
 
     def test_properies(self):
         """ Check property setters and getters """
@@ -920,13 +995,28 @@ class TestUserInformation_Asynchronous(unittest.TestCase):
 
         for item in pdu.user_information.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
-                async = item
+                break
 
-        self.assertEqual(item.max_operations_invoked, 5)
-        self.assertEqual(item.max_operations_performed, 5)
+        assert item.max_operations_invoked == 5
+        assert item.max_operations_performed == 5
 
 
 class TestUserInformation_RoleSelection(object):
+    def test_init(self):
+        """Test a new SCP_SCU_RoleSelectionSubItem."""
+        item = SCP_SCU_RoleSelectionSubItem()
+        assert item.item_type == 0x54
+        assert item.item_length == 4
+        assert len(item) == 8
+        assert item.uid_length == 0
+        assert item.sop_class_uid is None
+        assert item.scu_role is None
+        assert item.scp_role is None
+
+        assert item.scu is None
+        assert item.scp is None
+        assert item.uid is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -935,46 +1025,42 @@ class TestUserInformation_RoleSelection(object):
         assert 'CT Image Storage' in item.__str__()
         assert 'SCU Role: 0' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
 
-        rs = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
+        item = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
 
-        assert rs.item_type == 0x54
-        assert rs.item_length == 29
-        assert len(rs) == 33
-        assert rs.uid_length == 25
-        assert rs.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2')
-        assert rs.scu_role == 0
-        assert rs.scp_role == 1
+        assert item.item_type == 0x54
+        assert item.item_length == 29
+        assert len(item) == 33
+        assert item.uid_length == 25
+        assert item.sop_class_uid, UID('1.2.840.10008.5.1.4.1.1.2')
+        assert item.scu_role == 0
+        assert item.scp_role == 1
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
-        rs = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
-        s = rs.encode()
-        assert s == role_selection
-        s = rs.encode()
-        assert s == role_selection
+        item = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
+
+        assert item.encode() == role_selection
 
     def test_to_primitive(self):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
 
-        rs = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
-
-        result = rs.to_primitive()
+        item = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
 
         check = SCP_SCU_RoleSelectionNegotiation()
         check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
         check.scu_role = False
         check.scp_role = True
 
-        assert result == check
+        assert item.to_primitive() == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -1033,7 +1119,27 @@ class TestUserInformation_RoleSelection(object):
             item.scp_role = 2
 
 
-class TestUserInformation_UserIdentityRQ_UserNoPass(object):
+class TestUserIdentityRQ_UserNoPass(object):
+    def test_init(self):
+        """Test a new UserIdentitySubItemRQ."""
+        item = UserIdentitySubItemRQ()
+        assert item.item_type == 0x58
+        assert item.item_length == 6
+        assert len(item) == 10
+        assert item.user_identity_type is None
+        assert item.positive_response_requested is None
+        assert item.primary_field_length == 0
+        assert item.primary_field is None
+        assert item.secondary_field_length == 0
+        assert item.secondary_field == b''
+
+        assert item.id_type is None
+        with pytest.raises(KeyError):
+            item.id_type_str
+        assert item.primary is None
+        assert item.response_requested is None
+        assert item.secondary == b''
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1049,37 +1155,37 @@ class TestUserInformation_UserIdentityRQ_UserNoPass(object):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
 
-        ui = pdu.user_information.user_identity
+        item = pdu.user_information.user_identity
 
-        assert ui.item_type == 0x58
-        assert ui.item_length == 16
-        assert ui.user_identity_type == 1
-        assert ui.positive_response_requested == 1
-        assert ui.primary_field_length == 10
-        assert ui.primary_field == b'pynetdicom'
-        assert ui.secondary_field_length == 0
-        assert ui.secondary_field == b''
+        assert item.item_type == 0x58
+        assert item.item_length == 16
+        assert len(item) == 20
+        assert item.user_identity_type == 1
+        assert item.positive_response_requested == 1
+        assert item.primary_field_length == 10
+        assert item.primary_field == b'pynetdicom'
+        assert item.secondary_field_length == 0
+        assert item.secondary_field == b''
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
-        ui = pdu.user_information.user_identity
-        assert ui.encode() == user_identity_rq_user_nopw
+        item = pdu.user_information.user_identity
+        assert item.encode() == user_identity_rq_user_nopw
 
     def test_to_primitive(self):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
-        ui = pdu.user_information.user_identity
+        item = pdu.user_information.user_identity
 
-        result = ui.to_primitive()
         check = UserIdentityNegotiation()
         check.user_identity_type = 1
         check.positive_response_requested = True
         check.primary_field = b'pynetdicom'
         check.secondary_field = b''
-        assert result == check
+        assert item.to_primitive() == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -1099,16 +1205,28 @@ class TestUserInformation_UserIdentityRQ_UserNoPass(object):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
 
-        ui = pdu.user_information.user_identity
+        item = pdu.user_information.user_identity
 
-        assert ui.id_type == 1
-        assert ui.id_type_str == 'Username'
-        assert ui.primary == b'pynetdicom'
-        assert ui.response_requested == True
-        assert ui.secondary == b''
+        assert item.id_type == 1
+        assert item.id_type_str == 'Username'
+        assert item.primary == b'pynetdicom'
+        assert item.response_requested == True
+        assert item.secondary == b''
+
+        item.user_identity_type = 2
+        assert item.id_type == 2
+        assert item.id_type_str == 'Username/Password'
+
+        item.user_identity_type = 3
+        assert item.id_type == 3
+        assert item.id_type_str == 'Kerberos'
+
+        item.user_identity_type = 4
+        assert item.id_type == 4
+        assert item.id_type_str == 'SAML'
 
 
-class TestUserInformation_UserIdentityRQ_UserPass(object):
+class TestUserIdentityRQ_UserPass(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1126,34 +1244,32 @@ class TestUserInformation_UserIdentityRQ_UserPass(object):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_id_user_pass)
 
-        ui = pdu.user_information.user_identity
+        item = pdu.user_information.user_identity
 
-        assert ui.item_type == 0x58
-        assert ui.item_length == 24
-        assert len(ui) == 28
-        assert ui.user_identity_type == 2
-        assert ui.positive_response_requested == 0
-        assert ui.primary_field_length == 10
-        assert ui.primary_field == b'pynetdicom'
-        assert ui.secondary_field_length == 8
-        assert ui.secondary_field == b'p4ssw0rd'
+        assert item.item_type == 0x58
+        assert item.item_length == 24
+        assert len(item) == 28
+        assert item.user_identity_type == 2
+        assert item.positive_response_requested == 0
+        assert item.primary_field_length == 10
+        assert item.primary_field == b'pynetdicom'
+        assert item.secondary_field_length == 8
+        assert item.secondary_field == b'p4ssw0rd'
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_id_user_pass)
 
-        ui = pdu.user_information.user_identity
-        assert ui.encode() == user_identity_rq_user_pass
+        item = pdu.user_information.user_identity
+        assert item.encode() == user_identity_rq_user_pass
 
     def test_to_primitive(self):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_id_user_pass)
 
-        ui = pdu.user_information.user_identity
-
-        result = ui.to_primitive()
+        item = pdu.user_information.user_identity
 
         check = UserIdentityNegotiation()
         check.user_identity_type = 2
@@ -1161,7 +1277,7 @@ class TestUserInformation_UserIdentityRQ_UserPass(object):
         check.primary_field = b'pynetdicom'
         check.secondary_field = b'p4ssw0rd'
 
-        assert result == check
+        assert item.to_primitive() == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -1181,69 +1297,77 @@ class TestUserInformation_UserIdentityRQ_UserPass(object):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_id_user_pass)
 
-        ui = pdu.user_information.user_identity
+        item = pdu.user_information.user_identity
 
-        assert ui.id_type, 2
-        assert ui.id_type_str == 'Username/Password'
-        assert ui.primary == b'pynetdicom'
-        assert ui.response_requested == False
-        assert ui.secondary == b'p4ssw0rd'
+        assert item.id_type == 2
+        assert item.id_type_str == 'Username/Password'
+        assert item.primary == b'pynetdicom'
+        assert item.response_requested == False
+        assert item.secondary == b'p4ssw0rd'
 
 
 # FIXME: Add tests for UserIdentityRQ SAML
-class TestUserInformation_UserIdentityRQ_SAML(object):
+class TestUserIdentityRQ_SAML(object):
     pass
 
 
 # FIXME: Add tests for UserIdentityRQ Kerberos
-class TestUserInformation_UserIdentityRQ_Kerberos(object):
+class TestUserIdentityRQ_Kerberos(object):
     pass
 
 
-class TestUserInformation_UserIdentityAC_UserResponse(unittest.TestCase):
+class TestUserIdentityAC_UserResponse(object):
+    def test_init(self):
+        """Test a new UserIdentitySubItemAC."""
+        item = UserIdentitySubItemAC()
+        assert item.item_type == 0x59
+        assert item.item_length == 2
+        assert len(item) == 6
+        assert item.server_response is None
+        assert item.server_response_length == 0
+
+        assert item.response is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)
         item = pdu.user_information.user_identity
-        self.assertTrue("Server response: b'Accepted'" in item.__str__() or
-                        "Server response: Accepted" in item.__str__())
+        assert ("Server response: b'Accepted'" in item.__str__() or
+                "Server response: Accepted" in item.__str__())
 
     def test_decode(self):
         """ Check decoding produces the correct values """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)
 
-        ui = pdu.user_information.user_identity
+        item = pdu.user_information.user_identity
 
-        assert ui.item_type == 0x59
-        assert ui.item_length == 10
-        assert len(ui) == 14
-        assert ui.server_response_length == 8
-        assert ui.server_response == b'Accepted'
+        assert item.item_type == 0x59
+        assert item.item_length == 10
+        assert len(item) == 14
+        assert item.server_response_length == 8
+        assert item.server_response == b'Accepted'
+
+        assert item.response == b'Accepted'
 
     def test_encode(self):
         """ Check encoding produces the correct output """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)
 
-        ui = pdu.user_information.user_identity
-        s = ui.encode()
-        self.assertEqual(s, user_identity_ac)
-
-        s = ui.encode()
-        self.assertEqual(s, user_identity_ac)
+        item = pdu.user_information.user_identity
+        assert item.encode() == user_identity_ac
 
     def test_to_primitive(self):
         """ Check converting to primitive """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)
 
-        ui = pdu.user_information.user_identity
-        result = ui.to_primitive()
+        item = pdu.user_information.user_identity
         check = UserIdentityNegotiation()
         check.server_response = b'Accepted'
-        self.assertEqual(result, check)
+        assert item.to_primitive() == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -1255,27 +1379,40 @@ class TestUserInformation_UserIdentityAC_UserResponse(unittest.TestCase):
         new = UserIdentitySubItemAC()
         new.from_primitive(params)
 
-        self.assertEqual(orig, new)
+        assert orig == new
 
     def test_properies(self):
         """ Check property setters and getters """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac_user)
-        ui = pdu.user_information.user_identity
-        self.assertEqual(ui.response, b'Accepted')
+        item = pdu.user_information.user_identity
+        assert item.response == b'Accepted'
 
 
 # FIXME: Add tests for UserIdentityAC SAML
-class TestUserInformation_UserIdentityAC_SAMLResponse(object):
+class TestUserIdentityAC_SAMLResponse(object):
     pass
 
 
 # FIXME: Add tests for UserIdentityAC Kerberos
-class TestUserInformation_UserIdentityAC_KerberosResponse(object):
+class TestUserIdentityAC_KerberosResponse(object):
     pass
 
 
 class TestUserInformation_ExtendedNegotiation(object):
+    def test_init(self):
+        """Test a new SOPClassExtendedNegotiationSubItem."""
+        item = SOPClassExtendedNegotiationSubItem()
+        assert item.item_type == 0x56
+        assert item.item_length == 2
+        assert len(item) == 6
+        assert item.sop_class_uid_length == 0
+        assert item.sop_class_uid is None
+        assert item.service_class_application_information is None
+
+        assert item.app_info is None
+        assert item.uid is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1297,7 +1434,12 @@ class TestUserInformation_ExtendedNegotiation(object):
         assert len(item) == 37
         assert item.sop_class_uid_length == 25
         assert item.sop_class_uid == UID('1.2.840.10008.5.1.4.1.1.2')
-        assert item.service_class_application_information == b'\x02\x00\x03\x00\x01\x00'
+        assert item.service_class_application_information == (
+            b'\x02\x00\x03\x00\x01\x00'
+        )
+
+        assert item.uid == UID('1.2.840.10008.5.1.4.1.1.2')
+        assert item.app_info == b'\x02\x00\x03\x00\x01\x00'
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -1306,8 +1448,7 @@ class TestUserInformation_ExtendedNegotiation(object):
 
         item = pdu.user_information.ext_neg[0]
 
-        s = item.encode()
-        assert s == extended_negotiation
+        assert item.encode() == extended_negotiation
 
     def test_to_primitive(self):
         """ Check converting to primitive """
@@ -1319,9 +1460,10 @@ class TestUserInformation_ExtendedNegotiation(object):
         result = item.to_primitive()
 
         check = SOPClassExtendedNegotiation()
-
         check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        check.service_class_application_information = b'\x02\x00\x03\x00\x01\x00'
+        check.service_class_application_information = (
+            b'\x02\x00\x03\x00\x01\x00'
+        )
 
         assert result == check
 
@@ -1370,6 +1512,20 @@ class TestUserInformation_ExtendedNegotiation(object):
 
 
 class TestUserInformation_CommonExtendedNegotiation(object):
+    def test_init(self):
+        """Test a new SOPClassCommonExtendedNegotiationSubItem."""
+        item = SOPClassCommonExtendedNegotiationSubItem()
+        assert item.item_type == 0x57
+        assert item.item_length == 6
+        assert len(item) == 10
+        assert item.sub_item_version == 0x00
+        assert item.sop_class_uid_length == 0
+        assert item.sop_class_uid is None
+        assert item.service_class_uid_length == 0
+        assert item.service_class_uid is None
+        assert item.related_general_sop_class_identification_length == 0
+        assert item.related_general_sop_class_identification == []
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1391,7 +1547,9 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         assert item.sop_class_uid_length == 25
         assert item.sop_class_uid == UID('1.2.840.10008.5.1.4.1.1.4')
         assert item.service_class_uid == UID('1.2.840.10008.4.2')
-        assert item.related_general_sop_class_identification == [UID('1.2.840.10008.5.1.4.1.1.88.22')]
+        assert item.related_general_sop_class_identification == [
+            UID('1.2.840.10008.5.1.4.1.1.88.22')
+        ]
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -1407,15 +1565,14 @@ class TestUserInformation_CommonExtendedNegotiation(object):
 
         item = pdu.user_information.common_ext_neg[0]
 
-        result = item.to_primitive()
-
         check = SOPClassCommonExtendedNegotiation()
-
         check.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.4')
         check.service_class_uid = UID('1.2.840.10008.4.2')
-        check.related_general_sop_class_identification = [UID('1.2.840.10008.5.1.4.1.1.88.22')]
+        check.related_general_sop_class_identification = [
+            UID('1.2.840.10008.5.1.4.1.1.88.22')
+        ]
 
-        assert result == check
+        assert item.to_primitive() == check
 
     def test_from_primitive(self):
         """ Check converting from primitive """
@@ -1471,3 +1628,55 @@ class TestUserInformation_CommonExtendedNegotiation(object):
             item.related_general_sop_class_identification = 10002
         with pytest.raises(TypeError):
             item.related_general_sop_class_identification = [10002]
+
+    def test_generate_items(self):
+        """Test ._generate_items"""
+        item = SOPClassCommonExtendedNegotiationSubItem()
+        gen = item._generate_items(b'')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        data = b'\x00\x07\x31\x2e\x38\x38\x2e\x32\x32'
+        gen = item._generate_items(data)
+        assert next(gen) == UID('1.88.22')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        data += b'\x00\x08\x31\x2e\x38\x31\x38\x2e\x32\x32'
+        gen = item._generate_items(data)
+        assert next(gen) == UID('1.88.22')
+        assert next(gen) == UID('1.818.22')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+    def test_generate_items_raises(self):
+        """Test failure modes of ._generate_items"""
+        item = SOPClassCommonExtendedNegotiationSubItem()
+
+        data = b'\x00\x08\x31\x2e\x38\x38\x2e\x32\x32'
+        gen = item._generate_items(data)
+        with pytest.raises(AssertionError):
+            next(gen)
+
+    def test_wrap_generate_items(self):
+        """Test ._wrap_generate_items"""
+        item = SOPClassCommonExtendedNegotiationSubItem()
+        out = item._wrap_generate_items(b'')
+        assert out == []
+
+        data = b'\x00\x07\x31\x2e\x38\x38\x2e\x32\x32'
+        out = item._wrap_generate_items(data)
+        assert out == [UID('1.88.22')]
+
+        data += b'\x00\x08\x31\x2e\x38\x31\x38\x2e\x32\x32'
+        out = item._wrap_generate_items(data)
+        assert out == [UID('1.88.22'), UID('1.818.22')]
+
+    def test_wrap_list(self):
+        """test ._wrap_list."""
+        item = SOPClassCommonExtendedNegotiationSubItem()
+        data = [UID('1.88.22'), UID('1.818.22')]
+        assert item._wrap_list(data) == (
+            b'\x00\x07\x31\x2e\x38\x38\x2e\x32\x32' +
+            b'\x00\x08\x31\x2e\x38\x31\x38\x2e\x32\x32'
+        )
