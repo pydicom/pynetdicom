@@ -92,7 +92,6 @@ class TestApplicationContext(object):
         pdu.decode(a_associate_rq)
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
-                print(item)
                 assert '1.2.840.10008.3.1.1.1' in item.__str__()
 
     def test_rq_decode(self):

@@ -437,12 +437,14 @@ class ACSEServiceProvider(object):
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
         s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(user_info.implementation_version_name))
+                 '{0!s}'.format(
+            user_info.implementation_version_name.decode('ascii'))
+        )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    '
-                 '{0!s}'.format(pdu.calling_ae_title.decode('utf-8')))
+                 '{0!s}'.format(pdu.calling_ae_title.decode('ascii')))
         s.append('Called Application Name:     '
-                 '{0!s}'.format(pdu.called_ae_title.decode('utf-8')))
+                 '{0!s}'.format(pdu.called_ae_title.decode('ascii')))
         s.append('Our Max PDU Receive Size:    '
                  '{0!s}'.format(user_info.maximum_length))
 
@@ -456,7 +458,7 @@ class ACSEServiceProvider(object):
             s.append('  Context ID:        {0!s} '
                      '(Proposed)'.format((context.context_id)))
             s.append('    Abstract Syntax: ='
-                     '{0!s}'.format(context.abstract_syntax))
+                     '{0!s}'.format(context.abstract_syntax.name))
 
             '''
             if 'SCU' in context.__dict__.keys():
@@ -567,7 +569,7 @@ class ACSEServiceProvider(object):
         pres_contexts = assoc_ac.presentation_context
         user_info = assoc_ac.user_information
 
-        responding_ae = 'resp. AP Title'
+        responding_ae = 'resp. AE Title'
 
         s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
@@ -576,7 +578,9 @@ class ACSEServiceProvider(object):
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
         s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(user_info.implementation_version_name))
+                 '{0!s}'.format(
+            user_info.implementation_version_name.decode('ascii'))
+        )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Responding Application Name: {0!s}'.format(responding_ae))
         s.append('Our Max PDU Receive Size:    '
@@ -601,7 +605,7 @@ class ACSEServiceProvider(object):
                          .format(ac_scp_scu_role))
                 '''
                 s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax))
+                         .format(item.transfer_syntax.name))
 
         ## Extended Negotiation
         ext_nego = 'None'
@@ -722,21 +726,25 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    {0!s}'
                  .format(their_class_uid))
         s.append('Their Implementation Version Name: {0!s}'
-                 .format(their_version))
+                 .format(their_version.decode('ascii')))
         s.append('Application Context Name:    {0!s}'
                  .format(app_context))
         s.append('Calling Application Name:    {0!s}'
-                 .format(pdu.calling_ae_title.decode('utf-8')))
+                 .format(pdu.calling_ae_title.decode('ascii')))
         s.append('Called Application Name:     {0!s}'
-                 .format(pdu.called_ae_title.decode('utf-8')))
+                 .format(pdu.called_ae_title.decode('ascii')))
         s.append('Their Max PDU Receive Size:  {0!s}'
                  .format(user_info.maximum_length))
 
         ## Presentation Contexts
         s.append('Presentation Contexts:')
         for item in pres_contexts:
-            s.append('  Context ID:        {0!s} (Proposed)'.format(item.context_id))
-            s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax))
+            s.append('  Context ID:        {0!s} (Proposed)'.format(
+                item.context_id)
+            )
+            s.append('    Abstract Syntax: ={0!s}'.format(
+                item.abstract_syntax.name)
+            )
 
             '''
             if item.SCU is None and item.SCP is None:
@@ -748,7 +756,7 @@ class ACSEServiceProvider(object):
             '''
             s.append('    Proposed Transfer Syntax(es):')
             for ts in item.transfer_syntax:
-                s.append('      ={0!s}'.format(ts))
+                s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
         if pdu.user_information.ext_neg is not None:
@@ -868,12 +876,12 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    {0!s}'
                  .format(their_class_uid))
         s.append('Their Implementation Version Name: {0!s}'
-                 .format(their_version))
+                 .format(their_version.decode('ascii')))
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    {0!s}'
-                 .format(assoc_ac.calling_ae_title.decode('utf-8')))
+                 .format(assoc_ac.calling_ae_title.decode('ascii')))
         s.append('Called Application Name:     {0!s}'
-                 .format(assoc_ac.called_ae_title.decode('utf-8')))
+                 .format(assoc_ac.called_ae_title.decode('ascii')))
         s.append('Their Max PDU Receive Size:  {0!s}'
                  .format(user_info.maximum_length))
         s.append('Presentation Contexts:')
@@ -895,7 +903,7 @@ class ACSEServiceProvider(object):
                          .format(ac_scp_scu_role))
                 '''
                 s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax))
+                         .format(item.transfer_syntax.name))
 
 
         ## Extended Negotiation
