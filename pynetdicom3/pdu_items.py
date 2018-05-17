@@ -1,5 +1,43 @@
 """DICOM Upper Layer PDU Items and Sub-items.
 
+**A-ASSOCIATE-RQ PDU Items**
+
+- ApplicationContextItem
+- PresentationContextItemRQ
+
+  - AbstractSyntaxSubItem
+  - TransferSyntaxSubItem
+- UserInformationItem
+
+  - MaximumLengthSubItem
+  - ImplementationClassUIDSubItem
+  - ImplementationVersionNameSubItem
+  - AsynchronousOperationsWindowSubItem
+  - SCP_SCU_RoleSelectionSubItem
+  - SOPClassExtendedNegotiationSubItem
+  - SOPClassCommonExtendedNegotiationSubItem
+  - UserIdentitySubItemRQ
+
+ **A-ASSOCIATE-AC PDU Items**
+
+ - ApplicationContextItem
+ - PresentationContextItemAC
+
+   - TransferSyntaxSubItem
+ - UserInformationItem
+
+   - MaximumLengthSubItem
+   - ImplementationClassUIDSubItem
+   - ImplementationVersionNameSubItem
+   - AsynchronousOperationsWindowSubItem
+   - SCP_SCU_RoleSelectionSubItem
+   - SOPClassExtendedNegotiationSubItem
+   - SOPClassCommonExtendedNegotiationSubItem
+   - UserIdentitySubItemAC
+
+**P-DATA-TF PDU Items**
+
+- PresentationDataValueItem
 """
 
 import codecs
@@ -373,7 +411,7 @@ class ApplicationContextItem(PDUItem):
 
     def __init__(self):
         """Initialise a new Application Context Item."""
-        self.application_context_name = ''
+        self.application_context_name = b'1.2.840.10008.3.1.1.1'
 
     @property
     def application_context_name(self):
@@ -869,7 +907,11 @@ class PresentationContextItemAC(PDUItem):
     @property
     def item_length(self):
         """Return the 'Item Length' field value as an int."""
-        return 4 + len(self.transfer_syntax_sub_item[0])
+        if self.transfer_syntax_sub_item:
+            return 4 + len(self.transfer_syntax_sub_item[0])
+
+        else:
+            return 4
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -1336,7 +1378,7 @@ class AbstractSyntaxSubItem(PDUItem):
         if self.abstract_syntax_name:
             return len(self.abstract_syntax_name)
 
-        return 0x00
+        return 0
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""
@@ -1463,7 +1505,7 @@ class TransferSyntaxSubItem(PDUItem):
         if self.transfer_syntax_name:
             return len(self.transfer_syntax_name)
 
-        return 0x00
+        return 0
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""

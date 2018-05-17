@@ -78,7 +78,15 @@ def create_encoded_pdu():
     print_nice_bytes(pdu.encode())
 
 
-class TestPDUItem_ApplicationContext(object):
+class TestApplicationContext(object):
+    def test_init(self):
+        """Test a new ApplicationContextItem"""
+        item = ApplicationContextItem()
+        assert item.item_type == 0x10
+        assert item.item_length == 21
+        assert len(item) == 25
+        assert item.application_context_name == UID('1.2.840.10008.3.1.1.1')
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -88,39 +96,31 @@ class TestPDUItem_ApplicationContext(object):
                 print(item)
                 assert '1.2.840.10008.3.1.1.1' in item.__str__()
 
-    def test_stream_decode_assoc_rq(self):
+    def test_rq_decode(self):
         """ Check decoding an assoc_rq produces the correct application context """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
-        app_context = pdu.variable_items[0]
+        item = pdu.variable_items[0]
 
-        assert app_context.item_type == 0x10
-        assert app_context.item_length == 21
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert isinstance(app_context.item_type, int)
-        assert isinstance(app_context.item_length, int)
-        assert isinstance(app_context.application_context_name, UID)
+        assert item.item_type == 0x10
+        assert item.item_length == 21
+        assert len(item) == 25
+        assert item.application_context_name == '1.2.840.10008.3.1.1.1'
+        assert isinstance(item.application_context_name, UID)
 
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert isinstance(app_context.application_context_name, UID)
-
-    def test_stream_decode_assoc_ac(self):
+    def test_ac_decode(self):
         """ Check decoding an assoc_ac produces the correct application context """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
-        app_context = pdu.variable_items[0]
+        item = pdu.variable_items[0]
 
-        assert app_context.item_type == 0x10
-        assert app_context.item_length == 21
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert isinstance(app_context.item_type, int)
-        assert isinstance(app_context.item_length, int)
-        assert isinstance(app_context.application_context_name, UID)
-
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert isinstance(app_context.application_context_name, UID)
+        assert item.item_type == 0x10
+        assert item.item_length == 21
+        assert len(item) == 25
+        assert item.application_context_name == '1.2.840.10008.3.1.1.1'
+        assert isinstance(item.application_context_name, UID)
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -141,8 +141,9 @@ class TestPDUItem_ApplicationContext(object):
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
                 assert len(item) == 25
-                item.application_context_name = '1.2.840.10008.3.1.1.1.1'
-                assert len(item) == 27
+                item.application_context_name = '1.2.840'
+                assert item.item_length == 7
+                assert len(item) == 11
 
     def test_properties(self):
         """ Test the item's property setters and getters """
@@ -151,16 +152,29 @@ class TestPDUItem_ApplicationContext(object):
 
         for item in pdu.variable_items:
             if isinstance(item, ApplicationContextItem):
-                uid = '1.2.840.10008.3.1.1.1'
-                for s in [codecs.encode(uid, 'ascii'), uid, UID(uid)]:
-                    item.application_context_name = s
-                    assert item.application_context_name == UID(uid)
-                    assert isinstance(item.application_context_name, UID)
-                    with pytest.raises(TypeError):
-                        item.application_context_name = []
+                break
+
+        uid = '1.2.840.10008.3.1.1.1'
+        for s in [codecs.encode(uid, 'ascii'), uid, UID(uid)]:
+            item.application_context_name = s
+            assert item.application_context_name == UID(uid)
+            assert isinstance(item.application_context_name, UID)
 
 
-class TestPDUItem_PresentationContextRQ(object):
+class TestPresentationContextRQ(object):
+    def test_init(self):
+        """Test a new PresentationContextRQ Item."""
+        item = PresentationContextItemRQ()
+        assert item.item_type == 0x20
+        assert item.item_length == 4
+        assert len(item) == 8
+        assert item.presentation_context_id is None
+        assert item.abstract_transfer_syntax_sub_items == []
+
+        assert item.abstract_syntax is None
+        assert item.context_id is None
+        assert item.transfer_syntax == []
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -171,17 +185,20 @@ class TestPDUItem_PresentationContextRQ(object):
                 assert 'CT Image Storage' in item.__str__()
                 assert 'Explicit VR Little Endian' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
+        item = pdu.variable_items[1]
 
-        pres_context = pdu.variable_items[1]
-
-        assert pres_context.item_type == 0x20
-        assert pres_context.item_length == 46
-        assert pres_context.presentation_context_id == 1
-        assert isinstance(pres_context.abstract_transfer_syntax_sub_items, list)
+        assert item.item_type == 0x20
+        assert item.item_length == 46
+        assert len(item) == 50
+        assert item.presentation_context_id == 1
+        assert isinstance(item.abstract_transfer_syntax_sub_items, list)
+        assert item.abstract_syntax == UID('1.2.840.10008.1.1')
+        assert len(item.transfer_syntax) == 1
+        assert item.transfer_syntax[0] == UID('1.2.840.10008.1.2')
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -227,7 +244,24 @@ class TestPDUItem_PresentationContextRQ(object):
         assert orig_item == new_item
 
 
-class TestPDUItem_PresentationContextAC(object):
+class TestPresentationContextAC(object):
+    def test_init(self):
+        """Test a new PresentationContextAC Item."""
+        item = PresentationContextItemAC()
+        assert item.item_type == 0x21
+        assert item.item_length == 4
+        assert len(item) == 8
+        assert item.presentation_context_id is None
+        assert item.result_reason is None
+        assert item.transfer_syntax_sub_item == []
+
+        assert item.context_id is None
+        assert item.transfer_syntax is None
+        assert item.result is None
+
+        with pytest.raises(KeyError):
+            item.result_str
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_AC()
@@ -237,17 +271,23 @@ class TestPDUItem_PresentationContextAC(object):
                 assert 'Accepted' in item.__str__()
                 assert 'Implicit VR Little Endian' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
-        pres_context = pdu.variable_items[1]
+        item = pdu.variable_items[1]
 
-        assert pres_context.item_type == 0x21
-        assert pres_context.item_length == 25
-        assert pres_context.presentation_context_id == 1
-        assert isinstance(pres_context.transfer_syntax_sub_item[0], TransferSyntaxSubItem)
+        assert item.item_type == 0x21
+        assert item.item_length == 25
+        assert len(item) == 29
+        assert item.presentation_context_id == 1
+        assert item.result_reason == 0
+        assert item.result == item.result_reason
+        assert item.result_str == 'Accepted'
+        assert isinstance(item.transfer_syntax_sub_item[0],
+                          TransferSyntaxSubItem)
+        assert item.transfer_syntax == UID('1.2.840.10008.1.2')
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -293,8 +333,31 @@ class TestPDUItem_PresentationContextAC(object):
 
         assert orig_item == new_item
 
+    def test_result_str(self):
+        item = PresentationContextItemAC()
+        _result = {
+            0 : 'Accepted',
+            1 : 'User Rejection',
+            2 : 'Provider Rejection',
+            3 : 'Abstract Syntax Not Supported',
+            4 : 'Transfer Syntax Not Supported'
+        }
 
-class TestPDUItem_AbstractSyntax(object):
+        for result in [0, 1, 2, 3, 4]:
+            item.result_reason = result
+            assert item.result_str == _result[result]
+
+
+class TestAbstractSyntax(object):
+    def test_init(self):
+        """Test a new AbstractSyntaxSubItem."""
+        item = AbstractSyntaxSubItem()
+        assert item.item_type == 0x30
+        assert item.item_length == 0
+        assert len(item) == 4
+        assert item.abstract_syntax_name is None
+        assert item.abstract_syntax is None
+
     def test_string_output(self):
         """Test the string output"""
         item = AbstractSyntaxSubItem()
@@ -302,18 +365,19 @@ class TestPDUItem_AbstractSyntax(object):
         assert '17 bytes' in item.__str__()
         assert 'Verification SOP Class' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         contexts = pdu.presentation_context
-        ab_syntax = contexts[0].abstract_transfer_syntax_sub_items[0]
+        item = contexts[0].abstract_transfer_syntax_sub_items[0]
 
-        assert ab_syntax.item_type == 0x30
-        assert ab_syntax.item_length == 17
-        assert len(ab_syntax) == 21
-        assert ab_syntax.abstract_syntax_name, UID('1.2.840.10008.1.1')
+        assert item.item_type == 0x30
+        assert item.item_length == 17
+        assert len(item) == 21
+        assert item.abstract_syntax_name == UID('1.2.840.10008.1.1')
+        assert item.abstract_syntax == UID('1.2.840.10008.1.1')
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -323,28 +387,35 @@ class TestPDUItem_AbstractSyntax(object):
         contexts = pdu.presentation_context
         ab_syntax = contexts[0].abstract_transfer_syntax_sub_items[0]
 
-        s = ab_syntax.encode()
-
-        assert s == abstract_syntax
+        assert ab_syntax.encode() == abstract_syntax
 
     def test_properies(self):
         """ Check property setters and getters """
-        ab_syntax = AbstractSyntaxSubItem()
-        ab_syntax.abstract_syntax_name = '1.2.840.10008.1.1'
+        item = AbstractSyntaxSubItem()
+        item.abstract_syntax_name = '1.2.840.10008.1.1'
 
-        assert ab_syntax.abstract_syntax == UID('1.2.840.10008.1.1')
+        assert item.abstract_syntax == UID('1.2.840.10008.1.1')
 
-        ab_syntax.abstract_syntax_name = b'1.2.840.10008.1.1'
-        assert ab_syntax.abstract_syntax == UID('1.2.840.10008.1.1')
+        item.abstract_syntax_name = b'1.2.840.10008.1.1'
+        assert item.abstract_syntax == UID('1.2.840.10008.1.1')
 
-        ab_syntax.abstract_syntax_name = UID('1.2.840.10008.1.1')
-        assert ab_syntax.abstract_syntax == UID('1.2.840.10008.1.1')
+        item.abstract_syntax_name = UID('1.2.840.10008.1.1')
+        assert item.abstract_syntax == UID('1.2.840.10008.1.1')
 
         with pytest.raises(TypeError):
-            ab_syntax.abstract_syntax_name = 10002
+            item.abstract_syntax_name = 10002
 
 
-class TestPDUItem_TransferSyntax(object):
+class TestTransferSyntax(object):
+    def test_init(self):
+        """Test a new AbstractSyntaxSubItem."""
+        item = TransferSyntaxSubItem()
+        assert item.item_type == 0x40
+        assert item.item_length == 0
+        assert len(item) == 4
+        assert item.transfer_syntax_name is None
+        assert item.transfer_syntax is None
+
     def test_string_output(self):
         """Test the string output"""
         item = TransferSyntaxSubItem()
@@ -352,18 +423,19 @@ class TestPDUItem_TransferSyntax(object):
         assert '17 bytes' in item.__str__()
         assert 'Implicit VR Little Endian' in item.__str__()
 
-    def test_stream_decode(self):
+    def test_decode(self):
         """ Check decoding produces the correct presentation context """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
         contexts = pdu.presentation_context
-        tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
+        item = contexts[0].abstract_transfer_syntax_sub_items[1]
 
-        assert tran_syntax.item_type == 0x40
-        assert tran_syntax.item_length == 17
-        assert len(tran_syntax) == 21
-        assert tran_syntax.transfer_syntax_name == UID('1.2.840.10008.1.2')
+        assert item.item_type == 0x40
+        assert item.item_length == 17
+        assert len(item) == 21
+        assert item.transfer_syntax_name == UID('1.2.840.10008.1.2')
+        assert item.transfer_syntax == UID('1.2.840.10008.1.2')
 
     def test_encode(self):
         """ Check encoding produces the correct output """
@@ -373,9 +445,7 @@ class TestPDUItem_TransferSyntax(object):
         contexts = pdu.presentation_context
         tran_syntax = contexts[0].abstract_transfer_syntax_sub_items[1]
 
-        s = tran_syntax.encode()
-
-        assert s == transfer_syntax
+        assert tran_syntax.encode() == transfer_syntax
 
     def test_properies(self):
         """ Check property setters and getters """
@@ -394,7 +464,7 @@ class TestPDUItem_TransferSyntax(object):
             tran_syntax.transfer_syntax_name = 10002
 
 
-class TestPDUItem_PresentationDataValue(object):
+class TestPresentationDataValue(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = P_DATA_TF()
@@ -439,7 +509,7 @@ class TestPDUItem_PresentationDataValue(object):
         assert pdv.message_control_header_byte == '00000011'
 
 
-class TestPDUItem_UserInformation(unittest.TestCase):
+class TestUserInformation(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -582,7 +652,7 @@ class TestPDUItem_UserInformation(unittest.TestCase):
         self.assertTrue(ui.implementation_version_name is None)
 
 
-class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
+class TestUserInformation_MaximumLength(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -633,7 +703,7 @@ class TestPDUItem_UserInformation_MaximumLength(unittest.TestCase):
         self.assertEqual(orig_max_length, new_max_length)
 
 
-class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
+class TestUserInformation_ImplementationUID(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -706,7 +776,7 @@ class TestPDUItem_UserInformation_ImplementationUID(unittest.TestCase):
             uid.implementation_class_uid = 10002
 
 
-class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
+class TestUserInformation_ImplementationVersion(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -774,7 +844,7 @@ class TestPDUItem_UserInformation_ImplementationVersion(unittest.TestCase):
         self.assertEqual(version.implementation_version_name, b'PYNETDICOM_090')
 
 
-class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
+class TestUserInformation_Asynchronous(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -856,7 +926,7 @@ class TestPDUItem_UserInformation_Asynchronous(unittest.TestCase):
         self.assertEqual(item.max_operations_performed, 5)
 
 
-class TestPDUItem_UserInformation_RoleSelection(object):
+class TestUserInformation_RoleSelection(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -963,7 +1033,7 @@ class TestPDUItem_UserInformation_RoleSelection(object):
             item.scp_role = 2
 
 
-class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(object):
+class TestUserInformation_UserIdentityRQ_UserNoPass(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1038,7 +1108,7 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserNoPass(object):
         assert ui.secondary == b''
 
 
-class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(object):
+class TestUserInformation_UserIdentityRQ_UserPass(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1121,16 +1191,16 @@ class TestPDUItem_UserInformation_UserIdentityRQ_UserPass(object):
 
 
 # FIXME: Add tests for UserIdentityRQ SAML
-class TestPDUItem_UserInformation_UserIdentityRQ_SAML(object):
+class TestUserInformation_UserIdentityRQ_SAML(object):
     pass
 
 
 # FIXME: Add tests for UserIdentityRQ Kerberos
-class TestPDUItem_UserInformation_UserIdentityRQ_Kerberos(object):
+class TestUserInformation_UserIdentityRQ_Kerberos(object):
     pass
 
 
-class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase):
+class TestUserInformation_UserIdentityAC_UserResponse(unittest.TestCase):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_AC()
@@ -1196,16 +1266,16 @@ class TestPDUItem_UserInformation_UserIdentityAC_UserResponse(unittest.TestCase)
 
 
 # FIXME: Add tests for UserIdentityAC SAML
-class TestPDUItem_UserInformation_UserIdentityAC_SAMLResponse(object):
+class TestUserInformation_UserIdentityAC_SAMLResponse(object):
     pass
 
 
 # FIXME: Add tests for UserIdentityAC Kerberos
-class TestPDUItem_UserInformation_UserIdentityAC_KerberosResponse(object):
+class TestUserInformation_UserIdentityAC_KerberosResponse(object):
     pass
 
 
-class TestPDUItem_UserInformation_ExtendedNegotiation(object):
+class TestUserInformation_ExtendedNegotiation(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1299,7 +1369,7 @@ class TestPDUItem_UserInformation_ExtendedNegotiation(object):
         assert item.app_info == b'\x02\x00\x03\x00\x01\x00'
 
 
-class TestPDUItem_UserInformation_CommonExtendedNegotiation(object):
+class TestUserInformation_CommonExtendedNegotiation(object):
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
