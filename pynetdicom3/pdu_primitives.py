@@ -290,7 +290,7 @@ class A_ASSOCIATE(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -320,7 +320,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
 
         if value is not None:
             self._calling_ae_title = validate_ae_title(value)
@@ -344,7 +344,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
 
         if value is not None:
             self._called_ae_title = validate_ae_title(value)
@@ -1145,7 +1145,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1237,7 +1237,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
         elif isinstance(value, bytes):
             pass
         elif value is None:
@@ -1435,9 +1435,9 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         """
         if self.sop_class_uid is None or self.scu_role is None \
                 or self.scp_role is None:
-            LOGGER.error("SOP Class UID, SCU Role and SCP Role must "
+            LOGGER.error("sop_class_uid, scu_role and scp_role must "
                          "to be set prior to Association")
-            raise ValueError("SOP Class UID, SCU Role and SCP Role must "
+            raise ValueError("sop_class_uid, scu_role and scp_role must "
                              "to be set prior to Association")
 
         # To get to this point self.sop_class_uid must be set
@@ -1477,7 +1477,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1634,7 +1634,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1758,7 +1758,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1798,7 +1798,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1847,7 +1847,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                 elif isinstance(uid, str):
                     uid = UID(uid)
                 elif isinstance(uid, bytes):
-                    uid = UID(uid.decode('utf-8'))
+                    uid = UID(uid.decode('ascii'))
                 else:
                     LOGGER.error("Related General SOP Class Identification "
                                  "must be a list of pydicom.uid.UID, str "

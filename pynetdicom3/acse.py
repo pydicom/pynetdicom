@@ -460,13 +460,26 @@ class ACSEServiceProvider(object):
             s.append('    Abstract Syntax: ='
                      '{0!s}'.format(context.abstract_syntax.name))
 
-            '''
-            if 'SCU' in context.__dict__.keys():
-                scp_scu_role = '{0!s}/{1!s}'.format(context.SCP, context.SCU)
+            # Add SCP/SCU Role Selection Negotiation
+            # Roles are: SCU, SCP/SCU, SCP, Default
+            if pdu.user_information.role_selection:
+                try:
+                    role = pdu.user_information.role_selection[
+                        context.abstract_syntax
+                    ]
+                    roles = []
+                    if role.scp_role:
+                        roles.append('SCP')
+                    if role.scu_role:
+                        roles.append('SCU')
+
+                    scp_scu_role = '/'.join(roles)
+                except KeyError:
+                    scp_scu_role = 'Default'
             else:
                 scp_scu_role = 'Default'
+
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
-            '''
 
             # Transfer Syntaxes
             if len(context.transfer_syntax) == 1:
@@ -746,14 +759,26 @@ class ACSEServiceProvider(object):
                 item.abstract_syntax.name)
             )
 
-            '''
-            if item.SCU is None and item.SCP is None:
-                scp_scu_role = 'Default'
+            # Add SCP/SCU Role Selection Negotiation
+            # Roles are: SCU, SCP/SCU, SCP, Default
+            if pdu.user_information.role_selection:
+                try:
+                    role = pdu.user_information.role_selection[
+                        item.abstract_syntax
+                    ]
+                    roles = []
+                    if role.scp_role:
+                        roles.append('SCP')
+                    if role.scu_role:
+                        roles.append('SCU')
+
+                    scp_scu_role = '/'.join(roles)
+                except KeyError:
+                    scp_scu_role = 'Default'
             else:
-                scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
+                scp_scu_role = 'Default'
 
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
-            '''
             s.append('    Proposed Transfer Syntax(es):')
             for ts in item.transfer_syntax:
                 s.append('      ={0!s}'.format(ts.name))
@@ -951,7 +976,7 @@ class ACSEServiceProvider(object):
         assoc_rj = a_associate_rj
 
         s = ['Reject Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
+        s.append('====================== BEGIN A-ASSOCIATE-RJ ================='
                  '=====')
         s.append('Result:    {0!s}'.format(assoc_rj.result_str))
         s.append('Source:    {0!s}'.format(assoc_rj.source_str))
@@ -1013,7 +1038,7 @@ class ACSEServiceProvider(object):
         """
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
-                 '=====')
+                 '====')
         s.append('Abort Source: {0!s}'.format(a_abort.source_str))
         s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
         s.append('=========================== END A-ABORT ====================='

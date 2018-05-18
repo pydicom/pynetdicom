@@ -688,7 +688,7 @@ class ApplicationEntity(object):
             elif isclass(sop_class) and 'UID' in sop_class.__dict__:
                 sop_uid = UID(sop_class.UID)
             elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('utf-8'))
+                sop_uid = UID(sop_class.decode('ascii'))
             else:
                 continue
 
@@ -730,7 +730,7 @@ class ApplicationEntity(object):
             if isinstance(sop_class, str):
                 sop_uid = UID(sop_class)
             elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('utf-8'))
+                sop_uid = UID(sop_class.decode('ascii'))
             elif isclass(sop_class):
                 if 'UID' in sop_class.__dict__:
                     sop_uid = sop_class.UID
@@ -764,7 +764,7 @@ class ApplicationEntity(object):
             if isinstance(syntax, str):
                 sop_uid = UID(syntax)
             elif isinstance(syntax, bytes):
-                sop_uid = UID(syntax.decode('utf-8'))
+                sop_uid = UID(syntax.decode('ascii'))
             else:
                 raise ValueError("Transfer syntax SOP class must be a "
                                  "UID str, UID bytes or UID.")

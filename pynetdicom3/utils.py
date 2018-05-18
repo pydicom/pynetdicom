@@ -51,7 +51,7 @@ def validate_ae_title(ae_title):
         is_bytes = False
         if isinstance(ae_title, bytes):
             is_bytes = True
-            ae_title = ae_title.decode('utf-8')
+            ae_title = ae_title.decode('ascii')
 
         # Remove leading and trailing spaces
         significant_characters = ae_title.strip()
@@ -72,14 +72,14 @@ def validate_ae_title(ae_title):
                 significant_characters += ' '
 
             if is_bytes:
-                return codecs.encode(significant_characters, 'utf-8')
+                return codecs.encode(significant_characters, 'ascii')
 
             return significant_characters
 
         # AE title too long : truncate
         elif len(significant_characters.strip()) > 16:
             if is_bytes:
-                return codecs.encode(significant_characters[:16], 'utf-8')
+                return codecs.encode(significant_characters[:16], 'ascii')
 
             return significant_characters[:16]
 

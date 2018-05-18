@@ -139,7 +139,7 @@ class PresentationContext(object):
         if isinstance(transfer_syntax, str):
             transfer_syntax = UID(transfer_syntax)
         elif isinstance(transfer_syntax, bytes):
-            transfer_syntax = UID(transfer_syntax.decode('utf-8'))
+            transfer_syntax = UID(transfer_syntax.decode('ascii'))
         else:
             raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
                              ' bytes or str')
@@ -227,7 +227,7 @@ class PresentationContext(object):
             return
 
         if isinstance(uid, bytes):
-            uid = UID(uid.decode('utf-8'))
+            uid = UID(uid.decode('ascii'))
         elif isinstance(uid, UID):
             pass
         elif isinstance(uid, str):
@@ -263,7 +263,7 @@ class PresentationContext(object):
 
         for uid in uid_list:
             if isinstance(uid, bytes):
-                uid = UID(uid.decode('utf-8'))
+                uid = UID(uid.decode('ascii'))
             elif isinstance(uid, UID):
                 pass
             elif isinstance(uid, str):
