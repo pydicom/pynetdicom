@@ -386,7 +386,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        assoc_primtive : pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters</span>
+<span class="sd">        assoc_primtive : pynetdicom3.pdu_primitives.A_ASSOCIATE</span>
 <span class="sd">            The Association request primitive to be rejected</span>
 <span class="sd">        result : int</span>
 <span class="sd">            The association rejection: 0x01 or 0x02</span>
@@ -597,12 +597,14 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Implementation Class UID:      &#39;</span>
                  <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Implementation Version Name:   &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">))</span>
+                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Calling Application Name:    &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Called Application Name:     &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Max PDU Receive Size:    &#39;</span>
                  <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
 
@@ -614,14 +616,29 @@
 
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> &#39;</span>
-                     <span class="s1">&#39;(Proposed)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">context</span><span class="o">.</span><span class="n">ID</span><span class="p">)))</span>
+                     <span class="s1">&#39;(Proposed)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)))</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Abstract Syntax: =&#39;</span>
-                     <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">))</span>
+                     <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="s1">&#39;SCU&#39;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">/</span><span class="si">{1!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">SCP</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">SCU</span><span class="p">)</span>
+            <span class="c1"># Add SCP/SCU Role Selection Negotiation</span>
+            <span class="c1"># Roles are: SCU, SCP/SCU, SCP, Default</span>
+            <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">role</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">[</span>
+                        <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span>
+                    <span class="p">]</span>
+                    <span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span><span class="p">:</span>
+                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCP&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scu_role</span><span class="p">:</span>
+                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCU&#39;</span><span class="p">)</span>
+
+                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">roles</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
+
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scp_scu_role</span><span class="p">))</span>
 
             <span class="c1"># Transfer Syntaxes</span>
@@ -638,7 +655,7 @@
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Extended Negotiation:&#39;</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Abstract Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">UID</span><span class="p">))</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Abstract Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uid</span><span class="p">))</span>
                 <span class="c1">#s.append(&#39;    Application Information, length: %d bytes&#39;</span>
                 <span class="c1">#                                       %len(item.app_info))</span>
 
@@ -725,7 +742,7 @@
         <span class="n">pres_contexts</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">presentation_context</span>
         <span class="n">user_info</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">user_information</span>
 
-        <span class="n">responding_ae</span> <span class="o">=</span> <span class="s1">&#39;resp. AP Title&#39;</span>
+        <span class="n">responding_ae</span> <span class="o">=</span> <span class="s1">&#39;resp. AE Title&#39;</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Accept Parameters:&#39;</span><span class="p">]</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-AC ================&#39;</span>
@@ -734,7 +751,9 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Implementation Class UID:      &#39;</span>
                  <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Implementation Version Name:   &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">))</span>
+                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Responding Application Name: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">responding_ae</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Max PDU Receive Size:    &#39;</span>
@@ -746,18 +765,20 @@
 
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)&#39;</span>
-                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
+                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
 
             <span class="c1"># If Presentation Context was accepted</span>
             <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">SCP</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">SCU</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ac_scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ac_scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">/</span><span class="si">{1!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">SCP</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">SCU</span><span class="p">)</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ac_scp_scu_role</span><span class="p">))</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                if item.SCP is None and item.SCU is None:</span>
+<span class="sd">                    ac_scp_scu_role = &#39;Default&#39;</span>
+<span class="sd">                else:</span>
+<span class="sd">                    ac_scp_scu_role = &#39;{0!s}/{1!s}&#39;.format(item.SCP, item.SCU)</span>
+<span class="sd">                s.append(&#39;    Accepted SCP/SCU Role: {0!s}&#39;</span>
+<span class="sd">                         .format(ac_scp_scu_role))</span>
+<span class="sd">                &#39;&#39;&#39;</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted Transfer Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">))</span>
+                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
         <span class="c1">## Extended Negotiation</span>
         <span class="n">ext_nego</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
@@ -878,38 +899,56 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Class UID:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_class_uid</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Version Name: </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_version</span><span class="p">))</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_version</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Calling Application Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Called Application Name:     </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Max PDU Receive Size:  </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
 
         <span class="c1">## Presentation Contexts</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Contexts:&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (Proposed)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Abstract Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">))</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (Proposed)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Abstract Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">SCU</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">SCP</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
+            <span class="c1"># Add SCP/SCU Role Selection Negotiation</span>
+            <span class="c1"># Roles are: SCU, SCP/SCU, SCP, Default</span>
+            <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">role</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">[</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">abstract_syntax</span>
+                    <span class="p">]</span>
+                    <span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span><span class="p">:</span>
+                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCP&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scu_role</span><span class="p">:</span>
+                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCU&#39;</span><span class="p">)</span>
+
+                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">roles</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">/</span><span class="si">{1!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">SCP</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">SCU</span><span class="p">)</span>
+                <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
 
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scp_scu_role</span><span class="p">))</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed Transfer Syntax(es):&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;      =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;      =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
         <span class="c1">## Extended Negotiation</span>
         <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Extended Negotiation:&#39;</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Abstract Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">UID</span><span class="p">))</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Abstract Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uid</span><span class="p">))</span>
                 <span class="c1">#s.append(&#39;    Application Information, length: %d bytes&#39;</span>
                 <span class="c1">#                                       %len(item.app_info))</span>
 
@@ -1022,32 +1061,35 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Class UID:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_class_uid</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Version Name: </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_version</span><span class="p">))</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_version</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Calling Application Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_ac</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_ac</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Called Application Name:     </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_ac</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_ac</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Max PDU Receive Size:  </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Contexts:&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)&#39;</span>
-                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
+                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">SCP</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">SCU</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ac_scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-                    <span class="n">rq_scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ac_scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">/</span><span class="si">{1!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">SCP</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">SCU</span><span class="p">)</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rq_scp_scu_role</span><span class="p">))</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ac_scp_scu_role</span><span class="p">))</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                if item.SCP is None and item.SCU is None:</span>
+<span class="sd">                    ac_scp_scu_role = &#39;Default&#39;</span>
+<span class="sd">                    rq_scp_scu_role = &#39;Default&#39;</span>
+<span class="sd">                else:</span>
+<span class="sd">                    ac_scp_scu_role = &#39;{0!s}/{1!s}&#39;.format(item.SCP, item.SCU)</span>
+<span class="sd">                s.append(&#39;    Proposed SCP/SCU Role: {0!s}&#39;</span>
+<span class="sd">                         .format(rq_scp_scu_role))</span>
+<span class="sd">                s.append(&#39;    Accepted SCP/SCU Role: {0!s}&#39;</span>
+<span class="sd">                         .format(ac_scp_scu_role))</span>
+<span class="sd">                &#39;&#39;&#39;</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted Transfer Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">))</span>
+                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
 
         <span class="c1">## Extended Negotiation</span>
         <span class="n">ext_neg</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
@@ -1094,7 +1136,7 @@
         <span class="n">assoc_rj</span> <span class="o">=</span> <span class="n">a_associate_rj</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Reject Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RJ ================&#39;</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RJ =================&#39;</span>
                  <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Result:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Source:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">source_str</span><span class="p">))</span>
@@ -1156,7 +1198,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Abort Parameters:&#39;</span><span class="p">]</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;========================== BEGIN A-ABORT ====================&#39;</span>
-                 <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Abort Source: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a_abort</span><span class="o">.</span><span class="n">source_str</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Abort Reason: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a_abort</span><span class="o">.</span><span class="n">reason_str</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;=========================== END A-ABORT =====================&#39;</span>

@@ -166,21 +166,25 @@
 
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom3.pdu</span> <span class="k">import</span> <span class="p">(</span><span class="n">MaximumLengthSubItem</span><span class="p">,</span>
-                             <span class="n">ImplementationClassUIDSubItem</span><span class="p">,</span>
-                             <span class="n">ImplementationVersionNameSubItem</span><span class="p">,</span>
-                             <span class="n">AsynchronousOperationsWindowSubItem</span><span class="p">,</span>
-                             <span class="n">SCP_SCU_RoleSelectionSubItem</span><span class="p">,</span>
-                             <span class="n">SOPClassExtendedNegotiationSubItem</span><span class="p">,</span>
-                             <span class="n">SOPClassCommonExtendedNegotiationSubItem</span><span class="p">,</span>
-                             <span class="n">UserIdentitySubItemRQ</span><span class="p">,</span>
-                             <span class="n">UserIdentitySubItemAC</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span><span class="p">,</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_items</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">MaximumLengthSubItem</span><span class="p">,</span>
+    <span class="n">ImplementationClassUIDSubItem</span><span class="p">,</span>
+    <span class="n">ImplementationVersionNameSubItem</span><span class="p">,</span>
+    <span class="n">AsynchronousOperationsWindowSubItem</span><span class="p">,</span>
+    <span class="n">SCP_SCU_RoleSelectionSubItem</span><span class="p">,</span>
+    <span class="n">SOPClassExtendedNegotiationSubItem</span><span class="p">,</span>
+    <span class="n">SOPClassCommonExtendedNegotiationSubItem</span><span class="p">,</span>
+    <span class="n">UserIdentitySubItemRQ</span><span class="p">,</span>
+    <span class="n">UserIdentitySubItemAC</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
 <span class="c1">#from pynetdicom3.utils import pretty_bytes</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.pdu_primitives&#39;</span><span class="p">)</span>
 
 
+<span class="c1"># TODO: Rename to UserInformation</span>
 <div class="viewcode-block" id="ServiceParameter"><a class="viewcode-back" href="../../api.html#pynetdicom3.pdu_primitives.ServiceParameter">[docs]</a><span class="k">class</span> <span class="nc">ServiceParameter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Base class for Service Parameters &quot;&quot;&quot;</span>
 
@@ -195,11 +199,11 @@
         <span class="sd">&quot;&quot;&quot;Inequality of two ServiceParameters&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
-<div class="viewcode-block" id="ServiceParameter.from_primitive"><a class="viewcode-back" href="../../api.html#pynetdicom3.pdu_primitives.ServiceParameter.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;FIXME&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="ServiceParameter.FromParams"><a class="viewcode-back" href="../../api.html#pynetdicom3.pdu_primitives.ServiceParameter.FromParams">[docs]</a>    <span class="k">def</span> <span class="nf">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ServiceParameter.from_primitive"><a class="viewcode-back" href="../../api.html#pynetdicom3.pdu_primitives.ServiceParameter.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;FIXME&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">()</span></div></div>
 
@@ -219,8 +223,8 @@
 <span class="sd">    See PS3.8 Section 7.1.1</span>
 
 <span class="sd">    The A-ASSOCIATE primitive is used by the DUL provider to send/receive</span>
-<span class="sd">    information about the association. It gets converted to </span>
-<span class="sd">    A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and </span>
+<span class="sd">    information about the association. It gets converted to</span>
+<span class="sd">    A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and</span>
 <span class="sd">    gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</span>
 
 <span class="sd">    It may be better to simply extend this with methods for containing</span>
@@ -372,7 +376,7 @@
 <span class="sd">            * 3: called presentation address unknown</span>
 <span class="sd">            * 4: presentation protocol version not supported</span>
 <span class="sd">            * 5: no presentation service access point available</span>
-<span class="sd">            </span>
+
 <span class="sd">        PS3.8 7.1.1.9, [-, -, U, C(=)]</span>
 <span class="sd">    calling_presentation_address : str</span>
 <span class="sd">        TCP/IP address of the Requestor</span>
@@ -446,7 +450,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -476,7 +480,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_calling_ae_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -500,7 +504,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_called_ae_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -1172,10 +1176,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.MaximumLengthSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.MaximumLengthSubItem</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">MaximumLengthSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1221,6 +1225,8 @@
         <span class="k">return</span> <span class="n">s</span></div>
 
 
+<span class="c1"># TODO: Combine ImplementationClass and ImplementationVersion</span>
+<span class="c1">#   into ImplementationIdentificationNotification</span>
 <div class="viewcode-block" id="ImplementationClassUIDNotification"><a class="viewcode-back" href="../../api.html#pynetdicom3.pdu_primitives.ImplementationClassUIDNotification">[docs]</a><span class="k">class</span> <span class="nc">ImplementationClassUIDNotification</span><span class="p">(</span><span class="n">ServiceParameter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The Implementation Class UID Notification primitive.</span>
 
@@ -1261,7 +1267,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.ImplementationClassUIDSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.ImplementationClassUIDSubItem</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1275,7 +1281,7 @@
                              <span class="s2">&quot;prior to requesting Association&quot;</span><span class="p">)</span>
 
         <span class="n">item</span> <span class="o">=</span> <span class="n">ImplementationClassUIDSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1299,7 +1305,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1352,7 +1358,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.ImplementationVersionNameSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.ImplementationVersionNameSubItem</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1364,7 +1370,7 @@
                              <span class="s2">&quot;to Association&quot;</span><span class="p">)</span>
 
         <span class="n">item</span> <span class="o">=</span> <span class="n">ImplementationVersionNameSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1391,7 +1397,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1446,10 +1452,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.AsynchronousOperationsWindowSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.AsynchronousOperationsWindowSubItem</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">AsynchronousOperationsWindowSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1578,7 +1584,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1589,9 +1595,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_role</span> <span class="ow">is</span> <span class="kc">None</span> \
                 <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_role</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SOP Class UID, SCU Role and SCP Role must &quot;</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;sop_class_uid, scu_role and scp_role must &quot;</span>
                          <span class="s2">&quot;to be set prior to Association&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SOP Class UID, SCU Role and SCP Role must &quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sop_class_uid, scu_role and scp_role must &quot;</span>
                              <span class="s2">&quot;to be set prior to Association&quot;</span><span class="p">)</span>
 
         <span class="c1"># To get to this point self.sop_class_uid must be set</span>
@@ -1602,7 +1608,7 @@
                              <span class="s2">&quot;for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">))</span>
 
         <span class="n">item</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1631,7 +1637,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1741,7 +1747,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1759,7 +1765,7 @@
                              <span class="s2">&quot;negotiation&quot;</span><span class="p">)</span>
 
         <span class="n">item</span> <span class="o">=</span> <span class="n">SOPClassExtendedNegotiationSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1788,7 +1794,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1869,7 +1875,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem</span>
+<span class="sd">        item : pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1883,7 +1889,7 @@
                              <span class="s2">&quot;set prior to Association negotiation&quot;</span><span class="p">)</span>
 
         <span class="n">item</span> <span class="o">=</span> <span class="n">SOPClassCommonExtendedNegotiationSubItem</span><span class="p">()</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 
@@ -1912,7 +1918,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1952,7 +1958,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2001,7 +2007,7 @@
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                     <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-                    <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                    <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Related General SOP Class Identification &quot;</span>
                                  <span class="s2">&quot;must be a list of pydicom.uid.UID, str &quot;</span>
@@ -2087,7 +2093,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positive_response_requested</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primary_field</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server_response</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="UserIdentityNegotiation.from_primitive"><a class="viewcode-back" href="../../api.html#pynetdicom3.pdu_primitives.UserIdentityNegotiation.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2095,8 +2101,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        item : pynetdicom3.pdu.UserIdentitySubItemRQ or</span>
-<span class="sd">            pynetdicom3.pdu.UserIdentitySubItemAC</span>
+<span class="sd">        item : pynetdicom3.pdu_items.UserIdentitySubItemRQ or</span>
+<span class="sd">            pynetdicom3.pdu_items.UserIdentitySubItemAC</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -2116,7 +2122,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;User Identity Type and Primary Field &quot;</span>
                                  <span class="s2">&quot;must be set prior to Association negotiation&quot;</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Secondary Field must be set when User Identity&quot;</span>
                              <span class="s2">&quot;is 2&quot;</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Secondary Field must be set when User &quot;</span>
@@ -2128,7 +2134,7 @@
             <span class="c1"># Then an -AC</span>
             <span class="n">item</span> <span class="o">=</span> <span class="n">UserIdentitySubItemAC</span><span class="p">()</span>
 
-        <span class="n">item</span><span class="o">.</span><span class="n">FromParams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item</span></div>
 

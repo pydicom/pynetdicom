@@ -942,7 +942,7 @@
             <span class="c1"># Unknown Move Destination</span>
             <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">destination</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Unknown Move Destination: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
-                             <span class="n">request</span><span class="o">.</span><span class="n">MoveDestination</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                             <span class="n">request</span><span class="o">.</span><span class="n">MoveDestination</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
                 <span class="c1"># Failure - Move destination unknown</span>
                 <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xA801</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcid</span><span class="p">)</span>

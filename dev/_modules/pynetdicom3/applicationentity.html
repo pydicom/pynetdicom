@@ -176,7 +176,8 @@
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom3.association</span> <span class="k">import</span> <span class="n">Association</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">PresentationContext</span><span class="p">,</span> <span class="n">validate_ae_title</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
 
 
 <span class="k">def</span> <span class="nf">setup_logger</span><span class="p">():</span>
@@ -847,7 +848,7 @@
             <span class="k">elif</span> <span class="n">isclass</span><span class="p">(</span><span class="n">sop_class</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;UID&#39;</span> <span class="ow">in</span> <span class="n">sop_class</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
                 <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sop_class</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-                <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">sop_class</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">sop_class</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">continue</span>
 
@@ -889,7 +890,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sop_class</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">sop_class</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sop_class</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-                <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">sop_class</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">sop_class</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">isclass</span><span class="p">(</span><span class="n">sop_class</span><span class="p">):</span>
                 <span class="k">if</span> <span class="s1">&#39;UID&#39;</span> <span class="ow">in</span> <span class="n">sop_class</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
                     <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span>
@@ -923,7 +924,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syntax</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syntax</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-                <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">syntax</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                <span class="n">sop_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">syntax</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Transfer syntax SOP class must be a &quot;</span>
                                  <span class="s2">&quot;UID str, UID bytes or UID.&quot;</span><span class="p">)</span>

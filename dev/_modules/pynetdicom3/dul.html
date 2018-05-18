@@ -526,7 +526,7 @@
 
             <span class="c1"># Convert the incoming PDU to a corresponding ServiceParameters</span>
             <span class="c1">#   object</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">ToParams</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">to_primitive</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_check_incoming_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the incoming primitive.&quot;&quot;&quot;</span>
@@ -745,23 +745,26 @@
 <span class="sd">        pdu : pynetdicom3.pdu.PDU</span>
 <span class="sd">            The decoded data as a PDU object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pdutype</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pdutype</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[:</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="n">acse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span>
+        <span class="n">PDU_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mh">0x01</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rq</span><span class="p">),</span>
+            <span class="mh">0x02</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_ac</span><span class="p">),</span>
+            <span class="mh">0x03</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rj</span><span class="p">),</span>
+            <span class="mh">0x04</span> <span class="p">:</span> <span class="p">(</span><span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_data_tf</span><span class="p">),</span>
+            <span class="mh">0x05</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rq</span><span class="p">),</span>
+            <span class="mh">0x06</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rp</span><span class="p">),</span>
+            <span class="mh">0x07</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ABORT_RQ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_abort</span><span class="p">)</span>
+        <span class="p">}</span>
 
-        <span class="n">pdu_types</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x01</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rq</span><span class="p">),</span>
-                     <span class="mh">0x02</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_AC</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_ac</span><span class="p">),</span>
-                     <span class="mh">0x03</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RJ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rj</span><span class="p">),</span>
-                     <span class="mh">0x04</span><span class="p">:</span> <span class="p">(</span><span class="n">P_DATA_TF</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_data_tf</span><span class="p">),</span>
-                     <span class="mh">0x05</span><span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RQ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rq</span><span class="p">),</span>
-                     <span class="mh">0x06</span><span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RP</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rp</span><span class="p">),</span>
-                     <span class="mh">0x07</span><span class="p">:</span> <span class="p">(</span><span class="n">A_ABORT_RQ</span><span class="p">(),</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_abort</span><span class="p">)}</span>
-
-        <span class="k">if</span> <span class="n">pdutype</span> <span class="ow">in</span> <span class="n">pdu_types</span><span class="p">:</span>
-            <span class="n">pdu</span> <span class="o">=</span> <span class="n">pdu_types</span><span class="p">[</span><span class="n">pdutype</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">pdu</span><span class="o">.</span><span class="n">Decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pdutype</span> <span class="ow">in</span> <span class="n">PDU_TYPES</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">pdu</span><span class="p">,</span> <span class="n">acse_callback</span><span class="p">)</span> <span class="o">=</span> <span class="n">PDU_TYPES</span><span class="p">[</span><span class="n">pdutype</span><span class="p">]</span>
+            <span class="n">pdu</span> <span class="o">=</span> <span class="n">pdu</span><span class="p">()</span>
+            <span class="n">pdu</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
             <span class="c1"># ACSE callbacks</span>
-            <span class="n">pdu_types</span><span class="p">[</span><span class="n">pdutype</span><span class="p">][</span><span class="mi">1</span><span class="p">](</span><span class="n">pdu</span><span class="p">)</span>
+            <span class="n">acse_callback</span><span class="p">(</span><span class="n">pdu</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">pdu</span>
 
