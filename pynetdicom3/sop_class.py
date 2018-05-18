@@ -782,7 +782,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             # Unknown Move Destination
             if None in destination:
                 LOGGER.error('Unknown Move Destination: %s',
-                             request.MoveDestination.decode('utf-8'))
+                             request.MoveDestination.decode('ascii'))
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
                 self.DIMSE.send_msg(rsp, self.pcid)

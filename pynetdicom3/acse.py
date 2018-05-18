@@ -226,7 +226,7 @@ class ACSEServiceProvider(object):
 
         Parameters
         ----------
-        assoc_primtive : pynetdicom3.DULparameters.A_ASSOCIATE_ServiceParameters
+        assoc_primtive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The Association request primitive to be rejected
         result : int
             The association rejection: 0x01 or 0x02
@@ -437,12 +437,14 @@ class ACSEServiceProvider(object):
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
         s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(user_info.implementation_version_name))
+                 '{0!s}'.format(
+            user_info.implementation_version_name.decode('ascii'))
+        )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    '
-                 '{0!s}'.format(pdu.calling_ae_title.decode('utf-8')))
+                 '{0!s}'.format(pdu.calling_ae_title.decode('ascii')))
         s.append('Called Application Name:     '
-                 '{0!s}'.format(pdu.called_ae_title.decode('utf-8')))
+                 '{0!s}'.format(pdu.called_ae_title.decode('ascii')))
         s.append('Our Max PDU Receive Size:    '
                  '{0!s}'.format(user_info.maximum_length))
 
@@ -454,14 +456,29 @@ class ACSEServiceProvider(object):
 
         for context in pres_contexts:
             s.append('  Context ID:        {0!s} '
-                     '(Proposed)'.format((context.ID)))
+                     '(Proposed)'.format((context.context_id)))
             s.append('    Abstract Syntax: ='
-                     '{0!s}'.format(context.abstract_syntax))
+                     '{0!s}'.format(context.abstract_syntax.name))
 
-            if 'SCU' in context.__dict__.keys():
-                scp_scu_role = '{0!s}/{1!s}'.format(context.SCP, context.SCU)
+            # Add SCP/SCU Role Selection Negotiation
+            # Roles are: SCU, SCP/SCU, SCP, Default
+            if pdu.user_information.role_selection:
+                try:
+                    role = pdu.user_information.role_selection[
+                        context.abstract_syntax
+                    ]
+                    roles = []
+                    if role.scp_role:
+                        roles.append('SCP')
+                    if role.scu_role:
+                        roles.append('SCU')
+
+                    scp_scu_role = '/'.join(roles)
+                except KeyError:
+                    scp_scu_role = 'Default'
             else:
                 scp_scu_role = 'Default'
+
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
 
             # Transfer Syntaxes
@@ -478,7 +495,7 @@ class ACSEServiceProvider(object):
             s.append('Requested Extended Negotiation:')
 
             for item in pdu.user_information.ext_neg:
-                s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
+                s.append('  Abstract Syntax: ={0!s}'.format(item.uid))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
@@ -565,7 +582,7 @@ class ACSEServiceProvider(object):
         pres_contexts = assoc_ac.presentation_context
         user_info = assoc_ac.user_information
 
-        responding_ae = 'resp. AP Title'
+        responding_ae = 'resp. AE Title'
 
         s = ['Accept Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-AC ================'
@@ -574,7 +591,9 @@ class ACSEServiceProvider(object):
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
         s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(user_info.implementation_version_name))
+                 '{0!s}'.format(
+            user_info.implementation_version_name.decode('ascii'))
+        )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Responding Application Name: {0!s}'.format(responding_ae))
         s.append('Our Max PDU Receive Size:    '
@@ -586,18 +605,20 @@ class ACSEServiceProvider(object):
 
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.ID, item.result_str))
+                     .format(item.context_id, item.result_str))
 
             # If Presentation Context was accepted
             if item.result == 0:
+                '''
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                 else:
                     ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
                 s.append('    Accepted SCP/SCU Role: {0!s}'
                          .format(ac_scp_scu_role))
+                '''
                 s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax))
+                         .format(item.transfer_syntax.name))
 
         ## Extended Negotiation
         ext_nego = 'None'
@@ -718,38 +739,56 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    {0!s}'
                  .format(their_class_uid))
         s.append('Their Implementation Version Name: {0!s}'
-                 .format(their_version))
+                 .format(their_version.decode('ascii')))
         s.append('Application Context Name:    {0!s}'
                  .format(app_context))
         s.append('Calling Application Name:    {0!s}'
-                 .format(pdu.calling_ae_title.decode('utf-8')))
+                 .format(pdu.calling_ae_title.decode('ascii')))
         s.append('Called Application Name:     {0!s}'
-                 .format(pdu.called_ae_title.decode('utf-8')))
+                 .format(pdu.called_ae_title.decode('ascii')))
         s.append('Their Max PDU Receive Size:  {0!s}'
                  .format(user_info.maximum_length))
 
         ## Presentation Contexts
         s.append('Presentation Contexts:')
         for item in pres_contexts:
-            s.append('  Context ID:        {0!s} (Proposed)'.format(item.ID))
-            s.append('    Abstract Syntax: ={0!s}'.format(item.abstract_syntax))
+            s.append('  Context ID:        {0!s} (Proposed)'.format(
+                item.context_id)
+            )
+            s.append('    Abstract Syntax: ={0!s}'.format(
+                item.abstract_syntax.name)
+            )
 
-            if item.SCU is None and item.SCP is None:
-                scp_scu_role = 'Default'
+            # Add SCP/SCU Role Selection Negotiation
+            # Roles are: SCU, SCP/SCU, SCP, Default
+            if pdu.user_information.role_selection:
+                try:
+                    role = pdu.user_information.role_selection[
+                        item.abstract_syntax
+                    ]
+                    roles = []
+                    if role.scp_role:
+                        roles.append('SCP')
+                    if role.scu_role:
+                        roles.append('SCU')
+
+                    scp_scu_role = '/'.join(roles)
+                except KeyError:
+                    scp_scu_role = 'Default'
             else:
-                scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
+                scp_scu_role = 'Default'
 
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
             s.append('    Proposed Transfer Syntax(es):')
             for ts in item.transfer_syntax:
-                s.append('      ={0!s}'.format(ts))
+                s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
         if pdu.user_information.ext_neg is not None:
             s.append('Requested Extended Negotiation:')
 
             for item in pdu.user_information.ext_neg:
-                s.append('  Abstract Syntax: ={0!s}'.format(item.UID))
+                s.append('  Abstract Syntax: ={0!s}'.format(item.uid))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
@@ -862,21 +901,22 @@ class ACSEServiceProvider(object):
         s.append('Their Implementation Class UID:    {0!s}'
                  .format(their_class_uid))
         s.append('Their Implementation Version Name: {0!s}'
-                 .format(their_version))
+                 .format(their_version.decode('ascii')))
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    {0!s}'
-                 .format(assoc_ac.calling_ae_title.decode('utf-8')))
+                 .format(assoc_ac.calling_ae_title.decode('ascii')))
         s.append('Called Application Name:     {0!s}'
-                 .format(assoc_ac.called_ae_title.decode('utf-8')))
+                 .format(assoc_ac.called_ae_title.decode('ascii')))
         s.append('Their Max PDU Receive Size:  {0!s}'
                  .format(user_info.maximum_length))
         s.append('Presentation Contexts:')
 
         for item in pres_contexts:
             s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.ID, item.result_str))
+                     .format(item.context_id, item.result_str))
 
             if item.result == 0:
+                '''
                 if item.SCP is None and item.SCU is None:
                     ac_scp_scu_role = 'Default'
                     rq_scp_scu_role = 'Default'
@@ -886,8 +926,10 @@ class ACSEServiceProvider(object):
                          .format(rq_scp_scu_role))
                 s.append('    Accepted SCP/SCU Role: {0!s}'
                          .format(ac_scp_scu_role))
+                '''
                 s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax))
+                         .format(item.transfer_syntax.name))
+
 
         ## Extended Negotiation
         ext_neg = 'None'
@@ -934,7 +976,7 @@ class ACSEServiceProvider(object):
         assoc_rj = a_associate_rj
 
         s = ['Reject Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RJ ================'
+        s.append('====================== BEGIN A-ASSOCIATE-RJ ================='
                  '=====')
         s.append('Result:    {0!s}'.format(assoc_rj.result_str))
         s.append('Source:    {0!s}'.format(assoc_rj.source_str))
@@ -996,7 +1038,7 @@ class ACSEServiceProvider(object):
         """
         s = ['Abort Parameters:']
         s.append('========================== BEGIN A-ABORT ===================='
-                 '=====')
+                 '====')
         s.append('Abort Source: {0!s}'.format(a_abort.source_str))
         s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
         s.append('=========================== END A-ABORT ====================='

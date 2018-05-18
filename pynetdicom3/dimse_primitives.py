@@ -175,7 +175,7 @@ class C_STORE(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -207,7 +207,7 @@ class C_STORE(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -251,7 +251,7 @@ class C_STORE(object):
             an empty string and will be truncated to 16 characters long
         """
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
 
         if value is not None:
             self._move_originator_application_entity_title = \
@@ -494,7 +494,7 @@ class C_FIND(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -748,7 +748,7 @@ class C_GET(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1080,7 +1080,7 @@ class C_MOVE(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1124,7 +1124,7 @@ class C_MOVE(object):
             be an empty string and will be truncated to 16 characters long
         """
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
 
         if value is not None:
             self._move_destination = validate_ae_title(value)
@@ -1367,7 +1367,7 @@ class C_ECHO(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
