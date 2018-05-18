@@ -91,9 +91,6 @@ class PDU(object):
            `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         for (offset, length), attr_name, func, args in self._decoders:
-            if not hasattr(self, attr_name):
-                raise ValueError('Unknown PDU field ', attr_name)
-
             # Allow us to use None as a `length`
             if length:
                 sl = slice(offset, offset + length)

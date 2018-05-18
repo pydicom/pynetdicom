@@ -72,6 +72,8 @@ class TestPDU(object):
         aa.calling_ae_title = b'TEST_AE_TITLE_00'
         assert not aa == bb
 
+        assert aa == aa
+
     def test_encode_raises(self):
         """Test the PDU.encode method raises NotImplementedError."""
         pdu = PDU()
@@ -130,17 +132,19 @@ class TestPDU(object):
         aa.decode(a_associate_rq)
         assert aa != bb
 
+        assert not aa != aa
+
     def test_pdu_length_raises(self):
         """Test PDU.pdu_length raises NotImplementedError."""
         pdu = PDU()
         with pytest.raises(NotImplementedError):
-            pdu.pdu_length()
+            pdu.pdu_length
 
     def test_pdu_type_raises(self):
         """Test PDU.pdu_type raises ValueError."""
         pdu = PDU()
         with pytest.raises(ValueError):
-            pdu.pdu_type()
+            pdu.pdu_type
 
     def test_wrap_bytes(self):
         """Test PDU._wrap_bytes()."""

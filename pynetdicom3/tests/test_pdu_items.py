@@ -21,6 +21,8 @@ from pynetdicom3.pdu_items import (
     PresentationContextItemRQ, UserInformationItem, TransferSyntaxSubItem,
     PresentationDataValueItem, AbstractSyntaxSubItem,
     SCP_SCU_RoleSelectionSubItem,
+    PDUItem,
+    PACK_UCHAR, UNPACK_UCHAR
 )
 from pynetdicom3.pdu_primitives import (
     SOPClassExtendedNegotiation, SOPClassCommonExtendedNegotiation,
@@ -75,6 +77,165 @@ def create_encoded_pdu():
     usr_id.get_length()
     data.append(usr_id)
     print_nice_bytes(pdu.encode())
+
+
+class TestPDU(object):
+    """Test the PDU equality/inequality operators."""
+    def test_decode_raises(self):
+        """Test the PDU.decode method raises NotImplementedError."""
+        item = PDUItem()
+        with pytest.raises(NotImplementedError):
+            item.decode(abstract_syntax)
+
+    def test_decoders_raises(self):
+        """Test the PDU._decoders property raises NotImplementedError."""
+        item = PDUItem()
+        with pytest.raises(NotImplementedError):
+            item._decoders
+
+    def test_equality(self):
+        """Test the equality operator"""
+        aa = ApplicationContextItem()
+        bb = ApplicationContextItem()
+        assert aa == bb
+        assert not aa == 'TEST'
+
+        aa.application_context_name = UID('1.2.3')
+        assert not aa == bb
+
+        bb.application_context_name = UID('1.2.3')
+        assert aa == bb
+
+        assert aa == aa
+
+    def test_encode_raises(self):
+        """Test the PDU.encode method raises NotImplementedError."""
+        item = PDUItem()
+        with pytest.raises(NotImplementedError):
+            item.encode()
+
+    def test_encoders_raises(self):
+        """Test the PDU._encoders property raises NotImplementedError."""
+        item = PDUItem()
+        with pytest.raises(NotImplementedError):
+            item._encoders
+
+    def test_generate_items(self):
+        """Test the PDU._generate_items method."""
+        item = PDUItem()
+        gen = item._generate_items(b'')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        data = b'\x10\x00\x00\x02\x01\x02'
+        gen = item._generate_items(data)
+        assert next(gen) == (0x10, data)
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        data += b'\x20\x00\x00\x03\x01\x02\x03'
+        gen = item._generate_items(data)
+        assert next(gen) == (0x10, b'\x10\x00\x00\x02\x01\x02')
+        assert next(gen) == (0x20, b'\x20\x00\x00\x03\x01\x02\x03')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+    def test_generate_items_raises(self):
+        """Test failure modes of PDU._generate_items method."""
+        item = PDUItem()
+
+        # Short data
+        data = b'\x10\x00\x00\x02\x01'
+        gen = item._generate_items(data)
+        with pytest.raises(AssertionError):
+            next(gen)
+
+    def test_hash_raises(self):
+        """Test hash(PDU) raises exception."""
+        item = PDUItem()
+        with pytest.raises(TypeError):
+            hash(item)
+
+    def test_inequality(self):
+        """Test the inequality operator"""
+        aa = ApplicationContextItem()
+        bb = ApplicationContextItem()
+        assert not aa != bb
+        assert aa != 'TEST'
+
+        aa.application_context_name = UID('1.2.3')
+        assert aa != bb
+
+        assert not aa != aa
+
+    def test_item_length_raises(self):
+        """Test PDU.pdu_length raises NotImplementedError."""
+        item = PDUItem()
+        with pytest.raises(NotImplementedError):
+            item.item_length
+
+    def test_item_type_raises(self):
+        """Test PDU.pdu_type raises ValueError."""
+        item = PDUItem()
+        with pytest.raises(ValueError):
+            item.item_type
+
+    def test_wrap_bytes(self):
+        """Test PDU._wrap_bytes()."""
+        item = PDUItem()
+        assert item._wrap_bytes(b'') == b''
+        assert item._wrap_bytes(b'\x00\x01') == b'\x00\x01'
+
+    def test_wrap_encode_items(self):
+        """Test PDU._wrap_encode_items()."""
+        context_a = ApplicationContextItem()
+        context_b = ApplicationContextItem()
+        item = PDUItem()
+        out = item._wrap_encode_items([context_a])
+        assert out == (
+            b"\x10\x00\x00\x15\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31" +
+            b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31"
+        )
+
+        out = item._wrap_encode_items([context_a, context_b])
+        assert out == (
+            (b"\x10\x00\x00\x15\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31" +
+             b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31") * 2
+        )
+
+    def test_wrap_encode_uid(self):
+        """Test PDU._wrap_encode_uid()."""
+        item = PDUItem()
+        uid = UID('1.2.840.10008.1.1')
+        out = item._wrap_encode_uid(uid)
+        assert out == b'1.2.840.10008.1.1'
+
+    def test_wrap_generate_items(self):
+        """Test PDU._wrap_generate_items()."""
+        item = PDUItem()
+        out = item._wrap_generate_items(b'')
+        assert out == []
+
+        data = b'\x10\x00\x00\x03\x31\x2e\x32'
+        out = item._wrap_generate_items(data)
+        assert out[0].application_context_name == '1.2'
+
+        data += b'\x10\x00\x00\x04\x31\x2e\x32\x33'
+        out = item._wrap_generate_items(data)
+        assert out[0].application_context_name == '1.2'
+        assert out[1].application_context_name == '1.23'
+
+    def test_wrap_pack(self):
+        """Test PDU._wrap_pack()."""
+        item = PDUItem()
+        out = item._wrap_pack(1, PACK_UCHAR)
+        assert out == b'\x01'
+
+    def test_wrap_unpack(self):
+        """Test PDU._wrap_unpack()."""
+        item = PDUItem()
+        out = item._wrap_unpack(b'\x01', UNPACK_UCHAR)
+        assert out == 1
 
 
 class TestApplicationContext(object):
@@ -157,6 +318,10 @@ class TestApplicationContext(object):
             item.application_context_name = s
             assert item.application_context_name == UID(uid)
             assert isinstance(item.application_context_name, UID)
+
+        # Test bad value
+        with pytest.raises(TypeError):
+            item.application_context_name = 2
 
 
 class TestPresentationContextRQ(object):
@@ -488,15 +653,13 @@ class TestPresentationDataValue(object):
 
     def test_decode(self):
         """ Check decoding produces the correct presentation data value """
-        pdu = P_DATA_TF()
-        pdu.decode(p_data_tf)
+        item = PresentationDataValueItem()
+        item.decode(presentation_data_value)
 
-        pdvs = pdu.presentation_data_value_items
-
-        assert pdvs[0].item_length == 80
-        assert len(pdvs[0]) == 84
-        assert pdvs[0].presentation_data_value == presentation_data
-        assert pdvs[0].message_control_header_byte == "00000011"
+        assert item.item_length == 80
+        assert len(item) == 84
+        assert item.presentation_data_value == presentation_data
+        assert item.message_control_header_byte == "00000011"
 
     def test_encode(self):
         """ Check encoding produces the correct output """
