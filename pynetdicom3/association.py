@@ -28,7 +28,8 @@ from pynetdicom3.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
-    PatientStudyOnlyQueryRetrieveInformationModelGet)
+    PatientStudyOnlyQueryRetrieveInformationModelGet
+)
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
@@ -77,11 +78,15 @@ class Association(threading.Thread):
         True if the association was rejected, False otherwise.
     is_released : bool
         True if the association has been released, False otherwise.
+    local_ae : dict
+        The local Application Entity details, keys: 'port', 'address',
+        'ae_title', 'pdv_size'.
     mode : str
         Whether the local AE is acting as the Association 'Requestor' or
         'Acceptor' (i.e. SCU or SCP).
     peer_ae : dict
-        The peer Application Entity details, keys: 'Port', 'Address', 'Title'.
+        The peer Application Entity details, keys: 'port', 'address',
+        'ae_title', 'pdv_size'.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
     scu_supported_sop : list of pynetdicom3.sop_class.ServiceClass
@@ -138,14 +143,25 @@ class Association(threading.Thread):
         elif client_socket is not None:
             raise TypeError("client_socket must be a socket.socket")
 
+        self.local_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : None,
+                         'pdv_size' : None}
+        self.peer_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : None,
+                         'pdv_size' : None}
+
         # Initiated a connection to a peer AE
         if isinstance(peer_ae, dict):
             self._mode = 'Requestor'
 
-            for key in ['AET', 'Port', 'Address']:
+            for key in ['ae_title', 'port', 'address']:
                 if key not in peer_ae:
-                    raise KeyError("peer_ae must contain 'AET', 'Port' and "
-                                   "'Address' entries")
+                    raise KeyError("peer_ae must contain 'ae_title', 'port' "
+                                   "and 'address' entries")
+
+            self.peer_ae.update(peer_ae)
         elif peer_ae is not None:
             raise TypeError("peer_ae must be a dict")
 
@@ -166,9 +182,6 @@ class Association(threading.Thread):
         self.dul = DULServiceProvider(socket=client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
-
-        # Dict containing the peer AE title, address and port
-        self.peer_ae = peer_ae
 
         # Lists of pynetdicom3.utils.PresentationContext items that the local
         #   AE supports when acting as an SCU and SCP
@@ -198,6 +211,7 @@ class Association(threading.Thread):
 
         # Maximum PDU sizes (in bytes) for the local and peer AE
         if isinstance(max_pdu, int):
+            self.local_ae['pdv_size'] = max_pdu
             self.local_max_pdu = max_pdu
         else:
             raise TypeError("max_pdu must be an int")
@@ -290,7 +304,8 @@ class Association(threading.Thread):
         time.sleep(0.1)
 
         # Got an A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.receive_pdu(wait=True, timeout=self.acse.acse_timeout)
+        assoc_rq = self.dul.receive_pdu(wait=True,
+                                        timeout=self.acse.acse_timeout)
 
         if assoc_rq is None:
             self.kill()
@@ -394,6 +409,13 @@ class Association(threading.Thread):
         self.acse.accepted_contexts = self.acse.context_manager.accepted
         self.acse.rejected_contexts = self.acse.context_manager.rejected
 
+        # Save the peer AE details
+        self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
+        self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
+        peer_info = self.client_socket.getpeername()
+        self.peer_ae['address'] = peer_info[0]
+        self.peer_ae['port'] = peer_info[1]
+
         # Set maximum PDU send length
         self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
         self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
@@ -481,23 +503,23 @@ class Association(threading.Thread):
                     # No matching presentation context
                     pass
 
+                assoc_info = {'peer_ae' : self.peer_ae,
+                              'local_ae' : self.local_ae}
+
                 # Old method
                 for context in self.acse.accepted_contexts:
                     if context.ID == msg_context_id:
-                        sop_class.pcid = context.ID
-                        sop_class.sopclass = context.AbstractSyntax
-                        sop_class.transfersyntax = context.TransferSyntax[0]
                         sop_class.maxpdulength = self.peer_max_pdu
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
                         sop_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        sop_class.SCP(msg)
+                        sop_class.SCP(msg, context, assoc_info)
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "
-                        "context ID %d", msg_context_id)
+                                "context ID %d", msg_context_id)
                     LOGGER.debug("%s", msg)
 
             # Check for release request
@@ -544,14 +566,14 @@ class Association(threading.Thread):
         #
         #    self.ext_neg.append(tmp)
 
-        local_ae = {'Address' : self.ae.address,
-                    'Port'    : self.ae.port,
-                    'AET'     : self.ae.ae_title}
+        local_ae = {'address' : self.ae.address,
+                    'port' : self.ae.port,
+                    'ae_title' : self.ae.ae_title}
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = \
                 self.acse.request_assoc(local_ae, self.peer_ae,
-                                        self.local_max_pdu,
+                                        self.local_ae['pdv_size'],
                                         self.ae.presentation_contexts_scu,
                                         userspdu=self.ext_neg)
 
@@ -732,6 +754,7 @@ class Association(threading.Thread):
         for context in self.acse.context_manager.accepted:
             if uid == context.AbstractSyntax:
                 context_id = context.ID
+                break
 
         if context_id is None:
             LOGGER.error("No accepted Presentation Context for '%s'", uid)
@@ -887,6 +910,7 @@ class Association(threading.Thread):
                 if dataset.SOPClassUID == context.AbstractSyntax:
                     transfer_syntax = context.TransferSyntax[0]
                     context_id = context.ID
+                    break
             except AttributeError as ex:
                 LOGGER.error("Association.send_c_store - unable to determine "
                              "Presentation Context as "
@@ -1077,6 +1101,7 @@ class Association(threading.Thread):
             if sop_class.UID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1302,6 +1327,7 @@ class Association(threading.Thread):
             if sop_class.UID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1569,6 +1595,7 @@ class Association(threading.Thread):
             if sop_class.UID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1740,6 +1767,7 @@ class Association(threading.Thread):
             if req.AffectedSOPClassUID == context.AbstractSyntax:
                 transfer_syntax = context.TransferSyntax[0]
                 context_id = context.ID
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1762,9 +1790,12 @@ class Association(threading.Thread):
             self.dimse.send_msg(rsp, context_id)
             return
 
+        assoc_info = {'local_ae' : self.local_ae,
+                      'peer_ae': self.peer_ae}
+
         #  Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.ae.on_c_store(ds)
+            status = self.ae.on_c_store(ds, context, assoc_info)
         except Exception as ex:
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")

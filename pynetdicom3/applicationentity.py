@@ -426,9 +426,9 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
-        peer_ae = {'AET' : validate_ae_title(ae_title),
-                   'Address' : addr,
-                   'Port' : port}
+        peer_ae = {'ae_title' : validate_ae_title(ae_title),
+                   'address' : addr,
+                   'port' : port}
 
         # Associate
         assoc = Association(local_ae=self,
@@ -499,9 +499,9 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
-                       .format(assoc.peer_ae['AET'],
-                               assoc.peer_ae['Address'],
-                               assoc.peer_ae['Port'])
+                       .format(assoc.peer_ae['ae_title'],
+                               assoc.peer_ae['address'],
+                               assoc.peer_ae['port'])
 
         return str_out
 
@@ -816,7 +816,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-C callbacks - user should implement these as required
-    def on_c_echo(self):
+    def on_c_echo(self, context, assoc_info):
         """Callback for when a C-ECHO request is received.
 
         User implementation is not required for the C-ECHO service, but if you
@@ -849,6 +849,13 @@ class ApplicationEntity(object):
         - 0x0212 - Mistyped argument
         - 0x0211 - Unrecognised operation
 
+        Parameters
+        ----------
+        context : presentation.PresentationContext
+            The presentation context that the C-ECHO message was sent under.
+        assoc_info : dict
+            A dict containing information about the association.
+
         Returns
         -------
         status : pydicom.dataset.Dataset or int
@@ -873,7 +880,7 @@ class ApplicationEntity(object):
         # User implementation of on_c_echo is optional
         return 0x0000
 
-    def on_c_store(self, dataset):
+    def on_c_store(self, dataset, context, assoc_info):
         """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
@@ -920,6 +927,10 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent by the peer in the C-STORE request.
+        context : presentation.PresentationContext
+            The presentation context that the C-STORE message was sent under.
+        assoc_info : dict
+            A dict containing information about the association.
 
         Returns
         -------
@@ -951,7 +962,7 @@ class ApplicationEntity(object):
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
-    def on_c_find(self, dataset):
+    def on_c_find(self, dataset, context, assoc_info):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -996,6 +1007,10 @@ class ApplicationEntity(object):
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-FIND
             request.
+        context : presentation.PresentationContext
+            The presentation context that the C-ECHO message was sent under.
+        assoc_info : dict
+            A dict containing information about the association.
 
         Yields
         ------
@@ -1044,7 +1059,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_find_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_get(self, dataset):
+    def on_c_get(self, dataset, context, assoc_info):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -1085,6 +1100,10 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-GET request.
+        context : presentation.PresentationContext
+            The presentation context that the C-ECHO message was sent under.
+        assoc_info : dict
+            A dict containing information about the association.
 
         Yields
         ------
@@ -1133,7 +1152,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_get_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_move(self, dataset, move_aet):
+    def on_c_move(self, dataset, move_aet, context, assoc_info):
         """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling AE.start().
@@ -1186,6 +1205,10 @@ class ApplicationEntity(object):
             The destination AE title that matching SOP Instances will be sent
             to using C-STORE sub-operations. `move_aet` will be a correctly
             formatted AE title (16 chars, with trailing spaces as padding).
+        context : presentation.PresentationContext
+            The presentation context that the C-ECHO message was sent under.
+        assoc_info : dict
+            A dict containing information about the association.
 
         Yields
         ------
@@ -1241,7 +1264,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_event_report(self):
+    def on_n_event_report(self, context, assoc_info):
         """Callback for when a N-EVENT-REPORT is received.
 
         References
@@ -1252,7 +1275,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self):
+    def on_n_get(self, context, assoc_info):
         """Callback for when a N-GET is received.
 
         References
@@ -1263,7 +1286,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
-    def on_n_set(self):
+    def on_n_set(self, context, assoc_info):
         """Callback for when a N-SET is received.
 
         References
@@ -1274,7 +1297,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
-    def on_n_action(self):
+    def on_n_action(self, context, assoc_info):
         """Callback for when a N-ACTION is received.
 
         References
@@ -1285,7 +1308,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self):
+    def on_n_create(self, context, assoc_info):
         """Callback for when a N-CREATE is received.
 
         References
@@ -1296,7 +1319,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
-    def on_n_delete(self):
+    def on_n_delete(self, context, assoc_info):
         """Callback for when a N-DELETE is received.
 
         References

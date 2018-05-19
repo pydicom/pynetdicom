@@ -26,7 +26,7 @@ stream_logger.setFormatter(formatter)
 LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 
 def _setup_argparser():
@@ -184,7 +184,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
     transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 
-def on_c_echo():
+def on_c_echo(context, assoc_info):
     """Optional implementation of the AE.on_c_echo callback."""
     # Return a Success response to the peer
     # We could also return a pydicom Dataset with a (0000, 0900) Status

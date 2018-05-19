@@ -11,19 +11,23 @@ import socket
 import sys
 import time
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
 from pynetdicom3 import AE, QueryRetrieveSOPClassList, StorageSOPClassList
 
-logger = logging.Logger('movescp')
+LOGGER = logging.Logger('movescp')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
-logger.addHandler(stream_logger)
-logger.setLevel(logging.ERROR)
+LOGGER.addHandler(stream_logger)
+LOGGER.setLevel(logging.ERROR)
+
+
+VERSION = '0.2.0'
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -114,15 +118,15 @@ def _setup_argparser():
 args = _setup_argparser()
 
 if args.verbose:
-    logger.setLevel(logging.INFO)
+    LOGGER.setLevel(logging.INFO)
 
 if args.debug:
-    logger.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.DEBUG)
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$movescp.py v{0!s} {1!s} $'.format('0.1.0', '2016-04-12'))
-logger.debug('')
+LOGGER.debug('$movescp.py v{0!s}'.format(VERSION))
+LOGGER.debug('')
 
 # Validate port
 if isinstance(args.port, int):
@@ -131,7 +135,7 @@ if isinstance(args.port, int):
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
     except socket.error:
-        logger.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
+        LOGGER.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
         sys.exit()
 
 # Set Transfer Syntax options
@@ -150,7 +154,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_move(dataset, move_aet):
+def on_c_move(dataset, move_aet, context, assoc_info):
     """Implement the on_c_move callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
@@ -161,13 +165,13 @@ def on_c_move(dataset, move_aet):
 
     # Address and port to send to
     if move_aet == b'ANY-SCP         ':
-        yield '10.40.94.43', 104
+        yield '127.0.0.1', 104
     else:
         yield None, None
 
     # Matching datasets to send
     for dcm in dcm_files:
-        ds = read_file(dcm, force=True)
+        ds = dcmread(dcm, force=True)
         yield 0xff00, ds
 
 # Create application entity

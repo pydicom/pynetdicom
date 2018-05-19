@@ -281,9 +281,9 @@ class TestAssociation(object):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(('', 0))
         self.socket.listen(1)
-        self.peer = {'AET' : 'PEER_AET',
-                     'Port' : 11112,
-                     'Address' : 'localhost'}
+        self.peer = {'ae_title' : 'PEER_AET',
+                     'port' : 11112,
+                     'address' : 'localhost'}
         self.ext_neg = []
 
         self.scp = None
@@ -459,7 +459,7 @@ class TestAssociation(object):
             Association(ae, client_socket=123)
         with pytest.raises(TypeError, match="peer_ae must be a dict"):
             Association(ae, peer_ae=123)
-        with pytest.raises(KeyError, match="peer_ae must contain 'AET'"):
+        with pytest.raises(KeyError, match="peer_ae must contain 'ae_title'"):
             Association(ae, peer_ae={})
         with pytest.raises(TypeError, match="local_ae must be a pynetdicom"):
             Association(12345, peer_ae=self.peer)
@@ -943,7 +943,7 @@ class TestAssociationSendCEcho(object):
 
     def test_rsp_multi_status(self):
         """Test receiving a status with extra elements"""
-        def on_c_echo():
+        def on_c_echo(context, assoc_info):
             ds = Dataset()
             ds.Status = 0x0122
             ds.ErrorComment = 'Some comment'
@@ -1437,7 +1437,7 @@ class TestAssociationSendCFind(object):
         """Test bad dataset returned by on_c_find"""
         self.scp = DummyFindSCP()
 
-        def on_c_find(ds):
+        def on_c_find(ds, context, assoc_info):
             def test(): pass
             yield 0xFF00, test
 
@@ -1647,7 +1647,8 @@ class TestAssociationSendCGet(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        def on_c_store(ds): return 0x0000
+        def on_c_store(ds, context, assoc_info):
+            return 0x0000
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
@@ -1663,7 +1664,7 @@ class TestAssociationSendCGet(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds):
+        def on_c_store(ds, context, assoc_info):
             assert 'PatientName' in ds
             return 0x0000
 
@@ -1704,7 +1705,8 @@ class TestAssociationSendCGet(object):
                 scp_sop_class=[CTImageStorage])
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        def on_c_store(ds): return 0x0000
+        def on_c_store(ds, context, assoc_info):
+            return 0x0000
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1737,7 +1739,8 @@ class TestAssociationSendCGet(object):
                 scp_sop_class=[CTImageStorage])
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        def on_c_store(ds): return 0xA700
+        def on_c_store(ds, context, assoc_info):
+            return 0xA700
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1770,7 +1773,8 @@ class TestAssociationSendCGet(object):
                 scp_sop_class=[CTImageStorage])
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        def on_c_store(ds): return 0xB007
+        def on_c_store(ds, context, assoc_info):
+            return 0xB007
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1821,7 +1825,8 @@ class TestAssociationSendCGet(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        def on_c_store(ds): return 0xB007
+        def on_c_store(ds, context, assoc_info):
+            return 0xB007
         ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -2712,7 +2717,3 @@ class TestAssociationCallbacks(object):
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
-
-
-if __name__ == "__main__":
-    unittest.main()
