@@ -854,7 +854,25 @@ class ApplicationEntity(object):
         context : presentation.PresentationContext
             The presentation context that the C-ECHO message was sent under.
         assoc_info : dict
-            A dict containing information about the association.
+            A dict containing information about the current association, with
+            the format
+            {
+                'association' : {
+                    'accepted_contexts' : list of PresentationContext,
+                    'rejected_contexts' : list of PresentationContext,
+                },
+                'requestor' : {
+                    'ae_title' : bytes, the requestor's calling AE title
+                    'called_ae_title' : bytes, the requestor's called AE title
+                    'address' : str, the requestor's IP/TCP address
+                    'port' : int, the requestor's port number
+                },
+                'acceptor' : {
+                    'ae_title' : bytes, the acceptor's AE title
+                    'address' : str, the acceptor's IP/TCP address
+                    'port' : int, the acceptor's port number
+                }
+            }
 
         Returns
         -------

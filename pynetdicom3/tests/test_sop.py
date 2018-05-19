@@ -557,6 +557,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -581,6 +583,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -603,6 +607,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -624,6 +630,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -642,6 +650,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -658,6 +668,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -674,6 +686,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -691,6 +705,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -708,6 +724,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -726,6 +744,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -748,6 +768,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -770,6 +792,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -792,6 +816,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -820,6 +846,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -848,6 +876,8 @@ class TestQRFindServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(self.query, query_model='P')
@@ -959,6 +989,8 @@ class TestQRGetServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -985,6 +1017,8 @@ class TestQRGetServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -1012,6 +1046,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1040,6 +1076,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1067,6 +1105,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1092,6 +1132,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1113,6 +1155,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1134,6 +1178,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1156,6 +1202,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1178,6 +1226,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1208,6 +1258,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1244,6 +1296,8 @@ class TestQRGetServiceClass(object):
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1271,6 +1325,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1302,6 +1358,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1336,6 +1394,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1370,6 +1430,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1401,6 +1463,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1432,6 +1496,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1463,6 +1529,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1500,6 +1568,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1539,6 +1609,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1578,6 +1650,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1609,6 +1683,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1640,6 +1716,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1671,6 +1749,8 @@ class TestQRGetServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
                                CTImageStorage])
         ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
@@ -1803,6 +1883,8 @@ class TestQRMoveServiceClass(object):
         self.scp.start()
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1829,6 +1911,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
 
         assoc = ae.associate('localhost', 11112)
@@ -1853,7 +1937,8 @@ class TestQRMoveServiceClass(object):
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
 
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1875,7 +1960,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1899,7 +1985,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -1922,7 +2009,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -1944,7 +2032,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -1970,7 +2059,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -1995,7 +2085,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2018,7 +2109,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2037,7 +2129,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2056,7 +2149,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2076,7 +2170,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2096,7 +2191,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2124,7 +2220,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2157,7 +2254,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2187,7 +2285,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2220,7 +2319,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2247,7 +2347,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2279,7 +2380,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2309,7 +2411,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2339,7 +2442,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2368,7 +2472,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2404,7 +2509,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2442,7 +2548,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2479,7 +2586,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2508,7 +2616,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2537,7 +2646,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2567,7 +2677,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
@@ -2597,7 +2708,8 @@ class TestQRMoveServiceClass(object):
 
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
                                CTImageStorage])
-
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')

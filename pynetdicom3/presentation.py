@@ -284,7 +284,7 @@ class PresentationContext(object):
 
     @property
     def status(self):
-        """Return the status of the Presentation Context"""
+        """Return a descriptive str of the Presentation Context's result."""
         if self.Result is None:
             status = 'Pending'
         elif self.Result == 0x00:

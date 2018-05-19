@@ -91,8 +91,7 @@ class TimePDUEncode(object):
     def time_encode_assoc_rq_pdu(self):
         """Time encoding an A-ASSOCIATE-RQ PDU."""
         for ii in range(1000):
-            #self.assoc_rq.encode()
-            pass
+            self.assoc_rq.encode()
 
     def time_encode_assoc_ac_pdu(self):
         """Time encoding an A-ASSOCIATE-AC PDU."""
