@@ -383,8 +383,9 @@ class TestPresentationContextRQ(object):
             if isinstance(item, PresentationContextItemRQ):
                 result = item.to_primitive()
 
-        context = PresentationContext(1)
-        context.AbstractSyntax = '1.2.840.10008.1.1'
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.840.10008.1.1'
         context.add_transfer_syntax('1.2.840.10008.1.2')
         assert result == context
 
@@ -398,8 +399,9 @@ class TestPresentationContextRQ(object):
                 orig_item = ii
                 break
 
-        context = PresentationContext(1)
-        context.AbstractSyntax = '1.2.840.10008.1.1'
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.840.10008.1.1'
         context.add_transfer_syntax('1.2.840.10008.1.2')
 
         new_item = PresentationContextItemRQ()
@@ -472,9 +474,10 @@ class TestPresentationContextAC(object):
             if isinstance(item, PresentationContextItemAC):
                 result = item.to_primitive()
 
-        context = PresentationContext(1)
+        context = PresentationContext()
+        context.context_id = 1
         context.add_transfer_syntax('1.2.840.10008.1.2')
-        context.Result = 0
+        context.result = 0
         assert result == context
 
     def test_from_primitive(self):
@@ -487,9 +490,10 @@ class TestPresentationContextAC(object):
                 orig_item = ii
                 break
 
-        context = PresentationContext(1)
+        context = PresentationContext()
+        context.context_id = 1
         context.add_transfer_syntax('1.2.840.10008.1.2')
-        context.Result = 0
+        context.result = 0
 
         new_item = PresentationContextItemAC()
         new_item.from_primitive(context)

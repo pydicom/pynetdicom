@@ -318,9 +318,10 @@ class ApplicationEntity(object):
                 # Add the Presentation Context Definition Item
                 # If we have too many Items, warn and skip the rest
                 if presentation_context_id < 255:
-                    pc_item = PresentationContext(presentation_context_id,
-                                                  abstract_syntax,
-                                                  self.transfer_syntaxes[:])
+                    pc_item = PresentationContext()
+                    pc_item.context_id = presentation_context_id
+                    pc_item.abstract_syntax = abstract_syntax
+                    pc_item.transfer_syntax = self.transfer_syntaxes[:]
 
                     pc_output.append(pc_item)
                 else:
@@ -851,8 +852,10 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        context : presentation.PresentationContext
-            The presentation context that the C-ECHO message was sent under.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-ECHO message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
         assoc_info : dict
             A dict containing information about the current association, with
             the format
@@ -945,8 +948,10 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent by the peer in the C-STORE request.
-        context : presentation.PresentationContext
-            The presentation context that the C-STORE message was sent under.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-STORE message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
         assoc_info : dict
             A dict containing information about the association.
 
@@ -1025,8 +1030,10 @@ class ApplicationEntity(object):
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-FIND
             request.
-        context : presentation.PresentationContext
-            The presentation context that the C-ECHO message was sent under.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-FIND message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
         assoc_info : dict
             A dict containing information about the association.
 
@@ -1118,8 +1125,10 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-GET request.
-        context : presentation.PresentationContext
-            The presentation context that the C-ECHO message was sent under.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-GET message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
         assoc_info : dict
             A dict containing information about the association.
 
@@ -1223,8 +1232,10 @@ class ApplicationEntity(object):
             The destination AE title that matching SOP Instances will be sent
             to using C-STORE sub-operations. `move_aet` will be a correctly
             formatted AE title (16 chars, with trailing spaces as padding).
-        context : presentation.PresentationContext
-            The presentation context that the C-ECHO message was sent under.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-MOVE message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
         assoc_info : dict
             A dict containing information about the association.
 

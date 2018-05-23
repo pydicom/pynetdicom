@@ -645,15 +645,17 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         assoc.called_presentation_address = ('10.40.94.44', 106)
         self.assertTrue(assoc.called_presentation_address == ('10.40.94.44', 106))
 
-        assoc.presentation_context_definition_list = [PresentationContext(1)]
-        self.assertTrue(assoc.presentation_context_definition_list == [PresentationContext(1)])
-        assoc.presentation_context_definition_list = ['a', PresentationContext(1)]
-        self.assertTrue(assoc.presentation_context_definition_list == [PresentationContext(1)])
+        pc = PresentationContext()
+        pc.context_id = 1
+        assoc.presentation_context_definition_list = [pc]
+        self.assertTrue(assoc.presentation_context_definition_list == [pc])
+        assoc.presentation_context_definition_list = ['a', pc]
+        self.assertTrue(assoc.presentation_context_definition_list == [pc])
 
-        assoc.presentation_context_definition_results_list = [PresentationContext(1)]
-        self.assertTrue(assoc.presentation_context_definition_results_list == [PresentationContext(1)])
-        assoc.presentation_context_definition_results_list = ['a', PresentationContext(1)]
-        self.assertTrue(assoc.presentation_context_definition_results_list == [PresentationContext(1)])
+        assoc.presentation_context_definition_results_list = [pc]
+        self.assertTrue(assoc.presentation_context_definition_results_list == [pc])
+        assoc.presentation_context_definition_results_list = ['a', pc]
+        self.assertTrue(assoc.presentation_context_definition_results_list == [pc])
 
         assoc = A_ASSOCIATE()
         # No maximum_length_received set
@@ -796,8 +798,11 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         imp_ver_name.implementation_version_name = 'PYNETDICOM_090'
         assoc.user_information.append(imp_ver_name)
 
-        assoc.presentation_context_definition_list = \
-            [PresentationContext(1, '1.2.840.10008.1.1', ['1.2.840.10008.1.2'])]
+        pc = PresentationContext()
+        pc.context_id = 1
+        pc.abstract_syntax = '1.2.840.10008.1.1'
+        pc.transfer_syntax = ['1.2.840.10008.1.2']
+        assoc.presentation_context_definition_list = [pc]
 
         pdu = A_ASSOCIATE_RQ()
         pdu.from_primitive(assoc)
@@ -818,7 +823,7 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
               b"\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49" \
               b"\x43\x4f\x4d\x5f\x30\x39\x30"
 
-        self.assertTrue(data == ref)
+        assert data == ref
 
 
 class TestPrimitive_A_RELEASE(unittest.TestCase):

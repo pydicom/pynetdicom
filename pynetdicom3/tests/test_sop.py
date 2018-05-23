@@ -316,8 +316,8 @@ class TestVerificationServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.AbstractSyntax == '1.2.840.10008.1.1'
-        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+        assert self.scp.context.abstract_syntax == '1.2.840.10008.1.1'
+        assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
 
@@ -500,8 +500,8 @@ class TestStorageServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.AbstractSyntax == CTImageStorage.UID
-        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+        assert self.scp.context.abstract_syntax == CTImageStorage.UID
+        assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
 
@@ -919,8 +919,8 @@ class TestQRFindServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelFind.UID
-        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelFind.UID
+        assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
 
@@ -1781,8 +1781,9 @@ class TestQRGetServiceClass(object):
                                CTImageStorage])
 
         def on_c_store(ds, context, assoc_info):
-            assert context.AbstractSyntax == CTImageStorage.UID
-            assert context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+            assert context.context_id == 3
+            assert context.abstract_syntax == CTImageStorage.UID
+            assert context.transfer_syntax == '1.2.840.10008.1.2.1'
             return 0x0000
 
         ae.on_c_store = on_c_store
@@ -1801,8 +1802,8 @@ class TestQRGetServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelGet.UID
-        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelGet.UID
+        assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
 
@@ -1819,8 +1820,8 @@ class TestQRGetServiceClass(object):
                                CTImageStorage])
 
         def on_c_store(ds, context, assoc_info):
-            assert context.AbstractSyntax == CTImageStorage.UID
-            assert context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+            assert context.abstract_syntax == CTImageStorage.UID
+            assert context.transfer_syntax == '1.2.840.10008.1.2.1'
             return 0x0000
 
         ae.on_c_store = on_c_store
@@ -2748,8 +2749,8 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.AbstractSyntax == PatientRootQueryRetrieveInformationModelMove.UID
-        assert self.scp.context.TransferSyntax[0] == '1.2.840.10008.1.2.1'
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelMove.UID
+        assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
 

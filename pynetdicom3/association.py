@@ -494,7 +494,9 @@ class Association(threading.Thread):
                 # Check that the SOP Class is supported by the AE
                 # New method
                 pc_accepted = self.acse.accepted_contexts
-                context = [pc for pc in pc_accepted if pc.ID == msg_context_id]
+                context = [
+                    pc for pc in pc_accepted if pc.context_id == msg_context_id
+                ]
 
                 # Matching context
                 if context:
@@ -508,7 +510,7 @@ class Association(threading.Thread):
 
                 # Old method
                 for context in self.acse.accepted_contexts:
-                    if context.ID == msg_context_id:
+                    if context.context_id == msg_context_id:
                         sop_class.maxpdulength = self.peer_max_pdu
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
@@ -560,7 +562,7 @@ class Association(threading.Thread):
         #self.ext_neg = []
         #for context in self.AE.presentation_contexts_scu:
         #    tmp = SCP_SCU_RoleSelectionParameters()
-        #    tmp.SOPClassUID = context.AbstractSyntax
+        #    tmp.SOPClassUID = context.abstract_syntax
         #    tmp.SCURole = 0
         #    tmp.SCPRole = 1
         #
@@ -598,9 +600,9 @@ class Association(threading.Thread):
                 self.scu_supported_sop = []
                 for context in self.acse.accepted_contexts:
                     self.scu_supported_sop.append(
-                        (context.ID,
-                         uid_to_sop_class(context.AbstractSyntax),
-                         context.TransferSyntax[0]))
+                        (context.context_id,
+                         uid_to_sop_class(context.abstract_syntax),
+                         context.transfer_syntax[0]))
 
                 # Assocation established OK
                 self.is_established = True
@@ -752,8 +754,8 @@ class Association(threading.Thread):
         # Get the Presentation Context we are operating under
         context_id = None
         for context in self.acse.context_manager.accepted:
-            if uid == context.AbstractSyntax:
-                context_id = context.ID
+            if uid == context.abstract_syntax:
+                context_id = context.context_id
                 break
 
         if context_id is None:
@@ -907,9 +909,9 @@ class Association(threading.Thread):
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
             try:
-                if dataset.SOPClassUID == context.AbstractSyntax:
-                    transfer_syntax = context.TransferSyntax[0]
-                    context_id = context.ID
+                if dataset.SOPClassUID == context.abstract_syntax:
+                    transfer_syntax = context.transfer_syntax[0]
+                    context_id = context.context_id
                     break
             except AttributeError as ex:
                 LOGGER.error("Association.send_c_store - unable to determine "
@@ -1098,9 +1100,9 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if sop_class.UID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
                 break
 
         if transfer_syntax is None:
@@ -1324,9 +1326,9 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if sop_class.UID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
                 break
 
         if transfer_syntax is None:
@@ -1592,9 +1594,9 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if sop_class.UID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
                 break
 
         if transfer_syntax is None:
@@ -1764,9 +1766,8 @@ class Association(threading.Thread):
 
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if req.AffectedSOPClassUID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if req.AffectedSOPClassUID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
                 break
 
         if transfer_syntax is None:
@@ -1787,7 +1788,7 @@ class Association(threading.Thread):
             LOGGER.exception(ex)
             rsp.Status = 0xC210
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         assoc_info = {'local_ae' : self.local_ae,
@@ -1795,13 +1796,13 @@ class Association(threading.Thread):
 
         #  Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.ae.on_c_store(ds, context, assoc_info)
+            status = self.ae.on_c_store(ds, context.as_tuple, assoc_info)
         except Exception as ex:
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")
             LOGGER.exception(ex)
             rsp.Status = 0xC211
-            self.dimse.send_msg(rsp, context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Check the callback's returned status
@@ -1832,7 +1833,7 @@ class Association(threading.Thread):
                            "- 0x{0:04x}".format(rsp.Status))
 
         # Send C-STORE confirmation back to peer
-        self.dimse.send_msg(rsp, context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.

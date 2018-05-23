@@ -183,8 +183,8 @@ class PresentationContextManager(object):
     @staticmethod
     def negotiate_scp_scu_role(request_context, result_context):
         """ Negotiates the SCP/SCU role """
-        result_context.SCU = request_context.SCU
-        result_context.SCP = request_context.SCP
+        result_context._scu_role = request_context._scu_role
+        result_context._scp_role = request_context._scp_role
         return result_context
 
     @property
@@ -277,26 +277,28 @@ class PresentationContextManager(object):
 
                     # If we are the Requestor then the Acceptor contexts
                     #   will have no AbstractSyntax
-                    if ii_acc.AbstractSyntax is not None:
-                        if ii_acc.AbstractSyntax == ii_req.AbstractSyntax:
+                    if ii_acc.abstract_syntax is not None:
+                        if ii_acc.abstract_syntax == ii_req.abstract_syntax:
                             acc_context = ii_acc
                     else:
-                        if ii_acc.ID == ii_req.ID:
+                        if ii_acc.context_id == ii_req.context_id:
                             acc_context = ii_acc
                             # Set AbstractSyntax (for convenience)
-                            ii_acc.AbstractSyntax = ii_req.AbstractSyntax
+                            ii_acc.abstract_syntax = ii_req.abstract_syntax
 
                 # Create a new PresentationContext item that will store the
                 #   results from the negotiation
-                result = PresentationContext(ii_req.ID, ii_req.AbstractSyntax)
+                result = PresentationContext()
+                result.context_id = ii_req.context_id
+                result.abstract_syntax = ii_req.abstract_syntax
 
                 # If no matching AbstractSyntax then we are the Acceptor and we
                 #   reject the current context (0x03 - abstract syntax not
                 #   supported)
                 if acc_context is None:
                     # FIXME: make pdu not require this.
-                    result.TransferSyntax = [ii_req.TransferSyntax[0]]
-                    result.Result = 0x03
+                    result.transfer_syntax = [ii_req.transfer_syntax[0]]
+                    result.result = 0x03
                     result = self.negotiate_scp_scu_role(ii_req, result)
                     self.rejected.append(result)
 
@@ -306,16 +308,16 @@ class PresentationContextManager(object):
                 else:
                     # We are the Acceptor and must decide to accept or reject
                     #   the context
-                    if acc_context.Result is None:
+                    if acc_context.result is None:
 
                         # Check the Transfer Syntaxes
                         #   We accept the first matching transfer syntax
-                        for transfer_syntax in acc_context.TransferSyntax:
+                        for transfer_syntax in acc_context.transfer_syntax:
                             # The local transfer syntax is used in order to
                             #   enforce preference based on position
-                            if transfer_syntax in ii_req.TransferSyntax:
-                                result.TransferSyntax = [transfer_syntax]
-                                result.Result = 0x00
+                            if transfer_syntax in ii_req.transfer_syntax:
+                                result.transfer_syntax = [transfer_syntax]
+                                result.result = 0x00
                                 result = self.negotiate_scp_scu_role(ii_req,
                                                                      result)
                                 self.accepted.append(result)
@@ -324,25 +326,25 @@ class PresentationContextManager(object):
                         # Refuse sop class because TS not supported
                         else:
                             # FIXME: make pdu not require this.
-                            result.TransferSyntax = [transfer_syntax]
-                            result.Result = 0x04
+                            result.transfer_syntax = [transfer_syntax]
+                            result.result = 0x04
                             result = self.negotiate_scp_scu_role(ii_req, result)
                             self.rejected.append(result)
 
                     # We are the Requestor and the Acceptor has accepted this
                     #   context
-                    elif acc_context.Result == 0x00:
+                    elif acc_context.result == 0x00:
                         # The accepted transfer syntax (there is only 1)
-                        result.TransferSyntax = [acc_context.TransferSyntax[0]]
+                        result.transfer_syntax = [acc_context.transfer_syntax[0]]
 
                         # Add it to the list of accepted presentation contexts
                         self.accepted.append(result)
 
                     # We are the Requestor and the Acceptor has rejected this
                     #   context
-                    elif acc_context.Result in [0x01, 0x02, 0x03, 0x04]:
+                    elif acc_context.result in [0x01, 0x02, 0x03, 0x04]:
                         # The rejected transfer syntax(es)
-                        result.TransferSyntax = acc_context.TransferSyntax
+                        result.transfer_syntax = acc_context.transfer_syntax
 
                         # Add it to the list of accepted presentation contexts
                         self.rejected.append(result)

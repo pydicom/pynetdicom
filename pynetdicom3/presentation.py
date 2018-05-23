@@ -1,13 +1,22 @@
 """Implementation of the Presentation service."""
+from collections import namedtuple
 import logging
+from warnings import warn
 
 from pydicom.uid import UID
 
-LOGGER = logging.getLogger('pyndx.presentation')
+LOGGER = logging.getLogger('pynetdicom3.presentation')
+
+
+# Used with the on_c_* callbacks to give the users access to the context
+PresentationContextTuple = namedtuple('PresentationContextTuple',
+                                      ['context_id',
+                                       'abstract_syntax',
+                                       'transfer_syntax'])
 
 
 class PresentationContext(object):
-    """Representation of a single A-ASSOCIATE Presentation Context item.
+    """A Presentation Context primitive.
 
     PS3.8 7.1.1
     An A-ASSOCIATE request primitive will contain a Presentation Context
@@ -33,183 +42,249 @@ class PresentationContext(object):
     Rules
     -----
     - Each Presentation Context (request) contains:
-      - One ID, an odd integer between 0 and 255
-      - One Abstract Syntax
-      - One or more Transfer Syntaxes
+      - One context ID, an odd integer between 1 and 255.
+      - One abstract syntax.
+      - One or more transfer syntaxes.
     - Each Presentation Context (response) contains:
-      - One ID, corresponding to a Presentation Context received from the
-        Requestor
-      - A Result, one of 0x00, 0x01, 0x02, 0x03 or 0x04
-      - A Transfer Syntax
-    - If the Result is not 0x00 then the Transfer Syntax in the reply shall be
-      ignored
-    - The same Abstract Syntax can be present in more than one Presententation
-      Context
-    - Only one Transfer Syntax can be accepted per Presentation Context.
+      - One context ID, corresponding to a Presentation Context received from
+        the Requestor
+      - A result, one of 0x00 (acceptance), 0x01 (user rejection), 0x02
+        (provider rejection), 0x03 (abstract syntax not supported) or 0x04
+        (transfer syntaxes not supported).
+      - If the result is 0x00, then a transfer syntax.
+      - If any other result, then a transfer syntax may or may not be present.
+    - If the result is not 0x00 then the transfer syntax in the reply is not
+      significant.
+    - The same abstract syntax can be present in more than one Presententation
+      Context.
+    - Only one transfer syntax can be accepted per Presentation Context.
     - The Presentation Contexts may be sent by the Requestor in any order.
     - The Presentation Contexts may be sent by the Acceptor in any order.
 
     Attributes
-    ----------
-    ID : int
-        The presentation context ID, must be an odd integer between 1 and 255,
-        inclusive.
-    AbstractSyntax : pydicom.uid.UID
-        The abstract syntax
-    TransferSyntax : list of pydicom.uid.UID
-        The transfer syntax(es)
-    SCU : bool or None
-        If an Association acceptor:
-        - True to accept a requestor SCP/SCU Role Selection proposal for the
-          requestor to support the SCU role.to acting as an SCU for the current context
-        - False to disallow the requestor acting as an SCU (the requestor and
-          acceptor then revert to their default roles)
-        - None to not perform SCP/SCU Role Negotation.
-        If an Association requestor then you should add one or more
-        SCP_SCU_RoleSelectionSubItem items to the User Information items. If
-        that is the case then the following values will be set:
-        - True if the requestor act as an SCU for the current context
-        - False if the requestor not act as an SCU for the current
-          context
-        - None if no SCP_SCU_RoleSelectionSubItem has been added for the
-          context's AbstractSyntax.
-    SCP : bool or None
-        If an Association acceptor:
-        - True to allow requestor to acting as an SCP for the current context
-        - False to disallow the requestor acting as an SCP (the requestor and
-          acceptor then revert to their default roles)
-        - None to not perform SCP/SCU Role Negotation.
-        If an Association requestor then you should add one or more
-        SCP_SCU_RoleSelectionSubItem items to the User Information items. If
-        that is the case then the following values will be set:
-        - True if the requestor act as an SCP for the current context
-        - False if the requestor not act as an SCP for the current
-          context
-        - None if no SCP_SCU_RoleSelectionSubItem has been added for the
-          context's AbstractSyntax.
-    Result : int or None
-        If part of the A-ASSOCIATE request then None.
-        If part of the A-ASSOCIATE resposne then one of:
-            0x00, 0x01, 0x02, 0x03, 0x04
-    status : str
-        The string representation of the Result:
-            0x00 : 'acceptance',
-            0x01 : 'user rejection',
-            0x02 : 'provider rejection'
-            0x03 : 'abstract syntax not supported'
-            0x04 : 'transfer syntaxes not supported'
+    ---------
+    result : int or None
+        If part of an A-ASSOCIATE (request) then None. If part of an
+        A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
 
     References
     ----------
-    DICOM Standard, Part 7, Annex D.3.2, D.3.3.4
+    DICOM Standard, Part 7, Annexes
+    `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_
+    `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
+    DICOM Standard, Part 8, Sections
+    `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_
+    `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_
+    `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
     """
-    def __init__(self, ID=None, abstract_syntax=None, transfer_syntaxes=None):
-        """Create a new PresentaionContext.
+    def __init__(self):
+        """Create a new PresentationContext."""
+        self._context_id = None
+        self._abstract_syntax = None
+        self._transfer_syntax = []
+        self.result = None
+
+        # Used with SCP/SCU Role Selection negotiation
+        self._scu_role = None
+        self._scp_role = None
+
+    @property
+    def abstract_syntax(self):
+        """Return the presentation context's abstract ayntax as a UID.
+
+        Returns
+        -------
+        pydicom.uid.UID
+        """
+        return self._abstract_syntax
+
+    @abstract_syntax.setter
+    def abstract_syntax(self, uid):
+        """Set the presentation context's abstract syntax.
 
         Parameters
         ----------
-        ID : int
-            An odd integer between 1 and 255 inclusive
-        abstract_syntax : pydicom.uid.UID, optional
-            The context's abstract syntax
-        transfer_syntaxes : list of pydicom.uid.UID, optional
-            The context's transfer syntax(es)
+        uid : str or bytes or pydicom.uid.UID
+            The abstract syntax UIDs
         """
-        self.ID = ID
-        self.AbstractSyntax = abstract_syntax
-        self.TransferSyntax = transfer_syntaxes or []
-        self.Result = None
-
-        # Refactor, these should be private and used in conjunction with the
-        # SOPClass.SCP and .SCU values
-        self.SCU = None
-        self.SCP = None
-
-    def add_transfer_syntax(self, transfer_syntax):
-        """Append a transfer syntax to the Presentation Context.
-
-        Parameters
-        ----------
-        transfer_syntax : pydicom.uid.UID, bytes or str
-            The transfer syntax to add to the Presentation Context. For
-            Presentation contexts that are rejected the `transfer_syntax` may
-            be an empty UID.
-        """
-        # UID is a subclass of str
-        if isinstance(transfer_syntax, str):
-            transfer_syntax = UID(transfer_syntax)
-        elif isinstance(transfer_syntax, bytes):
-            transfer_syntax = UID(transfer_syntax.decode('ascii'))
+        if isinstance(uid, bytes):
+            uid = UID(uid.decode('ascii'))
+        elif isinstance(uid, str):
+            uid = UID(uid)
         else:
-            raise TypeError('transfer_syntax must be a pydicom.uid.UID,' \
-                             ' bytes or str')
+            raise TypeError("'abstract_syntax' must be str or bytes or UID")
 
-        if transfer_syntax not in self.TransferSyntax and \
-                                                    transfer_syntax != '':
+        if not uid.is_valid:
+            LOGGER.warning("'abstract_syntax' set to a non-conformant UID")
 
-            if not transfer_syntax.is_valid:
-                raise ValueError('Presentation Context attempted to add an '
-                                 "invalid UID '{}'".format(transfer_syntax))
-            # Issue #62: private transfer syntaxes may be used
-            if not transfer_syntax.is_private and \
-                                not transfer_syntax.is_transfer_syntax:
-                raise ValueError('Presentation Context attempted to add a '
-                                 "non-transfer syntax UID '{}'"
-                                 .format(transfer_syntax))
-            self.TransferSyntax.append(transfer_syntax)
+        self._abstract_syntax = uid
+
+    def add_transfer_syntax(self, syntax):
+        """Append a transfer syntax to the presentation context.
+
+        Parameters
+        ----------
+        syntax : pydicom.uid.UID, bytes or str
+            The transfer syntax to add to the presentation context.
+        """
+        if isinstance(syntax, str):
+            syntax = UID(syntax)
+        elif isinstance(syntax, bytes):
+            syntax = UID(syntax.decode('ascii'))
+        else:
+            LOGGER.error("Attempted to add an invalid transfer syntax")
+            return
+
+        # If the transfer syntax is rejected we may add an empty str
+        if syntax not in self._transfer_syntax and syntax != '':
+            if not syntax.is_valid:
+                LOGGER.warning("A non-conformant UID has been added "
+                               "to 'transfer_syntax'")
+            if not syntax.is_private and not syntax.is_transfer_syntax:
+                LOGGER.warning("A UID has been added to 'transfer_syntax' "
+                               "that is not a transfer syntax")
+
+            self._transfer_syntax.append(syntax)
+
+    @property
+    def as_tuple(self):
+        """Return a namedtuple representation of the presentation context.
+
+        Intended to be used when the result is 0x00 (accepted) as only the
+        first transfer syntax item is returned in the tuple.
+
+        Returns
+        -------
+        PresentationContextTuple
+            A representation of an accepted presentation context.
+        """
+        return PresentationContextTuple(
+            self.context_id, self.abstract_syntax, self.transfer_syntax[0]
+        )
+
+    @property
+    def context_id(self):
+        """Return the presentation context's ID parameter as an int."""
+        return self._context_id
+
+    @context_id.setter
+    def context_id(self, value):
+        """Set the presentation context's ID parameter.
+
+        Parameters
+        ----------
+        value : int
+            An odd integer between 1 and 255 (inclusive).
+        """
+        if value is not None and (not 1 <= value <= 255 or value % 2 == 0):
+            raise ValueError("'context_id' must be an odd integer between 1 "
+                             "and 255, inclusive")
+
+        self._context_id = value
 
     def __eq__(self, other):
         """Return True if `self` is equal to `other`."""
+        if self is other:
+            return True
+
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
 
         return NotImplemented
 
+    # Python 2: Classes defining __eq__ should flag themselves as unhashable
+    __hash__ = None
+
     def __ne__(self, other):
-        """Return inequality"""
+        """Return True if `self` does not equal `other`."""
         return not self == other
+
+    @property
+    def status(self):
+        """Return a descriptive str of the presentation context's result.
+
+        Returns
+        -------
+        str
+            The string representation of the result.
+        """
+        if self.result is None:
+            status = 'Pending'
+        elif self.result == 0x00:
+            status = 'Accepted'
+        elif self.result == 0x01:
+            status = 'User Rejected'
+        elif self.result == 0x02:
+            status = 'Provider Rejected'
+        elif self.result == 0x03:
+            status = 'Abstract Syntax Not Supported'
+        elif self.result == 0x04:
+            status = 'Transfer Syntax(es) Not Supported'
+        else:
+            status = 'Unknown'
+
+        return status
 
     def __str__(self):
         """String representation of the Presentation Context."""
-        s = 'ID: {0!s}\n'.format(self.ID)
+        s = 'ID: {0!s}\n'.format(self.context_id)
 
-        if self.AbstractSyntax is not None:
-            s += 'Abstract Syntax: {0!s}\n'.format(self.AbstractSyntax.name)
+        if self.abstract_syntax is not None:
+            s += 'Abstract Syntax: {0!s}\n'.format(self.abstract_syntax.name)
 
         s += 'Transfer Syntax(es):\n'
-        for syntax in self.TransferSyntax:
+        for syntax in self.transfer_syntax:
             s += '\t={0!s}\n'.format(syntax.name)
 
-        if self.Result is not None:
+        if self.result is not None:
             s += 'Result: {0!s}\n'.format(self.status)
 
         return s
 
     @property
-    def ID(self):
-        """Return the Presentation Context's ID parameter."""
-        return self._id
+    def transfer_syntax(self):
+        """Return the presentation context's transfer syntaxes as a list.
 
-    @ID.setter
-    def ID(self, value):
-        """Set the Presentation Context's ID parameter.
-
-        FIXME: Add Parameters section
+        Returns
+        -------
+        list of pydicom.uid.UID
+            The transfer syntaxes.
         """
-        if value is not None:
-            # pylint: disable=attribute-defined-outside-init
-            if not 1 <= value <= 255:
-                raise ValueError("Presentation Context ID must be an odd "
-                                 "integer between 1 and 255 inclusive")
-            elif value % 2 == 0:
-                raise ValueError("Presentation Context ID must be an odd "
-                                 "integer between 1 and 255 inclusive")
+        return self._transfer_syntax
 
-        self._id = value
+    @transfer_syntax.setter
+    def transfer_syntax(self, syntaxes):
+        """Set the presentation context's transfer syntaxes.
+
+        Parameters
+        ----------
+        syntaxes : list of (str or bytes or pydicom.uid.UID)
+            The transfer syntax UIDs to add to the Presentation Context.
+        """
+        if not isinstance(syntaxes, list):
+            raise TypeError("'transfer_syntax' must be a list")
+
+        self._transfer_syntax = []
+
+        for uid in syntaxes:
+            if isinstance(uid, bytes):
+                uid = UID(uid.decode('ascii'))
+            elif isinstance(uid, str):
+                uid = UID(uid)
+            else:
+                LOGGER.error("Attempted to add an invalid 'transfer_syntax'")
+                continue
+
+            if not uid.is_valid:
+                LOGGER.warning("A non-conformant UID has been added "
+                               "to 'transfer_syntax'")
+
+            self._transfer_syntax.append(uid)
 
     @property
     def AbstractSyntax(self):
         """Return the Presentation Context's Abstract Syntax parameter."""
+        warn('PresentationContext.AbstractSyntax is deprecated', DeprecationWarning)
         return self._abstract_syntax
 
     @AbstractSyntax.setter
@@ -221,30 +296,25 @@ class PresentationContext(object):
         uid : str or bytes or pydicom.uid.UID
             The abstract syntax UIDs
         """
-        # pylint: disable=attribute-defined-outside-init
-        if uid is None:
-            self._abstract_syntax = None
-            return
+        warn('PresentationContext.AbstractSyntax is deprecated', DeprecationWarning)
+        self.abstract_syntax = uid
 
-        if isinstance(uid, bytes):
-            uid = UID(uid.decode('ascii'))
-        elif isinstance(uid, UID):
-            pass
-        elif isinstance(uid, str):
-            uid = UID(uid)
-        else:
-            raise TypeError("Presentation Context invalid type for abstract "
-                            "syntax")
+    @property
+    def ID(self):
+        """Return the Presentation Context's ID parameter."""
+        warn('PresentationContext.ID is deprecated', DeprecationWarning)
+        return self.context_id
 
-        if not uid.is_valid:
-            LOGGER.info('Presentation Context attempted to set an invalid '
-                        'abstract syntax UID')
-        else:
-            self._abstract_syntax = uid
+    @ID.setter
+    def ID(self, value):
+        """Set the Presentation Context's ID parameter."""
+        warn('PresentationContext.ID is deprecated', DeprecationWarning)
+        self.context_id = value
 
     @property
     def TransferSyntax(self):
         """Return the Presentation Context's Transfer Syntax parameter."""
+        warn('PresentationContext.TransferSyntax is deprecated', DeprecationWarning)
         return self._transfer_syntax
 
     @TransferSyntax.setter
@@ -256,51 +326,8 @@ class PresentationContext(object):
         uid_list : list of str or bytes or pydicom.uid.UID
             The transfer syntax UIDs
         """
-        # pylint: disable=attribute-defined-outside-init
-        self._transfer_syntax = []
-        if not isinstance(uid_list, list):
-            raise TypeError("transfer_syntaxes must be a list.")
-
-        for uid in uid_list:
-            if isinstance(uid, bytes):
-                uid = UID(uid.decode('ascii'))
-            elif isinstance(uid, UID):
-                pass
-            elif isinstance(uid, str):
-                uid = UID(uid)
-            else:
-                raise ValueError("PresentationContext(): Invalid transfer "
-                                 "syntax item")
-
-            if not uid.is_valid:
-                LOGGER.info('Presentation Context attempted to set an invalid '
-                            'transfer syntax UID')
-                continue
-
-            if uid.is_private:
-                self._transfer_syntax.append(uid)
-            elif uid.is_transfer_syntax:
-                self._transfer_syntax.append(uid)
-
-    @property
-    def status(self):
-        """Return a descriptive str of the Presentation Context's result."""
-        if self.Result is None:
-            status = 'Pending'
-        elif self.Result == 0x00:
-            status = 'Accepted'
-        elif self.Result == 0x01:
-            status = 'User Rejected'
-        elif self.Result == 0x02:
-            status = 'Provider Rejected'
-        elif self.Result == 0x03:
-            status = 'Abstract Syntax Not Supported'
-        elif self.Result == 0x04:
-            status = 'Transfer Syntax(es) Not Supported'
-        else:
-            status = 'Unknown'
-
-        return status
+        warn('PresentationContext.TransferSyntax is deprecated', DeprecationWarning)
+        self.transfer_syntax = uid_list
 
 
 class PresentationService(object):
@@ -388,10 +415,11 @@ class PresentationService(object):
         # Acceptor doesn't support any presentation contexts
         if not ac_contexts:
             for rq_context in rq_contexts:
-                context = PresentationContext(rq_context.ID,
-                                              rq_context.AbstractSyntax,
-                                              [rq_context.TransferSyntax[0]])
-                context.Result = 0x03
+                context = PresentationContext()
+                context.context_id = rq_context.context_id
+                context.abstract_syntax = rq_context.abstract_syntax
+                context.transfer_syntax = [rq_context.transfer_syntax[0]]
+                context.result = 0x03
                 result_contexts.append(context)
             return result_contexts
 
@@ -404,11 +432,11 @@ class PresentationService(object):
         # Requestor may use the same Abstract Syntax in multiple Presentation
         #   Contexts so we need a more specific key than UID
         requestor_contexts = {
-            (cntx.ID, cntx.AbstractSyntax):cntx for cntx in rq_contexts
+            (cx.context_id, cx.abstract_syntax):cx for cx in rq_contexts
         }
         # Acceptor supported SOP Classes must be unique so we can use UID as
         #   the key
-        acceptor_contexts = {cntx.AbstractSyntax:cntx for cntx in ac_contexts}
+        acceptor_contexts = {cx.abstract_syntax:cx for cx in ac_contexts}
 
         for (cntx_id, ab_syntax) in requestor_contexts:
             # Convenience variable
@@ -416,7 +444,9 @@ class PresentationService(object):
 
             # Create a new PresentationContext item that will store the
             #   results of the negotiation
-            context = PresentationContext(cntx_id, ab_syntax)
+            context = PresentationContext()
+            context.context_id = cntx_id
+            context.abstract_syntax = ab_syntax
 
             # Check if the acceptor supports the Abstract Syntax
             if ab_syntax in acceptor_contexts:
@@ -424,13 +454,13 @@ class PresentationService(object):
                 ac_context = acceptor_contexts[ab_syntax]
 
                 # Abstract syntax supported so check Transfer Syntax
-                for tr_syntax in rq_context.TransferSyntax:
+                for tr_syntax in rq_context.transfer_syntax:
 
                     # If transfer syntax supported
-                    if tr_syntax in ac_context.TransferSyntax:
-                        context.TransferSyntax = [tr_syntax]
+                    if tr_syntax in ac_context.transfer_syntax:
+                        context.transfer_syntax = [tr_syntax]
                         # Accept the presentation context
-                        context.Result = 0x00
+                        context.result = 0x00
 
                         # SCP/SCU Role Selection needs to be reimplemented as it
                         #   doesn't meet the DICOM Standard
@@ -459,15 +489,15 @@ class PresentationService(object):
                         break
 
                 # Need to check against None as 0x00 is a possible value
-                if context.Result is None:
+                if context.result is None:
                     # Reject context - transfer syntax not supported
-                    context.Result = 0x04
-                    context.TransferSyntax = [rq_context.TransferSyntax[0]]
+                    context.result = 0x04
+                    context.transfer_syntax = [rq_context.transfer_syntax[0]]
                     result_contexts.append(context)
             else:
                 # Reject context - abstract syntax not supported
-                context.Result = 0x03
-                context.TransferSyntax = [rq_context.TransferSyntax[0]]
+                context.result = 0x03
+                context.transfer_syntax = [rq_context.transfer_syntax[0]]
                 result_contexts.append(context)
 
         # Sort by presentation context ID and return
@@ -516,23 +546,28 @@ class PresentationService(object):
         output = []
 
         # Create dicts, indexed by the presentation context ID
-        requestor_contexts = {context.ID:context for context in rq_contexts}
-        acceptor_contexts = {context.ID:context for context in ac_contexts}
+        requestor_contexts = {
+            context.context_id:context for context in rq_contexts
+        }
+        acceptor_contexts = {
+            context.context_id:context for context in ac_contexts
+        }
 
         for context_id in requestor_contexts:
             # Convenience variable
             rq_context = requestor_contexts[context_id]
 
-            context = PresentationContext(context_id,
-                                          rq_context.AbstractSyntax)
+            context = PresentationContext()
+            context.context_id = context_id
+            context.abstract_syntax = rq_context.abstract_syntax
 
             if context_id in acceptor_contexts:
                 # Convenience variable
                 ac_context = acceptor_contexts[context_id]
 
                 # Update with accepted values
-                context.TransferSyntax = [ac_context.TransferSyntax[0]]
-                context.Result = ac_context.Result
+                context.transfer_syntax = [ac_context.transfer_syntax[0]]
+                context.result = ac_context.result
 
                 # SCP/SCU Role Selection needs to be reimplemented as it
                 #   doesn't meet the DICOM Standard
@@ -564,10 +599,10 @@ class PresentationService(object):
 
             # Add any missing contexts as rejected
             else:
-                context.TransferSyntax = [rq_context.TransferSyntax[0]]
-                context.Result = 0x02
+                context.transfer_syntax = [rq_context.transfer_syntax[0]]
+                context.result = 0x02
 
             output.append(context)
 
         # Sort returned list by context ID
-        return sorted(output, key=lambda x: x.ID)
+        return sorted(output, key=lambda x: x.context_id)

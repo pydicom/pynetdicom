@@ -580,15 +580,15 @@ class PresentationContextItemRQ(PDUItem):
             The primitive to use to setup the current Item's field values.
         """
         # Add presentation context ID
-        self.presentation_context_id = primitive.ID
+        self.presentation_context_id = primitive.context_id
 
         # Add abstract syntax
         abstract_syntax = AbstractSyntaxSubItem()
-        abstract_syntax.abstract_syntax_name = primitive.AbstractSyntax
+        abstract_syntax.abstract_syntax_name = primitive.abstract_syntax
         self.abstract_transfer_syntax_sub_items.append(abstract_syntax)
 
         # Add transfer syntax(es)
-        for syntax in primitive.TransferSyntax:
+        for syntax in primitive.transfer_syntax:
             transfer_syntax = TransferSyntaxSubItem()
             transfer_syntax.transfer_syntax_name = syntax
             self.abstract_transfer_syntax_sub_items.append(transfer_syntax)
@@ -601,14 +601,15 @@ class PresentationContextItemRQ(PDUItem):
         pynetdicom3.presentation.PresentationContext
             The primitive representation of the current Item.
         """
-        context = PresentationContext(self.presentation_context_id)
+        context = PresentationContext()
+        context.context_id = self.presentation_context_id
 
         # Add transfer syntax(es)
         for syntax in self.abstract_transfer_syntax_sub_items:
             if isinstance(syntax, TransferSyntaxSubItem):
                 context.add_transfer_syntax(syntax.transfer_syntax_name)
             elif isinstance(syntax, AbstractSyntaxSubItem):
-                context.AbstractSyntax = syntax.abstract_syntax_name
+                context.abstract_syntax = syntax.abstract_syntax_name
 
         return context
 
@@ -809,14 +810,14 @@ class PresentationContextItemAC(PDUItem):
             The primitive to use to setup the current Item's field values.
         """
         # Add presentation context ID
-        self.presentation_context_id = primitive.ID
+        self.presentation_context_id = primitive.context_id
 
         # Add reason
-        self.result_reason = primitive.Result
+        self.result_reason = primitive.result
 
         # Add transfer syntax
         transfer_syntax = TransferSyntaxSubItem()
-        transfer_syntax.transfer_syntax_name = primitive.TransferSyntax[0]
+        transfer_syntax.transfer_syntax_name = primitive.transfer_syntax[0]
         self.transfer_syntax_sub_item = [transfer_syntax]
 
     def to_primitive(self):
@@ -827,8 +828,9 @@ class PresentationContextItemAC(PDUItem):
         pynetdicom3.presentation.PresentationContext
             The primitive representation of the current Item.
         """
-        primitive = PresentationContext(self.presentation_context_id)
-        primitive.Result = self.result_reason
+        primitive = PresentationContext()
+        primitive.context_id = self.presentation_context_id
+        primitive.result = self.result_reason
         primitive.add_transfer_syntax(
             self.transfer_syntax_sub_item[0].transfer_syntax_name
         )
