@@ -860,19 +860,15 @@ class ApplicationEntity(object):
             A dict containing information about the current association, with
             the format
             {
-                'association' : {
-                    'accepted_contexts' : list of PresentationContext,
-                    'rejected_contexts' : list of PresentationContext,
-                },
                 'requestor' : {
                     'ae_title' : bytes, the requestor's calling AE title
                     'called_ae_title' : bytes, the requestor's called AE title
-                    'address' : str, the requestor's IP/TCP address
+                    'address' : str, the requestor's IP address
                     'port' : int, the requestor's port number
                 },
                 'acceptor' : {
                     'ae_title' : bytes, the acceptor's AE title
-                    'address' : str, the acceptor's IP/TCP address
+                    'address' : str, the acceptor's IP address
                     'port' : int, the acceptor's port number
                 }
             }
@@ -953,7 +949,21 @@ class ApplicationEntity(object):
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
         assoc_info : dict
-            A dict containing information about the association.
+            A dict containing information about the current association, with
+            the format
+            {
+                'requestor' : {
+                    'ae_title' : bytes, the requestor's calling AE title
+                    'called_ae_title' : bytes, the requestor's called AE title
+                    'address' : str, the requestor's IP address
+                    'port' : int, the requestor's port number
+                },
+                'acceptor' : {
+                    'ae_title' : bytes, the acceptor's AE title
+                    'address' : str, the acceptor's IP address
+                    'port' : int, the acceptor's port number
+                }
+            }
 
         Returns
         -------
@@ -1035,7 +1045,21 @@ class ApplicationEntity(object):
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
         assoc_info : dict
-            A dict containing information about the association.
+            A dict containing information about the current association, with
+            the format
+            {
+                'requestor' : {
+                    'ae_title' : bytes, the requestor's calling AE title
+                    'called_ae_title' : bytes, the requestor's called AE title
+                    'address' : str, the requestor's IP address
+                    'port' : int, the requestor's port number
+                },
+                'acceptor' : {
+                    'ae_title' : bytes, the acceptor's AE title
+                    'address' : str, the acceptor's IP address
+                    'port' : int, the acceptor's port number
+                }
+            }
 
         Yields
         ------
@@ -1130,7 +1154,21 @@ class ApplicationEntity(object):
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
         assoc_info : dict
-            A dict containing information about the association.
+            A dict containing information about the current association, with
+            the format
+            {
+                'requestor' : {
+                    'ae_title' : bytes, the requestor's calling AE title
+                    'called_ae_title' : bytes, the requestor's called AE title
+                    'address' : str, the requestor's IP address
+                    'port' : int, the requestor's port number
+                },
+                'acceptor' : {
+                    'ae_title' : bytes, the acceptor's AE title
+                    'address' : str, the acceptor's IP address
+                    'port' : int, the acceptor's port number
+                }
+            }
 
         Yields
         ------
@@ -1237,7 +1275,21 @@ class ApplicationEntity(object):
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
         assoc_info : dict
-            A dict containing information about the association.
+            A dict containing information about the current association, with
+            the format
+            {
+                'requestor' : {
+                    'ae_title' : bytes, the requestor's calling AE title
+                    'called_ae_title' : bytes, the requestor's called AE title
+                    'address' : str, the requestor's IP address
+                    'port' : int, the requestor's port number
+                },
+                'acceptor' : {
+                    'ae_title' : bytes, the acceptor's AE title
+                    'address' : str, the acceptor's IP address
+                    'port' : int, the acceptor's port number
+                }
+            }
 
         Yields
         ------
