@@ -475,6 +475,20 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        info = {
+            'requestor' : {
+                'ae_title' : self.peer_ae['ae_title'],
+                'called_aet' : self.peer_ae['called_aet'],
+                'port' : self.peer_ae['port'],
+                'address' : self.peer_ae['address'],
+            },
+            'acceptor' : {
+                'ae_title' : self.local_ae['ae_title'],
+                'address' : self.local_ae['address'],
+                'port' : self.local_ae['port'],
+            }
+        }
+
         self._is_running = True
         while not self._kill:
             time.sleep(0.001)
@@ -509,21 +523,8 @@ class Association(threading.Thread):
                     # No matching presentation context
                     pass
 
-                info = {
-                    'requestor' : {
-                        'ae_title' : self.peer_ae['ae_title'],
-                        'called_aet' : self.peer_ae['called_aet'],
-                        'port' : self.peer_ae['port'],
-                        'address' : self.peer_ae['address'],
-                    },
-                    'acceptor' : {
-                        'ae_title' : self.local_ae['ae_title'],
-                        'address' : self.local_ae['address'],
-                        'port' : self.local_ae['port'],
-                    }
-                }
-
                 # Old method
+                # TODO: Index contexts in a dict using context ID
                 for context in self.acse.accepted_contexts:
                     if context.context_id == msg_context_id:
                         sop_class.maxpdulength = self.peer_max_pdu

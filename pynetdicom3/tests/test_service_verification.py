@@ -1,5 +1,6 @@
 """Tests for the VerificationServiceClass."""
 
+import logging
 import threading
 import time
 
@@ -16,6 +17,10 @@ from .dummy_c_scp import (
     DummyBaseSCP,
     DummyVerificationSCP,
 )
+
+LOGGER = logging.getLogger('pynetdicom3')
+#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 
 class TestVerificationServiceClass(object):
