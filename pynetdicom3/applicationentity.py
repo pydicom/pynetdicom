@@ -817,7 +817,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-C callbacks - user should implement these as required
-    def on_c_echo(self, context, assoc_info):
+    def on_c_echo(self, context, info):
         """Callback for when a C-ECHO request is received.
 
         User implementation is not required for the C-ECHO service, but if you
@@ -856,22 +856,24 @@ class ApplicationEntity(object):
             The presentation context that the C-ECHO message was sent under
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
-        assoc_info : dict
+        info : dict
             A dict containing information about the current association, with
-            the format
-            {
-                'requestor' : {
-                    'ae_title' : bytes, the requestor's calling AE title
-                    'called_ae_title' : bytes, the requestor's called AE title
-                    'address' : str, the requestor's IP address
-                    'port' : int, the requestor's port number
-                },
-                'acceptor' : {
-                    'ae_title' : bytes, the acceptor's AE title
-                    'address' : str, the acceptor's IP address
-                    'port' : int, the acceptor's port number
-                }
-            }
+            the keys:
+
+            - 'requestor' : {
+               | 'ae_title' : bytes, the requestor's calling AE title
+               | 'called_ae_title' : bytes, the requestor's called AE title
+               | 'address' : str, the requestor's IP address
+               | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              }
 
         Returns
         -------
@@ -897,7 +899,7 @@ class ApplicationEntity(object):
         # User implementation of on_c_echo is optional
         return 0x0000
 
-    def on_c_store(self, dataset, context, assoc_info):
+    def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
@@ -948,22 +950,27 @@ class ApplicationEntity(object):
             The presentation context that the C-STORE message was sent under
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
-        assoc_info : dict
+        info : dict
             A dict containing information about the current association, with
-            the format
-            {
-                'requestor' : {
-                    'ae_title' : bytes, the requestor's calling AE title
-                    'called_ae_title' : bytes, the requestor's called AE title
-                    'address' : str, the requestor's IP address
-                    'port' : int, the requestor's port number
-                },
-                'acceptor' : {
-                    'ae_title' : bytes, the acceptor's AE title
-                    'address' : str, the acceptor's IP address
-                    'port' : int, the acceptor's port number
-                }
-            }
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              | 'originator_aet' : bytes or None, the move originator's AE title
+              | 'originator_message_id' : int or None, the move originator's message ID
+              }
 
         Returns
         -------
@@ -995,7 +1002,7 @@ class ApplicationEntity(object):
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
-    def on_c_find(self, dataset, context, assoc_info):
+    def on_c_find(self, dataset, context, info):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -1010,6 +1017,7 @@ class ApplicationEntity(object):
         **Supported Service Classes**
 
         Query/Retrieve Service Class
+        Basic Worklist Management Service
 
         **Status**
 
@@ -1044,22 +1052,25 @@ class ApplicationEntity(object):
             The presentation context that the C-FIND message was sent under
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
-        assoc_info : dict
+        info : dict
             A dict containing information about the current association, with
-            the format
-            {
-                'requestor' : {
-                    'ae_title' : bytes, the requestor's calling AE title
-                    'called_ae_title' : bytes, the requestor's called AE title
-                    'address' : str, the requestor's IP address
-                    'port' : int, the requestor's port number
-                },
-                'acceptor' : {
-                    'ae_title' : bytes, the acceptor's AE title
-                    'address' : str, the acceptor's IP address
-                    'port' : int, the acceptor's port number
-                }
-            }
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              }
 
         Yields
         ------
@@ -1108,7 +1119,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_find_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_get(self, dataset, context, assoc_info):
+    def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -1153,22 +1164,25 @@ class ApplicationEntity(object):
             The presentation context that the C-GET message was sent under
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
-        assoc_info : dict
+        info : dict
             A dict containing information about the current association, with
-            the format
-            {
-                'requestor' : {
-                    'ae_title' : bytes, the requestor's calling AE title
-                    'called_ae_title' : bytes, the requestor's called AE title
-                    'address' : str, the requestor's IP address
-                    'port' : int, the requestor's port number
-                },
-                'acceptor' : {
-                    'ae_title' : bytes, the acceptor's AE title
-                    'address' : str, the acceptor's IP address
-                    'port' : int, the acceptor's port number
-                }
-            }
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              }
 
         Yields
         ------
@@ -1217,7 +1231,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_get_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_move(self, dataset, move_aet, context, assoc_info):
+    def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling AE.start().
@@ -1274,22 +1288,25 @@ class ApplicationEntity(object):
             The presentation context that the C-MOVE message was sent under
             as a namedtuple with field names context_id, abstract_syntax and
             transfer_syntax.
-        assoc_info : dict
+        info : dict
             A dict containing information about the current association, with
-            the format
-            {
-                'requestor' : {
-                    'ae_title' : bytes, the requestor's calling AE title
-                    'called_ae_title' : bytes, the requestor's called AE title
-                    'address' : str, the requestor's IP address
-                    'port' : int, the requestor's port number
-                },
-                'acceptor' : {
-                    'ae_title' : bytes, the acceptor's AE title
-                    'address' : str, the acceptor's IP address
-                    'port' : int, the acceptor's port number
-                }
-            }
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              }
 
         Yields
         ------
@@ -1345,7 +1362,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_event_report(self, context, assoc_info):
+    def on_n_event_report(self, context, info):
         """Callback for when a N-EVENT-REPORT is received.
 
         References
@@ -1356,7 +1373,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self, context, assoc_info):
+    def on_n_get(self, context, info):
         """Callback for when a N-GET is received.
 
         References
@@ -1367,7 +1384,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
-    def on_n_set(self, context, assoc_info):
+    def on_n_set(self, context, info):
         """Callback for when a N-SET is received.
 
         References
@@ -1378,7 +1395,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
-    def on_n_action(self, context, assoc_info):
+    def on_n_action(self, context, info):
         """Callback for when a N-ACTION is received.
 
         References
@@ -1389,7 +1406,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self, context, assoc_info):
+    def on_n_create(self, context, info):
         """Callback for when a N-CREATE is received.
 
         References
@@ -1400,7 +1417,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
-    def on_n_delete(self, context, assoc_info):
+    def on_n_delete(self, context, info):
         """Callback for when a N-DELETE is received.
 
         References

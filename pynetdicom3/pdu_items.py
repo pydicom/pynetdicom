@@ -194,6 +194,7 @@ class PDUItem(object):
         When encoded, PDU item and sub-item data for the above has the following
         structure, taken from various tables in [1]_ (offsets shown with Python
         indexing). Items are always encoded using Big Endian [2]_.
+
         +--------+-------------+-------------+
         | Offset | Length      | Description |
         +========+=============+=============+
@@ -382,6 +383,7 @@ class ApplicationContextItem(PDUItem):
     When encoded, an Application Context Item has the following structure, taken
     from Table 9-12 [5]_ (offsets shown with Python indexing). Items are always
     encoded using Big Endian [6]_.
+
     +--------+-------------+--------------------------+
     | Offset | Length      | Description              |
     +========+=============+==========================+
@@ -543,6 +545,7 @@ class PresentationContextItemRQ(PDUItem):
     When encoded, a Presentation Context (RQ) Item has the following structure,
     taken from Table 9-13 [2]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [3]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -774,6 +777,7 @@ class PresentationContextItemAC(PDUItem):
     When encoded, a Presentation Context (AC) Item has the following structure,
     taken from Table 9-13 [1]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1012,6 +1016,7 @@ class UserInformationItem(PDUItem):
     When encoded, a User Information Item has the following structure,
     taken from Table 9-16 [1]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1268,6 +1273,7 @@ class AbstractSyntaxSubItem(PDUItem):
     When encoded, an Abstract Syntax Item has the following structure,
     taken from Table 9-14 [4]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [5]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1429,6 +1435,7 @@ class TransferSyntaxSubItem(PDUItem):
     When encoded, a Transfer Syntax Item has the following structure,
     taken from Table 9-15 [4]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [5]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1581,6 +1588,7 @@ class MaximumLengthSubItem(PDUItem):
     When encoded, a Maximum Length Sub-item has the following structure,
     taken from Table D.1-1 [1]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1719,6 +1727,7 @@ class ImplementationClassUIDSubItem(PDUItem):
     When encoded, an Implementation Class UID Sub-item has the following
     structure, taken from Tables D.3-1 and D.3-2 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1896,6 +1905,7 @@ class ImplementationVersionNameSubItem(PDUItem):
     When encoded, an Implementation Version Name Sub-item has the following
     structure, taken from Tables D.3-3 and D.3-4 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -2057,6 +2067,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
     When encoded, an Asynchronous Operations Window Sub-item has the following
     structure, taken from Tables D.3-7 and D.3-8 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +--------+-------------+-------------------------------------+
     | Offset | Length      | Description                         |
     +========+=============+=====================================+
@@ -2242,6 +2253,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     When encoded, an SCP/SCU Role Section Sub-item has the following
     structure, taken from Tables D.3-9 and D.3-10 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +----------------+----------+------------------------------------+
     | Offset         | Length   | Description                        |
     +================+==========+====================================+
@@ -2498,6 +2510,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Extended Negotiation Sub-item has the following
     structure, taken from Table D.3-11 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +----------------+-------------+------------------------------------+
     | Offset         | Length      | Description                        |
     +================+=============+====================================+
@@ -2745,6 +2758,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Common Extended Negotiation Sub-item has the
     following structure, taken from Table D.3-12 [1]_ (offsets shown
     with Python indexing). Items are always encoded using Big Endian [2]_.
+
     +-------------------------+----------+-------------------------------------+
     | Offset                  | Length   | Description                         |
     +=========================+==========+=====================================+
@@ -2763,6 +2777,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     The Related General SOP Class Identification field is made up of a number
     of sub-fields with the following structure, taken from Table D.3-13 [1]_.
+
     +--------+-------------+--------------------------------------+
     | Offset | Length      | Description                          |
     +========+=============+======================================+
@@ -2922,6 +2937,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         The Related General SOP Class Identification field is made up of a
         number of sub-fields with the following structure, taken from
         Table D.3-13 [1]_.
+
         +--------+-------------+--------------------------------------+
         | Offset | Length      | Description                          |
         +========+=============+======================================+
@@ -3149,6 +3165,7 @@ class UserIdentitySubItemRQ(PDUItem):
     When encoded, a User Identity (RQ) Sub-item has the following
     structure, taken from Tables D.3-14 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +---------------------------+----------+-----------------------------+
     | Offset                    | Length   | Description                 |
     +===========================+==========+=============================+
@@ -3409,6 +3426,7 @@ class UserIdentitySubItemAC(PDUItem):
     When encoded, a User Identity (AC) Sub-item has the following
     structure, taken from Tables D.3-15 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +-----------+----------+-----------------------------+
     | Offset    | Length   | Description                 |
     +===========+==========+=============================+
@@ -3562,6 +3580,7 @@ class PresentationDataValueItem(PDUItem):
     When encoded, a Presentation Data Value Item has the following
     structure, taken from Tables 9.24 [2]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [3]_.
+
     +---------------------------+----------+-----------------------------+
     | Offset                    | Length   | Description                 |
     +===========================+==========+=============================+

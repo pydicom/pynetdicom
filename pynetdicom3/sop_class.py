@@ -158,7 +158,7 @@ class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, assoc_info):
+    def SCP(self, req, context, info):
         """
         The SCP implementation for the Verification Service Class.
 
@@ -171,7 +171,7 @@ class VerificationServiceClass(ServiceClass):
             The C-ECHO request primitive sent by the peer.
         context : pynetdicom3.presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        assoc_info : dict
+        info : dict
             A dict containing details about the association.
 
         See Also
@@ -226,11 +226,15 @@ class VerificationServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
+        info['parameters'] = {
+            'message_id' : req.MessageID
+        }
+
         # Try and run the user's on_c_echo callback. The callback should return
         #   the Status as either an int or Dataset, and any failures in the
         #   callback results in 0x0000 'Success'
         try:
-            status = self.AE.on_c_echo(context.as_tuple, assoc_info)
+            status = self.AE.on_c_echo(context.as_tuple, info)
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError("The 'status' dataset returned by "
@@ -253,9 +257,9 @@ class VerificationServiceClass(ServiceClass):
                 LOGGER.warning("Unknown 'status' value returned by 'on_c_echo' "
                                "callback - 0x{0:04x}".format(rsp.Status))
         except Exception as ex:
+            LOGGER.exception(ex)
             LOGGER.error("Exception in the 'on_c_echo' callback, responding "
                          "with default 'status' value of 0x0000 (Success).")
-            LOGGER.exception(ex)
             rsp.Status = 0x0000
 
         # Send primitive
@@ -266,7 +270,7 @@ class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, assoc_info):
+    def SCP(self, req, context, info):
         """The SCP implementation for the Storage Service Class.
 
         Parameters
@@ -275,7 +279,7 @@ class StorageServiceClass(ServiceClass):
             The C-STORE request primitive sent by the peer.
         context : pynetdicom3.presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        assoc_info : dict
+        info : dict
             A dict containing details about the association.
 
         See Also
@@ -359,9 +363,16 @@ class StorageServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, context.context_id)
             return
 
+        info['parameters'] = {
+            'message_id' : req.MessageID,
+            'priority' : req.Priority,
+            'originator_aet' = req.MoveOriginatorApplicationEntityTitle,
+            'originator_message_id'req.MoveOriginatorMessageID
+        }
+
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            rsp_status = self.AE.on_c_store(ds, context.as_tuple, assoc_info)
+            rsp_status = self.AE.on_c_store(ds, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
                          "callback")
@@ -378,7 +389,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Find Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, assoc_info):
+    def SCP(self, req, context, info):
         """The SCP implementation for the Query/Retrieve Find Service Class.
 
         Parameters
@@ -387,7 +398,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             The C-FIND request primitive received from the peer.
         context : pynetdicom3.presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        assoc_info : dict
+        info : dict
             A dict containing details about the association.
 
         See Also
@@ -510,6 +521,11 @@ class QueryRetrieveFindServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, context.context_id)
             return
 
+        info['parameters'] = {
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
+        }
+
         stopper = object()
         # This will wrap exceptions during iteration and return a good value.
         def wrap_on_c_find():
@@ -517,7 +533,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
                 # We unpack here so that the error is still caught
                 for val1, val2 in self.AE.on_c_find(identifier,
                                                     context.as_tuple,
-                                                    assoc_info):
+                                                    info):
                     yield val1, val2
             except Exception:
                 # TODO: special (singleton) value
@@ -602,7 +618,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
     """Implements the Query/Retrieve Move Service Class."""
     statuses = QR_MOVE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, assoc_info):
+    def SCP(self, req, context, info):
         """The SCP implementation for the Query/Retrieve Move Service Class.
 
         Parameters
@@ -611,7 +627,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             The C-MOVE request primitive sent by the peer.
         context : pynetdicom3.presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        assoc_info : dict
+        info : dict
             A dict containing details about the association.
 
         See Also
@@ -756,13 +772,18 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, context.context_id)
             return
 
+        info['parameters'] = {
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
+        }
+
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
             result = self.AE.on_c_move(identifier,
                                        req.MoveDestination,
                                        context.as_tuple,
-                                       assoc_info)
+                                       info)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
@@ -1025,7 +1046,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
     """Implements the Query/Retrieve Get Service Class."""
     statuses = QR_GET_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, assoc_info):
+    def SCP(self, req, context, info):
         """The SCP implementation for the Query/Retrieve Get Service Class.
 
         Parameters
@@ -1173,10 +1194,15 @@ class QueryRetrieveGetServiceClass(ServiceClass):
             self.DIMSE.send_msg(rsp, context.context_id)
             return
 
+        info['parameters'] = {
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
+        }
+
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            result = self.AE.on_c_get(identifier, context.as_tuple, assoc_info)
+            result = self.AE.on_c_get(identifier, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)
@@ -1365,69 +1391,6 @@ class QueryRetrieveGetServiceClass(ServiceClass):
         rsp.NumberOfCompletedSuboperations = store_results[3]
 
         self.DIMSE.send_msg(rsp, context.context_id)
-
-
-# WORKLIST Service Classes - WIP
-class BasicWorklistServiceClass(ServiceClass): pass
-
-
-class ModalityWorklistServiceSOPClass(BasicWorklistServiceClass):
-    """Implements the Modality Worklist Service Class.
-
-    **Status**
-
-    Based on PS3.4 Annex K.4.1.1.4 (FIXME)
-
-    * Indicates service class specific status codes
-
-    Success
-        Success: Sub-operations complete, no failures - 0x0000
-    Pending
-        * Pending: Matches are continuing - warning that one or more Optional
-            Keys were not supported for existence for this Identifier - 0xFF01
-        * Pending: Matches are continuing - current match is supplied and any
-            Optional Keys were supported in the same manner as Required Keys
-            - 0xFF00
-    Cancel
-        Cancel: Sub-operations terminated due to Cancel indication - 0xFE00
-    Failure
-        * Refused: Out of Resources - 0xA700
-        * Identifier Does Not Match SOP Class - 0xA900
-        * Unable to Process - 0xCxxx
-    """
-    statuses = MODALITY_WORKLIST_SERVICE_CLASS_STATUS
-
-    # FIXME
-    def SCP(self, msg, context, assoc_info):
-        """SCP"""
-        transfer_syntax = context.transfer_syntax[0]
-        ds = decode(msg.Identifier,
-                    transfer_syntax.is_implicit_VR,
-                    transfer_syntax.is_little_endian)
-
-        # make response
-        rsp = C_FIND()
-        rsp.MessageIDBeingRespondedTo = msg.MessageID
-        rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID
-
-        gen = self.AE.OnReceiveFind(self, ds, context, assoc_info)
-        try:
-            while 1:
-                time.sleep(0.001)
-                dataset, status = gen.next()
-                rsp.Status = int(status)
-                rsp.Identifier = encode(dataset,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-                # send response
-                self.DIMSE.send_msg(rsp, context.context_id)
-        except StopIteration:
-            # send final response
-            rsp = C_FIND()
-            rsp.MessageIDBeingRespondedTo = msg.MessageID.value
-            rsp.AffectedSOPClassUID = msg.AffectedSOPClassUID.value
-            rsp.Status = int(self.Success)
-            self.DIMSE.send_msg(rsp, context.context_id)
 
 
 # Generate the various SOP classes

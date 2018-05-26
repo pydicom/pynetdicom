@@ -109,8 +109,8 @@ class Association(threading.Thread):
             as an SCU.
         peer_ae : dict, optional
             If the local AE is acting as an SCU this is the AE title, host and
-            port of the peer AE that we want to Associate with. Keys: 'Port',
-            'Address', 'Title'.
+            port of the peer AE that we want to Associate with. Keys: 'port',
+            'address', 'ae_title'.
         acse_timeout : int, optional
             The maximum amount of time to wait for a reply during association,
             in seconds. A value of 0 means no timeout (default: 30).
@@ -505,7 +505,7 @@ class Association(threading.Thread):
                     # No matching presentation context
                     pass
 
-                assoc_info = {'peer_ae' : self.peer_ae,
+                info = {'peer_ae' : self.peer_ae,
                               'local_ae' : self.local_ae}
 
                 # Old method
@@ -517,7 +517,7 @@ class Association(threading.Thread):
                         sop_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        sop_class.SCP(msg, context, assoc_info)
+                        sop_class.SCP(msg, context, info)
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "
@@ -976,7 +976,7 @@ class Association(threading.Thread):
 
         return status
 
-    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
+    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-FIND request to the peer AE.
 
         Yields (status, identifier) pairs.
@@ -1001,14 +1001,14 @@ class Association(threading.Thread):
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
 
-            - 'W' - Modality Worklist Information - FIND (default)
-              1.2.840.10008.5.1.4.31
-            - 'P' - Patient Root Information Model - FIND
+            - 'P' - Patient Root Information Model - FIND  (default)
               1.2.840.10008.5.1.4.1.2.1.1
             - 'S' - Study Root Information Model - FIND
               1.2.840.10008.5.1.4.1.2.2.1
             - 'O' - Patient Study Only Information Model - FIND
               1.2.840.10008.5.1.4.1.2.3.1
+            - 'W' - Modality Worklist Information - FIND
+              1.2.840.10008.5.1.4.31
 
         Yields
         ------
@@ -1791,12 +1791,20 @@ class Association(threading.Thread):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        assoc_info = {'local_ae' : self.local_ae,
-                      'peer_ae': self.peer_ae}
+        info = {
+            'acceptor' : self.local_ae,
+            'requestor': self.peer_ae,
+            'parameters' : {
+                'message_id' : req.MessageID,
+                'priority' : req.Priority,
+                'originator_aet' = req.MoveOriginatorApplicationEntityTitle,
+                'original_message_id' = req.MoveOriginatorMessageID
+            }
+        }
 
         #  Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.ae.on_c_store(ds, context.as_tuple, assoc_info)
+            status = self.ae.on_c_store(ds, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")
