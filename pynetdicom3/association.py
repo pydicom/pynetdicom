@@ -124,10 +124,6 @@ class Association(threading.Thread):
             If the association requires an extended negotiation then `ext_neg`
             is a list containing the negotiation objects (default: None).
         """
-        self.local_ae = {'port' : None,
-                         'address' : None,
-                         'ae_title' : local_ae.ae_title,
-                         'pdv_size' : None}
         self.peer_ae = {'port' : None,
                          'address' : None,
                          'ae_title' : None,
@@ -155,7 +151,6 @@ class Association(threading.Thread):
         # Initiated a connection to a peer AE
         if isinstance(peer_ae, dict):
             self._mode = 'Requestor'
-
             for key in ['ae_title', 'port', 'address']:
                 if key not in peer_ae:
                     raise KeyError("peer_ae must contain 'ae_title', 'port' "
@@ -174,6 +169,11 @@ class Association(threading.Thread):
             self.ae = local_ae
         else:
             raise TypeError("local_ae must be a pynetdicom3.AE")
+
+        self.local_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : local_ae.ae_title,
+                         'pdv_size' : None}
 
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?

@@ -393,7 +393,7 @@ class ApplicationEntity(object):
         """Stop the SCP."""
         self.stop()
 
-    def associate(self, addr, port, ae_title='ANY-SCP',
+    def associate(self, addr, port, ae_title=b'ANY-SCP',
                   max_pdu=16382, ext_neg=None):
         """Attempts to associate with a remote application entity
 
@@ -534,7 +534,14 @@ class ApplicationEntity(object):
 
     @ae_title.setter
     def ae_title(self, value):
-        """Get the AE title."""
+        """Set the AE title.
+
+        Parameters
+        ----------
+        value : bytes
+            The AE title to use for the local Application Entity. Leading and
+            trailing spaces are non-significant.
+        """
         # pylint: disable=attribute-defined-outside-init
         try:
             self._ae_title = validate_ae_title(value)
