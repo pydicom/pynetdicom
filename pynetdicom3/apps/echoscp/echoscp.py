@@ -184,7 +184,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
     transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 
-def on_c_echo(context, assoc_info):
+def on_c_echo(context, info):
     """Optional implementation of the AE.on_c_echo callback."""
     # Return a Success response to the peer
     # We could also return a pydicom Dataset with a (0000, 0900) Status

@@ -168,7 +168,7 @@ elif args.psonly:
 else:
     query_model = 'P'
 
-def on_c_store(dataset, context, assoc_info):
+def on_c_store(dataset, context, info):
     """
     Function replacing ApplicationEntity.on_store(). Called when a dataset is
     received following a C-STORE. Write the received dataset to file
@@ -177,10 +177,10 @@ def on_c_store(dataset, context, assoc_info):
     ----------
     dataset : pydicom.Dataset
         The DICOM dataset sent via the C-STORE
-    context : pynetdicom3.presentation.PresentationContext
-        The presentation context the dataset was sent under.
-    assoc_info : dict
-        A dict containing information about the association.
+    context : pynetdicom3.presentation.PresentationContextTuple
+        Details of the presentation context the dataset was sent under.
+    info : dict
+        A dict containing information about the association and DIMSE message.
 
     Returns
     -------
@@ -234,15 +234,15 @@ def on_c_store(dataset, context, assoc_info):
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
     meta.ImplementationClassUID = pynetdicom_uid_prefix
-    meta.TransferSyntaxUID = context.TransferSyntax[0]
+    meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
     meta.ImplementationVersionName = pynetdicom_version
 
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
-    ds.is_little_endian = context.TransferSyntax[0].is_little_endian
-    ds.is_implicit_VR = context.TransferSyntax[0].is_implicit_VR
+    ds.is_little_endian = context.transfer_syntax.is_little_endian
+    ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
 
     status_ds = Dataset()
     status_ds.Status = 0x0000

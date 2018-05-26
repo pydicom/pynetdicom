@@ -154,7 +154,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_move(dataset, move_aet, context, assoc_info):
+def on_c_move(dataset, move_aet, context, info):
     """Implement the on_c_move callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']

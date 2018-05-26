@@ -971,11 +971,15 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
                     #   association and check that the response's Status exists
                     #   and is a known value
                     try:
-                        # TODO: Consider adding the move originator
-                        store_status = store_assoc.send_c_store(dataset)
+                        store_status = store_assoc.send_c_store(
+                            dataset,
+                            originator_aet=self.AE.ae_title,
+                            originator_id=1
+                        )
                         # FIXME: Should probably split status check?
                         store_status = STORAGE_SERVICE_CLASS_STATUS[
-                            store_status.Status]
+                            store_status.Status
+                        ]
                     except Exception as ex:
                         # An exception implies a C-STORE failure
                         LOGGER.warning("C-STORE sub-operation failed.")

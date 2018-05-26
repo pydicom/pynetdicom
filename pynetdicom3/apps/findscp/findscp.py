@@ -155,7 +155,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 
-def on_c_find(dataset, context, assoc_info):
+def on_c_find(dataset, context, info):
     """Implement the ae.on_c_find callback."""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']

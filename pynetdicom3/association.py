@@ -823,8 +823,7 @@ class Association(threading.Thread):
             - 0 - Medium
             - 1 - High
             - 2 - Low (default)
-
-        originator_aet : str, optional
+        originator_aet : bytes, optional
             The AE title of the peer that invoked the C-MOVE operation for
             which this C-STORE sub-operation is being performed (default None).
         originator_id : int, optional
