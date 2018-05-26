@@ -48,7 +48,7 @@ class TestPresentationContext(object):
         pc.add_transfer_syntax(UID('1.2.840.10008.1.2.2'))
         pc.add_transfer_syntax(UID(''))
 
-    @pytest.mark.skipif(sys.version_info == (3, 4), reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_add_transfer_syntax_nonconformant(self, caplog):
         """Test adding non-conformant transfer syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom3.presentation')
@@ -123,7 +123,7 @@ class TestPresentationContext(object):
         assert pc.abstract_syntax == UID('1.3.1')
         assert isinstance(pc.abstract_syntax, UID)
 
-    @pytest.mark.skipif(sys.version_info == (3, 4), reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_abstract_syntax_nonconformant(self, caplog):
         """Test adding non-conformant abstract syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom3.presentation')
@@ -153,7 +153,7 @@ class TestPresentationContext(object):
         with pytest.raises(TypeError):
             pc.transfer_syntax = UID('1.4.1')
 
-    @pytest.mark.skipif(sys.version_info == (3, 4), reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_transfer_syntax_nonconformant(self, caplog):
         """Test setting non-conformant transfer syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom3.presentation')
