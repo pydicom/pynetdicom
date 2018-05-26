@@ -52,7 +52,7 @@ class DummyBaseSCP(threading.Thread):
         self.delay = 0
         self.send_abort = False
         self.context = None
-        self.assoc_info = None
+        self.info = None
 
     def run(self):
         """The thread run method"""
@@ -72,15 +72,15 @@ class DummyBaseSCP(threading.Thread):
         for assoc in self.ae.active_associations:
             assoc.release()
 
-    def on_c_echo(self, context, assoc_info):
+    def on_c_echo(self, context, info):
         """Callback for ae.on_c_echo"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_c_store(self, ds, context, assoc_info):
+    def on_c_store(self, ds, context, info):
         """Callback for ae.on_c_store"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_c_find(self, ds, context, assoc_info):
+    def on_c_find(self, ds, context, info):
         """Callback for ae.on_c_find"""
         raise RuntimeError("You should not have been able to get here.")
 
@@ -88,7 +88,7 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_cancel_find"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_c_get(self, ds, context, assoc_info):
+    def on_c_get(self, ds, context, info):
         """Callback for ae.on_c_get"""
         raise RuntimeError("You should not have been able to get here.")
 
@@ -96,7 +96,7 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_cancel_get"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_c_move(self, ds, move_aet, context, assoc_info):
+    def on_c_move(self, ds, move_aet, context, info):
         """Callback for ae.on_c_move"""
         raise RuntimeError("You should not have been able to get here.")
 
@@ -112,7 +112,7 @@ class DummyVerificationSCP(DummyBaseSCP):
         DummyBaseSCP.__init__(self)
         self.status = 0x0000
 
-    def on_c_echo(self, context, assoc_info):
+    def on_c_echo(self, context, info):
         """Callback for ae.on_c_echo
 
         Parameters
@@ -121,7 +121,7 @@ class DummyVerificationSCP(DummyBaseSCP):
             Wait `delay` seconds before sending a response
         """
         self.context = context
-        self.assoc_info = assoc_info
+        self.info = info
         time.sleep(self.delay)
 
         if self.send_abort:
@@ -142,10 +142,10 @@ class DummyStorageSCP(DummyBaseSCP):
         self.status = 0x0000
         self.raise_exception = False
 
-    def on_c_store(self, ds, context, assoc_info):
+    def on_c_store(self, ds, context, info):
         """Callback for ae.on_c_store"""
         self.context = context
-        self.assoc_info = assoc_info
+        self.info = info
         time.sleep(self.delay)
         if self.raise_exception:
             raise ValueError('Dummy msg')
@@ -167,10 +167,10 @@ class DummyFindSCP(DummyBaseSCP):
         self.identifiers = [identifier]
         self.cancel = False
 
-    def on_c_find(self, ds, context, assoc_info):
+    def on_c_find(self, ds, context, info):
         """Callback for ae.on_c_find"""
         self.context = context
-        self.assoc_info = assoc_info
+        self.info = info
         time.sleep(self.delay)
 
         for status, identifier in zip(self.statuses, self.identifiers):
@@ -203,10 +203,10 @@ class DummyGetSCP(DummyBaseSCP):
         self.no_suboperations = 1
         self.cancel = False
 
-    def on_c_get(self, ds, context, assoc_info):
+    def on_c_get(self, ds, context, info):
         """Callback for ae.on_c_get"""
         self.context = context
-        self.assoc_info = assoc_info
+        self.info = info
         time.sleep(self.delay)
         ds = Dataset()
         ds.PatientName = '*'
@@ -247,12 +247,12 @@ class DummyMoveSCP(DummyBaseSCP):
         self.test_no_yield = False
         self.test_no_subops = False
         self.store_context = None
-        self.store_assoc_info = None
+        self.store_info = None
 
-    def on_c_move(self, ds, move_aet, context, assoc_info):
+    def on_c_move(self, ds, move_aet, context, info):
         """Callback for ae.on_c_move"""
         self.context = context
-        self.assoc_info = assoc_info
+        self.info = info
         time.sleep(self.delay)
         ds = Dataset()
         ds.PatientName = '*'
@@ -273,9 +273,9 @@ class DummyMoveSCP(DummyBaseSCP):
                 return
             yield status, ds
 
-    def on_c_store(self, ds, context, assoc_info):
+    def on_c_store(self, ds, context, info):
         self.store_context = context
-        self.store_assoc_info = assoc_info
+        self.store_info = info
         return self.store_status
 
     def on_c_cancel_move(self):

@@ -124,6 +124,15 @@ class Association(threading.Thread):
             If the association requires an extended negotiation then `ext_neg`
             is a list containing the negotiation objects (default: None).
         """
+        self.local_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : local_ae.ae_title,
+                         'pdv_size' : None}
+        self.peer_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : None,
+                         'pdv_size' : None}
+
         # Why is the AE in charge of supplying the client socket?
         #   Hmm, perhaps because we can have multiple connections on the same
         #       listen port. Does that even work? Probably needs testing
@@ -142,15 +151,6 @@ class Association(threading.Thread):
             self._mode = 'Acceptor'
         elif client_socket is not None:
             raise TypeError("client_socket must be a socket.socket")
-
-        self.local_ae = {'port' : None,
-                         'address' : None,
-                         'ae_title' : None,
-                         'pdv_size' : None}
-        self.peer_ae = {'port' : None,
-                         'address' : None,
-                         'ae_title' : None,
-                         'pdv_size' : None}
 
         # Initiated a connection to a peer AE
         if isinstance(peer_ae, dict):
@@ -411,10 +411,14 @@ class Association(threading.Thread):
 
         # Save the peer AE details
         self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
+        self.peer_ae['called_aet'] = assoc_rq.called_ae_title
         self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
         peer_info = self.client_socket.getpeername()
         self.peer_ae['address'] = peer_info[0]
         self.peer_ae['port'] = peer_info[1]
+        local_info = self.client_socket.getsockname()
+        self.local_ae['address'] = local_info[0]
+        self.local_ae['port'] = local_info[1]
 
         # Set maximum PDU send length
         self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
@@ -505,8 +509,19 @@ class Association(threading.Thread):
                     # No matching presentation context
                     pass
 
-                info = {'peer_ae' : self.peer_ae,
-                              'local_ae' : self.local_ae}
+                info = {
+                    'requestor' : {
+                        'ae_title' : self.peer_ae['ae_title'],
+                        'called_aet' : self.peer_ae['called_aet'],
+                        'port' : self.peer_ae['port'],
+                        'address' : self.peer_ae['address'],
+                    },
+                    'acceptor' : {
+                        'ae_title' : self.local_ae['ae_title'],
+                        'address' : self.local_ae['address'],
+                        'port' : self.local_ae['port'],
+                    }
+                }
 
                 # Old method
                 for context in self.acse.accepted_contexts:

@@ -147,7 +147,7 @@ class ApplicationEntity(object):
         The supported transfer syntaxes
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
+    def __init__(self, ae_title=b'PYNETDICOM', port=0, scu_sop_class=None,
                  scp_sop_class=None, transfer_syntax=None,
                  bind_addr=''):
         """Create a new Application Entity.

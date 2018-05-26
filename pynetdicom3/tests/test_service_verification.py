@@ -144,7 +144,7 @@ class TestVerificationServiceClass(object):
     def test_scp_callback_exception(self):
         """Test on_c_echo raising an exception"""
         self.scp = DummyVerificationSCP()
-        def on_c_echo(context, assoc_info):
+        def on_c_echo(context, info):
             raise ValueError
         self.scp.ae.on_c_echo = on_c_echo
         self.scp.start()
@@ -172,13 +172,14 @@ class TestVerificationServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
+        assert self.scp.context.context_id == 1
         assert self.scp.context.abstract_syntax == '1.2.840.10008.1.1'
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
 
-    def test_scp_callback_assoc(self):
-        """Test on_c_echo assoc_info parameter."""
+    def test_scp_callback_info(self):
+        """Test on_c_echo info parameter."""
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
@@ -192,12 +193,12 @@ class TestVerificationServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.assoc_info['peer_ae']['address'] == '127.0.0.1'
-        assert self.scp.assoc_info['peer_ae']['pdv_size'] == 16382
-        assert self.scp.assoc_info['peer_ae']['ae_title'] == b'PYNETDICOM      '
-        #assert self.scp.assoc_info['local_ae']['port'] == 11112
-        #assert self.scp.assoc_info['local_ae']['address'] == '127.0.0.1'
-        #assert self.scp.assoc_info['local_ae']['pdv_size'] == 16382
-        #assert self.scp.assoc_info['local_ae']['ae_title'] == b'ECHOSCU         '
+        assert self.scp.info['requestor']['address'] == '127.0.0.1'
+        assert self.scp.info['requestor']['ae_title'] == b'PYNETDICOM      '
+        assert self.scp.info['requestor']['called_aet'] == b'ANY-SCP         '
+        assert isinstance(self.scp.info['requestor']['port'], int)
+        assert self.scp.info['acceptor']['port'] == 11112
+        assert self.scp.info['acceptor']['address'] == '127.0.0.1'
+        assert self.scp.info['acceptor']['ae_title'] == b'PYNETDICOM      '
 
         self.scp.stop()
