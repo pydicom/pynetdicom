@@ -1797,8 +1797,8 @@ class Association(threading.Thread):
             'parameters' : {
                 'message_id' : req.MessageID,
                 'priority' : req.Priority,
-                'originator_aet' = req.MoveOriginatorApplicationEntityTitle,
-                'original_message_id' = req.MoveOriginatorMessageID
+                'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+                'original_message_id' : req.MoveOriginatorMessageID
             }
         }
 

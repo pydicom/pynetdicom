@@ -366,8 +366,8 @@ class StorageServiceClass(ServiceClass):
         info['parameters'] = {
             'message_id' : req.MessageID,
             'priority' : req.Priority,
-            'originator_aet' = req.MoveOriginatorApplicationEntityTitle,
-            'originator_message_id'req.MoveOriginatorMessageID
+            'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+            'originator_message_id' : req.MoveOriginatorMessageID
         }
 
         # Attempt to run the ApplicationEntity's on_c_store callback
