@@ -1,7 +1,6 @@
 """Implementation of the Presentation service."""
 from collections import namedtuple
 import logging
-from warnings import warn
 
 from pydicom.uid import UID
 
@@ -63,9 +62,15 @@ class PresentationContext(object):
 
     Attributes
     ---------
+    abstract_syntax : pydicom.uid.UID or None
+        The Presentation Context's abstract syntax.
+    context_id : int or None
+        The Presentation Context's Context ID.
     result : int or None
         If part of an A-ASSOCIATE (request) then None. If part of an
         A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
+    transfer_syntax : list of pydicom.uid.UID
+        The Presentation Context's transfer syntax(es).
 
     References
     ----------

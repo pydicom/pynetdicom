@@ -164,7 +164,8 @@ def on_c_find(dataset, context, info):
         data = dcmread(dcm, force=True)
 
         ds = Dataset()
-        ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
+        if 'QueryRetrieveLevel' in dataset:
+            ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
         ds.RetrieveAETitle = args.aetitle
         ds.PatientName = data.PatientName
 

@@ -229,7 +229,7 @@ def on_c_store(dataset, context, info):
                      'Secondary Capture Image Storage' : 'SC'}
 
     try:
-        mode_prefix = mode_prefixes[dataset.SOPClassUID.name()]
+        mode_prefix = mode_prefixes[dataset.SOPClassUID.name]
     except KeyError:
         mode_prefix = 'UN'
 

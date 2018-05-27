@@ -160,14 +160,14 @@ def on_c_move(dataset, move_aet, context, info):
     dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
 
-    # Number of matches
-    yield len(dcm_files)
-
     # Address and port to send to
     if move_aet == b'ANY-SCP         ':
         yield '127.0.0.1', 104
     else:
         yield None, None
+
+    # Number of matches
+    yield len(dcm_files)
 
     # Matching datasets to send
     for dcm in dcm_files:

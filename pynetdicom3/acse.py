@@ -608,7 +608,8 @@ class ACSEServiceProvider(object):
         if not pres_contexts:
             s.append('    (no valid presentation contexts)')
 
-        for item in pres_contexts:
+        # Sort by context ID
+        for item in sorted(pres_contexts, key=lambda x: x.context_id):
             s.append('  Context ID:        {0!s} ({1!s})'
                      .format(item.context_id, item.result_str))
 
