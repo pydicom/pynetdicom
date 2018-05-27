@@ -48,6 +48,10 @@ class TestPresentationContext(object):
         pc.add_transfer_syntax(UID('1.2.840.10008.1.2.2'))
         pc.add_transfer_syntax(UID(''))
 
+        # Test adding an invalid value
+        pc.add_transfer_syntax(1234)
+        assert 1234 not in pc.transfer_syntax
+
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_add_transfer_syntax_nonconformant(self, caplog):
         """Test adding non-conformant transfer syntaxes"""
@@ -109,6 +113,22 @@ class TestPresentationContext(object):
         assert 'Implicit' in pc.__str__()
         assert 'Provider Rejected' in pc.__str__()
 
+    def test_context_id(self):
+        """Test setting context_id."""
+        pc = PresentationContext()
+        pc.context_id = 1
+        assert pc.context_id == 1
+        pc.context_id = 255
+        assert pc.context_id == 255
+
+        with pytest.raises(ValueError):
+            pc.context_id = 0
+        with pytest.raises(ValueError):
+            pc.context_id = 256
+        with pytest.raises(ValueError):
+            pc.context_id = 12
+
+
     def test_abstract_syntax(self):
         """Test abstract syntax setter"""
         pc = PresentationContext()
@@ -122,6 +142,12 @@ class TestPresentationContext(object):
         pc.abstract_syntax = UID('1.3.1')
         assert pc.abstract_syntax == UID('1.3.1')
         assert isinstance(pc.abstract_syntax, UID)
+
+    def test_abstract_syntax_raises(self):
+        """Test exception raised if invalid abstract syntax"""
+        pc = PresentationContext()
+        with pytest.raises(TypeError):
+            pc.abstract_syntax = 1234
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_abstract_syntax_nonconformant(self, caplog):
@@ -152,6 +178,9 @@ class TestPresentationContext(object):
 
         with pytest.raises(TypeError):
             pc.transfer_syntax = UID('1.4.1')
+
+        pc.transfer_syntax = [1234, UID('1.4.1')]
+        assert pc.transfer_syntax == [UID('1.4.1')]
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_transfer_syntax_nonconformant(self, caplog):
