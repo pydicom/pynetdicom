@@ -239,13 +239,14 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        local_ae : dict</span>
-<span class="sd">            Contains information about the local AE, keys &#39;AET&#39;, &#39;Port&#39;,</span>
-<span class="sd">            &#39;Address&#39;.</span>
+<span class="sd">            Contains information about the local AE, keys &#39;ae_title&#39;, &#39;port&#39;,</span>
+<span class="sd">            &#39;address&#39;, &#39;pdv_size&#39;, &#39;propsed_contexts&#39;.</span>
 <span class="sd">        peer_ae : dict</span>
-<span class="sd">            A dict containing the peer AE&#39;s IP/TCP address, port and title</span>
+<span class="sd">            Contains information about the peer AE, keys &#39;ae_title&#39;, &#39;port&#39;,</span>
+<span class="sd">            &#39;address&#39;.</span>
 <span class="sd">        max_pdu_size : int</span>
 <span class="sd">            Maximum PDU size in bytes</span>
-<span class="sd">        pcdl : list of pynetdicom3.utils.PresentationContext</span>
+<span class="sd">        pcdl : list of pynetdicom3.presentation.PresentationContext</span>
 <span class="sd">            A list of the proposed Presentation Contexts for the association</span>
 <span class="sd">            If local_ae is ApplicationEntity then this is doubled up</span>
 <span class="sd">            unnecessarily</span>
@@ -259,6 +260,7 @@
 <span class="sd">            True if the Association was accepted, False if rejected or aborted</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span> <span class="o">=</span> <span class="n">local_ae</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_pdu_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span> <span class="o">=</span> <span class="n">peer_ae</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">local_max_pdu</span> <span class="o">=</span> <span class="n">max_pdu_size</span>
@@ -277,37 +279,39 @@
         <span class="c1">#   PresentationContextDefinitionList</span>
         <span class="n">assoc_rq</span> <span class="o">=</span> <span class="n">A_ASSOCIATE</span><span class="p">()</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">application_context_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span>
-        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;AET&#39;</span><span class="p">]</span>
-        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span><span class="p">[</span><span class="s1">&#39;AET&#39;</span><span class="p">]</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">]</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">]</span>
 
         <span class="c1"># Build User Information - PS3.7 Annex D.3.3</span>
         <span class="c1">#</span>
         <span class="c1"># Maximum Length Negotiation (required)</span>
         <span class="n">max_length</span> <span class="o">=</span> <span class="n">MaximumLengthNegotiation</span><span class="p">()</span>
-        <span class="n">max_length</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">max_pdu_size</span>
+        <span class="n">max_length</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_length</span><span class="p">]</span>
 
         <span class="c1"># Implementation Identification Notification (required)</span>
         <span class="c1"># Class UID (required)</span>
         <span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">ImplementationClassUIDNotification</span><span class="p">()</span>
-        <span class="n">implementation_class_uid</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> \
-            <span class="n">UID</span><span class="p">(</span><span class="n">pynetdicom_uid_prefix</span><span class="p">)</span>
+        <span class="n">implementation_class_uid</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span>
+            <span class="n">pynetdicom_uid_prefix</span>
+        <span class="p">)</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">implementation_class_uid</span><span class="p">)</span>
 
         <span class="c1"># Version Name (optional)</span>
         <span class="n">implementation_version_name</span> <span class="o">=</span> <span class="n">ImplementationVersionNameNotification</span><span class="p">()</span>
-        <span class="n">implementation_version_name</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> \
+        <span class="n">implementation_version_name</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pynetdicom_version</span>
+        <span class="p">)</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">implementation_version_name</span><span class="p">)</span>
 
         <span class="c1"># Add the extended negotiation information (optional)</span>
         <span class="k">if</span> <span class="n">userspdu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span> <span class="o">+=</span> <span class="n">userspdu</span>
 
-        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_presentation_address</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;Address&#39;</span><span class="p">],</span>
-                                                 <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;Port&#39;</span><span class="p">])</span>
-        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_presentation_address</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span><span class="p">[</span><span class="s1">&#39;Address&#39;</span><span class="p">],</span>
-                                                <span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span><span class="p">[</span><span class="s1">&#39;Port&#39;</span><span class="p">])</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_presentation_address</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">])</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_presentation_address</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">remote_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">])</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">presentation_context_definition_list</span> <span class="o">=</span> <span class="n">pcdl</span>
         <span class="c1">#</span>
         <span class="c1">## A-ASSOCIATE request primitive is now complete</span>
@@ -328,22 +332,19 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">,</span> <span class="n">A_ASSOCIATE</span><span class="p">):</span>
             <span class="c1"># Accepted</span>
             <span class="k">if</span> <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>
-                <span class="c1"># Get the association accept details from the PDU and construct</span>
-                <span class="c1">#   a pynetdicom3.utils.AssociationInformation instance</span>
-                <span class="c1"># assoc_info = AssociationInformation(assoc_rq, assoc_rsp)</span>
-                <span class="c1"># accepted_presentation_contexts = \</span>
-                <span class="c1">#                   assoc_info.AcceptedPresentationContexts</span>
-                <span class="c1">#</span>
-                <span class="c1"># return True, assoc_info</span>
-
                 <span class="c1"># Get maximum pdu length from answer</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">maximum_length_received</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">maximum_length_received</span>
+                <span class="p">)</span>
+                <span class="c1"># FIXME</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
                 <span class="c1"># Get accepted presentation contexts using the manager</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">requestor_contexts</span> <span class="o">=</span> <span class="n">pcdl</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">acceptor_contexts</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">presentation_context_definition_results_list</span>
+                <span class="p">)</span>
 
                 <span class="c1"># Once the context manager gets both sets of contexts it</span>
                 <span class="c1">#   automatically determines which are accepted and refused</span>
@@ -439,6 +440,7 @@
 <span class="sd">        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE</span>
 <span class="sd">            The A_ASSOCIATE (AC) primitive to convert and send to the peer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># FIXME: This is weird, refactor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_max_pdu</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">local_max_pdu</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
@@ -488,22 +490,25 @@
 <span class="sd">        ----------</span>
 <span class="sd">        source : int, optional</span>
 <span class="sd">            The source of the abort request (default: 0x02 DUL provider)</span>
-<span class="sd">                0x00 - the DUL service user</span>
-<span class="sd">                0x02 - the DUL service provider</span>
+
+<span class="sd">            - 0x00 - the DUL service user</span>
+<span class="sd">            - 0x02 - the DUL service provider</span>
 <span class="sd">        reason : int, optional</span>
 <span class="sd">            The reason for aborting the association (default: 0x00 reason not</span>
 <span class="sd">            specified).</span>
 
 <span class="sd">            If source 0x00 (DUL user):</span>
-<span class="sd">                0x00 - reason field not significant</span>
+
+<span class="sd">            - 0x00 - reason field not significant</span>
 
 <span class="sd">            If source 0x02 (DUL provider):</span>
-<span class="sd">                0x00 - reason not specified</span>
-<span class="sd">                0x01 - unrecognised PDU</span>
-<span class="sd">                0x02 - unexpected PDU</span>
-<span class="sd">                0x04 - unrecognised PDU parameter</span>
-<span class="sd">                0x05 - unexpected PDU parameter</span>
-<span class="sd">                0x06 - invalid PDU parameter value</span>
+
+<span class="sd">            - 0x00 - reason not specified</span>
+<span class="sd">            - 0x01 - unrecognised PDU</span>
+<span class="sd">            - 0x02 - unexpected PDU</span>
+<span class="sd">            - 0x04 - unrecognised PDU parameter</span>
+<span class="sd">            - 0x05 - unexpected PDU parameter</span>
+<span class="sd">            - 0x06 - invalid PDU parameter value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_ABORT</span><span class="p">()</span>
 
@@ -763,7 +768,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">pres_contexts</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    (no valid presentation contexts)&#39;</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
+        <span class="c1"># Sort by context ID</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pres_contexts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">):</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)&#39;</span>
                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
 

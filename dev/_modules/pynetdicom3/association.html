@@ -188,7 +188,8 @@
     <span class="n">PatientStudyOnlyQueryRetrieveInformationModelMove</span><span class="p">,</span>
     <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
     <span class="n">StudyRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
-    <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span><span class="p">)</span>
+    <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">UserIdentityNegotiation</span><span class="p">,</span>
                                         <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
                                         <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
@@ -237,11 +238,15 @@
 <span class="sd">        True if the association was rejected, False otherwise.</span>
 <span class="sd">    is_released : bool</span>
 <span class="sd">        True if the association has been released, False otherwise.</span>
+<span class="sd">    local_ae : dict</span>
+<span class="sd">        The local Application Entity details, keys: &#39;port&#39;, &#39;address&#39;,</span>
+<span class="sd">        &#39;ae_title&#39;, &#39;pdv_size&#39;.</span>
 <span class="sd">    mode : str</span>
 <span class="sd">        Whether the local AE is acting as the Association &#39;Requestor&#39; or</span>
 <span class="sd">        &#39;Acceptor&#39; (i.e. SCU or SCP).</span>
 <span class="sd">    peer_ae : dict</span>
-<span class="sd">        The peer Application Entity details, keys: &#39;Port&#39;, &#39;Address&#39;, &#39;Title&#39;.</span>
+<span class="sd">        The peer Application Entity details, keys: &#39;port&#39;, &#39;address&#39;,</span>
+<span class="sd">        &#39;ae_title&#39;, &#39;pdv_size&#39;.</span>
 <span class="sd">    client_socket : socket.socket</span>
 <span class="sd">        The socket to use for connections with the peer AE.</span>
 <span class="sd">    scu_supported_sop : list of pynetdicom3.sop_class.ServiceClass</span>
@@ -264,8 +269,8 @@
 <span class="sd">            as an SCU.</span>
 <span class="sd">        peer_ae : dict, optional</span>
 <span class="sd">            If the local AE is acting as an SCU this is the AE title, host and</span>
-<span class="sd">            port of the peer AE that we want to Associate with. Keys: &#39;Port&#39;,</span>
-<span class="sd">            &#39;Address&#39;, &#39;Title&#39;.</span>
+<span class="sd">            port of the peer AE that we want to Associate with. Keys: &#39;port&#39;,</span>
+<span class="sd">            &#39;address&#39;, &#39;ae_title&#39;.</span>
 <span class="sd">        acse_timeout : int, optional</span>
 <span class="sd">            The maximum amount of time to wait for a reply during association,</span>
 <span class="sd">            in seconds. A value of 0 means no timeout (default: 30).</span>
@@ -279,6 +284,11 @@
 <span class="sd">            If the association requires an extended negotiation then `ext_neg`</span>
 <span class="sd">            is a list containing the negotiation objects (default: None).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="s1">&#39;pdv_size&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
         <span class="c1"># Why is the AE in charge of supplying the client socket?</span>
         <span class="c1">#   Hmm, perhaps because we can have multiple connections on the same</span>
         <span class="c1">#       listen port. Does that even work? Probably needs testing</span>
@@ -301,11 +311,12 @@
         <span class="c1"># Initiated a connection to a peer AE</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">peer_ae</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="s1">&#39;Requestor&#39;</span>
-
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AET&#39;</span><span class="p">,</span> <span class="s1">&#39;Port&#39;</span><span class="p">,</span> <span class="s1">&#39;Address&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">,</span> <span class="s1">&#39;address&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">peer_ae</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;peer_ae must contain &#39;AET&#39;, &#39;Port&#39; and &quot;</span>
-                                   <span class="s2">&quot;&#39;Address&#39; entries&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;peer_ae must contain &#39;ae_title&#39;, &#39;port&#39; &quot;</span>
+                                   <span class="s2">&quot;and &#39;address&#39; entries&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">peer_ae</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">peer_ae</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;peer_ae must be a dict&quot;</span><span class="p">)</span>
 
@@ -319,6 +330,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;local_ae must be a pynetdicom3.AE&quot;</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="n">local_ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">,</span>
+                         <span class="s1">&#39;pdv_size&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
         <span class="c1"># Why do we instantiate the DUL provider with a socket when acting</span>
         <span class="c1">#   as an SCU?</span>
         <span class="c1"># Q. Why do we need to feed the DUL an ACSE timeout?</span>
@@ -326,9 +342,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">DULServiceProvider</span><span class="p">(</span><span class="n">socket</span><span class="o">=</span><span class="n">client_socket</span><span class="p">,</span>
                                       <span class="n">dul_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">network_timeout</span><span class="p">,</span>
                                       <span class="n">assoc</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="c1"># Dict containing the peer AE title, address and port</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span> <span class="o">=</span> <span class="n">peer_ae</span>
 
         <span class="c1"># Lists of pynetdicom3.utils.PresentationContext items that the local</span>
         <span class="c1">#   AE supports when acting as an SCU and SCP</span>
@@ -358,6 +371,7 @@
 
         <span class="c1"># Maximum PDU sizes (in bytes) for the local and peer AE</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_pdu</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_pdu</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">local_max_pdu</span> <span class="o">=</span> <span class="n">max_pdu</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;max_pdu must be an int&quot;</span><span class="p">)</span>
@@ -450,7 +464,8 @@
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 
         <span class="c1"># Got an A-ASSOCIATE request primitive from the DICOM UL</span>
-        <span class="n">assoc_rq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
+        <span class="n">assoc_rq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">assoc_rq</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
@@ -554,6 +569,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">rejected</span>
 
+        <span class="c1"># Save the peer AE details</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;called_aet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span>
+        <span class="n">peer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peer_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peer_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">local_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="c1"># Set maximum PDU send length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="c1"># TODO: Remove?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span>
@@ -609,6 +635,20 @@
 <span class="sd">        5. Checks DUL idle timeout</span>
 <span class="sd">            If timed out then kill thread</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;called_aet&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;called_aet&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_running</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
@@ -632,7 +672,9 @@
                 <span class="c1"># Check that the SOP Class is supported by the AE</span>
                 <span class="c1"># New method</span>
                 <span class="n">pc_accepted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span>
-                <span class="n">context</span> <span class="o">=</span> <span class="p">[</span><span class="n">pc</span> <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">pc_accepted</span> <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">ID</span> <span class="o">==</span> <span class="n">msg_context_id</span><span class="p">]</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">pc</span> <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">pc_accepted</span> <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">context_id</span> <span class="o">==</span> <span class="n">msg_context_id</span>
+                <span class="p">]</span>
 
                 <span class="c1"># Matching context</span>
                 <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
@@ -642,22 +684,20 @@
                     <span class="k">pass</span>
 
                 <span class="c1"># Old method</span>
+                <span class="c1"># TODO: Index contexts in a dict using context ID</span>
                 <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span> <span class="o">==</span> <span class="n">msg_context_id</span><span class="p">:</span>
-                        <span class="n">sop_class</span><span class="o">.</span><span class="n">pcid</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
-                        <span class="n">sop_class</span><span class="o">.</span><span class="n">sopclass</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span>
-                        <span class="n">sop_class</span><span class="o">.</span><span class="n">transfersyntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">==</span> <span class="n">msg_context_id</span><span class="p">:</span>
                         <span class="n">sop_class</span><span class="o">.</span><span class="n">maxpdulength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span>
                         <span class="n">sop_class</span><span class="o">.</span><span class="n">DIMSE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span>
                         <span class="n">sop_class</span><span class="o">.</span><span class="n">ACSE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span>
                         <span class="n">sop_class</span><span class="o">.</span><span class="n">AE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span>
 
                         <span class="c1"># Run SOPClass in SCP mode</span>
-                        <span class="n">sop_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="n">sop_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
                         <span class="k">break</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received message with invalid or rejected &quot;</span>
-                        <span class="s2">&quot;context ID </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_context_id</span><span class="p">)</span>
+                                <span class="s2">&quot;context ID </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_context_id</span><span class="p">)</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
 
             <span class="c1"># Check for release request</span>
@@ -698,20 +738,20 @@
         <span class="c1">#self.ext_neg = []</span>
         <span class="c1">#for context in self.AE.presentation_contexts_scu:</span>
         <span class="c1">#    tmp = SCP_SCU_RoleSelectionParameters()</span>
-        <span class="c1">#    tmp.SOPClassUID = context.AbstractSyntax</span>
+        <span class="c1">#    tmp.SOPClassUID = context.abstract_syntax</span>
         <span class="c1">#    tmp.SCURole = 0</span>
         <span class="c1">#    tmp.SCPRole = 1</span>
         <span class="c1">#</span>
         <span class="c1">#    self.ext_neg.append(tmp)</span>
 
-        <span class="n">local_ae</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
-                    <span class="s1">&#39;Port&#39;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
-                    <span class="s1">&#39;AET&#39;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">}</span>
+        <span class="n">local_ae</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+                    <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+                    <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">}</span>
 
         <span class="c1"># Request an Association via the ACSE</span>
         <span class="n">is_accepted</span><span class="p">,</span> <span class="n">assoc_rsp</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">request_assoc</span><span class="p">(</span><span class="n">local_ae</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">,</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">local_max_pdu</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">],</span>
                                         <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">presentation_contexts_scu</span><span class="p">,</span>
                                         <span class="n">userspdu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">)</span>
 
@@ -736,9 +776,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">scu_supported_sop</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scu_supported_sop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span>
-                         <span class="n">uid_to_sop_class</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">),</span>
-                         <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                        <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span>
+                         <span class="n">uid_to_sop_class</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">),</span>
+                         <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
                 <span class="c1"># Assocation established OK</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
@@ -890,8 +930,9 @@
         <span class="c1"># Get the Presentation Context we are operating under</span>
         <span class="n">context_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">:</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
+            <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">context_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">uid</span><span class="p">)</span>
@@ -942,8 +983,7 @@
 <span class="sd">            - 0 - Medium</span>
 <span class="sd">            - 1 - High</span>
 <span class="sd">            - 2 - Low (default)</span>
-
-<span class="sd">        originator_aet : str, optional</span>
+<span class="sd">        originator_aet : bytes, optional</span>
 <span class="sd">            The AE title of the peer that invoked the C-MOVE operation for</span>
 <span class="sd">            which this C-STORE sub-operation is being performed (default None).</span>
 <span class="sd">        originator_id : int, optional</span>
@@ -1044,9 +1084,10 @@
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">:</span>
-                    <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
+                <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                    <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                    <span class="k">break</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Association.send_c_store - unable to determine &quot;</span>
                              <span class="s2">&quot;Presentation Context as &quot;</span>
@@ -1110,7 +1151,7 @@
 
         <span class="k">return</span> <span class="n">status</span></div>
 
-<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;W&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-FIND request to the peer AE.</span>
 
 <span class="sd">        Yields (status, identifier) pairs.</span>
@@ -1135,14 +1176,14 @@
 <span class="sd">        query_model : str, optional</span>
 <span class="sd">            The Query/Retrieve Information Model to use, one of the following:</span>
 
-<span class="sd">            - &#39;W&#39; - Modality Worklist Information - FIND (default)</span>
-<span class="sd">              1.2.840.10008.5.1.4.31</span>
-<span class="sd">            - &#39;P&#39; - Patient Root Information Model - FIND</span>
+<span class="sd">            - &#39;P&#39; - Patient Root Information Model - FIND  (default)</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.1.1</span>
 <span class="sd">            - &#39;S&#39; - Study Root Information Model - FIND</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.2.1</span>
 <span class="sd">            - &#39;O&#39; - Patient Study Only Information Model - FIND</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.3.1</span>
+<span class="sd">            - &#39;W&#39; - Modality Worklist Information - FIND</span>
+<span class="sd">              1.2.840.10008.5.1.4.31</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -1234,9 +1275,10 @@
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
+            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
@@ -1459,9 +1501,10 @@
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
+            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
@@ -1726,9 +1769,10 @@
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
+            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">UID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
@@ -1897,9 +1941,9 @@
 
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">AbstractSyntax</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">TransferSyntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">ID</span>
+            <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
@@ -1919,18 +1963,29 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">,</span>
+            <span class="s1">&#39;requestor&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">,</span>
+            <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+                <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
+                <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">,</span>
+                <span class="s1">&#39;original_message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorMessageID</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
 
         <span class="c1">#  Attempt to run the ApplicationEntity&#39;s on_c_store callback</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in the &quot;</span>
                          <span class="s2">&quot;ApplicationEntity.on_c_store() callback&quot;</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC211</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Check the callback&#39;s returned status</span>
@@ -1961,7 +2016,7 @@
                            <span class="s2">&quot;- 0x</span><span class="si">{0:04x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
         <span class="c1"># Send C-STORE confirmation back to peer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_send_c_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-CANCEL-* request to the peer AE.</span>
