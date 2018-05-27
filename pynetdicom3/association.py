@@ -28,7 +28,8 @@ from pynetdicom3.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
-    PatientStudyOnlyQueryRetrieveInformationModelGet)
+    PatientStudyOnlyQueryRetrieveInformationModelGet
+)
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
@@ -77,11 +78,15 @@ class Association(threading.Thread):
         True if the association was rejected, False otherwise.
     is_released : bool
         True if the association has been released, False otherwise.
+    local_ae : dict
+        The local Application Entity details, keys: 'port', 'address',
+        'ae_title', 'pdv_size'.
     mode : str
         Whether the local AE is acting as the Association 'Requestor' or
         'Acceptor' (i.e. SCU or SCP).
     peer_ae : dict
-        The peer Application Entity details, keys: 'Port', 'Address', 'Title'.
+        The peer Application Entity details, keys: 'port', 'address',
+        'ae_title', 'pdv_size'.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
     scu_supported_sop : list of pynetdicom3.sop_class.ServiceClass
@@ -104,8 +109,8 @@ class Association(threading.Thread):
             as an SCU.
         peer_ae : dict, optional
             If the local AE is acting as an SCU this is the AE title, host and
-            port of the peer AE that we want to Associate with. Keys: 'Port',
-            'Address', 'Title'.
+            port of the peer AE that we want to Associate with. Keys: 'port',
+            'address', 'ae_title'.
         acse_timeout : int, optional
             The maximum amount of time to wait for a reply during association,
             in seconds. A value of 0 means no timeout (default: 30).
@@ -119,6 +124,11 @@ class Association(threading.Thread):
             If the association requires an extended negotiation then `ext_neg`
             is a list containing the negotiation objects (default: None).
         """
+        self.peer_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : None,
+                         'pdv_size' : None}
+
         # Why is the AE in charge of supplying the client socket?
         #   Hmm, perhaps because we can have multiple connections on the same
         #       listen port. Does that even work? Probably needs testing
@@ -141,11 +151,12 @@ class Association(threading.Thread):
         # Initiated a connection to a peer AE
         if isinstance(peer_ae, dict):
             self._mode = 'Requestor'
-
-            for key in ['AET', 'Port', 'Address']:
+            for key in ['ae_title', 'port', 'address']:
                 if key not in peer_ae:
-                    raise KeyError("peer_ae must contain 'AET', 'Port' and "
-                                   "'Address' entries")
+                    raise KeyError("peer_ae must contain 'ae_title', 'port' "
+                                   "and 'address' entries")
+
+            self.peer_ae.update(peer_ae)
         elif peer_ae is not None:
             raise TypeError("peer_ae must be a dict")
 
@@ -159,6 +170,11 @@ class Association(threading.Thread):
         else:
             raise TypeError("local_ae must be a pynetdicom3.AE")
 
+        self.local_ae = {'port' : None,
+                         'address' : None,
+                         'ae_title' : local_ae.ae_title,
+                         'pdv_size' : None}
+
         # Why do we instantiate the DUL provider with a socket when acting
         #   as an SCU?
         # Q. Why do we need to feed the DUL an ACSE timeout?
@@ -166,9 +182,6 @@ class Association(threading.Thread):
         self.dul = DULServiceProvider(socket=client_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
-
-        # Dict containing the peer AE title, address and port
-        self.peer_ae = peer_ae
 
         # Lists of pynetdicom3.utils.PresentationContext items that the local
         #   AE supports when acting as an SCU and SCP
@@ -198,6 +211,7 @@ class Association(threading.Thread):
 
         # Maximum PDU sizes (in bytes) for the local and peer AE
         if isinstance(max_pdu, int):
+            self.local_ae['pdv_size'] = max_pdu
             self.local_max_pdu = max_pdu
         else:
             raise TypeError("max_pdu must be an int")
@@ -290,7 +304,8 @@ class Association(threading.Thread):
         time.sleep(0.1)
 
         # Got an A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.receive_pdu(wait=True, timeout=self.acse.acse_timeout)
+        assoc_rq = self.dul.receive_pdu(wait=True,
+                                        timeout=self.acse.acse_timeout)
 
         if assoc_rq is None:
             self.kill()
@@ -394,6 +409,17 @@ class Association(threading.Thread):
         self.acse.accepted_contexts = self.acse.context_manager.accepted
         self.acse.rejected_contexts = self.acse.context_manager.rejected
 
+        # Save the peer AE details
+        self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
+        self.peer_ae['called_aet'] = assoc_rq.called_ae_title
+        self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
+        peer_info = self.client_socket.getpeername()
+        self.peer_ae['address'] = peer_info[0]
+        self.peer_ae['port'] = peer_info[1]
+        local_info = self.client_socket.getsockname()
+        self.local_ae['address'] = local_info[0]
+        self.local_ae['port'] = local_info[1]
+
         # Set maximum PDU send length
         self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
         self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
@@ -449,6 +475,20 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        info = {
+            'requestor' : {
+                'ae_title' : self.peer_ae['ae_title'],
+                'called_aet' : self.peer_ae['called_aet'],
+                'port' : self.peer_ae['port'],
+                'address' : self.peer_ae['address'],
+            },
+            'acceptor' : {
+                'ae_title' : self.local_ae['ae_title'],
+                'address' : self.local_ae['address'],
+                'port' : self.local_ae['port'],
+            }
+        }
+
         self._is_running = True
         while not self._kill:
             time.sleep(0.001)
@@ -472,7 +512,9 @@ class Association(threading.Thread):
                 # Check that the SOP Class is supported by the AE
                 # New method
                 pc_accepted = self.acse.accepted_contexts
-                context = [pc for pc in pc_accepted if pc.ID == msg_context_id]
+                context = [
+                    pc for pc in pc_accepted if pc.context_id == msg_context_id
+                ]
 
                 # Matching context
                 if context:
@@ -482,22 +524,20 @@ class Association(threading.Thread):
                     pass
 
                 # Old method
+                # TODO: Index contexts in a dict using context ID
                 for context in self.acse.accepted_contexts:
-                    if context.ID == msg_context_id:
-                        sop_class.pcid = context.ID
-                        sop_class.sopclass = context.AbstractSyntax
-                        sop_class.transfersyntax = context.TransferSyntax[0]
+                    if context.context_id == msg_context_id:
                         sop_class.maxpdulength = self.peer_max_pdu
                         sop_class.DIMSE = self.dimse
                         sop_class.ACSE = self.acse
                         sop_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        sop_class.SCP(msg)
+                        sop_class.SCP(msg, context, info)
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "
-                        "context ID %d", msg_context_id)
+                                "context ID %d", msg_context_id)
                     LOGGER.debug("%s", msg)
 
             # Check for release request
@@ -538,20 +578,20 @@ class Association(threading.Thread):
         #self.ext_neg = []
         #for context in self.AE.presentation_contexts_scu:
         #    tmp = SCP_SCU_RoleSelectionParameters()
-        #    tmp.SOPClassUID = context.AbstractSyntax
+        #    tmp.SOPClassUID = context.abstract_syntax
         #    tmp.SCURole = 0
         #    tmp.SCPRole = 1
         #
         #    self.ext_neg.append(tmp)
 
-        local_ae = {'Address' : self.ae.address,
-                    'Port'    : self.ae.port,
-                    'AET'     : self.ae.ae_title}
+        local_ae = {'address' : self.ae.address,
+                    'port' : self.ae.port,
+                    'ae_title' : self.ae.ae_title}
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = \
                 self.acse.request_assoc(local_ae, self.peer_ae,
-                                        self.local_max_pdu,
+                                        self.local_ae['pdv_size'],
                                         self.ae.presentation_contexts_scu,
                                         userspdu=self.ext_neg)
 
@@ -576,9 +616,9 @@ class Association(threading.Thread):
                 self.scu_supported_sop = []
                 for context in self.acse.accepted_contexts:
                     self.scu_supported_sop.append(
-                        (context.ID,
-                         uid_to_sop_class(context.AbstractSyntax),
-                         context.TransferSyntax[0]))
+                        (context.context_id,
+                         uid_to_sop_class(context.abstract_syntax),
+                         context.transfer_syntax[0]))
 
                 # Assocation established OK
                 self.is_established = True
@@ -730,8 +770,9 @@ class Association(threading.Thread):
         # Get the Presentation Context we are operating under
         context_id = None
         for context in self.acse.context_manager.accepted:
-            if uid == context.AbstractSyntax:
-                context_id = context.ID
+            if uid == context.abstract_syntax:
+                context_id = context.context_id
+                break
 
         if context_id is None:
             LOGGER.error("No accepted Presentation Context for '%s'", uid)
@@ -782,8 +823,7 @@ class Association(threading.Thread):
             - 0 - Medium
             - 1 - High
             - 2 - Low (default)
-
-        originator_aet : str, optional
+        originator_aet : bytes, optional
             The AE title of the peer that invoked the C-MOVE operation for
             which this C-STORE sub-operation is being performed (default None).
         originator_id : int, optional
@@ -884,9 +924,10 @@ class Association(threading.Thread):
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
             try:
-                if dataset.SOPClassUID == context.AbstractSyntax:
-                    transfer_syntax = context.TransferSyntax[0]
-                    context_id = context.ID
+                if dataset.SOPClassUID == context.abstract_syntax:
+                    transfer_syntax = context.transfer_syntax[0]
+                    context_id = context.context_id
+                    break
             except AttributeError as ex:
                 LOGGER.error("Association.send_c_store - unable to determine "
                              "Presentation Context as "
@@ -950,7 +991,7 @@ class Association(threading.Thread):
 
         return status
 
-    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='W'):
+    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-FIND request to the peer AE.
 
         Yields (status, identifier) pairs.
@@ -975,14 +1016,14 @@ class Association(threading.Thread):
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
 
-            - 'W' - Modality Worklist Information - FIND (default)
-              1.2.840.10008.5.1.4.31
-            - 'P' - Patient Root Information Model - FIND
+            - 'P' - Patient Root Information Model - FIND  (default)
               1.2.840.10008.5.1.4.1.2.1.1
             - 'S' - Study Root Information Model - FIND
               1.2.840.10008.5.1.4.1.2.2.1
             - 'O' - Patient Study Only Information Model - FIND
               1.2.840.10008.5.1.4.1.2.3.1
+            - 'W' - Modality Worklist Information - FIND
+              1.2.840.10008.5.1.4.31
 
         Yields
         ------
@@ -1074,9 +1115,10 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if sop_class.UID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1299,9 +1341,10 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if sop_class.UID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1566,9 +1609,10 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if sop_class.UID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1737,9 +1781,9 @@ class Association(threading.Thread):
 
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if req.AffectedSOPClassUID == context.AbstractSyntax:
-                transfer_syntax = context.TransferSyntax[0]
-                context_id = context.ID
+            if req.AffectedSOPClassUID == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
@@ -1759,18 +1803,29 @@ class Association(threading.Thread):
             LOGGER.exception(ex)
             rsp.Status = 0xC210
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
+
+        info = {
+            'acceptor' : self.local_ae,
+            'requestor': self.peer_ae,
+            'parameters' : {
+                'message_id' : req.MessageID,
+                'priority' : req.Priority,
+                'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+                'original_message_id' : req.MoveOriginatorMessageID
+            }
+        }
 
         #  Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            status = self.ae.on_c_store(ds)
+            status = self.ae.on_c_store(ds, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in the "
                          "ApplicationEntity.on_c_store() callback")
             LOGGER.exception(ex)
             rsp.Status = 0xC211
-            self.dimse.send_msg(rsp, context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Check the callback's returned status
@@ -1801,7 +1856,7 @@ class Association(threading.Thread):
                            "- 0x{0:04x}".format(rsp.Status))
 
         # Send C-STORE confirmation back to peer
-        self.dimse.send_msg(rsp, context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
     def _send_c_cancel(self, msg_id):
         """Send a C-CANCEL-* request to the peer AE.

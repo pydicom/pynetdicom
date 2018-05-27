@@ -194,6 +194,7 @@ class PDUItem(object):
         When encoded, PDU item and sub-item data for the above has the following
         structure, taken from various tables in [1]_ (offsets shown with Python
         indexing). Items are always encoded using Big Endian [2]_.
+
         +--------+-------------+-------------+
         | Offset | Length      | Description |
         +========+=============+=============+
@@ -382,6 +383,7 @@ class ApplicationContextItem(PDUItem):
     When encoded, an Application Context Item has the following structure, taken
     from Table 9-12 [5]_ (offsets shown with Python indexing). Items are always
     encoded using Big Endian [6]_.
+
     +--------+-------------+--------------------------+
     | Offset | Length      | Description              |
     +========+=============+==========================+
@@ -543,6 +545,7 @@ class PresentationContextItemRQ(PDUItem):
     When encoded, a Presentation Context (RQ) Item has the following structure,
     taken from Table 9-13 [2]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [3]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -580,15 +583,15 @@ class PresentationContextItemRQ(PDUItem):
             The primitive to use to setup the current Item's field values.
         """
         # Add presentation context ID
-        self.presentation_context_id = primitive.ID
+        self.presentation_context_id = primitive.context_id
 
         # Add abstract syntax
         abstract_syntax = AbstractSyntaxSubItem()
-        abstract_syntax.abstract_syntax_name = primitive.AbstractSyntax
+        abstract_syntax.abstract_syntax_name = primitive.abstract_syntax
         self.abstract_transfer_syntax_sub_items.append(abstract_syntax)
 
         # Add transfer syntax(es)
-        for syntax in primitive.TransferSyntax:
+        for syntax in primitive.transfer_syntax:
             transfer_syntax = TransferSyntaxSubItem()
             transfer_syntax.transfer_syntax_name = syntax
             self.abstract_transfer_syntax_sub_items.append(transfer_syntax)
@@ -601,14 +604,15 @@ class PresentationContextItemRQ(PDUItem):
         pynetdicom3.presentation.PresentationContext
             The primitive representation of the current Item.
         """
-        context = PresentationContext(self.presentation_context_id)
+        context = PresentationContext()
+        context.context_id = self.presentation_context_id
 
         # Add transfer syntax(es)
         for syntax in self.abstract_transfer_syntax_sub_items:
             if isinstance(syntax, TransferSyntaxSubItem):
                 context.add_transfer_syntax(syntax.transfer_syntax_name)
             elif isinstance(syntax, AbstractSyntaxSubItem):
-                context.AbstractSyntax = syntax.abstract_syntax_name
+                context.abstract_syntax = syntax.abstract_syntax_name
 
         return context
 
@@ -773,6 +777,7 @@ class PresentationContextItemAC(PDUItem):
     When encoded, a Presentation Context (AC) Item has the following structure,
     taken from Table 9-13 [1]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -809,14 +814,14 @@ class PresentationContextItemAC(PDUItem):
             The primitive to use to setup the current Item's field values.
         """
         # Add presentation context ID
-        self.presentation_context_id = primitive.ID
+        self.presentation_context_id = primitive.context_id
 
         # Add reason
-        self.result_reason = primitive.Result
+        self.result_reason = primitive.result
 
         # Add transfer syntax
         transfer_syntax = TransferSyntaxSubItem()
-        transfer_syntax.transfer_syntax_name = primitive.TransferSyntax[0]
+        transfer_syntax.transfer_syntax_name = primitive.transfer_syntax[0]
         self.transfer_syntax_sub_item = [transfer_syntax]
 
     def to_primitive(self):
@@ -827,8 +832,9 @@ class PresentationContextItemAC(PDUItem):
         pynetdicom3.presentation.PresentationContext
             The primitive representation of the current Item.
         """
-        primitive = PresentationContext(self.presentation_context_id)
-        primitive.Result = self.result_reason
+        primitive = PresentationContext()
+        primitive.context_id = self.presentation_context_id
+        primitive.result = self.result_reason
         primitive.add_transfer_syntax(
             self.transfer_syntax_sub_item[0].transfer_syntax_name
         )
@@ -1010,6 +1016,7 @@ class UserInformationItem(PDUItem):
     When encoded, a User Information Item has the following structure,
     taken from Table 9-16 [1]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1266,6 +1273,7 @@ class AbstractSyntaxSubItem(PDUItem):
     When encoded, an Abstract Syntax Item has the following structure,
     taken from Table 9-14 [4]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [5]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1427,6 +1435,7 @@ class TransferSyntaxSubItem(PDUItem):
     When encoded, a Transfer Syntax Item has the following structure,
     taken from Table 9-15 [4]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [5]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1579,6 +1588,7 @@ class MaximumLengthSubItem(PDUItem):
     When encoded, a Maximum Length Sub-item has the following structure,
     taken from Table D.1-1 [1]_ (offsets shown with Python indexing). Items are
     always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1717,6 +1727,7 @@ class ImplementationClassUIDSubItem(PDUItem):
     When encoded, an Implementation Class UID Sub-item has the following
     structure, taken from Tables D.3-1 and D.3-2 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -1894,6 +1905,7 @@ class ImplementationVersionNameSubItem(PDUItem):
     When encoded, an Implementation Version Name Sub-item has the following
     structure, taken from Tables D.3-3 and D.3-4 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
@@ -2055,6 +2067,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
     When encoded, an Asynchronous Operations Window Sub-item has the following
     structure, taken from Tables D.3-7 and D.3-8 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +--------+-------------+-------------------------------------+
     | Offset | Length      | Description                         |
     +========+=============+=====================================+
@@ -2240,6 +2253,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     When encoded, an SCP/SCU Role Section Sub-item has the following
     structure, taken from Tables D.3-9 and D.3-10 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +----------------+----------+------------------------------------+
     | Offset         | Length   | Description                        |
     +================+==========+====================================+
@@ -2496,6 +2510,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Extended Negotiation Sub-item has the following
     structure, taken from Table D.3-11 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +----------------+-------------+------------------------------------+
     | Offset         | Length      | Description                        |
     +================+=============+====================================+
@@ -2743,6 +2758,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Common Extended Negotiation Sub-item has the
     following structure, taken from Table D.3-12 [1]_ (offsets shown
     with Python indexing). Items are always encoded using Big Endian [2]_.
+
     +-------------------------+----------+-------------------------------------+
     | Offset                  | Length   | Description                         |
     +=========================+==========+=====================================+
@@ -2761,6 +2777,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     The Related General SOP Class Identification field is made up of a number
     of sub-fields with the following structure, taken from Table D.3-13 [1]_.
+
     +--------+-------------+--------------------------------------+
     | Offset | Length      | Description                          |
     +========+=============+======================================+
@@ -2920,6 +2937,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         The Related General SOP Class Identification field is made up of a
         number of sub-fields with the following structure, taken from
         Table D.3-13 [1]_.
+
         +--------+-------------+--------------------------------------+
         | Offset | Length      | Description                          |
         +========+=============+======================================+
@@ -3147,6 +3165,7 @@ class UserIdentitySubItemRQ(PDUItem):
     When encoded, a User Identity (RQ) Sub-item has the following
     structure, taken from Tables D.3-14 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +---------------------------+----------+-----------------------------+
     | Offset                    | Length   | Description                 |
     +===========================+==========+=============================+
@@ -3407,6 +3426,7 @@ class UserIdentitySubItemAC(PDUItem):
     When encoded, a User Identity (AC) Sub-item has the following
     structure, taken from Tables D.3-15 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+
     +-----------+----------+-----------------------------+
     | Offset    | Length   | Description                 |
     +===========+==========+=============================+
@@ -3560,6 +3580,7 @@ class PresentationDataValueItem(PDUItem):
     When encoded, a Presentation Data Value Item has the following
     structure, taken from Tables 9.24 [2]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [3]_.
+
     +---------------------------+----------+-----------------------------+
     | Offset                    | Length   | Description                 |
     +===========================+==========+=============================+

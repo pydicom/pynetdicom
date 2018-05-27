@@ -203,19 +203,19 @@ class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_c_echo(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        ae.on_c_echo()
+        ae.on_c_echo(None, None)
 
     def test_on_c_store(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_store(None)
+            ae.on_c_store(None, None, None)
 
     def test_on_c_find(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_find(None)
+            ae.on_c_find(None, None, None)
 
     def test_on_c_find_cancel(self):
         """Test default callback raises exception"""
@@ -227,7 +227,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_get(None)
+            ae.on_c_get(None, None, None)
 
     def test_on_c_get_cancel(self):
         """Test default callback raises exception"""
@@ -239,7 +239,7 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_c_move(None, None)
+            ae.on_c_move(None, None, None, None)
 
     def test_on_c_move_cancel(self):
         """Test default callback raises exception"""
@@ -251,37 +251,37 @@ class TestAEGoodCallbacks(unittest.TestCase):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_event_report()
+            ae.on_n_event_report(None, None)
 
     def test_on_n_get(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_get()
+            ae.on_n_get(None, None)
 
     def test_on_n_set(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_set()
+            ae.on_n_set(None, None)
 
     def test_on_n_action(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_action()
+            ae.on_n_action(None, None)
 
     def test_on_n_create(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_create()
+            ae.on_n_create(None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         with self.assertRaises(NotImplementedError):
-            ae.on_n_delete()
+            ae.on_n_delete(None, None)
 
     def test_on_receive_connection(self):
         """Test default callback raises exception"""
@@ -635,25 +635,25 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ## SCU SOP Classes
         # str -> UID
         ae = AE(scu_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # UID no change
         ae = AE(scu_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # sop_class -> UID
         ae = AE(scu_sop_class=[VerificationSOPClass], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # bytes -> UID
         ae = AE(scu_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.3'))
         self.assertTrue(isinstance(ab_syn, UID))
 
@@ -668,25 +668,25 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ## SCP SOP Classes
         # str -> UID
         ae = AE(scp_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # UID no change
         ae = AE(scp_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # sop_class -> UID
         ae = AE(scp_sop_class=[VerificationSOPClass], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # bytes -> UID
         ae = AE(scp_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.3'))
         self.assertTrue(isinstance(ab_syn, UID))
 
@@ -702,19 +702,19 @@ class TestAEGoodInitialisation(unittest.TestCase):
         """Check the presentation context generation transfer syntax"""
         # str -> UID
         ae = AE(scu_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
         # UID no change
         ae = AE(scu_sop_class=['1.2'], transfer_syntax=[b'1.2.840.10008.1.2'])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
         # bytes -> UID
         ae = AE(scu_sop_class=['1.3'], transfer_syntax=[UID('1.2.840.10008.1.2')])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 

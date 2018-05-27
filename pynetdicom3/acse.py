@@ -79,13 +79,14 @@ class ACSEServiceProvider(object):
         Parameters
         ----------
         local_ae : dict
-            Contains information about the local AE, keys 'AET', 'Port',
-            'Address'.
+            Contains information about the local AE, keys 'ae_title', 'port',
+            'address', 'pdv_size', 'propsed_contexts'.
         peer_ae : dict
-            A dict containing the peer AE's IP/TCP address, port and title
+            Contains information about the peer AE, keys 'ae_title', 'port',
+            'address'.
         max_pdu_size : int
             Maximum PDU size in bytes
-        pcdl : list of pynetdicom3.utils.PresentationContext
+        pcdl : list of pynetdicom3.presentation.PresentationContext
             A list of the proposed Presentation Contexts for the association
             If local_ae is ApplicationEntity then this is doubled up
             unnecessarily
@@ -99,6 +100,7 @@ class ACSEServiceProvider(object):
             True if the Association was accepted, False if rejected or aborted
         """
         self.local_ae = local_ae
+        self.local_ae['pdv_size'] = max_pdu_size
         self.remote_ae = peer_ae
 
         self.local_max_pdu = max_pdu_size
@@ -117,37 +119,39 @@ class ACSEServiceProvider(object):
         #   PresentationContextDefinitionList
         assoc_rq = A_ASSOCIATE()
         assoc_rq.application_context_name = self.application_context_name
-        assoc_rq.calling_ae_title = self.local_ae['AET']
-        assoc_rq.called_ae_title = self.remote_ae['AET']
+        assoc_rq.calling_ae_title = self.local_ae['ae_title']
+        assoc_rq.called_ae_title = self.remote_ae['ae_title']
 
         # Build User Information - PS3.7 Annex D.3.3
         #
         # Maximum Length Negotiation (required)
         max_length = MaximumLengthNegotiation()
-        max_length.maximum_length_received = max_pdu_size
+        max_length.maximum_length_received = self.local_ae['pdv_size']
         assoc_rq.user_information = [max_length]
 
         # Implementation Identification Notification (required)
         # Class UID (required)
         implementation_class_uid = ImplementationClassUIDNotification()
-        implementation_class_uid.implementation_class_uid = \
-            UID(pynetdicom_uid_prefix)
+        implementation_class_uid.implementation_class_uid = UID(
+            pynetdicom_uid_prefix
+        )
         assoc_rq.user_information.append(implementation_class_uid)
 
         # Version Name (optional)
         implementation_version_name = ImplementationVersionNameNotification()
-        implementation_version_name.implementation_version_name = \
+        implementation_version_name.implementation_version_name = (
             pynetdicom_version
+        )
         assoc_rq.user_information.append(implementation_version_name)
 
         # Add the extended negotiation information (optional)
         if userspdu is not None:
             assoc_rq.user_information += userspdu
 
-        assoc_rq.calling_presentation_address = (self.local_ae['Address'],
-                                                 self.local_ae['Port'])
-        assoc_rq.called_presentation_address = (self.remote_ae['Address'],
-                                                self.remote_ae['Port'])
+        assoc_rq.calling_presentation_address = (self.local_ae['address'],
+                                                 self.local_ae['port'])
+        assoc_rq.called_presentation_address = (self.remote_ae['address'],
+                                                self.remote_ae['port'])
         assoc_rq.presentation_context_definition_list = pcdl
         #
         ## A-ASSOCIATE request primitive is now complete
@@ -168,22 +172,19 @@ class ACSEServiceProvider(object):
         if isinstance(assoc_rsp, A_ASSOCIATE):
             # Accepted
             if assoc_rsp.result == 0x00:
-                # Get the association accept details from the PDU and construct
-                #   a pynetdicom3.utils.AssociationInformation instance
-                # assoc_info = AssociationInformation(assoc_rq, assoc_rsp)
-                # accepted_presentation_contexts = \
-                #                   assoc_info.AcceptedPresentationContexts
-                #
-                # return True, assoc_info
-
                 # Get maximum pdu length from answer
                 self.peer_max_pdu = assoc_rsp.maximum_length_received
+                self.parent.peer_ae['pdv_size'] = (
+                    assoc_rsp.maximum_length_received
+                )
+                # FIXME
                 self.parent.peer_max_pdu = assoc_rsp.maximum_length_received
 
                 # Get accepted presentation contexts using the manager
                 self.context_manager.requestor_contexts = pcdl
-                self.context_manager.acceptor_contexts = \
+                self.context_manager.acceptor_contexts = (
                     assoc_rsp.presentation_context_definition_results_list
+                )
 
                 # Once the context manager gets both sets of contexts it
                 #   automatically determines which are accepted and refused
@@ -279,6 +280,7 @@ class ACSEServiceProvider(object):
         primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
             The A_ASSOCIATE (AC) primitive to convert and send to the peer
         """
+        # FIXME: This is weird, refactor
         self.local_max_pdu = primitive.maximum_length_received
         self.parent.local_max_pdu = primitive.maximum_length_received
 
@@ -328,22 +330,25 @@ class ACSEServiceProvider(object):
         ----------
         source : int, optional
             The source of the abort request (default: 0x02 DUL provider)
-                0x00 - the DUL service user
-                0x02 - the DUL service provider
+
+            - 0x00 - the DUL service user
+            - 0x02 - the DUL service provider
         reason : int, optional
             The reason for aborting the association (default: 0x00 reason not
             specified).
 
             If source 0x00 (DUL user):
-                0x00 - reason field not significant
+
+            - 0x00 - reason field not significant
 
             If source 0x02 (DUL provider):
-                0x00 - reason not specified
-                0x01 - unrecognised PDU
-                0x02 - unexpected PDU
-                0x04 - unrecognised PDU parameter
-                0x05 - unexpected PDU parameter
-                0x06 - invalid PDU parameter value
+
+            - 0x00 - reason not specified
+            - 0x01 - unrecognised PDU
+            - 0x02 - unexpected PDU
+            - 0x04 - unrecognised PDU parameter
+            - 0x05 - unexpected PDU parameter
+            - 0x06 - invalid PDU parameter value
         """
         primitive = A_ABORT()
 
@@ -603,7 +608,8 @@ class ACSEServiceProvider(object):
         if not pres_contexts:
             s.append('    (no valid presentation contexts)')
 
-        for item in pres_contexts:
+        # Sort by context ID
+        for item in sorted(pres_contexts, key=lambda x: x.context_id):
             s.append('  Context ID:        {0!s} ({1!s})'
                      .format(item.context_id, item.result_str))
 
