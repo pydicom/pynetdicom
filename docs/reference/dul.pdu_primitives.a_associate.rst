@@ -1,5 +1,5 @@
-A-ASSOCIATE Service
-===================
+A-ASSOCIATE
+===========
 
 .. currentmodule:: pynetdicom3.pdu_primitives
 

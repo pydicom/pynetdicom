@@ -70,26 +70,17 @@ class PDUItem(object):
 
     See Also
     --------
-    pynetdicom3.pdu.PDU
+    pdu.PDU
     """
 
     def decode(self, bytestream):
-        """Decode `bytestream` and set the parameters of the PDU.
+        """Decode `bytestream` and use the result to set the field values of
+        the PDU item.
 
         Parameters
         ----------
         bytestream : bytes
             The PDU data to be decoded.
-
-        Notes
-        -----
-        **Encoding**
-        The encoding of DICOM PDUs is Big Endian [1]_.
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 8,
-           `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         for (offset, length), attr_name, func, args in self._decoders:
             # Allow us to use None as a `length`
@@ -114,16 +105,6 @@ class PDUItem(object):
         -------
         bytes
             The encoded PDU.
-
-        Notes
-        -----
-        **Encoding**
-        The encoding of DICOM PDUs is Big Endian [1]_.
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 8,
-           `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         bytestream = bytes()
         for attr_name, func, args in self._encoders:
@@ -191,24 +172,28 @@ class PDUItem(object):
           - User Identity Sub-item (RQ/AC)
 
         **Encoding**
+
         When encoded, PDU item and sub-item data for the above has the following
-        structure, taken from various tables in [1]_ (offsets shown with Python
-        indexing). Items are always encoded using Big Endian [2]_.
+        structure, taken from various tables in [#]_ (offsets shown with Python
+        indexing). Items are always encoded using Big Endian [#]_.
 
         +--------+-------------+-------------+
         | Offset | Length      | Description |
         +========+=============+=============+
         | 0      | 1           | Item type   |
+        +--------+-------------+-------------+
         | 1      | 1           | Reserved    |
+        +--------+-------------+-------------+
         | 2      | 2           | Item length |
+        +--------+-------------+-------------+
         | 4      | Item length | Item data   |
         +--------+-------------+-------------+
 
         References
         ----------
-        .. [1] DICOM Standard, Part 8, Section
+        .. [#] DICOM Standard, Part 8, Section
            `9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
-        .. [2] DICOM Standard, Part 8, Section
+        .. [#] DICOM Standard, Part 8, Section
            `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         offset = 0
@@ -226,12 +211,12 @@ class PDUItem(object):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         raise NotImplementedError
 
     @property
     def item_type(self):
-        """Return the 'Item Type' field value as an int."""
+        """Return the item's 'Item Type' field value as an int."""
         key_val = PDU_ITEM_TYPES.items()
         keys = [key for (key, val) in key_val]
         vals = [val for (key, val) in key_val]
@@ -274,10 +259,10 @@ class PDUItem(object):
         Each component of Application Context, Abstract Syntax and Transfer
         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
         String (characters 0-9), with each component separated by '.' (0x2e)
-        [1]_.
+        [#]_.
 
-        'ascii' is chosen because this is the codec Python uses for ISO 646 [2]_
-        [3]_.
+        'ascii' is chosen because this is the codec Python uses for ISO 646 [#]_
+        [#]_.
 
         Parameters
         ----------
@@ -291,9 +276,9 @@ class PDUItem(object):
 
         References
         ----------
-        .. [1] DICOM Standard, part 8, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
-        .. [2] `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        .. [3] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
+        .. [#] DICOM Standard, part 8, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
+        .. [#] `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
+        .. [#] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
         return codecs.encode(uid, 'ascii')
 
@@ -348,7 +333,7 @@ class ApplicationContextItem(PDUItem):
 
     An Application Context explicitly defines the set of appliation service
     elements, related options and any other information necessary for the
-    inter-working of Application Entities on an association [1]_.
+    inter-working of Application Entities on an association [#]_.
 
     Attributes
     ----------
@@ -369,42 +354,47 @@ class ApplicationContextItem(PDUItem):
         * Application Context Name (1)
 
     **Application Context Names**
+
     Application Context Names are OSI Object Identifiers in a numeric form as
-    defined by ISO 8824 [2]_. They are encoded as an ISO 646:1990-Basic G0 Set
+    defined by ISO 8824 [#]_. They are encoded as an ISO 646:1990-Basic G0 Set
     Numeric String of bytes (characters 0-9), separated by the character '.'
-    (0x2e) [3]_.
+    (0x2e) [#]_.
 
     Application context names shall not exceed 64 total characters.
 
     A single DICOM Application Context Name is defined for the current (2018b)
-    version of the DICOM Standard and it is '1.2.840.10008.3.1.1.1' [4]_.
+    version of the DICOM Standard and it is '1.2.840.10008.3.1.1.1' [#]_.
 
     **Encoding**
+
     When encoded, an Application Context Item has the following structure, taken
-    from Table 9-12 [5]_ (offsets shown with Python indexing). Items are always
-    encoded using Big Endian [6]_.
+    from Table 9-12 [#]_ (offsets shown with Python indexing). Items are always
+    encoded using Big Endian [#]_.
 
     +--------+-------------+--------------------------+
     | Offset | Length      | Description              |
     +========+=============+==========================+
     | 0      | 1           | Item type                |
+    +--------+-------------+--------------------------+
     | 1      | 1           | Reserved                 |
+    +--------+-------------+--------------------------+
     | 2      | 2           | Item length              |
+    +--------+-------------+--------------------------+
     | 4      | Variable    | Application context name |
     +--------+-------------+--------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex A  <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_A>`_
-    .. [2] `ISO/IEC 8824-1:2015 <https://www.iso.org/standard/68350.html>`_
-    .. [3] DICOM Standard, Part 8,
+    .. [#] `ISO/IEC 8824-1:2015 <https://www.iso.org/standard/68350.html>`_
+    .. [#] DICOM Standard, Part 8,
        `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_
-    .. [4] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex A.2.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_A.2.1>`_
-    .. [5] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.2.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.1>`_
-    .. [6] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -414,7 +404,7 @@ class ApplicationContextItem(PDUItem):
 
     @property
     def application_context_name(self):
-        """Return the 'Application Context Name' field value as UID."""
+        """Return the item's 'Application Context Name' field value as UID."""
         return self._application_context_name
 
     @application_context_name.setter
@@ -481,7 +471,7 @@ class ApplicationContextItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return len(self.application_context_name)
 
     def __len__(self):
@@ -500,14 +490,13 @@ class PresentationContextItemRQ(PDUItem):
 
     Presentation Contexts (RQ) Items are used by the association requestor to
     propose Abstract Syntaxes (specifications of data elements with associated
-    semantics) and Transfer Syntaxes (sets of encoding rules) [1]_.
+    semantics) and Transfer Syntaxes (sets of encoding rules) [#]_.
 
     Attributes
     ----------
     abstract_syntax : pydicom.uid.UID or None.
         The Presentation Context Item's Abstract Syntax (if available).
-    abstract_transfer_syntax_sub_items : list of AbstractSyntaxSubItem and
-    TransferSyntaxSubItem
+    abstract_transfer_syntax_sub_items : list of AbstractSyntaxSubItem and TransferSyntaxSubItem
         The 'Abstract/Transfer Syntax Sub-Items' field value. The order of the
         items is not guaranteed.
     item_length : int
@@ -542,30 +531,38 @@ class PresentationContextItemRQ(PDUItem):
             * Transfer syntax name(s) (1 or more)
 
     **Encoding**
+
     When encoded, a Presentation Context (RQ) Item has the following structure,
-    taken from Table 9-13 [2]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [3]_.
+    taken from Table 9-13 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | 1           | Presentation context ID            |
+    +--------+-------------+------------------------------------+
     | 5      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 6      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 7      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 8      | Variable    | Abstract/transfer syntax sub-items |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
-    .. [2] DICOM Standard, Part 8, Section
+    .. [#] DICOM Standard, Part 8, Section
        `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_
-    .. [3] DICOM Standard, Part 8, Section
+    .. [#] DICOM Standard, Part 8, Section
        `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -575,12 +572,12 @@ class PresentationContextItemRQ(PDUItem):
         self.abstract_transfer_syntax_sub_items = []
 
     def from_primitive(self, primitive):
-        """Setup the current Item using a Presentation Context primitive.
+        """Set the item's values using a Presentation Context primitive.
 
         Parameters
         ----------
-        primitive : pynetdicom3.presentation.PresentationContext
-            The primitive to use to setup the current Item's field values.
+        primitive : presentation.PresentationContext
+            The primitive to use to set the Item's field values.
         """
         # Add presentation context ID
         self.presentation_context_id = primitive.context_id
@@ -601,7 +598,7 @@ class PresentationContextItemRQ(PDUItem):
 
         Returns
         -------
-        pynetdicom3.presentation.PresentationContext
+        presentation.PresentationContext
             The primitive representation of the current Item.
         """
         context = PresentationContext()
@@ -632,7 +629,7 @@ class PresentationContextItemRQ(PDUItem):
 
     @property
     def context_id(self):
-        """Return the 'Presentation Context ID' field value as an int."""
+        """Return the item's 'Presentation Context ID' field value as an int."""
         return self.presentation_context_id
 
     @property
@@ -692,7 +689,7 @@ class PresentationContextItemRQ(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         length = 4
         for item in self.abstract_transfer_syntax_sub_items:
             length += len(item)
@@ -774,28 +771,36 @@ class PresentationContextItemAC(PDUItem):
           * Transfer syntax name (1)
 
     **Encoding**
+
     When encoded, a Presentation Context (AC) Item has the following structure,
-    taken from Table 9-13 [1]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [2]_.
+    taken from Table 9-13 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | 1           | Presentation context ID            |
+    +--------+-------------+------------------------------------+
     | 5      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 6      | 1           | Result/reason                      |
+    +--------+-------------+------------------------------------+
     | 7      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 8      | Variable    | Transfer syntax sub-item           |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
+    .. [#] DICOM Standard, Part 8, Section
        `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_
-    .. [2] DICOM Standard, Part 8, Section
+    .. [#] DICOM Standard, Part 8, Section
        `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -806,12 +811,12 @@ class PresentationContextItemAC(PDUItem):
         self.transfer_syntax_sub_item = []
 
     def from_primitive(self, primitive):
-        """Setup the current Item using a Presentation Context primitive.
+        """Set the item's values using a Presentation Context primitive.
 
         Parameters
         ----------
-        primitive : pynetdicom3.presentation.PresentationContext
-            The primitive to use to setup the current Item's field values.
+        primitive : presentation.PresentationContext
+            The primitive to use to set the Item's field values.
         """
         # Add presentation context ID
         self.presentation_context_id = primitive.context_id
@@ -829,7 +834,7 @@ class PresentationContextItemAC(PDUItem):
 
         Returns
         -------
-        pynetdicom3.presentation.PresentationContext
+        presentation.PresentationContext
             The primitive representation of the current Item.
         """
         primitive = PresentationContext()
@@ -843,7 +848,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def context_id(self):
-        """Return the 'Presentation Context ID' field value."""
+        """Return the item's 'Presentation Context ID' field value."""
         return self.presentation_context_id
 
     @property
@@ -909,7 +914,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         if self.transfer_syntax_sub_item:
             return 4 + len(self.transfer_syntax_sub_item[0])
 
@@ -922,7 +927,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def result(self):
-        """Return the 'Result/reason' field value."""
+        """Return the item's 'Result/reason' field value."""
         return self.result_reason
 
     @property
@@ -972,13 +977,11 @@ class UserInformationItem(PDUItem):
 
     Attributes
     ----------
-    async_ops_window : pynetdicom3.pdu_items.AsynchronousOperationsWindowSubItem
-    or None
+    async_ops_window : pdu_items.AsynchronousOperationsWindowSubItem or None
         The Asynchronous Operations Window Sub-item or None if not present.
-    common_ext_neg : list of
-    pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem
+    common_ext_neg : list of pdu_items.SOPClassCommonExtendedNegotiationSubItem
         The SOP Class Common Extended Negotiation Sub-item(s).
-    ext_neg : list of pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem
+    ext_neg : list of pdu_items.SOPClassExtendedNegotiationSubItem
         The SOP Class Extended Negotiation Sub-item(s).
     implementation_class_uid : pydicom.uid.UID or None
         The implementation class UID from the Implementation Class UID Sub-item,
@@ -994,10 +997,9 @@ class UserInformationItem(PDUItem):
     maximum_length : int or None
         The maximum length received value for the Maximum Length Sub-item, or
         None if not present.
-    role_selection : list of pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem
+    role_selection : list of pdu_items.SCP_SCU_RoleSelectionSubItem
         The SCP/SCU Role Selection Sub-item(s).
-    user_identity : pynetdicom3.pdu_items.UserIdentitySubItemRQ or
-        pynetdicom3.pdu_items.UserIdentitySubItemAC or None
+    user_identity : pdu_items.UserIdentitySubItemRQ or pdu_items.UserIdentitySubItemAC or None
         The User Identity Sub-item (RQ or AC), or None if not present.
 
     Notes
@@ -1013,24 +1015,29 @@ class UserInformationItem(PDUItem):
       * Optional User Data Sub-items (0 or more)
 
     **Encoding**
+
     When encoded, a User Information Item has the following structure,
-    taken from Table 9-16 [1]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [2]_.
+    taken from Table 9-16 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | Variable    | User data                          |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
+
+    .. [#] DICOM Standard, Part 8, Section
        `9.3.2.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.3>`_
-    .. [2] DICOM Standard, Part 8, Section
+    .. [#] DICOM Standard, Part 8, Section
        `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
 
     """
@@ -1040,7 +1047,7 @@ class UserInformationItem(PDUItem):
         self.user_data = []
 
     def from_primitive(self, primitive):
-        """Setup the current Item using User Information primitives.
+        """Set up the current Item using User Information primitives.
 
         Parameters
         ----------
@@ -1157,7 +1164,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def implementation_class_uid(self):
-        """Return the 'Implementation Class UID' field value, if available."""
+        """Return the item's 'Implementation Class UID' field value, if available."""
         for item in self.user_data:
             if isinstance(item, ImplementationClassUIDSubItem):
                 return item.implementation_class_uid
@@ -1166,7 +1173,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def implementation_version_name(self):
-        """Return the 'Implementation Version Name' field value, if available."""
+        """Return the item's 'Implementation Version Name' field value, if available."""
         for item in self.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
                 return item.implementation_version_name
@@ -1175,7 +1182,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         length = 0
         for item in self.user_data:
             length += len(item)
@@ -1188,7 +1195,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def maximum_length(self):
-        """Return the 'Maximum Length Received' field value, if available."""
+        """Return the item's 'Maximum Length Received' field value, if available."""
         for item in self.user_data:
             if isinstance(item, MaximumLengthSubItem):
                 return item.maximum_length_received
@@ -1242,7 +1249,7 @@ class AbstractSyntaxSubItem(PDUItem):
     An Abstract Syntax is the specification of data elements with associated
     semantics. In particular it allows communicating Application Entities to
     negotiate an agreed set of DICOM Data Elements and/or Information Object
-    Class definitions [1]_.
+    Class definitions [#]_.
 
     Attributes
     ----------
@@ -1263,36 +1270,41 @@ class AbstractSyntaxSubItem(PDUItem):
         * Abstract syntax name (1)
 
     **Abstract Syntax Names**
+
     Abstract Syntax Names are OSI Object Identifiers in a numeric form as
-    defined by ISO 8824 [2]_. They may be either DICOM registered or privately
+    defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
-    bytes (characters 0-9), separated by the character '.' (0x2e) [3]_ and
+    bytes (characters 0-9), separated by the character '.' (0x2e) [#]_ and
     shall not exceed 64 total characters.
 
     **Encoding**
+
     When encoded, an Abstract Syntax Item has the following structure,
-    taken from Table 9-14 [4]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [5]_.
+    taken from Table 9-14 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | Variable    | Abstract syntax name               |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
-    .. [2] `ISO/IEC 8824-1:2015 <https://www.iso.org/standard/68350.html>`_
-    .. [3] DICOM Standard, Part 8,
+    .. [#] `ISO/IEC 8824-1:2015 <https://www.iso.org/standard/68350.html>`_
+    .. [#] DICOM Standard, Part 8,
        `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_
-    .. [4] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.2.2.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2.1>`_
-    .. [5] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -1302,12 +1314,12 @@ class AbstractSyntaxSubItem(PDUItem):
 
     @property
     def abstract_syntax(self):
-        """Return the 'Abstract Syntax Name' field value."""
+        """Return the item's 'Abstract Syntax Name' field value."""
         return self.abstract_syntax_name
 
     @property
     def abstract_syntax_name(self):
-        """Return the 'Abstract Syntax Name' field value."""
+        """Return the item's 'Abstract Syntax Name' field value."""
         return self._abstract_syntax_name
 
     @abstract_syntax_name.setter
@@ -1376,7 +1388,7 @@ class AbstractSyntaxSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         if self.abstract_syntax_name:
             return len(self.abstract_syntax_name)
 
@@ -1400,7 +1412,7 @@ class TransferSyntaxSubItem(PDUItem):
     """A Transfer Syntax Sub-item.
 
     A Transfer Syntax is a set of encoding rules able to unambiguously represent
-    the data elements defined by one or more Abstract Syntaxes [1]_. In
+    the data elements defined by one or more Abstract Syntaxes [#]_. In
     particular, it allows communicating Application Entities to agree on the
     encoding techniques they are able to support (e.g. byte ordering,
     compression, etc).
@@ -1425,36 +1437,41 @@ class TransferSyntaxSubItem(PDUItem):
         * Transfer syntax name (1 or more)
 
     **Transfer Syntax Names**
+
     Transfer Syntax Names are OSI Object Identifiers in a numeric form as
-    defined by ISO 8824 [2]_. They may be either DICOM registered or privately
+    defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
-    bytes (characters 0-9), separated by the character '.' (0x2e) [3]_ and
+    bytes (characters 0-9), separated by the character '.' (0x2e) [#]_ and
     shall not exceed 64 total characters.
 
     **Encoding**
+
     When encoded, a Transfer Syntax Item has the following structure,
-    taken from Table 9-15 [4]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [5]_.
+    taken from Table 9-15 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | Variable    | Transfer syntax name               |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
-    .. [2] `ISO/IEC 8824-1:2015 <https://www.iso.org/standard/68350.html>`_
-    .. [3] DICOM Standard, Part 8,
+    .. [#] `ISO/IEC 8824-1:2015 <https://www.iso.org/standard/68350.html>`_
+    .. [#] DICOM Standard, Part 8,
        `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_
-    .. [4] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.2.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2.2>`_
-    .. [5] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -1504,7 +1521,7 @@ class TransferSyntaxSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         if self.transfer_syntax_name:
             return len(self.transfer_syntax_name)
 
@@ -1526,12 +1543,12 @@ class TransferSyntaxSubItem(PDUItem):
 
     @property
     def transfer_syntax(self):
-        """Return the 'Transfer Syntax Name' field value."""
+        """Return the item's 'Transfer Syntax Name' field value."""
         return self.transfer_syntax_name
 
     @property
     def transfer_syntax_name(self):
-        """Return the 'Transfer Syntax Name' field value."""
+        """Return the item's 'Transfer Syntax Name' field value."""
         return self._transfer_syntax_name
 
     @transfer_syntax_name.setter
@@ -1585,24 +1602,28 @@ class MaximumLengthSubItem(PDUItem):
         * Maximum length received (1)
 
     **Encoding**
+
     When encoded, a Maximum Length Sub-item has the following structure,
-    taken from Table D.1-1 [1]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [2]_.
+    taken from Table D.1-1 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | 4           | Maximum length received            |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Annex D.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_D.1>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -1611,12 +1632,12 @@ class MaximumLengthSubItem(PDUItem):
         self.maximum_length_received = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using a Maximum Length primitive.
+        """Set the item's values using a Maximum Length `primitive`.
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.MaximumLengthNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.MaximumLengthNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.maximum_length_received = primitive.maximum_length_received
 
@@ -1625,7 +1646,7 @@ class MaximumLengthSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.MaximumLengthNegotiation
+        pdu_primitives.MaximumLengthNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import MaximumLengthNegotiation
@@ -1682,7 +1703,7 @@ class MaximumLengthSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return 4
 
     def __len__(self):
@@ -1703,7 +1724,7 @@ class ImplementationClassUIDSubItem(PDUItem):
     """An Implementation Class UID Sub-item.
 
     The Implementation Class UID Sub-item allows communicating Application
-    Entities to identify each other at Association establishment [1]_.
+    Entities to identify each other at Association establishment [#]_.
 
     Attributes
     ----------
@@ -1724,24 +1745,28 @@ class ImplementationClassUIDSubItem(PDUItem):
         * Implementation Class UID (1)
 
     **Encoding**
+
     When encoded, an Implementation Class UID Sub-item has the following
-    structure, taken from Tables D.3-1 and D.3-2 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Tables D.3-1 and D.3-2 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | Variable    | Implementation class UID           |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.2>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -1750,14 +1775,13 @@ class ImplementationClassUIDSubItem(PDUItem):
         self.implementation_class_uid = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using an Implementation Identification
+        """Set the item's values using an Implementation Identification
         primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.ImplementationClassUIDNotification
+            The primitive to use to set the Item's field values.
         """
         self.implementation_class_uid = primitive.implementation_class_uid
 
@@ -1767,7 +1791,7 @@ class ImplementationClassUIDSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.ImplementationClassUIDNotification
+        pdu_primitives.ImplementationClassUIDNotification
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import (
@@ -1821,7 +1845,7 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     @property
     def implementation_class_uid(self):
-        """Return the 'Implementation Class UID' field value."""
+        """Return the item's 'Implementation Class UID' field value as a UID."""
         return self._implementation_class_uid
 
     @implementation_class_uid.setter
@@ -1852,7 +1876,7 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         if self.implementation_class_uid:
             return len(self.implementation_class_uid)
 
@@ -1877,7 +1901,7 @@ class ImplementationVersionNameSubItem(PDUItem):
     """An Implementation Version Name Sub-item.
 
     The Implementation Version Name Sub-item allows communicating Application
-    Entities to identify each other at Association establishment [1]_.
+    Entities to identify each other at Association establishment [#]_.
 
     Attributes
     ----------
@@ -1898,28 +1922,33 @@ class ImplementationVersionNameSubItem(PDUItem):
         * Implementation version name (1)
 
     **Implementation Version Name**
+
     The Implementation Version Name shall be encoded as a string of 1 to 16
     ISO 646:1990 (basic G0 set) characters.
 
     **Encoding**
+
     When encoded, an Implementation Version Name Sub-item has the following
-    structure, taken from Tables D.3-3 and D.3-4 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Tables D.3-3 and D.3-4 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
     +========+=============+====================================+
     | 0      | 1           | Item type                          |
+    +--------+-------------+------------------------------------+
     | 1      | 1           | Reserved                           |
+    +--------+-------------+------------------------------------+
     | 2      | 2           | Item length                        |
+    +--------+-------------+------------------------------------+
     | 4      | Variable    | Implementation version name        |
     +--------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.2>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -1928,14 +1957,13 @@ class ImplementationVersionNameSubItem(PDUItem):
         self.implementation_version_name = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using an Implementation Identification
+        """Set the item's values using an Implementation Identification
         primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.ImplementationVersionNameNotification
+            The primitive to use to set the Item's field values.
         """
         self.implementation_version_name = primitive.implementation_version_name
 
@@ -1945,7 +1973,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.ImplementationVersionNameNotification
+        pdu_primitives.ImplementationVersionNameNotification
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import \
@@ -1998,7 +2026,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     @property
     def implementation_version_name(self):
-        """Return the 'Implementation Version Name' field value."""
+        """Return the item's 'Implementation Version Name' field value."""
         return self._implementation_version_name
 
     @implementation_version_name.setter
@@ -2012,7 +2040,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         if self.implementation_version_name:
             return len(self.implementation_version_name)
 
@@ -2048,9 +2076,9 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         field to the last byte of the Item.
     item_type : int
         The 'Item Type' field value (0x53).
-    max_operations_invoked : int or None
+    maximum_number_operations_invoked : int or None
         The 'Maximum Number Operations Invoked' field value.
-    max_operations_performed : int or None
+    maximum_number_operations_performed : int or None
         The 'Maximum Number Operations Performed' field value.
 
     Notes
@@ -2064,25 +2092,30 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         * Maximum number of operations performed (1)
 
     **Encoding**
+
     When encoded, an Asynchronous Operations Window Sub-item has the following
-    structure, taken from Tables D.3-7 and D.3-8 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Tables D.3-7 and D.3-8 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +--------+-------------+-------------------------------------+
     | Offset | Length      | Description                         |
     +========+=============+=====================================+
     | 0      | 1           | Item type                           |
+    +--------+-------------+-------------------------------------+
     | 1      | 1           | Reserved                            |
+    +--------+-------------+-------------------------------------+
     | 2      | 2           | Item length                         |
+    +--------+-------------+-------------------------------------+
     | 4      | 2           | Maximum number operations invoked   |
+    +--------+-------------+-------------------------------------+
     | 6      | 2           | Maximum number operations performed |
     +--------+-------------+-------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.3>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -2092,14 +2125,13 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         self.maximum_number_operations_performed = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using an Asynchronous Operations Window
+        """Set the item's values using an Asynchronous Operations Window
         primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.AsynchronousOperationsWindowNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.maximum_number_operations_invoked = (
             primitive.maximum_number_operations_invoked
@@ -2114,7 +2146,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation
+        pdu_primitives.AsynchronousOperationsWindowNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import (
@@ -2185,7 +2217,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return 4
 
     def __len__(self):
@@ -2194,12 +2226,12 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     @property
     def max_operations_invoked(self):
-        """Return the 'Maximum Number Operations Invoked' field value."""
+        """Return the item's 'Maximum Number Operations Invoked' field value."""
         return self.maximum_number_operations_invoked
 
     @property
     def max_operations_performed(self):
-        """Return the 'Maximum Number Operations Performed' field value."""
+        """Return the item's 'Maximum Number Operations Performed' field value."""
         return self.maximum_number_operations_performed
 
     def __str__(self):
@@ -2250,27 +2282,34 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         * SCP role (1)
 
     **Encoding**
+
     When encoded, an SCP/SCU Role Section Sub-item has the following
-    structure, taken from Tables D.3-9 and D.3-10 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Tables D.3-9 and D.3-10 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +----------------+----------+------------------------------------+
     | Offset         | Length   | Description                        |
     +================+==========+====================================+
     | 0              | 1        | Item type                          |
+    +----------------+----------+------------------------------------+
     | 1              | 1        | Reserved                           |
+    +----------------+----------+------------------------------------+
     | 2              | 2        | Item length                        |
+    +----------------+----------+------------------------------------+
     | 4              | 2        | UID length                         |
-    | 6              | Variable | SOP Class UID                      |
-    | 6 + UID length | 1        | SOP Class UID                      |
-    | 7 + UID length | 1        | SOP Class UID                      |
+    +----------------+----------+------------------------------------+
+    | 6              | Variable | SOP class UID                      |
+    +----------------+----------+------------------------------------+
+    | 6 + UID length | 1        | SCP role                           |
+    +----------------+----------+------------------------------------+
+    | 7 + UID length | 1        | SCU role                           |
     +----------------+----------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -2282,13 +2321,12 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         self.scp_role = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using an SCP/SCU Role Selection primitive.
+        """Set the item's values using an SCP/SCU Role Selection primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.SCP_SCU_RoleSelectionNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.sop_class_uid = primitive.sop_class_uid
         self.scu_role = int(primitive.scu_role)
@@ -2299,7 +2337,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation
+        pdu_primitives.SCP_SCU_RoleSelectionNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
@@ -2383,7 +2421,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return 4 + self.uid_length
 
     def __len__(self):
@@ -2392,12 +2430,12 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def scu(self):
-        """Return the 'SCU Role' field value."""
+        """Return the item's 'SCU Role' field value."""
         return self.scu_role
 
     @property
     def scu_role(self):
-        """Return the 'SCU Role' field value."""
+        """Return the item's 'SCU Role' field value."""
         return self._scu_role
 
     @scu_role.setter
@@ -2411,12 +2449,12 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def scp(self):
-        """Return the 'SCP Role' field value."""
+        """Return the item's 'SCP Role' field value."""
         return self.scp_role
 
     @property
     def scp_role(self):
-        """Return the 'SCP Role' field value."""
+        """Return the item's 'SCP Role' field value."""
         return self._scp_role
 
     @scp_role.setter
@@ -2430,7 +2468,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def sop_class_uid(self):
-        """Return the 'SOP Class UID' field value."""
+        """Return the item's 'SOP Class UID' field value."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
@@ -2463,7 +2501,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def uid(self):
-        """Get the UID."""
+        """Return the item's 'SOP Class UID' field value."""
         return self.sop_class_uid
 
     @property
@@ -2480,7 +2518,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     A SOP Class Extended Negotation Sub-item allows peer Application Entities
     to exchange application information defined by specific Service Class
-    specifications [1]_.
+    specifications [#]_.
 
     Attributes
     ----------
@@ -2507,26 +2545,32 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         * Service class application information
 
     **Encoding**
+
     When encoded, a SOP Class Extended Negotiation Sub-item has the following
-    structure, taken from Table D.3-11 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Table D.3-11 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +----------------+-------------+------------------------------------+
     | Offset         | Length      | Description                        |
     +================+=============+====================================+
     | 0              | 1           | Item type                          |
+    +----------------+-------------+------------------------------------+
     | 1              | 1           | Reserved                           |
+    +----------------+-------------+------------------------------------+
     | 2              | 2           | Item length                        |
+    +----------------+-------------+------------------------------------+
     | 4              | 2           | SOP class UID length               |
+    +----------------+-------------+------------------------------------+
     | 6              | Variable    | SOP class UID                      |
+    +----------------+-------------+------------------------------------+
     | 6 + UID length | Variable    | Service class application info     |
     +----------------+-------------+------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.5>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -2537,14 +2581,13 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         self.service_class_application_information = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using a SOP Class Extended Negotiation
+        """Set the item's values using a SOP Class Extended Negotiation
         primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.SOPClassExtendedNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.sop_class_uid = primitive.sop_class_uid
         self.service_class_application_information = (
@@ -2557,7 +2600,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation
+        pdu_primitives.SOPClassExtendedNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation
@@ -2572,7 +2615,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def app_info(self):
-        """Return the 'Service Class Application Information' field value."""
+        """Return the item's 'Service Class Application Information' field value."""
         return self.service_class_application_information
 
     @property
@@ -2639,7 +2682,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         length = 2 + self.sop_class_uid_length
         if self.service_class_application_information:
             return length + len(self.service_class_application_information)
@@ -2652,7 +2695,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid(self):
-        """Return the 'SOP Class UID' field value."""
+        """Return the item's 'SOP Class UID' field value."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
@@ -2673,7 +2716,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid_length(self):
-        """Return the 'SOP Class UID Length' field value."""
+        """Return the item's 'SOP Class UID Length' field value."""
         if self.sop_class_uid:
             return len(self.sop_class_uid)
 
@@ -2701,7 +2744,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def uid(self):
-        """Return the 'SOP Class UID' field value."""
+        """Return the item's 'SOP Class UID' field value."""
         return self.sop_class_uid
 
 
@@ -2755,41 +2798,51 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
           * Related general SOP class UID (1)
 
     **Encoding**
-    When encoded, a SOP Class Common Extended Negotiation Sub-item has the
-    following structure, taken from Table D.3-12 [1]_ (offsets shown
-    with Python indexing). Items are always encoded using Big Endian [2]_.
 
-    +-------------------------+----------+-------------------------------------+
-    | Offset                  | Length   | Description                         |
-    +=========================+==========+=====================================+
-    | 0                       | 1        | Item type                           |
-    | 1                       | 1        | Sub item version                    |
-    | 2                       | 2        | Item length                         |
-    | 4                       | 2        | SOP class UID length                |
-    | 6                       | Variable | SOP class UID                       |
-    | 6 + SOP UID length      | 2        | Service class UID length            |
-    | 8 + SOP UID length      | Variable | Service class UID                   |
-    | 8 + SOP UID length      | 2        | Related general SOP class ID length |
-    |   + Service UID length  |          |                                     |
-    | 10 + SOP UID length     | Variable | Related general SOP class ID        |
-    |    + Service UID length |          |                                     |
-    +-------------------------+----------+-------------------------------------+
+    When encoded, a SOP Class Common Extended Negotiation Sub-item has the
+    following structure, taken from Table D.3-12 [#]_ (offsets shown
+    with Python indexing). Items are always encoded using Big Endian [#]_.
+
+    +----------------------+----------+-------------------------------------+
+    | Offset               | Length   | Description                         |
+    +======================+==========+=====================================+
+    | 0                    | 1        | Item type                           |
+    +----------------------+----------+-------------------------------------+
+    | 1                    | 1        | Sub item version                    |
+    +----------------------+----------+-------------------------------------+
+    | 2                    | 2        | Item length                         |
+    +----------------------+----------+-------------------------------------+
+    | 4                    | 2        | SOP class UID length                |
+    +----------------------+----------+-------------------------------------+
+    | 6                    | Variable | SOP class UID                       |
+    +----------------------+----------+-------------------------------------+
+    | 6 + SOP UID length   | 2        | Service class UID length            |
+    +----------------------+----------+-------------------------------------+
+    | 8 + SOP UID length   | Variable | Service class UID                   |
+    +----------------------+----------+-------------------------------------+
+    | 8 + SOP UID length   | 2        | Related general SOP class ID length |
+    | + Service UID length |          |                                     |
+    +----------------------+----------+-------------------------------------+
+    | 10 + SOP UID length  | Variable | Related general SOP class ID        |
+    | + Service UID length |          |                                     |
+    +----------------------+----------+-------------------------------------+
 
     The Related General SOP Class Identification field is made up of a number
-    of sub-fields with the following structure, taken from Table D.3-13 [1]_.
+    of sub-fields with the following structure, taken from Table D.3-13 [#]_.
 
     +--------+-------------+--------------------------------------+
     | Offset | Length      | Description                          |
     +========+=============+======================================+
     | 0      | 2           | Related general SOP class UID length |
+    +--------+-------------+--------------------------------------+
     | 2      | Variable    | Related general SOP class UID        |
     +--------+-------------+--------------------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.6>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -2803,13 +2856,13 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         self.related_general_sop_class_identification = []
 
     def from_primitive(self, primitive):
-        """Setup the current Item using a SOP Class Common Extended Negotiation
+        """Set the item's values using a SOP Class Common Extended Negotiation
         primitive.
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.SOPClassCommonExtendedNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.sop_class_uid = primitive.sop_class_uid
         self.service_class_uid = primitive.service_class_uid
@@ -2823,7 +2876,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation
+        pdu_primitives.SOPClassCommonExtendedNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import SOPClassCommonExtendedNegotiation
@@ -2934,22 +2987,24 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         Notes
         -----
         **Encoding**
+
         The Related General SOP Class Identification field is made up of a
         number of sub-fields with the following structure, taken from
-        Table D.3-13 [1]_.
+        Table D.3-13 [#]_.
 
         +--------+-------------+--------------------------------------+
         | Offset | Length      | Description                          |
         +========+=============+======================================+
         | 0      | 2           | Related general SOP class UID length |
+        +--------+-------------+--------------------------------------+
         | 2      | Variable    | Related general SOP class UID        |
         +--------+-------------+--------------------------------------+
 
         References
         ----------
-        .. [1] DICOM Standard, Part 7,
+        .. [#] DICOM Standard, Part 7,
            `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.6>`_
-        .. [2] DICOM Standard, Part 8,
+        .. [#] DICOM Standard, Part 8,
            `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         offset = 0
@@ -2964,7 +3019,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return (2 + self.sop_class_uid_length +
                 2 + self.service_class_uid_length +
                 2 + self.related_general_sop_class_identification_length)
@@ -2975,7 +3030,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification(self):
-        """Return the 'Related General SOP Class Identification' field value."""
+        """Return the item's 'Related General SOP Class Identification' field value."""
         return self._related_general_sop_class_identification
 
     @related_general_sop_class_identification.setter
@@ -3003,7 +3058,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification_length(self):
-        """Return the 'Related General SOP Class Identification Length' field
+        """Return the item's 'Related General SOP Class Identification Length' field
         value.
         """
         length = 0
@@ -3014,7 +3069,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid(self):
-        """Return the 'SOP Class UID' field value."""
+        """Return the item's 'SOP Class UID' field value."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
@@ -3035,7 +3090,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid_length(self):
-        """Return the 'SOP Class UID Length' field value."""
+        """Return the item's 'SOP Class UID Length' field value."""
         if self.sop_class_uid:
             return len(self.sop_class_uid)
 
@@ -3043,7 +3098,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def service_class_uid(self):
-        """Return the 'Service Class UID' field value."""
+        """Return the item's 'Service Class UID' field value."""
         return self._service_class_uid
 
     @service_class_uid.setter
@@ -3064,7 +3119,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def service_class_uid_length(self):
-        """Return the 'Service Class UID Length' field value."""
+        """Return the item's 'Service Class UID Length' field value."""
         if self.service_class_uid:
             return len(self.service_class_uid)
 
@@ -3162,29 +3217,38 @@ class UserIdentitySubItemRQ(PDUItem):
         * Secondary field (only if user identity type = 2)
 
     **Encoding**
+
     When encoded, a User Identity (RQ) Sub-item has the following
-    structure, taken from Tables D.3-14 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Tables D.3-14 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +---------------------------+----------+-----------------------------+
     | Offset                    | Length   | Description                 |
     +===========================+==========+=============================+
     | 0                         | 1        | Item type                   |
+    +---------------------------+----------+-----------------------------+
     | 1                         | 1        | Reserved                    |
+    +---------------------------+----------+-----------------------------+
     | 2                         | 2        | Item length                 |
+    +---------------------------+----------+-----------------------------+
     | 4                         | 1        | User identity type          |
+    +---------------------------+----------+-----------------------------+
     | 5                         | 1        | Positive response requested |
+    +---------------------------+----------+-----------------------------+
     | 6                         | 2        | Primary field length        |
+    +---------------------------+----------+-----------------------------+
     | 8                         | Variable | Primary field               |
+    +---------------------------+----------+-----------------------------+
     | 8 + Primary field length  | 2        | Secondary field length      |
+    +---------------------------+----------+-----------------------------+
     | 10 + Primary field length | Variable | Secondary field             |
     +---------------------------+----------+-----------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.7>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -3198,13 +3262,12 @@ class UserIdentitySubItemRQ(PDUItem):
         self.secondary_field = b''
 
     def from_primitive(self, primitive):
-        """Setup the current Item using an User Identity primitive.
+        """Set the item's values using an User Identity primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.UserIdentityNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.UserIdentityNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.user_identity_type = primitive.user_identity_type
         self.positive_response_requested = (
@@ -3218,7 +3281,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.UserIdentityNegotiation
+        pdu_primitives.UserIdentityNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import UserIdentityNegotiation
@@ -3314,7 +3377,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def id_type(self):
-        """Return the 'User Identity Type' field value."""
+        """Return the item's 'User Identity Type' field value."""
         return self.user_identity_type
 
     @property
@@ -3331,7 +3394,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return 6 + self.primary_field_length + self.secondary_field_length
 
     def __len__(self):
@@ -3340,12 +3403,12 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def primary(self):
-        """Return the 'Primary Field' field value."""
+        """Return the item's 'Primary Field' field value."""
         return self.primary_field
 
     @property
     def primary_field_length(self):
-        """Return the 'Primary Field Length' field value."""
+        """Return the item's 'Primary Field Length' field value."""
         if self.primary_field:
             return len(self.primary_field)
 
@@ -3353,7 +3416,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def response_requested(self):
-        """Return the 'Positive Response Requested' field value as bool."""
+        """Return the item's 'Positive Response Requested' field value as bool."""
         if self.positive_response_requested is not None:
             return bool(self.positive_response_requested)
 
@@ -3361,12 +3424,12 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def secondary(self):
-        """Return the 'Secondary Field' field value."""
+        """Return the item's 'Secondary Field' field value."""
         return self.secondary_field
 
     @property
     def secondary_field_length(self):
-        """Return the 'Secondary Field Length' field value."""
+        """Return the item's 'Secondary Field Length' field value."""
         if self.secondary_field:
             return len(self.secondary_field)
 
@@ -3423,25 +3486,30 @@ class UserIdentitySubItemAC(PDUItem):
         * Server response (1)
 
     **Encoding**
+
     When encoded, a User Identity (AC) Sub-item has the following
-    structure, taken from Tables D.3-15 [1]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [2]_.
+    structure, taken from Tables D.3-15 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +-----------+----------+-----------------------------+
     | Offset    | Length   | Description                 |
     +===========+==========+=============================+
     | 0         | 1        | Item type                   |
+    +-----------+----------+-----------------------------+
     | 1         | 1        | Reserved                    |
+    +-----------+----------+-----------------------------+
     | 2         | 2        | Item length                 |
+    +-----------+----------+-----------------------------+
     | 4         | 2        | Server response length      |
+    +-----------+----------+-----------------------------+
     | 6         | Variable | Server response             |
     +-----------+----------+-----------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 7,
+    .. [#] DICOM Standard, Part 7,
        `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.7>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -3450,13 +3518,12 @@ class UserIdentitySubItemAC(PDUItem):
         self.server_response = None
 
     def from_primitive(self, primitive):
-        """Setup the current Item using an User Identity primitive.
+        """Set the item's values using an User Identity primitive.
 
         Parameters
         ----------
-        primitive :
-        pynetdicom3.pdu_primitives.UserIdentityNegotiation
-            The primitive to use to setup the current Item's field values.
+        primitive : pdu_primitives.UserIdentityNegotiation
+            The primitive to use to set the Item's field values.
         """
         self.server_response = primitive.server_response
 
@@ -3465,7 +3532,7 @@ class UserIdentitySubItemAC(PDUItem):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.UserIdentityNegotiation
+        pdu_primitives.UserIdentityNegotiation
             The primitive representation of the current Item.
         """
         from pynetdicom3.pdu_primitives import UserIdentityNegotiation
@@ -3518,7 +3585,7 @@ class UserIdentitySubItemAC(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         return 2 + self.server_response_length
 
     def __len__(self):
@@ -3527,12 +3594,12 @@ class UserIdentitySubItemAC(PDUItem):
 
     @property
     def response(self):
-        """Return the 'Server Response' field value."""
+        """Return the item's 'Server Response' field value."""
         return self.server_response
 
     @property
     def server_response_length(self):
-        """Return the 'Server Response Length' field value."""
+        """Return the item's 'Server Response Length' field value."""
         if self.server_response:
             return len(self.server_response)
 
@@ -3556,7 +3623,7 @@ class PresentationDataValueItem(PDUItem):
     """A Presentation Data Value Item.
 
     Presentation Data Value (PDV) Items are used to contain DIMSE Messages
-    that have been fragmented into Command and Data fragments [1]_, with each
+    that have been fragmented into Command and Data fragments [#]_, with each
     fragment placed into its own PDV Item.
 
     Attributes
@@ -3577,25 +3644,28 @@ class PresentationDataValueItem(PDUItem):
         * Presentation data value (1)
 
     **Encoding**
+
     When encoded, a Presentation Data Value Item has the following
-    structure, taken from Tables 9.24 [2]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [3]_.
+    structure, taken from Tables 9.24 [#]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [#]_.
 
     +---------------------------+----------+-----------------------------+
     | Offset                    | Length   | Description                 |
     +===========================+==========+=============================+
     | 0                         | 4        | Item length                 |
+    +---------------------------+----------+-----------------------------+
     | 4                         | 1        | Presentation context ID     |
+    +---------------------------+----------+-----------------------------+
     | 5                         | Variable | Presentation data value     |
     +---------------------------+----------+-----------------------------+
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Annex E <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_E>`_
-    .. [2] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.5.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5.1>`_
-    .. [3] DICOM Standard, Part 8,
+    .. [#] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -3606,12 +3676,12 @@ class PresentationDataValueItem(PDUItem):
 
     @property
     def context_id(self):
-        """Return the 'Presentation Context ID' field value."""
+        """Return the item's 'Presentation Context ID' field value."""
         return self.presentation_context_id
 
     @property
     def data(self):
-        """Return the 'Presentation Data Value' field value."""
+        """Return the item's 'Presentation Data Value' field value."""
         return self.presentation_data_value
 
     @property
@@ -3666,7 +3736,7 @@ class PresentationDataValueItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the 'Item Length' field value as an int."""
+        """Return the item's 'Item Length' field value as an int."""
         if self.presentation_data_value:
             return 1 + len(self.presentation_data_value)
 

@@ -66,3 +66,8 @@ Building the documentation requires:
 - matplotlib
 - pillow
 - pydicom
+
+```bash
+$ cd pynetdicom3/docs
+$ make html
+```

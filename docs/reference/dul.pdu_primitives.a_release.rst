@@ -1,5 +1,5 @@
-A-RELEASE Service
-=================
+A-RELEASE
+=========
 
 .. currentmodule:: pynetdicom3.pdu_primitives
 

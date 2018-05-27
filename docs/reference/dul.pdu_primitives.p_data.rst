@@ -1,5 +1,5 @@
-P-DATA Service
-==============
+P-DATA
+======
 
 .. currentmodule:: pynetdicom3.pdu_primitives
 

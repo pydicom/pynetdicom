@@ -9,8 +9,8 @@ API Reference
 
 .. module:: pynetdicom3
 
-This API reference manual details functions, modules and objects included in
-pynetdicom3. For learning how to use pynetdicom3, see the :ref:`user`.
+This API reference guide details functions, modules and objects included in
+pynetdicom3. For how to use pynetdicom3, see the :ref:`user guide`.
 
 .. toctree::
    :maxdepth: 2

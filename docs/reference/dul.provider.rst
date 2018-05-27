@@ -1,5 +1,5 @@
-Service Provider (:mod:`pynetdicom3.dul`)
-=========================================
+DUL Service Provider (:mod:`pynetdicom3.dul`)
+=============================================
 
 .. currentmodule:: pynetdicom3.dul
 

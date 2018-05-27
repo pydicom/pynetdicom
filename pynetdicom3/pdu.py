@@ -73,22 +73,13 @@ class PDU(object):
     """
 
     def decode(self, bytestream):
-        """Decode `bytestream` and set the parameters of the PDU.
+        """Decode `bytestream` and use the result to set the field values of
+        the PDU.
 
         Parameters
         ----------
         bytestream : bytes
             The PDU data to be decoded.
-
-        Notes
-        -----
-        **Encoding**
-        The encoding of DICOM PDUs is Big Endian [1]_.
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 8,
-           `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         for (offset, length), attr_name, func, args in self._decoders:
             # Allow us to use None as a `length`
@@ -113,16 +104,6 @@ class PDU(object):
         -------
         bytes
             The encoded PDU.
-
-        Notes
-        -----
-        **Encoding**
-        The encoding of DICOM PDUs is Big Endian [1]_.
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 8,
-           `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
         """
         bytestream = bytes()
         for attr_name, func, args in self._encoders:
@@ -198,8 +179,11 @@ class PDU(object):
         | Offset | Length      | Description |
         +========+=============+=============+
         | 0      | 1           | Item type   |
+        +--------+-------------+-------------+
         | 1      | 1           | Reserved    |
+        +--------+-------------+-------------+
         | 2      | 2           | Item length |
+        +--------+-------------+-------------+
         | 4      | Item length | Item data   |
         +--------+-------------+-------------+
 
@@ -350,8 +334,8 @@ class A_ASSOCIATE_RQ(PDU):
 
     Attributes
     ----------
-    application_context_name : pydicom.uid.UID or None.
-        The 'Application Context Item's' 'Application Context Name' field value
+    application_context_name : pydicom.uid.UID or None
+        The Application Context Item's 'Application Context Name' field value
         (if available).
     called_ae_title : bytes
         The 'Called AE Title' field value, which is the destination DICOM
@@ -368,12 +352,11 @@ class A_ASSOCIATE_RQ(PDU):
         to the last byte of the PDU.
     pdu_type : int
         The 'PDU Type' field value (0x01).
-    presentation_context : list of
-    pynetdicom3.pdu_items.PresentationContextItemRQ
+    presentation_context : list of pdu_items.PresentationContextItemRQ
         The 'Presentation Context Item(s)'.
     protocol_version : int
         The 'Protocol Version' field value (default 0x01).
-    user_information : pynetdicom3.pdu_items.UserInformationItem
+    user_information : pdu_items.UserInformationItem
         The 'User Information Item' (if available).
     variable_items : list
         A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
@@ -432,13 +415,21 @@ class A_ASSOCIATE_RQ(PDU):
     | Offset | Length      | Description      |
     +========+=============+==================+
     | 0      | 1           | PDU type         |
+    +--------+-------------+------------------+
     | 1      | 1           | Reserved         |
+    +--------+-------------+------------------+
     | 2      | 4           | PDU length       |
+    +--------+-------------+------------------+
     | 6      | 2           | Protocol version |
+    +--------+-------------+------------------+
     | 8      | 2           | Reserved         |
+    +--------+-------------+------------------+
     | 10     | 16          | Called AE title  |
+    +--------+-------------+------------------+
     | 26     | 16          | Calling AE title |
+    +--------+-------------+------------------+
     | 42     | 32          | Reserved         |
+    +--------+-------------+------------------+
     | 74     | Variable    | Variable items   |
     +--------+-------------+------------------+
 
@@ -470,7 +461,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
+        primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
         self.calling_ae_title = primitive.calling_ae_title
@@ -499,7 +490,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_ASSOCIATE
+        pdu_primitives.A_ASSOCIATE
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ASSOCIATE
@@ -660,7 +651,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Returns
         -------
-        list of pynetdicom3.pdu_items.PresentationContextItemRQ
+        list of pdu_items.PresentationContextItemRQ
             The Presentation Context Items.
         """
         return [item for item in self.variable_items if
@@ -708,7 +699,7 @@ class A_ASSOCIATE_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_items.UserInformationItem or None
+        pdu_items.UserInformationItem or None
             The requestor's User Information object or None, if not available.
         """
         for item in self.variable_items:
@@ -742,12 +733,11 @@ class A_ASSOCIATE_AC(PDU):
         to the last byte of the PDU.
     pdu_type : int
         The 'PDU Type' field value (0x02).
-    presentation_context : list of
-    pynetdicom3.pdu_items.PresentationContextItemAC
+    presentation_context : list of pdu_items.PresentationContextItemAC
         The 'Presentation Context Item(s)'.
     protocol_version : int
         The 'Protocol Version' field value (default 0x01).
-    user_information : pynetdicom3.pdu_items.UserInformationItem
+    user_information : pdu_items.UserInformationItem
         The 'User Information Item' (if available).
     variable_items : list
         A list containing the A-ASSOCIATE-AC's 'Variable Items'. Contains
@@ -798,17 +788,25 @@ class A_ASSOCIATE_AC(PDU):
     | Offset | Length      | Description      |
     +========+=============+==================+
     | 0      | 1           | PDU type         |
+    +--------+-------------+------------------+
     | 1      | 1           | Reserved         |
+    +--------+-------------+------------------+
     | 2      | 4           | PDU length       |
+    +--------+-------------+------------------+
     | 6      | 2           | Protocol version |
+    +--------+-------------+------------------+
     | 8      | 2           | Reserved         |
+    +--------+-------------+------------------+
     | 10     | 16          | Reserved^        |
+    +--------+-------------+------------------+
     | 26     | 16          | Reserved^        |
+    +--------+-------------+------------------+
     | 42     | 32          | Reserved         |
+    +--------+-------------+------------------+
     | 74     | Variable    | Variable items   |
     +--------+-------------+------------------+
     ^ The reserved fields shall be sent with a value identical to the value
-      received in the A-ASSOCIATE-RQ but their values shall not be tested.
+    received in the A-ASSOCIATE-RQ but their values shall not be tested.
 
     References
     ----------
@@ -839,7 +837,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
+        primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
         self._reserved_aet = primitive.called_ae_title
@@ -868,7 +866,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_ASSOCIATE
+        pdu_primitives.A_ASSOCIATE
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ASSOCIATE
@@ -1030,7 +1028,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Returns
         -------
-        list of pynetdicom3.pdu_items.PresentationContextItemAC
+        list of pdu_items.PresentationContextItemAC
             The Presentation Context Items.
         """
         return [item for item in self.variable_items if
@@ -1078,7 +1076,7 @@ class A_ASSOCIATE_AC(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_items.UserInformationItem or None
+        pdu_items.UserInformationItem or None
             The acceptor's User Information object or None, if not available.
         """
         for item in self.variable_items:
@@ -1127,11 +1125,17 @@ class A_ASSOCIATE_RJ(PDU):
     | Offset | Length      | Description       |
     +========+=============+===================+
     | 0      | 1           | PDU type          |
+    +--------+-------------+-------------------+
     | 1      | 1           | Reserved          |
+    +--------+-------------+-------------------+
     | 2      | 4           | PDU length        |
+    +--------+-------------+-------------------+
     | 6      | 1           | Reserved          |
+    +--------+-------------+-------------------+
     | 7      | 1           | Result            |
+    +--------+-------------+-------------------+
     | 8      | 1           | Source            |
+    +--------+-------------+-------------------+
     | 9      | 1           | Reason/diagnostic |
     +--------+-------------+-------------------+
 
@@ -1153,7 +1157,7 @@ class A_ASSOCIATE_RJ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_ASSOCIATE
+        primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
         self.result = primitive.result
@@ -1165,7 +1169,7 @@ class A_ASSOCIATE_RJ(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_ASSOCIATE
+        pdu_primitives.A_ASSOCIATE
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ASSOCIATE
@@ -1337,8 +1341,7 @@ class P_DATA_TF(PDU):
         to the last byte of the PDU.
     pdu_type : int
         The 'PDU Type' field value (0x04).
-    presentation_data_value_items : list of
-    pynetdicom3.pdu.PresentationDataValueItem
+    presentation_data_value_items : list of pdu.PresentationDataValueItem
         The 'Presentation Data Value Item(s)' field value.
 
     Notes
@@ -1358,8 +1361,11 @@ class P_DATA_TF(PDU):
     | Offset | Length      | Description                   |
     +========+=============+===============================+
     | 0      | 1           | PDU type                      |
+    +--------+-------------+-------------------------------+
     | 1      | 1           | Reserved                      |
+    +--------+-------------+-------------------------------+
     | 2      | 4           | PDU length                    |
+    +--------+-------------+-------------------------------+
     | 6      | Variable    | Presentation data value items |
     +--------+-------------+-------------------------------+
 
@@ -1380,7 +1386,7 @@ class P_DATA_TF(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.P_DATA
+        primitive : pdu_primitives.P_DATA
             The primitive to use to set the current PDU field values.
         """
         for item in primitive.presentation_data_value_list:
@@ -1394,7 +1400,7 @@ class P_DATA_TF(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.P_DATA
+        pdu_primitives.P_DATA
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import P_DATA
@@ -1479,7 +1485,9 @@ class P_DATA_TF(PDU):
         | Offset | Length      | Description             |
         +========+=============+=========================+
         | 0      | 4           | Item length             |
+        +--------+-------------+-------------------------+
         | 4      | 1           | Context ID              |
+        +--------+-------------+-------------------------+
         | 5      | NN          | Presentation data value |
         +--------+-------------+-------------------------+
 
@@ -1542,7 +1550,7 @@ class P_DATA_TF(PDU):
 
         Returns
         -------
-        list of pynetdicom3.pdu_items.PresentationDataValueItem
+        list of pdu_items.PresentationDataValueItem
             The presentation data value items contained in `bytestream`.
         """
         item_list = []
@@ -1585,8 +1593,11 @@ class A_RELEASE_RQ(PDU):
     | Offset | Length      | Description   |
     +========+=============+===============+
     | 0      | 1           | PDU type      |
+    +--------+-------------+---------------+
     | 1      | 1           | Reserved      |
+    +--------+-------------+---------------+
     | 2      | 4           | PDU length    |
+    +--------+-------------+---------------+
     | 6      | 4           | Reserved      |
     +--------+-------------+---------------+
 
@@ -1608,7 +1619,7 @@ class A_RELEASE_RQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_RELEASE
+        primitive : pdu_primitives.A_RELEASE
             The primitive to use to set the current PDU field values.
         """
         pass
@@ -1619,7 +1630,7 @@ class A_RELEASE_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_RELEASE
+        pdu_primitives.A_RELEASE
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_RELEASE
@@ -1713,8 +1724,11 @@ class A_RELEASE_RP(PDU):
     | Offset | Length      | Description   |
     +========+=============+===============+
     | 0      | 1           | PDU type      |
+    +--------+-------------+---------------+
     | 1      | 1           | Reserved      |
+    +--------+-------------+---------------+
     | 2      | 4           | PDU length    |
+    +--------+-------------+---------------+
     | 6      | 4           | Reserved      |
     +--------+-------------+---------------+
 
@@ -1736,7 +1750,7 @@ class A_RELEASE_RP(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_RELEASE
+        primitive : pdu_primitives.A_RELEASE
             The primitive to use to set the current PDU field values.
         """
         pass
@@ -1747,7 +1761,7 @@ class A_RELEASE_RP(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_RELEASE
+        pdu_primitives.A_RELEASE
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_RELEASE
@@ -1849,11 +1863,17 @@ class A_ABORT_RQ(PDU):
     | Offset | Length      | Description       |
     +========+=============+===================+
     | 0      | 1           | PDU type          |
+    +--------+-------------+-------------------+
     | 1      | 1           | Reserved          |
+    +--------+-------------+-------------------+
     | 2      | 4           | PDU length        |
+    +--------+-------------+-------------------+
     | 6      | 1           | Reserved          |
+    +--------+-------------+-------------------+
     | 7      | 1           | Reserved          |
+    +--------+-------------+-------------------+
     | 8      | 1           | Source            |
+    +--------+-------------+-------------------+
     | 9      | 1           | Reason/Diagnostic |
     +--------+-------------+-------------------+
 
@@ -1875,7 +1895,7 @@ class A_ABORT_RQ(PDU):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.A_ABORT or A_P_ABORT
+        primitive : pdu_primitives.A_ABORT or pdu_primitives.A_P_ABORT
             The primitive to use to set the current PDU field values.
         """
         from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT
@@ -1896,7 +1916,7 @@ class A_ABORT_RQ(PDU):
 
         Returns
         -------
-        pynetdicom3.pdu_primitives.A_ABORT or A_P_ABORT
+        pdu_primitives.A_ABORT or pdu_primitives.A_P_ABORT
             The primitive representation of the current PDU.
         """
         from pynetdicom3.pdu_primitives import A_ABORT, A_P_ABORT

@@ -4,12 +4,14 @@
 DICOM Upper Layer Service
 *************************
 
-The DIMSE service provides something.
+The DICOM Upper Layer (DUL) service provides something.
 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
+   :titlesonly:
 
    dul.provider
    dul.pdu_primitives
    dul.pdu
+   dul.pdu_items

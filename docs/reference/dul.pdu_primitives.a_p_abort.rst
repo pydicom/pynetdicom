@@ -1,5 +1,5 @@
-A-P-ABORT Service
-=================
+A-P-ABORT
+=========
 
 .. currentmodule:: pynetdicom3.pdu_primitives
 
