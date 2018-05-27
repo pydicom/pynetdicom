@@ -376,8 +376,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Require Calling/Called AE titles to match if value is non-empty str</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_presentation_contexts</span><span class="p">()</span>
 
@@ -799,29 +799,55 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the required calling AE title.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the required calling AE title as a length 16 bytes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span>
 
     <span class="nd">@require_calling_aet</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the required calling AE title.&quot;&quot;&quot;</span>
-        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">16</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the required calling AE title.</span>
+
+<span class="sd">        When an Association request is received the value of the &#39;Calling AE</span>
+<span class="sd">        Title&#39; supplied by the peer will be compared with the set value and</span>
+<span class="sd">        if they don&#39;t match the association will be rejected. If the set value</span>
+<span class="sd">        is an empty bytes then the &#39;Calling AE Title&#39; will not be checked.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ae_title : bytes</span>
+<span class="sd">            If not empty then any association requests that supply a</span>
+<span class="sd">            Calling AE Title value that does not match `ae_title` will be</span>
+<span class="sd">            rejected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ae_title</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the required called AE title.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the required called AE title as a length 16 bytes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span>
 
     <span class="nd">@require_called_aet</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the required called AE title.&quot;&quot;&quot;</span>
-        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">16</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the required called AE title.</span>
+
+<span class="sd">        When an Association request is received the value of the &#39;Called AE</span>
+<span class="sd">        Title&#39; supplied by the peer will be compared with the set value and</span>
+<span class="sd">        if they don&#39;t match the association will be rejected. If the set value</span>
+<span class="sd">        is an empty bytes then the &#39;Called AE Title&#39; will not be checked.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ae_title : bytes</span>
+<span class="sd">            If not empty then any association requests that supply a</span>
+<span class="sd">            Called AE Title value that does not match `ae_title` will be</span>
+<span class="sd">            rejected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ae_title</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">scu_supported_sop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

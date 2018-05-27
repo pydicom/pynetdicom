@@ -497,14 +497,14 @@
         <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Calling AE Title not recognised</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="p">:</span>
-            <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="p">):</span>
+                <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">)]</span>
 
         <span class="c1"># Called AE Title not recognised</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span><span class="p">:</span>
-            <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span><span class="p">):</span>
+                <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">)]</span>
 
         <span class="c1">## DUL ACSE Related Rejections</span>
         <span class="c1">#</span>
