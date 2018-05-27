@@ -3,6 +3,7 @@
 import codecs
 from io import BytesIO
 import logging
+import sys
 import unicodedata
 
 from pydicom.uid import UID
@@ -10,6 +11,8 @@ from pydicom.uid import UID
 from pynetdicom3.presentation import PresentationContext
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
+
+IS_PYTHON3 = sys.version_info[0] == (3,)
 
 
 def validate_ae_title(ae_title):
@@ -37,7 +40,8 @@ def validate_ae_title(ae_title):
     -------
     str or bytes
         A valid AE title (with the same type as the supplied `ae_title`),
-        truncated to 16 characters if necessary.
+        truncated to 16 characters if necessary. If Python 3 then only returns
+        bytes.
 
     Raises
     ------
