@@ -281,54 +281,6 @@ class PresentationContext(object):
 
             self._transfer_syntax.append(uid)
 
-    @property
-    def AbstractSyntax(self):
-        """Return the Presentation Context's Abstract Syntax parameter."""
-        warn('PresentationContext.AbstractSyntax is deprecated', DeprecationWarning)
-        return self._abstract_syntax
-
-    @AbstractSyntax.setter
-    def AbstractSyntax(self, uid):
-        """Set the Presentation Context's Abstract Syntax parameter.
-
-        Parameters
-        ----------
-        uid : str or bytes or pydicom.uid.UID
-            The abstract syntax UIDs
-        """
-        warn('PresentationContext.AbstractSyntax is deprecated', DeprecationWarning)
-        self.abstract_syntax = uid
-
-    @property
-    def ID(self):
-        """Return the Presentation Context's ID parameter."""
-        warn('PresentationContext.ID is deprecated', DeprecationWarning)
-        return self.context_id
-
-    @ID.setter
-    def ID(self, value):
-        """Set the Presentation Context's ID parameter."""
-        warn('PresentationContext.ID is deprecated', DeprecationWarning)
-        self.context_id = value
-
-    @property
-    def TransferSyntax(self):
-        """Return the Presentation Context's Transfer Syntax parameter."""
-        warn('PresentationContext.TransferSyntax is deprecated', DeprecationWarning)
-        return self._transfer_syntax
-
-    @TransferSyntax.setter
-    def TransferSyntax(self, uid_list):
-        """Set the Presentation Context's Transfer Syntax parameter.
-
-        Parameters
-        ----------
-        uid_list : list of str or bytes or pydicom.uid.UID
-            The transfer syntax UIDs
-        """
-        warn('PresentationContext.TransferSyntax is deprecated', DeprecationWarning)
-        self.transfer_syntax = uid_list
-
 
 class PresentationService(object):
     """Provides Presentation related services to the AE.
@@ -386,25 +338,18 @@ class PresentationService(object):
         ----------
         rq_contexts : list of PresentationContext
             The Presentation Contexts proposed by the peer. Each item has
-            values for ID, AbstractSyntax and TransferSyntax. If the SCP/SCU
-            Role Selection Negotiation item was included in the A-ASSOCIATE
-            request then the PresentationContext.SCP and
-            PresentationContext.SCU values will be either True (supports the
-            role) or False (doesn't support the role).
+            values for Context ID, Abstract Syntax and Transfer Syntax.
         ac_contexts : list of PresentationContext
             The Presentation Contexts supported by the local AE when acting
-            as an Association acceptor. Each item has values for
-            AbstractSyntax and TransferSyntax. If Role Selection Negotiation
-            is supported then the SCU and SCP values will also both be
-            non-None.
+            as an Association acceptor. Each item has values for Context ID
+            Abstract Syntax and Transfer Syntax.
 
         Returns
         -------
         result_contexts : list of PresentationContext
             The accepted presentation context items, each with a Result value
-            an ID, an AbstractSyntax, one TransferSyntax item and SCP and SCU
-            will also have values depending on the outcome of the SCP/SCU Role
-            Selection negotiation. Items are sorted in increasing ID value.
+            a Context ID, an Abstract Syntax and one Transfer Syntax item.
+            Items are sorted in increasing Context ID value.
         """
         result_contexts = []
 
@@ -502,7 +447,7 @@ class PresentationService(object):
 
         # Sort by presentation context ID and return
         #   This isn't required by the DICOM Standard but its a nice thing to do
-        return sorted(result_contexts, key=lambda x: x.ID)
+        return sorted(result_contexts, key=lambda x: x.context_id)
 
     @staticmethod
     def negotiate_as_requestor(rq_contexts, ac_contexts):
@@ -538,8 +483,8 @@ class PresentationService(object):
         -------
         list of PresentationContext
             The contexts in the returned Presentation Context Definition Result
-            List, with added AbstractSyntax value and SCP/SCU Role Selection
-            values (if used). Items are sorted in increasing ID value.
+            List, with added Abstract Syntax value. Items are sorted in
+            increasing Context ID value.
         """
         if not rq_contexts:
             raise ValueError('Requestor contexts are required')

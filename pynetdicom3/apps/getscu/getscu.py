@@ -131,7 +131,7 @@ ae = AE(ae_title=args.calling_aet,
 ext_neg = []
 for context in ae.presentation_contexts_scu:
     tmp = SCP_SCU_RoleSelectionNegotiation()
-    tmp.sop_class_uid = context.AbstractSyntax
+    tmp.sop_class_uid = context.abstract_syntax
     tmp.scu_role = False
     tmp.scp_role = True
 

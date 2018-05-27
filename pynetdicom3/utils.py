@@ -267,7 +267,7 @@ class PresentationContextManager(object):
         if self._acceptor_contexts != [] and self._requestor_contexts != []:
             # For each of the contexts available to the acceptor
             for ii_req in self._requestor_contexts:
-                # Get the acceptor context with the same AbstractSyntax as
+                # Get the acceptor context with the same Abstract Syntax as
                 #   the requestor context
                 acc_context = None
                 for ii_acc in self._acceptor_contexts:
@@ -276,14 +276,14 @@ class PresentationContextManager(object):
                     #   using the IDs
 
                     # If we are the Requestor then the Acceptor contexts
-                    #   will have no AbstractSyntax
+                    #   will have no Abstract Syntax
                     if ii_acc.abstract_syntax is not None:
                         if ii_acc.abstract_syntax == ii_req.abstract_syntax:
                             acc_context = ii_acc
                     else:
                         if ii_acc.context_id == ii_req.context_id:
                             acc_context = ii_acc
-                            # Set AbstractSyntax (for convenience)
+                            # Set Abstract Syntax (for convenience)
                             ii_acc.abstract_syntax = ii_req.abstract_syntax
 
                 # Create a new PresentationContext item that will store the
@@ -292,8 +292,8 @@ class PresentationContextManager(object):
                 result.context_id = ii_req.context_id
                 result.abstract_syntax = ii_req.abstract_syntax
 
-                # If no matching AbstractSyntax then we are the Acceptor and we
-                #   reject the current context (0x03 - abstract syntax not
+                # If no matching Abstract Syntax then we are the Acceptor and
+                #   we reject the current context (0x03 - abstract syntax not
                 #   supported)
                 if acc_context is None:
                     # FIXME: make pdu not require this.
@@ -302,8 +302,8 @@ class PresentationContextManager(object):
                     result = self.negotiate_scp_scu_role(ii_req, result)
                     self.rejected.append(result)
 
-                # If there is a matching AbstractSyntax then check to see if the
-                #   Result attribute is None (indicates we are the Acceptor) or
+                # If there is a matching Abstract Syntax then check to see if
+                #   the result is None (indicates we are the Acceptor) or
                 #   has a value set (indicates we are the Requestor)
                 else:
                     # We are the Acceptor and must decide to accept or reject

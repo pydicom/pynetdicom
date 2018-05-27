@@ -635,25 +635,25 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ## SCU SOP Classes
         # str -> UID
         ae = AE(scu_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # UID no change
         ae = AE(scu_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # sop_class -> UID
         ae = AE(scu_sop_class=[VerificationSOPClass], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # bytes -> UID
         ae = AE(scu_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.3'))
         self.assertTrue(isinstance(ab_syn, UID))
 
@@ -668,25 +668,25 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ## SCP SOP Classes
         # str -> UID
         ae = AE(scp_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # UID no change
         ae = AE(scp_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # sop_class -> UID
         ae = AE(scp_sop_class=[VerificationSOPClass], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # bytes -> UID
         ae = AE(scp_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.3'))
         self.assertTrue(isinstance(ab_syn, UID))
 
@@ -702,19 +702,19 @@ class TestAEGoodInitialisation(unittest.TestCase):
         """Check the presentation context generation transfer syntax"""
         # str -> UID
         ae = AE(scu_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
         # UID no change
         ae = AE(scu_sop_class=['1.2'], transfer_syntax=[b'1.2.840.10008.1.2'])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
         # bytes -> UID
         ae = AE(scu_sop_class=['1.3'], transfer_syntax=[UID('1.2.840.10008.1.2')])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 

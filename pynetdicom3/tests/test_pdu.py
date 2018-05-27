@@ -318,9 +318,9 @@ class TestASSOC_RQ(object):
 
         # Test Presentation Contexts
         for context in pr.presentation_context_definition_list:
-            assert context.ID == 1
-            assert context.AbstractSyntax == UID('1.2.840.10008.1.1')
-            for syntax in context.TransferSyntax:
+            assert context.context_id == 1
+            assert context.abstract_syntax == UID('1.2.840.10008.1.1')
+            for syntax in context.transfer_syntax:
                 assert syntax == UID('1.2.840.10008.1.2')
 
         assert isinstance(pr.application_context_name, UID)
@@ -619,8 +619,8 @@ class TestASSOC_AC(object):
 
         # Test Presentation Contexts
         for context in primitive.presentation_context_definition_list:
-            assert context.ID == 1
-            assert context.TransferSyntax[0] == UID('1.2.840.10008.1.2')
+            assert context.context_id == 1
+            assert context.transfer_syntax[0] == UID('1.2.840.10008.1.2')
 
         assert isinstance(primitive.application_context_name, UID)
         assert isinstance(primitive.calling_ae_title, bytes)
