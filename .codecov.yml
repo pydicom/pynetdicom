@@ -21,4 +21,6 @@ coverage:
         threshold: 1%
 ignore:
   - "pynetdicom3/tests"
+  - "pynetdicom3/apps"
+  - "pynetdicom3/benchmarks"
   - "pydicom-master"

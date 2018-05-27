@@ -13,7 +13,7 @@ import socket
 import sys
 import time
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
@@ -26,6 +26,10 @@ formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
+
+
+VERSION = '0.1.2'
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -120,7 +124,7 @@ if args.debug:
     pynetdicom_logger = logging.getLogger('pynetdicom3')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$findscu.py v{0!s} {1!s} $'.format('0.1.1', '2017-07-02'))
+logger.debug('$findscu.py v{0!s}'.format(VERSION))
 logger.debug('')
 
 # Create application entity
@@ -139,9 +143,8 @@ if assoc.is_established:
     # Check file exists and is readable and DICOM
     logger.debug('Checking input files')
     try:
-        f = open(args.dcmfile_in, 'rb')
-        dataset = read_file(f, force=True)
-        f.close()
+        with open(args.dcmfile_in, 'rb') as f:
+            dataset = dcmread(f, force=True)
     except IOError:
         logger.error('Cannot read input file {0!s}'.format(args.dcmfile_in))
         assoc.release()

@@ -7,11 +7,7 @@ import threading
 import time
 import unittest
 
-try:
-    from unittest.mock import patch
-    PY2_SKIP = False
-except ImportError:
-    PY2_SKIP = True
+import pytest
 
 from pydicom import read_file
 from pydicom.dataset import Dataset
@@ -31,20 +27,21 @@ from pynetdicom3.sop_class import (
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
-class TestAEVerificationSCP(unittest.TestCase):
+class TestAEVerificationSCP(object):
     """Check verification SCP"""
-    def setUp(self):
+    def setup(self):
         """Run prior to each test"""
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -57,34 +54,27 @@ class TestAEVerificationSCP(unittest.TestCase):
                 thread.stop()
 
     # Causing thread exiting issues
-    @unittest.skip('Causes threading issues')
+    #@pytest.mark.skip('Causes threading issues')
     def test_stop_scp_keyboard(self):
         """Test stopping the SCP with keyboard"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
+
         def test():
             raise KeyboardInterrupt
-        # This causes thread stopping issues
-        self.assertRaises(KeyboardInterrupt, test)
-        self.scp.stop()
 
-    # Causing thread exiting issues
-    @unittest.skip('Causes threading issues')
-    def test_stop_scp_quit(self):
-        """Test stopping the SCP with quit"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
         # This causes thread stopping issues
-        self.assertRaises(SystemExit, scp.ae.quit)
+        pytest.raises(KeyboardInterrupt, test)
+
         self.scp.stop()
 
 
-class TestAEGoodCallbacks(unittest.TestCase):
-    def setUp(self):
+class TestAEGoodCallbacks(object):
+    def setup(self):
         """Run prior to each test"""
         self.scp = None
 
-    def tearDown(self):
+    def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
@@ -96,34 +86,45 @@ class TestAEGoodCallbacks(unittest.TestCase):
                 thread.abort()
                 thread.stop()
 
-    @unittest.skipUnless(not PY2_SKIP, "Python 2 compatibility")
     def test_on_c_echo_called(self):
         """ Check that SCP AE.on_c_echo() was called """
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        with patch.object(self.scp.ae, 'on_c_echo') as mock:
-            assoc.send_c_echo()
-            self.assertTrue(mock.called)
+        assert assoc.is_established
+        status = assoc.send_c_echo()
+        assert isinstance(status, Dataset)
+        assert 'Status' in status
+        assert status.Status == 0x0000
+
         assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
 
         self.scp.stop()
 
-    @unittest.skipUnless(not PY2_SKIP, "Python 2 compatibility")
     def test_on_c_store_called(self):
         """ Check that SCP AE.on_c_store(dataset) was called """
         self.scp = DummyStorageSCP()
         self.scp.start()
 
         ae = AE(scu_sop_class=[RTImageStorage])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        with patch.object(self.scp.ae, 'on_c_store') as mock:
-            mock.return_value = 0x0000
-            assoc.send_c_store(DATASET)
-            self.assertTrue(mock.called)
+        assert assoc.is_established
+        status = assoc.send_c_store(DATASET)
+        assert isinstance(status, Dataset)
+        assert 'Status' in status
+        assert status.Status == 0x0000
+
         assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
 
         self.scp.stop()
 
@@ -137,10 +138,12 @@ class TestAEGoodCallbacks(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         for (status, ds) in assoc.send_c_find(ds, query_model='P'):
-            self.assertEqual(status.Status, 0x0000)
+            assert status.Status == 0x0000
         assoc.release()
 
         self.scp.stop()
@@ -154,15 +157,17 @@ class TestAEGoodCallbacks(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         for (status, ds) in assoc.send_c_get(ds, query_model='P'):
-            self.assertEqual(status.Status, 0x0000)
+            assert status.Status == 0x0000
         assoc.release()
 
         self.scp.stop()
 
-    @unittest.skip('')
+    @pytest.mark.skip('')
     def test_on_c_move_called(self):
         """ Check that SCP AE.on_c_move(dataset) was called """
         self.scp = DummyMoveSCP()
@@ -172,10 +177,12 @@ class TestAEGoodCallbacks(unittest.TestCase):
         ds.PatientName = '*'
         ds.QueryRetrieveLevel = "PATIENT"
         ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
+        assert assoc.is_established
         for (status, ds) in assoc.send_c_move(ds, query_model='P', move_aet=b'TEST'):
-            self.assertEqual(int(status), 0x0000)
+            assert int(status) == 0x0000
         assoc.release()
 
         self.scp.stop()
@@ -183,102 +190,102 @@ class TestAEGoodCallbacks(unittest.TestCase):
     def test_on_user_identity_negotiation(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_user_identity_negotiation(None, None, None)
 
     def test_on_c_echo(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        ae.on_c_echo()
+        ae.on_c_echo(None, None)
 
     def test_on_c_store(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_c_store(None)
+        with pytest.raises(NotImplementedError):
+            ae.on_c_store(None, None, None)
 
     def test_on_c_find(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_c_find(None)
+        with pytest.raises(NotImplementedError):
+            ae.on_c_find(None, None, None)
 
     def test_on_c_find_cancel(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_find_cancel()
 
     def test_on_c_get(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_c_get(None)
+        with pytest.raises(NotImplementedError):
+            ae.on_c_get(None, None, None)
 
     def test_on_c_get_cancel(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_get_cancel()
 
     def test_on_c_move(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_c_move(None, None)
+        with pytest.raises(NotImplementedError):
+            ae.on_c_move(None, None, None, None)
 
     def test_on_c_move_cancel(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_move_cancel()
 
     def test_on_n_event_report(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_n_event_report()
+        with pytest.raises(NotImplementedError):
+            ae.on_n_event_report(None, None)
 
     def test_on_n_get(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_n_get()
+        with pytest.raises(NotImplementedError):
+            ae.on_n_get(None, None)
 
     def test_on_n_set(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_n_set()
+        with pytest.raises(NotImplementedError):
+            ae.on_n_set(None, None)
 
     def test_on_n_action(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_n_action()
+        with pytest.raises(NotImplementedError):
+            ae.on_n_action(None, None)
 
     def test_on_n_create(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_n_create()
+        with pytest.raises(NotImplementedError):
+            ae.on_n_create(None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
-            ae.on_n_delete()
+        with pytest.raises(NotImplementedError):
+            ae.on_n_delete(None, None)
 
     def test_on_receive_connection(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_receive_connection()
 
     def test_on_make_connection(self):
         """Test default callback raises exception"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_make_connection()
 
     def test_association_requested(self):
@@ -330,10 +337,13 @@ class TestAEGoodAssociation(unittest.TestCase):
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established == True)
+        assert assoc.is_established
         assoc.release()
-        self.assertTrue(assoc.is_established == False)
+        assert not assoc.is_established
+        assert assoc.is_released
 
         self.scp.stop()
 
@@ -344,6 +354,8 @@ class TestAEGoodAssociation(unittest.TestCase):
         self.scp.start()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, max_pdu=12345)
         self.assertTrue(self.scp.ae.active_associations[0].local_max_pdu == 54321)
         self.assertTrue(self.scp.ae.active_associations[0].peer_max_pdu == 12345)
@@ -469,92 +481,160 @@ class TestAEGoodTimeoutSetters(unittest.TestCase):
         self.assertTrue(ae.network_timeout == 30)
 
 
-class TestAEGoodMiscSetters(unittest.TestCase):
+class TestAEGoodMiscSetters(object):
     def test_ae_title_good(self):
         """ Check AE title change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.ae_title = '     TEST     '
-        self.assertTrue(ae.ae_title == 'TEST            ')
+        assert ae.ae_title == 'TEST            '
         ae.ae_title = '            TEST'
-        self.assertTrue(ae.ae_title == 'TEST            ')
+        assert ae.ae_title == 'TEST            '
         ae.ae_title = '                 TEST'
-        self.assertTrue(ae.ae_title == 'TEST            ')
+        assert ae.ae_title == 'TEST            '
         ae.ae_title = 'a            TEST'
-        self.assertTrue(ae.ae_title == 'a            TES')
+        assert ae.ae_title == 'a            TES'
         ae.ae_title = 'a        TEST'
-        self.assertTrue(ae.ae_title == 'a        TEST   ')
+        assert ae.ae_title == 'a        TEST   '
 
     def test_max_assoc_good(self):
         """ Check AE maximum association change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.maximum_associations = -10
-        self.assertTrue(ae.maximum_associations == 1)
+        assert ae.maximum_associations == 1
         ae.maximum_associations = ['a']
-        self.assertTrue(ae.maximum_associations == 1)
+        assert ae.maximum_associations == 1
         ae.maximum_associations = '10'
-        self.assertTrue(ae.maximum_associations == 1)
+        assert ae.maximum_associations == 1
         ae.maximum_associations = 0
-        self.assertTrue(ae.maximum_associations == 1)
+        assert ae.maximum_associations == 1
         ae.maximum_associations = 5
-        self.assertTrue(ae.maximum_associations == 5)
+        assert ae.maximum_associations == 5
 
     def test_max_pdu_good(self):
         """ Check AE maximum pdu size change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
         ae.maximum_pdu_size = -10
-        self.assertTrue(ae.maximum_pdu_size == 16382)
+        assert ae.maximum_pdu_size == 16382
         ae.maximum_pdu_size = 0
-        self.assertTrue(ae.maximum_pdu_size == 0)
+        assert ae.maximum_pdu_size == 0
         ae.maximum_pdu_size = 5000
-        self.assertTrue(ae.maximum_pdu_size == 5000)
+        assert ae.maximum_pdu_size == 5000
+
+    def test_require_calling_aet(self):
+        """Test AE.require_calling_aet"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        # Test that we can associate OK initially
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
+
+        self.scp.ae.require_calling_aet = b'MYAE'
+        assert self.scp.ae.require_calling_aet == b'MYAE            '
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_rejected
+
+        self.scp.ae.require_calling_aet = b'PYNETDICOM      '
+        assert self.scp.ae.require_calling_aet == b'PYNETDICOM      '
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        self.scp.ae.require_calling_aet = b''
+        assert self.scp.ae.require_calling_aet == b''
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_require_called_aet(self):
+        """Test AE.require_called_aet"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        # Test that we can associate OK initially
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
+
+        self.scp.ae.require_called_aet = b'MYAE'
+        assert self.scp.ae.require_called_aet == b'MYAE            '
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_rejected
+
+        self.scp.ae.require_called_aet = b'ANY-SCP         '
+        assert self.scp.ae.require_called_aet == b'ANY-SCP         '
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        self.scp.ae.require_called_aet = b''
+        assert self.scp.ae.require_called_aet == b''
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        self.scp.stop()
 
     def test_req_calling_aet(self):
         """ Check AE require calling aet change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
-        ae.require_calling_aet = '10'
-        self.assertTrue(ae.require_calling_aet == '10')
-        ae.require_calling_aet = '     TEST     '
-        self.assertTrue(ae.require_calling_aet == 'TEST')
-        ae.require_calling_aet = '           TESTB'
-        self.assertTrue(ae.require_calling_aet == 'TESTB')
-        ae.require_calling_aet = 'a            TEST'
-        self.assertTrue(ae.require_calling_aet == 'a            TES')
+        ae.require_calling_aet = b'10'
+        assert ae.require_calling_aet == b'10              '
+        ae.require_calling_aet = b'     TEST     '
+        assert ae.require_calling_aet == b'TEST            '
+        ae.require_calling_aet = b'           TESTB'
+        assert ae.require_calling_aet == b'TESTB           '
+        ae.require_calling_aet = b'a            TEST'
+        assert ae.require_calling_aet == b'a            TES'
 
     def test_req_called_aet(self):
         """ Check AE require called aet change produces good value """
         ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
-        ae.require_called_aet = '10'
-        self.assertTrue(ae.require_called_aet == '10')
-        ae.require_called_aet = '     TESTA    '
-        self.assertTrue(ae.require_called_aet == 'TESTA')
-        ae.require_called_aet = '           TESTB'
-        self.assertTrue(ae.require_called_aet == 'TESTB')
-        ae.require_called_aet = 'a            TEST'
-        self.assertTrue(ae.require_called_aet == 'a            TES')
+        ae.require_called_aet = b'10'
+        assert ae.require_called_aet == b'10              '
+        ae.require_called_aet = b'     TESTA    '
+        assert ae.require_called_aet == b'TESTA           '
+        ae.require_called_aet = b'           TESTB'
+        assert ae.require_called_aet == b'TESTB           '
+        ae.require_called_aet = b'a            TEST'
+        assert ae.require_called_aet == b'a            TES'
 
     def test_string_output(self):
         """Test string output"""
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.require_calling_aet = b'something'
         ae.require_called_aet = b'elsething'
-        self.assertTrue('Explicit VR' in ae.__str__())
-        self.assertTrue('Verification' in ae.__str__())
-        self.assertTrue('0/2' in ae.__str__())
-        self.assertTrue('something' in ae.__str__())
-        self.assertTrue('elsething' in ae.__str__())
+        assert 'Explicit VR' in ae.__str__()
+        assert 'Verification' in ae.__str__()
+        assert '0/2' in ae.__str__()
+        assert 'something' in ae.__str__()
+        assert 'elsething' in ae.__str__()
         ae.scp_supported_sop = StorageSOPClassList
-        self.assertTrue('CT Image' in ae.__str__())
+        assert 'CT Image' in ae.__str__()
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
-        self.assertTrue('None' in ae.__str__())
+        assert 'None' in ae.__str__()
 
         scp = DummyVerificationSCP()
         scp.start()
         ae = AE(scu_sop_class=[VerificationSOPClass])
         assoc = ae.associate('localhost', 11112)
-        self.assertTrue(assoc.is_established)
-        self.assertTrue('Explicit VR' in ae.__str__())
-        self.assertTrue('Peer' in ae.__str__())
+        assert assoc.is_established
+        assert 'Explicit VR' in ae.__str__()
+        assert 'Peer' in ae.__str__()
         assoc.release()
         scp.stop()
 
@@ -616,25 +696,25 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ## SCU SOP Classes
         # str -> UID
         ae = AE(scu_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # UID no change
         ae = AE(scu_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # sop_class -> UID
         ae = AE(scu_sop_class=[VerificationSOPClass], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # bytes -> UID
         ae = AE(scu_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scu[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scu[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.3'))
         self.assertTrue(isinstance(ab_syn, UID))
 
@@ -649,25 +729,25 @@ class TestAEGoodInitialisation(unittest.TestCase):
         ## SCP SOP Classes
         # str -> UID
         ae = AE(scp_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # UID no change
         ae = AE(scp_sop_class=[UID('1.2')], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # sop_class -> UID
         ae = AE(scp_sop_class=[VerificationSOPClass], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.2.840.10008.1.1'))
         self.assertTrue(isinstance(ab_syn, UID))
 
         # bytes -> UID
         ae = AE(scp_sop_class=[b'1.3'], transfer_syntax=['1.2.840.10008.1.2'])
-        ab_syn = ae.presentation_contexts_scp[0].AbstractSyntax
+        ab_syn = ae.presentation_contexts_scp[0].abstract_syntax
         self.assertEqual(ab_syn, UID('1.3'))
         self.assertTrue(isinstance(ab_syn, UID))
 
@@ -683,19 +763,19 @@ class TestAEGoodInitialisation(unittest.TestCase):
         """Check the presentation context generation transfer syntax"""
         # str -> UID
         ae = AE(scu_sop_class=['1.1'], transfer_syntax=['1.2.840.10008.1.2'])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
         # UID no change
         ae = AE(scu_sop_class=['1.2'], transfer_syntax=[b'1.2.840.10008.1.2'])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
         # bytes -> UID
         ae = AE(scu_sop_class=['1.3'], transfer_syntax=[UID('1.2.840.10008.1.2')])
-        tran_syn = ae.presentation_contexts_scu[0].TransferSyntax[0]
+        tran_syn = ae.presentation_contexts_scu[0].transfer_syntax[0]
         self.assertEqual(tran_syn, UID('1.2.840.10008.1.2'))
         self.assertTrue(isinstance(tran_syn, UID))
 
@@ -825,6 +905,7 @@ class TestAE_GoodRelease(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
         # Test N associate/release cycles
         for ii in range(5):
@@ -866,6 +947,7 @@ class TestAE_GoodAbort(unittest.TestCase):
 
         ae = AE(scu_sop_class=[VerificationSOPClass])
         ae.acse_timeout = 5
+        ae.dimse_timeout = 5
 
         # Test N associate/abort cycles
         for ii in range(5):
@@ -881,8 +963,3 @@ class TestAE_GoodAbort(unittest.TestCase):
                 #self.assertTrue(ae.active_associations == [])
 
         self.scp.stop()
-
-
-if __name__ == "__main__":
-    #unittest.main(warnings='ignore')
-    unittest.main()

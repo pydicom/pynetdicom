@@ -18,6 +18,7 @@ install:
     - pip install coverage
     - pip install pytest-cov
     - pip install pytest
+    - pip install asv
     - python setup.py install
 
 # Command to run tests

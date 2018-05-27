@@ -6,21 +6,25 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom3.pdu import (MaximumLengthSubItem,
-                             ImplementationClassUIDSubItem,
-                             ImplementationVersionNameSubItem,
-                             AsynchronousOperationsWindowSubItem,
-                             SCP_SCU_RoleSelectionSubItem,
-                             SOPClassExtendedNegotiationSubItem,
-                             SOPClassCommonExtendedNegotiationSubItem,
-                             UserIdentitySubItemRQ,
-                             UserIdentitySubItemAC)
-from pynetdicom3.utils import validate_ae_title, PresentationContext
+from pynetdicom3.pdu_items import (
+    MaximumLengthSubItem,
+    ImplementationClassUIDSubItem,
+    ImplementationVersionNameSubItem,
+    AsynchronousOperationsWindowSubItem,
+    SCP_SCU_RoleSelectionSubItem,
+    SOPClassExtendedNegotiationSubItem,
+    SOPClassCommonExtendedNegotiationSubItem,
+    UserIdentitySubItemRQ,
+    UserIdentitySubItemAC
+)
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import validate_ae_title
 #from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.pdu_primitives')
 
 
+# TODO: Rename to UserInformation
 class ServiceParameter(object):
     """ Base class for Service Parameters """
 
@@ -39,7 +43,7 @@ class ServiceParameter(object):
         """FIXME"""
         raise NotImplementedError
 
-    def FromParams(self):
+    def from_primitive(self):
         """FIXME"""
         return self.from_primitive()
 
@@ -286,7 +290,7 @@ class A_ASSOCIATE(object):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -316,7 +320,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
 
         if value is not None:
             self._calling_ae_title = validate_ae_title(value)
@@ -340,7 +344,7 @@ class A_ASSOCIATE(object):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
 
         if value is not None:
             self._called_ae_title = validate_ae_title(value)
@@ -1012,10 +1016,10 @@ class MaximumLengthNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.MaximumLengthSubItem
+        item : pynetdicom3.pdu_items.MaximumLengthSubItem
         """
         item = MaximumLengthSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1061,6 +1065,8 @@ class MaximumLengthNegotiation(ServiceParameter):
         return s
 
 
+# TODO: Combine ImplementationClass and ImplementationVersion
+#   into ImplementationIdentificationNotification
 class ImplementationClassUIDNotification(ServiceParameter):
     """The Implementation Class UID Notification primitive.
 
@@ -1101,7 +1107,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.ImplementationClassUIDSubItem
+        item : pynetdicom3.pdu_items.ImplementationClassUIDSubItem
 
         Raises
         ------
@@ -1115,7 +1121,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
                              "prior to requesting Association")
 
         item = ImplementationClassUIDSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1139,7 +1145,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1192,7 +1198,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.ImplementationVersionNameSubItem
+        item : pynetdicom3.pdu_items.ImplementationVersionNameSubItem
 
         Raises
         ------
@@ -1204,7 +1210,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
                              "to Association")
 
         item = ImplementationVersionNameSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1231,7 +1237,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
-            value = codecs.encode(value, 'utf-8')
+            value = codecs.encode(value, 'ascii')
         elif isinstance(value, bytes):
             pass
         elif value is None:
@@ -1286,10 +1292,10 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.AsynchronousOperationsWindowSubItem
+        item : pynetdicom3.pdu_items.AsynchronousOperationsWindowSubItem
         """
         item = AsynchronousOperationsWindowSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1418,7 +1424,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.SCP_SCU_RoleSelectionSubItem
+        item : pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem
 
         Raises
         ------
@@ -1429,9 +1435,9 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         """
         if self.sop_class_uid is None or self.scu_role is None \
                 or self.scp_role is None:
-            LOGGER.error("SOP Class UID, SCU Role and SCP Role must "
+            LOGGER.error("sop_class_uid, scu_role and scp_role must "
                          "to be set prior to Association")
-            raise ValueError("SOP Class UID, SCU Role and SCP Role must "
+            raise ValueError("sop_class_uid, scu_role and scp_role must "
                              "to be set prior to Association")
 
         # To get to this point self.sop_class_uid must be set
@@ -1442,7 +1448,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
                              "for {}".format(self.sop_class_uid))
 
         item = SCP_SCU_RoleSelectionSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1471,7 +1477,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1581,7 +1587,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.SOPClassExtendedNegotiationSubItem
+        item : pynetdicom3.pdu_items.SOPClassExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1599,7 +1605,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
                              "negotiation")
 
         item = SOPClassExtendedNegotiationSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1628,7 +1634,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1708,7 +1714,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.SOPClassCommonExtendedNegotiationSubItem
+        item : pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem
 
         Raises
         ------
@@ -1722,7 +1728,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                              "set prior to Association negotiation")
 
         item = SOPClassCommonExtendedNegotiationSubItem()
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 
@@ -1751,7 +1757,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1791,7 +1797,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
-            value = UID(value.decode('utf-8'))
+            value = UID(value.decode('ascii'))
         elif value is None:
             pass
         else:
@@ -1840,7 +1846,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                 elif isinstance(uid, str):
                     uid = UID(uid)
                 elif isinstance(uid, bytes):
-                    uid = UID(uid.decode('utf-8'))
+                    uid = UID(uid.decode('ascii'))
                 else:
                     LOGGER.error("Related General SOP Class Identification "
                                  "must be a list of pydicom.uid.UID, str "
@@ -1926,7 +1932,7 @@ class UserIdentityNegotiation(ServiceParameter):
         self.user_identity_type = None
         self.positive_response_requested = False
         self.primary_field = None
-        self.secondary_field = None
+        self.secondary_field = b''
         self.server_response = None
 
     def from_primitive(self):
@@ -1934,8 +1940,8 @@ class UserIdentityNegotiation(ServiceParameter):
 
         Returns
         -------
-        item : pynetdicom3.pdu.UserIdentitySubItemRQ or
-            pynetdicom3.pdu.UserIdentitySubItemAC
+        item : pynetdicom3.pdu_items.UserIdentitySubItemRQ or
+            pynetdicom3.pdu_items.UserIdentitySubItemAC
 
         Raises
         ------
@@ -1955,7 +1961,7 @@ class UserIdentityNegotiation(ServiceParameter):
                 raise ValueError("User Identity Type and Primary Field "
                                  "must be set prior to Association negotiation")
 
-            if self.user_identity_type == 2 and self.secondary_field is None:
+            if self.user_identity_type == 2 and self.secondary_field == b'':
                 LOGGER.error("Secondary Field must be set when User Identity"
                              "is 2")
                 raise ValueError("Secondary Field must be set when User "
@@ -1967,7 +1973,7 @@ class UserIdentityNegotiation(ServiceParameter):
             # Then an -AC
             item = UserIdentitySubItemAC()
 
-        item.FromParams(self)
+        item.from_primitive(self)
 
         return item
 

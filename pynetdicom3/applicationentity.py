@@ -16,7 +16,8 @@ from pydicom.uid import (
 )
 
 from pynetdicom3.association import Association
-from pynetdicom3.utils import PresentationContext, validate_ae_title
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import validate_ae_title
 
 
 def setup_logger():
@@ -146,8 +147,9 @@ class ApplicationEntity(object):
         The supported transfer syntaxes
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title='PYNETDICOM', port=0, scu_sop_class=None,
-                 scp_sop_class=None, transfer_syntax=None):
+    def __init__(self, ae_title=b'PYNETDICOM', port=0, scu_sop_class=None,
+                 scp_sop_class=None, transfer_syntax=None,
+                 bind_addr=''):
         """Create a new Application Entity.
 
         Parameters
@@ -157,6 +159,9 @@ class ApplicationEntity(object):
         port : int, optional
             The port number to listen for connections on when acting as an SCP
             (default: the first available port)
+        bind_addr : str, optional
+            The network interface to listen to.
+            (default: all availabel network interfaces on the machine)
         scu_sop_class : list of pydicom.uid.UID or list of str or list of
         pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.
@@ -172,6 +177,7 @@ class ApplicationEntity(object):
         """
         self.address = platform.node()
         self.port = port
+        self.bind_addr = bind_addr
         self.ae_title = ae_title
 
         # Avoid dangerous default values
@@ -210,8 +216,8 @@ class ApplicationEntity(object):
         self.dimse_timeout = None
 
         # Require Calling/Called AE titles to match if value is non-empty str
-        self.require_calling_aet = ''
-        self.require_called_aet = ''
+        self.require_calling_aet = b''
+        self.require_called_aet = b''
 
         self._build_presentation_contexts()
 
@@ -282,7 +288,7 @@ class ApplicationEntity(object):
         # The socket to listen for connections on, port is always specified
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.local_socket.bind(('', self.port))
+        self.local_socket.bind((self.bind_addr, self.port))
         # Listen for connections made to the socket, the backlog argument
         #   specifies the maximum number of queued connections.
         self.local_socket.listen(1)
@@ -312,9 +318,10 @@ class ApplicationEntity(object):
                 # Add the Presentation Context Definition Item
                 # If we have too many Items, warn and skip the rest
                 if presentation_context_id < 255:
-                    pc_item = PresentationContext(presentation_context_id,
-                                                  abstract_syntax,
-                                                  self.transfer_syntaxes[:])
+                    pc_item = PresentationContext()
+                    pc_item.context_id = presentation_context_id
+                    pc_item.abstract_syntax = abstract_syntax
+                    pc_item.transfer_syntax = self.transfer_syntaxes[:]
 
                     pc_output.append(pc_item)
                 else:
@@ -386,7 +393,7 @@ class ApplicationEntity(object):
         """Stop the SCP."""
         self.stop()
 
-    def associate(self, addr, port, ae_title='ANY-SCP',
+    def associate(self, addr, port, ae_title=b'ANY-SCP',
                   max_pdu=16382, ext_neg=None):
         """Attempts to associate with a remote application entity
 
@@ -420,9 +427,9 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
-        peer_ae = {'AET' : validate_ae_title(ae_title),
-                   'Address' : addr,
-                   'Port' : port}
+        peer_ae = {'ae_title' : validate_ae_title(ae_title),
+                   'address' : addr,
+                   'port' : port}
 
         # Associate
         assoc = Association(local_ae=self,
@@ -493,9 +500,9 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
-                       .format(assoc.peer_ae['AET'],
-                               assoc.peer_ae['Address'],
-                               assoc.peer_ae['Port'])
+                       .format(assoc.peer_ae['ae_title'],
+                               assoc.peer_ae['address'],
+                               assoc.peer_ae['port'])
 
         return str_out
 
@@ -527,7 +534,14 @@ class ApplicationEntity(object):
 
     @ae_title.setter
     def ae_title(self, value):
-        """Get the AE title."""
+        """Set the AE title.
+
+        Parameters
+        ----------
+        value : bytes
+            The AE title to use for the local Application Entity. Leading and
+            trailing spaces are non-significant.
+        """
         # pylint: disable=attribute-defined-outside-init
         try:
             self._ae_title = validate_ae_title(value)
@@ -625,29 +639,55 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        """Get the required calling AE title."""
+        """Return the required calling AE title as a length 16 bytes."""
         return self._require_calling_aet
 
     @require_calling_aet.setter
-    def require_calling_aet(self, value):
-        """Set the required calling AE title."""
-        # pylint: disable=attribute-defined-outside-init
-        if len(value) > 16:
-            value = value[:16]
-        self._require_calling_aet = value.strip()
+    def require_calling_aet(self, ae_title):
+        """Set the required calling AE title.
+
+        When an Association request is received the value of the 'Calling AE
+        Title' supplied by the peer will be compared with the set value and
+        if they don't match the association will be rejected. If the set value
+        is an empty bytes then the 'Calling AE Title' will not be checked.
+
+        Parameters
+        ----------
+        ae_title : bytes
+            If not empty then any association requests that supply a
+            Calling AE Title value that does not match `ae_title` will be
+            rejected.
+        """
+        if ae_title:
+            self._require_calling_aet = validate_ae_title(ae_title)
+        else:
+            self._require_calling_aet = b''
 
     @property
     def require_called_aet(self):
-        """Get the required called AE title."""
+        """Return the required called AE title as a length 16 bytes."""
         return self._require_called_aet
 
     @require_called_aet.setter
-    def require_called_aet(self, value):
-        """Set the required called AE title."""
-        # pylint: disable=attribute-defined-outside-init
-        if len(value) > 16:
-            value = value[:16]
-        self._require_called_aet = value.strip()
+    def require_called_aet(self, ae_title):
+        """Set the required called AE title.
+
+        When an Association request is received the value of the 'Called AE
+        Title' supplied by the peer will be compared with the set value and
+        if they don't match the association will be rejected. If the set value
+        is an empty bytes then the 'Called AE Title' will not be checked.
+
+        Parameters
+        ----------
+        ae_title : bytes
+            If not empty then any association requests that supply a
+            Called AE Title value that does not match `ae_title` will be
+            rejected.
+        """
+        if ae_title:
+            self._require_called_aet = validate_ae_title(ae_title)
+        else:
+            self._require_called_aet = b''
 
     @property
     def scu_supported_sop(self):
@@ -682,7 +722,7 @@ class ApplicationEntity(object):
             elif isclass(sop_class) and 'UID' in sop_class.__dict__:
                 sop_uid = UID(sop_class.UID)
             elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('utf-8'))
+                sop_uid = UID(sop_class.decode('ascii'))
             else:
                 continue
 
@@ -724,7 +764,7 @@ class ApplicationEntity(object):
             if isinstance(sop_class, str):
                 sop_uid = UID(sop_class)
             elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('utf-8'))
+                sop_uid = UID(sop_class.decode('ascii'))
             elif isclass(sop_class):
                 if 'UID' in sop_class.__dict__:
                     sop_uid = sop_class.UID
@@ -758,7 +798,7 @@ class ApplicationEntity(object):
             if isinstance(syntax, str):
                 sop_uid = UID(syntax)
             elif isinstance(syntax, bytes):
-                sop_uid = UID(syntax.decode('utf-8'))
+                sop_uid = UID(syntax.decode('ascii'))
             else:
                 raise ValueError("Transfer syntax SOP class must be a "
                                  "UID str, UID bytes or UID.")
@@ -810,7 +850,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-C callbacks - user should implement these as required
-    def on_c_echo(self):
+    def on_c_echo(self, context, info):
         """Callback for when a C-ECHO request is received.
 
         User implementation is not required for the C-ECHO service, but if you
@@ -843,6 +883,31 @@ class ApplicationEntity(object):
         - 0x0212 - Mistyped argument
         - 0x0211 - Unrecognised operation
 
+        Parameters
+        ----------
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-ECHO message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            - 'requestor' : {
+               | 'ae_title' : bytes, the requestor's calling AE title
+               | 'called_ae_title' : bytes, the requestor's called AE title
+               | 'address' : str, the requestor's IP address
+               | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              }
+
         Returns
         -------
         status : pydicom.dataset.Dataset or int
@@ -867,7 +932,7 @@ class ApplicationEntity(object):
         # User implementation of on_c_echo is optional
         return 0x0000
 
-    def on_c_store(self, dataset):
+    def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling AE.start() and must return
@@ -914,6 +979,31 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM dataset sent by the peer in the C-STORE request.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-STORE message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              | 'originator_aet' : bytes or None, the move originator's AE title
+              | 'originator_message_id' : int or None, the move originator's message ID
+              }
 
         Returns
         -------
@@ -945,7 +1035,7 @@ class ApplicationEntity(object):
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
-    def on_c_find(self, dataset):
+    def on_c_find(self, dataset, context, info):
         """Callback for when a C-FIND request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -960,6 +1050,7 @@ class ApplicationEntity(object):
         **Supported Service Classes**
 
         Query/Retrieve Service Class
+        Basic Worklist Management Service
 
         **Status**
 
@@ -990,6 +1081,29 @@ class ApplicationEntity(object):
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-FIND
             request.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-FIND message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              }
 
         Yields
         ------
@@ -1038,7 +1152,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_find_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_get(self, dataset):
+    def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling AE.start() and must yield
@@ -1079,6 +1193,29 @@ class ApplicationEntity(object):
         ----------
         dataset : pydicom.dataset.Dataset
             The DICOM Identifier dataset sent by the peer in the C-GET request.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-GET message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              }
 
         Yields
         ------
@@ -1127,7 +1264,7 @@ class ApplicationEntity(object):
                                   "AE.on_c_get_cancel function prior to "
                                   "calling AE.start()")
 
-    def on_c_move(self, dataset, move_aet):
+    def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling AE.start().
@@ -1180,6 +1317,29 @@ class ApplicationEntity(object):
             The destination AE title that matching SOP Instances will be sent
             to using C-STORE sub-operations. `move_aet` will be a correctly
             formatted AE title (16 chars, with trailing spaces as padding).
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-MOVE message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_ae_title' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              }
 
         Yields
         ------
@@ -1235,7 +1395,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_event_report(self):
+    def on_n_event_report(self, context, info):
         """Callback for when a N-EVENT-REPORT is received.
 
         References
@@ -1246,7 +1406,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self):
+    def on_n_get(self, context, info):
         """Callback for when a N-GET is received.
 
         References
@@ -1257,7 +1417,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_get function prior to calling "
                                   "AE.start()")
 
-    def on_n_set(self):
+    def on_n_set(self, context, info):
         """Callback for when a N-SET is received.
 
         References
@@ -1268,7 +1428,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
-    def on_n_action(self):
+    def on_n_action(self, context, info):
         """Callback for when a N-ACTION is received.
 
         References
@@ -1279,7 +1439,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self):
+    def on_n_create(self, context, info):
         """Callback for when a N-CREATE is received.
 
         References
@@ -1290,7 +1450,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
-    def on_n_delete(self):
+    def on_n_delete(self, context, info):
         """Callback for when a N-DELETE is received.
 
         References

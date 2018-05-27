@@ -27,6 +27,30 @@ from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
+_RQ_TO_MESSAGE = {C_ECHO : C_ECHO_RQ,
+                 C_STORE : C_STORE_RQ,
+                 C_FIND : C_FIND_RQ,
+                 C_MOVE : C_MOVE_RQ,
+                 C_GET : C_GET_RQ,
+                 N_EVENT_REPORT : N_EVENT_REPORT_RQ,
+                 N_GET : N_GET_RQ,
+                 N_SET : N_SET_RQ,
+                 N_ACTION : N_ACTION_RQ,
+                 N_CREATE : N_CREATE_RQ,
+                 N_DELETE : N_DELETE_RQ}
+_RSP_TO_MESSAGE = {C_ECHO : C_ECHO_RSP,
+                  C_STORE : C_STORE_RSP,
+                  C_FIND : C_FIND_RSP,
+                  C_MOVE : C_MOVE_RSP,
+                  C_GET : C_GET_RSP,
+                  C_CANCEL : C_CANCEL_RQ,
+                  N_EVENT_REPORT : N_EVENT_REPORT_RSP,
+                  N_GET : N_GET_RSP,
+                  N_SET : N_SET_RSP,
+                  N_ACTION : N_ACTION_RSP,
+                  N_CREATE : N_CREATE_RSP,
+                  N_DELETE : N_DELETE_RSP}
+
 
 class DIMSEServiceProvider(object):
     """The DIMSE service provider.
@@ -161,91 +185,21 @@ class DIMSEServiceProvider(object):
         context_id : int
             The ID of the presentation context to be sent under.
         """
-        if primitive.__class__ == C_ECHO:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = C_ECHO_RQ()
-            else:
-                dimse_msg = C_ECHO_RSP()
-
-        elif primitive.__class__ == C_STORE:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = C_STORE_RQ()
-            else:
-                dimse_msg = C_STORE_RSP()
-
-        elif primitive.__class__ == C_FIND:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = C_FIND_RQ()
-            else:
-                dimse_msg = C_FIND_RSP()
-
-        elif primitive.__class__ == C_GET:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = C_GET_RQ()
-            else:
-                dimse_msg = C_GET_RSP()
-
-        elif primitive.__class__ == C_MOVE:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = C_MOVE_RQ()
-            else:
-                dimse_msg = C_MOVE_RSP()
-
-        elif primitive.__class__ == C_CANCEL:
-            dimse_msg = C_CANCEL_RQ()
-
-        elif primitive.__class__ == N_EVENT_REPORT:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = N_EVENT_REPORT_RQ()
-            else:
-                dimse_msg = N_EVENT_REPORT_RSP()
-
-        elif primitive.__class__ == N_GET:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = N_GET_RQ()
-            else:
-                dimse_msg = N_GET_RSP()
-
-        elif primitive.__class__ == N_SET:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = N_SET_RQ()
-            else:
-                dimse_msg = N_SET_RSP()
-
-        elif primitive.__class__ == N_ACTION:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = N_ACTION_RQ()
-            else:
-                dimse_msg = N_ACTION_RSP()
-
-        elif primitive.__class__ == N_CREATE:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = N_CREATE_RQ()
-            else:
-                dimse_msg = N_CREATE_RSP()
-
-        elif primitive.__class__ == N_DELETE:
-            if primitive.MessageIDBeingRespondedTo is None:
-                dimse_msg = N_DELETE_RQ()
-            else:
-                dimse_msg = N_DELETE_RSP()
+        if primitive.MessageIDBeingRespondedTo is None:
+            dimse_msg = _RQ_TO_MESSAGE[primitive.__class__]()
+        else:
+            dimse_msg = _RSP_TO_MESSAGE[primitive.__class__]()
 
         # Convert DIMSE primitive to DIMSE Message
         dimse_msg.primitive_to_message(primitive)
 
         # Callbacks
-        # FIXME: Make this a package level option to increase speed
-        # if LOG:
         self.on_send_dimse_message(dimse_msg)
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
-        pdata_pdu_list = dimse_msg.encode_msg(
-            context_id, self.maximum_pdu_size)
-
-        # Send the P-DATA PDUs to the peer via the DUL provider
-        for pdata_pdu in pdata_pdu_list:
-            self.dul.send_pdu(pdata_pdu)
+        for pdata in dimse_msg.encode_msg(context_id, self.maximum_pdu_size):
+            self.dul.send_pdu(pdata)
 
     def receive_msg(self, wait=False):
         """Receive a DIMSE message from the peer.
@@ -316,9 +270,10 @@ class DIMSEServiceProvider(object):
                     return primitive, context_id
 
         else:
-            cls = self.dul.peek_next_pdu().__class__
-
-            if cls not in (type(None), P_DATA):
+            # Check to make sure the next PDU is a P-DATA-TF PDU
+            #   if not then return
+            pdu = self.dul.peek_next_pdu()
+            if not pdu or pdu.__class__ != P_DATA:
                 return None, None
 
             pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
@@ -747,7 +702,7 @@ class DIMSEServiceProvider(object):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
         s.append('Move Destination              : {0!s}'
-                 .format(cs.MoveDestination.decode('utf-8')))
+                 .format(cs.MoveDestination.decode('ascii')))
         s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
