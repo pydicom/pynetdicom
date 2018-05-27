@@ -85,13 +85,13 @@ the peer once an association has been established. With the exception of
 ``on_c_echo()``, the user is expected to handle the required operations by
 implementing the following ``AE`` callbacks:
 
-- C-ECHO: ``AE.on_c_echo()``
-- C-STORE: ``AE.on_c_store(dataset, context, assoc_info)``
-- C-FIND: ``AE.on_c_find(dataset, context, assoc_info)`` and
+- C-ECHO: ``AE.on_c_echo(context, info)``
+- C-STORE: ``AE.on_c_store(dataset, context, info)``
+- C-FIND: ``AE.on_c_find(dataset, context, info)`` and
   ``AE.on_c_find_cancel()``
-- C-GET: ``AE.on_c_get(dataset, context, assoc_info)`` and
+- C-GET: ``AE.on_c_get(dataset, context, info)`` and
   ``AE.on_c_get_cancel()``
-- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, assoc_info)`` and
+- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)`` and
   ``AE.on_c_move_cancel()``
 
 Where *dataset* is a pydicom `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
