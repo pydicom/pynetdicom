@@ -337,14 +337,14 @@ class Association(threading.Thread):
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        if self.ae.require_calling_aet != '' and \
-                    self.ae.require_calling_aet != assoc_rq.calling_ae_title:
-            reject_assoc_rsd = [(0x01, 0x01, 0x03)]
+        if (self.ae.require_calling_aet != b''
+            and self.ae.require_calling_aet != assoc_rq.calling_ae_title):
+                reject_assoc_rsd = [(0x01, 0x01, 0x03)]
 
         # Called AE Title not recognised
-        if self.ae.require_called_aet != '' and \
-                        self.ae.require_called_aet != assoc_rq.called_ae_title:
-            reject_assoc_rsd = [(0x01, 0x01, 0x07)]
+        if (self.ae.require_called_aet != b''
+            and self.ae.require_called_aet != assoc_rq.called_ae_title):
+                reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
         ## DUL ACSE Related Rejections
         #

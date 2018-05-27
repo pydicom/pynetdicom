@@ -216,8 +216,8 @@ class ApplicationEntity(object):
         self.dimse_timeout = None
 
         # Require Calling/Called AE titles to match if value is non-empty str
-        self.require_calling_aet = ''
-        self.require_called_aet = ''
+        self.require_calling_aet = b''
+        self.require_called_aet = b''
 
         self._build_presentation_contexts()
 
@@ -639,29 +639,55 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        """Get the required calling AE title."""
+        """Return the required calling AE title as a length 16 bytes."""
         return self._require_calling_aet
 
     @require_calling_aet.setter
-    def require_calling_aet(self, value):
-        """Set the required calling AE title."""
-        # pylint: disable=attribute-defined-outside-init
-        if len(value) > 16:
-            value = value[:16]
-        self._require_calling_aet = value.strip()
+    def require_calling_aet(self, ae_title):
+        """Set the required calling AE title.
+
+        When an Association request is received the value of the 'Calling AE
+        Title' supplied by the peer will be compared with the set value and
+        if they don't match the association will be rejected. If the set value
+        is an empty bytes then the 'Calling AE Title' will not be checked.
+
+        Parameters
+        ----------
+        ae_title : bytes
+            If not empty then any association requests that supply a
+            Calling AE Title value that does not match `ae_title` will be
+            rejected.
+        """
+        if ae_title:
+            self._require_calling_aet = validate_ae_title(ae_title)
+        else:
+            self._require_calling_aet = b''
 
     @property
     def require_called_aet(self):
-        """Get the required called AE title."""
+        """Return the required called AE title as a length 16 bytes."""
         return self._require_called_aet
 
     @require_called_aet.setter
-    def require_called_aet(self, value):
-        """Set the required called AE title."""
-        # pylint: disable=attribute-defined-outside-init
-        if len(value) > 16:
-            value = value[:16]
-        self._require_called_aet = value.strip()
+    def require_called_aet(self, ae_title):
+        """Set the required called AE title.
+
+        When an Association request is received the value of the 'Called AE
+        Title' supplied by the peer will be compared with the set value and
+        if they don't match the association will be rejected. If the set value
+        is an empty bytes then the 'Called AE Title' will not be checked.
+
+        Parameters
+        ----------
+        ae_title : bytes
+            If not empty then any association requests that supply a
+            Called AE Title value that does not match `ae_title` will be
+            rejected.
+        """
+        if ae_title:
+            self._require_called_aet = validate_ae_title(ae_title)
+        else:
+            self._require_called_aet = b''
 
     @property
     def scu_supported_sop(self):
