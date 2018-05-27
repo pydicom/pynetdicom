@@ -7,10 +7,7 @@ Dependencies
 
 How to contribute
 -----------------
-1. Fork the master branch of the project repository by clicking on the 'Fork'
-button near the top right of the page. This creates a copy of the repository
-under your GitHub user account. For more details on how to fork a repository
-see [this guide](https://help.github.com/articles/fork-a-repo/).
+1. Fork the master branch of the project repository by clicking on the 'Fork' button near the top right of the page. This creates a copy of the repository under your GitHub user account. For more details on how to fork a repository see [this guide](https://help.github.com/articles/fork-a-repo/).
 
 2. Clone your fork to your local disk:
    ```bash
@@ -23,8 +20,7 @@ see [this guide](https://help.github.com/articles/fork-a-repo/).
    $ git checkout -b my-branch
    ```
 
-4. Develop the feature on your branch. Files can be added using `git add` and
-changes committed using `git commit`. For more on using git see the [Git documentation](https://git-scm.com/documentation).
+4. Develop the feature on your branch. Files can be added using `git add` and changes committed using `git commit`. For more on using git see the [Git documentation](https://git-scm.com/documentation).
 
 5. When you're ready, push your changes to your GitHub account:
    ```bash
@@ -36,36 +32,24 @@ changes committed using `git commit`. For more on using git see the [Git documen
 Pull Requests
 -------------
 
-- Please prefix the title of your pull request with `[WIP]` if its in progress
-  and `[MRG]` when you consider it complete and ready for review.
+- Please prefix the title of your pull request with `[WIP]` if its in progress and `[MRG]` when you consider it complete and ready for review.
 
-- When fixing bugs your first commit should be the addition of tests that
-  reproduce the original issue and any related issues.
+- When fixing bugs your first commit should be the addition of tests that reproduce the original issue and any related issues.
 
-- When adding features you should have complete documentation and high coverage
-  unit tests (95-100%) that cover not just the lines of code but ensure that
-  the feature works as intended.
+- When adding features you should have complete documentation and high coverage unit tests (95-100%) that cover not just the lines of code but ensure that the feature works as intended.
 
-- When writing documentation please reference the DICOM Standard where
-  possible. When dealing with significant parts of the code base (`DIMSEMessage.decode_msg()` for example) you should have inline comments
-  that reference both the DICOM Standard and explain in detail what the
-  code is doing and why.
+- When writing documentation please reference the DICOM Standard where possible. When dealing with significant parts of the code base (`DIMSEMessage.decode_msg()` for example) you should have inline comments that reference both the DICOM Standard and explain in detail what the code is doing and why.
 
 - Docstrings should follow the [numpy  docstring](https://numpydoc.readthedocs.io/en/latest/) style.
 
 
 Code Style
 ----------
-PEP8 should be followed where it makes sense to do so. In addition there are
-a handful of project specific styles that should be used:
+PEP8 should be followed where it makes sense to do so. In addition there are a handful of project specific styles that should be used:
  - `ae` for an ApplicationEntity object
  - `assoc` for an Association object
- - Variable and function names should be `lower_case_underscore`, including   
-   acronyms such as `context_id` and `uid`.
- - Where a variable corresponds directly to a DICOM DataElement then use
-   a name that is identical to the element keyword (i.e. the DIMSE command
-   set elements such as MessageID and AffectedSOPClassUID correspond to the
-   `dimse_primitives` attributes such as `C_STORE.MessageID` and `C_STORE.AffectedSOPClassUID`).
+ - Variable and function names should be `lower_case_underscore`, including acronyms such as `context_id` and `uid`.
+ - Where a variable corresponds directly to a DICOM DataElement then use a name that is identical to the element keyword (i.e. the DIMSE command set elements such as MessageID and AffectedSOPClassUID correspond to the `dimse_primitives` attributes such as `C_STORE.MessageID` and `C_STORE.AffectedSOPClassUID`).
 
 
 Testing
