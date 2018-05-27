@@ -15,9 +15,9 @@ the anonymised DICOM dataset (if relevant).
 
 ### Your environment
 Please run the following and paste the output.
-```shell
-python -c "import platform; print(platform.platform())"
-python -c "import sys; print("Python", sys.version)"
-python -c "import pydicom; print("pydicom", pydicom.__version__)"
-python -c "import pynetdicom3; print("pynetdicom3", pynetdicom3.__version__)"
+```bash
+$ python -c "import platform; print(platform.platform())"
+$ python -c "import sys; print('Python', sys.version)"
+$ python -c "import pydicom; print('pydicom', pydicom.__version__)"
+$ python -c "import pynetdicom3; print('pynetdicom3', pynetdicom3.__version__)"
 ```
