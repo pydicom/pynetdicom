@@ -59,16 +59,6 @@ Association Release
    AR_9
    AR_10
 
-Data Transfer
-~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   AE_1
-   AE_2
-   AE_3
-
 Association Abort
 ~~~~~~~~~~~~~~~~~
 

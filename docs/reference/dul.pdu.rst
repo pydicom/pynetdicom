@@ -22,14 +22,22 @@ The DICOM Upper Layer protocol consists of seven Protocol Data Units:
    dul.pdu.a_release_rp
    dul.pdu.a_abort_rq
 
-The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering [1].
+PDUs should be encoded as binary data prior to being sent to a peer
+Application Entities using the ``encode()`` class method. Each encoded PDU has
+as its first byte value a corresponding *PDU Type*:
+
+| ``0x01`` - A-ASSOCIATE-RQ
+| ``0x02`` - A-ASSOCIATE-AC
+| ``0x03`` - A-ASSOCIATE-RJ
+| ``0x04`` - P-DATA-TF
+| ``0x05`` - A-RELEASE-RQ
+| ``0x06`` - A-RELEASE-RP
+| ``0x07`` - A-ABORT
+
+The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering [#]_.
 
 References
 ----------
 
-1. DICOM Standard, Part 8, Section
+.. [#] DICOM Standard, Part 8, Section
    `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
-2. [#] DICOM Standard, Part 8, Section
-   `9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_ and
-   `Annex D <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_D>`_
-3. [#] DICOM Standard, Part 7, `Annex D.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3>`_

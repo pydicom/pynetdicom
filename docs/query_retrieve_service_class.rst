@@ -12,7 +12,6 @@ Supported SOP Classes
 * PatientRootQueryRetrieveInformationModelFind - 1.2.840.10008.5.1.4.1.2.1.1
 * StudyRootQueryRetrieveInformationModelFind - 1.2.840.10008.5.1.4.1.2.2.1
 * PatientStudyOnlyQueryRetrieveInformationModelFind - 1.2.840.10008.5.1.4.1.2.3.1
-* ModalityWorklistInformationFind - 1.2.840.10008.5.1.4.31
 * PatientRootQueryRetrieveInformationModelMove - 1.2.840.10008.5.1.4.1.2.1.2
 * StudyRootQueryRetrieveInformationModelMove - 1.2.840.10008.5.1.4.1.2.2.2
 * PatientStudyOnlyQueryRetrieveInformationModelMove - 1.2.840.10008.5.1.4.1.2.3.2

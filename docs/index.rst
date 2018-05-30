@@ -31,6 +31,7 @@ pynetdicom3 currently supports the following DICOM service classes:
    verification_service_class
    storage_service_class
    query_retrieve_service_class
+   basic_worklist_service_class
 
 User Guide
 ----------

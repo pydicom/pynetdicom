@@ -161,7 +161,7 @@ class ApplicationEntity(object):
             (default: the first available port)
         bind_addr : str, optional
             The network interface to listen to.
-            (default: all availabel network interfaces on the machine)
+            (default: all available network interfaces on the machine)
         scu_sop_class : list of pydicom.uid.UID or list of str or list of
         pynetdicom3.sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.

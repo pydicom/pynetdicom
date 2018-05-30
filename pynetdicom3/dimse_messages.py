@@ -264,7 +264,7 @@ class DIMSEMessage(object):
         return False
 
     def encode_msg(self, context_id, max_pdu_length):
-        """Yield P-DATE primitive(s) for the current DIMSE Message.
+        """Yield P-DATA primitive(s) for the current DIMSE Message.
 
         PS3.7 6.3.1
         The encoding of the Command Set shall be Little Endian Implicit VR,
