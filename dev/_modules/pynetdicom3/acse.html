@@ -166,7 +166,7 @@
 
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">pynetdicom_uid_prefix</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">pynetdicom_implementation_uid</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">pynetdicom_version</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">MaximumLengthNegotiation</span><span class="p">,</span>
                                         <span class="n">ImplementationClassUIDNotification</span><span class="p">,</span>
@@ -293,7 +293,7 @@
         <span class="c1"># Class UID (required)</span>
         <span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">ImplementationClassUIDNotification</span><span class="p">()</span>
         <span class="n">implementation_class_uid</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span>
-            <span class="n">pynetdicom_uid_prefix</span>
+            <span class="n">pynetdicom_implementation_uid</span>
         <span class="p">)</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">implementation_class_uid</span><span class="p">)</span>
 
