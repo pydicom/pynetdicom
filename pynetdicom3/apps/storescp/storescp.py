@@ -18,7 +18,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
 from pynetdicom3 import AE, StorageSOPClassList, VerificationSOPClass
-from pynetdicom3 import pynetdicom_uid_prefix, pynetdicom_version
+from pynetdicom3 import pynetdicom_implementation_uid, pynetdicom_version
 
 def setup_logger():
     """Setup the logger"""
@@ -33,7 +33,7 @@ def setup_logger():
 
 LOGGER = setup_logger()
 
-VERSION = '0.3.0'
+VERSION = '0.3.1'
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -254,7 +254,7 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_uid_prefix
+    meta.ImplementationClassUID = pynetdicom_implementation_uid
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
