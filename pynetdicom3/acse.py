@@ -6,7 +6,7 @@ import socket
 
 from pydicom.uid import UID
 
-from pynetdicom3 import pynetdicom_uid_prefix
+from pynetdicom3 import pynetdicom_implementation_uid
 from pynetdicom3 import pynetdicom_version
 from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
                                         ImplementationClassUIDNotification,
@@ -155,7 +155,7 @@ class ACSEServiceProvider(object):
         # Class UID (required)
         implementation_class_uid = ImplementationClassUIDNotification()
         implementation_class_uid.implementation_class_uid = UID(
-            pynetdicom_uid_prefix
+            pynetdicom_implementation_uid
         )
         assoc_rq.user_information.append(implementation_class_uid)
 

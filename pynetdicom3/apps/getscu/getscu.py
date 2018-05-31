@@ -16,7 +16,7 @@ from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian, UID
 
 from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3 import pynetdicom_uid_prefix
+from pynetdicom3 import pynetdicom_implementation_uid, pynetdicom_version
 from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 LOGGER = logging.Logger('getscu')
@@ -27,7 +27,7 @@ LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 
 def _setup_argparser():
@@ -96,6 +96,18 @@ def _setup_argparser():
     qr_model.add_argument("-O", "--psonly",
                           help="use patient/study only information model",
                           action="store_true")
+
+    # Output Options
+    out_opts = parser.add_argument_group('Output Options')
+    out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
+                          help="write received objects to existing directory d",
+                          type=str)
+
+    # Miscellaneous
+    misc_opts = parser.add_argument_group('Miscellaneous')
+    misc_opts.add_argument('--ignore',
+                           help="receive data but don't store it",
+                           action="store_true")
 
     return parser.parse_args()
 
@@ -221,7 +233,7 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_uid_prefix
+    meta.ImplementationClassUID = pynetdicom_implementation_uid
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience

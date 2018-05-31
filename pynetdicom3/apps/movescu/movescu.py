@@ -17,7 +17,13 @@ from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
 
-from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
+from pynetdicom3 import (
+    AE,
+    StorageSOPClassList,
+    QueryRetrieveSOPClassList,
+    pynetdicom_version,
+    pynetdicom_implementation_uid
+)
 from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 logger = logging.Logger('movescu')
@@ -28,7 +34,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 
 def _setup_argparser():
@@ -115,6 +121,18 @@ def _setup_argparser():
                           help="use patient/study only information model",
                           action="store_true")
 
+    # Output Options
+    out_opts = parser.add_argument_group('Output Options')
+    out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
+                          help="write received objects to existing directory d",
+                          type=str)
+
+    # Miscellaneous
+    misc_opts = parser.add_argument_group('Miscellaneous')
+    misc_opts.add_argument('--ignore',
+                           help="receive data but don't store it",
+                           action="store_true")
+
     return parser.parse_args()
 
 args = _setup_argparser()
@@ -135,7 +153,7 @@ logger.debug('')
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
 ae = AE(ae_title=args.calling_aet,
-        port=0,
+        port=11113,
         scu_sop_class=QueryRetrieveSOPClassList,
         scp_sop_class=StorageSOPClassList,
         transfer_syntax=[ExplicitVRLittleEndian])
@@ -233,7 +251,7 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_uid_prefix
+    meta.ImplementationClassUID = pynetdicom_implementation_uid
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
