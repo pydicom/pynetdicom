@@ -114,7 +114,7 @@ class ServiceClass(object):
         Returns
         -------
         rsp : pynetdicom3.dimse_primitive
-            The response primitie to be sent to the peer (containing a valid
+            The response primitive to be sent to the peer (containing a valid
             Status parameter).
         """
         # Check the callback's returned Status dataset
