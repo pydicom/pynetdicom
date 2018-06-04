@@ -4,7 +4,7 @@ enhancement request, question).
 
 ### Expected behaviour
 What you expected to happen, (including references to the DICOM standard is
-appreciated).
+appreciated). If an exception occurred please post the full traceback.
 
 ### Actual behaviour
 What actually happened
