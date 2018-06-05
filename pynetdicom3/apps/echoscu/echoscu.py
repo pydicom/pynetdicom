@@ -8,6 +8,7 @@ providing useful debugging and logging information.
 import argparse
 import logging
 from logging.config import fileConfig
+import ssl
 import sys
 
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
@@ -29,6 +30,14 @@ def setup_logger():
 LOGGER = setup_logger()
 
 VERSION = '0.5.2'
+
+SSL_VERSIONS = {
+    'sslv23': ssl.PROTOCOL_SSLv23,
+    'tlsv1': ssl.PROTOCOL_TLSv1,
+    'tlsv1_1': ssl.PROTOCOL_TLSv1_1,
+    'tlsv1_2': ssl.PROTOCOL_TLSv1_2,
+}
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -124,7 +133,7 @@ def _setup_argparser():
     ssl_opts.add_argument("-version", "--ssl-version", metavar='[p]ath',
                           help="set the file path of the private key file",
                           type=str,
-                          choices=['sslv23', 'tlsv1', 'tlsv1_1', 'tlsv1_2'])
+                          choices=SSL_VERSIONS.keys())
     ssl_opts.add_argument("-cacerts", "--cacerts-file", metavar='[p]ath',
                           help="set the file path of the certificates"
                                " authority file",
@@ -272,23 +281,28 @@ LOGGER.debug('')
 
 # Check SSL/TLS options
 sslargs = dict()
-sslargs['certfile'] = args.cert_file
-sslargs['keyfile'] = args.key_file
-sslargs['cert_verify'] = args.cert_validation
+if args.cert_file:
+    sslargs['certfile'] = args.cert_file
+if args.key_file:
+    sslargs['keyfile'] = args.key_file
+if args.cert_validation:
+    sslargs['cert_reqs'] = ssl.CERT_REQUIRED
 if args.cacerts_file:
-    sslargs['cacerts'] = args.cacerts_file
+    sslargs['ca_certs'] = args.cacerts_file
 if args.ssl_version:
-    sslargs['version'] = args.ssl_version
+    sslargs['ssl_version'] = SSL_VERSIONS[args.ssl_version]
 
 
 # Create local AE
 # Binding to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=0,
-        scu_sop_class=[VerificationSOPClass],
-        scp_sop_class=[],
-        transfer_syntax=transfer_syntaxes)
-ae.add_ssl(**sslargs)
+ae = AE(
+    ae_title=args.calling_aet,
+    port=0,
+    scu_sop_class=[VerificationSOPClass],
+    scp_sop_class=[],
+    transfer_syntax=transfer_syntaxes,
+    tls_args=sslargs
+)
 
 # Set timeouts
 ae.network_timeout = args.timeout

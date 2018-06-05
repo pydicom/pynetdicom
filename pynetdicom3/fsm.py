@@ -127,14 +127,12 @@ def AE_1(dul):
     # Issue TRANSPORT CONNECT request primitive to local transport service
     dul.scu_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        if dul.assoc.ae.has_ssl:
-            dul.scu_socket = ssl.wrap_socket(dul.scu_socket,
-                                             server_side=False,
-                                             certfile=dul.assoc.ae.certfile,
-                                             keyfile=dul.assoc.ae.keyfile,
-                                             cert_reqs=dul.assoc.ae.cert_verify,
-                                             ca_certs=dul.assoc.ae.cacerts,
-                                             ssl_version=dul.assoc.ae.ssl_version)
+        if dul.assoc.ae.tls_args is not None:
+            dul.scu_socket = ssl.wrap_socket(
+                dul.scu_socket,
+                server_side=False,
+                **dul.assoc.ae.tls_args
+            )
         # CalledPresentationAddress is set by the ACSE and
         #   is an (address, port) tuple
         dul.scu_socket.connect(dul.primitive.called_presentation_address)

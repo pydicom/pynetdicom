@@ -8,8 +8,7 @@
 
 import argparse
 import logging
-import os
-import socket
+import ssl
 import sys
 
 from pydicom import read_file
@@ -27,6 +26,13 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 VERSION = '0.1.1'
+
+SSL_VERSIONS = {
+    'sslv23': ssl.PROTOCOL_SSLv23,
+    'tlsv1': ssl.PROTOCOL_TLSv1,
+    'tlsv1_1': ssl.PROTOCOL_TLSv1_1,
+    'tlsv1_2': ssl.PROTOCOL_TLSv1_2,
+}
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -86,6 +92,8 @@ def _setup_argparser():
 
     # SSL/TLS Options
     ssl_opts = parser.add_argument_group('SSL/TLS Options')
+    ssl_opts.add_argument("--enable-tls",
+                          action="store_true")
     ssl_opts.add_argument("-cert", "--cert-file", metavar='[p]ath',
                           help="set the file path of the certificate file",
                           type=str)
@@ -98,7 +106,7 @@ def _setup_argparser():
     ssl_opts.add_argument("-version", "--ssl-version", metavar='[p]ath',
                           help="set the file path of the private key file",
                           type=str,
-                          choices=['sslv23', 'tlsv1', 'tlsv1_1', 'tlsv1_2'])
+                          choices=SSL_VERSIONS.keys())
     ssl_opts.add_argument("-cacerts", "--cacerts-file", metavar='[p]ath',
                           help="set the file path of the certificates"
                                " authority file",
@@ -161,22 +169,30 @@ elif args.request_implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
 # Check SSL/TLS options
-sslargs = dict()
-sslargs['certfile'] = args.cert_file
-sslargs['keyfile'] = args.key_file
-sslargs['cert_verify'] = args.cert_validation
-if args.cacerts_file:
-    sslargs['cacerts'] = args.cacerts_file
-if args.ssl_version:
-    sslargs['version'] = args.ssl_version
+if args.enable_tls:
+    sslargs = dict()
+    if args.cert_file:
+        sslargs['certfile'] = args.cert_file
+    if args.key_file:
+        sslargs['keyfile'] = args.key_file
+    if args.cert_validation:
+        sslargs['cert_reqs'] = ssl.CERT_REQUIRED
+    if args.cacerts_file:
+        sslargs['ca_certs'] = args.cacerts_file
+    if args.ssl_version:
+        sslargs['ssl_version'] = SSL_VERSIONS[args.ssl_version]
+else:
+    sslargs = None
 
 # Bind to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=0,
-        scu_sop_class=StorageSOPClassList,
-        scp_sop_class=[],
-        transfer_syntax=transfer_syntax)
-ae.add_ssl(**sslargs)
+ae = AE(
+    ae_title=args.calling_aet,
+    port=0,
+    scu_sop_class=StorageSOPClassList,
+    scp_sop_class=[],
+    transfer_syntax=transfer_syntax,
+    tls_args=sslargs
+)
 
 # Request association with remote
 assoc = ae.associate(args.peer, args.port, args.called_aet)
