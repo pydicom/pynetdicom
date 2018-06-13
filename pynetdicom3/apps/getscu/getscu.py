@@ -15,8 +15,13 @@ from pydicom.dataset import Dataset, FileDataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
                         ExplicitVRBigEndian, UID
 
-from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3 import pynetdicom_implementation_uid, pynetdicom_version
+from pynetdicom3 import (
+    AE,
+    StorageSOPClassList,
+    QueryRetrieveSOPClassList
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION
+)
 from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 LOGGER = logging.Logger('getscu')
@@ -233,11 +238,11 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_implementation_uid
+    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = pynetdicom_version
+    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)

@@ -21,8 +21,8 @@ from pynetdicom3 import (
     AE,
     StorageSOPClassList,
     QueryRetrieveSOPClassList,
-    pynetdicom_version,
-    pynetdicom_implementation_uid
+    PYNETDICOM_IMPLEMENTATION_VERSION,
+    PYNETDICOM_IMPLEMENTATION_UID
 )
 from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
@@ -251,11 +251,11 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_implementation_uid
+    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = pynetdicom_version
+    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)

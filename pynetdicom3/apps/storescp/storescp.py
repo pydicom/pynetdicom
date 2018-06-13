@@ -17,8 +17,13 @@ from pydicom.filewriter import write_file
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 
-from pynetdicom3 import AE, StorageSOPClassList, VerificationSOPClass
-from pynetdicom3 import pynetdicom_implementation_uid, pynetdicom_version
+from pynetdicom3 import (
+    AE,
+    StorageSOPClassList,
+    VerificationSOPClass,
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION
+)
 
 def setup_logger():
     """Setup the logger"""
@@ -254,11 +259,11 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_implementation_uid
+    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = pynetdicom_version
+    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
