@@ -2393,4 +2393,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
 class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     statuses = QR_FIND_SERVICE_CLASS_STATUS
-    SCP = _find_scp
+
+    def __init__(self):
+        super(BasicWorklistManagementServiceClass, self).__init__()
+        self.SCP = self._find_scp

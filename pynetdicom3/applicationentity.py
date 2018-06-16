@@ -10,13 +10,17 @@ import socket
 from struct import pack
 import sys
 import time
+import warnings
 
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian, UID
 )
 
 from pynetdicom3.association import Association
-from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.presentation import (
+    PresentationContext,
+    DEFAULT_TRANSFER_SYNTAXES
+)
 from pynetdicom3.utils import validate_ae_title
 
 
@@ -130,9 +134,11 @@ class ApplicationEntity(object):
         port when acting as an SCU. A value of 0 indicates that the operating
         system should choose the port.
     presentation_contexts_scu : List of pynetdicom3.utils.PresentationContext
-        The presentation context list when acting as an SCU (SCU only)
+        The presentation context list when acting as an SCU (SCU only). This
+        property is deprecated, use `AE.requested_contexts` instead.
     presentation_contexts_scp : List of pynetdicom3.utils.PresentationContext
-        The presentation context list when acting as an SCP (SCP only)
+        The presentation context list when acting as an SCP (SCP only). This
+        property is deprecated, use `AE.supported_contexts` instead.
     require_calling_aet : str
         If not empty str, the calling AE title must match `require_calling_aet`
         (SCP only)
@@ -140,11 +146,17 @@ class ApplicationEntity(object):
         If not empty str the called AE title must match `required_called_aet`
         (SCP only)
     scu_supported_sop : List of pydicom.uid.UID
-        The SOP Classes supported when acting as an SCU (SCU only)
+        The SOP Classes supported when acting as an SCU (SCU only). This
+        property is deprecated, use the `requested_contexts` or the
+        `contexts` parameter in `AE.associate()` instead.
     scp_supported_sop : List of pydicom.uid.UID
-        The SOP Classes supported when acting as an SCP (SCP only)
+        The SOP Classes supported when acting as an SCP (SCP only).
+        This property is deprecated, use the `supported_contexts` property
+        instead.
     transfer_syntaxes : List of pydicom.uid.UID
-        The supported transfer syntaxes
+        The supported transfer syntaxes. This property is deprecated, transfer
+        syntaxes should be set on a per-presentation context basis through
+        `AE.supported_contexts` or `AE.requested_contexts` instead.
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title=b'PYNETDICOM', port=0, scu_sop_class=None,
@@ -162,19 +174,27 @@ class ApplicationEntity(object):
         bind_addr : str, optional
             The network interface to listen to.
             (default: all availabel network interfaces on the machine)
-        scu_sop_class : list of pydicom.uid.UID or list of str or list of
-        pynetdicom3.sop_class.ServiceClass subclasses, optional
+        scu_sop_class : list of pydicom.uid.UID or list of str or list of sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.
-            Either `scu_sop_class` or `scp_sop_class` must have values
-        scp_sop_class : list of pydicom.uid.UID or list of UID strings or list
-        of pynetdicom3.sop_class.ServiceClass subclasses, optional
+            Deprecated, use the `AE.requested_contexts` property instead.
+        scp_sop_class : list of pydicom.uid.UID or list of UID strings or list of sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCP.
-            Either scu_`sop_class` or `scp_sop_class` must have values
-        transfer_syntax : list of pydicom.uid.UID or list of str or list of
-        pynetdicom3.sop_class.ServiceClass subclasses, optional
+            Deprecated, use the `AE.supported_contexts` property instead.
+        transfer_syntax : list of pydicom.uid.UID
             List of supported Transfer Syntax UIDs (default: Explicit VR Little
-            Endian, Implicit VR Little Endian, Explicit VR Big Endian)
+            Endian, Implicit VR Little Endian, Explicit VR Big Endian).
+            Deprecated, transfer syntaxes should be set per-presentation
+            context.
         """
+        from pynetdicom3 import (
+            PYNETDICOM_IMPLEMENTATION_UID,
+            PYNETDICOM_IMPLEMENTATION_VERSION
+        )
+
+        # Default Implementation Class UID and Version Name
+        self.implementation_class_uid = PYNETDICOM_IMPLEMENTATION_UID
+        self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
+
         self.address = platform.node()
         self.port = port
         self.bind_addr = bind_addr
@@ -185,18 +205,41 @@ class ApplicationEntity(object):
             transfer_syntax = [ExplicitVRLittleEndian,
                                ImplicitVRLittleEndian,
                                ExplicitVRBigEndian]
+        else:
+            warnings.warn(
+                "Use of the `transfer_syntax` keyword parameter is deprecated, "
+                "transfer syntaxes should be set on a per-presentation context "
+                "basis",
+                DeprecationWarning
+            )
 
         # Make sure that one of scu_sop_class/scp_sop_class is not empty
-        if scu_sop_class is None and scp_sop_class is None:
-            raise ValueError("No supported SOP Class UIDs supplied during "
-                             "ApplicationEntity instantiation")
+        #if scu_sop_class is None and scp_sop_class is None:
+        #    raise ValueError("No supported SOP Class UIDs supplied during "
+        #                     "ApplicationEntity instantiation")
 
         self.scu_supported_sop = scu_sop_class or []
         self.scp_supported_sop = scp_sop_class or []
 
+        # Deprecation warnings
+        if self.scu_supported_sop:
+            warnings.warn(
+                "Use of the `scu_sop_class` keyword parameter is deprecated, "
+                "use the `requested_contexts` class property instead",
+                DeprecationWarning
+            )
+        if self.scp_supported_sop:
+            warnings.warn(
+                "Use of the `scp_sop_class` keyword parameter is deprecated, "
+                "use the `supported_contexts` class property instead",
+                DeprecationWarning
+            )
+
         # The transfer syntax(es) available to the AE
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
+
+
 
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
@@ -226,58 +269,133 @@ class ApplicationEntity(object):
         # Used to terminate AE when running as an SCP
         self._quit = False
 
-    def start(self):
-        """Start the AE as an SCP.
+    @property
+    def acse_timeout(self):
+        """Get the ACSE timeout."""
+        return self._acse_timeout
 
-        When running the AE as an SCP this needs to be called to start the main
-        loop, it listens for connections on `local_socket` and if they request
-        association starts a new Association thread
+    @acse_timeout.setter
+    def acse_timeout(self, value):
+        """Set the ACSE timeout."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            self._acse_timeout = None
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._acse_timeout = value
+        else:
+            LOGGER.warning("acse_timeout set to 60 seconds")
+            self._acse_timeout = 60
 
-        Successful associations get added to `active_associations`
+        for assoc in self.active_associations:
+            assoc.acse_timeout = self.acse_timeout
+            assoc.acse.acse_timeout = self.acse_timeout
+
+    def add_requested_context(self, abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+        context = PresentationContext()
+        context.abstract_syntax = abstract_syntax
+        context.transfer_syntax = transfer_syntax
+
+        # Check validity
+        self._requested_contexts.append(context)
+
+    def add_supported_context(self, abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+        context = PresentationContext()
+        context.abstract_syntax = abstract_syntax
+        context.transfer_syntax = transfer_syntax
+
+        # Check validity
+        self._supported_contexts.append(context)
+
+    @property
+    def ae_title(self):
+        """Get the AE title."""
+        return self._ae_title
+
+    @ae_title.setter
+    def ae_title(self, value):
+        """Set the AE title.
+
+        Parameters
+        ----------
+        value : bytes
+            The AE title to use for the local Application Entity. Leading and
+            trailing spaces are non-significant.
         """
-        # If the SCP has no supported SOP Classes then there's no point
-        #   running as a server
-        if self.scp_supported_sop == []:
-            LOGGER.error("AE is running as an SCP but no supported SOP classes "
-                         "for use with the SCP have been included during"
-                         "ApplicationEntity initialisation or by setting the "
-                         "scp_supported_sop attribute")
-            raise ValueError("AE is running as an SCP but no SCP SOP classes "
-                             "have been supplied.")
+        # pylint: disable=attribute-defined-outside-init
+        try:
+            self._ae_title = validate_ae_title(value)
+        except:
+            raise
 
-        # Bind the local_socket to the specified listen port
-        #try:
-        self._bind_socket()
-        #except OSError:
-        #    self._quit = True
-        #    self.stop()
-        #    return
+    def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
+                  max_pdu=16382, ext_neg=None):
+        """Attempts to associate with a remote application entity
 
-        no_loops = 0
-        while True:
-            try:
-                # #60: Required so we don't max out the CPU
-                time.sleep(0.5)
+        When requesting an association the local AE is acting as an SCU. The
+        Association thread is returned whether or not the association is
+        accepted and should be checked using Association.is_established before
+        sending any messages.
 
-                if self._quit:
-                    break
+        Parameters
+        ----------
+        addr : str
+            The peer AE's TCP/IP address.
+        port : int
+            The peer AE's listen port number.
+        contexts : list of presentation.PresentationContext, optional
+            The presentation contexts that will be requested by the AE for
+            support by the peer. If not used then the presentation contexts in
+            the `AE.requested_contexts` property will be requested instead.
+        ae_title : str, optional
+            The peer's AE title, will be used as the 'Called AE Title' parameter
+            value.
+        max_pdu : int, optional
+            The maximum PDV receive size in bytes to use when negotiating the
+            association.
+        ext_neg : List of UserInformation objects, optional
+            Used if extended association negotiation is required.
 
-                # Monitor client_socket for association requests and
-                #   appends any associations to self.active_associations
-                self._monitor_socket()
+        Returns
+        -------
+        assoc : pynetdicom3.association.Association
+            The Association thread
+        """
+        if not isinstance(addr, str):
+            raise TypeError("'addr' must be a valid IPv4 string")
 
-                # Delete dead associations
-                self.cleanup_associations()
+        if not isinstance(port, int):
+            raise TypeError("'port' must be a valid port number")
 
-                # Every 50 loops run the garbage collection
-                if no_loops % 51 == 0:
-                    gc.collect()
-                    no_loops = 0
+        peer_ae = {'ae_title' : validate_ae_title(ae_title),
+                   'address' : addr,
+                   'port' : port}
 
-                no_loops += 1
+        # Associate
+        assoc = Association(local_ae=self,
+                            peer_ae=peer_ae,
+                            acse_timeout=self.acse_timeout,
+                            dimse_timeout=self.dimse_timeout,
+                            max_pdu=max_pdu,
+                            ext_neg=ext_neg)
 
-            except KeyboardInterrupt:
-                self.stop()
+        if contexts is None:
+            contexts = AE.requested_contexts
+
+        #assoc.requested_contexts = contexts
+
+        assoc.start()
+
+        # Endlessly loops while the Association negotiation is taking place
+        while (not assoc.is_established and not assoc.is_rejected and
+               not assoc.is_aborted and not assoc.dul._kill_thread):
+            # Program loops here endlessly sometimes
+            time.sleep(0.1)
+
+        # If the Association was established
+        if assoc.is_established:
+            self.active_associations.append(assoc)
+
+        return assoc
 
     def _bind_socket(self):
         """Set up and bind the SCP socket.
@@ -333,6 +451,92 @@ class ApplicationEntity(object):
                                    "included")
                     break
 
+    def cleanup_associations(self):
+        """Remove dead associations.
+
+        AE.start(): Removes any dead associations from self.active_associations
+        by checking to see if the association thread is still alive. Separated
+        out from start() to enable better unit testing
+        """
+        # We can use threading.enumerate() to list all alive threads
+        #   assoc.is_alive() is inherited from threading.thread
+        self.active_associations = \
+            [assoc for assoc in self.active_associations if assoc.is_alive()]
+
+    @property
+    def dimse_timeout(self):
+        """Get the DIMSE timeout."""
+        return self._dimse_timeout
+
+    @dimse_timeout.setter
+    def dimse_timeout(self, value):
+        """Get the DIMSE timeout."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            self._dimse_timeout = None
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._dimse_timeout = value
+        else:
+            LOGGER.warning("dimse_timeout set to never expire")
+            self._dimse_timeout = None
+
+        for assoc in self.active_associations:
+            assoc.dimse_timeout = self.dimse_timeout
+            assoc.dimse.dimse_timeout = self.dimse_timeout
+
+    @property
+    def implementation_class_uid(self):
+        return self._implementation_uid
+
+    @implementation_class_uid.setter
+    def implementation_class_uid(self, uid):
+        uid = UID(uid)
+        if uid.is_valid:
+            self._implementation_uid = uid
+        else:
+            pass
+
+    @property
+    def implementation_version_name(self):
+        return self._implementation_version
+
+    @implementation_version_name.setter
+    def implementation_version_name(self, value):
+        self._implementation_version = value
+
+    @property
+    def maximum_associations(self):
+        """Get the number of maximum associations."""
+        return self._maximum_associations
+
+    @maximum_associations.setter
+    def maximum_associations(self, value):
+        """Set the number of maximum associations."""
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, int) and value >= 1:
+            self._maximum_associations = value
+        else:
+            LOGGER.warning("maximum_associations set to 1")
+            self._maximum_associations = 1
+
+    @property
+    def maximum_pdu_size(self):
+        """Get the maximum PDU size."""
+        return self._maximum_pdu_size
+
+    @maximum_pdu_size.setter
+    def maximum_pdu_size(self, value):
+        """Set the maximum PDU size."""
+        # pylint: disable=attribute-defined-outside-init
+        # Bounds and type checking of the received maximum length of the
+        #   variable field of P-DATA-TF PDUs (in bytes)
+        #   * Must be numerical, greater than or equal to 0 (0 indicates
+        #       no maximum length (PS3.8 Annex D.1.1)
+        if value >= 0:
+            self._maximum_pdu_size = value
+        else:
+            LOGGER.warning("maximum_pdu_size set to 16382")
+
     def _monitor_socket(self):
         """Monitor the local socket for connections.
 
@@ -360,20 +564,264 @@ class ApplicationEntity(object):
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
                                 dimse_timeout=self.dimse_timeout)
+            #assoc.supported_contexts = self.supported_contexts
+
             assoc.start()
             self.active_associations.append(assoc)
 
-    def cleanup_associations(self):
-        """Remove dead associations.
+    @property
+    def network_timeout(self):
+        """Get the network timeout."""
+        return self._network_timeout
 
-        AE.start(): Removes any dead associations from self.active_associations
-        by checking to see if the association thread is still alive. Separated
-        out from start() to enable better unit testing
+    @network_timeout.setter
+    def network_timeout(self, value):
+        """Set the network timeout."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            self._network_timeout = None
+        elif isinstance(value, (int, float)) and value >= 0:
+            self._network_timeout = value
+        else:
+            LOGGER.warning("network_timeout set to never expire")
+            self._network_timeout = None
+
+        for assoc in self.active_associations:
+            assoc.dul.dul_timeout = self.network_timeout
+
+    @property
+    def port(self):
+        """Get the port number."""
+        return self._port
+
+    @port.setter
+    def port(self, value):
+        """Set the port number."""
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, int) and value >= 0:
+            self._port = value
+        else:
+            raise ValueError("AE port number must be an integer greater then "
+                             "or equal to 0")
+
+    def quit(self):
+        """Stop the SCP."""
+        self.stop()
+
+    @property
+    def requested_contexts(self):
+        pass
+
+    @property
+    def require_called_aet(self):
+        """Return the required called AE title as a length 16 bytes."""
+        return self._require_called_aet
+
+    @require_called_aet.setter
+    def require_called_aet(self, ae_title):
+        """Set the required called AE title.
+
+        When an Association request is received the value of the 'Called AE
+        Title' supplied by the peer will be compared with the set value and
+        if they don't match the association will be rejected. If the set value
+        is an empty bytes then the 'Called AE Title' will not be checked.
+
+        Parameters
+        ----------
+        ae_title : bytes
+            If not empty then any association requests that supply a
+            Called AE Title value that does not match `ae_title` will be
+            rejected.
         """
-        # We can use threading.enumerate() to list all alive threads
-        #   assoc.is_alive() is inherited from threading.thread
-        self.active_associations = \
-            [assoc for assoc in self.active_associations if assoc.is_alive()]
+        if ae_title:
+            self._require_called_aet = validate_ae_title(ae_title)
+        else:
+            self._require_called_aet = b''
+
+    @property
+    def require_calling_aet(self):
+        """Return the required calling AE title as a length 16 bytes."""
+        return self._require_calling_aet
+
+    @require_calling_aet.setter
+    def require_calling_aet(self, ae_title):
+        """Set the required calling AE title.
+
+        When an Association request is received the value of the 'Calling AE
+        Title' supplied by the peer will be compared with the set value and
+        if they don't match the association will be rejected. If the set value
+        is an empty bytes then the 'Calling AE Title' will not be checked.
+
+        Parameters
+        ----------
+        ae_title : bytes
+            If not empty then any association requests that supply a
+            Calling AE Title value that does not match `ae_title` will be
+            rejected.
+        """
+        if ae_title:
+            self._require_calling_aet = validate_ae_title(ae_title)
+        else:
+            self._require_calling_aet = b''
+
+    @property
+    def scu_supported_sop(self):
+        """Set the supported SCU classes."""
+        return self._scu_supported_sop
+
+    @scu_supported_sop.setter
+    def scu_supported_sop(self, sop_list):
+        """Set the AE's supported SCU SOP classes.
+
+        Examples of the `sop_list` items:
+        - '1.2.3.4'
+        - b'1.2.3.4.5'
+        - pydicom.uid.UID('1.2.3')
+        - pynetdicom3.sop_class.VerificationSOPClass
+
+        Parameters
+        ----------
+        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
+            The supported SCU SOP classes.
+        """
+        # Add deprecation warning
+        warnings.warn(
+            "The `scu_supported_sop` class property is deprecated, use the "
+            "`requested_contexts` property instead",
+            DeprecationWarning
+        )
+
+        # pylint: disable=attribute-defined-outside-init
+        self._scu_supported_sop = []
+
+        if not isinstance(sop_list, list):
+            raise TypeError("scu_supported_sop must be a list of SOP " \
+                               "classes.")
+
+        for sop_class in sop_list:
+            if isinstance(sop_class, str):
+                sop_uid = UID(sop_class)
+            elif isclass(sop_class) and 'UID' in sop_class.__dict__:
+                sop_uid = UID(sop_class.UID)
+            elif isinstance(sop_class, bytes):
+                sop_uid = UID(sop_class.decode('ascii'))
+            else:
+                continue
+
+            if not sop_uid.is_valid:
+                continue
+
+            self._scu_supported_sop.append(sop_uid)
+
+        if sop_list != [] and self._scu_supported_sop == []:
+            raise TypeError("No valid SCU SOP classes were supplied")
+
+    @property
+    def scp_supported_sop(self):
+        """Get the supported SCP classes."""
+        return self._scp_supported_sop
+
+    @scp_supported_sop.setter
+    def scp_supported_sop(self, sop_list):
+        """Set the AE's supported SCP SOP classes.
+
+        Examples of the `sop_list` items:
+        - '1.2.3.4'
+        - b'1.2.3.4.5'
+        - pydicom.uid.UID('1.2.3')
+        - pynetdicom3.sop_class.VerificationSOPClass
+
+        Parameters
+        ----------
+        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
+            The supported SCP SOP classes.
+        """
+        # Add deprecation warning
+        warnings.warn(
+            "The `scp_supported_sop` class property is deprecated, use the "
+            "`supported_contexts` property instead",
+            DeprecationWarning
+        )
+
+        # pylint: disable=attribute-defined-outside-init
+        self._scp_supported_sop = []
+        if not isinstance(sop_list, list):
+            raise TypeError("scp_supported_sop must be a list of SOP " \
+                               "classes.")
+
+        for sop_class in sop_list:
+            if isinstance(sop_class, str):
+                sop_uid = UID(sop_class)
+            elif isinstance(sop_class, bytes):
+                sop_uid = UID(sop_class.decode('ascii'))
+            elif isclass(sop_class):
+                if 'UID' in sop_class.__dict__:
+                    sop_uid = sop_class.UID
+                else:
+                    continue
+            else:
+                continue
+
+            if not sop_uid.is_valid:
+                continue
+
+            self._scp_supported_sop.append(sop_uid)
+
+        if sop_list != [] and self._scp_supported_sop == []:
+            raise TypeError("No valid SCP SOP classes were supplied")
+
+    def start(self):
+        """Start the AE as an SCP.
+
+        When running the AE as an SCP this needs to be called to start the main
+        loop, it listens for connections on `local_socket` and if they request
+        association starts a new Association thread
+
+        Successful associations get added to `active_associations`
+        """
+        # If the SCP has no supported SOP Classes then there's no point
+        #   running as a server
+        if self.scp_supported_sop == []:
+            LOGGER.error("AE is running as an SCP but no supported SOP classes "
+                         "for use with the SCP have been included during"
+                         "ApplicationEntity initialisation or by setting the "
+                         "scp_supported_sop attribute")
+            raise ValueError("AE is running as an SCP but no SCP SOP classes "
+                             "have been supplied.")
+
+        # Bind the local_socket to the specified listen port
+        #try:
+        self._bind_socket()
+        #except OSError:
+        #    self._quit = True
+        #    self.stop()
+        #    return
+
+        no_loops = 0
+        while True:
+            try:
+                # #60: Required so we don't max out the CPU
+                time.sleep(0.5)
+
+                if self._quit:
+                    break
+
+                # Monitor client_socket for association requests and
+                #   appends any associations to self.active_associations
+                self._monitor_socket()
+
+                # Delete dead associations
+                self.cleanup_associations()
+
+                # Every 50 loops run the garbage collection
+                if no_loops % 51 == 0:
+                    gc.collect()
+                    no_loops = 0
+
+                no_loops += 1
+
+            except KeyboardInterrupt:
+                self.stop()
 
     def stop(self):
         """Stop the SCP.
@@ -388,69 +836,6 @@ class ApplicationEntity(object):
 
         if self.local_socket:
             self.local_socket.close()
-
-    def quit(self):
-        """Stop the SCP."""
-        self.stop()
-
-    def associate(self, addr, port, ae_title=b'ANY-SCP',
-                  max_pdu=16382, ext_neg=None):
-        """Attempts to associate with a remote application entity
-
-        When requesting an association the local AE is acting as an SCU. The
-        Association thread is returned whether or not the association is
-        accepted and should be checked using Association.is_established before
-        sending any messages.
-
-        Parameters
-        ----------
-        addr : str
-            The peer AE's TCP/IP address (IPv4)
-        port : int
-            The peer AE's listen port number
-        ae_title : str, optional
-            The peer AE's title
-        max_pdu : int, optional
-            The maximum PDV receive size in bytes to use when negotiating the
-            association
-        ext_neg : List of UserInformation objects, optional
-            Used if extended association negotiation is required
-
-        Returns
-        -------
-        assoc : pynetdicom3.association.Association
-            The Association thread
-        """
-        if not isinstance(addr, str):
-            raise TypeError("'addr' must be a valid IPv4 string")
-
-        if not isinstance(port, int):
-            raise TypeError("'port' must be a valid port number")
-
-        peer_ae = {'ae_title' : validate_ae_title(ae_title),
-                   'address' : addr,
-                   'port' : port}
-
-        # Associate
-        assoc = Association(local_ae=self,
-                            peer_ae=peer_ae,
-                            acse_timeout=self.acse_timeout,
-                            dimse_timeout=self.dimse_timeout,
-                            max_pdu=max_pdu,
-                            ext_neg=ext_neg)
-        assoc.start()
-
-        # Endlessly loops while the Association negotiation is taking place
-        while (not assoc.is_established and not assoc.is_rejected and
-               not assoc.is_aborted and not assoc.dul._kill_thread):
-            # Program loops here endlessly sometimes
-            time.sleep(0.1)
-
-        # If the Association was established
-        if assoc.is_established:
-            self.active_associations.append(assoc)
-
-        return assoc
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
@@ -507,279 +892,8 @@ class ApplicationEntity(object):
         return str_out
 
     @property
-    def acse_timeout(self):
-        """Get the ACSE timeout."""
-        return self._acse_timeout
-
-    @acse_timeout.setter
-    def acse_timeout(self, value):
-        """Set the ACSE timeout."""
-        # pylint: disable=attribute-defined-outside-init
-        if value is None:
-            self._acse_timeout = None
-        elif isinstance(value, (int, float)) and value >= 0:
-            self._acse_timeout = value
-        else:
-            LOGGER.warning("acse_timeout set to 60 seconds")
-            self._acse_timeout = 60
-
-        for assoc in self.active_associations:
-            assoc.acse_timeout = self.acse_timeout
-            assoc.acse.acse_timeout = self.acse_timeout
-
-    @property
-    def ae_title(self):
-        """Get the AE title."""
-        return self._ae_title
-
-    @ae_title.setter
-    def ae_title(self, value):
-        """Set the AE title.
-
-        Parameters
-        ----------
-        value : bytes
-            The AE title to use for the local Application Entity. Leading and
-            trailing spaces are non-significant.
-        """
-        # pylint: disable=attribute-defined-outside-init
-        try:
-            self._ae_title = validate_ae_title(value)
-        except:
-            raise
-
-    @property
-    def dimse_timeout(self):
-        """Get the DIMSE timeout."""
-        return self._dimse_timeout
-
-    @dimse_timeout.setter
-    def dimse_timeout(self, value):
-        """Get the DIMSE timeout."""
-        # pylint: disable=attribute-defined-outside-init
-        if value is None:
-            self._dimse_timeout = None
-        elif isinstance(value, (int, float)) and value >= 0:
-            self._dimse_timeout = value
-        else:
-            LOGGER.warning("dimse_timeout set to never expire")
-            self._dimse_timeout = None
-
-        for assoc in self.active_associations:
-            assoc.dimse_timeout = self.dimse_timeout
-            assoc.dimse.dimse_timeout = self.dimse_timeout
-
-    @property
-    def network_timeout(self):
-        """Get the network timeout."""
-        return self._network_timeout
-
-    @network_timeout.setter
-    def network_timeout(self, value):
-        """Set the network timeout."""
-        # pylint: disable=attribute-defined-outside-init
-        if value is None:
-            self._network_timeout = None
-        elif isinstance(value, (int, float)) and value >= 0:
-            self._network_timeout = value
-        else:
-            LOGGER.warning("network_timeout set to never expire")
-            self._network_timeout = None
-
-        for assoc in self.active_associations:
-            assoc.dul.dul_timeout = self.network_timeout
-
-    @property
-    def maximum_associations(self):
-        """Get the number of maximum associations."""
-        return self._maximum_associations
-
-    @maximum_associations.setter
-    def maximum_associations(self, value):
-        """Set the number of maximum associations."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, int) and value >= 1:
-            self._maximum_associations = value
-        else:
-            LOGGER.warning("maximum_associations set to 1")
-            self._maximum_associations = 1
-
-    @property
-    def maximum_pdu_size(self):
-        """Get the maximum PDU size."""
-        return self._maximum_pdu_size
-
-    @maximum_pdu_size.setter
-    def maximum_pdu_size(self, value):
-        """Set the maximum PDU size."""
-        # pylint: disable=attribute-defined-outside-init
-        # Bounds and type checking of the received maximum length of the
-        #   variable field of P-DATA-TF PDUs (in bytes)
-        #   * Must be numerical, greater than or equal to 0 (0 indicates
-        #       no maximum length (PS3.8 Annex D.1.1)
-        if value >= 0:
-            self._maximum_pdu_size = value
-        else:
-            LOGGER.warning("maximum_pdu_size set to 16382")
-
-    @property
-    def port(self):
-        """Get the port number."""
-        return self._port
-
-    @port.setter
-    def port(self, value):
-        """Set the port number."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, int) and value >= 0:
-            self._port = value
-        else:
-            raise ValueError("AE port number must be an integer greater then "
-                             "or equal to 0")
-
-    @property
-    def require_calling_aet(self):
-        """Return the required calling AE title as a length 16 bytes."""
-        return self._require_calling_aet
-
-    @require_calling_aet.setter
-    def require_calling_aet(self, ae_title):
-        """Set the required calling AE title.
-
-        When an Association request is received the value of the 'Calling AE
-        Title' supplied by the peer will be compared with the set value and
-        if they don't match the association will be rejected. If the set value
-        is an empty bytes then the 'Calling AE Title' will not be checked.
-
-        Parameters
-        ----------
-        ae_title : bytes
-            If not empty then any association requests that supply a
-            Calling AE Title value that does not match `ae_title` will be
-            rejected.
-        """
-        if ae_title:
-            self._require_calling_aet = validate_ae_title(ae_title)
-        else:
-            self._require_calling_aet = b''
-
-    @property
-    def require_called_aet(self):
-        """Return the required called AE title as a length 16 bytes."""
-        return self._require_called_aet
-
-    @require_called_aet.setter
-    def require_called_aet(self, ae_title):
-        """Set the required called AE title.
-
-        When an Association request is received the value of the 'Called AE
-        Title' supplied by the peer will be compared with the set value and
-        if they don't match the association will be rejected. If the set value
-        is an empty bytes then the 'Called AE Title' will not be checked.
-
-        Parameters
-        ----------
-        ae_title : bytes
-            If not empty then any association requests that supply a
-            Called AE Title value that does not match `ae_title` will be
-            rejected.
-        """
-        if ae_title:
-            self._require_called_aet = validate_ae_title(ae_title)
-        else:
-            self._require_called_aet = b''
-
-    @property
-    def scu_supported_sop(self):
-        """Set the supported SCU classes."""
-        return self._scu_supported_sop
-
-    @scu_supported_sop.setter
-    def scu_supported_sop(self, sop_list):
-        """Set the AE's supported SCU SOP classes.
-
-        Examples of the `sop_list` items:
-        - '1.2.3.4'
-        - b'1.2.3.4.5'
-        - pydicom.uid.UID('1.2.3')
-        - pynetdicom3.sop_class.VerificationSOPClass
-
-        Parameters
-        ----------
-        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
-            The supported SCU SOP classes.
-        """
-        # pylint: disable=attribute-defined-outside-init
-        self._scu_supported_sop = []
-
-        if not isinstance(sop_list, list):
-            raise TypeError("scu_supported_sop must be a list of SOP " \
-                               "classes.")
-
-        for sop_class in sop_list:
-            if isinstance(sop_class, str):
-                sop_uid = UID(sop_class)
-            elif isclass(sop_class) and 'UID' in sop_class.__dict__:
-                sop_uid = UID(sop_class.UID)
-            elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('ascii'))
-            else:
-                continue
-
-            if not sop_uid.is_valid:
-                continue
-
-            self._scu_supported_sop.append(sop_uid)
-
-        if sop_list != [] and self._scu_supported_sop == []:
-            raise TypeError("No valid SCU SOP classes were supplied")
-
-    @property
-    def scp_supported_sop(self):
-        """Get the supported SCP classes."""
-        return self._scp_supported_sop
-
-    @scp_supported_sop.setter
-    def scp_supported_sop(self, sop_list):
-        """Set the AE's supported SCP SOP classes.
-
-        Examples of the `sop_list` items:
-        - '1.2.3.4'
-        - b'1.2.3.4.5'
-        - pydicom.uid.UID('1.2.3')
-        - pynetdicom3.sop_class.VerificationSOPClass
-
-        Parameters
-        ----------
-        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
-            The supported SCP SOP classes.
-        """
-        # pylint: disable=attribute-defined-outside-init
-        self._scp_supported_sop = []
-        if not isinstance(sop_list, list):
-            raise TypeError("scp_supported_sop must be a list of SOP " \
-                               "classes.")
-
-        for sop_class in sop_list:
-            if isinstance(sop_class, str):
-                sop_uid = UID(sop_class)
-            elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('ascii'))
-            elif isclass(sop_class):
-                if 'UID' in sop_class.__dict__:
-                    sop_uid = sop_class.UID
-                else:
-                    continue
-            else:
-                continue
-
-            if not sop_uid.is_valid:
-                continue
-
-            self._scp_supported_sop.append(sop_uid)
-
-        if sop_list != [] and self._scp_supported_sop == []:
-            raise TypeError("No valid SCP SOP classes were supplied")
+    def supported_contexts(self):
+        pass
 
     @property
     def transfer_syntaxes(self):
@@ -789,6 +903,15 @@ class ApplicationEntity(object):
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
         """Set the supported transfer syntaxes."""
+        # Add deprecation warning
+        warnings.warn(
+            "The `transfer_syntaxes` class property is deprecated, the "
+            "transfer syntaxes should be set on a per-presentation context "
+            "basis with the `supported_contexts` or `requested_contexts` "
+            "properties",
+            DeprecationWarning
+        )
+
         # pylint: disable=attribute-defined-outside-init
         self._transfer_syntaxes = []
         if not isinstance(transfer_syntaxes, list):
@@ -931,109 +1054,6 @@ class ApplicationEntity(object):
         """
         # User implementation of on_c_echo is optional
         return 0x0000
-
-    def on_c_store(self, dataset, context, info):
-        """Callback for when a C-STORE request is received.
-
-        Must be defined by the user prior to calling AE.start() and must return
-        either an int or a pydicom Dataset containing a (0000,0900) Status
-        element with a valid C-STORE status value.
-
-        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
-        method after receiving a C-STORE request and prior to sending the
-        response.
-
-        If the user is storing `dataset` in the DICOM File Format (as in the
-        DICOM Standard Part 10, Section 7) then they are responsible for adding
-        the DICOM File Meta Information.
-
-        **Supported Service Classes**
-
-        Storage Service Class
-
-        **Status**
-
-        Success
-
-        - 0x0000 - Success
-
-        Warning
-
-        - 0xB000 - Coercion of data elements
-        - 0xB006 - Elements discarded
-        - 0xB007 - Dataset does not match SOP class
-
-        Failure
-
-        - 0x0117 - Invalid SOP instance
-        - 0x0122 - SOP class not supported
-        - 0x0124 - Not authorised
-        - 0x0210 - Duplicate invocation
-        - 0x0211 - Unrecognised operation
-        - 0x0212 - Mistyped argument
-        - 0xA700 to 0xA7FF - Out of resources
-        - 0xA900 to 0xA9FF - Dataset does not match SOP class
-        - 0xC000 to 0xCFFF - Cannot understand
-
-        Parameters
-        ----------
-        dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent by the peer in the C-STORE request.
-        context : presentation.PresentationContextTuple
-            The presentation context that the C-STORE message was sent under
-            as a namedtuple with field names context_id, abstract_syntax and
-            transfer_syntax.
-        info : dict
-            A dict containing information about the current association, with
-            the keys:
-
-            - 'requestor' : {
-              | 'ae_title' : bytes, the requestor's calling AE title
-              | 'called_aet' : bytes, the requestor's called AE title
-              | 'address' : str, the requestor's IP address
-              | 'port' : int, the requestor's port number
-              }
-            - 'acceptor' : {
-              | 'ae_title' : bytes, the acceptor's AE title
-              | 'address' : str, the acceptor's IP address
-              | 'port' : int, the acceptor's port number
-              }
-            - 'parameters' : {
-              | 'message_id' : int, the DIMSE message ID
-              | 'priority' : int, the requested operation priority
-              | 'originator_aet' : bytes or None, the move originator's AE title
-              | 'originator_message_id' : int or None, the move originator's message ID
-              }
-
-        Returns
-        -------
-        status : pydicom.dataset.Dataset or int
-            The status returned to the peer AE in the C-STORE response. Must be
-            a valid C-STORE status value for the applicable Service Class as
-            either an int or a Dataset object containing (at a minimum) a
-            (0000,0900) 'Status' element. If returning a Dataset object then it
-            may also contain optional elements related to the Status (as in the
-            DICOM Standard Part 7, Annex C).
-
-        Raises
-        ------
-        NotImplementedError
-            If the callback has not been implemented by the user
-
-        See Also
-        --------
-        association.Association.send_c_store
-        dimse_primitives.C_STORE
-        sop_class.StorageServiceClass
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes B, AA, FF and GG
-        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
-        DICOM Standard Part 10, Section 7
-        """
-        raise NotImplementedError("User must implement the AE.on_c_store "
-                                  "function prior to calling AE.start()")
 
     def on_c_find(self, dataset, context, info):
         """Callback for when a C-FIND request is received.
@@ -1393,41 +1413,111 @@ class ApplicationEntity(object):
                                   "AE.on_c_move_cancel function prior to "
                                   "calling AE.start()")
 
+    def on_c_store(self, dataset, context, info):
+        """Callback for when a C-STORE request is received.
+
+        Must be defined by the user prior to calling AE.start() and must return
+        either an int or a pydicom Dataset containing a (0000,0900) Status
+        element with a valid C-STORE status value.
+
+        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
+        method after receiving a C-STORE request and prior to sending the
+        response.
+
+        If the user is storing `dataset` in the DICOM File Format (as in the
+        DICOM Standard Part 10, Section 7) then they are responsible for adding
+        the DICOM File Meta Information.
+
+        **Supported Service Classes**
+
+        Storage Service Class
+
+        **Status**
+
+        Success
+
+        - 0x0000 - Success
+
+        Warning
+
+        - 0xB000 - Coercion of data elements
+        - 0xB006 - Elements discarded
+        - 0xB007 - Dataset does not match SOP class
+
+        Failure
+
+        - 0x0117 - Invalid SOP instance
+        - 0x0122 - SOP class not supported
+        - 0x0124 - Not authorised
+        - 0x0210 - Duplicate invocation
+        - 0x0211 - Unrecognised operation
+        - 0x0212 - Mistyped argument
+        - 0xA700 to 0xA7FF - Out of resources
+        - 0xA900 to 0xA9FF - Dataset does not match SOP class
+        - 0xC000 to 0xCFFF - Cannot understand
+
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset
+            The DICOM dataset sent by the peer in the C-STORE request.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-STORE message was sent under
+            as a namedtuple with field names context_id, abstract_syntax and
+            transfer_syntax.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            - 'requestor' : {
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_aet' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
+              }
+            - 'acceptor' : {
+              | 'ae_title' : bytes, the acceptor's AE title
+              | 'address' : str, the acceptor's IP address
+              | 'port' : int, the acceptor's port number
+              }
+            - 'parameters' : {
+              | 'message_id' : int, the DIMSE message ID
+              | 'priority' : int, the requested operation priority
+              | 'originator_aet' : bytes or None, the move originator's AE title
+              | 'originator_message_id' : int or None, the move originator's message ID
+              }
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the C-STORE response. Must be
+            a valid C-STORE status value for the applicable Service Class as
+            either an int or a Dataset object containing (at a minimum) a
+            (0000,0900) 'Status' element. If returning a Dataset object then it
+            may also contain optional elements related to the Status (as in the
+            DICOM Standard Part 7, Annex C).
+
+        Raises
+        ------
+        NotImplementedError
+            If the callback has not been implemented by the user
+
+        See Also
+        --------
+        association.Association.send_c_store
+        dimse_primitives.C_STORE
+        sop_class.StorageServiceClass
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes B, AA, FF and GG
+        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
+        DICOM Standard Part 10, Section 7
+        """
+        raise NotImplementedError("User must implement the AE.on_c_store "
+                                  "function prior to calling AE.start()")
+
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_event_report(self, context, info):
-        """Callback for when a N-EVENT-REPORT is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes F, H, J, CC and DD
-        """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_event_report function prior to "
-                                  "calling AE.start()")
-
-    def on_n_get(self, context, info):
-        """Callback for when a N-GET is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
-        """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_get function prior to calling "
-                                  "AE.start()")
-
-    def on_n_set(self, context, info):
-        """Callback for when a N-SET is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes F, H, CC and DD
-        """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_set function prior to calling "
-                                  "AE.start()")
-
     def on_n_action(self, context, info):
         """Callback for when a N-ACTION is received.
 
@@ -1459,6 +1549,39 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the "
                                   "AE.on_n_delete function prior to calling "
+                                  "AE.start()")
+
+    def on_n_event_report(self, context, info):
+        """Callback for when a N-EVENT-REPORT is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, J, CC and DD
+        """
+        raise NotImplementedError("User must implement the "
+                                  "AE.on_n_event_report function prior to "
+                                  "calling AE.start()")
+
+    def on_n_get(self, context, info):
+        """Callback for when a N-GET is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
+        """
+        raise NotImplementedError("User must implement the "
+                                  "AE.on_n_get function prior to calling "
+                                  "AE.start()")
+
+    def on_n_set(self, context, info):
+        """Callback for when a N-SET is received.
+
+        References
+        ----------
+        DICOM Standard Part 4, Annexes F, H, CC and DD
+        """
+        raise NotImplementedError("User must implement the "
+                                  "AE.on_n_set function prior to calling "
                                   "AE.start()")
 
 
