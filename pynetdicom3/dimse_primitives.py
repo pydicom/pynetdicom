@@ -216,7 +216,7 @@ class C_STORE(object):
 
         if value is not None and not value.is_valid:
             LOGGER.error("Affected SOP Instance UID is an invalid UID : {}".format(value))
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
+            raise ValueError("Affected SOP Instance UID is an invalid UID : {}".format(value))
 
         self._affected_sop_instance_uid = value
 
