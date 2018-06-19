@@ -16,8 +16,9 @@ from pydicom.uid import UID, ImplicitVRLittleEndian
 from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP,
                           DummyFindSCP, DummyGetSCP, DummyMoveSCP,
                           DummyBaseSCP)
-from pynetdicom3 import AE
+from pynetdicom3 import AE, DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom3 import VerificationSOPClass, StorageSOPClassList
+from pynetdicom3.presentation import _build_context
 from pynetdicom3.sop_class import (
     RTImageStorage,
     PatientRootQueryRetrieveInformationModelFind,
@@ -963,3 +964,100 @@ class TestAE_GoodAbort(unittest.TestCase):
                 #self.assertTrue(ae.active_associations == [])
 
         self.scp.stop()
+
+
+class TestAESCP(object):
+    """Tests for AE when acting as an SCP"""
+    def setup(self):
+        self.ae = AE()
+
+    def test_add_supported_context_str(self):
+        """Tests for AE.add_supported_context using str."""
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert context.context_id is None
+
+    def test_add_supported_context_sop_class(self):
+        """Tests for AE.add_supported_context using SOPClass."""
+        self.ae.add_supported_context(RTImageStorage)
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+    def test_add_supported_context_uid(self):
+        """Tests for AE.add_supported_context using UID."""
+        self.ae.add_supported_context(UID('1.2.840.10008.1.1'))
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+    def test_add_supported_context_duplicate(self):
+        """Tests for AE.add_supported_context using a duplicate UID."""
+        self.ae.add_supported_context(UID('1.2.840.10008.1.1'))
+        self.ae.add_supported_context(UID('1.2.840.10008.1.1'))
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+    def test_add_supported_context_duplicate_multi(self):
+        """Tests for AE.add_supported_context using a duplicate UID."""
+        self.ae.add_supported_context('1.2.840.10008.1.1',
+                                      [DEFAULT_TRANSFER_SYNTAXES[0]])
+        self.ae.add_supported_context('1.2.840.10008.1.1',
+                                      DEFAULT_TRANSFER_SYNTAXES[1:])
+
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+    def test_add_supported_context_private_abs(self):
+        """Test AE.add_supported_context with a private abstract syntax"""
+        self.ae.add_supported_context('1.2.3.4')
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.3.4'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+    def test_add_supported_context_private_tran(self):
+        """Test AE.add_supported_context with a private transfer syntax"""
+        self.ae.add_supported_context('1.2.3.4',
+                                      ['1.2.3', '1.2.840.10008.1.1'])
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.3.4'
+        assert contexts[0].transfer_syntax == ['1.2.3', '1.2.840.10008.1.1']
+
+    def test_supported_context_setter(self):
+        """Test the AE.supported_contexts property setter."""
+        context = _build_context('1.2.840.10008.1.1')
+        self.ae.supported_contexts = [context]
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert context.context_id is None
+
+    def test_supported_context_setter_raises(self):
+        """Test the AE.supported_contexts property raises if not context."""
+        with pytest.raises(ValueError):
+            self.ae.supported_contexts = ['1.2.3']
+
+    def test_add_supported_context_more_128(self):
+        """Test adding more than 128 presentation contexts"""
+        for ii in range(300):
+            self.ae.add_supported_context(str(ii))
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 300

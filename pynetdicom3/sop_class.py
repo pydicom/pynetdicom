@@ -270,7 +270,7 @@ _generate_sop_classes(_QR_FIND_CLASSES)
 _generate_sop_classes(_QR_MOVE_CLASSES)
 _generate_sop_classes(_QR_GET_CLASSES)
 
-# Deprecated, will be removed in v1.0 to be replaced with ENUM?
+# Deprecated, will be removed in v1.0
 # pylint: enable=line-too-long
 _generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
 _generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)

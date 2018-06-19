@@ -26,7 +26,7 @@ pynetdicom_implementation_uid = PYNETDICOM_IMPLEMENTATION_UID
 import logging
 
 # Convenience imports
-from pynetdicom3.applicationentity import ApplicationEntity as AE
+from pynetdicom3.ae import ApplicationEntity as AE
 from pynetdicom3.association import Association
 from pynetdicom3.presentation import (
     DEFAULT_TRANSFER_SYNTAXES,

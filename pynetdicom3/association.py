@@ -64,7 +64,7 @@ class Association(threading.Thread):
     ----------
     acse : ACSEServiceProvider
         The Association Control Service Element provider.
-    ae : pynetdicom3.applicationentity.ApplicationEntity
+    ae : ae.ApplicationEntity
         The local AE.
     dimse : DIMSEServiceProvider
         The DICOM Message Service Element provider.
@@ -89,10 +89,11 @@ class Association(threading.Thread):
         'ae_title', 'pdv_size'.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
-    scu_supported_sop : list of pynetdicom3.sop_class.ServiceClass
-        A list of the supported SOP classes when acting as an SCU.
-    scp_supported_sop : list of pynetdicom3.sop_class.ServiceClass
-        A list of the supported SOP classes when acting as an SCP.
+    requested_contexts : list of presentation.PresentationContext
+        A list of the requested Presentation Contexts sent during association
+        negotiation.
+    supported_contexts : list of presentation.PresentationContext
+        A list of the supported Presentation Contexts.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
                  acse_timeout=60, dimse_timeout=None, max_pdu=16382,
@@ -101,7 +102,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        local_ae : pynetdicom3.applicationentity.ApplicationEntity
+        local_ae : ae.ApplicationEntity
             The local AE instance.
         client_socket : socket.socket or None, optional
             If the local AE is acting as an SCP, this is the listen socket for
@@ -183,10 +184,8 @@ class Association(threading.Thread):
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 
-        # Lists of pynetdicom3.utils.PresentationContext items that the local
-        #   AE supports when acting as an SCU and SCP
-        self.scp_supported_sop = []
-        self.scu_supported_sop = []
+        self.requested_contexts = []
+        self.supported_contexts = []
 
         # Status attributes
         self.is_established = False
@@ -565,8 +564,8 @@ class Association(threading.Thread):
 
     def _run_as_requestor(self):
         """Run as the Association Requestor."""
-        if self.ae.presentation_contexts_scu == []:
-            LOGGER.error("No presentation contexts set for the SCU")
+        if not self.requested_contexts:
+            LOGGER.error("No requested Presentation Contexts specified")
             self.kill()
             return
 
@@ -589,11 +588,13 @@ class Association(threading.Thread):
                     'ae_title' : self.ae.ae_title}
 
         # Request an Association via the ACSE
-        is_accepted, assoc_rsp = \
-                self.acse.request_assoc(local_ae, self.peer_ae,
-                                        self.local_ae['pdv_size'],
-                                        self.ae.presentation_contexts_scu,
-                                        userspdu=self.ext_neg)
+        is_accepted, assoc_rsp = self.acse.request_assoc(
+            local_ae,
+            self.peer_ae,
+            self.local_ae['pdv_size'],
+            self.requested_contexts,
+            userspdu=self.ext_neg
+        )
 
         # Association was accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -741,7 +742,7 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_echo
+        ae.ApplicationEntity.on_c_echo
         dimse_primitives.C_ECHO
         sop_class.VerificationServiceClass
 
@@ -895,7 +896,7 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
         sop_class.StorageServiceClass
 
@@ -1085,7 +1086,7 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_find
+        ae.ApplicationEntity.on_c_find
         dimse_primitives.C_FIND
         sop_class.QueryRetrieveFindServiceClass
 
@@ -1312,8 +1313,8 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_move
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_move
+        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
         sop_class.QueryRetrieveMoveServiceClass
 
@@ -1580,8 +1581,8 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_get
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_get
+        ae.ApplicationEntity.on_c_store
         sop_class.QueryRetrieveGetServiceClass
         dimse_primitives.C_GET
 

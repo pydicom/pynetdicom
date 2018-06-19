@@ -32,7 +32,7 @@ class ServiceClass(object):
 
     Attributes
     ----------
-    AE : pynetdicom3.applicationentity.ApplicationEntity
+    AE : ae.ApplicationEntity
         The local AE (needed for the callbacks).
     DIMSE : pynetdicom3.dimse.DIMSEServiceProvider
         The DIMSE service provider (needed to send/receive messages)
@@ -139,7 +139,7 @@ class VerificationServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_echo
+        ae.ApplicationEntity.on_c_echo
         association.Association.send_c_echo
 
         Notes
@@ -247,7 +247,7 @@ class StorageServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_store
         association.Association.send_c_store
 
         Notes
@@ -395,7 +395,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_find
+        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -615,7 +615,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_get
+        ae.ApplicationEntity.on_c_get
         association.Association.send_c_get
 
         Notes
@@ -965,7 +965,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_move
+        ae.ApplicationEntity.on_c_move
         association.Association.send_c_move
 
         Notes
@@ -1397,7 +1397,7 @@ class QueryRetrieveFindServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_find
+        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -1626,7 +1626,7 @@ class QueryRetrieveMoveServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_move
+        ae.ApplicationEntity.on_c_move
         association.Association.send_c_move
 
         Notes
@@ -2054,7 +2054,7 @@ class QueryRetrieveGetServiceClass(ServiceClass):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_get
+        ae.ApplicationEntity.on_c_get
         association.Association.send_c_get
 
         Notes

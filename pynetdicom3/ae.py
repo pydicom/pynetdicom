@@ -42,17 +42,21 @@ LOGGER = setup_logger()
 class ApplicationEntity(object):
     """Represents a DICOM Application Entity (AE).
 
-    An AE may be either a server (Service Class Provider or SCP) or a client
-    (Service Class User or SCU).
-
+    An AE may be a *Service Class Provider* (SCP), a *Service Class User* (SCU)
+    or both.
 
     **SCP**
 
-    To use an AE as an SCP, you need to specify the listen `port` number that
-    peer AE SCUs can use to request Associations over, as well as the SOP
-    Classes that the SCP supports (`scp_sop_class`). If the SCP is being used
-    for anything other than the C-ECHO DIMSE service you also need to implement
-    the required callbacks.
+    To use *AE* as an SCP, you need to specify:
+
+    * The listen `port` number that SCUs can use to send Association
+      requests and DIMSE messages
+    * The Presentation Contexts that the SCP supports.
+
+    If the SCP is being used for any DICOM Service Classes other than the
+    *Verification Service Class* you also need to implement one or more of
+    the callbacks corresponding to the DIMSE-C services (on_c_store, on_c_find,
+    on_c_get, on_c_move).
 
     The SCP can then be started using `ApplicationEntity.start()`
 
@@ -60,13 +64,16 @@ class ApplicationEntity(object):
 
     .. code-block:: python
 
-            from pynetdicom3 import AE, StorageSOPClassList
+            from pynetdicom3 import AE, StoragePresentationContexts
 
-            # Specify the listen port and which SOP Classes are supported
-            ae = AE(port=11112, scp_sop_class=StorageSOPClassList)
+            # Create the AE and specify the listen port
+            ae = AE(port=11112)
+
+            # Set the supported Presentation Contexts
+            ae.supported_contexts = StoragePresentationContexts
 
             # Define the callback for receiving a C-STORE request
-            def on_c_store(dataset):
+            def on_c_store(dataset, context, info):
                 # Insert your C-STORE handling code here
 
                 # Must return a valid C-STORE status - 0x0000 is Success
@@ -79,31 +86,35 @@ class ApplicationEntity(object):
 
     **SCU**
 
-    To use an AE as an SCU you only need to specify the SOP Classes that the SCU
-    supports (`scu_sop_class`) and then call `ApplicationEntity.associate(addr,
-    port)` where *addr* and *port* are the TCP/IP address and the listen port
-    number of the peer SCP, respectively.
+    To use *AE* as an SCU you only need to specify the Presentation Contexts
+    that the SCU is requesting for support by the SCP. You can then call
+    `ApplicationEntity.associate(addr, port)` where *addr* and *port* are the
+    TCP/IP address and the listen port number of the peer SCP, respectively.
 
-    Once the Association is established you can then request any of the DIMSE-C
-    or DIMSE-N services.
+    Once the Association is established you can then request the use of the
+    peer's DIMSE-C services.
 
     **C-ECHO SCU Example**
 
     .. code-block:: python
 
-            from pynetdicom3 import AE, VerificationSOPClass
+            from pynetdicom3 import AE, VerificationPresentationContexts
+
+            # Create the AE with an AE Title 'MYAE'
+            ae = AE(ae_title=b'MYAE')
 
             # Specify which SOP Classes are supported as an SCU
-            ae = AE(scu_sop_class=[VerificationSOPClass])
+            ae.requested_contexts = VerificationPresentationContexts
 
             # Request an association with a peer SCP
-            assoc = ae.associate(addr=192.168.2.1, port=104)
+            assoc = ae.associate('192.168.2.1', port=104)
 
             if assoc.is_established:
+                # Send a C-ECHO request to the peer
                 status = assoc.send_c_echo()
 
                 # Release the association
-                assoc.Release()
+                assoc.release()
 
     Attributes
     ----------
@@ -111,11 +122,14 @@ class ApplicationEntity(object):
         The maximum amount of time (in seconds) to wait for association related
         messages. A value of None means no timeout. (default: 60)
     active_associations : list of pynetdicom3.association.Association
-        The currently active associations between the local and peer AEs
+        The currently active associations between the local and peer AEs.
     address : str
-        The local AE's TCP/IP address
-    ae_title : str or bytes
-        The local AE's title
+        The local AE's TCP/IP address.
+    ae_title : bytes
+        The local AE's AE title.
+    bind_addr : str, optional
+        The network interface to listen to (default: all available network
+        interfaces on the machine).
     client_socket : socket.socket
         The socket used for connections with peer AEs
     dimse_timeout : int or float or None
@@ -139,12 +153,12 @@ class ApplicationEntity(object):
     presentation_contexts_scp : List of pynetdicom3.utils.PresentationContext
         The presentation context list when acting as an SCP (SCP only). This
         property is deprecated, use `AE.supported_contexts` instead.
-    require_calling_aet : str
-        If not empty str, the calling AE title must match `require_calling_aet`
-        (SCP only)
-    require_called_aet : str
-        If not empty str the called AE title must match `required_called_aet`
-        (SCP only)
+    require_calling_aet : bytes
+        If not empty bytes, the calling AE title must match
+        `require_calling_aet` (SCP only).
+    require_called_aet : bytes
+        If not empty bytes the called AE title must match `required_called_aet`
+        (SCP only).
     scu_supported_sop : List of pydicom.uid.UID
         The SOP Classes supported when acting as an SCU (SCU only). This
         property is deprecated, use the `requested_contexts` or the
@@ -160,20 +174,16 @@ class ApplicationEntity(object):
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title=b'PYNETDICOM', port=0, scu_sop_class=None,
-                 scp_sop_class=None, transfer_syntax=None,
-                 bind_addr=''):
+                 scp_sop_class=None, transfer_syntax=None):
         """Create a new Application Entity.
 
         Parameters
         ----------
-        ae_title : str, optional
-            The AE title of the Application Entity (default: PYNETDICOM)
+        ae_title : bytes, optional
+            The AE title of the Application Entity (default: b'PYNETDICOM')
         port : int, optional
             The port number to listen for connections on when acting as an SCP
             (default: the first available port)
-        bind_addr : str, optional
-            The network interface to listen to.
-            (default: all availabel network interfaces on the machine)
         scu_sop_class : list of pydicom.uid.UID or list of str or list of sop_class.ServiceClass subclasses, optional
             List of the supported SOP Class UIDs when running as an SCU.
             Deprecated, use the `AE.requested_contexts` property instead.
@@ -197,14 +207,15 @@ class ApplicationEntity(object):
 
         self.address = platform.node()
         self.port = port
-        self.bind_addr = bind_addr
+        self.bind_addr = ''
         self.ae_title = ae_title
+        self._requested_contexts = []
+        # {abstract_syntax : PresentationContext}
+        self._supported_contexts = {}
 
         # Avoid dangerous default values
         if transfer_syntax is None:
-            transfer_syntax = [ExplicitVRLittleEndian,
-                               ImplicitVRLittleEndian,
-                               ExplicitVRBigEndian]
+            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
         else:
             warnings.warn(
                 "Use of the `transfer_syntax` keyword parameter is deprecated, "
@@ -212,11 +223,6 @@ class ApplicationEntity(object):
                 "basis",
                 DeprecationWarning
             )
-
-        # Make sure that one of scu_sop_class/scp_sop_class is not empty
-        #if scu_sop_class is None and scp_sop_class is None:
-        #    raise ValueError("No supported SOP Class UIDs supplied during "
-        #                     "ApplicationEntity instantiation")
 
         self.scu_supported_sop = scu_sop_class or []
         self.scp_supported_sop = scp_sop_class or []
@@ -239,8 +245,6 @@ class ApplicationEntity(object):
         #   At a minimum this must be ... FIXME
         self.transfer_syntaxes = transfer_syntax
 
-
-
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
 
@@ -262,7 +266,7 @@ class ApplicationEntity(object):
         self.require_calling_aet = b''
         self.require_called_aet = b''
 
-        self._build_presentation_contexts()
+        #self._build_presentation_contexts()
 
         self.local_socket = None
 
@@ -290,21 +294,94 @@ class ApplicationEntity(object):
             assoc.acse_timeout = self.acse_timeout
             assoc.acse.acse_timeout = self.acse_timeout
 
-    def add_requested_context(self, abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+    def add_requested_context(self, abstract_syntax,
+                              transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+        """Add a Presentation Context to be requested when sending Association
+        requests.
+
+        Parameters
+        ----------
+        abstract_syntax : str or pydicom.uid.UID
+            The abstract syntax of the presentation context.
+        transfer_syntax : list of str/pydicom.uid.UID
+            The transfer syntax(es) (default Implicit VR Little Endian, Explicit
+            VR Little Endian, Explicit VR Big Endian).
+
+        Raises
+        ------
+        ValueError
+            If the abstract/transfer syntax combination already exists or if
+            128 requested presentation contexts have already been set.
+        """
+        if len(self.requested_contexts) > 128:
+            raise ValueError(
+                "Can't have more than 128 requested Presentation Contexts"
+            )
+
+        if hasattr(abstract_syntax, '_uid'):
+            abstract_syntax = UID(abstract_syntax._uid)
+        else:
+            abstract_syntax = UID(abstract_syntax)
+
+        transfer_syntax = [UID(syntax) for syntax in transfer_syntax]
+
+        # Get all the current requested contexts with the same abstract syntax
+        current_contexts = [
+            cntx for cntx in self.requested_contexts if cntx.abstract_syntax == abstract_syntax
+        ]
+
+        # For each of the current requested contexts with the same abstract
+        #   syntax, check that their transfer syntaxes are unique
+        for context in current_contexts:
+            for transfer in transfer_syntax:
+                if transfer in context.transfer_syntax:
+                    raise ValueError(
+                        "A Presentation Context with the same Abstract and "
+                        "Transfer Syntax(es) already exists"
+                    )
+                    return
+
         context = PresentationContext()
         context.abstract_syntax = abstract_syntax
         context.transfer_syntax = transfer_syntax
 
-        # Check validity
         self._requested_contexts.append(context)
 
-    def add_supported_context(self, abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
-        context = PresentationContext()
-        context.abstract_syntax = abstract_syntax
-        context.transfer_syntax = transfer_syntax
+    def add_supported_context(self, abstract_syntax,
+                              transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+        """Add a Presentation Context to be supported when receiving Association
+        requests.
 
-        # Check validity
-        self._supported_contexts.append(context)
+        Parameters
+        ----------
+        abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
+            The abstract syntax of the presentation context.
+        transfer_syntax : list of str/pydicom.uid.UID
+            The transfer syntax(es) (default Implicit VR Little Endian, Explicit
+            VR Little Endian, Explicit VR Big Endian).
+        """
+        if hasattr(abstract_syntax, '_uid'):
+            abstract_syntax = UID(abstract_syntax._uid)
+        elif hasattr(abstract_syntax, 'UID'):
+            abstract_syntax = UID(abstract_syntax.UID)
+        else:
+            abstract_syntax = UID(abstract_syntax)
+
+        transfer_syntax = [UID(syntax) for syntax in transfer_syntax]
+
+        # If the abstract syntax is already supported then update the transfer
+        #   syntaxes
+        if abstract_syntax in self._supported_contexts:
+            context = self._supported_contexts[abstract_syntax]
+            for syntax in transfer_syntax:
+                if syntax not in context.transfer_syntax:
+                    context.add_transfer_syntax(syntax)
+        else:
+            context = PresentationContext()
+            context.abstract_syntax = abstract_syntax
+            context.transfer_syntax = transfer_syntax
+
+            self._supported_contexts[abstract_syntax] = context
 
     @property
     def ae_title(self):
@@ -346,12 +423,12 @@ class ApplicationEntity(object):
             The presentation contexts that will be requested by the AE for
             support by the peer. If not used then the presentation contexts in
             the `AE.requested_contexts` property will be requested instead.
-        ae_title : str, optional
+        ae_title : bytes, optional
             The peer's AE title, will be used as the 'Called AE Title' parameter
-            value.
+            value (default b'ANY-SCP').
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
-            association.
+            association (default 16832).
         ext_neg : List of UserInformation objects, optional
             Used if extended association negotiation is required.
 
@@ -379,9 +456,19 @@ class ApplicationEntity(object):
                             ext_neg=ext_neg)
 
         if contexts is None:
-            contexts = AE.requested_contexts
+            contexts = self.requested_contexts
+        else:
+            # Validate supplied contexts
+            pass
 
-        #assoc.requested_contexts = contexts
+        context_id = 1
+        ordered_contexts = []
+        for context in contexts:
+            context = context_id
+            ordered_contexts.append(context)
+            context_id += 2
+
+        assoc.requested_contexts = ordered_contexts
 
         assoc.start()
 
@@ -564,7 +651,7 @@ class ApplicationEntity(object):
                                 max_pdu=self.maximum_pdu_size,
                                 acse_timeout=self.acse_timeout,
                                 dimse_timeout=self.dimse_timeout)
-            #assoc.supported_contexts = self.supported_contexts
+            assoc.supported_contexts = self.supported_contexts
 
             assoc.start()
             self.active_associations.append(assoc)
@@ -610,7 +697,32 @@ class ApplicationEntity(object):
 
     @property
     def requested_contexts(self):
-        pass
+        """Return a list of the requested PresentationContext.
+
+        Returns
+        -------
+        list of presentation.PresentationContext
+            The SCU's requested Presentation Contexts.
+        """
+        return self._requested_contexts
+
+    @requested_contexts.setter
+    def requested_contexts(self, contexts):
+        """Set the requested Presentation Contexts using a list.
+
+        Parameters
+        ----------
+        contexts : list of presentation.PresentationContext
+            The Presentation Contexts to request when acting as an SCU.
+        """
+        for item in contexts:
+            if not isinstance(item, PresentationContext):
+                raise ValueError(
+                    "'contexts' must be a list of PresentationContext items"
+                )
+
+            self.add_requested_context(item.abstract_syntax,
+                                       item.transfer_syntax)
 
     @property
     def require_called_aet(self):
@@ -781,13 +893,11 @@ class ApplicationEntity(object):
         """
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
-        if self.scp_supported_sop == []:
-            LOGGER.error("AE is running as an SCP but no supported SOP classes "
-                         "for use with the SCP have been included during"
-                         "ApplicationEntity initialisation or by setting the "
-                         "scp_supported_sop attribute")
-            raise ValueError("AE is running as an SCP but no SCP SOP classes "
-                             "have been supplied.")
+        if not self.supported_contexts:
+            LOGGER.error("No supported Presentation Contexts have been defined")
+            raise ValueError(
+                "No supported Presentation Contexts have been defined"
+            )
 
         # Bind the local_socket to the specified listen port
         #try:
@@ -893,7 +1003,34 @@ class ApplicationEntity(object):
 
     @property
     def supported_contexts(self):
-        pass
+        """Return a list of the supported PresentationContext.
+
+        Returns
+        -------
+        list of presentation.PresentationContext
+            The SCP's supported Presentation Contexts.
+        """
+        # The supported presentation contexts are stored internally as a dict,
+        # TODO: Sort by abstract syntax
+        return list(self._supported_contexts.values())
+
+    @supported_contexts.setter
+    def supported_contexts(self, contexts):
+        """Set the supported Presentation Contexts using a list.
+
+        Parameters
+        ----------
+        contexts : list of presentation.PresentationContext
+            The Presentation Contexts to support when acting as an SCP.
+        """
+        for item in contexts:
+            if not isinstance(item, PresentationContext):
+                raise ValueError(
+                    "'contexts' must be a list of PresentationContext items"
+                )
+
+            self.add_supported_context(item.abstract_syntax,
+                                       item.transfer_syntax)
 
     @property
     def transfer_syntaxes(self):
@@ -903,15 +1040,6 @@ class ApplicationEntity(object):
     @transfer_syntaxes.setter
     def transfer_syntaxes(self, transfer_syntaxes):
         """Set the supported transfer syntaxes."""
-        # Add deprecation warning
-        warnings.warn(
-            "The `transfer_syntaxes` class property is deprecated, the "
-            "transfer syntaxes should be set on a per-presentation context "
-            "basis with the `supported_contexts` or `requested_contexts` "
-            "properties",
-            DeprecationWarning
-        )
-
         # pylint: disable=attribute-defined-outside-init
         self._transfer_syntaxes = []
         if not isinstance(transfer_syntaxes, list):
@@ -1017,10 +1145,10 @@ class ApplicationEntity(object):
             the keys:
 
             - 'requestor' : {
-               | 'ae_title' : bytes, the requestor's calling AE title
-               | 'called_aet' : bytes, the requestor's called AE title
-               | 'address' : str, the requestor's IP address
-               | 'port' : int, the requestor's port number
+              | 'ae_title' : bytes, the requestor's calling AE title
+              | 'called_aet' : bytes, the requestor's called AE title
+              | 'address' : str, the requestor's IP address
+              | 'port' : int, the requestor's port number
               }
             - 'acceptor' : {
               | 'ae_title' : bytes, the acceptor's AE title

@@ -8,7 +8,16 @@ from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
 from pynetdicom3 import StorageSOPClassList
-from pynetdicom3.presentation import PresentationContext, PresentationService
+from pynetdicom3.presentation import (
+    PresentationContext,
+    PresentationService,
+    DEFAULT_TRANSFER_SYNTAXES,
+    VerificationPresentationContexts,
+    StoragePresentationContexts,
+    QueryRetrievePresentationContexts,
+    BasicWorklistManagementPresentationContexts,
+    _build_context,
+)
 
 
 @pytest.fixture(params=[
@@ -22,6 +31,7 @@ from pynetdicom3.presentation import PresentationContext, PresentationService
 def good_init(request):
     """Good init values."""
     return request.param
+
 
 class TestPresentationContext(object):
     """Test the PresentationContext class"""
@@ -128,7 +138,6 @@ class TestPresentationContext(object):
         with pytest.raises(ValueError):
             pc.context_id = 12
 
-
     def test_abstract_syntax(self):
         """Test abstract syntax setter"""
         pc = PresentationContext()
@@ -205,6 +214,18 @@ class TestPresentationContext(object):
         for status, result in zip(statuses, results):
             pc.result = status
             assert pc.status == result
+
+    def test_tuple(self):
+        """Test the .as_tuple"""
+        context = PresentationContext()
+        context.context_id = 3
+        context.abstract_syntax = '1.2.840.10008.1.1'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+        out = context.as_tuple
+
+        assert out.context_id == 3
+        assert out.abstract_syntax == '1.2.840.10008.1.1'
+        assert out.transfer_syntax == '1.2.840.10008.1.2'
 
 
 class TestPresentationServiceAcceptor(object):
@@ -827,3 +848,69 @@ class TestPresentationServiceRequestor(object):
             else:
                 assert results[ii].result == 0x00
                 assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
+
+
+def test_default_transfer_syntaxes():
+    """Test that the default transfer syntaxes are correct."""
+    assert len(DEFAULT_TRANSFER_SYNTAXES) == 3
+    assert '1.2.840.10008.1.2' in DEFAULT_TRANSFER_SYNTAXES
+    assert '1.2.840.10008.1.2.1' in DEFAULT_TRANSFER_SYNTAXES
+    assert '1.2.840.10008.1.2.2' in DEFAULT_TRANSFER_SYNTAXES
+
+
+def test_build_context():
+    """Test _build_context()"""
+    context = _build_context('1.2.840.10008.1.1')
+    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+    assert context.context_id is None
+
+    context = _build_context('1.2.840.10008.1.1', ['1.2.3', '4.5.6'])
+    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.transfer_syntax == ['1.2.3', '4.5.6']
+    assert context.context_id is None
+
+
+class TestServiceContexts(object):
+    def test_verification(self):
+        """Test the verification service presentation contexts."""
+        contexts = VerificationPresentationContexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert contexts[0].context_id is None
+
+    def test_storage(self):
+        """Test the storage service presentation contexts"""
+        contexts = StoragePresentationContexts
+        assert len(contexts) == 117
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
+        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.78.8'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
+
+    def test_qr(self):
+        """Test the query/retrieve service presentation contexts."""
+        contexts = QueryRetrievePresentationContexts
+        assert len(contexts) == 9
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.2.1.1'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.1.2.2.2'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.2.3.3'
+
+    def test_worklist(self):
+        """Test the basic worklist service presentation contexts."""
+        contexts = BasicWorklistManagementPresentationContexts
+        assert len(contexts) == 1
+
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert contexts[0].context_id is None
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.31'
