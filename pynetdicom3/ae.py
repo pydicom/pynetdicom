@@ -45,6 +45,65 @@ class ApplicationEntity(object):
     An AE may be a *Service Class Provider* (SCP), a *Service Class User* (SCU)
     or both.
 
+    Attributes
+    ----------
+    acse_timeout : int or float or None
+        The maximum amount of time (in seconds) to wait for association related
+        messages. A value of None means no timeout. (default: 60)
+    active_associations : list of pynetdicom3.association.Association
+        The currently active associations between the local and peer AEs.
+    address : str
+        The local AE's TCP/IP address.
+    ae_title : bytes
+        The local AE's AE title.
+    bind_addr : str, optional
+        The network interface to listen to (default: all available network
+        interfaces on the machine).
+    client_socket : socket.socket
+        The socket used for connections with peer AEs
+    dimse_timeout : int or float or None
+        The maximum amount of time (in seconds) to wait for DIMSE related
+        messages. A value of None means no timeout. (default: None)
+    network_timeout : int or float or None
+        The maximum amount of time (in seconds) to wait for network messages.
+        A value of None means no timeout. (default: None)
+    maximum_associations : int
+        The maximum number of simultaneous associations (default: 2)
+    maximum_pdu_size : int
+        The maximum PDU receive size in bytes. A value of 0 means there is no
+        maximum size (default: 16382)
+    port : int
+        The local AE's listen port number when acting as an SCP or connection
+        port when acting as an SCU. A value of 0 indicates that the operating
+        system should choose the port.
+    presentation_contexts_scu : List of pynetdicom3.utils.PresentationContext
+        The presentation context list when acting as an SCU (SCU only). This
+        property is deprecated, use `AE.requested_contexts` instead.
+    presentation_contexts_scp : List of pynetdicom3.utils.PresentationContext
+        The presentation context list when acting as an SCP (SCP only). This
+        property is deprecated, use `AE.supported_contexts` instead.
+    require_calling_aet : bytes
+        If not empty bytes, the calling AE title must match
+        `require_calling_aet` (SCP only).
+    require_called_aet : bytes
+        If not empty bytes the called AE title must match `required_called_aet`
+        (SCP only).
+    scu_supported_sop : List of pydicom.uid.UID
+        The SOP Classes supported when acting as an SCU (SCU only). This
+        property is deprecated, use the `requested_contexts` or the
+        `contexts` parameter in `AE.associate()` instead.
+    scp_supported_sop : List of pydicom.uid.UID
+        The SOP Classes supported when acting as an SCP (SCP only).
+        This property is deprecated, use the `supported_contexts` property
+        instead.
+    transfer_syntaxes : List of pydicom.uid.UID
+        The supported transfer syntaxes. This property is deprecated, transfer
+        syntaxes should be set on a per-presentation context basis through
+        `AE.supported_contexts` or `AE.requested_contexts` instead.
+
+    Examples
+    --------
+
     **SCP**
 
     To use *AE* as an SCP, you need to specify:
@@ -115,62 +174,6 @@ class ApplicationEntity(object):
 
                 # Release the association
                 assoc.release()
-
-    Attributes
-    ----------
-    acse_timeout : int or float or None
-        The maximum amount of time (in seconds) to wait for association related
-        messages. A value of None means no timeout. (default: 60)
-    active_associations : list of pynetdicom3.association.Association
-        The currently active associations between the local and peer AEs.
-    address : str
-        The local AE's TCP/IP address.
-    ae_title : bytes
-        The local AE's AE title.
-    bind_addr : str, optional
-        The network interface to listen to (default: all available network
-        interfaces on the machine).
-    client_socket : socket.socket
-        The socket used for connections with peer AEs
-    dimse_timeout : int or float or None
-        The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of None means no timeout. (default: None)
-    network_timeout : int or float or None
-        The maximum amount of time (in seconds) to wait for network messages.
-        A value of None means no timeout. (default: None)
-    maximum_associations : int
-        The maximum number of simultaneous associations (default: 2)
-    maximum_pdu_size : int
-        The maximum PDU receive size in bytes. A value of 0 means there is no
-        maximum size (default: 16382)
-    port : int
-        The local AE's listen port number when acting as an SCP or connection
-        port when acting as an SCU. A value of 0 indicates that the operating
-        system should choose the port.
-    presentation_contexts_scu : List of pynetdicom3.utils.PresentationContext
-        The presentation context list when acting as an SCU (SCU only). This
-        property is deprecated, use `AE.requested_contexts` instead.
-    presentation_contexts_scp : List of pynetdicom3.utils.PresentationContext
-        The presentation context list when acting as an SCP (SCP only). This
-        property is deprecated, use `AE.supported_contexts` instead.
-    require_calling_aet : bytes
-        If not empty bytes, the calling AE title must match
-        `require_calling_aet` (SCP only).
-    require_called_aet : bytes
-        If not empty bytes the called AE title must match `required_called_aet`
-        (SCP only).
-    scu_supported_sop : List of pydicom.uid.UID
-        The SOP Classes supported when acting as an SCU (SCU only). This
-        property is deprecated, use the `requested_contexts` or the
-        `contexts` parameter in `AE.associate()` instead.
-    scp_supported_sop : List of pydicom.uid.UID
-        The SOP Classes supported when acting as an SCP (SCP only).
-        This property is deprecated, use the `supported_contexts` property
-        instead.
-    transfer_syntaxes : List of pydicom.uid.UID
-        The supported transfer syntaxes. This property is deprecated, transfer
-        syntaxes should be set on a per-presentation context basis through
-        `AE.supported_contexts` or `AE.requested_contexts` instead.
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title=b'PYNETDICOM', port=0, scu_sop_class=None,
@@ -299,13 +302,34 @@ class ApplicationEntity(object):
         """Add a Presentation Context to be requested when sending Association
         requests.
 
+        When an SCU sends an Association request to a peer it includes a list
+        of presentation contexts it would like the peer to support. This method
+        adds a `PresentationContext` to the list of the SCU's requested
+        contexts.
+
+        Only 128 presentation contexts can be included in the association
+        request. Where multiple presentation contexts are used with the same
+        abstract syntax, each context must have unique transfer syntax(es). For
+        example, the following is not allowed as the same transfer syntax is
+        used in both contexts:
+
+        Presentation Context 'A'
+            Abstract Syntax: 1.2.3
+            Transfer Syntaxes: 4.5.6, 4.5.7
+        Presentation Context 'B'
+            Abstract Syntax: 1.2.3
+            Transfer Syntaxes: 4.5.7
+
+        To remove a requested context or one or more of its transfer syntaxes
+        see the `remove_requested_context` method.
+
         Parameters
         ----------
         abstract_syntax : str or pydicom.uid.UID
-            The abstract syntax of the presentation context.
+            The abstract syntax of the presentation context to request.
         transfer_syntax : list of str/pydicom.uid.UID
-            The transfer syntax(es) (default Implicit VR Little Endian, Explicit
-            VR Little Endian, Explicit VR Big Endian).
+            The transfer syntax(es) to request (default: Implicit VR Little
+            Endian, Explicit VR Little Endian, Explicit VR Big Endian).
 
         Raises
         ------
@@ -320,6 +344,8 @@ class ApplicationEntity(object):
 
         if hasattr(abstract_syntax, '_uid'):
             abstract_syntax = UID(abstract_syntax._uid)
+        elif hasattr(abstract_syntax, 'UID'):
+            abstract_syntax = UID(abstract_syntax.UID)
         else:
             abstract_syntax = UID(abstract_syntax)
 
@@ -349,16 +375,25 @@ class ApplicationEntity(object):
 
     def add_supported_context(self, abstract_syntax,
                               transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
-        """Add a Presentation Context to be supported when receiving Association
-        requests.
+        """Add a supported presentation context.
+
+        When an Association request is received from a peer it supplies a list
+        of presentation contexts that it would like the SCP to support. This
+        method adds a `PresentationContext` to the list of the SCP's
+        supported contexts.
+
+        Where the abstract syntax is already supported the transfer syntaxes
+        will be extended by the those supplied in `transfer_syntax`. To remove
+        a supported context or one or more of its transfer syntaxes see the
+        `remove_supported_context` method.
 
         Parameters
         ----------
         abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
-            The abstract syntax of the presentation context.
-        transfer_syntax : list of str/pydicom.uid.UID
-            The transfer syntax(es) (default Implicit VR Little Endian, Explicit
-            VR Little Endian, Explicit VR Big Endian).
+            The abstract syntax of the presentation context to be supported.
+        transfer_syntax : list of str or list of pydicom.uid.UID, optional
+            The transfer syntax(es) to support (default: Implicit VR Little
+            Endian, Explicit VR Little Endian, Explicit VR Big Endian).
         """
         if hasattr(abstract_syntax, '_uid'):
             abstract_syntax = UID(abstract_syntax._uid)
@@ -695,6 +730,110 @@ class ApplicationEntity(object):
         """Stop the SCP."""
         self.stop()
 
+    def remove_requested_context(self, abstract_syntax, transfer_syntax=None):
+        """Remove a requested Presentation Context.
+
+        Depending on the supplied parameters one of the following will occur:
+        * `abstract_syntax` alone
+          All contexts with a matching abstract syntax all be removed.
+        * `abstract_syntax` and `transfer_syntax`
+          For all contexts with a matching abstract syntax:
+            If the supplied `transfer_syntax` list contains all of the context's
+            requested transfer syntaxes then the entire context will be removed.
+            Otherwise only the matching transfer syntaxes will be removed from
+            the context (and the context will remain with one or more transfer
+            syntaxes).
+
+        Parameters
+        ----------
+        abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
+            The abstract syntax of the presentation context you wish to stop
+            requesting when sending association requests.
+        transfer_syntax : list of str or list of pydicom.uid.UID, optional
+            The transfer syntax(ex) you wish to stop requesting. If a list of
+            str/UID then only those transfer syntaxes specified will no longer
+            be requested. If not specified then the abstract syntax and all
+            associated transfer syntaxes will no longer be requested (default).
+        """
+        if hasattr(abstract_syntax, '_uid'):
+            abstract_syntax = UID(abstract_syntax._uid)
+        elif hasattr(abstract_syntax, 'UID'):
+            abstract_syntax = UID(abstract_syntax.UID)
+        else:
+            abstract_syntax = UID(abstract_syntax)
+
+        # Get all the current requested contexts with the same abstract syntax
+        matching_contexts = [
+            cntx for cntx in self.requested_contexts if cntx.abstract_syntax == abstract_syntax
+        ]
+
+        # We don't warn if not present because by not being present its not
+        #   requested and hence the user's intent has been satisfied
+        if matching_contexts:
+            if transfer_syntax is None:
+                # If no transfer_syntax then remove the context completely
+                for context in matching_contexts:
+                    self._requested_contexts.remove(context)
+            else:
+                for context in matching_contexts:
+                    for tsyntax in transfer_syntax:
+                        if tsyntax in context.transfer_syntax:
+                            context.transfer_syntax.remove(UID(tsyntax))
+
+                    # Only if all transfer syntaxes have been removed then
+                    #   remove the context
+                    if not context.transfer_syntax:
+                        self._requested_contexts.remove(context)
+
+    def remove_supported_context(self, abstract_syntax, transfer_syntax=None):
+        """Remove a supported presentation context.
+
+        Depending on the supplied parameters one of the following will occur:
+        * `abstract_syntax` alone
+          The entire supported context will be removed.
+        * `abstract_syntax` and `transfer_syntax`
+          If the supplied `transfer_syntax` list contains all of the context's
+          supported transfer syntaxes then the entire context will be removed.
+          Otherwise only the matching transfer syntaxes will be removed from
+          the context (and the context will remain with one or more transfer
+          syntaxes).
+
+        Parameters
+        ----------
+        abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
+            The abstract syntax of the presentation context you wish to stop
+            supporting.
+        transfer_syntax : list of str or list of pydicom.uid.UID, optional
+            The transfer syntax(ex) you wish to stop supporting. If a list of
+            str/UID then only those transfer syntaxes specified will no longer
+            be supported. If not specified then the abstract syntax and all
+            associated transfer syntaxes will no longer be supported (default).
+        """
+        if hasattr(abstract_syntax, '_uid'):
+            abstract_syntax = UID(abstract_syntax._uid)
+        elif hasattr(abstract_syntax, 'UID'):
+            abstract_syntax = UID(abstract_syntax.UID)
+        else:
+            abstract_syntax = UID(abstract_syntax)
+
+        # Check abstract syntax is actually present
+        #   we don't warn if not present because by not being present its not
+        #   supported and hence the user's intent has been satisfied
+        if abstract_syntax in self._supported_contexts:
+            if transfer_syntax is None:
+                # If no transfer_syntax then remove the context completely
+                del self._supported_contexts[abstract_syntax]
+            else:
+                # If transfer_syntax then only remove matching syntaxes
+                context = self._supported_contexts[abstract_syntax]
+                for tsyntax in transfer_syntax:
+                    context.transfer_syntax.remove(UID(tsyntax))
+
+                # Only if all transfer syntaxes have been removed then remove
+                #   the context
+                if not context.transfer_syntax:
+                    del self._supported_contexts[abstract_syntax]
+
     @property
     def requested_contexts(self):
         """Return a list of the requested PresentationContext.
@@ -1003,16 +1142,18 @@ class ApplicationEntity(object):
 
     @property
     def supported_contexts(self):
-        """Return a list of the supported PresentationContext.
+        """Return a list of the supported PresentationContexts.
 
         Returns
         -------
         list of presentation.PresentationContext
-            The SCP's supported Presentation Contexts.
+            The SCP's supported Presentation Contexts, ordered by abstract
+            syntax.
         """
-        # The supported presentation contexts are stored internally as a dict,
-        # TODO: Sort by abstract syntax
-        return list(self._supported_contexts.values())
+        # The supported presentation contexts are stored internally as a dict
+        contexts = sorted(list(self._supported_contexts.values()),
+                          key=lambda cntx: cntx.abstract_syntax)
+        return contexts
 
     @supported_contexts.setter
     def supported_contexts(self, contexts):

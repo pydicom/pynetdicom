@@ -966,7 +966,7 @@ class TestAE_GoodAbort(unittest.TestCase):
         self.scp.stop()
 
 
-class TestAESCP(object):
+class TestAESupportedPresentationContexts(object):
     """Tests for AE when acting as an SCP"""
     def setup(self):
         self.ae = AE()
@@ -1054,6 +1054,19 @@ class TestAESCP(object):
         with pytest.raises(ValueError):
             self.ae.supported_contexts = ['1.2.3']
 
+    def test_supported_context_sorted(self):
+        """Test that the supported_contexts returns contexts in order."""
+        self.ae.add_supported_context('1.2.3.4')
+        self.ae.add_supported_context('1.2.3.5')
+
+        asyntaxes = [cntx.abstract_syntax for cntx in self.ae.supported_contexts]
+        assert asyntaxes == ['1.2.3.4', '1.2.3.5']
+
+        self.ae.add_supported_context('0.1.2.3')
+        self.ae.add_supported_context('2.1.2.3')
+        asyntaxes = [cntx.abstract_syntax for cntx in self.ae.supported_contexts]
+        assert asyntaxes == ['0.1.2.3', '1.2.3.4', '1.2.3.5', '2.1.2.3']
+
     def test_add_supported_context_more_128(self):
         """Test adding more than 128 presentation contexts"""
         for ii in range(300):
@@ -1061,3 +1074,116 @@ class TestAESCP(object):
 
         contexts = self.ae.supported_contexts
         assert len(contexts) == 300
+
+    def test_remove_supported_context_str(self):
+        """Tests for AE.remove_supported_context using str."""
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+        self.ae.remove_supported_context('1.2.840.10008.1.1')
+        assert len(self.ae.supported_contexts) == 0
+
+        # Test multiple
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context('1.2.840.10008.1.4', ['1.2.3.4'])
+
+        assert len(self.ae.supported_contexts) == 2
+        self.ae.remove_supported_context('1.2.840.10008.1.1')
+        assert len(self.ae.supported_contexts) == 1
+
+        for context in self.ae.supported_contexts:
+            assert context.abstract_syntax != '1.2.840.10008.1.1'
+
+    def test_remove_supported_context_uid(self):
+        """Tests for AE.remove_supported_context using UID."""
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+        self.ae.remove_supported_context(UID('1.2.840.10008.1.1'))
+        assert len(self.ae.supported_contexts) == 0
+
+    def test_remove_supported_context_sop_class(self):
+        """Tests for AE.remove_supported_context using SOPClass."""
+        self.ae.add_supported_context(RTImageStorage)
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+        self.ae.remove_supported_context(RTImageStorage)
+        assert len(self.ae.supported_contexts) == 0
+
+    def test_remove_supported_context_default(self):
+        """Tests for AE.remove_supported_context with default transfers."""
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert len(context.transfer_syntax) == 3
+
+        self.ae.remove_supported_context('1.2.840.10008.1.1')
+        assert len(self.ae.supported_contexts) == 0
+
+    def test_remove_supported_context_partial(self):
+        """Tests for AE.remove_supported_context with partial transfers."""
+        # Test singular
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert len(context.transfer_syntax) == 3
+
+        self.ae.remove_supported_context('1.2.840.10008.1.1',
+                                         ['1.2.840.10008.1.2'])
+        assert len(self.ae.supported_contexts) == 1
+        context = self.ae.supported_contexts[0]
+        assert len(context.transfer_syntax) == 2
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+
+        # Test multiple
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context(RTImageStorage)
+
+        self.ae.remove_supported_context('1.2.840.10008.1.1',
+                                         ['1.2.840.10008.1.2'])
+        assert len(self.ae.supported_contexts) == 2
+        context = self.ae.supported_contexts[0]
+        assert len(context.transfer_syntax) == 2
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+
+        assert self.ae.supported_contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+    def test_remove_supported_context_all(self):
+        """Tests for AE.remove_supported_context with all transfers."""
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        context = self.ae.supported_contexts[0]
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert len(context.transfer_syntax) == 3
+
+        # Test singular
+        self.ae.remove_supported_context('1.2.840.10008.1.1',
+                                         DEFAULT_TRANSFER_SYNTAXES)
+        assert len(self.ae.supported_contexts) == 0
+
+        # Test multiple
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context(RTImageStorage)
+
+        self.ae.remove_supported_context('1.2.840.10008.1.1',
+                                         DEFAULT_TRANSFER_SYNTAXES)
+
+        context = self.ae.supported_contexts[0]
+        assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
