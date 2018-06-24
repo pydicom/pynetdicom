@@ -1724,7 +1724,7 @@ class ImplementationClassUIDSubItem(PDUItem):
     """An Implementation Class UID Sub-item.
 
     The Implementation Class UID Sub-item allows communicating Application
-    Entities to identify each other at Association establishment [#]_.
+    Entities to identify each other at Association establishment.
 
     Attributes
     ----------
@@ -1747,8 +1747,8 @@ class ImplementationClassUIDSubItem(PDUItem):
     **Encoding**
 
     When encoded, an Implementation Class UID Sub-item has the following
-    structure, taken from Tables D.3-1 and D.3-2 [#]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [#]_.
+    structure, taken from Tables D.3-1 and D.3-2 [1]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [2]_.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
@@ -1764,9 +1764,9 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     References
     ----------
-    .. [#] DICOM Standard, Part 7,
+    .. [1] DICOM Standard, Part 7,
        `Annex D.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.2>`_
-    .. [#] DICOM Standard, Part 8,
+    .. [2] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -1901,7 +1901,7 @@ class ImplementationVersionNameSubItem(PDUItem):
     """An Implementation Version Name Sub-item.
 
     The Implementation Version Name Sub-item allows communicating Application
-    Entities to identify each other at Association establishment [#]_.
+    Entities to identify each other at Association establishment.
 
     Attributes
     ----------
@@ -2518,7 +2518,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     A SOP Class Extended Negotation Sub-item allows peer Application Entities
     to exchange application information defined by specific Service Class
-    specifications [#]_.
+    specifications [1]_.
 
     Attributes
     ----------
@@ -2547,8 +2547,8 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     **Encoding**
 
     When encoded, a SOP Class Extended Negotiation Sub-item has the following
-    structure, taken from Table D.3-11 [#]_ (offsets shown with
-    Python indexing). Items are always encoded using Big Endian [#]_.
+    structure, taken from Table D.3-11 [1]_ (offsets shown with
+    Python indexing). Items are always encoded using Big Endian [2]_.
 
     +----------------+-------------+------------------------------------+
     | Offset         | Length      | Description                        |
@@ -2568,9 +2568,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     References
     ----------
-    .. [#] DICOM Standard, Part 7,
+    .. [1] DICOM Standard, Part 7,
        `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.5>`_
-    .. [#] DICOM Standard, Part 8,
+    .. [2] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -2752,9 +2752,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     """A SOP Class Common Extended Negotiation Sub-item.
 
-    A SOP Class Common Extended Negotiation Sub-item allows Application Entities
-    to exchange application information in a generic non-Service class specific
-    form.
+    A SOP Class Common Extended Negotiation Sub-item allows Application
+    Entities to exchange application information in a generic non-Service
+    class specific form.
 
     Attributes
     ----------
@@ -2800,8 +2800,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     **Encoding**
 
     When encoded, a SOP Class Common Extended Negotiation Sub-item has the
-    following structure, taken from Table D.3-12 [#]_ (offsets shown
-    with Python indexing). Items are always encoded using Big Endian [#]_.
+    following structure, taken from Table D.3-12 [1]_ (offsets shown
+    with Python indexing). Items are always encoded using Big Endian [2]_.
 
     +----------------------+----------+-------------------------------------+
     | Offset               | Length   | Description                         |
@@ -2828,7 +2828,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     +----------------------+----------+-------------------------------------+
 
     The Related General SOP Class Identification field is made up of a number
-    of sub-fields with the following structure, taken from Table D.3-13 [#]_.
+    of sub-fields with the following structure, taken from Table D.3-13 [1]_.
 
     +--------+-------------+--------------------------------------+
     | Offset | Length      | Description                          |
@@ -2840,9 +2840,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     References
     ----------
-    .. [#] DICOM Standard, Part 7,
+    .. [1] DICOM Standard, Part 7,
        `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.6>`_
-    .. [#] DICOM Standard, Part 8,
+    .. [2] DICOM Standard, Part 8,
        `Section 9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
     """
 
@@ -3207,14 +3207,14 @@ class UserIdentitySubItemRQ(PDUItem):
     -----
     A User Identity (RQ) Sub-item requires the following parameters:
 
-        * Item type (1, fixed, 0x58)
-        * Item length (1)
-        * User identity type (1)
-        * Positive response requested (1)
-        * Primary field length (1)
-        * Primary field (1)
-        * Secondary field length (1)
-        * Secondary field (only if user identity type = 2)
+    * Item type (1, fixed, 0x58)
+    * Item length (1)
+    * User identity type (1)
+    * Positive response requested (1)
+    * Primary field length (1)
+    * Primary field (1)
+    * Secondary field length (1)
+    * Secondary field (only if user identity type = 2)
 
     **Encoding**
 
@@ -3480,10 +3480,10 @@ class UserIdentitySubItemAC(PDUItem):
     -----
     A User Identity (RQ) Sub-item requires the following parameters:
 
-        * Item type (1, fixed, 0x59)
-        * Item length (1)
-        * Server response length (1)
-        * Server response (1)
+    * Item type (1, fixed, 0x59)
+    * Item length (1)
+    * Server response length (1)
+    * Server response (1)
 
     **Encoding**
 

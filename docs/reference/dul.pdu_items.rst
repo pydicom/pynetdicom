@@ -1,6 +1,8 @@
 PDU Items and Sub-items (:mod:`pynetdicom3.pdu_items`)
 ======================================================
 
+.. currentmodule:: pynetdicom3.pdu_items
+
 .. toctree::
    :maxdepth: 2
 
@@ -8,8 +10,8 @@ PDU Items and Sub-items (:mod:`pynetdicom3.pdu_items`)
 
 A-ASSOCIATE-AC PDU Items
 ------------------------
-.. autosummary::
-   :toctree: generated/
+.. toctree::
+   :maxdepth: 1
 
    dul.pdu_items.application_context_item
    dul.pdu_items.presentation_context_item_ac

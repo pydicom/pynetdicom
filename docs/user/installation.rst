@@ -1,16 +1,9 @@
 Installation
 ============
-*Note that you need to have Python and pip already installed on your system*
+*You need to have Python and pip already installed on your system*
 
-Installing current release
---------------------------
-
-.. code:: shell
-
-   python -m pip install pynetdicom
-
-Installing development version
-------------------------------
+Installing the development version
+----------------------------------
 
 .. code:: shell
 

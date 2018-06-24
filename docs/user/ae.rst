@@ -1,7 +1,7 @@
 .. _ae:
 
-Application Entity (:mod:`pynetdicom3.AE`)
-==========================================
+Application Entity
+==================
 
 .. currentmodule:: pynetdicom3.AE
 

@@ -44,10 +44,12 @@ class PresentationContext(object):
     **Rules**
 
     - Each Presentation Context (request) contains:
+
       - One context ID, an odd integer between 1 and 255.
       - One abstract syntax.
       - One or more transfer syntaxes.
     - Each Presentation Context (response) contains:
+
       - One context ID, corresponding to a Presentation Context received from
         the Requestor
       - A result, one of 0x00 (acceptance), 0x01 (user rejection), 0x02

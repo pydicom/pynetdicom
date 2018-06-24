@@ -1,6 +1,4 @@
-pynetdicom3 Documentation
-=========================
-Welcome to the documentation for pynetdicom3.
+Welcome to the documentation for `pynetdicom3 <https://github.com/pydicom/pynetdicom3>`_.
 
 Description
 -----------
@@ -15,7 +13,7 @@ involved in some way.
 
 pynetdicom3
 ~~~~~~~~~~~
-pynetdicom3 is a pure Python 2.7/3+ library that implements the DICOM
+*pynetdicom3* is a pure Python 2.7/3+ library that implements the DICOM
 networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class Users*
@@ -35,20 +33,17 @@ pynetdicom3 currently supports the following DICOM service classes:
 
 User Guide
 ----------
-The :ref:`user_guide` is intended as an introduction to pynetdicom3 and explains how
-to install and use the API, as well as covering the basics of DICOM. For
-detailed reference documentation of the functions and classes see the
-:ref:`reference`.
+The :ref:`user_guide` is intended as an introduction to pynetdicom3 and
+explains how to install and use the API, as well as covering the basics of
+DICOM networking. For detailed reference documentation of the functions and
+classes see the :ref:`reference`.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    user/installation
-   user/dicom
-   user/scu
-   user/scp
-   user/association
-   user/message
+   user/quickstart
+   user/basics
    user/conformance
 
 Examples

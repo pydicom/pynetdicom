@@ -47,7 +47,7 @@ b'MY_AE_TITLE     '
 Initialising an SCU
 ~~~~~~~~~~~~~~~~~~~
 If you intend to use your AE as an SCU then the you need to supply a list of
-SOP Class UIDs that will be used as the abstract syntaxes [6]_ in the requested
+SOP Class UIDs that will be used as abstract syntaxes [6]_ in the requested
 presentation contexts during association negotiation. This can be done by
 supplying the ``scu_sop_class`` keyword parameter during initialisation:
 

@@ -805,6 +805,7 @@ class A_ASSOCIATE_AC(PDU):
     +--------+-------------+------------------+
     | 74     | Variable    | Variable items   |
     +--------+-------------+------------------+
+
     ^ The reserved fields shall be sent with a value identical to the value
     received in the A-ASSOCIATE-RQ but their values shall not be tested.
 

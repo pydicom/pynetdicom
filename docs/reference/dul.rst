@@ -1,8 +1,8 @@
 .. _dul:
 
-*************************
-DICOM Upper Layer Service
-*************************
+*****************
+DICOM Upper Layer
+*****************
 
 The DICOM Upper Layer (DUL) service provides something.
 
