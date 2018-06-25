@@ -1,123 +1,73 @@
-"""
-Defines the supported Service Classes and generates their SOP Classes.
-"""
+"""Generates the supported SOP Classes."""
+
+from collections import namedtuple
 import inspect
 import logging
 import sys
 
 from pydicom.uid import UID
 
-from pynetdicom3.service_classes import (
+from pynetdicom3.service_class import (
     VerificationServiceClass,
     StorageServiceClass,
     QueryRetrieveServiceClass,
-    QueryRetrieveFindServiceClass,
-    QueryRetrieveMoveServiceClass,
-    QueryRetrieveGetServiceClass,
     BasicWorklistManagementServiceClass,
 )
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
 
-# Deprecated, will be removed
-def _class_factory(name, uid, base_cls):
-    """Generates a SOP Class subclass of `base_cls` called `name`.
+def uid_to_service_class(uid):
+    """Return the ServiceClass object corresponding to `uid`.
 
     Parameters
     ----------
-    name : str
-        The name of the SOP class
     uid : pydicom.uid.UID
-        The UID of the SOP class
-    base_cls : pynetdicom3.sop_class.ServiceClass subclass
-        One of the following Service classes:
-            VerificationServiceClass
-            StorageServiceClass
-            QueryRetrieveFindServiceClass
-            QueryRetrieveGetServiceClass
-            QueryRetrieveMoveServiceClass
+        The SOP Class UID to find the corresponding Service Class.
 
     Returns
     -------
-    subclass of BaseClass
-        The new class
+    service_class.ServiceClass
+        The Service Class corresponding to the SOP Class UID.
+
+    Raises
+    ------
+    NotImplementedError
+        If the Service Class corresponding to the SOP Class `uid` hasn't been
+        implemented.
     """
-    def __init__(self):
-        base_cls.__init__(self)
+    if uid in _VERIFICATION_CLASSES.values():
+        return VerificationServiceClass
+    elif uid in _STORAGE_CLASSES.values():
+        return StorageServiceClass
+    elif uid in _QR_CLASSES.values():
+        return QueryRetrieveServiceClass
+    elif uid in _BASIC_WORKLIST_CLASSES.values():
+        return BasicWorklistManagementServiceClass
+    else:
+        raise NotImplementedError(
+            "The Service Class for the SOP Class with UID '{}' has not "
+            "been implemented".format(uid)
+        )
 
-    new_class = type(name, (base_cls,), {"__init__": __init__})
-    new_class.UID = uid
 
-    return new_class
-
-# Deprecated, will be removed
-def _generate_service_sop_classes(sop_class_list, service_class):
-    """Generate the SOP Classes."""
-    for name in sop_class_list:
-        cls = _class_factory(name, UID(sop_class_list[name]), service_class)
-        globals()[cls.__name__] = cls
-
-
-def _sop_class_factory(name, uid):
-    """Return a SOPClass subclass called `name`.
-
-    Parameters
-    ----------
-    name : str
-        The name of the SOP class
-    uid : pydicom.uid.UID
-        The UID of the SOP class
-
-    Returns
-    -------
-    subclass of sop_class.SOPClass
-        The new class
-    """
-    def __init__(self):
-        SOPClass.__init__(self)
-
-    new_class = type(name, (SOPClass,), {"__init__": __init__})
-    new_class._uid = uid
-
-    return new_class
+SOPClass = namedtuple("SOPClass", ['uid', 'UID', 'service_class'])
 
 
 def _generate_sop_classes(sop_class_dict):
     """Generate the SOP Classes."""
     for name in sop_class_dict:
-        cls = _sop_class_factory(name, UID(sop_class_dict[name]))
-        globals()[cls.__name__] = cls
-
-
-class SOPClass(object):
-    # The SOP Class UID
-    _uid = None
-
-    @property
-    def service_class(self):
-        """Return the Service Class corresponding to the SOP Class.
-
-        Returns
-        -------
-        service_classes.ServiceClass
-            The Service Class corresponding to the SOP Class.
-        """
-        return uid_to_service_class(self.uid)
-
-    @property
-    def UID(self):
-        """Return the SOP Class' UID as a pydicom UID."""
-        return self._uid
-
-    @property
-    def uid(self):
-        """Return the SOP Class' UID as a pydicom UID."""
-        return self._uid
+        globals()[name] = SOPClass(
+            UID(sop_class_dict[name]),
+            UID(sop_class_dict[name]),
+            uid_to_service_class(sop_class_dict[name])
+        )
 
 
 # Generate the various SOP classes
-_VERIFICATION_CLASSES = {'VerificationSOPClass' : '1.2.840.10008.1.1'}
+_VERIFICATION_CLASSES = {
+    'VerificationSOPClass' : '1.2.840.10008.1.1',
+}
 
 # pylint: disable=line-too-long
 _STORAGE_CLASSES = {
@@ -240,115 +190,31 @@ _STORAGE_CLASSES = {
     'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1'
 }
 
-_QR_FIND_CLASSES = {
+_QR_CLASSES = {
     'PatientRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.1.1',
-    'StudyRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.2.1',
-    'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1',
-    'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31'
-}
-
-_QR_MOVE_CLASSES = {
     'PatientRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.1.2',
-    'StudyRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.2.2',
-    'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2'
-}
-
-_QR_GET_CLASSES = {
     'PatientRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.1.3',
+    'StudyRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.2.1',
+    'StudyRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.2.2',
     'StudyRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.2.3',
-    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3'
+    'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1',
+    'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2',
+    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3',
 }
 
 _BASIC_WORKLIST_CLASSES = {
-    'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31'
+    'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31',
 }
 
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
-_generate_sop_classes(_QR_FIND_CLASSES)
-_generate_sop_classes(_QR_MOVE_CLASSES)
-_generate_sop_classes(_QR_GET_CLASSES)
-
-# Deprecated, will be removed in v1.0
-# pylint: enable=line-too-long
-_generate_service_sop_classes(_VERIFICATION_CLASSES, VerificationServiceClass)
-_generate_service_sop_classes(_STORAGE_CLASSES, StorageServiceClass)
-_generate_service_sop_classes(_QR_FIND_CLASSES, QueryRetrieveFindServiceClass)
-_generate_service_sop_classes(_QR_MOVE_CLASSES, QueryRetrieveMoveServiceClass)
-_generate_service_sop_classes(_QR_GET_CLASSES, QueryRetrieveGetServiceClass)
-
-# pylint: disable=no-member
-# Deprecated, will be removed in v1.0
-STORAGE_CLASS_LIST = StorageServiceClass.__subclasses__()
-QR_FIND_CLASS_LIST = QueryRetrieveFindServiceClass.__subclasses__()
-QR_MOVE_CLASS_LIST = QueryRetrieveMoveServiceClass.__subclasses__()
-QR_GET_CLASS_LIST = QueryRetrieveGetServiceClass.__subclasses__()
-# pylint: enable=no-member
-
-# Deprecated, will be removed in v1.0
-QR_CLASS_LIST = []
-for class_list in [QR_FIND_CLASS_LIST, QR_MOVE_CLASS_LIST, QR_GET_CLASS_LIST]:
-    QR_CLASS_LIST.extend(class_list)
-
-# New approach - service class orientated
-_SUPPORTED_VERIFICATION_SOP_CLASSES = {
-    '1.2.840.10008.1.1' : VerificationServiceClass,
-}
-_SUPPORTED_STORAGE_SOP_CLASSES = {
-    '1.2.840.10008.5.1.4.1.1.1' : StorageServiceClass,
-}
-_SUPPORTED_QR_SOP_CLASSES = {
-    '1.2.840.10008.5.1.4.1.2.1.1' : QueryRetrieveFindServiceClass,
-    '1.2.840.10008.5.1.4.1.2.2.1' : QueryRetrieveFindServiceClass,
-    '1.2.840.10008.5.1.4.1.2.3.1' : QueryRetrieveFindServiceClass,
-    '1.2.840.10008.5.1.4.1.2.1.2' : QueryRetrieveMoveServiceClass,
-    '1.2.840.10008.5.1.4.1.2.2.2' : QueryRetrieveMoveServiceClass,
-    '1.2.840.10008.5.1.4.1.2.3.2' : QueryRetrieveMoveServiceClass,
-    '1.2.840.10008.5.1.4.1.2.1.3' : QueryRetrieveGetServiceClass,
-    '1.2.840.10008.5.1.4.1.2.2.3' : QueryRetrieveGetServiceClass,
-    '1.2.840.10008.5.1.4.1.2.3.3' : QueryRetrieveGetServiceClass,
-}
-_SUPPORTED_BASIC_WORKLIST_SOP_CLASSES = {
-    '1.2.840.10008.5.1.4.31' : QueryRetrieveFindServiceClass,
-}
-
-SUPPORTED_SOP_CLASSES = {}
-SUPPORTED_SOP_CLASSES.update(_SUPPORTED_VERIFICATION_SOP_CLASSES)
-SUPPORTED_SOP_CLASSES.update(_SUPPORTED_STORAGE_SOP_CLASSES)
-SUPPORTED_SOP_CLASSES.update(_SUPPORTED_QR_SOP_CLASSES)
-SUPPORTED_SOP_CLASSES.update(_SUPPORTED_BASIC_WORKLIST_SOP_CLASSES)
-
-
-def uid_to_service_class(uid):
-    """Return the ServiceClass object corresponding to `uid`.
-
-    Parameters
-    ----------
-    uid : pydicom.uid.UID
-        The SOP Class UID to find the corresponding Service Class.
-
-    Returns
-    -------
-    sop_class.ServiceClass
-        The Service Class corresponding to the SOP Class UID.
-
-    Raises
-    ------
-    NotImplementedError
-        If the Service Class corresponding to the SOP Class `uid` hasn't been
-        implemented.
-    """
-    if uid not in SUPPORTED_SOP_CLASSES:
-        raise NotImplementedError(
-            "The SOP Class for UID '{}' has not been implemented".format(uid)
-        )
-
-    return SUPPORTED_SOP_CLASSES[uid]
+_generate_sop_classes(_QR_CLASSES)
+_generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 
 
 def uid_to_sop_class(uid):
-    """Given a `uid` return the corresponding SOP Class.
+    """Given a `uid` return the corresponding SOPClass.
 
     Parameters
     ----------
@@ -356,21 +222,23 @@ def uid_to_sop_class(uid):
 
     Returns
     -------
-    subclass of pynetdicom3.sopclass.ServiceClass
-        The SOP class corresponding to `uid`
+    sop_class.SOPClass subclass
+        The SOP class corresponding to `uid`.
 
     Raises
     ------
     NotImplementedError
-        The the SOP class for the given UID has not been implemented.
+        If the SOP Class corresponding to the given UID has not been
+        implemented.
     """
     # Get a list of all the class members of the current module
-    members = inspect.getmembers(sys.modules[__name__],
-                                 lambda member: inspect.isclass(member) and \
-                                                member.__module__ == __name__)
+    members = inspect.getmembers(
+        sys.modules[__name__],
+        lambda mbr: isinstance(mbr, tuple)
+    )
 
     for obj in members:
-        if hasattr(obj[1], 'UID') and obj[1].UID == uid:
+        if hasattr(obj[1], 'uid') and obj[1].uid == uid:
             return obj[1]
 
     raise NotImplementedError("The SOP Class for UID '{}' has not been " \

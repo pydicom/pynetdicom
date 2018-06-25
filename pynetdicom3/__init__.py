@@ -35,9 +35,3 @@ from pynetdicom3.presentation import (
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
 )
-
-
-# Deprecated, will be removed in v1.0
-from pynetdicom3.sop_class import STORAGE_CLASS_LIST as StorageSOPClassList
-from pynetdicom3.sop_class import QR_CLASS_LIST as QueryRetrieveSOPClassList
-from pynetdicom3.sop_class import VerificationSOPClass

@@ -76,30 +76,12 @@ class ApplicationEntity(object):
         The local AE's listen port number when acting as an SCP or connection
         port when acting as an SCU. A value of 0 indicates that the operating
         system should choose the port.
-    presentation_contexts_scu : List of pynetdicom3.utils.PresentationContext
-        The presentation context list when acting as an SCU (SCU only). This
-        property is deprecated, use `AE.requested_contexts` instead.
-    presentation_contexts_scp : List of pynetdicom3.utils.PresentationContext
-        The presentation context list when acting as an SCP (SCP only). This
-        property is deprecated, use `AE.supported_contexts` instead.
     require_calling_aet : bytes
         If not empty bytes, the calling AE title must match
         `require_calling_aet` (SCP only).
     require_called_aet : bytes
         If not empty bytes the called AE title must match `required_called_aet`
         (SCP only).
-    scu_supported_sop : List of pydicom.uid.UID
-        The SOP Classes supported when acting as an SCU (SCU only). This
-        property is deprecated, use the `requested_contexts` or the
-        `contexts` parameter in `AE.associate()` instead.
-    scp_supported_sop : List of pydicom.uid.UID
-        The SOP Classes supported when acting as an SCP (SCP only).
-        This property is deprecated, use the `supported_contexts` property
-        instead.
-    transfer_syntaxes : List of pydicom.uid.UID
-        The supported transfer syntaxes. This property is deprecated, transfer
-        syntaxes should be set on a per-presentation context basis through
-        `AE.supported_contexts` or `AE.requested_contexts` instead.
 
     Examples
     --------
@@ -176,8 +158,7 @@ class ApplicationEntity(object):
                 assoc.release()
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title=b'PYNETDICOM', port=0, scu_sop_class=None,
-                 scp_sop_class=None, transfer_syntax=None):
+    def __init__(self, ae_title=b'PYNETDICOM', port=0):
         """Create a new Application Entity.
 
         Parameters
@@ -185,19 +166,9 @@ class ApplicationEntity(object):
         ae_title : bytes, optional
             The AE title of the Application Entity (default: b'PYNETDICOM')
         port : int, optional
-            The port number to listen for connections on when acting as an SCP
+            The port number to listen for association requests when acting as
+            an SCP and to use when requesting an association as an SCU
             (default: the first available port)
-        scu_sop_class : list of pydicom.uid.UID or list of str or list of sop_class.ServiceClass subclasses, optional
-            List of the supported SOP Class UIDs when running as an SCU.
-            Deprecated, use the `AE.requested_contexts` property instead.
-        scp_sop_class : list of pydicom.uid.UID or list of UID strings or list of sop_class.ServiceClass subclasses, optional
-            List of the supported SOP Class UIDs when running as an SCP.
-            Deprecated, use the `AE.supported_contexts` property instead.
-        transfer_syntax : list of pydicom.uid.UID
-            List of supported Transfer Syntax UIDs (default: Explicit VR Little
-            Endian, Implicit VR Little Endian, Explicit VR Big Endian).
-            Deprecated, transfer syntaxes should be set per-presentation
-            context.
         """
         from pynetdicom3 import (
             PYNETDICOM_IMPLEMENTATION_UID,
@@ -212,41 +183,11 @@ class ApplicationEntity(object):
         self.port = port
         self.bind_addr = ''
         self.ae_title = ae_title
+
+        # List of PresentationContext
         self._requested_contexts = []
         # {abstract_syntax : PresentationContext}
         self._supported_contexts = {}
-
-        # Avoid dangerous default values
-        if transfer_syntax is None:
-            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
-        else:
-            warnings.warn(
-                "Use of the `transfer_syntax` keyword parameter is deprecated, "
-                "transfer syntaxes should be set on a per-presentation context "
-                "basis",
-                DeprecationWarning
-            )
-
-        self.scu_supported_sop = scu_sop_class or []
-        self.scp_supported_sop = scp_sop_class or []
-
-        # Deprecation warnings
-        if self.scu_supported_sop:
-            warnings.warn(
-                "Use of the `scu_sop_class` keyword parameter is deprecated, "
-                "use the `requested_contexts` class property instead",
-                DeprecationWarning
-            )
-        if self.scp_supported_sop:
-            warnings.warn(
-                "Use of the `scp_sop_class` keyword parameter is deprecated, "
-                "use the `supported_contexts` class property instead",
-                DeprecationWarning
-            )
-
-        # The transfer syntax(es) available to the AE
-        #   At a minimum this must be ... FIXME
-        self.transfer_syntaxes = transfer_syntax
 
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
@@ -268,8 +209,6 @@ class ApplicationEntity(object):
         # Require Calling/Called AE titles to match if value is non-empty str
         self.require_calling_aet = b''
         self.require_called_aet = b''
-
-        #self._build_presentation_contexts()
 
         self.local_socket = None
 
@@ -342,10 +281,8 @@ class ApplicationEntity(object):
                 "Can't have more than 128 requested Presentation Contexts"
             )
 
-        if hasattr(abstract_syntax, '_uid'):
-            abstract_syntax = UID(abstract_syntax._uid)
-        elif hasattr(abstract_syntax, 'UID'):
-            abstract_syntax = UID(abstract_syntax.UID)
+        if hasattr(abstract_syntax, 'uid'):
+            abstract_syntax = UID(abstract_syntax.uid)
         else:
             abstract_syntax = UID(abstract_syntax)
 
@@ -395,10 +332,8 @@ class ApplicationEntity(object):
             The transfer syntax(es) to support (default: Implicit VR Little
             Endian, Explicit VR Little Endian, Explicit VR Big Endian).
         """
-        if hasattr(abstract_syntax, '_uid'):
-            abstract_syntax = UID(abstract_syntax._uid)
-        elif hasattr(abstract_syntax, 'UID'):
-            abstract_syntax = UID(abstract_syntax.UID)
+        if hasattr(abstract_syntax, 'uid'):
+            abstract_syntax = UID(abstract_syntax.uid)
         else:
             abstract_syntax = UID(abstract_syntax)
 
@@ -441,7 +376,7 @@ class ApplicationEntity(object):
 
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
                   max_pdu=16382, ext_neg=None):
-        """Attempts to associate with a remote application entity
+        """Send an association request to a remote AE.
 
         When requesting an association the local AE is acting as an SCU. The
         Association thread is returned whether or not the association is
@@ -459,8 +394,8 @@ class ApplicationEntity(object):
             support by the peer. If not used then the presentation contexts in
             the `AE.requested_contexts` property will be requested instead.
         ae_title : bytes, optional
-            The peer's AE title, will be used as the 'Called AE Title' parameter
-            value (default b'ANY-SCP').
+            The peer's AE title, will be used as the 'Called AE Title'
+            parameter value (default b'ANY-SCP').
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
             association (default 16832).
@@ -469,7 +404,7 @@ class ApplicationEntity(object):
 
         Returns
         -------
-        assoc : pynetdicom3.association.Association
+        assoc : association.Association
             The Association thread
         """
         if not isinstance(addr, str):
@@ -493,7 +428,7 @@ class ApplicationEntity(object):
         if contexts is None:
             contexts = self.requested_contexts
         else:
-            # Validate supplied contexts
+            # TODO: Validate supplied contexts
             pass
 
         context_id = 1
@@ -532,46 +467,6 @@ class ApplicationEntity(object):
         # Listen for connections made to the socket, the backlog argument
         #   specifies the maximum number of queued connections.
         self.local_socket.listen(1)
-
-    def _build_presentation_contexts(self):
-        """Build the presentation context list.
-
-        Build presentation context list to be:
-        * sent to remote AE when requesting association
-          (presentation_contexts_scu)
-        * used to decide whether to accept or reject when remote AE
-          requests association (presentation_contexts_scp)
-
-        See PS3.8 Sections 7.1.1.13 and 9.3.2.2
-        """
-        self.presentation_contexts_scu = []
-        self.presentation_contexts_scp = []
-        for [pc_output, sop_input] in \
-                    [[self.presentation_contexts_scu, self.scu_supported_sop],
-                     [self.presentation_contexts_scp, self.scp_supported_sop]]:
-
-            for ii, sop_class in enumerate(sop_input):
-                # Must be an odd integer between 1 and 255
-                presentation_context_id = ii * 2 + 1
-                abstract_syntax = sop_class
-
-                # Add the Presentation Context Definition Item
-                # If we have too many Items, warn and skip the rest
-                if presentation_context_id < 255:
-                    pc_item = PresentationContext()
-                    pc_item.context_id = presentation_context_id
-                    pc_item.abstract_syntax = abstract_syntax
-                    pc_item.transfer_syntax = self.transfer_syntaxes[:]
-
-                    pc_output.append(pc_item)
-                else:
-                    LOGGER.warning("More than 126 supported SOP Classes have "
-                                   "been supplied to the Application Entity, "
-                                   "but the Presentation Context Definition ID "
-                                   "can only be an odd integer between 1 and "
-                                   "255. The remaining SOP Classes will not be "
-                                   "included")
-                    break
 
     def cleanup_associations(self):
         """Remove dead associations.
@@ -755,10 +650,8 @@ class ApplicationEntity(object):
             be requested. If not specified then the abstract syntax and all
             associated transfer syntaxes will no longer be requested (default).
         """
-        if hasattr(abstract_syntax, '_uid'):
-            abstract_syntax = UID(abstract_syntax._uid)
-        elif hasattr(abstract_syntax, 'UID'):
-            abstract_syntax = UID(abstract_syntax.UID)
+        if hasattr(abstract_syntax, 'uid'):
+            abstract_syntax = UID(abstract_syntax.uid)
         else:
             abstract_syntax = UID(abstract_syntax)
 
@@ -809,10 +702,8 @@ class ApplicationEntity(object):
             be supported. If not specified then the abstract syntax and all
             associated transfer syntaxes will no longer be supported (default).
         """
-        if hasattr(abstract_syntax, '_uid'):
-            abstract_syntax = UID(abstract_syntax._uid)
-        elif hasattr(abstract_syntax, 'UID'):
-            abstract_syntax = UID(abstract_syntax.UID)
+        if hasattr(abstract_syntax, 'uid'):
+            abstract_syntax = UID(abstract_syntax.uid)
         else:
             abstract_syntax = UID(abstract_syntax)
 
@@ -920,112 +811,6 @@ class ApplicationEntity(object):
             self._require_calling_aet = validate_ae_title(ae_title)
         else:
             self._require_calling_aet = b''
-
-    @property
-    def scu_supported_sop(self):
-        """Set the supported SCU classes."""
-        return self._scu_supported_sop
-
-    @scu_supported_sop.setter
-    def scu_supported_sop(self, sop_list):
-        """Set the AE's supported SCU SOP classes.
-
-        Examples of the `sop_list` items:
-        - '1.2.3.4'
-        - b'1.2.3.4.5'
-        - pydicom.uid.UID('1.2.3')
-        - pynetdicom3.sop_class.VerificationSOPClass
-
-        Parameters
-        ----------
-        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
-            The supported SCU SOP classes.
-        """
-        # Add deprecation warning
-        warnings.warn(
-            "The `scu_supported_sop` class property is deprecated, use the "
-            "`requested_contexts` property instead",
-            DeprecationWarning
-        )
-
-        # pylint: disable=attribute-defined-outside-init
-        self._scu_supported_sop = []
-
-        if not isinstance(sop_list, list):
-            raise TypeError("scu_supported_sop must be a list of SOP " \
-                               "classes.")
-
-        for sop_class in sop_list:
-            if isinstance(sop_class, str):
-                sop_uid = UID(sop_class)
-            elif isclass(sop_class) and 'UID' in sop_class.__dict__:
-                sop_uid = UID(sop_class.UID)
-            elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('ascii'))
-            else:
-                continue
-
-            if not sop_uid.is_valid:
-                continue
-
-            self._scu_supported_sop.append(sop_uid)
-
-        if sop_list != [] and self._scu_supported_sop == []:
-            raise TypeError("No valid SCU SOP classes were supplied")
-
-    @property
-    def scp_supported_sop(self):
-        """Get the supported SCP classes."""
-        return self._scp_supported_sop
-
-    @scp_supported_sop.setter
-    def scp_supported_sop(self, sop_list):
-        """Set the AE's supported SCP SOP classes.
-
-        Examples of the `sop_list` items:
-        - '1.2.3.4'
-        - b'1.2.3.4.5'
-        - pydicom.uid.UID('1.2.3')
-        - pynetdicom3.sop_class.VerificationSOPClass
-
-        Parameters
-        ----------
-        sop_list : list of str, bytes, UID, pynetdicom3.sop_class.ServiceClass
-            The supported SCP SOP classes.
-        """
-        # Add deprecation warning
-        warnings.warn(
-            "The `scp_supported_sop` class property is deprecated, use the "
-            "`supported_contexts` property instead",
-            DeprecationWarning
-        )
-
-        # pylint: disable=attribute-defined-outside-init
-        self._scp_supported_sop = []
-        if not isinstance(sop_list, list):
-            raise TypeError("scp_supported_sop must be a list of SOP " \
-                               "classes.")
-
-        for sop_class in sop_list:
-            if isinstance(sop_class, str):
-                sop_uid = UID(sop_class)
-            elif isinstance(sop_class, bytes):
-                sop_uid = UID(sop_class.decode('ascii'))
-            elif isclass(sop_class):
-                if 'UID' in sop_class.__dict__:
-                    sop_uid = sop_class.UID
-                else:
-                    continue
-            else:
-                continue
-
-            if not sop_uid.is_valid:
-                continue
-
-            self._scp_supported_sop.append(sop_uid)
-
-        if sop_list != [] and self._scp_supported_sop == []:
-            raise TypeError("No valid SCP SOP classes were supplied")
 
     def start(self):
         """Start the AE as an SCP.
@@ -1178,41 +963,6 @@ class ApplicationEntity(object):
 
             self.add_supported_context(item.abstract_syntax,
                                        item.transfer_syntax)
-
-    @property
-    def transfer_syntaxes(self):
-        """Get the supported transfer syntaxes."""
-        return self._transfer_syntaxes
-
-    @transfer_syntaxes.setter
-    def transfer_syntaxes(self, transfer_syntaxes):
-        """Set the supported transfer syntaxes."""
-        # pylint: disable=attribute-defined-outside-init
-        self._transfer_syntaxes = []
-        if not isinstance(transfer_syntaxes, list):
-            raise ValueError("Transfer syntax must be a list of SOP classes.")
-
-        for syntax in transfer_syntaxes:
-            if isinstance(syntax, str):
-                sop_uid = UID(syntax)
-            elif isinstance(syntax, bytes):
-                sop_uid = UID(syntax.decode('ascii'))
-            else:
-                raise ValueError("Transfer syntax SOP class must be a "
-                                 "UID str, UID bytes or UID.")
-            if not sop_uid.is_valid:
-                raise ValueError("Transfer syntax contained an "
-                                 "invalid UID string")
-
-            if sop_uid.is_transfer_syntax:
-                self._transfer_syntaxes.append(sop_uid)
-            else:
-                LOGGER.warning("Attempted to add a non-transfer syntax "
-                               "UID '%s'", syntax)
-
-        if self._transfer_syntaxes == []:
-            raise ValueError("Transfer syntax must be a list of SOP "
-                             "Classes")
 
 
     # Association negotiation callbacks

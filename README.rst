@@ -131,9 +131,11 @@ Examples
 
         from pynetdicom3 import AE
 
+        ae = AE(ae_title=b'MY_ECHO_SCU')
         # The Verification SOP Class has a UID of 1.2.840.10008.1.1
-        #   we can use the UID string directly
-        ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
+        #   we can use the UID string directly when requesting the presentation
+        #   contexts we want the association to support
+        ae.add_requested_context('1.2.840.10008.1.1')
 
         # Associate with a peer DICOM AE
         assoc = ae.associate(addr, port)
@@ -152,14 +154,17 @@ Examples
             assoc.release()
 
 - Create a DICOM C-ECHO listen SCP on port 11112 (you may optionally implement
-  the `AE.on_c_echo callback` if you want to return a non Success status):
+  the `AE.on_c_echo callback` if you want to return something other than a
+  *Success* status):
 
 .. code-block:: python
 
-        from pynetdicom3 import AE, VerificationSOPClass
+        from pynetdicom3 import AE, VerificationPresentationContexts
 
-        # Or we can use the inbuilt Verification SOP Class
-        ae = AE(port=11112, scp_sop_class=[VerificationSOPClass])
+        ae = AE(ae_title=b'MY_ECHO_SCP', port=11112)
+        # Or we can use the inbuilt VerificationPresentationContexts list
+        #   there is one for each of the supported Service Classes
+        ae.supported_contexts = VerificationPresentationContexts
 
         # Start the SCP
         ae.start()
@@ -170,14 +175,16 @@ Examples
 .. code-block:: python
 
         from pydicom import dcmread
-        from pydicom.uid import UID
+        from pydicom.uid import UID, ImplicitVRLittleEndian
 
-        from pynetdicom3 import AE
+        from pynetdicom3 import AE, VerificationPresentationContexts
+        from pynetdicom3.sop_class import CTImageStorage
 
-        # Or we can use a pydicom.uid.UID
-        #   CTImageStorage has a UID of 1.2.840.10008.5.1.4.1.1.2
-        ct_storage_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        ae = AE(scu_sop_class=[ct_storage_uid])
+        ae = AE(ae_title=b'MY_STORAGE_SCU')
+        ae.requested_contexts = VerificationPresentationContexts
+        # Or we can use an inbuilt SOP Class object like CTImageStorage
+        ae.add_requested_context(CTImageStorage,
+                                 transfer_syntax=[ImplicitVRLittleEndian])
 
         assoc = ae.associate(addr, port)
         if assoc.is_established:
