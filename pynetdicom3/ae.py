@@ -337,7 +337,7 @@ class ApplicationEntity(object):
             If the abstract/transfer syntax combination already exists or if
             128 requested presentation contexts have already been set.
         """
-        if len(self.requested_contexts) > 128:
+        if len(self.requested_contexts) >= 128:
             raise ValueError(
                 "Can't have more than 128 requested Presentation Contexts"
             )
@@ -827,7 +827,8 @@ class ApplicationEntity(object):
                 # If transfer_syntax then only remove matching syntaxes
                 context = self._supported_contexts[abstract_syntax]
                 for tsyntax in transfer_syntax:
-                    context.transfer_syntax.remove(UID(tsyntax))
+                    if tsyntax in context.transfer_syntax:
+                        context.transfer_syntax.remove(UID(tsyntax))
 
                 # Only if all transfer syntaxes have been removed then remove
                 #   the context
@@ -854,6 +855,11 @@ class ApplicationEntity(object):
         contexts : list of presentation.PresentationContext
             The Presentation Contexts to request when acting as an SCU.
         """
+        if len(contexts) > 128:
+            raise ValueError(
+                "Can't have more than 128 requested Presentation Contexts"
+            )
+
         for item in contexts:
             if not isinstance(item, PresentationContext):
                 raise ValueError(
