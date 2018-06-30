@@ -403,8 +403,7 @@ class Association(threading.Thread):
         self.acse.context_manager = PresentationContextManager()
         self.acse.context_manager.requestor_contexts = \
                             assoc_rq.presentation_context_definition_list
-        self.acse.context_manager.acceptor_contexts = \
-                                self.ae.presentation_contexts_scp
+        self.acse.context_manager.acceptor_contexts = self.ae.supported_contexts
 
         self.acse.accepted_contexts = self.acse.context_manager.accepted
         self.acse.rejected_contexts = self.acse.context_manager.rejected

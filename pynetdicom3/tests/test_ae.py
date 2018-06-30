@@ -18,7 +18,8 @@ from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP,
 from pynetdicom3 import (
     AE,
     DEFAULT_TRANSFER_SYNTAXES,
-    StoragePresentationContexts
+    StoragePresentationContexts,
+    VerificationPresentationContexts
 )
 from pynetdicom3.presentation import _build_context
 from pynetdicom3.sop_class import (
@@ -71,6 +72,35 @@ class TestAEVerificationSCP(object):
         pytest.raises(KeyboardInterrupt, test)
 
         self.scp.stop()
+
+    def test_associate_context(self):
+        """Test that AE.associate doesn't modify the supplied contexts"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE()
+        ae.requested_contexts = VerificationPresentationContexts
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assert ae.requested_contexts[0].context_id is None
+        assert len(assoc.requested_contexts) == 1
+        assert assoc.requested_contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert assoc.requested_contexts[0].context_id == 1
+        assoc.release()
+        assert not assoc.is_established
+        assert assoc.is_released
+
+        self.scp.stop()
+
+    def test_associate_context_raises(self):
+        """Test that AE.associate raises exception if no contexts"""
+        ae = AE()
+        with pytest.raises(ValueError):
+            assoc = ae.associate('localhost', 11112)
 
 
 class TestAEGoodCallbacks(object):
@@ -1377,3 +1407,14 @@ class TestAERequestedPresentationContexts(object):
         context = self.ae.requested_contexts[0]
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.481.1'
+
+
+class TestAESCU(object):
+    """Tests for the AE when operating as an SCU."""
+    def setup(self):
+        self.ae = AE()
+
+    def test_associate_context(self):
+        """Test that AE.associate doesn't modify the supplied contexts"""
+        contexts = VerificationPresentationContexts
+        ae

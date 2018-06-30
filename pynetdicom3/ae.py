@@ -1,6 +1,7 @@
 """
 The main user class, represents a DICOM Application Entity
 """
+from copy import deepcopy
 import gc
 from inspect import isclass
 import logging
@@ -483,8 +484,12 @@ class ApplicationEntity(object):
         if contexts is None:
             contexts = self.requested_contexts
         else:
-            contexts = self._validate_requested_contexts(contexts)
+            self._validate_requested_contexts(contexts)
 
+        # Set using a copy of the original to play nicely
+        contexts = deepcopy(contexts)
+
+        # Add the context IDs
         for ii, context in enumerate(contexts):
             context.context_id = 2 * ii + 1
 
@@ -917,6 +922,13 @@ class ApplicationEntity(object):
 
         Example
         -------
+        Set the requested presentation contexts using an inbuilt list of service
+        specific `PresentationContext` items:
+
+        >>> from pynetdicom3 import AE, StoragePresentationContexts
+        >>> ae = AE()
+        >>> ae.requested_contexts = StoragePresentationContexts
+
         Set the requested presentation contexts using a list of
         `PresentationContext` items:
 
@@ -929,30 +941,21 @@ class ApplicationEntity(object):
         >>> ae = AE()
         >>> ae.requested_contexts = [context]
 
-        Set the requested presentation contexts using an inbuilt list of service
-        specific `PresentationContext` items:
-
-        >>> from pynetdicom3 import AE, StoragePresentationContexts
-        >>> ae = AE()
-        >>> ae.requested_contexts = StoragePresentationContexts
+        See Also
+        --------
+        ApplicationEntity.add_requested_context
+            Add a single presentation context to the requested contexts using
+            an abstract syntax and optionally a list of transfer syntaxes.
         """
         if not contexts:
             self._requested_contexts = []
             return
 
-        if len(contexts) > 128:
-            raise ValueError(
-                "Can't have more than 128 requested Presentation Contexts"
-            )
+        self._validate_requested_contexts(contexts)
 
-        for item in contexts:
-            if not isinstance(item, PresentationContext):
-                raise ValueError(
-                    "'contexts' must be a list of PresentationContext items"
-                )
-
-            self.add_requested_context(item.abstract_syntax,
-                                       item.transfer_syntax)
+        for context in contexts:
+            self.add_requested_context(context.abstract_syntax,
+                                       context.transfer_syntax)
 
     @property
     def require_called_aet(self):
@@ -1169,6 +1172,12 @@ class ApplicationEntity(object):
         >>> from pynetdicom3 import AE, StoragePresentationContexts
         >>> ae = AE()
         >>> ae.supported_contexts = StoragePresentationContexts
+
+        See Also
+        --------
+        ApplicationEntity.add_supported_context
+            Add a single presentation context to the supported contexts using
+            an abstract syntax and optionally a list of transfer syntaxes.
         """
         if not contexts:
             self._supported_contexts = {}
@@ -1191,8 +1200,16 @@ class ApplicationEntity(object):
         contexts : list of presentation.PresentationContext
             The contexts to validate.
         """
+        if len(contexts) > 128:
+            raise ValueError(
+                "Can't have more than 128 requested Presentation Contexts"
+            )
 
-        pass
+        for item in contexts:
+            if not isinstance(item, PresentationContext):
+                raise ValueError(
+                    "'contexts' must be a list of PresentationContext items"
+                )
 
     # Association negotiation callbacks
     def on_user_identity_negotiation(self, user_id_type, primary_field,
