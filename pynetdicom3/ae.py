@@ -148,7 +148,7 @@ class ApplicationEntity(object):
             ae.requested_contexts = VerificationPresentationContexts
 
             # Request an association with a peer SCP
-            assoc = ae.associate('192.168.2.1', port=104)
+            assoc = ae.associate('192.168.2.1', 104)
 
             if assoc.is_established:
                 # Send a C-ECHO request to the peer
@@ -167,8 +167,8 @@ class ApplicationEntity(object):
             The AE title of the Application Entity (default: b'PYNETDICOM')
         port : int, optional
             The port number to listen for association requests when acting as
-            an SCP and to use when requesting an association as an SCU
-            (default: the first available port)
+            an SCP and to use when requesting an association as an SCU. When
+            set to 0 the OS will use the first available port (default 0).
         """
         from pynetdicom3 import (
             PYNETDICOM_IMPLEMENTATION_UID,
@@ -217,19 +217,19 @@ class ApplicationEntity(object):
 
     @property
     def acse_timeout(self):
-        """Get the ACSE timeout."""
+        """Return the ACSE timeout value."""
         return self._acse_timeout
 
     @acse_timeout.setter
     def acse_timeout(self, value):
-        """Set the ACSE timeout."""
+        """Set the ACSE timeout (in seconds)."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
             self._acse_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
             self._acse_timeout = value
         else:
-            LOGGER.warning("acse_timeout set to 60 seconds")
+            LOGGER.warning("ACSE timeout set to 60 seconds")
             self._acse_timeout = 60
 
         for assoc in self.active_associations:
@@ -242,15 +242,16 @@ class ApplicationEntity(object):
         requests.
 
         When an SCU sends an Association request to a peer it includes a list
-        of presentation contexts it would like the peer to support. This method
-        adds a `PresentationContext` to the list of the SCU's requested
-        contexts.
+        of presentation contexts it would like the peer to support [1]_. This
+        method adds a single `PresentationContext` to the list of the SCU's
+        requested contexts.
 
         Only 128 presentation contexts can be included in the association
-        request. Where multiple presentation contexts are used with the same
-        abstract syntax, each context must have unique transfer syntax(es). For
-        example, the following is not allowed as the same transfer syntax is
-        used in both contexts:
+        request [2]_. Where multiple presentation contexts are used with the
+        same abstract syntax, each context must have unique transfer
+        syntax(es) [1]_. For example, the following is not allowed as both
+        contexts use the same '4.5.7' transfer syntax (if a '4.5.8' transfer
+        syntax was used with context 'B' instead then it would be allowed):
 
         Presentation Context 'A'
             Abstract Syntax: 1.2.3
@@ -275,6 +276,48 @@ class ApplicationEntity(object):
         ValueError
             If the abstract/transfer syntax combination already exists or if
             128 requested presentation contexts have already been set.
+
+        Example
+        -------
+        Add a requested presentation context for *Verification SOP Class* with
+        the default transfer syntaxes by using its UID.
+
+        >>> from pynetdicom3 import AE
+        >>> ae = AE()
+        >>> ae.add_requested_context('1.2.840.10008.1.1')
+
+        Add a requested presentation context for *Verification SOP Class* with
+        the default transfer syntaxes by using the inbuilt
+        `VerificationSOPClass` object.
+
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_requested_context(VerificationSOPClass)
+
+        Add a requested presentation context for *Verification SOP Class* with
+        a transfer syntax of *Implicit VR Little Endian*.
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_requested_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+
+        Add two requested presentation contexts for *Verification SOP Class*
+        using a different transfer syntax for each.
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_requested_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> ae.add_requested_context(VerificationSOPClass, [ExplicitVRLittleEndian])
+
+        References
+        ----------
+        .. [1] DICOM Standard, Part 8, `Section 7.1.1.13 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.1.1.13>`_
+        .. [2] DICOM Standard, Part 8, `Table 9-18 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#table_9-18>`_
         """
         if len(self.requested_contexts) >= 128:
             raise ValueError(
@@ -331,6 +374,47 @@ class ApplicationEntity(object):
         transfer_syntax : list of str or list of pydicom.uid.UID, optional
             The transfer syntax(es) to support (default: Implicit VR Little
             Endian, Explicit VR Little Endian, Explicit VR Big Endian).
+
+        Example
+        -------
+        Add support for presentation contexts with an abstract syntax of
+        *Verification SOP Class* and the default transfer syntaxes by using
+        its UID.
+
+        >>> from pynetdicom3 import AE
+        >>> ae = AE()
+        >>> ae.add_supported_context('1.2.840.10008.1.1')
+
+        Add support for presentation contexts with an abstract syntax of
+        *Verification SOP Class* and the default transfer syntaxes by using the
+        inbuilt `VerificationSOPClass` object.
+
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_supported_context(VerificationSOPClass)
+
+        Add support for presentation contexts with an abstract syntax of
+        *Verification SOP Class* and a transfer syntax of *Implicit VR Little
+        Endian*.
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_supported_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+
+        Add support for presentation contexts with an abstract syntax of
+        *Verification SOP Class* and a transfer syntax of *Implicit VR Little
+        Endian* and then update the context to also support *Explicit VR Little
+        Endian*.
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_supported_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> ae.add_supported_context(VerificationSOPClass, [ExplicitVRLittleEndian])
         """
         if hasattr(abstract_syntax, 'uid'):
             abstract_syntax = UID(abstract_syntax.uid)
@@ -477,8 +561,9 @@ class ApplicationEntity(object):
         """
         # We can use threading.enumerate() to list all alive threads
         #   assoc.is_alive() is inherited from threading.thread
-        self.active_associations = \
-            [assoc for assoc in self.active_associations if assoc.is_alive()]
+        self.active_associations = [
+            assoc for assoc in self.active_associations if assoc.is_alive()
+        ]
 
     @property
     def dimse_timeout(self):
@@ -649,6 +734,58 @@ class ApplicationEntity(object):
             str/UID then only those transfer syntaxes specified will no longer
             be requested. If not specified then the abstract syntax and all
             associated transfer syntaxes will no longer be requested (default).
+
+        Example
+        -------
+        Remove all requested presentation contexts with an abstract syntax of
+        *Verification SOP Class* using its UID.
+
+        >>> ae.remove_requested_context('1.2.840.10008.1.1')
+
+        Remove all requested presentation contexts with an abstract syntax of
+        *Verification SOP Class* using the inbuilt `VerificationSOPClass`
+        object.
+
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae.remove_requested_context(VerificationSOPClass)
+
+        For all requested presentation contexts with an abstract syntax of
+        *Verification SOP Class*, stop requesting a transfer syntax of *Implicit
+        VR Little Endian*. If a presentation context exists which only has a
+        single *Implicit VR Little Endian* transfer syntax then it will be
+        completely removed, otherwise it will be kept with its remaining
+        transfer syntaxes.
+
+        Presentation context has only a single matching transfer syntax:
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae.add_requested_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> print(ae.requested_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Implicit VR Little Endian
+        >>> ae.remove_requested_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> len(ae.requested_contexts)
+        0
+
+        Presentation context has multiple remaining transfer syntaxes:
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae.add_requested_context(VerificationSOPClass)
+        >>> print(ae.requested_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Implicit VR Little Endian
+	        =Explicit VR Little Endian
+	        =Explicit VR Big Endian
+        >>> ae.remove_requested_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> print(ae.requested_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Explicit VR Little Endian
+	        =Explicit VR Big Endian
         """
         if hasattr(abstract_syntax, 'uid'):
             abstract_syntax = UID(abstract_syntax.uid)
@@ -660,23 +797,20 @@ class ApplicationEntity(object):
             cntx for cntx in self.requested_contexts if cntx.abstract_syntax == abstract_syntax
         ]
 
-        # We don't warn if not present because by not being present its not
-        #   requested and hence the user's intent has been satisfied
-        if matching_contexts:
-            if transfer_syntax is None:
-                # If no transfer_syntax then remove the context completely
-                for context in matching_contexts:
-                    self._requested_contexts.remove(context)
-            else:
-                for context in matching_contexts:
-                    for tsyntax in transfer_syntax:
-                        if tsyntax in context.transfer_syntax:
-                            context.transfer_syntax.remove(UID(tsyntax))
+        if transfer_syntax is None:
+            # If no transfer_syntax then remove the context completely
+            for context in matching_contexts:
+                self._requested_contexts.remove(context)
+        else:
+            for context in matching_contexts:
+                for tsyntax in transfer_syntax:
+                    if tsyntax in context.transfer_syntax:
+                        context.transfer_syntax.remove(UID(tsyntax))
 
-                    # Only if all transfer syntaxes have been removed then
-                    #   remove the context
-                    if not context.transfer_syntax:
-                        self._requested_contexts.remove(context)
+                # Only if all transfer syntaxes have been removed then
+                #   remove the context
+                if not context.transfer_syntax:
+                    self._requested_contexts.remove(context)
 
     def remove_supported_context(self, abstract_syntax, transfer_syntax=None):
         """Remove a supported presentation context.
@@ -701,6 +835,74 @@ class ApplicationEntity(object):
             str/UID then only those transfer syntaxes specified will no longer
             be supported. If not specified then the abstract syntax and all
             associated transfer syntaxes will no longer be supported (default).
+
+        Example
+        -------
+        Remove the supported presentation context with an abstract syntax of
+        *Verification SOP Class* using its UID.
+
+        >>> from pynetdicom3 import AE
+        >>> ae.add_supported_context('1.2.840.10008.1.1')
+        >>> print(ae.supported_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Implicit VR Little Endian
+	        =Explicit VR Little Endian
+	        =Explicit VR Big Endian
+        >>> ae.remove_supported_context('1.2.840.10008.1.1')
+        >>> len(ae.supported_contexts)
+        0
+
+        Remove the supported presentation context with an abstract syntax of
+        *Verification SOP Class* using the inbuilt `VerificationSOPClass`
+        object.
+
+        >>> from pynetdicom3 import AE, VerificationPresentationContexts
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae.supported_contexts = VerificationPresentationContexts
+        >>> ae.remove_supported_context(VerificationSOPClass)
+
+        For the presentation contexts with an abstract syntax of
+        *Verification SOP Class*, stop supporting the *Implicit VR Little
+        Endian* transfer syntax. If the presentation context only has the
+        single *Implicit VR Little Endian* transfer syntax then it will be
+        completely removed, otherwise it will be kept with the remaining
+        transfer syntaxes.
+
+        Presentation context has only a single matching transfer syntax:
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_supported_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> print(ae.supported_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Implicit VR Little Endian
+        >>> ae.remove_supported_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> len(ae.supported_contexts)
+        0
+
+        Presentation context has multiple remaining transfer syntaxes:
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import VerificationSOPClass
+        >>> ae = AE()
+        >>> ae.add_supported_context(VerificationSOPClass)
+        >>> print(ae.supported_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Implicit VR Little Endian
+	        =Explicit VR Little Endian
+	        =Explicit VR Big Endian
+        >>> ae.remove_supported_context(VerificationSOPClass, [ImplicitVRLittleEndian])
+        >>> print(ae.supported_contexts[0])
+        Abstract Syntax: Verification SOP Class
+        Transfer Syntax(es):
+	        =Explicit VR Little Endian
+	        =Explicit VR Big Endian
         """
         if hasattr(abstract_syntax, 'uid'):
             abstract_syntax = UID(abstract_syntax.uid)
@@ -745,6 +947,27 @@ class ApplicationEntity(object):
         ----------
         contexts : list of presentation.PresentationContext
             The Presentation Contexts to request when acting as an SCU.
+
+        Example
+        -------
+        Set the requested presentation contexts using a list of
+        `PresentationContext` items:
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.presentation import PresentationContext
+        >>> context = PresentationContext()
+        >>> context.abstract_syntax = '1.2.840.10008.1.1'
+        >>> context.transfer_syntax = [ImplicitVRLittleEndian]
+        >>> ae = AE()
+        >>> ae.requested_contexts = [context]
+
+        Set the requested presentation contexts using an inbuilt list of service
+        specific `PresentationContext` items:
+
+        >>> from pynetdicom3 import AE, StoragePresentationContexts
+        >>> ae = AE()
+        >>> ae.requested_contexts = StoragePresentationContexts
         """
         if len(contexts) > 128:
             raise ValueError(
@@ -954,6 +1177,27 @@ class ApplicationEntity(object):
         ----------
         contexts : list of presentation.PresentationContext
             The Presentation Contexts to support when acting as an SCP.
+
+        Examples
+        --------
+        Set the supported presentation contexts using a list of
+        `PresentationContext` items:
+
+        >>> from pydicom.uid import ImplicitVRLittleEndian
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.presentation import PresentationContext
+        >>> context = PresentationContext()
+        >>> context.abstract_syntax = '1.2.840.10008.1.1'
+        >>> context.transfer_syntax = [ImplicitVRLittleEndian]
+        >>> ae = AE()
+        >>> ae.supported_contexts = [context]
+
+        Set the supported presentation contexts using an inbuilt list of service
+        specific `PresentationContext` items:
+
+        >>> from pynetdicom3 import AE, StoragePresentationContexts
+        >>> ae = AE()
+        >>> ae.supported_contexts = StoragePresentationContexts
         """
         for item in contexts:
             if not isinstance(item, PresentationContext):

@@ -244,17 +244,20 @@ class PresentationContext(object):
 
     def __str__(self):
         """String representation of the Presentation Context."""
-        s = 'ID: {0!s}\n'.format(self.context_id)
+        s = ''
+        if self.context_id is not None:
+            s += 'ID: {0!s}\n'.format(self.context_id)
 
         if self.abstract_syntax is not None:
             s += 'Abstract Syntax: {0!s}\n'.format(self.abstract_syntax.name)
 
         s += 'Transfer Syntax(es):\n'
-        for syntax in self.transfer_syntax:
+        for syntax in self.transfer_syntax[:-1]:
             s += '\t={0!s}\n'.format(syntax.name)
+        s += '\t={0!s}'.format(self.transfer_syntax[-1].name)
 
         if self.result is not None:
-            s += 'Result: {0!s}\n'.format(self.status)
+            s += '\nResult: {0!s}'.format(self.status)
 
         return s
 
