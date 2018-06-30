@@ -7,7 +7,7 @@ import pytest
 from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
-from pynetdicom3 import StorageSOPClassList
+from pynetdicom3 import StoragePresentationContexts
 from pynetdicom3.presentation import (
     PresentationContext,
     PresentationService,
@@ -85,6 +85,14 @@ class TestPresentationContext(object):
 
         pc.transfer_syntax = ['2.16.840.1.113709.1.2.1']
         assert '2.16.840.1.113709.1.2.1' in pc._transfer_syntax
+
+    def test_add_transfer_syntax_duplicate(self):
+        """Test add_transfer_syntax with a duplicate UID"""
+        pc = PresentationContext()
+        pc.add_transfer_syntax('1.3')
+        pc.add_transfer_syntax('1.3')
+
+        assert pc.transfer_syntax == ['1.3']
 
     def test_equality(self):
         """Test presentation context equality"""
@@ -190,6 +198,12 @@ class TestPresentationContext(object):
 
         pc.transfer_syntax = [1234, UID('1.4.1')]
         assert pc.transfer_syntax == [UID('1.4.1')]
+
+    def test_transfer_syntax_duplicate(self):
+        """Test the transfer_syntax setter with duplicate UIDs."""
+        pc = PresentationContext()
+        pc.transfer_syntax = ['1.3', '1.3']
+        assert pc.transfer_syntax == ['1.3']
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_transfer_syntax_nonconformant(self, caplog):
@@ -444,10 +458,10 @@ class TestPresentationServiceAcceptor(object):
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
-        for ii, sop in enumerate(StorageSOPClassList):
+        for ii, context in enumerate(StoragePresentationContexts):
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
-            pc.abstract_syntax = sop.UID
+            pc.abstract_syntax = context.abstract_syntax
             pc.transfer_syntax = ['1.2.840.10008.1.2',
                                  '1.2.840.10008.1.2.1',
                                  '1.2.840.10008.1.2.2']
@@ -812,10 +826,10 @@ class TestPresentationServiceRequestor(object):
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
-        for ii, sop in enumerate(StorageSOPClassList):
+        for ii, context in enumerate(StoragePresentationContexts):
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
-            pc.abstract_syntax = sop.UID
+            pc.abstract_syntax = context.abstract_syntax
             pc.transfer_syntax = ['1.2.840.10008.1.2',
                                   '1.2.840.10008.1.2.1',
                                   '1.2.840.10008.1.2.2']

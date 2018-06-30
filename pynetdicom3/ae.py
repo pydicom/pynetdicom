@@ -247,18 +247,8 @@ class ApplicationEntity(object):
         requested contexts.
 
         Only 128 presentation contexts can be included in the association
-        request [2]_. Where multiple presentation contexts are used with the
-        same abstract syntax, each context must have unique transfer
-        syntax(es) [1]_. For example, the following is not allowed as both
-        contexts use the same '4.5.7' transfer syntax (if a '4.5.8' transfer
-        syntax was used with context 'B' instead then it would be allowed):
-
-        Presentation Context 'A'
-            Abstract Syntax: 1.2.3
-            Transfer Syntaxes: 4.5.6, 4.5.7
-        Presentation Context 'B'
-            Abstract Syntax: 1.2.3
-            Transfer Syntaxes: 4.5.7
+        request [2]_. Multiple presentation contexts may be requested with the
+        same abstract syntax.
 
         To remove a requested context or one or more of its transfer syntaxes
         see the `remove_requested_context` method.
@@ -274,8 +264,7 @@ class ApplicationEntity(object):
         Raises
         ------
         ValueError
-            If the abstract/transfer syntax combination already exists or if
-            128 requested presentation contexts have already been set.
+            If 128 requested presentation contexts have already been added.
 
         Example
         -------
@@ -321,7 +310,8 @@ class ApplicationEntity(object):
         """
         if len(self.requested_contexts) >= 128:
             raise ValueError(
-                "Can't have more than 128 requested Presentation Contexts"
+                "Failed to add the requested presentation context as there "
+                "are already 128 contexts"
             )
 
         if hasattr(abstract_syntax, 'uid'):
@@ -329,27 +319,9 @@ class ApplicationEntity(object):
         else:
             abstract_syntax = UID(abstract_syntax)
 
-        transfer_syntax = [UID(syntax) for syntax in transfer_syntax]
-
-        # Get all the current requested contexts with the same abstract syntax
-        current_contexts = [
-            cntx for cntx in self.requested_contexts if cntx.abstract_syntax == abstract_syntax
-        ]
-
-        # For each of the current requested contexts with the same abstract
-        #   syntax, check that their transfer syntaxes are unique
-        for context in current_contexts:
-            for transfer in transfer_syntax:
-                if transfer in context.transfer_syntax:
-                    raise ValueError(
-                        "A Presentation Context with the same Abstract and "
-                        "Transfer Syntax(es) already exists"
-                    )
-                    return
-
         context = PresentationContext()
         context.abstract_syntax = abstract_syntax
-        context.transfer_syntax = transfer_syntax
+        context.transfer_syntax = [UID(syntax) for syntax in transfer_syntax]
 
         self._requested_contexts.append(context)
 
@@ -428,8 +400,7 @@ class ApplicationEntity(object):
         if abstract_syntax in self._supported_contexts:
             context = self._supported_contexts[abstract_syntax]
             for syntax in transfer_syntax:
-                if syntax not in context.transfer_syntax:
-                    context.add_transfer_syntax(syntax)
+                context.add_transfer_syntax(syntax)
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
@@ -512,18 +483,14 @@ class ApplicationEntity(object):
         if contexts is None:
             contexts = self.requested_contexts
         else:
-            # TODO: Validate supplied contexts
-            pass
+            contexts = self._validate_requested_contexts(contexts)
 
-        context_id = 1
-        ordered_contexts = []
-        for context in contexts:
-            context = context_id
-            ordered_contexts.append(context)
-            context_id += 2
+        for ii, context in enumerate(contexts):
+            context.context_id = 2 * ii + 1
 
-        assoc.requested_contexts = ordered_contexts
+        assoc.requested_contexts = contexts
 
+        # Send an A-ASSOCIATE request to the peer
         assoc.start()
 
         # Endlessly loops while the Association negotiation is taking place
@@ -969,6 +936,10 @@ class ApplicationEntity(object):
         >>> ae = AE()
         >>> ae.requested_contexts = StoragePresentationContexts
         """
+        if not contexts:
+            self._requested_contexts = []
+            return
+
         if len(contexts) > 128:
             raise ValueError(
                 "Can't have more than 128 requested Presentation Contexts"
@@ -1199,6 +1170,9 @@ class ApplicationEntity(object):
         >>> ae = AE()
         >>> ae.supported_contexts = StoragePresentationContexts
         """
+        if not contexts:
+            self._supported_contexts = {}
+
         for item in contexts:
             if not isinstance(item, PresentationContext):
                 raise ValueError(
@@ -1208,6 +1182,17 @@ class ApplicationEntity(object):
             self.add_supported_context(item.abstract_syntax,
                                        item.transfer_syntax)
 
+    @staticmethod
+    def _validate_requested_contexts(contexts):
+        """Validate the supplied `contexts`.
+
+        Parameters
+        ----------
+        contexts : list of presentation.PresentationContext
+            The contexts to validate.
+        """
+
+        pass
 
     # Association negotiation callbacks
     def on_user_identity_negotiation(self, user_id_type, primary_field,

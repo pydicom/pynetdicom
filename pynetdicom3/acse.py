@@ -80,13 +80,13 @@ class ACSEServiceProvider(object):
         ----------
         local_ae : dict
             Contains information about the local AE, keys 'ae_title', 'port',
-            'address', 'pdv_size', 'propsed_contexts'.
+            'address', 'pdv_size'.
         peer_ae : dict
             Contains information about the peer AE, keys 'ae_title', 'port',
             'address'.
         max_pdu_size : int
             Maximum PDU size in bytes
-        pcdl : list of pynetdicom3.presentation.PresentationContext
+        pcdl : list of presentation.PresentationContext
             A list of the proposed Presentation Contexts for the association
             If local_ae is ApplicationEntity then this is doubled up
             unnecessarily
@@ -153,9 +153,7 @@ class ACSEServiceProvider(object):
         assoc_rq.called_presentation_address = (self.remote_ae['address'],
                                                 self.remote_ae['port'])
         assoc_rq.presentation_context_definition_list = pcdl
-        #
         ## A-ASSOCIATE request primitive is now complete
-
 
         # Send the A-ASSOCIATE request primitive to the peer via the
         #   DICOM UL service

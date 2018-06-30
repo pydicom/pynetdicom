@@ -286,20 +286,8 @@ class PresentationContext(object):
 
         self._transfer_syntax = []
 
-        for uid in syntaxes:
-            if isinstance(uid, bytes):
-                uid = UID(uid.decode('ascii'))
-            elif isinstance(uid, str):
-                uid = UID(uid)
-            else:
-                LOGGER.error("Attempted to add an invalid 'transfer_syntax'")
-                continue
-
-            if not uid.is_valid:
-                LOGGER.warning("A non-conformant UID has been added "
-                               "to 'transfer_syntax'")
-
-            self._transfer_syntax.append(uid)
+        for syntax in syntaxes:
+            self.add_transfer_syntax(syntax)
 
 
 class PresentationService(object):

@@ -90,10 +90,11 @@ class Association(threading.Thread):
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
     requested_contexts : list of presentation.PresentationContext
-        A list of the requested Presentation Contexts sent during association
-        negotiation.
+        A list of the requested Presentation Contexts sent or received during
+        association negotiation.
     supported_contexts : list of presentation.PresentationContext
-        A list of the supported Presentation Contexts.
+        A list of the supported Presentation Contexts sent or received during
+        association negotiation.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
                  acse_timeout=60, dimse_timeout=None, max_pdu=16382,
@@ -126,9 +127,9 @@ class Association(threading.Thread):
             is a list containing the negotiation objects (default: None).
         """
         self.peer_ae = {'port' : None,
-                         'address' : None,
-                         'ae_title' : None,
-                         'pdv_size' : None}
+                        'address' : None,
+                        'ae_title' : None,
+                        'pdv_size' : None}
 
         # Why is the AE in charge of supplying the client socket?
         #   Hmm, perhaps because we can have multiple connections on the same

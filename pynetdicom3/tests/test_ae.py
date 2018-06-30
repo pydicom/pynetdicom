@@ -823,6 +823,34 @@ class TestAESupportedPresentationContexts(object):
         assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
+    def test_add_supported_context_duplicate_transfer(self):
+        """Test adding duplicate transfer syntaxes."""
+        self.ae.add_supported_context('1.2',
+                                      ['1.3', '1.3'])
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2'
+        assert contexts[0].transfer_syntax == ['1.3']
+
+        self.ae.supported_contexts = []
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
+        self.ae.supported_contexts = []
+        self.ae.add_supported_context('1.2.840.10008.1.1')
+        self.ae.add_supported_context('1.2.840.10008.1.1', [DEFAULT_TRANSFER_SYNTAXES[0]])
+
+        contexts = self.ae.supported_contexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+
     def test_add_supported_context_duplicate_multi(self):
         """Tests for AE.add_supported_context using a duplicate UID."""
         self.ae.add_supported_context('1.2.840.10008.1.1',
@@ -873,6 +901,15 @@ class TestAESupportedPresentationContexts(object):
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.context_id is None
+
+    def test_supported_contexts_empty(self):
+        """Test the setting supported_contexts to an empty list."""
+        context = _build_context('1.2.840.10008.1.1')
+        self.ae.supported_contexts = [context]
+        assert len(self.ae.supported_contexts) == 1
+
+        self.ae.supported_contexts = []
+        assert len(self.ae.supported_contexts) == 0
 
     def test_supported_contexts_setter_raises(self):
         """Test the AE.supported_contexts property raises if not context."""
@@ -1063,11 +1100,17 @@ class TestAERequestedPresentationContexts(object):
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
-    def test_add_requested_context_duplicate_raises(self):
-        """Tests for AE.add_requested_context using a duplicate UID."""
+    def test_add_requested_context_duplicate(self):
+        """Test AE.add_requested_context using a duplicate UID."""
         self.ae.add_requested_context(UID('1.2.840.10008.1.1'))
-        with pytest.raises(ValueError):
-            self.ae.add_requested_context(UID('1.2.840.10008.1.1'))
+        self.ae.add_requested_context(UID('1.2.840.10008.1.1'))
+
+        contexts = self.ae.requested_contexts
+        assert len(contexts) == 2
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert contexts[1].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
 
     def test_add_requested_context_duplicate_multi(self):
         """Tests for AE.add_requested_context using a duplicate UID."""
@@ -1083,6 +1126,12 @@ class TestAERequestedPresentationContexts(object):
         assert contexts[0].transfer_syntax == [DEFAULT_TRANSFER_SYNTAXES[0]]
         assert contexts[1].abstract_syntax == '1.2.840.10008.1.1'
         assert contexts[1].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
+
+    def test_add_requested_context_duplicate_transfer(self):
+        """Test add_requested_context using duplicate transfer syntaxes"""
+        self.ae.add_requested_context('1.2', ['1.3', '1.3'])
+        contexts = self.ae.requested_contexts
+        assert contexts[0].transfer_syntax == ['1.3']
 
     def test_add_requested_context_private_abs(self):
         """Test AE.add_requested_context with a private abstract syntax"""
@@ -1125,6 +1174,15 @@ class TestAERequestedPresentationContexts(object):
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert context.context_id is None
+
+    def test_requested_contexts_empty(self):
+        """Test the setting requested_contexts to an empty list."""
+        context = _build_context('1.2.840.10008.1.1')
+        self.ae.requested_contexts = [context]
+        assert len(self.ae.requested_contexts) == 1
+
+        self.ae.requested_contexts = []
+        assert len(self.ae.requested_contexts) == 0
 
     def test_requested_contexts_setter_raises(self):
         """Test the AE.requested_contexts property raises if not context."""
