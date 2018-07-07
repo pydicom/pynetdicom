@@ -10,16 +10,15 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
+from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET
+from pynetdicom3.service_class import (
+    QueryRetrieveServiceClass
+)
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
-    VerificationServiceClass,
-    StorageServiceClass,
-    QueryRetrieveGetServiceClass,
-    QueryRetrieveFindServiceClass,
-    QueryRetrieveMoveServiceClass,
     ModalityWorklistInformationFind,
     VerificationSOPClass,
     CTImageStorage,
@@ -73,7 +72,9 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -81,7 +82,7 @@ class TestQRFindServiceClass(object):
 
         req = C_FIND()
         req.MessageID = 1
-        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind.UID
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind.uid
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
@@ -99,7 +100,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifers = [self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -123,7 +125,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -146,7 +149,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -166,7 +170,8 @@ class TestQRFindServiceClass(object):
         self.scp.statuses = [0xFFF0]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -184,7 +189,8 @@ class TestQRFindServiceClass(object):
         self.scp.statuses = ['Failure']
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -202,7 +208,8 @@ class TestQRFindServiceClass(object):
         self.scp.statuses = [None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -221,7 +228,8 @@ class TestQRFindServiceClass(object):
         self.scp.ae.on_c_find = on_c_find
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -240,7 +248,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [None, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -260,7 +269,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -284,7 +294,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -308,7 +319,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query, None, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -332,7 +344,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query, self.query, self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -362,7 +375,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query, self.query, self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -392,7 +406,8 @@ class TestQRFindServiceClass(object):
         self.scp.identifiers = [self.query, self.query, self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -423,7 +438,9 @@ class TestQRFindServiceClass(object):
         self.identifiers = [self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
+                                 '1.2.840.10008.1.2.1')
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -437,7 +454,7 @@ class TestQRFindServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelFind.UID
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelFind.uid
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -450,7 +467,8 @@ class TestQRFindServiceClass(object):
         self.identifiers = [self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -484,7 +502,7 @@ class TestQRGetServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
-        self.ds.SOPClassUID = CTImageStorage().UID
+        self.ds.SOPClassUID = CTImageStorage.uid
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
@@ -512,7 +530,9 @@ class TestQRGetServiceClass(object):
         self.scp.datasets = [self.ds]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -520,7 +540,7 @@ class TestQRGetServiceClass(object):
 
         req = C_GET()
         req.MessageID = 1
-        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet.UID
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet.uid
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
@@ -539,8 +559,9 @@ class TestQRGetServiceClass(object):
         self.scp.datasets = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
@@ -565,8 +586,9 @@ class TestQRGetServiceClass(object):
         self.scp.datasets = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -595,8 +617,9 @@ class TestQRGetServiceClass(object):
         self.scp.statuses[0].OffendingElement = 0x00010001
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -624,8 +647,9 @@ class TestQRGetServiceClass(object):
         self.scp.statuses = [0xFF00]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -651,8 +675,9 @@ class TestQRGetServiceClass(object):
         self.scp.statuses = [0xFFF0]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -674,8 +699,9 @@ class TestQRGetServiceClass(object):
         self.scp.statuses = ['Failure']
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -697,8 +723,9 @@ class TestQRGetServiceClass(object):
         self.scp.statuses = [None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -721,8 +748,9 @@ class TestQRGetServiceClass(object):
         self.scp.ae.on_c_get = on_c_get
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -745,8 +773,9 @@ class TestQRGetServiceClass(object):
         self.scp.datasets = [self.fail, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -779,8 +808,9 @@ class TestQRGetServiceClass(object):
         self.scp.datasets = [self.ds, 'acbdef', self.ds]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -815,8 +845,9 @@ class TestQRGetServiceClass(object):
         self.scp.datasets = [self.query, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
@@ -846,8 +877,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -879,8 +911,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -915,8 +948,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 3
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -951,8 +985,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -984,8 +1019,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1017,8 +1053,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1050,8 +1087,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 3
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1089,8 +1127,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 3
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1130,8 +1169,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 3
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1171,8 +1211,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1204,8 +1245,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1237,8 +1279,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1270,8 +1313,9 @@ class TestQRGetServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1301,12 +1345,14 @@ class TestQRGetServiceClass(object):
         self.identifiers = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
+                                 '1.2.840.10008.1.2.1')
+        ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
 
         def on_c_store(ds, context, assoc_info):
             assert context.context_id == 3
-            assert context.abstract_syntax == CTImageStorage.UID
+            assert context.abstract_syntax == CTImageStorage.uid
             assert context.transfer_syntax == '1.2.840.10008.1.2.1'
             return 0x0000
 
@@ -1327,7 +1373,7 @@ class TestQRGetServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelGet.UID
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelGet.uid
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -1341,11 +1387,13 @@ class TestQRGetServiceClass(object):
         self.identifiers = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
+                                 '1.2.840.10008.1.2.1')
+        ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
 
         def on_c_store(ds, context, assoc_info):
-            assert context.abstract_syntax == CTImageStorage.UID
+            assert context.abstract_syntax == CTImageStorage.uid
             assert context.transfer_syntax == '1.2.840.10008.1.2.1'
             return 0x0000
 
@@ -1386,7 +1434,7 @@ class TestQRMoveServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
-        self.ds.SOPClassUID = CTImageStorage().UID
+        self.ds.SOPClassUID = CTImageStorage.uid
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
@@ -1414,7 +1462,9 @@ class TestQRMoveServiceClass(object):
         self.scp.datasets = [self.ds]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1422,8 +1472,9 @@ class TestQRMoveServiceClass(object):
 
         req = C_GET()
         req.MessageID = 1
-        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove.UID
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove.uid
         req.Priority = 2
+        # Encoded as Implicit VR Little
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         status, _ = assoc.dimse.receive_msg(True)
@@ -1441,8 +1492,9 @@ class TestQRMoveServiceClass(object):
         self.scp.test_no_yield = True
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1466,8 +1518,9 @@ class TestQRMoveServiceClass(object):
         self.scp.test_no_subops = True
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1490,8 +1543,9 @@ class TestQRMoveServiceClass(object):
         self.scp.destination_ae = (None, 11112)
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1515,8 +1569,9 @@ class TestQRMoveServiceClass(object):
         self.scp.datasets = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1539,8 +1594,9 @@ class TestQRMoveServiceClass(object):
         self.scp.destination_ae = None
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1562,8 +1618,9 @@ class TestQRMoveServiceClass(object):
         self.scp.datasets = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1589,8 +1646,9 @@ class TestQRMoveServiceClass(object):
         self.scp.statuses[0].OffendingElement = 0x00010001
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1615,8 +1673,9 @@ class TestQRMoveServiceClass(object):
         self.scp.statuses = [0xFF00]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1639,8 +1698,9 @@ class TestQRMoveServiceClass(object):
         self.scp.statuses = [0xFFF0]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1659,8 +1719,9 @@ class TestQRMoveServiceClass(object):
         self.scp.statuses = ['Failure']
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1679,8 +1740,9 @@ class TestQRMoveServiceClass(object):
         self.scp.statuses = [None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1700,8 +1762,9 @@ class TestQRMoveServiceClass(object):
         self.scp.ae.on_c_move = on_c_move
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1721,8 +1784,9 @@ class TestQRMoveServiceClass(object):
         self.scp.datasets = [self.fail, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1750,8 +1814,9 @@ class TestQRMoveServiceClass(object):
         self.scp.datasets = [self.ds, 'acbdef', self.ds]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1784,8 +1849,9 @@ class TestQRMoveServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1815,8 +1881,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xC000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1849,8 +1916,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0x0000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1877,8 +1945,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xB000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1910,8 +1979,9 @@ class TestQRMoveServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1941,8 +2011,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xB000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1972,8 +2043,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xC000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2002,8 +2074,9 @@ class TestQRMoveServiceClass(object):
         self.scp.no_suboperations = 3
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2039,8 +2112,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xB000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2078,8 +2152,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xC000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2116,8 +2191,9 @@ class TestQRMoveServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2146,8 +2222,9 @@ class TestQRMoveServiceClass(object):
         self.scp.no_suboperations = 1
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2176,8 +2253,9 @@ class TestQRMoveServiceClass(object):
         self.scp.no_suboperations = 2
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2207,8 +2285,9 @@ class TestQRMoveServiceClass(object):
         self.scp.store_status = 0xB000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2238,8 +2317,9 @@ class TestQRMoveServiceClass(object):
         self.scp.destination_ae = ('localhost', 11113)
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2262,8 +2342,10 @@ class TestQRMoveServiceClass(object):
         self.identifiers = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
+                                 '1.2.840.10008.1.2.1')
+        ae.add_requested_context(CTImageStorage)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2280,7 +2362,7 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelMove.UID
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelMove.uid
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -2294,8 +2376,9 @@ class TestQRMoveServiceClass(object):
         self.identifiers = [self.ds, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
