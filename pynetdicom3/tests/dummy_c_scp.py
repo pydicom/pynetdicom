@@ -55,6 +55,9 @@ class DummyBaseSCP(threading.Thread):
         self.context = None
         self.info = None
 
+        self.send_a_abort = False
+        self.send_ap_abort = False
+
     def run(self):
         """The thread run method"""
         self.ae.start()
@@ -105,6 +108,30 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_cancel_move"""
         raise RuntimeError("You should not have been able to get here.")
 
+    def dev_monitor_socket(self):
+        try:
+            read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        except ValueError:
+            return
+
+        if read_list:
+            client_socket, _ = self.local_socket.accept()
+            client_socket.setsockopt(socket.SOL_SOCKET,
+                                     socket.SO_RCVTIMEO,
+                                     pack('ll', 10, 0))
+
+            # Create a new Association
+            # Association(local_ae, local_socket=None, max_pdu=16382)
+            assoc = Association(self,
+                                client_socket,
+                                max_pdu=self.maximum_pdu_size,
+                                acse_timeout=self.acse_timeout,
+                                dimse_timeout=self.dimse_timeout)
+            # Set the ACSE to abort association requests
+            assoc._a_p_abort_assoc_rq = self.send_ap_abort
+            assoc._a_abort_assoc_rq = self.send_a_abort
+            assoc.start()
+            self.active_associations.append(assoc)
 
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""

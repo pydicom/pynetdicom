@@ -22,7 +22,7 @@ from pynetdicom3.dimse_primitives import (C_STORE, C_FIND, C_GET, C_MOVE,
                                           N_ACTION, N_CREATE, N_DELETE,
                                           C_CANCEL)
 from pynetdicom3.pdu_primitives import P_DATA
-from pynetdicom3.sop_class import uid_to_sop_class
+from pynetdicom3.sop_class import uid_to_service_class
 from pynetdicom3.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom3.dimse')
@@ -913,9 +913,9 @@ class DIMSEServiceProvider(object):
         status_str = '0x{0:04x} - Unknown'.format(cs.Status)
         # Try and get the status from the affected SOP class UID
         if 'AffectedSOPClassUID' in cs:
-            sop_class = uid_to_sop_class(cs.AffectedSOPClassUID)
-            if cs.Status in sop_class.statuses:
-                status = sop_class.statuses[cs.Status]
+            service_class = uid_to_service_class(cs.AffectedSOPClassUID)
+            if cs.Status in service_class.statuses:
+                status = service_class.statuses[cs.Status]
                 status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
 
         LOGGER.info('Received Store Response')

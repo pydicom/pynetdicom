@@ -1156,8 +1156,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
 
-            store_assoc = self.AE.associate(destination[0], destination[1],
-                                            req.MoveDestination)
+            store_assoc = self.AE.associate(destination[0],
+                                            destination[1],
+                                            ae_title=req.MoveDestination)
         except Exception as ex:
             LOGGER.error("'on_c_move' yielded an invalid destination AE (addr, "
                          "port) value")

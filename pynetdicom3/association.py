@@ -19,6 +19,7 @@ from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
+    uid_to_service_class,
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
@@ -506,7 +507,7 @@ class Association(threading.Thread):
                     self.abort()
                     return
 
-                sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
+                sop_class = uid_to_service_class(msg.AffectedSOPClassUID)()
 
                 # Check that the SOP Class is supported by the AE
                 # New method
@@ -1101,13 +1102,13 @@ class Association(threading.Thread):
                                "established before sending a C-FIND request")
 
         if query_model == 'W':
-            sop_class = ModalityWorklistInformationFind()
+            sop_class = ModalityWorklistInformationFind
         elif query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelFind()
+            sop_class = PatientRootQueryRetrieveInformationModelFind
         elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelFind()
+            sop_class = StudyRootQueryRetrieveInformationModelFind
         elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
+            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind
         else:
             raise ValueError("Association.send_c_find - 'query_model' "
                              "must be 'W', 'P', 'S' or 'O'")
@@ -1116,14 +1117,14 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.abstract_syntax:
+            if sop_class.uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.UID)
+                         sop_class.uid)
             LOGGER.error("Find SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
@@ -1135,7 +1136,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.UID
+        req.AffectedSOPClassUID = sop_class.uid
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1329,11 +1330,11 @@ class Association(threading.Thread):
                                "established before sending a C-MOVE request")
 
         if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelMove()
+            sop_class = PatientRootQueryRetrieveInformationModelMove
         elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelMove()
+            sop_class = StudyRootQueryRetrieveInformationModelMove
         elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
+            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove
         else:
             raise ValueError("Association.send_c_move - 'query_model' must "
                              "be 'P', 'S' or 'O'")
@@ -1342,14 +1343,14 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.abstract_syntax:
+            if sop_class.uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.UID)
+                         sop_class.uid)
             LOGGER.error("Move SCU failed due to there being no accepted "
                          "presentation context\n   for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
@@ -1362,7 +1363,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_MOVE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.UID
+        req.AffectedSOPClassUID = sop_class.uid
         req.Priority = priority
         req.MoveDestination = move_aet
 
@@ -1597,11 +1598,11 @@ class Association(threading.Thread):
                                "established before sending a C-GET request")
 
         if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelGet()
+            sop_class = PatientRootQueryRetrieveInformationModelGet
         elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelGet()
+            sop_class = StudyRootQueryRetrieveInformationModelGet
         elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
+            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
         else:
             raise ValueError("Association.send_c_get() query_model "
                              "must be 'P', 'S' or 'O']")
@@ -1610,14 +1611,14 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.abstract_syntax:
+            if sop_class.uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.UID)
+                         sop_class.uid)
             LOGGER.error("Get SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
@@ -1629,7 +1630,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.UID
+        req.AffectedSOPClassUID = sop_class.uid
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax

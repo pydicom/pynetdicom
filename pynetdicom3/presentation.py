@@ -254,7 +254,7 @@ class PresentationContext(object):
         s += 'Transfer Syntax(es):\n'
         for syntax in self.transfer_syntax[:-1]:
             s += '\t={0!s}\n'.format(syntax.name)
-        s += '\t={0!s}'.format(self.transfer_syntax[-1].name)
+        s += '    ={0!s}'.format(self.transfer_syntax[-1].name)
 
         if self.result is not None:
             s += '\nResult: {0!s}'.format(self.status)
