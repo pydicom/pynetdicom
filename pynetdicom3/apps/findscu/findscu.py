@@ -15,10 +15,11 @@ import time
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
-from pynetdicom3 import AE, QueryRetrieveSOPClassList
+from pynetdicom3 import AE, QueryRetrievePresentationContexts
 
 logger = logging.Logger('findscu')
 stream_logger = logging.StreamHandler()
@@ -28,7 +29,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 
 def _setup_argparser():
@@ -129,14 +130,11 @@ logger.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=0,
-        scu_sop_class=QueryRetrieveSOPClassList,
-        scp_sop_class=[],
-        transfer_syntax=[ExplicitVRLittleEndian])
+ae = AE(ae_title=args.calling_aet, port=0)
+ae.requested_contexts = QueryRetrievePresentationContexts
 
 # Request association with remote
-assoc = ae.associate(args.peer, args.port, args.called_aet)
+assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
 
 if assoc.is_established:
     # Import query dataset
@@ -168,10 +166,10 @@ if assoc.is_established:
         #   ()[]()[]()[]()
         #   ()[].()[].()[].()
 
-    # Create query dataset
-    dataset = Dataset()
-    dataset.PatientName = '*'
-    dataset.QueryRetrieveLevel = "PATIENT"
+    # Create identifier dataset
+    identifier = Dataset()
+    identifier.PatientName = '*'
+    identifier.QueryRetrieveLevel = "PATIENT"
 
     # Query/Retrieve Information Models
     if args.worklist:
@@ -186,14 +184,13 @@ if assoc.is_established:
     else:
         query_model = 'W'
 
-    # Send query
-    response = assoc.send_c_find(dataset, query_model=query_model)
+    # Send query, yields (status, identifier)
+    # If `status` is one of the 'Pending' statuses then `identifier` is the
+    #   C-FIND response's Identifier dataset, otherwise `identifier` is None
+    response = assoc.send_c_find(identifier, query_model=query_model)
 
-    time.sleep(1)
-    for value in response:
+    for status, identifier in response:
         pass
-        #print(value)
+        print(status)
 
     assoc.release()
-
-ae.quit()

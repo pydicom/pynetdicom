@@ -17,7 +17,8 @@ from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
-from pynetdicom3 import AE, VerificationSOPClass
+from pynetdicom3 import AE
+from pynetdicom3.sop_class import VerificationSOPClass
 
 LOGGER = logging.Logger('echoscp')
 stream_logger = logging.StreamHandler()
@@ -26,7 +27,7 @@ stream_logger.setFormatter(formatter)
 LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
-VERSION = '0.4.0'
+VERSION = '0.4.1'
 
 
 def _setup_argparser():
@@ -193,12 +194,8 @@ def on_c_echo(context, info):
 
 
 # Create application entity
-ae = AE(ae_title=args.aetitle,
-        port=args.port,
-        scu_sop_class=[],
-        scp_sop_class=[VerificationSOPClass],
-        transfer_syntax=transfer_syntax)
-
+ae = AE(ae_title=args.aetitle, port=args.port)
+ae.add_supported_context(VerificationSOPClass, transfer_syntax)
 ae.maximum_pdu_size = args.max_pdu
 
 # Set timeouts

@@ -14,17 +14,16 @@ import sys
 import time
 
 from pydicom.dataset import Dataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
 from pynetdicom3 import (
     AE,
-    StorageSOPClassList,
-    QueryRetrieveSOPClassList,
+    QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_IMPLEMENTATION_UID
 )
-from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 logger = logging.Logger('movescu')
 stream_logger = logging.StreamHandler()
@@ -34,7 +33,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 
 def _setup_argparser():
@@ -152,155 +151,36 @@ logger.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=11113,
-        scu_sop_class=QueryRetrieveSOPClassList,
-        scp_sop_class=StorageSOPClassList,
-        transfer_syntax=[ExplicitVRLittleEndian])
+ae = AE(ae_title=args.calling_aet, port=0)
+ae.requested_contexts = QueryRetrievePresentationContexts
 
-# Set the extended negotiation SCP/SCU role selection to allow us to receive
-#   C-STORE requests for the supported SOP classes
-ext_neg = []
-for context in ae.presentation_contexts_scu:
-    tmp = SCP_SCU_RoleSelectionNegotiation()
-    tmp.sop_class_uid = context.abstract_syntax
-    tmp.scu_role = False
-    tmp.scp_role = True
+# Request association with remote AE
+assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
 
-    ext_neg.append(tmp)
-
-# Request association with remote
-assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
-
-# Create query dataset
-d = Dataset()
-d.PatientName = '*'
-d.QueryRetrieveLevel = "PATIENT"
-
-if args.patient:
-    query_model = 'P'
-elif args.study:
-    query_model = 'S'
-elif args.psonly:
-    query_model = 'O'
-else:
-    query_model = 'P'
-
-def on_c_store(dataset, context, info):
-    """
-    Function replacing ApplicationEntity.on_store(). Called when a dataset is
-    received following a C-STORE. Write the received dataset to file
-
-    Parameters
-    ----------
-    dataset : pydicom.Dataset
-        The DICOM dataset sent via the C-STORE
-    context : pynetdicom3.presentation.PresentationContextTuple
-        Details of the presentation context the dataset was sent under.
-    info : dict
-        A dict containing information about the association and DIMSE message.
-
-    Returns
-    -------
-    status : pynetdicom.sop_class.Status or int
-        A valid return status code, see PS3.4 Annex B.2.3 or the
-        StorageServiceClass implementation for the available statuses
-    """
-    mode_prefix = 'UN'
-    mode_prefixes = {'CT Image Storage' : 'CT',
-                     'Enhanced CT Image Storage' : 'CTE',
-                     'MR Image Storage' : 'MR',
-                     'Enhanced MR Image Storage' : 'MRE',
-                     'Positron Emission Tomography Image Storage' : 'PT',
-                     'Enhanced PET Image Storage' : 'PTE',
-                     'RT Image Storage' : 'RI',
-                     'RT Dose Storage' : 'RD',
-                     'RT Plan Storage' : 'RP',
-                     'RT Structure Set Storage' : 'RS',
-                     'Computed Radiography Image Storage' : 'CR',
-                     'Ultrasound Image Storage' : 'US',
-                     'Enhanced Ultrasound Image Storage' : 'USE',
-                     'X-Ray Angiographic Image Storage' : 'XA',
-                     'Enhanced XA Image Storage' : 'XAE',
-                     'Nuclear Medicine Image Storage' : 'NM',
-                     'Secondary Capture Image Storage' : 'SC'}
-
-    try:
-        mode_prefix = mode_prefixes[dataset.SOPClassUID.name]
-    except KeyError:
-        mode_prefix = 'UN'
-
-    filename = '{0!s}.{1!s}'.format(mode_prefix, dataset.SOPInstanceUID)
-    LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
-
-    if os.path.exists(filename):
-        LOGGER.warning('DICOM file already exists, overwriting')
-
-    ## DICOM File Format - File Meta Information Header
-    # If a DICOM dataset is to be stored in the DICOM File Format then the
-    # File Meta Information Header is required. At a minimum it requires:
-    #   * (0002,0000) FileMetaInformationGroupLength, UL, 4
-    #   * (0002,0001) FileMetaInformationVersion, OB, 2
-    #   * (0002,0002) MediaStorageSOPClassUID, UI, N
-    #   * (0002,0003) MediaStorageSOPInstanceUID, UI, N
-    #   * (0002,0010) TransferSyntaxUID, UI, N
-    #   * (0002,0012) ImplementationClassUID, UI, N
-    # (from the DICOM Standard, Part 10, Section 7.1)
-    # Of these, we should update the following as pydicom will take care of
-    #   the remainder
-    meta = Dataset()
-    meta.MediaStorageSOPClassUID = dataset.SOPClassUID
-    meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-    meta.TransferSyntaxUID = context.transfer_syntax
-
-    # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
-
-    ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
-    ds.update(dataset)
-    ds.is_little_endian = context.transfer_syntax.is_little_endian
-    ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
-
-    status_ds = Dataset()
-    status_ds.Status = 0x0000
-
-    if not args.ignore:
-        # Try to save to output-directory
-        if args.output_directory is not None:
-            filename = os.path.join(args.output_directory, filename)
-
-        try:
-            # We use `write_like_original=False` to ensure that a compliant
-            #   File Meta Information Header is written
-            ds.save_as(filename, write_like_original=False)
-            status_ds.Status = 0x0000 # Success
-        except IOError:
-            LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            LOGGER.error('Directory may not exist or you may not have write '
-                    'permission')
-            # Failed - Out of Resources - IOError
-            status_ds.Status = 0xA700
-        except:
-            LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            # Failed - Out of Resources - Miscellaneous error
-            status_ds.Status = 0xA701
-
-    return status_ds
-
-ae.on_c_store = on_c_store
-
-# Send query
 if assoc.is_established:
-    if args.move_aet:
-        response = assoc.send_c_move(d, args.move_aet, query_model=query_model)
-    else:
-        response = assoc.send_c_move(d, args.calling_aet, query_model=query_model)
+    # Create query dataset
+    ds = Dataset()
+    ds.PatientName = '*'
+    ds.QueryRetrieveLevel = "PATIENT"
 
-    time.sleep(1)
-    for (status, d) in response:
+    if args.patient:
+        query_model = 'P'
+    elif args.study:
+        query_model = 'S'
+    elif args.psonly:
+        query_model = 'O'
+    else:
+        query_model = 'P'
+
+    if args.move_aet:
+        move_aet = args.move_aet
+    else:
+        move_aet = args.calling_aet
+
+    # Send query
+    response = assoc.send_c_move(ds, move_aet, query_model=query_model)
+
+    for (status, identifier) in response:
         pass
 
     assoc.release()
