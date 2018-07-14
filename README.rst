@@ -29,7 +29,7 @@ it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 *Service Class Providers* (SCPs).
 
 The main user class is ``AE``, which is used to represent a DICOM Application
-Entity. Once the ``AE`` has been created then you would typically either:
+Entity. Once the ``AE`` has been created you would typically either:
 
 - Start the application as an SCP using ``AE.start()`` and wait for incoming
   association requests
@@ -37,9 +37,10 @@ Entity. Once the ``AE`` has been created then you would typically either:
   via the ``AE.associate(addr, port)`` method, which returns an ``Association``
   thread.
 
-Once the application is associated with a peer, DICOM data can be sent between
-them by utilising the DIMSE-C services (see DICOM Standard PS3.7,
-Sections 7.5, 9 and 10).
+Once the application is associated with a peer AE, DICOM data can be sent between
+them by utilising the DIMSE-C services (see the DICOM Standard Part 7,
+Sections `7.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_7.5>`_,
+and `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_).
 
 
 Supported Service Classes
@@ -56,7 +57,8 @@ Supported DIMSE SCU Services
 
 When the AE is acting as an SCU and an association has been established with a
 peer SCP, the following DIMSE-C services are available (provided the peer
-supports the corresponding Service Classes):
+supports the Service Class corresponding to the *dataset* and a corresponding
+Presentation Context has been accepted):
 
 - C-ECHO: ``Association.send_c_echo()`` used to verify end-to-end
   communications with the peer.
@@ -83,7 +85,7 @@ Supported DIMSE SCP Services
 When the AE is acting as an SCP the following DIMSE-C services are available to
 the peer once an association has been established. With the exception of
 ``on_c_echo()``, the user is expected to handle the required operations by
-implementing the following ``AE`` callbacks:
+implementing one (or more) of the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo(context, info)``
 - C-STORE: ``AE.on_c_store(dataset, context, info)``
@@ -124,8 +126,8 @@ Installing from github
 
 Examples
 --------
-- Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address *addr*,
-  listen port number *port*):
+Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address *addr*,
+listen port number *port*):
 
 .. code-block:: python
 
@@ -155,9 +157,9 @@ Examples
             # Release the association
             assoc.release()
 
-- Create a DICOM C-ECHO listen SCP on port 11112 (you may optionally implement
-  the `AE.on_c_echo callback` if you want to return something other than a
-  *Success* status):
+Create a DICOM C-ECHO listen SCP on port 11112 (you may optionally implement
+the `AE.on_c_echo` callback if you want to return something other than a
+*Success* status):
 
 .. code-block:: python
 
@@ -173,8 +175,8 @@ Examples
         # Start the SCP
         ae.start()
 
-- Send the DICOM 'CT Image Storage' dataset in *file-in.dcm* to a peer Storage
-  SCP (at TCP/IP address *addr*, listen port number *port*):
+Send the DICOM 'CT Image Storage' dataset in *file-in.dcm* to a peer Storage
+SCP (at TCP/IP address *addr*, listen port number *port*):
 
 .. code-block:: python
 
