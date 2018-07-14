@@ -95,9 +95,9 @@ def _setup_argparser():
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
     qr_model = qr_group.add_mutually_exclusive_group()
-    qr_model.add_argument('-k', '--key', metavar='[k]ey: gggg,eeee="str", path or dictionary name="str"',
-                          help="override matching key",
-                          type=str)
+    #qr_model.add_argument('-k', '--key', metavar='[k]ey: gggg,eeee="str", path or dictionary name="str"',
+    #                      help="override matching key",
+    #                      type=str)
     qr_model.add_argument("-W", "--worklist",
                           help="use modality worklist information model",
                           action="store_true")
@@ -153,8 +153,8 @@ if assoc.is_established:
         sys.exit()
 
     # Modify keys if requested
-    if args.key:
-        pass
+    #if args.key:
+    #    pass
         # Format examples:
         # "(gggg,eeee)=" Null value
         # "(gggg,eeee)=CITIZEN*" Typical use
@@ -191,6 +191,6 @@ if assoc.is_established:
 
     for status, identifier in response:
         pass
-        print(status)
+        #print(status)
 
     assoc.release()

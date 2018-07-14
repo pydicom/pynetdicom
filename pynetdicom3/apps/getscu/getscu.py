@@ -23,6 +23,7 @@ from pynetdicom3 import (
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
+from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 LOGGER = logging.Logger('getscu')
 stream_logger = logging.StreamHandler()
@@ -132,9 +133,6 @@ LOGGER.debug('$getscu.py v{0!s}'.format(VERSION))
 LOGGER.debug('')
 
 
-scu_classes = [x for x in QueryRetrieveSOPClassList]
-scu_classes.extend(StorageSOPClassList)
-
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
 ae = AE(ae_title=args.calling_aet, port=0)
@@ -143,6 +141,16 @@ for context in QueryRetrievePresentationContexts:
     ae.add_requested_context(context.abstract_syntax)
 for context in StoragePresentationContexts:
     ae.add_requested_context(context.abstract_syntax)
+
+# Add SCP/SCU Role Selection Negotiation to the extended negotiation
+# We want to act as a Storage SCP
+ext_neg = []
+for context in StoragePresentationContexts:
+    role = SCP_SCU_RoleSelectionNegotiation()
+    role.sop_class_uid = context.abstract_syntax
+    role.scp_role = True
+    role.scu_role = False
+    ext_neg.append(role)
 
 # Create query dataset
 d = Dataset()
@@ -267,7 +275,10 @@ def on_c_store(dataset, context, info):
 ae.on_c_store = on_c_store
 
 # Request association with remote
-assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
+assoc = ae.associate(args.peer,
+                     args.port,
+                     ae_title=args.called_aet,
+                     ext_neg=ext_neg)
 
 # Send query
 if assoc.is_established:

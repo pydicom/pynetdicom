@@ -132,9 +132,9 @@ Examples
         from pynetdicom3 import AE
 
         ae = AE(ae_title=b'MY_ECHO_SCU')
-        # The Verification SOP Class has a UID of 1.2.840.10008.1.1
+        # Verification SOP Class has a UID of 1.2.840.10008.1.1
         #   we can use the UID string directly when requesting the presentation
-        #   contexts we want the association to support
+        #   contexts we want to use in the association
         ae.add_requested_context('1.2.840.10008.1.1')
 
         # Associate with a peer DICOM AE
@@ -143,7 +143,9 @@ Examples
         if assoc.is_established:
             # Send a DIMSE C-ECHO request to the peer
             # `status` is a pydicom Dataset object with (at a minimum) a
-            # (0000,0900) Status element
+            #   (0000,0900) Status element
+            # If the peer hasn't accepted the requested context then this
+            #   will raise a RuntimeError exception
             status = assoc.send_c_echo()
 
             # Output the response from the peer
@@ -162,29 +164,39 @@ Examples
         from pynetdicom3 import AE, VerificationPresentationContexts
 
         ae = AE(ae_title=b'MY_ECHO_SCP', port=11112)
-        # Or we can use the inbuilt VerificationPresentationContexts list
-        #   there is one for each of the supported Service Classes
+        # Or we can use the inbuilt VerificationPresentationContexts list,
+        #   there's one for each of the supported Service Classes
+        # In this case, we are supporting any requests to use Verification SOP
+        #   Class in the association
         ae.supported_contexts = VerificationPresentationContexts
 
         # Start the SCP
         ae.start()
 
-- Send the DICOM CTImageStorage dataset in *file-in.dcm* to a peer Storage SCP
-  (at TCP/IP address *addr*, listen port number *port*):
+- Send the DICOM 'CT Image Storage' dataset in *file-in.dcm* to a peer Storage
+  SCP (at TCP/IP address *addr*, listen port number *port*):
 
 .. code-block:: python
 
         from pydicom import dcmread
-        from pydicom.uid import UID, ImplicitVRLittleEndian
+        from pydicom.uid import ImplicitVRLittleEndian
 
         from pynetdicom3 import AE, VerificationPresentationContexts
-        from pynetdicom3.sop_class import CTImageStorage
+        from pynetdicom3.sop_class import CTImageStorage, MRImageStorage
 
         ae = AE(ae_title=b'MY_STORAGE_SCU')
+        # We can also do the same thing with the requested contexts
         ae.requested_contexts = VerificationPresentationContexts
-        # Or we can use an inbuilt SOP Class object like CTImageStorage
+        # Or we can use inbuilt objects like CTImageStorage.
+        # The requested presentation context's transfer syntaxes can also
+        #   be specified using with a str/UID or list of str/UIDs
         ae.add_requested_context(CTImageStorage,
-                                 transfer_syntax=[ImplicitVRLittleEndian])
+                                 transfer_syntax=ImplicitVRLittleEndian)
+        # Adding a presentation context with multiple transfer syntaxes
+        #   this isn't actually required to transfer the CT dataset
+        ae.add_requested_context(MRImageStorage,
+                                 transfer_syntax=[ImplicitVRLittleEndian,
+                                                  '1.2.840.10008.1.2.1'])
 
         assoc = ae.associate(addr, port)
         if assoc.is_established:

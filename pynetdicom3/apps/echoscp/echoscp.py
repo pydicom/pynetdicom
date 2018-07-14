@@ -169,9 +169,10 @@ transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
-if args.prefer_uncompr and ImplicitVRLittleEndian in transfer_syntax:
-    transfer_syntax.remove(ImplicitVRLittleEndian)
-    transfer_syntax.append(ImplicitVRLittleEndian)
+if args.prefer_uncompr:
+    transfer_syntax = [ExplicitVRLittleEndian,
+                       ExplicitVRBigEndian,
+                       ImplicitVRLittleEndian]
 
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
