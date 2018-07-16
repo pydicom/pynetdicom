@@ -1,4 +1,4 @@
-"""Defines the supported Service Classes."""
+"""Implements the supported Service Classes."""
 
 from io import BytesIO
 import logging
@@ -1377,6 +1377,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
 
 class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Basic Worklist Management Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
     def __init__(self):

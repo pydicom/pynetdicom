@@ -624,10 +624,18 @@ class ApplicationEntity(object):
 
     @property
     def implementation_class_uid(self):
+        """Return the current Implementation Class UID."""
         return self._implementation_uid
 
     @implementation_class_uid.setter
     def implementation_class_uid(self, uid):
+        """Set the Implementation Class UID used in Association requests.
+
+        Parameters
+        ----------
+        uid : str or pydicom.uid.UID
+            The A-ASSOCIATE-RQ's Implementation Class UID value.
+        """
         uid = UID(uid)
         if uid.is_valid:
             self._implementation_uid = uid
@@ -636,15 +644,23 @@ class ApplicationEntity(object):
 
     @property
     def implementation_version_name(self):
+        """Return the current Implementation Version Name."""
         return self._implementation_version
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
+        """Set the Implementation Version Name used in Association requests.
+
+        Parameters
+        ----------
+        value : bytes
+            The A-ASSOCIATE-RQ's Implementation Version Name value.
+        """
         self._implementation_version = value
 
     @property
     def maximum_associations(self):
-        """Get the number of maximum associations."""
+        """Return the number of maximum associations as an int."""
         return self._maximum_associations
 
     @maximum_associations.setter
@@ -659,7 +675,7 @@ class ApplicationEntity(object):
 
     @property
     def maximum_pdu_size(self):
-        """Get the maximum PDU size."""
+        """Return the maximum PDU size as an int."""
         return self._maximum_pdu_size
 
     @maximum_pdu_size.setter
@@ -729,7 +745,7 @@ class ApplicationEntity(object):
 
     @property
     def port(self):
-        """Get the port number."""
+        """Return the port number as an int."""
         return self._port
 
     @port.setter
@@ -750,6 +766,7 @@ class ApplicationEntity(object):
         """Remove a requested Presentation Context.
 
         Depending on the supplied parameters one of the following will occur:
+
         * `abstract_syntax` alone
           All contexts with a matching abstract syntax all be removed.
         * `abstract_syntax` and `transfer_syntax`
@@ -798,6 +815,8 @@ class ApplicationEntity(object):
         >>> ae = AE()
         >>> ae.add_requested_context(VerificationSOPClass)
         >>> ae.remove_requested_context(VerificationSOPClass)
+        >>> len(ae.requested_contexts)
+        0
 
         For all requested presentation contexts with an abstract syntax of
         *Verification SOP Class*, stop requesting a transfer syntax of *Implicit
