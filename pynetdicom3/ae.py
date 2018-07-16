@@ -623,15 +623,9 @@ class ApplicationEntity(object):
             assoc.dimse.dimse_timeout = self.dimse_timeout
 
     @property
-<<<<<<< HEAD:pynetdicom3/applicationentity.py
-    def network_timeout(self):
-        """Return the network timeout in seconds."""
-        return self._network_timeout
-=======
     def implementation_class_uid(self):
         """Return the current Implementation Class UID."""
         return self._implementation_uid
->>>>>>> 0da1d6ccc90cab6bbb0d08ce2c14133f3da6d85d:pynetdicom3/ae.py
 
     @implementation_class_uid.setter
     def implementation_class_uid(self, uid):
