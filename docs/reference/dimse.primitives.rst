@@ -12,6 +12,7 @@ DIMSE-C Primitives
 .. autosummary::
    :toctree: generated/
 
+   C_CANCEL
    C_ECHO
    C_FIND
    C_GET

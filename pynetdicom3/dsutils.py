@@ -58,7 +58,8 @@ def encode(ds, is_implicit_vr, is_little_endian):
     Returns
     -------
     bytes or None
-        The encoded dataset (if successful), None if the encoding failed.
+        The encoded dataset as bytes (if successful) or None if the encoding
+        failed.
     """
     # pylint: disable=broad-except
     fp = DicomBytesIO()

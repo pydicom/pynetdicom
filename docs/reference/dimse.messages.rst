@@ -11,6 +11,7 @@ DIMSE-C Messages
 .. autosummary::
    :toctree: generated/
 
+   C_CANCEL_RQ
    C_ECHO_RQ
    C_ECHO_RSP
    C_FIND_RQ

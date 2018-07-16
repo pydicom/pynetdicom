@@ -5,7 +5,7 @@ Dataset Utilities (:mod:`pynetdicom3.dsutils`)
 
 .. currentmodule:: pynetdicom3.dsutils
 
-This module providers DICOM Dataset related utilities.
+This module provides DICOM Dataset related utilities.
 
 Encoding
 --------

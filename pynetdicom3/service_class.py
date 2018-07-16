@@ -349,11 +349,12 @@ class QueryRetrieveServiceClass(ServiceClass):
     statuses = None
 
     def SCP(self, req, context, info):
-        """
+        """The SCP implementation for the Query/Retrieve Service Class.
+
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_FIND
-            The C-FIND request primitive received from the peer.
+        req : dimse_primitives.C_FIND or C_GET or C_MOVE
+            The request primitive received from the peer.
         context : pynetdicom3.presentation.PresentationContext
             The presentation context that the SCP is operating under.
         info : dict

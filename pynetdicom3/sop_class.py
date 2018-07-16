@@ -51,7 +51,19 @@ def uid_to_service_class(uid):
         )
 
 
-SOPClass = namedtuple("SOPClass", ['uid', 'UID', 'service_class'])
+class SOPClass(namedtuple("SOPClass", ['uid', 'UID', 'service_class'])):
+    """A DICOM SOP Class.
+
+    Attributes
+    ----------
+    service_class : service_class.ServiceClass
+        The DICOM Service Class corresponding to the SOP Class.
+    uid : pydicom.uid.UID
+        The SOP Class UID.
+    UID : pydicom.uid.UID
+        The SOP Class UID.
+    """
+    pass
 
 
 def _generate_sop_classes(sop_class_dict):
@@ -214,7 +226,7 @@ _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 
 
 def uid_to_sop_class(uid):
-    """Given a `uid` return the corresponding SOPClass.
+    """Return the SOPClass object corresponding to `uid`.
 
     Parameters
     ----------

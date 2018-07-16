@@ -1,9 +1,9 @@
 .. _service_classes:
 
-Service Classes (:mod:`pynetdicom3.sop_class`)
+Service Classes (:mod:`pynetdicom3.service_class`)
 ==============================================
 
-.. currentmodule:: pynetdicom3.sop_class
+.. currentmodule:: pynetdicom3.service_class
 
 pynetdicom supports the following Service Classes
 
@@ -12,6 +12,5 @@ pynetdicom supports the following Service Classes
 
    VerificationServiceClass
    StorageServiceClass
-   QueryRetrieveFindServiceClass
-   QueryRetrieveGetServiceClass
-   QueryRetrieveMoveServiceClass
+   QueryRetrieveServiceClass
+   BasicWorklistManagementServiceClass
