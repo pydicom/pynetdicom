@@ -1,5 +1,6 @@
 """Tests for the StorageServiceClass."""
 
+from io import BytesIO
 import logging
 import os
 import threading
@@ -9,8 +10,10 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
+from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom3 import AE
+from pynetdicom3.dimse_primitives import C_STORE
 from pynetdicom3.sop_class import (
     VerificationServiceClass,
     VerificationSOPClass,
@@ -49,14 +52,17 @@ class TestStorageServiceClass(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skip('Difficult to test correctly')
+    @pytest.mark.skip("Not aware of any way to test")
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
+        # Hard to test directly as decode errors won't show up until the
+        #   dataset is actually used
         self.scp = DummyStorageSCP()
         self.scp.status = 0x0000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -83,7 +89,8 @@ class TestStorageServiceClass(object):
         self.scp.status.Status = 0x0001
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
@@ -100,7 +107,8 @@ class TestStorageServiceClass(object):
         self.scp.status.OffendingElement = 0x00080010
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
@@ -116,7 +124,8 @@ class TestStorageServiceClass(object):
         self.scp.status = 0x0000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
@@ -131,7 +140,8 @@ class TestStorageServiceClass(object):
         self.scp.status = 0xFFF0
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
@@ -145,7 +155,8 @@ class TestStorageServiceClass(object):
         self.scp.status = None
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
@@ -161,7 +172,8 @@ class TestStorageServiceClass(object):
         self.scp.ae.on_c_store = on_c_store
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
@@ -174,7 +186,8 @@ class TestStorageServiceClass(object):
         self.scp = DummyStorageSCP()
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -195,7 +208,8 @@ class TestStorageServiceClass(object):
         self.scp = DummyStorageSCP()
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)

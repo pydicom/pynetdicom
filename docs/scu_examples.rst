@@ -14,8 +14,9 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
 
         from pynetdicom3 import AE
 
-        # The Verification SOP Class has a UID of 1.2.840.10008.1.1
-        ae = AE(scu_sop_class=['1.2.840.10008.1.1'])
+        ae = AE()
+        # Verification SOP Class has a UID of 1.2.840.10008.1.1
+        ae.add_requested_context('1.2.840.10008.1.1')
 
         # Try and associate with the peer AE
         #   Returns the Association thread
@@ -48,12 +49,12 @@ datasets to peer AEs.
 .. code-block:: python
 
         from pydicom import read_file
-        from pynetdicom3 import AE
-        from pynetdicom3 import StorageSOPClassList
+        from pynetdicom3 import AE, StoragePresentationContexts
 
-        # StorageSOPClassList contains all the Standard SOP Classes supported
-        #   by the Storage Service Class (see PS3.4 Annex B.5)
-        ae = AE(scu_sop_class=StorageSOPClassList)
+        ae = AE()
+        # StoragePresentationContexts is a list of PresentationContexts, one
+        #   for each of the Storage Service's SOP Classes (see PS3.4 Annex B.5)
+        ae.requested_contexts = StoragePresentationContexts
 
         # Try and associate with the peer AE
         #   Returns the Association thread
@@ -83,12 +84,13 @@ those specified by the user-created *dataset*.
 
         from pydicom.dataset import Dataset
 
-        from pynetdicom3 import AE
-        from pynetdicom3 import QueryRetrieveSOPClassList
+        from pynetdicom3 import AE, QueryRetrievePresentationContexts
 
-        # QueryRetrieveSOPClassList contains the SOP Classes supported
-        #   by the Query/Retrieve Service Class (see PS3.4 Annex C.6)
-        ae = AE(scu_sop_class=QueryRetrieveSOPClassList)
+        ae = AE()
+
+        # QueryRetrievePresentationContexts is a list of PresentationContexts,
+        #   one for each of the Query/Retrieve Service's SOP Classes
+        #   (see PS3.4 Annex C.6)
 
         # Try and associate with the peer AE
         #   Returns the Association thread
@@ -98,7 +100,7 @@ those specified by the user-created *dataset*.
         if assoc.is_established:
             print('Association accepted by the peer')
 
-            # Creat a new DICOM dataset with the attributes to match against
+            # Create a new DICOM dataset with the attributes to match against
             #   In this case match any patient's name at the PATIENT query
             #   level. See PS3.4 Annex C.6 for the complete list of possible
             #   attributes and query levels.
@@ -115,10 +117,10 @@ those specified by the user-created *dataset*.
             #       'O' - Patient/Study Only (1.2.840.10008.5.1.4.1.2.3.1)
             responses = assoc.send_c_find(dataset, query_model='P')
 
-            for (status, dataset) in responses:
+            for (status, identifier) in responses:
                 # While status is pending we should get the matching datasets
                 if status == 'Pending':
-                    print(dataset)
+                    print(identifier)
                 elif status == 'Success':
                     print('C-FIND finished, releasing the association')
                 elif status == 'Cancel':

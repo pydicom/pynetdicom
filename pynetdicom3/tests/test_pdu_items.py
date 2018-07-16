@@ -7,7 +7,6 @@ import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom3 import StorageSOPClassList, QueryRetrieveSOPClassList
 from pynetdicom3.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
 )

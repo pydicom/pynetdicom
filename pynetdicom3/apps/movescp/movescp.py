@@ -13,10 +13,15 @@ import time
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
-from pynetdicom3 import AE, QueryRetrieveSOPClassList, StorageSOPClassList
+from pynetdicom3 import (
+    AE,
+    QueryRetrievePresentationContexts,
+    StoragePresentationContexts
+)
 
 LOGGER = logging.Logger('movescp')
 stream_logger = logging.StreamHandler()
@@ -26,7 +31,7 @@ LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 
 def _setup_argparser():
@@ -175,11 +180,15 @@ def on_c_move(dataset, move_aet, context, info):
         yield 0xff00, ds
 
 # Create application entity
-ae = AE(ae_title=args.aetitle,
-        port=args.port,
-        scu_sop_class=StorageSOPClassList,
-        scp_sop_class=QueryRetrieveSOPClassList,
-        transfer_syntax=transfer_syntax)
+ae = AE(ae_title=args.aetitle, port=args.port)
+
+# Add the requested Storage Service presentation contexts
+for context in StoragePresentationContexts:
+    ae.add_requested_context(context.abstract_syntax, transfer_syntax)
+
+# Add the supported QR Service presentation contexts
+for context in QueryRetrievePresentationContexts:
+    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
 ae.maximum_pdu_size = args.max_pdu
 

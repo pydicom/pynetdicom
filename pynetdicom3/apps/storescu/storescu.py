@@ -13,11 +13,12 @@ import socket
 import sys
 
 from pydicom import dcmread
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
+)
 
-from pynetdicom3 import AE
-from pynetdicom3 import StorageSOPClassList
+from pynetdicom3 import AE, StoragePresentationContexts
 
 logger = logging.Logger('storescu')
 stream_logger = logging.StreamHandler()
@@ -26,7 +27,7 @@ stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -141,14 +142,13 @@ elif args.request_implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
 # Bind to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=0,
-        scu_sop_class=StorageSOPClassList,
-        scp_sop_class=[],
-        transfer_syntax=transfer_syntax)
+ae = AE(ae_title=args.calling_aet, port=0)
+
+for context in StoragePresentationContexts:
+    ae.add_requested_context(context.abstract_syntax, transfer_syntax)
 
 # Request association with remote
-assoc = ae.associate(args.peer, args.port, args.called_aet)
+assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
 
 if assoc.is_established:
     logger.info('Sending file: {0!s}'.format(args.dcmfile_in))

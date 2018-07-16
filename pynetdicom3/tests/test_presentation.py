@@ -7,8 +7,17 @@ import pytest
 from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
-from pynetdicom3 import StorageSOPClassList
-from pynetdicom3.presentation import PresentationContext, PresentationService
+from pynetdicom3 import StoragePresentationContexts
+from pynetdicom3.presentation import (
+    PresentationContext,
+    PresentationService,
+    DEFAULT_TRANSFER_SYNTAXES,
+    VerificationPresentationContexts,
+    StoragePresentationContexts,
+    QueryRetrievePresentationContexts,
+    BasicWorklistManagementPresentationContexts,
+    _build_context,
+)
 
 
 @pytest.fixture(params=[
@@ -22,6 +31,7 @@ from pynetdicom3.presentation import PresentationContext, PresentationService
 def good_init(request):
     """Good init values."""
     return request.param
+
 
 class TestPresentationContext(object):
     """Test the PresentationContext class"""
@@ -76,6 +86,14 @@ class TestPresentationContext(object):
         pc.transfer_syntax = ['2.16.840.1.113709.1.2.1']
         assert '2.16.840.1.113709.1.2.1' in pc._transfer_syntax
 
+    def test_add_transfer_syntax_duplicate(self):
+        """Test add_transfer_syntax with a duplicate UID"""
+        pc = PresentationContext()
+        pc.add_transfer_syntax('1.3')
+        pc.add_transfer_syntax('1.3')
+
+        assert pc.transfer_syntax == ['1.3']
+
     def test_equality(self):
         """Test presentation context equality"""
         pc_a = PresentationContext()
@@ -105,7 +123,7 @@ class TestPresentationContext(object):
         pc = PresentationContext()
         pc.context_id = 1
         pc.abstract_syntax = '1.1.1'
-        pc.transfer_syntax = ['1.2.840.10008.1.2']
+        pc.transfer_syntax = ['1.2.840.10008.1.2', '1.2.3']
         pc._scp_role = True
         pc._scu_role = False
         pc.result = 0x02
@@ -127,7 +145,6 @@ class TestPresentationContext(object):
             pc.context_id = 256
         with pytest.raises(ValueError):
             pc.context_id = 12
-
 
     def test_abstract_syntax(self):
         """Test abstract syntax setter"""
@@ -182,6 +199,12 @@ class TestPresentationContext(object):
         pc.transfer_syntax = [1234, UID('1.4.1')]
         assert pc.transfer_syntax == [UID('1.4.1')]
 
+    def test_transfer_syntax_duplicate(self):
+        """Test the transfer_syntax setter with duplicate UIDs."""
+        pc = PresentationContext()
+        pc.transfer_syntax = ['1.3', '1.3']
+        assert pc.transfer_syntax == ['1.3']
+
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
     def test_transfer_syntax_nonconformant(self, caplog):
         """Test setting non-conformant transfer syntaxes"""
@@ -205,6 +228,18 @@ class TestPresentationContext(object):
         for status, result in zip(statuses, results):
             pc.result = status
             assert pc.status == result
+
+    def test_tuple(self):
+        """Test the .as_tuple"""
+        context = PresentationContext()
+        context.context_id = 3
+        context.abstract_syntax = '1.2.840.10008.1.1'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+        out = context.as_tuple
+
+        assert out.context_id == 3
+        assert out.abstract_syntax == '1.2.840.10008.1.1'
+        assert out.transfer_syntax == '1.2.840.10008.1.2'
 
 
 class TestPresentationServiceAcceptor(object):
@@ -423,10 +458,10 @@ class TestPresentationServiceAcceptor(object):
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
-        for ii, sop in enumerate(StorageSOPClassList):
+        for ii, context in enumerate(StoragePresentationContexts):
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
-            pc.abstract_syntax = sop.UID
+            pc.abstract_syntax = context.abstract_syntax
             pc.transfer_syntax = ['1.2.840.10008.1.2',
                                  '1.2.840.10008.1.2.1',
                                  '1.2.840.10008.1.2.2']
@@ -791,10 +826,10 @@ class TestPresentationServiceRequestor(object):
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
-        for ii, sop in enumerate(StorageSOPClassList):
+        for ii, context in enumerate(StoragePresentationContexts):
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
-            pc.abstract_syntax = sop.UID
+            pc.abstract_syntax = context.abstract_syntax
             pc.transfer_syntax = ['1.2.840.10008.1.2',
                                   '1.2.840.10008.1.2.1',
                                   '1.2.840.10008.1.2.2']
@@ -827,3 +862,69 @@ class TestPresentationServiceRequestor(object):
             else:
                 assert results[ii].result == 0x00
                 assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
+
+
+def test_default_transfer_syntaxes():
+    """Test that the default transfer syntaxes are correct."""
+    assert len(DEFAULT_TRANSFER_SYNTAXES) == 3
+    assert '1.2.840.10008.1.2' in DEFAULT_TRANSFER_SYNTAXES
+    assert '1.2.840.10008.1.2.1' in DEFAULT_TRANSFER_SYNTAXES
+    assert '1.2.840.10008.1.2.2' in DEFAULT_TRANSFER_SYNTAXES
+
+
+def test_build_context():
+    """Test _build_context()"""
+    context = _build_context('1.2.840.10008.1.1')
+    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+    assert context.context_id is None
+
+    context = _build_context('1.2.840.10008.1.1', ['1.2.3', '4.5.6'])
+    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.transfer_syntax == ['1.2.3', '4.5.6']
+    assert context.context_id is None
+
+
+class TestServiceContexts(object):
+    def test_verification(self):
+        """Test the verification service presentation contexts."""
+        contexts = VerificationPresentationContexts
+        assert len(contexts) == 1
+        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert contexts[0].context_id is None
+
+    def test_storage(self):
+        """Test the storage service presentation contexts"""
+        contexts = StoragePresentationContexts
+        assert len(contexts) == 117
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
+        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.78.8'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
+
+    def test_qr(self):
+        """Test the query/retrieve service presentation contexts."""
+        contexts = QueryRetrievePresentationContexts
+        assert len(contexts) == 9
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.2.1.1'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.1.2.2.2'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.2.3.3'
+
+    def test_worklist(self):
+        """Test the basic worklist service presentation contexts."""
+        contexts = BasicWorklistManagementPresentationContexts
+        assert len(contexts) == 1
+
+        assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+        assert contexts[0].context_id is None
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.31'
