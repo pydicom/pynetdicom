@@ -14,11 +14,18 @@ import sys
 
 from pydicom.dataset import Dataset, FileDataset
 from pydicom.filewriter import write_file
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
+)
 
-from pynetdicom3 import AE, StorageSOPClassList, VerificationSOPClass
-from pynetdicom3 import pynetdicom_implementation_uid, pynetdicom_version
+from pynetdicom3 import (
+    AE,
+    StoragePresentationContexts,
+    VerificationPresentationContexts,
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION
+)
 
 def setup_logger():
     """Setup the logger"""
@@ -33,7 +40,7 @@ def setup_logger():
 
 LOGGER = setup_logger()
 
-VERSION = '0.3.1'
+VERSION = '0.3.2'
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -254,11 +261,11 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_implementation_uid
+    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = pynetdicom_version
+    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
@@ -300,16 +307,16 @@ if args.output_directory is not None:
         LOGGER.error("    {0!s}".format(args.output_directory))
         sys.exit()
 
-supported_sop_classes = [x for x in StorageSOPClassList]
-supported_sop_classes.append(VerificationSOPClass)
-
 # Create application entity
-ae = AE(ae_title=args.aetitle,
-        port=args.port,
-        bind_addr=args.bind_addr,
-        scu_sop_class=[],
-        scp_sop_class=supported_sop_classes,
-        transfer_syntax=transfer_syntax)
+ae = AE(ae_title=args.aetitle, port=args.port)
+
+ae.bind_addr = args.bind_addr
+
+# Add presentation contexts with specified transfer syntaxes
+for context in StoragePresentationContexts:
+    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
+for context in VerificationPresentationContexts:
+    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
 ae.maximum_pdu_size = args.max_pdu
 

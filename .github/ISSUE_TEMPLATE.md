@@ -7,7 +7,7 @@ What you expected to happen, (including references to the DICOM standard is
 appreciated).
 
 ### Actual behaviour
-What actually happened
+What actually happened. If an exception occurred please post the full traceback.
 
 ### Steps to reproduce
 How to reproduce the issue. Please include a minimum working code sample and

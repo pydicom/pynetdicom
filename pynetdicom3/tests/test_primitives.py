@@ -4,6 +4,8 @@
 import logging
 import unittest
 
+import pytest
+
 from pydicom.uid import UID
 
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ABORT_RQ, P_DATA_TF
@@ -506,43 +508,45 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation(unittest.TestCase):
         )
 
 
-class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
+class TestPrimitive_UserIdentityNegotiation(object):
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = UserIdentityNegotiation()
         primitive.user_identity_type = 1
-        self.assertEqual(primitive.user_identity_type, 1)
-        with self.assertRaises(ValueError):
+        assert primitive.user_identity_type == 1
+        with pytest.raises(ValueError):
             primitive.user_identity_type = 5
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.user_identity_type = 'a'
 
         primitive.positive_response_requested = True
-        self.assertTrue(primitive.positive_response_requested)
-        with self.assertRaises(TypeError):
+        assert primitive.positive_response_requested
+        with pytest.raises(TypeError):
             primitive.positive_response_requested = 'test'
 
         primitive.primary_field = b'\x00\x01'
-        self.assertEqual(primitive.primary_field, b'\x00\x01')
-        with self.assertRaises(TypeError):
+        assert primitive.primary_field == b'\x00\x01'
+        with pytest.raises(TypeError):
             primitive.primary_field = ['test']
 
         primitive.secondary_field = b'\x00\x21'
-        self.assertEqual(primitive.secondary_field, b'\x00\x21')
-        with self.assertRaises(TypeError):
+        assert primitive.secondary_field == b'\x00\x21'
+        primitive.secondary_field = None
+        assert primitive.secondary_field is None
+        with pytest.raises(TypeError):
             primitive.secondary_field = ['test']
 
         primitive.server_response = b'\x00\x31'
-        self.assertEqual(primitive.server_response, b'\x00\x31')
-        with self.assertRaises(TypeError):
+        assert primitive.server_response == b'\x00\x31'
+        with pytest.raises(TypeError):
             primitive.server_response = ['test']
 
         primitive = UserIdentityNegotiation()
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.from_primitive()
 
         primitive.user_identity_type = 2
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.from_primitive()
 
     def test_string(self):
@@ -552,13 +556,13 @@ class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
         primitive.positive_response_requested = True
         primitive.primary_field = b'\x00\x01'
         primitive.secondary_field = b'\x00\x21'
-        self.assertTrue('requested: True' in primitive.__str__())
-        self.assertTrue('type: 1' in primitive.__str__())
-        self.assertTrue('Primary' in primitive.__str__())
-        self.assertTrue('Secondary' in primitive.__str__())
+        assert 'requested: True' in primitive.__str__()
+        assert 'type: 1' in primitive.__str__()
+        assert 'Primary' in primitive.__str__()
+        assert 'Secondary' in primitive.__str__()
 
         primitive.server_response = b'\x00\x31'
-        self.assertTrue('Server response' in primitive.__str__())
+        assert 'Server response' in primitive.__str__()
 
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
@@ -570,14 +574,14 @@ class TestPrimitive_UserIdentityNegotiation(unittest.TestCase):
 
         primitive.user_identity_type = 2
         primitive.secondary_field = b''
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         # -AC
         primitive = UserIdentityNegotiation()
         primitive.server_response = b'Test'
         item = primitive.from_primitive()
-        self.assertTrue(item.encode() == b'\x59\x00\x00\x06\x00\x04\x54\x65\x73\x74')
+        assert item.encode() == b'\x59\x00\x00\x06\x00\x04\x54\x65\x73\x74'
 
 
 class TestPrimitive_A_ASSOCIATE(unittest.TestCase):

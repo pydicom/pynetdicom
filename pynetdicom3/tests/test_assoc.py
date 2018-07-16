@@ -20,7 +20,7 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from pynetdicom3 import AE, VerificationSOPClass
+from pynetdicom3 import AE, VerificationPresentationContexts
 from pynetdicom3.association import Association
 from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import encode, decode
@@ -29,6 +29,7 @@ from pynetdicom3.pdu_primitives import (
     SOPClassCommonExtendedNegotiation
 )
 from pynetdicom3.sop_class import (
+    VerificationSOPClass,
     CTImageStorage, MRImageStorage, RTImageStorage,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
@@ -88,7 +89,8 @@ class TestCStoreSCP(object):
         self.scp.raise_exception = True
         self.scp.start()
 
-        ae = AE(scu_sop_class=[RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
@@ -123,7 +125,9 @@ class TestCStoreSCP(object):
         self.scp.raise_exception = True
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
@@ -154,7 +158,9 @@ class TestCStoreSCP(object):
         self.scp.status.PatientName = 'ABCD'
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
@@ -186,7 +192,9 @@ class TestCStoreSCP(object):
         self.scp.status.PatientName = 'ABCD'
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
@@ -216,7 +224,9 @@ class TestCStoreSCP(object):
         self.scp.status = 'abcd'
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
@@ -246,7 +256,9 @@ class TestCStoreSCP(object):
         self.scp.status = 0xDEFA
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
@@ -303,137 +315,42 @@ class TestAssociation(object):
                 thread.stop()
 
     def test_scp_assoc_a_abort_reply(self):
-        """Test the SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
-        class DummyAE(threading.Thread, AE):
-            """Dummy AE used for testing"""
-            def __init__(self, scp_sop_class, port):
-                """Initialise the class"""
-                AE.__init__(self, scp_sop_class=scp_sop_class, port=port)
-                threading.Thread.__init__(self)
-                self.daemon = True
+        """Test SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae._monitor_socket = self.scp.dev_monitor_socket
+        self.scp.send_a_abort = True
+        self.scp.start()
 
-            def run(self):
-                """The thread run method"""
-                self.start_scp()
-
-            def start_scp(self):
-                """new runner"""
-                self._bind_socket()
-                while True:
-                    try:
-                        if self._quit:
-                            break
-                        self._monitor_socket()
-                        self.cleanup_associations()
-
-                    except KeyboardInterrupt:
-                        self.stop()
-
-            def _monitor_socket(self):
-                """Override the normal method"""
-                try:
-                    read_list, _, _ = select.select([self.local_socket], [], [], 0)
-                except (socket.error, ValueError):
-                    return
-
-                # If theres a connection
-                if read_list:
-                    client_socket, _ = self.local_socket.accept()
-                    client_socket.setsockopt(socket.SOL_SOCKET,
-                                             socket.SO_RCVTIMEO,
-                                             pack('ll', 10, 0))
-
-                    # Create a new Association
-                    # Association(local_ae, local_socket=None, max_pdu=16382)
-                    assoc = Association(self,
-                                        client_socket,
-                                        max_pdu=self.maximum_pdu_size,
-                                        acse_timeout=self.acse_timeout,
-                                        dimse_timeout=self.dimse_timeout)
-                    # Set the ACSE to abort association requests
-                    assoc._a_abort_assoc_rq = True
-                    assoc.start()
-                    self.active_associations.append(assoc)
-
-        scp = DummyAE(scp_sop_class=[VerificationSOPClass], port=11112)
-        scp.start()
-
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
 
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_assoc_ap_abort_reply(self):
-        """Test the SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
-        class DummyAE(threading.Thread, AE):
-            """Dummy AE used for testing"""
-            def __init__(self, scp_sop_class, port):
-                """Initialise the class"""
-                AE.__init__(self, scp_sop_class=scp_sop_class, port=port)
-                threading.Thread.__init__(self)
-                self.daemon = True
+        """Test SCP sending an A-P-ABORT instead of an A-ASSOCIATE response"""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae._monitor_socket = self.scp.dev_monitor_socket
+        self.scp.send_ap_abort = True
+        self.scp.start()
 
-            def run(self):
-                """The thread run method"""
-                self.start_scp()
-
-            def start_scp(self):
-                """new runner"""
-                self._bind_socket()
-                while True:
-                    try:
-                        if self._quit:
-                            break
-                        self._monitor_socket()
-                        self.cleanup_associations()
-
-                    except KeyboardInterrupt:
-                        self.stop()
-
-            def _monitor_socket(self):
-                """Override the normal method"""
-                try:
-                    read_list, _, _ = select.select([self.local_socket], [], [], 0)
-                except ValueError:
-                    return
-
-                # If theres a connection
-                if read_list:
-                    client_socket, _ = self.local_socket.accept()
-                    client_socket.setsockopt(socket.SOL_SOCKET,
-                                             socket.SO_RCVTIMEO,
-                                             pack('ll', 10, 0))
-
-                    # Create a new Association
-                    # Association(local_ae, local_socket=None, max_pdu=16382)
-                    assoc = Association(self,
-                                        client_socket,
-                                        max_pdu=self.maximum_pdu_size,
-                                        acse_timeout=self.acse_timeout,
-                                        dimse_timeout=self.dimse_timeout)
-                    # Set the ACSE to abort association requests
-                    assoc._a_p_abort_assoc_rq = True
-                    assoc.start()
-                    self.active_associations.append(assoc)
-
-        scp = DummyAE(scp_sop_class=[VerificationSOPClass], port=11112)
-        scp.start()
-
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
 
-        scp.stop()
+        self.scp.stop()
 
     @staticmethod
     def test_bad_connection():
         """Test connect to non-AE"""
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 22)
@@ -441,14 +358,15 @@ class TestAssociation(object):
     @staticmethod
     def test_connection_refused():
         """Test connection refused"""
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11120)
 
     def test_init_errors(self):
         """Test bad parameters on init raise errors"""
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         with pytest.raises(TypeError, match="with either the client_socket or peer_ae"):
@@ -478,22 +396,10 @@ class TestAssociation(object):
 
     def test_run_requestor(self):
         """Test running as an Association requestor (SCU)"""
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.presentation_contexts_scu = []
-        assoc = ae.associate('localhost', 11112)
-        assert not assoc.is_established
-        #self.assertRaises(SystemExit, ae.quit)
-        scp.stop()
-
-        # Test good request and assoc accepted by peer
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -502,41 +408,43 @@ class TestAssociation(object):
         assert assoc.is_released
         assert not assoc.is_established
         assert assoc.is_released
-        #self.assertRaises(SystemExit, ae.quit)
-        scp.stop()
+        self.scp.stop()
 
     def test_req_no_presentation_context(self):
         """Test rejection due to no acceptable presentation contexts"""
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_aborted
-        scp.stop()
+        self.scp.stop()
 
     def test_peer_releases_assoc(self):
         """Test peer releases assoc"""
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        scp.release()
+        self.scp.release()
         assert not assoc.is_established
         assert assoc.is_released
         #self.assertRaises(SystemExit, ae.quit)
-        scp.stop() # Important!
+        self.scp.stop() # Important!
 
     def test_peer_aborts_assoc(self):
         """Test peer aborts assoc"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -549,17 +457,18 @@ class TestAssociation(object):
 
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""
-        scp = DummyVerificationSCP()
-        scp.ae.require_calling_aet = b'HAHA NOPE'
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.require_calling_aet = b'HAHA NOPE'
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
         assert not assoc.is_established
         #self.assertRaises(SystemExit, ae.quit)
-        scp.stop() # Important!
+        self.scp.stop() # Important!
 
     def test_kill(self):
         """Test killing the association"""
@@ -568,9 +477,10 @@ class TestAssociation(object):
     def test_assoc_release(self):
         """Test Association release"""
         # Simple release
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -578,12 +488,13 @@ class TestAssociation(object):
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
-        scp.stop()
+        self.scp.stop()
 
         # Simple release, then release again
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -594,12 +505,13 @@ class TestAssociation(object):
         assert assoc.is_released
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
         # Simple release, then abort
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -610,14 +522,15 @@ class TestAssociation(object):
         assert not assoc.is_established
         assoc.abort()
         assert not assoc.is_aborted
-        scp.stop()
+        self.scp.stop()
 
     def test_assoc_abort(self):
         """Test Association abort"""
         # Simple abort
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -625,12 +538,13 @@ class TestAssociation(object):
         assoc.abort()
         assert not assoc.is_established
         assert assoc.is_aborted
-        scp.stop()
+        self.scp.stop()
 
         # Simple abort, then release
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -641,12 +555,13 @@ class TestAssociation(object):
         assoc.release()
         assert assoc.is_aborted
         assert not assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
         # Simple abort, then abort again
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -655,66 +570,70 @@ class TestAssociation(object):
         assert assoc.is_aborted
         assert not assoc.is_established
         assoc.abort()
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_removed_ui(self):
         """Test SCP removes UI negotiation"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ui = UserIdentityNegotiation()
         ui.user_identity_type = 0x01
         ui.primary_field = b'pynetdicom'
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[ui])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_removed_ext_neg(self):
         """Test SCP removes ex negotiation"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ext = SOPClassExtendedNegotiation()
         ext.sop_class_uid = '1.1.1.1'
         ext.service_class_application_information = b'\x01\x02'
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[ext])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_removed_com_ext_neg(self):
         """Test SCP removes common ext negotiation"""
-        scp = DummyVerificationSCP()
-        scp.start()
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
         ext = SOPClassCommonExtendedNegotiation()
-        self.related_general_sop_class_identification = ['1.2.1']
+        ext.related_general_sop_class_identification = ['1.2.1']
         ext.sop_class_uid = '1.1.1.1'
         ext.service_class_uid = '1.1.3'
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[ext])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
     def test_scp_assoc_limit(self):
         """Test SCP limits associations"""
-        scp = DummyVerificationSCP()
-        scp.ae.maximum_associations = 1
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.maximum_associations = 1
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -723,33 +642,35 @@ class TestAssociation(object):
         assert not assoc_2.is_established
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
     def test_require_called_aet(self):
         """SCP requires matching called AET"""
-        scp = DummyVerificationSCP()
-        scp.ae.require_called_aet = b'TESTSCU'
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.require_called_aet = b'TESTSCU'
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
-        scp.stop()
+        self.scp.stop()
 
     def test_require_calling_aet(self):
         """SCP requires matching called AET"""
-        scp = DummyVerificationSCP()
-        scp.ae.require_calling_aet = b'TESTSCP'
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.require_calling_aet = b'TESTSCP'
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
-        scp.stop()
+        self.scp.stop()
 
     def test_acse_timeout(self):
         """Test that the ACSE timeout works"""
@@ -761,10 +682,11 @@ class TestAssociation(object):
 
     def test_dimse_timeout(self):
         """Test that the DIMSE timeout works"""
-        scp = DummyVerificationSCP()
-        scp.delay = 0.2
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.delay = 0.2
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.dimse_timeout = 0.1
@@ -776,7 +698,7 @@ class TestAssociation(object):
         assoc.release()
         assert not assoc.is_released
         assert assoc.is_aborted
-        scp.stop()
+        self.scp.stop()
 
     def test_dul_timeout(self):
         """Test that the DUL timeout (ARTIM) works"""
@@ -784,9 +706,10 @@ class TestAssociation(object):
 
     def test_multiple_association_release_cycles(self):
         """Test repeatedly associating and releasing"""
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         for ii in range(10):
@@ -798,7 +721,7 @@ class TestAssociation(object):
             assert assoc.is_released
             assert not assoc.is_established
 
-        scp.stop()
+        self.scp.stop()
 
 
 class TestAssociationSendCEcho(object):
@@ -824,7 +747,8 @@ class TestAssociationSendCEcho(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -839,7 +763,8 @@ class TestAssociationSendCEcho(object):
         """Test SCU when no accepted abstract syntax"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -854,7 +779,8 @@ class TestAssociationSendCEcho(object):
         """Test no response from peer"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -874,7 +800,8 @@ class TestAssociationSendCEcho(object):
         """Test invalid response received from peer"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -898,7 +825,8 @@ class TestAssociationSendCEcho(object):
         """Test receiving a success response from the peer"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -914,7 +842,8 @@ class TestAssociationSendCEcho(object):
         self.scp = DummyVerificationSCP()
         self.scp.status = 0x0210
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -930,7 +859,8 @@ class TestAssociationSendCEcho(object):
         self.scp = DummyVerificationSCP()
         self.scp.status = 0xFFF0
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -952,7 +882,8 @@ class TestAssociationSendCEcho(object):
         self.scp = DummyVerificationSCP()
         self.scp.ae.on_c_echo = on_c_echo
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -969,7 +900,8 @@ class TestAssociationSendCEcho(object):
         self.scp = DummyVerificationSCP()
         self.scp.send_abort = True
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1003,7 +935,8 @@ class TestAssociationSendCStore(object):
         # Test raise if assoc not established
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1018,7 +951,8 @@ class TestAssociationSendCStore(object):
         """Test SCU when no accepted abstract syntax"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1033,7 +967,8 @@ class TestAssociationSendCStore(object):
         """Test bad priority raises exception"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1048,8 +983,8 @@ class TestAssociationSendCStore(object):
         """Test failure if unable to encode dataset"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage],
-                transfer_syntax=[ExplicitVRLittleEndian])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1066,7 +1001,8 @@ class TestAssociationSendCStore(object):
         """Test sending a dataset with a compressed transfer syntax"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[MRImageStorage])
+        ae = AE()
+        ae.add_requested_context(MRImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1081,7 +1017,8 @@ class TestAssociationSendCStore(object):
         """Test no response from peer"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1101,7 +1038,8 @@ class TestAssociationSendCStore(object):
         """Test invalid DIMSE message received from peer"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1125,7 +1063,9 @@ class TestAssociationSendCStore(object):
         self.scp = DummyStorageSCP()
         self.scp.status = 0xC000
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1141,7 +1081,9 @@ class TestAssociationSendCStore(object):
         self.scp = DummyStorageSCP()
         self.scp.status = 0xB000
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1156,7 +1098,9 @@ class TestAssociationSendCStore(object):
         """Test receiving a success response from the peer"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(RTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1172,7 +1116,8 @@ class TestAssociationSendCStore(object):
         self.scp = DummyStorageSCP()
         self.scp.status = 0xFFF0
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1211,7 +1156,8 @@ class TestAssociationSendCFind(object):
         # Test raise if assoc not established
         scp = DummyFindSCP()
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1226,7 +1172,8 @@ class TestAssociationSendCFind(object):
         """Test when no accepted abstract syntax"""
         scp = DummyVerificationSCP()
         scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1245,7 +1192,8 @@ class TestAssociationSendCFind(object):
         """Test invalid query_model value"""
         scp = DummyFindSCP()
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1261,10 +1209,11 @@ class TestAssociationSendCFind(object):
         scp = DummyFindSCP()
         scp.statuses = [0x0000]
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind,
-                               StudyRootQueryRetrieveInformationModelFind,
-                               PatientStudyOnlyQueryRetrieveInformationModelFind,
-                               ModalityWorklistInformationFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
+        ae.add_requested_context(ModalityWorklistInformationFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1285,8 +1234,9 @@ class TestAssociationSendCFind(object):
         """Test a failure in encoding the Identifier dataset"""
         self.scp = DummyFindSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind],
-                transfer_syntax=[ExplicitVRLittleEndian])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1307,7 +1257,8 @@ class TestAssociationSendCFind(object):
         scp = DummyFindSCP()
         scp.statuses = [0xA700]
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1324,7 +1275,8 @@ class TestAssociationSendCFind(object):
         scp = DummyFindSCP()
         scp.statuses = [0xFF00]
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1345,7 +1297,8 @@ class TestAssociationSendCFind(object):
         scp = DummyFindSCP()
         scp.statuses = [0x0000]
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1363,7 +1316,8 @@ class TestAssociationSendCFind(object):
         scp.statuses = []
         scp.identifiers = []
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1380,7 +1334,8 @@ class TestAssociationSendCFind(object):
         scp = DummyFindSCP()
         scp.statuses = [0xFE00]
         scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1396,7 +1351,8 @@ class TestAssociationSendCFind(object):
         """Test invalid DIMSE message response received from peer"""
         self.scp = DummyFindSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1422,7 +1378,8 @@ class TestAssociationSendCFind(object):
         self.scp = DummyFindSCP()
         self.scp.statuses = [0xFFF0]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1443,8 +1400,9 @@ class TestAssociationSendCFind(object):
 
         self.scp.ae.on_c_find = on_c_find
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind],
-                transfer_syntax=[ExplicitVRLittleEndian])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1479,7 +1437,8 @@ class TestAssociationSendCCancelFind(object):
         # Test raise if assoc not established
         self.scp = DummyFindSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1494,7 +1453,8 @@ class TestAssociationSendCCancelFind(object):
         """Test send_c_cancel_move"""
         self.scp = DummyFindSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1506,7 +1466,8 @@ class TestAssociationSendCCancelFind(object):
         """Test send_c_cancel_move"""
         self.scp = DummyFindSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelFind])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1528,7 +1489,7 @@ class TestAssociationSendCGet(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
-        self.good.SOPClassUID = CTImageStorage().UID
+        self.good.SOPClassUID = CTImageStorage.uid
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
@@ -1551,7 +1512,8 @@ class TestAssociationSendCGet(object):
         # Test raise if assoc not established
         self.scp = DummyGetSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1567,7 +1529,8 @@ class TestAssociationSendCGet(object):
         self.scp = DummyStorageSCP()
         self.scp.datasets = [self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1586,7 +1549,8 @@ class TestAssociationSendCGet(object):
         """Test bad query model parameter"""
         self.scp = DummyGetSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1601,9 +1565,10 @@ class TestAssociationSendCGet(object):
         """Test all the query models"""
         self.scp = DummyGetSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               StudyRootQueryRetrieveInformationModelGet,
-                               PatientStudyOnlyQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context( PatientStudyOnlyQueryRetrieveInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1622,8 +1587,9 @@ class TestAssociationSendCGet(object):
         """Test a failure in encoding the Identifier dataset"""
         self.scp = DummyGetSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet],
-                transfer_syntax=[ExplicitVRLittleEndian])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1644,7 +1610,8 @@ class TestAssociationSendCGet(object):
         self.scp = DummyGetSCP()
         self.scp.statuses = [0xA701]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
@@ -1669,11 +1636,11 @@ class TestAssociationSendCGet(object):
             return 0x0000
 
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                transfer_syntax=[ExplicitVRLittleEndian])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = on_c_store
@@ -1700,9 +1667,10 @@ class TestAssociationSendCGet(object):
         self.scp.statuses = [0xFF00, 0xFF00, 0xB000]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                scp_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
@@ -1734,9 +1702,10 @@ class TestAssociationSendCGet(object):
         self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
         self.scp.datasets = [self.good, self.good, None]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                scp_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
@@ -1768,9 +1737,10 @@ class TestAssociationSendCGet(object):
         self.scp.statuses = [0xFF00, 0xFF00, 0xB000]
         self.scp.datasets = [self.good, self.good, None]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                scp_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
@@ -1800,7 +1770,8 @@ class TestAssociationSendCGet(object):
         self.scp = DummyGetSCP()
         self.scp.statuses = [0xFE00]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1819,9 +1790,10 @@ class TestAssociationSendCGet(object):
         self.scp.datasets = [self.good, self.good, None]
         self.scp.start()
 
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                scp_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1851,9 +1823,10 @@ class TestAssociationSendCGet(object):
         self.scp = DummyGetSCP()
         self.scp.statuses = [0xFFF0]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                               CTImageStorage],
-                scp_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1888,7 +1861,8 @@ class TestAssociationSendCCancelGet(object):
         # Test raise if assoc not established
         self.scp = DummyGetSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelGet])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1909,7 +1883,7 @@ class TestAssociationSendCMove(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
-        self.good.SOPClassUID = CTImageStorage().UID
+        self.good.SOPClassUID = CTImageStorage.uid
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
@@ -1936,7 +1910,8 @@ class TestAssociationSendCMove(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1951,7 +1926,8 @@ class TestAssociationSendCMove(object):
         """Test when no accepted abstract syntax"""
         self.scp = DummyStorageSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1969,7 +1945,8 @@ class TestAssociationSendCMove(object):
         """Test bad query model parameter"""
         self.scp = DummyMoveSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1990,9 +1967,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2036,8 +2014,9 @@ class TestAssociationSendCMove(object):
         """Test a failure in encoding the Identifier dataset"""
         self.scp = DummyMoveSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove],
-                transfer_syntax=[ExplicitVRLittleEndian])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
+                                 ExplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2058,9 +2037,10 @@ class TestAssociationSendCMove(object):
         self.scp = DummyMoveSCP()
         self.scp.destination_ae = ('localhost', 11113)
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2076,9 +2056,10 @@ class TestAssociationSendCMove(object):
         self.scp = DummyMoveSCP()
         self.scp.destination_ae = ('localhost', 11113)
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2101,9 +2082,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2136,9 +2118,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2168,9 +2151,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xC000]
         self.scp.datasets = [None]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2199,9 +2183,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.dimse_timeout = 5
@@ -2237,9 +2222,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFE00, 0xFF00]
         self.scp.datasets = [None, self.good]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.dimse_timeout = 5
@@ -2266,9 +2252,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0x0000]
         self.scp.datasets = [self.good, None]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               StudyRootQueryRetrieveInformationModelMove,
-                               PatientStudyOnlyQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.dimse_timeout = 5
@@ -2299,9 +2286,10 @@ class TestAssociationSendCMove(object):
         self.scp.destination_ae = ('localhost', 11113)
         self.scp.statuses = [0xFFF0]
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                               CTImageStorage],
-                scp_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2324,13 +2312,10 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
-        ae = AE(
-            scu_sop_class=[
-                PatientRootQueryRetrieveInformationModelMove,
-                StudyRootQueryRetrieveInformationModelMove,
-                PatientStudyOnlyQueryRetrieveInformationModelMove
-            ]
-        )
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         for ii in range(20):
@@ -2376,7 +2361,8 @@ class TestAssociationSendCCancelMove(object):
         # Test raise if assoc not established
         self.scp = DummyMoveSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[PatientRootQueryRetrieveInformationModelMove])
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2410,7 +2396,8 @@ class TestAssociationSendNEventReport(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2426,7 +2413,8 @@ class TestAssociationSendNEventReport(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2460,7 +2448,8 @@ class TestAssociationSendNGet(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2476,7 +2465,8 @@ class TestAssociationSendNGet(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2510,7 +2500,8 @@ class TestAssociationSendNSet(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2526,7 +2517,8 @@ class TestAssociationSendNSet(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2560,7 +2552,8 @@ class TestAssociationSendNAction(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2576,7 +2569,8 @@ class TestAssociationSendNAction(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2610,7 +2604,8 @@ class TestAssociationSendNCreate(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2626,7 +2621,8 @@ class TestAssociationSendNCreate(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2660,7 +2656,8 @@ class TestAssociationSendNDelete(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2676,7 +2673,8 @@ class TestAssociationSendNDelete(object):
         # Test raise if assoc not established
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2709,7 +2707,8 @@ class TestAssociationCallbacks(object):
         """Test the callback"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)

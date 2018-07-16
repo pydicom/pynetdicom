@@ -19,6 +19,7 @@ from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
+    uid_to_service_class,
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
@@ -65,7 +66,7 @@ class Association(threading.Thread):
     ----------
     acse : acse.ACSEServiceProvider
         The Association Control Service Element provider.
-    ae : applicationentity.ApplicationEntity
+    ae : ae.ApplicationEntity
         The local AE.
     dimse : DIMSEServiceProvider
         The DICOM Message Service Element provider.
@@ -90,10 +91,12 @@ class Association(threading.Thread):
         'ae_title', 'pdv_size'.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
-    scu_supported_sop : list of sop_class.ServiceClass
-        A list of the supported SOP classes when acting as an SCU.
-    scp_supported_sop : list of sop_class.ServiceClass
-        A list of the supported SOP classes when acting as an SCP.
+    requested_contexts : list of presentation.PresentationContext
+        A list of the requested Presentation Contexts sent or received during
+        association negotiation.
+    supported_contexts : list of presentation.PresentationContext
+        A list of the supported Presentation Contexts sent or received during
+        association negotiation.
     """
     def __init__(self, local_ae, client_socket=None, peer_ae=None,
                  acse_timeout=60, dimse_timeout=None, max_pdu=16382,
@@ -102,7 +105,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        local_ae : applicationentity.ApplicationEntity
+        local_ae : ae.ApplicationEntity
             The local AE instance.
         client_socket : socket.socket or None, optional
             If the local AE is acting as an SCP, this is the listen socket for
@@ -126,9 +129,9 @@ class Association(threading.Thread):
             is a list containing the negotiation objects (default: None).
         """
         self.peer_ae = {'port' : None,
-                         'address' : None,
-                         'ae_title' : None,
-                         'pdv_size' : None}
+                        'address' : None,
+                        'ae_title' : None,
+                        'pdv_size' : None}
 
         # Why is the AE in charge of supplying the client socket?
         #   Hmm, perhaps because we can have multiple connections on the same
@@ -184,10 +187,8 @@ class Association(threading.Thread):
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 
-        # Lists of pynetdicom3.utils.PresentationContext items that the local
-        #   AE supports when acting as an SCU and SCP
-        self.scp_supported_sop = []
-        self.scu_supported_sop = []
+        self.requested_contexts = []
+        self.supported_contexts = []
 
         # Status attributes
         self.is_established = False
@@ -404,8 +405,7 @@ class Association(threading.Thread):
         self.acse.context_manager = PresentationContextManager()
         self.acse.context_manager.requestor_contexts = \
                             assoc_rq.presentation_context_definition_list
-        self.acse.context_manager.acceptor_contexts = \
-                                self.ae.presentation_contexts_scp
+        self.acse.context_manager.acceptor_contexts = self.ae.supported_contexts
 
         self.acse.accepted_contexts = self.acse.context_manager.accepted
         self.acse.rejected_contexts = self.acse.context_manager.rejected
@@ -508,33 +508,33 @@ class Association(threading.Thread):
                     self.abort()
                     return
 
-                sop_class = uid_to_sop_class(msg.AffectedSOPClassUID)()
+                service_class = uid_to_service_class(msg.AffectedSOPClassUID)()
 
                 # Check that the SOP Class is supported by the AE
                 # New method
-                pc_accepted = self.acse.accepted_contexts
-                context = [
-                    pc for pc in pc_accepted if pc.context_id == msg_context_id
-                ]
+                #pc_accepted = self.acse.accepted_contexts
+                #context = [
+                #    pc for pc in pc_accepted if pc.context_id == msg_context_id
+                #]
 
                 # Matching context
-                if context:
-                    sop_class.presentation_context = context[0]
-                else:
-                    # No matching presentation context
-                    pass
+                #if context:
+                #    service_class.presentation_context = context[0]
+                #else:
+                #    # No matching presentation context
+                #    pass
 
                 # Old method
                 # TODO: Index contexts in a dict using context ID
                 for context in self.acse.accepted_contexts:
                     if context.context_id == msg_context_id:
-                        sop_class.maxpdulength = self.peer_max_pdu
-                        sop_class.DIMSE = self.dimse
-                        sop_class.ACSE = self.acse
-                        sop_class.AE = self.ae
+                        service_class.maxpdulength = self.peer_max_pdu
+                        service_class.DIMSE = self.dimse
+                        service_class.ACSE = self.acse
+                        service_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        sop_class.SCP(msg, context, info)
+                        service_class.SCP(msg, context, info)
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "
@@ -566,8 +566,8 @@ class Association(threading.Thread):
 
     def _run_as_requestor(self):
         """Run as the Association Requestor."""
-        if self.ae.presentation_contexts_scu == []:
-            LOGGER.error("No presentation contexts set for the SCU")
+        if not self.requested_contexts:
+            LOGGER.error("No requested Presentation Contexts specified")
             self.kill()
             return
 
@@ -590,11 +590,13 @@ class Association(threading.Thread):
                     'ae_title' : self.ae.ae_title}
 
         # Request an Association via the ACSE
-        is_accepted, assoc_rsp = \
-                self.acse.request_assoc(local_ae, self.peer_ae,
-                                        self.local_ae['pdv_size'],
-                                        self.ae.presentation_contexts_scu,
-                                        userspdu=self.ext_neg)
+        is_accepted, assoc_rsp = self.acse.request_assoc(
+            local_ae,
+            self.peer_ae,
+            self.local_ae['pdv_size'],
+            self.requested_contexts,
+            userspdu=self.ext_neg
+        )
 
         # Association was accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
@@ -741,7 +743,7 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_echo
+        ae.ApplicationEntity.on_c_echo
         dimse_primitives.C_ECHO
         sop_class.VerificationServiceClass
 
@@ -893,7 +895,7 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
         sop_class.StorageServiceClass
 
@@ -1079,7 +1081,7 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_find
+        ae.ApplicationEntity.on_c_find
         dimse_primitives.C_FIND
         sop_class.QueryRetrieveFindServiceClass
 
@@ -1094,13 +1096,13 @@ class Association(threading.Thread):
                                "established before sending a C-FIND request")
 
         if query_model == 'W':
-            sop_class = ModalityWorklistInformationFind()
+            sop_class = ModalityWorklistInformationFind
         elif query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelFind()
+            sop_class = PatientRootQueryRetrieveInformationModelFind
         elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelFind()
+            sop_class = StudyRootQueryRetrieveInformationModelFind
         elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind()
+            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind
         else:
             raise ValueError("Association.send_c_find - 'query_model' "
                              "must be 'W', 'P', 'S' or 'O'")
@@ -1109,14 +1111,14 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.abstract_syntax:
+            if sop_class.uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.UID)
+                         sop_class.uid)
             LOGGER.error("Find SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
@@ -1128,7 +1130,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.UID
+        req.AffectedSOPClassUID = sop_class.uid
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1301,8 +1303,8 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_move
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_move
+        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
         sop_class.QueryRetrieveMoveServiceClass
 
@@ -1317,11 +1319,11 @@ class Association(threading.Thread):
                                "established before sending a C-MOVE request")
 
         if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelMove()
+            sop_class = PatientRootQueryRetrieveInformationModelMove
         elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelMove()
+            sop_class = StudyRootQueryRetrieveInformationModelMove
         elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove()
+            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove
         else:
             raise ValueError("Association.send_c_move - 'query_model' must "
                              "be 'P', 'S' or 'O'")
@@ -1330,14 +1332,14 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.abstract_syntax:
+            if sop_class.uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.UID)
+                         sop_class.uid)
             LOGGER.error("Move SCU failed due to there being no accepted "
                          "presentation context\n   for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
@@ -1350,7 +1352,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_MOVE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.UID
+        req.AffectedSOPClassUID = sop_class.uid
         req.Priority = priority
         req.MoveDestination = move_aet
 
@@ -1563,8 +1565,8 @@ class Association(threading.Thread):
 
         See Also
         --------
-        applicationentity.ApplicationEntity.on_c_get
-        applicationentity.ApplicationEntity.on_c_store
+        ae.ApplicationEntity.on_c_get
+        ae.ApplicationEntity.on_c_store
         sop_class.QueryRetrieveGetServiceClass
         dimse_primitives.C_GET
 
@@ -1579,11 +1581,11 @@ class Association(threading.Thread):
                                "established before sending a C-GET request")
 
         if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelGet()
+            sop_class = PatientRootQueryRetrieveInformationModelGet
         elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelGet()
+            sop_class = StudyRootQueryRetrieveInformationModelGet
         elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet()
+            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
         else:
             raise ValueError("Association.send_c_get() query_model "
                              "must be 'P', 'S' or 'O']")
@@ -1592,14 +1594,14 @@ class Association(threading.Thread):
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class.UID == context.abstract_syntax:
+            if sop_class.uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
 
         if transfer_syntax is None:
             LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.UID)
+                         sop_class.uid)
             LOGGER.error("Get SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'")
@@ -1611,7 +1613,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.UID
+        req.AffectedSOPClassUID = sop_class.uid
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax

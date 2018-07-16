@@ -10,8 +10,9 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom3 import AE, VerificationSOPClass
+from pynetdicom3 import AE, VerificationPresentationContexts
 from pynetdicom3.sop_class import (
+    VerificationSOPClass,
     CTImageStorage, MRImageStorage, RTImageStorage,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
@@ -53,6 +54,9 @@ class DummyBaseSCP(threading.Thread):
         self.send_abort = False
         self.context = None
         self.info = None
+
+        self.send_a_abort = False
+        self.send_ap_abort = False
 
     def run(self):
         """The thread run method"""
@@ -104,11 +108,36 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_cancel_move"""
         raise RuntimeError("You should not have been able to get here.")
 
+    def dev_monitor_socket(self):
+        try:
+            read_list, _, _ = select.select([self.local_socket], [], [], 0)
+        except ValueError:
+            return
+
+        if read_list:
+            client_socket, _ = self.local_socket.accept()
+            client_socket.setsockopt(socket.SOL_SOCKET,
+                                     socket.SO_RCVTIMEO,
+                                     pack('ll', 10, 0))
+
+            # Create a new Association
+            # Association(local_ae, local_socket=None, max_pdu=16382)
+            assoc = Association(self,
+                                client_socket,
+                                max_pdu=self.maximum_pdu_size,
+                                acse_timeout=self.acse_timeout,
+                                dimse_timeout=self.dimse_timeout)
+            # Set the ACSE to abort association requests
+            assoc._a_p_abort_assoc_rq = self.send_ap_abort
+            assoc._a_abort_assoc_rq = self.send_a_abort
+            assoc.start()
+            self.active_associations.append(assoc)
 
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(scp_sop_class=[VerificationSOPClass], port=port)
+        self.ae = AE(port=port)
+        self.ae.supported_contexts = VerificationPresentationContexts
         DummyBaseSCP.__init__(self)
         self.status = 0x0000
 
@@ -133,11 +162,14 @@ class DummyVerificationSCP(DummyBaseSCP):
 class DummyStorageSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                                    StudyRootQueryRetrieveInformationModelMove,
-                                    PatientStudyOnlyQueryRetrieveInformationModelMove,
-                                    CTImageStorage,
-                                    RTImageStorage, MRImageStorage], port=port)
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(CTImageStorage)
+        self.ae.add_supported_context(RTImageStorage)
+        self.ae.add_supported_context(MRImageStorage)
+
         DummyBaseSCP.__init__(self)
         self.status = 0x0000
         self.raise_exception = False
@@ -155,11 +187,12 @@ class DummyStorageSCP(DummyBaseSCP):
 class DummyFindSCP(DummyBaseSCP):
     """A threaded dummy find SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelFind,
-                                    StudyRootQueryRetrieveInformationModelFind,
-                                    ModalityWorklistInformationFind,
-                                    PatientStudyOnlyQueryRetrieveInformationModelFind],
-                     port=port)
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
+        self.ae.add_supported_context(ModalityWorklistInformationFind)
+        self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
+
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
         identifier = Dataset()
@@ -187,12 +220,14 @@ class DummyFindSCP(DummyBaseSCP):
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelGet,
-                                    StudyRootQueryRetrieveInformationModelGet,
-                                    PatientStudyOnlyQueryRetrieveInformationModelGet,
-                                    CTImageStorage],
-                     scu_sop_class=[CTImageStorage],
-                     port=port)
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
+        self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
+        self.ae.add_supported_context(CTImageStorage)
+
+        self.ae.add_requested_context(CTImageStorage)
+
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
         ds = Dataset()
@@ -227,12 +262,16 @@ class DummyGetSCP(DummyBaseSCP):
 class DummyMoveSCP(DummyBaseSCP):
     """A threaded dummy move SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(scp_sop_class=[PatientRootQueryRetrieveInformationModelMove,
-                                    StudyRootQueryRetrieveInformationModelMove,
-                                    PatientStudyOnlyQueryRetrieveInformationModelMove,
-                                    RTImageStorage, CTImageStorage],
-                     scu_sop_class=[RTImageStorage, CTImageStorage],
-                     port=port)
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(RTImageStorage)
+        self.ae.add_supported_context(CTImageStorage)
+
+        self.ae.add_requested_context(RTImageStorage)
+        self.ae.add_requested_context(CTImageStorage)
+
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
         self.store_status = 0x0000

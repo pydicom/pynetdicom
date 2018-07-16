@@ -16,7 +16,8 @@ from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
-from pynetdicom3 import AE, VerificationSOPClass
+from pynetdicom3 import AE
+from pynetdicom3.sop_class import VerificationSOPClass
 
 
 def setup_logger():
@@ -33,7 +34,7 @@ def setup_logger():
 
 LOGGER = setup_logger()
 
-VERSION = '0.6.0'
+VERSION = '0.6.1'
 
 
 def _setup_argparser():
@@ -45,7 +46,8 @@ def _setup_argparser():
                     "C-ECHO message to a Service Class Provider (SCP) and "
                     "waits for a response. The application can be used to "
                     "verify basic DICOM connectivity.",
-        usage="echoscu [options] peer port")
+        usage="echoscu [options] peer port"
+    )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
@@ -162,14 +164,14 @@ if args.log_config:
 # Propose extra transfer syntaxes
 try:
     if 2 <= args.propose_ts:
-        transfer_syntaxes = [ImplicitVRLittleEndian,
-                             ExplicitVRLittleEndian,
-                             ExplicitVRBigEndian]
-        transfer_syntaxes = [ts for ts in transfer_syntaxes[:args.propose_ts]]
+        transfer_syntax = [ImplicitVRLittleEndian,
+                           ExplicitVRLittleEndian,
+                           ExplicitVRBigEndian]
+        transfer_syntax = [ts for ts in transfer_syntax[:args.propose_ts]]
     else:
-        transfer_syntaxes = [ImplicitVRLittleEndian]
+        transfer_syntax = [ImplicitVRLittleEndian]
 except:
-    transfer_syntaxes = [ImplicitVRLittleEndian]
+    transfer_syntax = [ImplicitVRLittleEndian]
 
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
@@ -183,11 +185,9 @@ LOGGER.debug('')
 
 # Create local AE
 # Binding to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=0,
-        scu_sop_class=[VerificationSOPClass],
-        scp_sop_class=[],
-        transfer_syntax=transfer_syntaxes)
+ae = AE(ae_title=args.calling_aet, port=0)
+
+ae.add_requested_context(VerificationSOPClass, transfer_syntax)
 
 # Set timeouts
 ae.network_timeout = args.timeout
@@ -195,7 +195,9 @@ ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
 # Request association with remote AE
-assoc = ae.associate(args.peer, args.port, args.called_aet,
+assoc = ae.associate(args.peer,
+                     args.port,
+                     ae_title=args.called_aet,
                      max_pdu=args.max_pdu)
 
 # If we successfully Associated then send N DIMSE C-ECHOs
