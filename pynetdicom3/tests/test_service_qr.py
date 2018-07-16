@@ -13,7 +13,8 @@ from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom3 import AE
-from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET
+from pynetdicom3.dimse_primitives import C_FIND, C_GET
+from pynetdicom3.presentation import PresentationContext
 from pynetdicom3.service_class import (
     QueryRetrieveServiceClass
 )
@@ -41,6 +42,16 @@ LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+
+
+def test_unknown_sop_class():
+    """Test that starting the QR SCP with an unknown SOP Class raises"""
+    service = QueryRetrieveServiceClass()
+    context = PresentationContext()
+    context.abstract_syntax = '1.2.3.4'
+    context.add_transfer_syntax('1.2')
+    with pytest.raises(ValueError):
+        service.SCP(None, context, None)
 
 
 class TestQRFindServiceClass(object):

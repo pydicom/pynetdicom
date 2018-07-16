@@ -123,7 +123,7 @@ class TestPresentationContext(object):
         pc = PresentationContext()
         pc.context_id = 1
         pc.abstract_syntax = '1.1.1'
-        pc.transfer_syntax = ['1.2.840.10008.1.2']
+        pc.transfer_syntax = ['1.2.840.10008.1.2', '1.2.3']
         pc._scp_role = True
         pc._scu_role = False
         pc.result = 0x02

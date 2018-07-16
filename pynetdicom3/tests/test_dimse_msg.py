@@ -13,11 +13,12 @@ from pynetdicom3.dimse_messages import (
     C_STORE_RQ, C_STORE_RSP, DIMSEMessage, C_ECHO_RQ, C_ECHO_RSP, C_FIND_RQ,
     C_FIND_RSP, C_MOVE_RQ, C_MOVE_RSP, C_GET_RQ, C_GET_RSP, N_EVENT_REPORT_RQ,
     N_EVENT_REPORT_RSP, N_SET_RQ, N_SET_RSP, N_GET_RQ, N_GET_RSP, N_ACTION_RQ,
-    N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, N_DELETE_RSP
+    N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, N_DELETE_RSP,
+    C_CANCEL_RQ
 )
 from pynetdicom3.dimse_primitives import (
     C_STORE, C_ECHO, C_GET, C_MOVE, C_FIND, N_EVENT_REPORT, N_GET, N_SET,
-    N_ACTION, N_CREATE, N_DELETE
+    N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 )
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
@@ -344,6 +345,16 @@ class TestDIMSEMessage(unittest.TestCase):
         self.assertEqual(ds.RetrieveAETitle, 'FINDSCP')
 
         self.assertEqual(ds.PatientName, 'ANON^A^B^C^D')
+
+    def test_message_to_primitive_c_cancel(self):
+        """Test converting C_CANCEL_rq to C_CANCEL primitive."""
+        msg = C_CANCEL_RQ()
+        cs = Dataset()
+        cs.MessageIDBeingRespondedTo = 1
+        msg.command_set = cs
+        primitive = msg.message_to_primitive()
+        assert isinstance(primitive, C_CANCEL)
+        assert primitive.MessageIDBeingRespondedTo == 1
 
     # DIMSE-N
     def test_message_to_primitive_n_event_report(self):

@@ -39,13 +39,9 @@ class ServiceParameter(object):
         """Inequality of two ServiceParameters"""
         return not self == other
 
-    def from_primitive(self):
-        """FIXME"""
-        raise NotImplementedError
-
-    def from_primitive(self):
-        """FIXME"""
-        return self.from_primitive()
+    #def from_primitive(self):
+    #    """FIXME"""
+    #    return self.from_primitive()
 
 
 # Association Service primitives
@@ -1453,6 +1449,66 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         return item
 
     @property
+    def scp_role(self):
+        """Return the SCP Role."""
+        return self._scp_role
+
+    @scp_role.setter
+    def scp_role(self, value):
+        """Sets the SCP Role parameter.
+
+        Parameters
+        ----------
+        value : bool
+            True if supported, False otherwise (default)
+
+        Raises
+        ------
+        TypeError
+            If `value` is not a bool
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, bool):
+            pass
+        elif value is None:
+            pass
+        else:
+            LOGGER.error("SCP Role must be boolean")
+            raise TypeError("SCP Role must be boolean")
+
+        self._scp_role = value
+
+    @property
+    def scu_role(self):
+        """Return the SCU Role."""
+        return self._scu_role
+
+    @scu_role.setter
+    def scu_role(self, value):
+        """Sets the SCU Role parameter.
+
+        Parameters
+        ----------
+        value : bool
+            True if supported, False otherwise
+
+        Raises
+        ------
+        TypeError
+            If `value` is not a bool
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, bool):
+            pass
+        elif value is None:
+            pass
+        else:
+            LOGGER.error("SCU Role must be boolean")
+            raise TypeError("SCU Role must be boolean")
+
+        self._scu_role = value
+
+    @property
     def sop_class_uid(self):
         """Return the SOP Class UID."""
         return self._sop_class_uid
@@ -1491,66 +1547,6 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
             raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
-
-    @property
-    def scu_role(self):
-        """Return the SCU Role."""
-        return self._scu_role
-
-    @scu_role.setter
-    def scu_role(self, value):
-        """Sets the SCU Role parameter.
-
-        Parameters
-        ----------
-        value : bool
-            True if supported, False otherwise
-
-        Raises
-        ------
-        TypeError
-            If `value` is not a bool
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bool):
-            pass
-        elif value is None:
-            pass
-        else:
-            LOGGER.error("SCU Role must be boolean")
-            raise TypeError("SCU Role must be boolean")
-
-        self._scu_role = value
-
-    @property
-    def scp_role(self):
-        """Return the SCP Role."""
-        return self._scp_role
-
-    @scp_role.setter
-    def scp_role(self, value):
-        """Sets the SCP Role parameter.
-
-        Parameters
-        ----------
-        value : bool
-            True if supported, False otherwise (default)
-
-        Raises
-        ------
-        TypeError
-            If `value` is not a bool
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bool):
-            pass
-        elif value is None:
-            pass
-        else:
-            LOGGER.error("SCP Role must be boolean")
-            raise TypeError("SCP Role must be boolean")
-
-        self._scp_role = value
 
 
 class SOPClassExtendedNegotiation(ServiceParameter):
@@ -1610,6 +1606,39 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         return item
 
     @property
+    def service_class_application_information(self):
+        """Return the Service Class Application Information."""
+        return self._service_class_application_information
+
+    @service_class_application_information.setter
+    def service_class_application_information(self, value):
+        """Sets the Service Class Application Information parameter.
+
+        Parameters
+        ----------
+        value : bytes
+            The Service Class Application Information as per the Service Class
+            Specifications (see PS3.4)
+
+        Raises
+        ------
+        TypeError
+            If `value` is not a bytes object
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, bytes):
+            pass
+        elif value is None:
+            pass
+        else:
+            LOGGER.error("Service Class Application Information should be a "
+                         "bytes object")
+            raise TypeError("Service Class Application Information should "
+                            "be a bytes object")
+
+        self._service_class_application_information = value
+
+    @property
     def sop_class_uid(self):
         """Return the SOP Class UID."""
         return self._sop_class_uid
@@ -1648,39 +1677,6 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             raise ValueError("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
-
-    @property
-    def service_class_application_information(self):
-        """Return the Service Class Application Information."""
-        return self._service_class_application_information
-
-    @service_class_application_information.setter
-    def service_class_application_information(self, value):
-        """Sets the Service Class Application Information parameter.
-
-        Parameters
-        ----------
-        value : bytes
-            The Service Class Application Information as per the Service Class
-            Specifications (see PS3.4)
-
-        Raises
-        ------
-        TypeError
-            If `value` is not a bytes object
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            pass
-        elif value is None:
-            pass
-        else:
-            LOGGER.error("Service Class Application Information should be a "
-                         "bytes object")
-            raise TypeError("Service Class Application Information should "
-                            "be a bytes object")
-
-        self._service_class_application_information = value
 
 
 class SOPClassCommonExtendedNegotiation(ServiceParameter):
@@ -1732,86 +1728,6 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         item.from_primitive(self)
 
         return item
-
-    @property
-    def sop_class_uid(self):
-        """Return the SOP Class UID."""
-        return self._sop_class_uid
-
-    @sop_class_uid.setter
-    def sop_class_uid(self, value):
-        """Sets the SOP Class UID parameter.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The SOP Class UID
-
-        Raises
-        ------
-        TypeError
-            If `value` is not a pydicom.uid.UID, bytes or str
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str "
-                         "or bytes")
-            raise TypeError("SOP Class UID must be a pydicom.uid.UID, str "
-                            "or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Implementation Class UID is an invalid UID")
-            raise ValueError("Implementation Class UID is an invalid UID")
-
-        self._sop_class_uid = value
-
-    @property
-    def service_class_uid(self):
-        """Return the Service Class UID."""
-        return self._service_class_uid
-
-    @service_class_uid.setter
-    def service_class_uid(self, value):
-        """Sets the Service Class UID parameter.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The corresponding Service Class UID
-
-        Raises
-        ------
-        TypeError
-            If `value` is not a pydicom.uid.UID, bytes or str
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            LOGGER.error("Service Class UID must be a pydicom.uid.UID, str "
-                         "or bytes")
-            raise TypeError("Service Class UID must be a pydicom.uid.UID, "
-                            "str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Implementation Class UID is an invalid UID")
-            raise ValueError("Implementation Class UID is an invalid UID")
-
-        self._service_class_uid = value
 
     @property
     def related_general_sop_class_identification(self):
@@ -1872,6 +1788,86 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             raise TypeError("Related General SOP Class Identification "
                             "must be a list of pydicom.uid.UID, str "
                             "or bytes")
+
+    @property
+    def service_class_uid(self):
+        """Return the Service Class UID."""
+        return self._service_class_uid
+
+    @service_class_uid.setter
+    def service_class_uid(self, value):
+        """Sets the Service Class UID parameter.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The corresponding Service Class UID
+
+        Raises
+        ------
+        TypeError
+            If `value` is not a pydicom.uid.UID, bytes or str
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            LOGGER.error("Service Class UID must be a pydicom.uid.UID, str "
+                         "or bytes")
+            raise TypeError("Service Class UID must be a pydicom.uid.UID, "
+                            "str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
+
+        self._service_class_uid = value
+
+    @property
+    def sop_class_uid(self):
+        """Return the SOP Class UID."""
+        return self._sop_class_uid
+
+    @sop_class_uid.setter
+    def sop_class_uid(self, value):
+        """Sets the SOP Class UID parameter.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The SOP Class UID
+
+        Raises
+        ------
+        TypeError
+            If `value` is not a pydicom.uid.UID, bytes or str
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str "
+                         "or bytes")
+            raise TypeError("SOP Class UID must be a pydicom.uid.UID, str "
+                            "or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
+
+        self._sop_class_uid = value
 
 
 class UserIdentityNegotiation(ServiceParameter):
@@ -1977,46 +1973,6 @@ class UserIdentityNegotiation(ServiceParameter):
         item.from_primitive(self)
 
         return item
-
-    @property
-    def user_identity_type(self):
-        """Return the User Identity Type."""
-        return self._user_identity_type
-
-    @user_identity_type.setter
-    def user_identity_type(self, value):
-        """Sets the User Identity Type parameter.
-
-        Parameters
-        ----------
-        value : int
-            One of the following:
-            * 1 - Username as string in UTF-8
-            * 2 - Username as string in UTF-8 and passcode
-            * 3 - Kerberos Service ticket
-            * 4 - SAML Assertion
-
-        Raises
-        ------
-        TypeError
-            If `value` is not an int or None
-        ValueError
-            If `value` is an int and is not 1, 2, 3 or 4
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, int):
-            if value not in [1, 2, 3, 4]:
-                LOGGER.error("User Identity Type must be 1, 2 3 or 4 if "
-                             "requesting Association, None otherwise")
-                raise ValueError("User Identity Type must be 1, 2 3 or 4 "
-                                 "if requesting Association, None otherwise")
-        elif value is None:
-            pass
-        else:
-            LOGGER.error("User Identity Type must be an int or None")
-            raise TypeError("User Identity Type must be an int or None")
-
-        self._user_identity_type = value
 
     @property
     def positive_response_requested(self):
@@ -2158,3 +2114,43 @@ class UserIdentityNegotiation(ServiceParameter):
             s += '  Server response: {0!s}\n'.format(self.server_response)
 
         return s
+
+    @property
+    def user_identity_type(self):
+        """Return the User Identity Type."""
+        return self._user_identity_type
+
+    @user_identity_type.setter
+    def user_identity_type(self, value):
+        """Sets the User Identity Type parameter.
+
+        Parameters
+        ----------
+        value : int
+            One of the following:
+            * 1 - Username as string in UTF-8
+            * 2 - Username as string in UTF-8 and passcode
+            * 3 - Kerberos Service ticket
+            * 4 - SAML Assertion
+
+        Raises
+        ------
+        TypeError
+            If `value` is not an int or None
+        ValueError
+            If `value` is an int and is not 1, 2, 3 or 4
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, int):
+            if value not in [1, 2, 3, 4]:
+                LOGGER.error("User Identity Type must be 1, 2 3 or 4 if "
+                             "requesting Association, None otherwise")
+                raise ValueError("User Identity Type must be 1, 2 3 or 4 "
+                                 "if requesting Association, None otherwise")
+        elif value is None:
+            pass
+        else:
+            LOGGER.error("User Identity Type must be an int or None")
+            raise TypeError("User Identity Type must be an int or None")
+
+        self._user_identity_type = value

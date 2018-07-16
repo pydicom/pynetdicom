@@ -1,5 +1,6 @@
 """Tests for the StorageServiceClass."""
 
+from io import BytesIO
 import logging
 import os
 import threading
@@ -9,8 +10,10 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
+from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom3 import AE
+from pynetdicom3.dimse_primitives import C_STORE
 from pynetdicom3.sop_class import (
     VerificationServiceClass,
     VerificationSOPClass,
@@ -49,15 +52,17 @@ class TestStorageServiceClass(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skip('Difficult to test correctly')
+    @pytest.mark.skip("Not aware of any way to test")
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
+        # Hard to test directly as decode errors won't show up until the
+        #   dataset is actually used
         self.scp = DummyStorageSCP()
         self.scp.status = 0x0000
         self.scp.start()
 
         ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 

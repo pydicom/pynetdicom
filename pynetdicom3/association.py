@@ -507,33 +507,33 @@ class Association(threading.Thread):
                     self.abort()
                     return
 
-                sop_class = uid_to_service_class(msg.AffectedSOPClassUID)()
+                service_class = uid_to_service_class(msg.AffectedSOPClassUID)()
 
                 # Check that the SOP Class is supported by the AE
                 # New method
-                pc_accepted = self.acse.accepted_contexts
-                context = [
-                    pc for pc in pc_accepted if pc.context_id == msg_context_id
-                ]
+                #pc_accepted = self.acse.accepted_contexts
+                #context = [
+                #    pc for pc in pc_accepted if pc.context_id == msg_context_id
+                #]
 
                 # Matching context
-                if context:
-                    sop_class.presentation_context = context[0]
-                else:
-                    # No matching presentation context
-                    pass
+                #if context:
+                #    service_class.presentation_context = context[0]
+                #else:
+                #    # No matching presentation context
+                #    pass
 
                 # Old method
                 # TODO: Index contexts in a dict using context ID
                 for context in self.acse.accepted_contexts:
                     if context.context_id == msg_context_id:
-                        sop_class.maxpdulength = self.peer_max_pdu
-                        sop_class.DIMSE = self.dimse
-                        sop_class.ACSE = self.acse
-                        sop_class.AE = self.ae
+                        service_class.maxpdulength = self.peer_max_pdu
+                        service_class.DIMSE = self.dimse
+                        service_class.ACSE = self.acse
+                        service_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        sop_class.SCP(msg, context, info)
+                        service_class.SCP(msg, context, info)
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "

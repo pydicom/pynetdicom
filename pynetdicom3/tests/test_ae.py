@@ -19,7 +19,9 @@ from pynetdicom3 import (
     AE,
     DEFAULT_TRANSFER_SYNTAXES,
     StoragePresentationContexts,
-    VerificationPresentationContexts
+    VerificationPresentationContexts,
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION
 )
 from pynetdicom3.presentation import _build_context
 from pynetdicom3.sop_class import (
@@ -73,6 +75,22 @@ class TestAEVerificationSCP(object):
 
         self.scp.stop()
 
+    def test_no_supported_contexts(self):
+        """Test starting with no contexts raises"""
+        """Test stopping the SCP with keyboard"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE()
+        with pytest.raises(ValueError):
+            ae.start()
+
+        self.scp.stop()
+
+    def test_str_empty(self):
+        """Test str output for default AE"""
+        ae = AE()
+        ae.__str__()
 
 class TestAEPresentationSCU(object):
     """Tests for AE presentation contexts when running as an SCU"""
@@ -722,6 +740,16 @@ class TestAEGoodMiscSetters(object):
         assert 'Peer' in ae.__str__()
         assoc.release()
         scp.stop()
+
+    def test_init_implementation_class(self):
+        """Test the default implementation class uid"""
+        ae = AE()
+        assert ae.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
+
+    def test_init_implementation_version(self):
+        """Test the default implementation version name"""
+        ae = AE()
+        assert ae.implementation_version_name == PYNETDICOM_IMPLEMENTATION_VERSION
 
 
 class TestAEBadInitialisation(object):

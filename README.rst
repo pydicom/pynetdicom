@@ -23,7 +23,7 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom3* is a pure Python (2.7/3+) program that implements the DICOM
+*pynetdicom3* is a pure Python (2.7/3.4+) program that implements the DICOM
 networking protocol. Working with `pydicom <https://github.com/pydicom/pydicom>`_,
 it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 *Service Class Providers* (SCPs).
@@ -31,9 +31,11 @@ it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 The main user class is ``AE``, which is used to represent a DICOM Application
 Entity. Once the ``AE`` has been created you would typically either:
 
-- Start the application as an SCP using ``AE.start()`` and wait for incoming
+- Start the application as an SCP by specifying the presentation contexts that
+  you will support, then calling ``AE.start()`` and waiting for incoming
   association requests
-- Use the application as an SCU by requesting an association with a peer SCP
+- Use the application as an SCU by specifying the presentation contexts you
+  want the peer SCP to support, then requesting an association
   via the ``AE.associate(addr, port)`` method, which returns an ``Association``
   thread.
 
@@ -45,6 +47,7 @@ and `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chap
 
 Supported Service Classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+pynetdicom3 supports the following DICOM service classes:
 
 - `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
 - `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
@@ -158,7 +161,7 @@ listen port number *port*):
             assoc.release()
 
 Create a DICOM C-ECHO listen SCP on port 11112 (you may optionally implement
-the `AE.on_c_echo` callback if you want to return something other than a
+the ``AE.on_c_echo`` callback if you want to return something other than a
 *Success* status):
 
 .. code-block:: python
@@ -195,7 +198,6 @@ SCP (at TCP/IP address *addr*, listen port number *port*):
         ae.add_requested_context(CTImageStorage,
                                  transfer_syntax=ImplicitVRLittleEndian)
         # Adding a presentation context with multiple transfer syntaxes
-        #   this isn't actually required to transfer the CT dataset
         ae.add_requested_context(MRImageStorage,
                                  transfer_syntax=[ImplicitVRLittleEndian,
                                                   '1.2.840.10008.1.2.1'])
