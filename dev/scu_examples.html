@@ -180,8 +180,9 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
 <em>Verification SOP Class</em></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
 
-<span class="c1"># The Verification SOP Class has a UID of 1.2.840.10008.1.1</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">scu_sop_class</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">])</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="c1"># Verification SOP Class has a UID of 1.2.840.10008.1.1</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
 
 <span class="c1"># Try and associate with the peer AE</span>
 <span class="c1">#   Returns the Association thread</span>
@@ -213,12 +214,12 @@ Application Entity (AE) is to send a DICOM C-ECHO, which utilises the
 <p>A common use of a DICOM SCU is to use a DICOM C-STORE message to send DICOM
 datasets to peer AEs.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">read_file</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">StorageSOPClassList</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 
-<span class="c1"># StorageSOPClassList contains all the Standard SOP Classes supported</span>
-<span class="c1">#   by the Storage Service Class (see PS3.4 Annex B.5)</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">scu_sop_class</span><span class="o">=</span><span class="n">StorageSOPClassList</span><span class="p">)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="c1"># StoragePresentationContexts is a list of PresentationContexts, one</span>
+<span class="c1">#   for each of the Storage Service&#39;s SOP Classes (see PS3.4 Annex B.5)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 
 <span class="c1"># Try and associate with the peer AE</span>
 <span class="c1">#   Returns the Association thread</span>
@@ -246,12 +247,13 @@ datasets to peer AEs.</p>
 those specified by the user-created <em>dataset</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">QueryRetrieveSOPClassList</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">QueryRetrievePresentationContexts</span>
 
-<span class="c1"># QueryRetrieveSOPClassList contains the SOP Classes supported</span>
-<span class="c1">#   by the Query/Retrieve Service Class (see PS3.4 Annex C.6)</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">scu_sop_class</span><span class="o">=</span><span class="n">QueryRetrieveSOPClassList</span><span class="p">)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># QueryRetrievePresentationContexts is a list of PresentationContexts,</span>
+<span class="c1">#   one for each of the Query/Retrieve Service&#39;s SOP Classes</span>
+<span class="c1">#   (see PS3.4 Annex C.6)</span>
 
 <span class="c1"># Try and associate with the peer AE</span>
 <span class="c1">#   Returns the Association thread</span>
@@ -261,7 +263,7 @@ those specified by the user-created <em>dataset</em>.</p>
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association accepted by the peer&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Creat a new DICOM dataset with the attributes to match against</span>
+    <span class="c1"># Create a new DICOM dataset with the attributes to match against</span>
     <span class="c1">#   In this case match any patient&#39;s name at the PATIENT query</span>
     <span class="c1">#   level. See PS3.4 Annex C.6 for the complete list of possible</span>
     <span class="c1">#   attributes and query levels.</span>
@@ -278,10 +280,10 @@ those specified by the user-created <em>dataset</em>.</p>
     <span class="c1">#       &#39;O&#39; - Patient/Study Only (1.2.840.10008.5.1.4.1.2.3.1)</span>
     <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="c1"># While status is pending we should get the matching datasets</span>
         <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND finished, releasing the association&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">:</span>
