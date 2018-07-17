@@ -1,8 +1,0 @@
-Add testing of the following:
-
-Receiving 0 maximum length negotiation items
-Receiving 2+ maximum length negotiation items
-Receiving 0 implementation class uid items
-Receiving 2+ implementation class uid items
-Receiving (N+1) negotiation items where the maximum number of items is finite
-Receiving 0 negotiation items where there is a minimum required number of items
