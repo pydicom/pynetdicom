@@ -33,7 +33,3 @@ References
 
 1. DICOM Standard, Part 8, Section
    `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
-2. [#] DICOM Standard, Part 8, Section
-   `9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_ and
-   `Annex D <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_D>`_
-3. [#] DICOM Standard, Part 7, `Annex D.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3>`_

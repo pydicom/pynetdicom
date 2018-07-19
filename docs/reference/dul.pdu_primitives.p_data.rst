@@ -9,7 +9,7 @@ of application information (i.e. DICOM Messages).
 .. autosummary::
    :toctree: generated/
 
-   A_P_ABORT
+   P_DATA
 
 References
 ----------

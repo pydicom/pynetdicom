@@ -48,7 +48,8 @@ class TestVerificationServiceClass(object):
         self.scp.status.Status = 0x0001
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -62,7 +63,8 @@ class TestVerificationServiceClass(object):
         self.scp.status = Dataset()
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -78,7 +80,8 @@ class TestVerificationServiceClass(object):
         self.scp.status.ErrorComment = 'Test'
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -95,7 +98,8 @@ class TestVerificationServiceClass(object):
         self.scp.status.PatientName = 'test name'
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -109,7 +113,8 @@ class TestVerificationServiceClass(object):
         self.scp.status = 0x0002
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -124,7 +129,8 @@ class TestVerificationServiceClass(object):
         self.scp.status = 0x0000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -138,7 +144,8 @@ class TestVerificationServiceClass(object):
         self.scp.status = None
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -154,7 +161,8 @@ class TestVerificationServiceClass(object):
         self.scp.ae.on_c_echo = on_c_echo
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
@@ -167,7 +175,8 @@ class TestVerificationServiceClass(object):
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass, '1.2.840.10008.1.2.1')
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -188,7 +197,8 @@ class TestVerificationServiceClass(object):
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)

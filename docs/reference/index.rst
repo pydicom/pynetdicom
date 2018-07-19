@@ -24,6 +24,7 @@ pynetdicom3. For how to use pynetdicom3, see the :ref:`user guide`.
    fsm
    presentation
    service_classes
+   sop_classes
    status
    timer
    utils

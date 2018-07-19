@@ -13,10 +13,11 @@ import time
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-    ExplicitVRBigEndian
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
-from pynetdicom3 import AE, QueryRetrieveSOPClassList
+from pynetdicom3 import AE, QueryRetrievePresentationContexts
 
 logger = logging.Logger('findscp')
 stream_logger = logging.StreamHandler()
@@ -26,7 +27,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 
 def _setup_argparser():
@@ -175,11 +176,9 @@ def on_c_find(dataset, context, info):
 
 
 # Create application entity
-ae = AE(ae_title=args.aetitle,
-        port=args.port,
-        scu_sop_class=[],
-        scp_sop_class=QueryRetrieveSOPClassList,
-        transfer_syntax=transfer_syntax)
+ae = AE(ae_title=args.aetitle, port=args.port)
+for context in QueryRetrievePresentationContexts:
+    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
 ae.maximum_pdu_size = args.max_pdu
 

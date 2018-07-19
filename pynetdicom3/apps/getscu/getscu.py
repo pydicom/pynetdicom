@@ -12,11 +12,17 @@ import sys
 import time
 
 from pydicom.dataset import Dataset, FileDataset
-from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
-                        ExplicitVRBigEndian, UID
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+)
 
-from pynetdicom3 import AE, StorageSOPClassList, QueryRetrieveSOPClassList
-from pynetdicom3 import pynetdicom_implementation_uid, pynetdicom_version
+from pynetdicom3 import (
+    AE,
+    StoragePresentationContexts,
+    QueryRetrievePresentationContexts,
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION
+)
 from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 LOGGER = logging.Logger('getscu')
@@ -27,7 +33,7 @@ LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 
 def _setup_argparser():
@@ -127,30 +133,24 @@ LOGGER.debug('$getscu.py v{0!s}'.format(VERSION))
 LOGGER.debug('')
 
 
-scu_classes = [x for x in QueryRetrieveSOPClassList]
-scu_classes.extend(StorageSOPClassList)
-
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet,
-        port=0,
-        scu_sop_class=scu_classes,
-        scp_sop_class=[],
-        transfer_syntax=[ExplicitVRLittleEndian])
+ae = AE(ae_title=args.calling_aet, port=0)
 
-# Set the extended negotiation SCP/SCU role selection to allow us to receive
-#   C-STORE requests for the supported SOP classes
+for context in QueryRetrievePresentationContexts:
+    ae.add_requested_context(context.abstract_syntax)
+for context in StoragePresentationContexts:
+    ae.add_requested_context(context.abstract_syntax)
+
+# Add SCP/SCU Role Selection Negotiation to the extended negotiation
+# We want to act as a Storage SCP
 ext_neg = []
-for context in ae.presentation_contexts_scu:
-    tmp = SCP_SCU_RoleSelectionNegotiation()
-    tmp.sop_class_uid = context.abstract_syntax
-    tmp.scu_role = False
-    tmp.scp_role = True
-
-    ext_neg.append(tmp)
-
-# Request association with remote
-assoc = ae.associate(args.peer, args.port, args.called_aet, ext_neg=ext_neg)
+for context in StoragePresentationContexts:
+    role = SCP_SCU_RoleSelectionNegotiation()
+    role.sop_class_uid = context.abstract_syntax
+    role.scp_role = True
+    role.scu_role = False
+    ext_neg.append(role)
 
 # Create query dataset
 d = Dataset()
@@ -233,11 +233,11 @@ def on_c_store(dataset, context, info):
     meta = Dataset()
     meta.MediaStorageSOPClassUID = dataset.SOPClassUID
     meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
-    meta.ImplementationClassUID = pynetdicom_implementation_uid
+    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = pynetdicom_version
+    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
     ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
     ds.update(dataset)
@@ -274,16 +274,17 @@ def on_c_store(dataset, context, info):
 
 ae.on_c_store = on_c_store
 
+# Request association with remote
+assoc = ae.associate(args.peer,
+                     args.port,
+                     ae_title=args.called_aet,
+                     ext_neg=ext_neg)
+
 # Send query
 if assoc.is_established:
     response = assoc.send_c_get(d, query_model=query_model)
 
-    time.sleep(1)
-    if response is not None:
-        for value in response:
-            pass
+    for status, identifier in response:
+        pass
 
     assoc.release()
-
-# done
-ae.quit()
