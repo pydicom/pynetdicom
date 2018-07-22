@@ -46,10 +46,6 @@ class C_STORE(object):
     4. The DIMSE provider issues a C-STORE confirmation primitive to the
        invoking DIMSE user, completing the C-STORE operation.
 
-    PS3.4 Annex B
-    PS3.7 9.1.1
-    """
-    '''
     Attributes
     ----------
     MessageID : int
@@ -91,7 +87,13 @@ class C_STORE(object):
     ErrorComment : str or None
         [-, C] An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-    '''
+
+    References
+    ----------
+
+    * DICOM Standard, Part 4, Annex B
+    * DICOM Standard, Part 7, 9.1.1
+    """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -120,12 +122,12 @@ class C_STORE(object):
 
     @property
     def MessageID(self):
-        """Return the DIMSE message ID parameter."""
+        """Return the DIMSE *Message ID*."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
-        """Set the DIMSE message ID parameter."""
+        """Set the DIMSE *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
@@ -139,12 +141,12 @@ class C_STORE(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the Message ID Being Responded To parameter."""
+        """Return the *Message ID Being Responded To*."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
-        """Set the Message ID Being Responded To parameter."""
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -158,12 +160,12 @@ class C_STORE(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the AffectedSOPClassUID parameter."""
+        """Return the *Affected SOP Class UID*."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """Set the Affected SOP Class UID parameter.
+        """Set the *Affected SOP Class UID*.
 
         Parameters
         ----------
@@ -190,12 +192,12 @@ class C_STORE(object):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the Affected SOP Instance UID parameter."""
+        """Return the *Affected SOP Instance UID*."""
         return self._affected_sop_instance_uid
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
-        """Set the Affected SOP Instance UID parameter.
+        """Set the *Affected SOP Instance UID*.
 
         Parameters
         ----------
@@ -222,12 +224,12 @@ class C_STORE(object):
 
     @property
     def Priority(self):
-        """Return the Priority parameter."""
+        """Return the *Priority*."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
-        """Set the Priority parameter."""
+        """Set the *Priority*."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
@@ -237,12 +239,12 @@ class C_STORE(object):
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):
-        """Return the Move Originator AE Title parameter."""
+        """Return the *Move Originator Application Entity Title*."""
         return self._move_originator_application_entity_title
 
     @MoveOriginatorApplicationEntityTitle.setter
     def MoveOriginatorApplicationEntityTitle(self, value):
-        """Set the Move Originator AE Title parameter.
+        """Set the *Move Originator Application Entity Title*.
 
         Parameters
         ----------
@@ -261,12 +263,12 @@ class C_STORE(object):
 
     @property
     def MoveOriginatorMessageID(self):
-        """Return the Move Originator Message ID parameter."""
+        """Return the *Move Originator Message ID*."""
         return self._move_originator_message_id
 
     @MoveOriginatorMessageID.setter
     def MoveOriginatorMessageID(self, value):
-        """Set the Move Originator Message ID parameter."""
+        """Set the *Move Originator Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._move_originator_message_id = value
@@ -280,12 +282,12 @@ class C_STORE(object):
 
     @property
     def DataSet(self):
-        """Return the Data Set parameter."""
+        """Return the *Data Set*."""
         return self._dataset
 
     @DataSet.setter
     def DataSet(self, value):
-        """Set the Data Set parameter."""
+        """Set the *Data Set*."""
         if value is None:
             self._dataset = value
         elif isinstance(value, BytesIO):
@@ -295,12 +297,12 @@ class C_STORE(object):
 
     @property
     def Status(self):
-        """Return the Status parameter."""
+        """Return the *Status*."""
         return self._status
 
     @Status.setter
     def Status(self, value):
-        """Set the Status parameter."""
+        """Set the *Status*."""
         if isinstance(value, int) or value is None:
             self._status = value
         else:
@@ -308,7 +310,7 @@ class C_STORE(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the C-STORE RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
                         'AffectedSOPInstanceUID', 'DataSet']:
             if getattr(self, keyword) is None:
@@ -318,7 +320,7 @@ class C_STORE(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the C-STORE RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -382,8 +384,7 @@ class C_FIND(object):
     may be retrieved on the network. Must be present if Storage Media File Set
     ID/UID not present. The named AE shall support either C-GET or C-MOVE
     SOP Class of the QR Service Class.
-    """
-    '''
+
     Attributes
     ----------
     MessageID : int
@@ -417,7 +418,7 @@ class C_FIND(object):
     ErrorComment : str or None
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-    '''
+    """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -439,12 +440,12 @@ class C_FIND(object):
 
     @property
     def MessageID(self):
-        """Return the Message ID parameter."""
+        """Return the *Message ID*."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
-        """Set the Message ID parameter."""
+        """Set the *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
@@ -458,12 +459,12 @@ class C_FIND(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the Message ID Being Responded To parameter."""
+        """Return the *Message ID Being Responded To*."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
-        """Set the Message ID Being Responded To parameter."""
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -477,12 +478,12 @@ class C_FIND(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the Affected SOP Class UID parameter."""
+        """Return the *Affected SOP Class UID*."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """Set the Affected SOP Class UID parameter.
+        """Set the *Affected SOP Class UID*.
 
         Parameters
         ----------
@@ -509,12 +510,12 @@ class C_FIND(object):
 
     @property
     def Priority(self):
-        """Return the Priority parameter."""
+        """Return the *Priority*."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
-        """Set the Priority parameter."""
+        """Set the *Priority*."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
@@ -524,12 +525,12 @@ class C_FIND(object):
 
     @property
     def Identifier(self):
-        """Return the Identifier parameter."""
+        """Return the *Identifier*."""
         return self._identifier
 
     @Identifier.setter
     def Identifier(self, value):
-        """Set the Identifier parameter."""
+        """Set the *Identifier*."""
         if value is None:
             self._identifier = value
         elif isinstance(value, BytesIO):
@@ -539,12 +540,12 @@ class C_FIND(object):
 
     @property
     def Status(self):
-        """Return the Status parameter."""
+        """Return the *Status*."""
         return self._status
 
     @Status.setter
     def Status(self, value):
-        """Set the Status parameter."""
+        """Set the *Status*."""
         if isinstance(value, int) or value is None:
             self._status = value
         else:
@@ -552,7 +553,7 @@ class C_FIND(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the C-FIND RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
                         'Identifier']:
             if getattr(self, keyword) is None:
@@ -562,7 +563,7 @@ class C_FIND(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the C-FIND RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -610,10 +611,6 @@ class C_GET(object):
     * Canceled, Warning, Failure or Success may contain the Number of Warning
       Sub-operations Attribute
 
-    PS3.4 Annex C.4.3
-    PS3.7 9.1.3
-    """
-    '''
     Attributes
     ----------
     MessageID : int
@@ -664,7 +661,13 @@ class C_GET(object):
     ErrorComment : str or None
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-    '''
+
+    References
+    ----------
+
+    * DICOM Standard, Part 4, Annex C.4.3
+    * DICOM Standard, Part 7, Section 9.1.3
+    """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -693,12 +696,12 @@ class C_GET(object):
 
     @property
     def MessageID(self):
-        """Return the Message ID parameter."""
+        """Return the *Message ID*."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
-        """Set the Message ID parameter."""
+        """Set the *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
@@ -712,12 +715,12 @@ class C_GET(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the Message ID Being Responded To parameter."""
+        """Return the *Message ID Being Responded To*."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
-        """Set the Message ID Being Responded To parameter."""
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -731,12 +734,12 @@ class C_GET(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the Affected SOP Class UID parameter."""
+        """Return the *Affected SOP Class UID*."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """Set the Affected SOP Class UID parameter.
+        """Set the *Affected SOP Class UID*.
 
         Parameters
         ----------
@@ -763,12 +766,12 @@ class C_GET(object):
 
     @property
     def Priority(self):
-        """Return the Priority parameter."""
+        """Return the *Priority*."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
-        """Set the Priority parameter."""
+        """Set the *Priority*."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
@@ -778,12 +781,12 @@ class C_GET(object):
 
     @property
     def Identifier(self):
-        """Return the Identifier parameter."""
+        """Return the *Identifier*."""
         return self._identifier
 
     @Identifier.setter
     def Identifier(self, value):
-        """Set the Identifier parameter."""
+        """Set the *Identifier*."""
         if value is None:
             self._identifier = value
         elif isinstance(value, BytesIO):
@@ -793,12 +796,12 @@ class C_GET(object):
 
     @property
     def Status(self):
-        """Return the Status parameter."""
+        """Return the *Status*."""
         return self._status
 
     @Status.setter
     def Status(self, value):
-        """Set the Status parameter."""
+        """Set the *Status*."""
         if isinstance(value, int) or value is None:
             self._status = value
         else:
@@ -806,12 +809,12 @@ class C_GET(object):
 
     @property
     def NumberOfRemainingSuboperations(self):
-        """Return the Number of Remaining Suboperations parameter."""
+        """Return the *Number of Remaining Suboperations*."""
         return self._number_of_remaining_suboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
-        """Set the Number of Remaining Suboperations parameter."""
+        """Set the *Number of Remaining Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_remaining_suboperations = value
@@ -825,12 +828,12 @@ class C_GET(object):
 
     @property
     def NumberOfCompletedSuboperations(self):
-        """Return the Number of Completed Suboperations parameter."""
+        """Return the *Number of Completed Suboperations*."""
         return self._number_of_completed_suboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
-        """Set the Number of Completed Suboperations parameter."""
+        """Set the *Number of Completed Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_completed_suboperations = value
@@ -844,12 +847,12 @@ class C_GET(object):
 
     @property
     def NumberOfFailedSuboperations(self):
-        """Return the Number of Failed Suboperations parameter."""
+        """Return the *Number of Failed Suboperations*."""
         return self._number_of_failed_suboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
-        """Set the Number of Failed Suboperations parameter."""
+        """Set the *Number of Failed Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_failed_suboperations = value
@@ -863,12 +866,12 @@ class C_GET(object):
 
     @property
     def NumberOfWarningSuboperations(self):
-        """Return the Number of Warning Suboperations parameter."""
+        """Return the *Number of Warning Suboperations*."""
         return self._number_of_warning_suboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
-        """Set the Number of Warning Suboperations parameter."""
+        """Set the *Number of Warning Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_warning_suboperations = value
@@ -882,7 +885,7 @@ class C_GET(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the C-GET RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
                         'Identifier']:
             if getattr(self, keyword) is None:
@@ -892,7 +895,7 @@ class C_GET(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the C-GET RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -940,10 +943,6 @@ class C_MOVE(object):
     * Canceled, Warning, Failure or Success may contain the Number of Warning
       Sub-operations Attribute
 
-    PS3.4 Annex C.4.2
-    PS3.7 9.1.4
-    """
-    '''
     Attributes
     ----------
     MessageID : int
@@ -997,7 +996,13 @@ class C_MOVE(object):
     ErrorComment : str or None
         [-, C, -] An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-    '''
+
+    References
+    ----------
+
+    * DICOM Standard, Part 4, Annex C.4.2
+    * DICOM Standard, Part 7, Section 9.1.4
+    """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1025,12 +1030,12 @@ class C_MOVE(object):
 
     @property
     def MessageID(self):
-        """Return the Message ID parameter."""
+        """Return the *Message ID*."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
-        """Set the Message ID parameter."""
+        """Set the *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
@@ -1044,12 +1049,12 @@ class C_MOVE(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the Message ID Being Responding To parameter."""
+        """Return the *Message ID Being Responding To*."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
-        """Set the Message ID Being Responding To parameter."""
+        """Set the *Message ID Being Responding To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -1063,12 +1068,12 @@ class C_MOVE(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the Affected SOP Class UID parameter."""
+        """Return the *Affected SOP Class UID*."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """Set the Affected SOP Class UID parameter.
+        """Set the *Affected SOP Class UID*.
 
         Parameters
         ----------
@@ -1095,12 +1100,12 @@ class C_MOVE(object):
 
     @property
     def Priority(self):
-        """Return the Priority parameter."""
+        """Return the *Priority*."""
         return self._priority
 
     @Priority.setter
     def Priority(self, value):
-        """Set the Priority parameter."""
+        """Set the *Priority*."""
         if value in [0, 1, 2]:
             self._priority = value
         else:
@@ -1110,12 +1115,12 @@ class C_MOVE(object):
 
     @property
     def MoveDestination(self):
-        """Return the Move Destination parameter."""
+        """Return the *Move Destination*."""
         return self._move_destination
 
     @MoveDestination.setter
     def MoveDestination(self, value):
-        """Set the Move Destination parameter
+        """Set the *Move Destination*.
 
         Parameters
         ----------
@@ -1133,12 +1138,12 @@ class C_MOVE(object):
 
     @property
     def Identifier(self):
-        """Return the Identifier parameter."""
+        """Return the *Identifier*."""
         return self._identifier
 
     @Identifier.setter
     def Identifier(self, value):
-        """Set the Identifier parameter."""
+        """Set the *Identifier*."""
         if value is None:
             self._identifier = value
         elif isinstance(value, BytesIO):
@@ -1148,12 +1153,12 @@ class C_MOVE(object):
 
     @property
     def Status(self):
-        """Return the Status parameter."""
+        """Return the *Status*."""
         return self._status
 
     @Status.setter
     def Status(self, value):
-        """Set the Status parameter."""
+        """Set the *Status*."""
         if isinstance(value, int) or value is None:
             self._status = value
         else:
@@ -1161,12 +1166,12 @@ class C_MOVE(object):
 
     @property
     def NumberOfRemainingSuboperations(self):
-        """Return the Number of Remaining Suboperations parameter."""
+        """Return the *Number of Remaining Suboperations*."""
         return self._number_of_remaining_suboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
-        """Set the Number of Remaining Suboperations parameter."""
+        """Set the *Number of Remaining Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_remaining_suboperations = value
@@ -1180,12 +1185,12 @@ class C_MOVE(object):
 
     @property
     def NumberOfCompletedSuboperations(self):
-        """Return the Number of Completed Suboperations parameter."""
+        """Return the *Number of Completed Suboperations*."""
         return self._number_of_completed_suboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
-        """Set the Number of Completed Suboperations parameter."""
+        """Set the *Number of Completed Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_completed_suboperations = value
@@ -1199,12 +1204,12 @@ class C_MOVE(object):
 
     @property
     def NumberOfFailedSuboperations(self):
-        """Return the Number of Failed Suboperations parameter."""
+        """Return the *Number of Failed Suboperations*."""
         return self._number_of_failed_suboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
-        """Set the Number of Failed Suboperations parameter."""
+        """Set the *Number of Failed Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_failed_suboperations = value
@@ -1218,12 +1223,12 @@ class C_MOVE(object):
 
     @property
     def NumberOfWarningSuboperations(self):
-        """Return the Number of Warning Suboperations parameter."""
+        """Return the *Number of Warning Suboperations*."""
         return self._number_of_warning_suboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
-        """Set the Number of Warning Suboperations parameter."""
+        """Set the *Number of Warning Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
                 self._number_of_warning_suboperations = value
@@ -1237,7 +1242,7 @@ class C_MOVE(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the C-MOVE RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
                         'Identifier', 'MoveDestination']:
             if getattr(self, keyword) is None:
@@ -1247,7 +1252,7 @@ class C_MOVE(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the C-MOVE RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1258,24 +1263,6 @@ class C_MOVE(object):
 class C_ECHO(object):
     """Represents a C-ECHO primitive.
 
-    **C-ECHO Service Procedure**
-
-
-    1. The invoking DIMSE user requests verification of communication to the
-        performing DIMSE user by issuing a C-ECHO request primitive to the
-        DIMSE provider.
-    2. The DIMSE provider issues a C-ECHO indication primitive to the
-        performing DIMSE user
-    3. The performing DIMSE user verifies communication by issuing a C-ECHO
-        response primitive to the DISME provider
-    4. The DIMSE provider issues a C-ECHO confirmation primitive to the
-        invoking DIMSE user, completing the C-ECHO operations
-
-    So, local AE sends C-ECHO-RQ to peer, peer sends C-ECHO-RP to local.
-
-    PS3.7 Section 9.1.5
-    """
-    '''
     Attributes
     ----------
     MessageID : int or None
@@ -1295,7 +1282,12 @@ class C_ECHO(object):
     ErrorComment : str or None
         [-, C] An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-    '''
+
+    References
+    ----------
+
+    * DICOM Standard, Part 7, Section 9.1.5
+    """
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1312,12 +1304,12 @@ class C_ECHO(object):
 
     @property
     def MessageID(self):
-        """Return the Message ID parameter."""
+        """Return the *Message ID*."""
         return self._message_id
 
     @MessageID.setter
     def MessageID(self, value):
-        """Set the Message ID parameter."""
+        """Set the *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
@@ -1331,12 +1323,12 @@ class C_ECHO(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the Message ID Being Responded To parameter."""
+        """Return the *Message ID Being Responded To*."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
-        """Set the Message ID Being Responded To parameter."""
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -1350,12 +1342,12 @@ class C_ECHO(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the Afffected SOP Class UID parameter."""
+        """Return the *Affected SOP Class UID*."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value):
-        """Set the Affected SOP Class UID parameter.
+        """Set the *Affected SOP Class UID*.
 
         Parameters
         ----------
@@ -1382,12 +1374,12 @@ class C_ECHO(object):
 
     @property
     def Status(self):
-        """Return the Status parameter."""
+        """Return the *Status*."""
         return self._status
 
     @Status.setter
     def Status(self, value):
-        """Set the Status parameter."""
+        """Set the *Status*."""
         if isinstance(value, int) or value is None:
             self._status = value
         else:
@@ -1395,7 +1387,7 @@ class C_ECHO(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the C-ECHO RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID']:
             if getattr(self, keyword) is None:
                 return False
@@ -1404,7 +1396,7 @@ class C_ECHO(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the C-ECHO RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1415,15 +1407,16 @@ class C_ECHO(object):
 class C_CANCEL(object):
     """Represents a C-CANCEL primitive.
 
-    PS3.7 Section 9.3.2.3-4 (C-CANCEL-FIND-RQ)
-    PS3.7 Section 9.3.3.3-4 (C-CANCEL-GET-RQ)
-    PS3.7 Section 9.3.4.3-4 (C-CANCEL-MOVE-RQ)
-
     Attributes
     ----------
     MessageIDBeingRespondedTo : int
         [-, M] The Message ID of the operation request/indication to which this
         response/confirmation applies.
+
+    References
+    ----------
+
+    * DICOM Standard, Part 7, Section 9.3.2.3-4
     """
 
     def __init__(self):
@@ -1437,12 +1430,12 @@ class C_CANCEL(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the Message ID Being Responded To parameter."""
+        """Return the *Message ID Being Responded To*."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
     def MessageIDBeingRespondedTo(self, value):
-        """Set the Message ID Being Responded To parameter."""
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -1515,7 +1508,6 @@ class N_EVENT_REPORT(object):
 
     0x0000 - success 0x0000
     '''
-
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1532,7 +1524,7 @@ class N_EVENT_REPORT(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the N-EVENT-REPORT RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID', 'EventTypeID',
                         'AffectedSOPInstanceUID']:
             if getattr(self, keyword) is None:
@@ -1542,7 +1534,7 @@ class N_EVENT_REPORT(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the N-EVENT-REPORT RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1618,7 +1610,7 @@ class N_GET(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the N-GET RQ is valid."""
         for keyword in ['MessageID', 'RequestedSOPClassUID',
                         'RequestedSOPInstanceUID']:
             if getattr(self, keyword) is None:
@@ -1628,7 +1620,7 @@ class N_GET(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the N-GET RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1707,7 +1699,7 @@ class N_SET(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the N-SET RQ is valid."""
         for keyword in ['MessageID', 'RequestedSOPClassUID',
                         'RequestedSOPInstanceUID']:
             if getattr(self, keyword) is None:
@@ -1717,7 +1709,7 @@ class N_SET(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the N-SET RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1797,7 +1789,7 @@ class N_ACTION(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the N-ACTION RQ is valid."""
         for keyword in ['MessageID', 'RequestedSOPClassUID',
                         'RequestedSOPInstanceUID']:
             if getattr(self, keyword) is None:
@@ -1807,7 +1799,7 @@ class N_ACTION(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the N-ACTION RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1878,7 +1870,7 @@ class N_CREATE(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the N-CREATE RQ is valid."""
         for keyword in ['MessageID', 'AffectedSOPClassUID']:
             if getattr(self, keyword) is None:
                 return False
@@ -1887,7 +1879,7 @@ class N_CREATE(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the N-CREATE RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False
@@ -1955,7 +1947,7 @@ class N_DELETE(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the required parameters for a C-ECHO RQ are set."""
+        """Return True if the N-DELETE RQ is valid."""
         for keyword in ['MessageID', 'RequestedSOPClassUID',
                         'RequestedSOPInstanceUID']:
             if getattr(self, keyword) is None:
@@ -1965,7 +1957,7 @@ class N_DELETE(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the required parameters for a C-ECHO RSP are set."""
+        """Return True if the N-DELETE RSP is valid."""
         for keyword in ['MessageIDBeingRespondedTo', 'Status']:
             if getattr(self, keyword) is None:
                 return False

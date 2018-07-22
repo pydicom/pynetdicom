@@ -3,8 +3,6 @@ Service Primitives (:mod:`pynetdicom3.dimse_primitives`)
 
 .. currentmodule:: pynetdicom3.dimse_primitives
 
-This module provides the DIMSE message primitives that should be used by the
-service user to create DIMSE or something.
 
 DIMSE-C Primitives
 ------------------
