@@ -1,4 +1,5 @@
-Welcome to the documentation for `pynetdicom3 <https://github.com/pydicom/pynetdicom3>`_.
+Welcome to the documentation for `pynetdicom <https://github.com/pydicom/pynetdicom3>`_.
+
 
 Description
 -----------
@@ -11,17 +12,21 @@ other medical domains. If you've ever had an X-ray or an ultrasound or one of
 many other medical procedures, then the chances are that the DICOM standard was
 involved in some way.
 
-pynetdicom3
-~~~~~~~~~~~
-*pynetdicom3* is a pure Python 2.7/3+ library that implements the DICOM
+
+pynetdicom
+~~~~~~~~~~
+*pynetdicom* is a pure Python 2.7/3.4+ package that implements the DICOM
 networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
-of DICOM Application Entities (AEs), which can then act as *Service Class Users*
-and/or *Service Class Providers* by associating with other AEs.
+of DICOM Application Entities (AEs), which can then act as *Service Class
+Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
+AEs and providing or using one or more of the services available to the
+association.
+
 
 Supported Service Classes
 -------------------------
-pynetdicom3 currently supports the following DICOM service classes:
+pynetdicom currently supports the following DICOM service classes:
 
 .. toctree::
    :maxdepth: 1
@@ -31,9 +36,10 @@ pynetdicom3 currently supports the following DICOM service classes:
    query_retrieve_service_class
    basic_worklist_service_class
 
+
 User Guide
 ----------
-The :ref:`user_guide` is intended as an introduction to pynetdicom3 and
+The :ref:`user_guide` is intended as an introduction to pynetdicom and
 explains how to install and use the API, as well as covering the basics of
 DICOM networking. For detailed reference documentation of the functions and
 classes see the :ref:`reference`.
@@ -46,8 +52,17 @@ classes see the :ref:`reference`.
    user/basics
    user/conformance
 
+
 Examples
 --------
+
+* Verification Examples (C-ECHO)
+* Storage Examples (C-STORE)
+* Query/Retrieve Find Examples (C-FIND)
+* Query/Retrieve Get Examples (C-GET and C-STORE)
+* Query/Retrieve Move Examples (C-MOVE and C-STORE)
+* Basic Worklist Management Examples (C-FIND)
+
 
 API Reference
 -------------
