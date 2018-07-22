@@ -3,8 +3,6 @@ Messages (:mod:`pynetdicom3.dimse_messages`)
 
 .. currentmodule:: pynetdicom3.dimse_messages
 
-This module provides the DIMSE messages...
-
 DIMSE-C Messages
 ----------------
 
