@@ -44,23 +44,7 @@ LOGGER = logging.getLogger('pynetdicom3.assoc')
 
 
 class Association(threading.Thread):
-    """Manages Associations with peer AEs.
-
-    The actual low level work done for Associations is performed by
-    pynetdicom3.acse.ACSEServiceProvider.
-
-    When the local AE is acting as an SCP, initialise the Association using
-    the socket to listen on for incoming Association requests. When the local
-    AE is acting as an SCU, initialise the Association with the details of the
-    peer AE.
-
-    When AE is acting as an SCP:
-
-    >>> assoc = Association(client_socket, max_pdu)
-
-    When AE is acting as an SCU:
-
-    >>> assoc = Association(peer_ae, acse_timeout, dimse_timeout, max_pdu, ext_neg)
+    """Manage an Association with a peer AE.
 
     Attributes
     ----------
@@ -68,7 +52,7 @@ class Association(threading.Thread):
         The Association Control Service Element provider.
     ae : ae.ApplicationEntity
         The local AE.
-    dimse : DIMSEServiceProvider
+    dimse : dimse.DIMSEServiceProvider
         The DICOM Message Service Element provider.
     dul : dul.DULServiceProvider
         The DICOM Upper Layer service provider instance.
@@ -124,7 +108,7 @@ class Association(threading.Thread):
         max_pdu : int, optional
             The maximum PDU receive size in bytes for the association. A value
             of 0 means no maximum size (default: 16382 bytes).
-        ext_neg : list of extended negotiation parameters objects, optional
+        ext_neg : list of pdu_primitives User Information items, optional
             If the association requires an extended negotiation then `ext_neg`
             is a list containing the negotiation objects (default: None).
         """
@@ -133,11 +117,6 @@ class Association(threading.Thread):
                         'ae_title' : None,
                         'pdv_size' : None}
 
-        # Why is the AE in charge of supplying the client socket?
-        #   Hmm, perhaps because we can have multiple connections on the same
-        #       listen port. Does that even work? Probably needs testing
-        #   As SCP: supply port number to listen on (listen_port != None)
-        #   As SCU: supply addr/port to make connection on (peer_ae != None)
         if [client_socket, peer_ae] == [None, None]:
             raise TypeError("Association must be initialised with either "
                             "the client_socket or peer_ae parameters")
@@ -739,7 +718,17 @@ class Association(threading.Thread):
         RuntimeError
             If called without an association to a peer SCP.
         ValueError
-            If no accepted Presentation Context for 'Verification SOP Class'.
+            If the association has no accepted Presentation Context for
+            'Verification SOP Class'.
+
+        Examples
+        --------
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        ...     status = assoc.send_c_echo()
+        ...     if status:
+        ...         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
+        ...     assoc.release()
 
         See Also
         --------
@@ -749,17 +738,12 @@ class Association(threading.Thread):
 
         References
         ----------
-        DICOM Standard Part 4, Annex A
-        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
 
-        Examples
-        --------
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        >>>     status = assoc.send_c_echo()
-        >>>     if status:
-        >>>         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
-        >>>     assoc.release()
+        * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
@@ -817,7 +801,7 @@ class Association(threading.Thread):
             The DICOM dataset to send to the peer.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            (default ``1``).
         priority : int, optional
             The C-STORE operation *Priority* (may not be supported by the
             peer), one of:
@@ -827,10 +811,11 @@ class Association(threading.Thread):
             - ``2`` - Low (default)
         originator_aet : bytes, optional
             The AE title of the peer that invoked the C-MOVE operation for
-            which this C-STORE sub-operation is being performed (default None).
+            which this C-STORE sub-operation is being performed (default
+            ``None``).
         originator_id : int, optional
             The Message ID of the C-MOVE request primitive from which this
-            C-STORE sub-operation is being performed (default None).
+            C-STORE sub-operation is being performed (default ``None``).
 
         Returns
         -------
@@ -868,7 +853,6 @@ class Association(threading.Thread):
               | ``0xC000`` to ``0xCFFF`` Cannot understand
 
             Warning
-
               | ``0xB000`` Coercion of data elements
               | ``0xB006`` Element discarded
               | ``0xB007`` Data set does not match SOP class
@@ -877,7 +861,6 @@ class Association(threading.Thread):
             Annex GG.4.2)
 
             Failure
-
               | ``0xA700`` Out of resources
               | ``0xA900`` Data set does not match SOP class
               | ``0xC000`` Cannot understand
@@ -893,6 +876,17 @@ class Association(threading.Thread):
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the `dataset`.
 
+        Examples
+        --------
+
+        >>> ds = pydicom.dcmread('file-in.dcm')
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        ...     status = assoc.send_c_store(ds)
+        ...     if status:
+        ...         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
+        ...     assoc.release()
+
         See Also
         --------
         ae.ApplicationEntity.on_c_store
@@ -901,18 +895,13 @@ class Association(threading.Thread):
 
         References
         ----------
-        DICOM Standard Part 4, Annexes B, GG
-        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
 
-        Examples
-        --------
-        >>> ds = read_file('file-in.dcm')
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        >>>     status = assoc.send_c_store(ds)
-        >>>     if status:
-        >>>         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
-        >>>     assoc.release()
+        * DICOM Standard Part 4, Annexes `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_ and
+          `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
+          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -1032,13 +1021,14 @@ class Association(threading.Thread):
             empty ``Dataset``. If a response was received from the peer then
             yields a ``Dataset`` containing at least a (0000,0900) *Status*
             element, and depending on the returned value, may optionally
-            contain additional elements (see PS3.7 9.1.2.1.5 and Annex C).
+            contain additional elements (see the DICOM Standard, Part 7,
+            Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-FIND operation should be one of the
             following values, but as the returned value depends
             on the peer this can't be assumed:
 
-            General C-FIND (PS3.7 9.1.2.1.5 and Annex C)
+            General C-FIND (Part 7, Section 9.1.2.1.5 and Annex C)
 
             Cancel
               | ``0xFE00`` Matching terminated due to Cancel request
@@ -1050,7 +1040,8 @@ class Association(threading.Thread):
             Failure
               | ``0x0122`` SOP class not supported
 
-            Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):
+            Query/Retrieve Service and Basic Worklist Management Service Class
+            Specific (Part 4, Annexes C.4.1 and K.4.1.1.4):
 
             Failure
               | ``0xA700`` Out of resources
@@ -1079,6 +1070,19 @@ class Association(threading.Thread):
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the *Identifier* `dataset`.
 
+        Examples
+        --------
+
+        >>> ds = Dataset()
+        >>> ds.QueryRetrieveLevel = 'PATIENT'
+        >>> ds.PatientName = '*'
+        >>> assoc = ae.associate(addr, port)
+        >>> if assoc.is_established:
+        ...     response = assoc.send_c_find(ds, query_model='P')
+        ...     for (status, identifier) in response:
+        ...         print('C-FIND Response: 0x{0:04x}'.format(status.Status))
+        ...     assoc.release()
+
         See Also
         --------
         ae.ApplicationEntity.on_c_find
@@ -1087,8 +1091,13 @@ class Association(threading.Thread):
 
         References
         ----------
-        DICOM Standard Part 4, Annex C
-        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
+
+        * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
+          Annexes `C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_ and
+          `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
@@ -1218,10 +1227,10 @@ class Association(threading.Thread):
 
         Yields ``(status, identifier)`` pairs.
 
-        The ``AE.on_c_store`` callback should be implemented prior
-        to calling ``send_c_move`` as the peer may either return any matches
-        via a C-STORE sub-operation over the current association or request a
-        new association over which to return any matches.
+        The peer will attempt to start a new association with the AE with
+        *AE Title* ``move_aet`` and hence must be known to the SCP. Once the
+        association has been established it will use the C-STORE service to
+        send any matching datasets.
 
         Parameters
         ----------
@@ -1310,8 +1319,12 @@ class Association(threading.Thread):
 
         References
         ----------
-        DICOM Standard Part 4, Annex C
-        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C
+
+        * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
+          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1473,7 +1486,9 @@ class Association(threading.Thread):
 
         The ``AE.on_c_store`` callback should be implemented prior
         to calling ``send_c_get`` as the peer will return any matches via a
-        C-STORE sub-operation over the current association.
+        C-STORE sub-operation over the current association. In addition,
+        SCP/SCU Role Selection Negotiation must be supported by the
+        Association.
 
         Parameters
         ----------
@@ -1572,8 +1587,12 @@ class Association(threading.Thread):
 
         References
         ----------
-        DICOM Standard Part 4, Annex C
-        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C
+
+        * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
+          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-GET without an Association
         if not self.is_established:

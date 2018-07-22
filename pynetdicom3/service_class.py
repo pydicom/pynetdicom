@@ -158,7 +158,7 @@ class VerificationServiceClass(ServiceClass):
 
         *Status*
 
-        The DICOM Standard [2]_ (Table 9.3-13) indicates that the Status value
+        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status value
         of a C-ECHO response "shall have a value of Success". However Section
         9.1.5.1.4 indicates it may have any of the following values:
 
@@ -173,8 +173,9 @@ class VerificationServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-        .. [2] DICOM Standard, Part 7, Sections
+
+        * DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        * DICOM Standard, Part 7, Sections
            `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
            `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
@@ -294,8 +295,9 @@ class StorageServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
-        .. [2] DICOM Standard, Part 7, Sections
+
+        * DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
+        * DICOM Standard, Part 7, Sections
            `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
            `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.

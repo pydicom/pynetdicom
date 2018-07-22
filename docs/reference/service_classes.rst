@@ -1,7 +1,7 @@
 .. _service_classes:
 
 Service Classes (:mod:`pynetdicom3.service_class`)
-==============================================
+==================================================
 
 .. currentmodule:: pynetdicom3.service_class
 
