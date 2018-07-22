@@ -4,8 +4,9 @@
 DIMSE Service
 *************
 
-The DIMSE service provides something.
-
+The DICOM Message Service Element (DIMSE) provides the mechanism for message
+exchange between peer Application Entities once an Association between them
+has been established.
 
 .. toctree::
    :maxdepth: 3
