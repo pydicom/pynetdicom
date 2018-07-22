@@ -123,7 +123,7 @@ _STORAGE_CLASSES = {
     'GrayscalePlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.​5.​1.​4.​1.​1.​11.​6',  # A.80.1
     'CompositingPlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.​5.​1.​4.​1.​1.​11.​7',  # A.80.1
     'AdvancedBlendingPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.8',  # A.33.7
-    'VolumeRenderingVolumetricPresentationStateStorage', '1.2.840.10008.5.1.4.1.1.11.9',  # A.80.2
+    'VolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.9',  # A.80.2
     'SegmentatedVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.10',  # A.80.2
     'MultipleVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.11',  # A.80.2
     'XRayAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1',  # A.14

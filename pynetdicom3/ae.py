@@ -770,12 +770,11 @@ class ApplicationEntity(object):
         * `abstract_syntax` alone
           All contexts with a matching abstract syntax all be removed.
         * `abstract_syntax` and `transfer_syntax`
-          For all contexts with a matching abstract syntax:
-            If the supplied `transfer_syntax` list contains all of the context's
-            requested transfer syntaxes then the entire context will be removed.
-            Otherwise only the matching transfer syntaxes will be removed from
-            the context (and the context will remain with one or more transfer
-            syntaxes).
+          For all contexts with a matching abstract syntax; if the supplied
+          `transfer_syntax` list contains all of the context's requested
+          transfer syntaxes then the entire context will be removed. Otherwise
+          only the matching transfer syntaxes will be removed from the context
+          (and the context will remain with one or more transfer syntaxes).
 
         Parameters
         ----------
@@ -891,6 +890,7 @@ class ApplicationEntity(object):
         """Remove a supported presentation context.
 
         Depending on the supplied parameters one of the following will occur:
+
         * `abstract_syntax` alone
           The entire supported context will be removed.
         * `abstract_syntax` and `transfer_syntax`

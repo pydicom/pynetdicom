@@ -1056,6 +1056,7 @@ class UserInformationItem(PDUItem):
 
             - MaximumLengthNegotiation
             - ImplementationClassUIDNotification
+
             May optionally contain one or more:
 
             - ImplementationVersionnameNotification
@@ -1078,6 +1079,7 @@ class UserInformationItem(PDUItem):
 
             - MaximumLengthNegotiation
             - ImplementationClassUIDNotification
+            
             May optionally contain one or more:
 
             - ImplementationVersionnameNotification

@@ -45,12 +45,9 @@ DICOM networking. For detailed reference documentation of the functions and
 classes see the :ref:`reference`.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   user/installation
-   user/quickstart
-   user/basics
-   user/conformance
+   user/index
 
 
 Examples
@@ -68,6 +65,6 @@ API Reference
 -------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    reference/index
