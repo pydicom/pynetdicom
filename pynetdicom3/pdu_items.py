@@ -149,7 +149,7 @@ class PDUItem(object):
         Yields
         ------
         int, bytes
-            The variable item's 'Item Type' parameter as int, and the item's
+            The variable item's *Item Type* parameter as int, and the item's
             entire encoded data as bytes.
 
         Notes
@@ -211,12 +211,12 @@ class PDUItem(object):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         raise NotImplementedError
 
     @property
     def item_type(self):
-        """Return the item's 'Item Type' field value as an int."""
+        """Return the item's *Item Type* field value as an int."""
         key_val = PDU_ITEM_TYPES.items()
         keys = [key for (key, val) in key_val]
         vals = [val for (key, val) in key_val]
@@ -338,12 +338,12 @@ class ApplicationContextItem(PDUItem):
     Attributes
     ----------
     application_context_name : pydicom.uid.UID
-        The 'Application Context Name' field value.
+        The *Application Context Name* field value.
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x10).
+        The *Item Type* field value (0x10).
 
     Notes
     -----
@@ -357,13 +357,13 @@ class ApplicationContextItem(PDUItem):
 
     Application Context Names are OSI Object Identifiers in a numeric form as
     defined by ISO 8824 [#]_. They are encoded as an ISO 646:1990-Basic G0 Set
-    Numeric String of bytes (characters 0-9), separated by the character '.'
-    (0x2e) [#]_.
+    Numeric String of bytes (characters 0-9), separated by the character
+    ``.`` (0x2e) [#]_.
 
     Application context names shall not exceed 64 total characters.
 
-    A single DICOM Application Context Name is defined for the current (2018b)
-    version of the DICOM Standard and it is '1.2.840.10008.3.1.1.1' [#]_.
+    A single DICOM Application Context Name is defined for the current (2018c)
+    version of the DICOM Standard and it is *1.2.840.10008.3.1.1.1* [#]_.
 
     **Encoding**
 
@@ -404,12 +404,12 @@ class ApplicationContextItem(PDUItem):
 
     @property
     def application_context_name(self):
-        """Return the item's 'Application Context Name' field value as UID."""
+        """Return the item's *Application Context Name* field value as UID."""
         return self._application_context_name
 
     @application_context_name.setter
     def application_context_name(self, value):
-        """Set the 'Application Context Name' field value.
+        """Set the *Application Context Name* field value.
 
         Parameters
         ----------
@@ -471,7 +471,7 @@ class ApplicationContextItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return len(self.application_context_name)
 
     def __len__(self):
@@ -497,15 +497,15 @@ class PresentationContextItemRQ(PDUItem):
     abstract_syntax : pydicom.uid.UID or None.
         The Presentation Context Item's Abstract Syntax (if available).
     abstract_transfer_syntax_sub_items : list of AbstractSyntaxSubItem and TransferSyntaxSubItem
-        The 'Abstract/Transfer Syntax Sub-Items' field value. The order of the
+        The *Abstract/Transfer Syntax Sub-Items* field value. The order of the
         items is not guaranteed.
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x20).
+        The *Item Type* field value (0x20).
     presentation_context_id : int or None
-        The 'Presentation Context ID' field value, an odd integer between 1 and
+        The *Presentation Context ID* field value, an odd integer between 1 and
         255.
     transfer_syntax : list of pydicom.uid.UID
         The Presentation Context Item's Transfer Syntax(es) (if available).
@@ -615,7 +615,7 @@ class PresentationContextItemRQ(PDUItem):
 
     @property
     def abstract_syntax(self):
-        """Return the Abstract Syntax, if available.
+        """Return the *Abstract Syntax*, if available.
 
         Returns
         -------
@@ -629,7 +629,7 @@ class PresentationContextItemRQ(PDUItem):
 
     @property
     def context_id(self):
-        """Return the item's 'Presentation Context ID' field value as an int."""
+        """Return the item's *Presentation Context ID* field value as an int."""
         return self.presentation_context_id
 
     @property
@@ -689,7 +689,7 @@ class PresentationContextItemRQ(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         length = 4
         for item in self.abstract_transfer_syntax_sub_items:
             length += len(item)
@@ -718,7 +718,7 @@ class PresentationContextItemRQ(PDUItem):
 
     @property
     def transfer_syntax(self):
-        """Return the Transfer Syntax(es).
+        """Return the *Transfer Syntax(es)*.
 
         Returns
         -------
@@ -742,19 +742,19 @@ class PresentationContextItemAC(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x21).
+        The *Item Type* field value (0x21).
     presentation_context_id : int or None
-        The 'Presentation Context ID' field value, an odd integer between 1 and
+        The *Presentation Context ID* field value, an odd integer between 1 and
         255.
     result_reason : int
-        The Presentation Context's 'Result/reason' field value.
+        The Presentation Context's *Result/reason* field value.
     transfer_syntax : list of pydicom.uid.UID
         The Presentation Context Item's Transfer Syntax (if available).
     transfer_syntax_sub_item : list of pynetdicom.uid.UID
-        The Presentation Context Items' 'Transfer Syntax Sub-item' field value.
+        The Presentation Context Items' *Transfer Syntax Sub-item* field value.
 
     Notes
     -----
@@ -848,7 +848,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def context_id(self):
-        """Return the item's 'Presentation Context ID' field value."""
+        """Return the item's *Presentation Context ID* field value."""
         return self.presentation_context_id
 
     @property
@@ -914,7 +914,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         if self.transfer_syntax_sub_item:
             return 4 + len(self.transfer_syntax_sub_item[0])
 
@@ -927,7 +927,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def result(self):
-        """Return the item's 'Result/reason' field value."""
+        """Return the item's *Result/reason* field value."""
         return self.result_reason
 
     @property
@@ -957,7 +957,7 @@ class PresentationContextItemAC(PDUItem):
 
     @property
     def transfer_syntax(self):
-        """Return the Transfer Syntax, if available.
+        """Return the *Transfer Syntax*, if available.
 
         Returns
         -------
@@ -978,29 +978,29 @@ class UserInformationItem(PDUItem):
     Attributes
     ----------
     async_ops_window : pdu_items.AsynchronousOperationsWindowSubItem or None
-        The Asynchronous Operations Window Sub-item or None if not present.
+        The *Asynchronous Operations Window Sub-item* or None if not present.
     common_ext_neg : list of pdu_items.SOPClassCommonExtendedNegotiationSubItem
-        The SOP Class Common Extended Negotiation Sub-item(s).
+        The *SOP Class Common Extended Negotiation Sub-item(s)*.
     ext_neg : list of pdu_items.SOPClassExtendedNegotiationSubItem
-        The SOP Class Extended Negotiation Sub-item(s).
+        The *SOP Class Extended Negotiation Sub-item(s)*.
     implementation_class_uid : pydicom.uid.UID or None
-        The implementation class UID from the Implementation Class UID Sub-item,
-        or None if not present.
+        The implementation class UID from the *Implementation Class UID
+        Sub-item*, or None if not present.
     implementation_version_name : bytes or None
-        The implementation version name for the Implementation Version Name
-        Sub-item, or None if not present.
+        The implementation version name for the *Implementation Version Name
+        Sub-item*, or None if not present.
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x50).
+        The *Item Type* field value (0x50).
     maximum_length : int or None
-        The maximum length received value for the Maximum Length Sub-item, or
+        The maximum length received value for the *Maximum Length Sub-item*, or
         None if not present.
     role_selection : list of pdu_items.SCP_SCU_RoleSelectionSubItem
-        The SCP/SCU Role Selection Sub-item(s).
+        The *SCP/SCU Role Selection Sub-item(s)*.
     user_identity : pdu_items.UserIdentitySubItemRQ or pdu_items.UserIdentitySubItemAC or None
-        The User Identity Sub-item (RQ or AC), or None if not present.
+        The *User Identity Sub-item* (RQ or AC), or None if not present.
 
     Notes
     -----
@@ -1079,7 +1079,7 @@ class UserInformationItem(PDUItem):
 
             - MaximumLengthNegotiation
             - ImplementationClassUIDNotification
-            
+
             May optionally contain one or more:
 
             - ImplementationVersionnameNotification
@@ -1097,7 +1097,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def async_ops_window(self):
-        """Return the Asynchronous Operations Window Sub-item, if available."""
+        """Return the *Asynchronous Operations Window Sub-item*, if available."""
         for item in self.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
                 return item
@@ -1106,7 +1106,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def common_ext_neg(self):
-        """Return the SOP Class Common Extended Negotiation Sub-items."""
+        """Return the *SOP Class Common Extended Negotiation Sub-items*."""
         items = []
         for item in self.user_data:
             if isinstance(item, SOPClassCommonExtendedNegotiationSubItem):
@@ -1156,7 +1156,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def ext_neg(self):
-        """Return the SOP Class Extended Negotiation Sub-items."""
+        """Return the *SOP Class Extended Negotiation Sub-items*."""
         items = []
         for item in self.user_data:
             if isinstance(item, SOPClassExtendedNegotiationSubItem):
@@ -1166,7 +1166,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def implementation_class_uid(self):
-        """Return the item's 'Implementation Class UID' field value, if available."""
+        """Return the item's *Implementation Class UID* field value, if available."""
         for item in self.user_data:
             if isinstance(item, ImplementationClassUIDSubItem):
                 return item.implementation_class_uid
@@ -1175,7 +1175,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def implementation_version_name(self):
-        """Return the item's 'Implementation Version Name' field value, if available."""
+        """Return the item's *Implementation Version Name* field value, if available."""
         for item in self.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
                 return item.implementation_version_name
@@ -1184,7 +1184,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         length = 0
         for item in self.user_data:
             length += len(item)
@@ -1197,7 +1197,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def maximum_length(self):
-        """Return the item's 'Maximum Length Received' field value, if available."""
+        """Return the item's *Maximum Length Received* field value, if available."""
         for item in self.user_data:
             if isinstance(item, MaximumLengthSubItem):
                 return item.maximum_length_received
@@ -1206,7 +1206,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def role_selection(self):
-        """Return the SCP/SCU Role Selection Sub-items.
+        """Return the *SCP/SCU Role Selection Sub-items*.
 
         Returns
         -------
@@ -1235,7 +1235,7 @@ class UserInformationItem(PDUItem):
 
     @property
     def user_identity(self):
-        """Return the User Identity Sub-item, if available."""
+        """Return the *User Identity Sub-item*, if available."""
         for item in self.user_data:
             if isinstance(item, (UserIdentitySubItemRQ,
                                  UserIdentitySubItemAC)):
@@ -1256,12 +1256,12 @@ class AbstractSyntaxSubItem(PDUItem):
     Attributes
     ----------
     abstract_syntax_name : pydicom.uid.UID or None
-        The Abstract Syntax Name' field value.
+        The *Abstract Syntax Name* field value.
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x30).
+        The *Item Type* field value (0x30).
 
     Notes
     -----
@@ -1276,7 +1276,7 @@ class AbstractSyntaxSubItem(PDUItem):
     Abstract Syntax Names are OSI Object Identifiers in a numeric form as
     defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
-    bytes (characters 0-9), separated by the character '.' (0x2e) [#]_ and
+    bytes (characters 0-9), separated by the character ``.`` (0x2e) [#]_ and
     shall not exceed 64 total characters.
 
     **Encoding**
@@ -1316,17 +1316,17 @@ class AbstractSyntaxSubItem(PDUItem):
 
     @property
     def abstract_syntax(self):
-        """Return the item's 'Abstract Syntax Name' field value."""
+        """Return the item's *Abstract Syntax Name* field value."""
         return self.abstract_syntax_name
 
     @property
     def abstract_syntax_name(self):
-        """Return the item's 'Abstract Syntax Name' field value."""
+        """Return the item's *Abstract Syntax Name* field value."""
         return self._abstract_syntax_name
 
     @abstract_syntax_name.setter
     def abstract_syntax_name(self, value):
-        """Set the 'Abstract Syntax Name' field value.
+        """Set the *Abstract Syntax Name* field value.
 
         Parameters
         ----------
@@ -1390,7 +1390,7 @@ class AbstractSyntaxSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         if self.abstract_syntax_name:
             return len(self.abstract_syntax_name)
 
@@ -1413,22 +1413,21 @@ class AbstractSyntaxSubItem(PDUItem):
 class TransferSyntaxSubItem(PDUItem):
     """A Transfer Syntax Sub-item.
 
-    A Transfer Syntax is a set of encoding rules able to unambiguously represent
-    the data elements defined by one or more Abstract Syntaxes [#]_. In
-    particular, it allows communicating Application Entities to agree on the
+    A Transfer Syntax is a set of encoding rules able to unambiguously
+    represent the data elements defined by one or more Abstract Syntaxes [#]_.
+    In particular, it allows communicating Application Entities to agree on the
     encoding techniques they are able to support (e.g. byte ordering,
     compression, etc).
-
 
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x40).
+        The *Item Type* field value (0x40).
     transfer_syntax : pydicom.uid.UID or None
-        The 'Transfer Syntax Name' field value.
+        The *Transfer Syntax Name* field value.
 
     Notes
     -----
@@ -1443,7 +1442,7 @@ class TransferSyntaxSubItem(PDUItem):
     Transfer Syntax Names are OSI Object Identifiers in a numeric form as
     defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
-    bytes (characters 0-9), separated by the character '.' (0x2e) [#]_ and
+    bytes (characters 0-9), separated by the character ``.`` (0x2e) [#]_ and
     shall not exceed 64 total characters.
 
     **Encoding**
@@ -1523,7 +1522,7 @@ class TransferSyntaxSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         if self.transfer_syntax_name:
             return len(self.transfer_syntax_name)
 
@@ -1545,17 +1544,17 @@ class TransferSyntaxSubItem(PDUItem):
 
     @property
     def transfer_syntax(self):
-        """Return the item's 'Transfer Syntax Name' field value."""
+        """Return the item's *Transfer Syntax Name* field value."""
         return self.transfer_syntax_name
 
     @property
     def transfer_syntax_name(self):
-        """Return the item's 'Transfer Syntax Name' field value."""
+        """Return the item's *Transfer Syntax Name* field value."""
         return self._transfer_syntax_name
 
     @transfer_syntax_name.setter
     def transfer_syntax_name(self, value):
-        """Set the 'Transfer Syntax Name' field value.
+        """Set the *Transfer Syntax Name* field value.
 
         Parameters
         ----------
@@ -1588,12 +1587,12 @@ class MaximumLengthSubItem(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x51).
+        The *Item Type* field value (0x51).
     maximum_length_received : int
-        The 'Maximum Length Received' field value.
+        The *Maximum Length Received* field value.
 
     Notes
     -----
@@ -1705,7 +1704,7 @@ class MaximumLengthSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return 4
 
     def __len__(self):
@@ -1731,12 +1730,12 @@ class ImplementationClassUIDSubItem(PDUItem):
     Attributes
     ----------
     implementation_class_uid : pydicom.uid.UID or None
-        The 'Implementation Class UID' field value.
+        The *Implementation Class UID* field value.
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x52).
+        The *Item Type* field value (0x52).
 
     Notes
     -----
@@ -1847,12 +1846,12 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     @property
     def implementation_class_uid(self):
-        """Return the item's 'Implementation Class UID' field value as a UID."""
+        """Return the item's *Implementation Class UID* field value as a UID."""
         return self._implementation_class_uid
 
     @implementation_class_uid.setter
     def implementation_class_uid(self, value):
-        """Set the 'Implementation Class UID' field value.
+        """Set the *Implementation Class UID* field value.
 
         Parameters
         ----------
@@ -1878,7 +1877,7 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         if self.implementation_class_uid:
             return len(self.implementation_class_uid)
 
@@ -1908,12 +1907,12 @@ class ImplementationVersionNameSubItem(PDUItem):
     Attributes
     ----------
     implementation_version_name : bytes or None
-        The 'Implementation Version Name' field value, 1 to 16 characters.
+        The *Implementation Version Name* field value, 1 to 16 characters.
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x55).
+        The *Item Type* field value (0x55).
 
     Notes
     -----
@@ -2028,12 +2027,12 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     @property
     def implementation_version_name(self):
-        """Return the item's 'Implementation Version Name' field value."""
+        """Return the item's *Implementation Version Name* field value."""
         return self._implementation_version_name
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
-        """Set the 'Implementation Version Name' field value."""
+        """Set the *Implementation Version Name* field value."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
             value = codecs.encode(value, 'ascii')
@@ -2042,7 +2041,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         if self.implementation_version_name:
             return len(self.implementation_version_name)
 
@@ -2069,19 +2068,17 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
     Represents the Asynchronous Operations Window Sub Item used in
     A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
 
-
-
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x53).
+        The *Item Type* field value (0x53).
     maximum_number_operations_invoked : int or None
         The 'Maximum Number Operations Invoked' field value.
     maximum_number_operations_performed : int or None
-        The 'Maximum Number Operations Performed' field value.
+        The *Maximum Number Operations Performed* field value.
 
     Notes
     -----
@@ -2219,7 +2216,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return 4
 
     def __len__(self):
@@ -2228,12 +2225,12 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     @property
     def max_operations_invoked(self):
-        """Return the item's 'Maximum Number Operations Invoked' field value."""
+        """Return the item's *Maximum Number Operations Invoked* field value."""
         return self.maximum_number_operations_invoked
 
     @property
     def max_operations_performed(self):
-        """Return the item's 'Maximum Number Operations Performed' field value."""
+        """Return the item's *Maximum Number Operations Performed* field value."""
         return self.maximum_number_operations_performed
 
     def __str__(self):
@@ -2259,18 +2256,18 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x54).
+        The *Item Type* field value (0x54).
     scu_role : int or None
-        The 'SCU Role' field value, 0 or 1 or None.
+        The *SCU Role* field value, 0 or 1 or None.
     scp_role : int or None
-        The 'SCP Role' field value, 0 or 1 or None.
+        The *SCP Role* field value, 0 or 1 or None.
     sop_class_uid : pydicom.uid.UID or None
-        The 'SOP Class UID' field value.
+        The *SOP Class UID* field value.
     uid_length : int
-        The 'UID Length' field value.
+        The *UID Length* field value.
 
     Notes
     -----
@@ -2423,7 +2420,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return 4 + self.uid_length
 
     def __len__(self):
@@ -2432,17 +2429,17 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def scu(self):
-        """Return the item's 'SCU Role' field value."""
+        """Return the item's *SCU Role* field value."""
         return self.scu_role
 
     @property
     def scu_role(self):
-        """Return the item's 'SCU Role' field value."""
+        """Return the item's *SCU Role* field value."""
         return self._scu_role
 
     @scu_role.setter
     def scu_role(self, value):
-        """Set the 'SCU Role' field value."""
+        """Set the *SCU Role* field value."""
         # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
             raise ValueError('SCU Role parameter value must be 0 or 1')
@@ -2451,17 +2448,17 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def scp(self):
-        """Return the item's 'SCP Role' field value."""
+        """Return the item's *SCP Role* field value."""
         return self.scp_role
 
     @property
     def scp_role(self):
-        """Return the item's 'SCP Role' field value."""
+        """Return the item's *SCP Role* field value."""
         return self._scp_role
 
     @scp_role.setter
     def scp_role(self, value):
-        """Set the 'SCP Role' field value."""
+        """Set the *SCP Role* field value."""
         # pylint: disable=attribute-defined-outside-init
         if value not in [0, 1, None]:
             raise ValueError('SCP Role parameter value must be 0 or 1')
@@ -2470,7 +2467,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def sop_class_uid(self):
-        """Return the item's 'SOP Class UID' field value."""
+        """Return the item's *SOP Class UID* field value."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
@@ -2503,12 +2500,12 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 
     @property
     def uid(self):
-        """Return the item's 'SOP Class UID' field value."""
+        """Return the item's *SOP Class UID* field value."""
         return self.sop_class_uid
 
     @property
     def uid_length(self):
-        """Return the "UID Length" parameter value."""
+        """Return the *UID Length* parameter value."""
         if self.sop_class_uid:
             return len(self.sop_class_uid)
 
@@ -2525,16 +2522,16 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x56).
+        The *Item Type* field value (0x56).
     service_class_application_information : bytes
-        The 'Service Class Application Information' field value.
+        The *Service Class Application Information* field value.
     sop_class_uid : uid
-        The 'SOP Class UID' field value.
+        The *SOP Class UID* field value.
     sop_class_uid_length : int
-        The 'SOP Class UID Length' field value.
+        The *SOP Class UID Length* field value.
 
     Notes
     -----
@@ -2617,7 +2614,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def app_info(self):
-        """Return the item's 'Service Class Application Information' field value."""
+        """Return the item's *Service Class Application Information* field value."""
         return self.service_class_application_information
 
     @property
@@ -2684,7 +2681,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         length = 2 + self.sop_class_uid_length
         if self.service_class_application_information:
             return length + len(self.service_class_application_information)
@@ -2697,12 +2694,12 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid(self):
-        """Return the item's 'SOP Class UID' field value."""
+        """Return the item's *SOP Class UID* field value."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
     def sop_class_uid(self, value):
-        """Set the 'SOP Class UID' field value."""
+        """Set the *SOP Class UID* field value."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('ascii'))
@@ -2718,7 +2715,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid_length(self):
-        """Return the item's 'SOP Class UID Length' field value."""
+        """Return the item's *SOP Class UID Length* field value."""
         if self.sop_class_uid:
             return len(self.sop_class_uid)
 
@@ -2746,7 +2743,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def uid(self):
-        """Return the item's 'SOP Class UID' field value."""
+        """Return the item's *SOP Class UID* field value."""
         return self.sop_class_uid
 
 
@@ -2761,24 +2758,24 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x57).
+        The *Item Type* field value (0x57).
     sub_item_version : int
-        The 'Sub Item Version' field value.
+        The *Sub Item Version* field value.
     sop_class_uid_length : int
-        The 'SOP Class UID Length' field value.
+        The *SOP Class UID Length* field value.
     sop_class_uid : pydicom.uid.UID
-        The 'SOP Class UID' field value.
+        The *SOP Class UID* field value.
     service_class_uid_length : int
-        The 'Service Class UID Length' field value.
+        The *Service Class UID Length* field value.
     service_class_uid : pydicom.uid.UID
-        The 'Service Class UID' field value.
+        The *Service Class UID* field value.
     related_general_sop_class_identification_length : int
-        The 'Related General SOP Class Identification Length' field value.
+        The *Related General SOP Class Identification Length* field value.
     related_general_sop_class_identification : list of pydicom.uid.UID
-        The UIDs in the 'Related General SOP Class UID Identification' field
+        The UIDs in the *Related General SOP Class UID Identification* field
         value.
 
     Notes
@@ -3021,7 +3018,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return (2 + self.sop_class_uid_length +
                 2 + self.service_class_uid_length +
                 2 + self.related_general_sop_class_identification_length)
@@ -3032,12 +3029,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification(self):
-        """Return the item's 'Related General SOP Class Identification' field value."""
+        """Return the item's *Related General SOP Class Identification* field value."""
         return self._related_general_sop_class_identification
 
     @related_general_sop_class_identification.setter
     def related_general_sop_class_identification(self, value_list):
-        """Set the 'Related General SOP Class Identification' field value.
+        """Set the *Related General SOP Class Identification* field value.
 
         Parameters
         ----------
@@ -3060,7 +3057,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification_length(self):
-        """Return the item's 'Related General SOP Class Identification Length' field
+        """Return the item's *Related General SOP Class Identification Length* field
         value.
         """
         length = 0
@@ -3071,12 +3068,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid(self):
-        """Return the item's 'SOP Class UID' field value."""
+        """Return the item's *SOP Class UID* field value."""
         return self._sop_class_uid
 
     @sop_class_uid.setter
     def sop_class_uid(self, value):
-        """Set the 'SOP Class UID' field value."""
+        """Set the *SOP Class UID* field value."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('ascii'))
@@ -3092,7 +3089,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def sop_class_uid_length(self):
-        """Return the item's 'SOP Class UID Length' field value."""
+        """Return the item's *SOP Class UID Length* field value."""
         if self.sop_class_uid:
             return len(self.sop_class_uid)
 
@@ -3100,12 +3097,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def service_class_uid(self):
-        """Return the item's 'Service Class UID' field value."""
+        """Return the item's *Service Class UID* field value."""
         return self._service_class_uid
 
     @service_class_uid.setter
     def service_class_uid(self, value):
-        """Set the 'Service Class UID' field value."""
+        """Set the *Service Class UID* field value."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             value = UID(value.decode('ascii'))
@@ -3121,7 +3118,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def service_class_uid_length(self):
-        """Return the item's 'Service Class UID Length' field value."""
+        """Return the item's *Service Class UID Length* field value."""
         if self.service_class_uid:
             return len(self.service_class_uid)
 
@@ -3188,22 +3185,22 @@ class UserIdentitySubItemRQ(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x58).
+        The *Item Type* field value (0x58).
     positive_response_requested : int
-        The 'Positive Response Requested' field value.
+        The *Positive Response Requested* field value.
     primary_field : bytes
-        The 'Primary Field' field value.
+        The *Primary Field* field value.
     primary_field_length : int
-        The 'Primary Field Length' field value.
+        The *Primary Field Length* field value.
     secondary_field : bytes
-        The 'Secondary Field' field value.
+        The *Secondary Field* field value.
     secondary_field_length : int
-        The 'Secondary Field Length' field value.
+        The *Secondary Field Length* field value.
     user_identity_type : {1, 2, 3, 4}
-        The 'User Identity Type' field value.
+        The *User Identity Type* field value.
 
     Notes
     -----
@@ -3379,12 +3376,12 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def id_type(self):
-        """Return the item's 'User Identity Type' field value."""
+        """Return the item's *User Identity Type* field value."""
         return self.user_identity_type
 
     @property
     def id_type_str(self):
-        """Return a string description of the 'User Identity Type' field."""
+        """Return a string description of the *User Identity Type* field."""
         _types = {
             1 : 'Username',
             2 : 'Username/Password',
@@ -3396,7 +3393,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return 6 + self.primary_field_length + self.secondary_field_length
 
     def __len__(self):
@@ -3405,12 +3402,12 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def primary(self):
-        """Return the item's 'Primary Field' field value."""
+        """Return the item's *Primary Field* field value."""
         return self.primary_field
 
     @property
     def primary_field_length(self):
-        """Return the item's 'Primary Field Length' field value."""
+        """Return the item's *Primary Field Length* field value."""
         if self.primary_field:
             return len(self.primary_field)
 
@@ -3418,7 +3415,7 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def response_requested(self):
-        """Return the item's 'Positive Response Requested' field value as bool."""
+        """Return the item's *Positive Response Requested* field value as bool."""
         if self.positive_response_requested is not None:
             return bool(self.positive_response_requested)
 
@@ -3426,12 +3423,12 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def secondary(self):
-        """Return the item's 'Secondary Field' field value."""
+        """Return the item's *Secondary Field* field value."""
         return self.secondary_field
 
     @property
     def secondary_field_length(self):
-        """Return the item's 'Secondary Field Length' field value."""
+        """Return the item's *Secondary Field Length* field value."""
         if self.secondary_field:
             return len(self.secondary_field)
 
@@ -3469,14 +3466,14 @@ class UserIdentitySubItemAC(PDUItem):
     Attributes
     ----------
     item_length : int
-        The number of bytes from the first byte following the 'Item Length'
+        The number of bytes from the first byte following the *Item Length*
         field to the last byte of the Item.
     item_type : int
-        The 'Item Type' field value (0x59).
+        The *Item Type* field value (0x59).
     server_response_length : int
-        The 'Server Response Length' field value.
+        The *Server Response Length* field value.
     server_response : bytes
-        The 'Server Response' field value.
+        The *Server Response* field value.
 
     Notes
     -----
@@ -3587,7 +3584,7 @@ class UserIdentitySubItemAC(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         return 2 + self.server_response_length
 
     def __len__(self):
@@ -3596,12 +3593,12 @@ class UserIdentitySubItemAC(PDUItem):
 
     @property
     def response(self):
-        """Return the item's 'Server Response' field value."""
+        """Return the item's *Server Response* field value."""
         return self.server_response
 
     @property
     def server_response_length(self):
-        """Return the item's 'Server Response Length' field value."""
+        """Return the item's *Server Response Length* field value."""
         if self.server_response:
             return len(self.server_response)
 
@@ -3631,11 +3628,11 @@ class PresentationDataValueItem(PDUItem):
     Attributes
     ----------
     item_length : int
-        The 'Item Length' field value.
+        The *Item Length* field value.
     presentation_context_id : int
-        The 'Presentation Context ID' field value.
+        The *Presentation Context ID* field value.
     presentation_data_value : bytes
-        The 'Presentation Data Value' field value.
+        The *Presentation Data Value* field value.
 
     Notes
     -----
@@ -3678,12 +3675,12 @@ class PresentationDataValueItem(PDUItem):
 
     @property
     def context_id(self):
-        """Return the item's 'Presentation Context ID' field value."""
+        """Return the item's *Presentation Context ID* field value."""
         return self.presentation_context_id
 
     @property
     def data(self):
-        """Return the item's 'Presentation Data Value' field value."""
+        """Return the item's *Presentation Data Value* field value."""
         return self.presentation_data_value
 
     @property
@@ -3738,7 +3735,7 @@ class PresentationDataValueItem(PDUItem):
 
     @property
     def item_length(self):
-        """Return the item's 'Item Length' field value as an int."""
+        """Return the item's *Item Length* field value as an int."""
         if self.presentation_data_value:
             return 1 + len(self.presentation_data_value)
 
@@ -3747,7 +3744,7 @@ class PresentationDataValueItem(PDUItem):
     @property
     def item_type(self):
         """Raise NotImplementedError as Presentation Data Value Items have no
-        'Item Type' field.
+        *Item Type* field.
         """
         raise NotImplementedError
 
@@ -3761,7 +3758,7 @@ class PresentationDataValueItem(PDUItem):
         if self.presentation_data_value:
             return "{:08b}".format(ord(self.presentation_data_value[0:1]))
 
-        raise ValueError("No 'Presentation Data Value' field value")
+        raise ValueError("No *Presentation Data Value* field value")
 
     def __str__(self):
         """Return a string representation of the Item."""

@@ -213,12 +213,12 @@ class PDU(object):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         raise NotImplementedError
 
     @property
     def pdu_type(self):
-        """Return the 'PDU Type' field value an int."""
+        """Return the *PDU Type* field value an int."""
         key_val = PDU_TYPES.items()
         keys = [key for (key, val) in key_val]
         vals = [val for (key, val) in key_val]
@@ -335,31 +335,31 @@ class A_ASSOCIATE_RQ(PDU):
     Attributes
     ----------
     application_context_name : pydicom.uid.UID or None
-        The Application Context Item's 'Application Context Name' field value
+        The Application Context Item's *Application Context Name* field value
         (if available).
     called_ae_title : bytes
-        The 'Called AE Title' field value, which is the destination DICOM
+        The *Called AE Title* field value, which is the destination DICOM
         application name as a fixed length 16-byte value (padded with trailing
         spaces 0x20). Leading and trailing spaces are non-significant and a
         value of 16 spaces is not allowed.
     calling_ae_title : bytes
-        The 'Calling AE Title' field value, which is the destination DICOM
+        The *Calling AE Title* field value, which is the destination DICOM
         application name as a fixed length 16-byte value (padded with trailing
         spaces 0x20). Leading and trailing spaces are non-significant and a
         value of 16 spaces is not allowed.
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x01).
+        The *PDU Type* field value (0x01).
     presentation_context : list of pdu_items.PresentationContextItemRQ
-        The 'Presentation Context Item(s)'.
+        The *Presentation Context Item(s)*.
     protocol_version : int
-        The 'Protocol Version' field value (default 0x01).
+        The *Protocol Version* field value (default 0x01).
     user_information : pdu_items.UserInformationItem
-        The 'User Information Item' (if available).
+        The *User Information Item* (if available).
     variable_items : list
-        A list containing the A-ASSOCIATE-RQ's 'Variable Items'. Contains
+        A list containing the A-ASSOCIATE-RQ's *Variable Items*. Contains
         one Application Context item, one or more Presentation Context items
         and one User Information item. The order of the items is not guaranteed.
 
@@ -407,6 +407,7 @@ class A_ASSOCIATE_RQ(PDU):
             * Optional User Data Sub-items (0 or more)
 
     **Encoding**
+
     When encoded, an A-ASSOCIATE-RQ PDU has the following structure, taken
     from Table 9-11 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -514,12 +515,13 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def application_context_name(self):
-        """Return the 'Application Context Name', if available.
+        """Return the *Application Context Name*, if available.
 
         Returns
         -------
         pydicom.uid.UID or None
-            The requestor's 'Application Context Name' or None if not available.
+            The requestor's *Application Context Name* or None if not
+            available.
         """
         for item in self.variable_items:
             if isinstance(item, ApplicationContextItem):
@@ -529,12 +531,12 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def called_ae_title(self):
-        """Return the 'Called AE Title' field value as bytes."""
+        """Return the *Called AE Title* field value as bytes."""
         return self._called_aet
 
     @called_ae_title.setter
     def called_ae_title(self, ae_title):
-        """Set the 'Called AE Title' field value.
+        """Set the *Called AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
         spaces 0x20). Leading and trailing spaces are non-significant and a
@@ -554,12 +556,12 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def calling_ae_title(self):
-        """Return the 'Calling AE Title' field value as bytes."""
+        """Return the *Calling AE Title* field value as bytes."""
         return self._calling_aet
 
     @calling_ae_title.setter
     def calling_ae_title(self, ae_title):
-        """Set the 'Calling AE Title' field value.
+        """Set the *Calling AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
         spaces 0x20). Leading and trailing spaces are non-significant and a
@@ -638,7 +640,7 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         length = 68
         for item in self.variable_items:
             length += len(item)
@@ -718,27 +720,27 @@ class A_ASSOCIATE_AC(PDU):
     Attributes
     ----------
     application_context_name : pydicom.uid.UID
-        The 'Application Context Item's' 'Application Context Name' field value
+        The 'Application Context Item's *Application Context Name* field value
         (if available).
     called_ae_title : bytes
-        The requestor's 'Called AE Title' field value, which is the destination
+        The requestor's *Called AE Title* field value, which is the destination
         DICOM application name as a 16-byte value. The value is not
         guaranteed to be the actual title and shall not be tested.
     calling_ae_title : bytes
-        The requestor's 'Calling AE Title' field value, which is the source
+        The requestor's *Calling AE Title* field value, which is the source
         DICOM application name as a 16-byte value. The value is not
         guaranteed to be the actual title and shall not be tested.
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x02).
+        The *PDU Type* field value (0x02).
     presentation_context : list of pdu_items.PresentationContextItemAC
-        The 'Presentation Context Item(s)'.
+        The *Presentation Context Item(s)*.
     protocol_version : int
-        The 'Protocol Version' field value (default 0x01).
+        The *Protocol Version* field value (default 0x01).
     user_information : pdu_items.UserInformationItem
-        The 'User Information Item' (if available).
+        The *User Information Item* (if available).
     variable_items : list
         A list containing the A-ASSOCIATE-AC's 'Variable Items'. Contains
         one Application Context item, one or more Presentation Context items
@@ -780,6 +782,7 @@ class A_ASSOCIATE_AC(PDU):
             * Optional User Data Sub-items (0 or more)
 
     **Encoding**
+
     When encoded, an A-ASSOCIATE-AC PDU has the following structure, taken
     from Table 9-17 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -904,12 +907,12 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def application_context_name(self):
-        """Return the 'Application Context Name', if available.
+        """Return the *Application Context Name*, if available.
 
         Returns
         -------
         pydicom.uid.UID or None
-            The acceptor's 'Application Context Name' or None if not available.
+            The acceptor's *Application Context Name* or None if not available.
         """
         for item in self.variable_items:
             if isinstance(item, ApplicationContextItem):
@@ -919,7 +922,7 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def called_ae_title(self):
-        """Return the value sent in the 'Called AE Title' reserved space.
+        """Return the value sent in the *Called AE Title* reserved space.
 
         While the standard says this value should match the A-ASSOCIATE-RQ
         value there is no guarantee and this should not be used as a check
@@ -928,7 +931,7 @@ class A_ASSOCIATE_AC(PDU):
         Returns
         -------
         bytes
-            The value the A-ASSOCIATE-AC sent in the 'Called AE Title' reserved
+            The value the A-ASSOCIATE-AC sent in the *Called AE Title* reserved
             space.
         """
         if isinstance(self._reserved_aet, str):
@@ -938,7 +941,7 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def calling_ae_title(self):
-        """Return the value sent in the 'Calling AE Title' reserved space.
+        """Return the value sent in the *Calling AE Title* reserved space.
 
         While the standard says this value should match the A-ASSOCIATE-RQ
         value there is no guarantee and this should not be used as a check
@@ -947,7 +950,7 @@ class A_ASSOCIATE_AC(PDU):
         Returns
         -------
         bytes
-            The value the A-ASSOCIATE-AC sent in the 'Calling AE Title'
+            The value the A-ASSOCIATE-AC sent in the *Calling AE Title*
             reserved space.
         """
         if isinstance(self._reserved_aec, str):
@@ -1016,7 +1019,7 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         length = 68
         for item in self.variable_items:
             length += len(item)
@@ -1096,16 +1099,16 @@ class A_ASSOCIATE_RJ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
+        The number of bytes from the first byte following the *PDU Length* field
         to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x03).
+        The *PDU Type* field value (0x03).
     reason_diagnostic : int
-        The 'Reason/Diagnostic' field value.
+        The *Reason/Diagnostic* field value.
     result : int
-        The 'Result' field value.
+        The *Result* field value.
     source : int
-        The 'Source' field value.
+        The *Source* field value.
 
     Notes
     -----
@@ -1118,6 +1121,7 @@ class A_ASSOCIATE_RJ(PDU):
     * Reason/Diagnostic (1)
 
     **Encoding**
+
     When encoded, an A-ASSOCIATE-RJ PDU has the following structure, taken
     from Table 9-21 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -1233,12 +1237,12 @@ class A_ASSOCIATE_RJ(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         return 4
 
     @property
     def reason_str(self):
-        """Return a str describing the 'Reason/Diagnostic' field value."""
+        """Return a str describing the *Reason/Diagnostic* field value."""
         _reasons = {
             1 : {
                 1 : "No reason given",
@@ -1284,7 +1288,7 @@ class A_ASSOCIATE_RJ(PDU):
 
     @property
     def result_str(self):
-        """Return a str describing the 'Result' field value."""
+        """Return a str describing the *Result* field value."""
         _results = {
             1 : 'Rejected (Permanent)',
             2 : 'Rejected (Transient)'
@@ -1300,7 +1304,7 @@ class A_ASSOCIATE_RJ(PDU):
 
     @property
     def source_str(self):
-        """Return a str describing the 'Source' field value."""
+        """Return a str describing the *Source* field value."""
         _sources = {
             1 : 'DUL service-user',
             2 : 'DUL service-provider (ACSE related)',
@@ -1338,12 +1342,12 @@ class P_DATA_TF(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
+        The number of bytes from the first byte following the *PDU Length* field
         to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x04).
+        The *PDU Type* field value (0x04).
     presentation_data_value_items : list of pdu.PresentationDataValueItem
-        The 'Presentation Data Value Item(s)' field value.
+        The *Presentation Data Value Item(s)* field value.
 
     Notes
     -----
@@ -1354,6 +1358,7 @@ class P_DATA_TF(PDU):
     * Presentation data value Item(s) (1 or more)
 
     **Encoding**
+
     When encoded, a P-DATA-TF PDU has the following structure, taken
     from Table 9-22 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -1515,7 +1520,7 @@ class P_DATA_TF(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         length = 0
         for item in self.presentation_data_value_items:
             length += len(item)
@@ -1573,10 +1578,10 @@ class A_RELEASE_RQ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
+        The number of bytes from the first byte following the *PDU Length* field
         to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x05).
+        The *PDU Type* field value (0x05).
 
     Notes
     -----
@@ -1586,6 +1591,7 @@ class A_RELEASE_RQ(PDU):
     * PDU length (1, fixed value, 4)
 
     **Encoding**
+
     When encoded, an A-RELEASE-RQ PDU has the following structure, taken
     from Table 9-24 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -1682,7 +1688,7 @@ class A_RELEASE_RQ(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         return 4
 
     def __str__(self):
@@ -1704,10 +1710,10 @@ class A_RELEASE_RP(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
+        The number of bytes from the first byte following the *PDU Length* field
         to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x06).
+        The *PDU Type* field value (0x06).
 
     Notes
     -----
@@ -1717,6 +1723,7 @@ class A_RELEASE_RP(PDU):
     * PDU length (1, fixed value, 0x00000004)
 
     **Encoding**
+
     When encoded, an A-RELEASE-RP PDU has the following structure, taken
     from Table 9-25 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -1816,7 +1823,7 @@ class A_RELEASE_RP(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         return 4
 
     def __str__(self):
@@ -1837,14 +1844,14 @@ class A_ABORT_RQ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the 'PDU Length' field
+        The number of bytes from the first byte following the *PDU Length* field
         to the last byte of the PDU.
     pdu_type : int
-        The 'PDU Type' field value (0x07).
+        The *PDU Type* field value (0x07).
     reason_diagnostic : int
-        The 'Reason/Diagnostic' field value.
+        The *Reason/Diagnostic* field value.
     source : int
-        The 'Source' field value.
+        The *Source* field value.
 
     Notes
     -----
@@ -1856,6 +1863,7 @@ class A_ABORT_RQ(PDU):
     * Reason/Diagnostic (1)
 
     **Encoding**
+    
     When encoded, an A-ABORT-RQ PDU has the following structure, taken
     from Table 9-26 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -1984,7 +1992,7 @@ class A_ABORT_RQ(PDU):
 
     @property
     def pdu_length(self):
-        """Return the 'PDU Length' field value as an int."""
+        """Return the *PDU Length* field value as an int."""
         return 4
 
     def __str__(self):
@@ -2000,7 +2008,7 @@ class A_ABORT_RQ(PDU):
 
     @property
     def source_str(self):
-        """Return a str description of the 'Source' field value."""
+        """Return a str description of the *Source* field value."""
         _sources = {
             0 : 'DUL service-user',
             1 : 'Reserved',
@@ -2011,7 +2019,7 @@ class A_ABORT_RQ(PDU):
 
     @property
     def reason_str(self):
-        """Return a str description of the 'Reason/Diagnostic' field value."""
+        """Return a str description of the *Reason/Diagnostic* field value."""
         if self.source == 2:
             _reason_str = {
                 0 : "No reason given",

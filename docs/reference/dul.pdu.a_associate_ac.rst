@@ -24,7 +24,7 @@ Variable Items
    :toctree: generated/
 
    ApplicationContextItem
-   PresentationContextItemRQ
+   PresentationContextItemAC
    UserInformationItem
 
 Presentation Context Sub-items

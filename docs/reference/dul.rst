@@ -4,7 +4,8 @@
 DICOM Upper Layer
 *****************
 
-The DICOM Upper Layer (DUL) service provides something.
+The DICOM Upper Layer (DUL) service provides coordinates interaction between
+the ACSE, DIMSE and transport service providers.
 
 
 .. toctree::

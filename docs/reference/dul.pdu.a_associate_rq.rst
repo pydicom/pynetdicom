@@ -49,6 +49,7 @@ User Information Sub-items
    AsynchronousOperationsWindowSubItem
    UserIdentitySubItemRQ
    SOPClassExtendedNegotiationSubItem
+   SOPClassCommonExtendedNegotiationSubItem
 
 References
 ----------
