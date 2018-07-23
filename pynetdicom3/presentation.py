@@ -29,30 +29,6 @@ PresentationContextTuple = namedtuple('PresentationContextTuple',
 class PresentationContext(object):
     """A Presentation Context primitive.
 
-    PS3.8 7.1.1
-    An A-ASSOCIATE request primitive will contain a Presentation Context
-    Definition List, which consists or one or more presentation contexts. Each
-    item contains an ID, an Abstract Syntax and a list of one or more Transfer
-    Syntaxes.
-
-    An A-ASSOCIATE response primitive will contain a Presentation Context
-    Definition Result List, which takes the form of a list of result values,
-    with a one-to-one correspondence with the Presentation Context Definition
-    List.
-
-    A Presentation Context defines the presentation of the data on an
-    Association. It consists of three components, a Presentation Context ID,
-    an Abstract Syntax Name and a list or one or more Transfer Syntax Names.
-
-    Only one Abstract Syntax shall be offered per Presentation Context. While
-    multiple Transfer Syntaxes may be offered per Presentation Context only
-    one shall be accepted.
-
-    The same Abstract Syntax can be used in more than one Presentation Context.
-
-    Notes
-    -----
-
     **Rules**
 
     - Each Presentation Context (request) contains:
@@ -80,24 +56,25 @@ class PresentationContext(object):
     Attributes
     ---------
     abstract_syntax : pydicom.uid.UID or None
-        The Presentation Context's abstract syntax.
+        The Presentation Context's *Abstract Syntax*.
     context_id : int or None
-        The Presentation Context's Context ID.
+        The Presentation Context's *Context ID*.
     result : int or None
         If part of an A-ASSOCIATE (request) then None. If part of an
         A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
     transfer_syntax : list of pydicom.uid.UID
-        The Presentation Context's transfer syntax(es).
+        The Presentation Context's *Transfer Syntax(es)*.
 
     References
     ----------
-    DICOM Standard, Part 7, Annexes
-    `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_
-    `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
-    DICOM Standard, Part 8, Sections
-    `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_
-    `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_
-    `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
+
+    * DICOM Standard, Part 7, Annexes
+      `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_ and
+      `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
+    * DICOM Standard, Part 8, Sections
+      `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_,
+      `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_ and
+      `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
     """
     def __init__(self):
         """Create a new PresentationContext."""
@@ -112,7 +89,7 @@ class PresentationContext(object):
 
     @property
     def abstract_syntax(self):
-        """Return the presentation context's abstract ayntax as a UID.
+        """Return the presentation context's *Abstract Syntax* as a UID.
 
         Returns
         -------
@@ -122,7 +99,7 @@ class PresentationContext(object):
 
     @abstract_syntax.setter
     def abstract_syntax(self, uid):
-        """Set the presentation context's abstract syntax.
+        """Set the presentation context's *Abstract Syntax*.
 
         Parameters
         ----------
@@ -186,12 +163,12 @@ class PresentationContext(object):
 
     @property
     def context_id(self):
-        """Return the presentation context's ID parameter as an int."""
+        """Return the presentation context's *ID* parameter as an int."""
         return self._context_id
 
     @context_id.setter
     def context_id(self, value):
-        """Set the presentation context's ID parameter.
+        """Set the presentation context's *ID* parameter.
 
         Parameters
         ----------
@@ -223,7 +200,7 @@ class PresentationContext(object):
 
     @property
     def status(self):
-        """Return a descriptive str of the presentation context's result.
+        """Return a descriptive str of the presentation context's *Result*.
 
         Returns
         -------
@@ -268,7 +245,7 @@ class PresentationContext(object):
 
     @property
     def transfer_syntax(self):
-        """Return the presentation context's transfer syntaxes as a list.
+        """Return the presentation context's *Transfer Syntaxes* as a list.
 
         Returns
         -------
@@ -279,7 +256,7 @@ class PresentationContext(object):
 
     @transfer_syntax.setter
     def transfer_syntax(self, syntaxes):
-        """Set the presentation context's transfer syntaxes.
+        """Set the presentation context's *Transfer Syntaxes*.
 
         Parameters
         ----------

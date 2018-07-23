@@ -10,10 +10,14 @@ LOGGER = logging.getLogger('pynetdicom3.artim')
 class Timer(object):
     """A generic timer.
 
-    Implementation of the DICOM Upper Layer's ARTIM timer as per PS3.8 Section
-    9.1.5. The ARTIM timer is used by the state machine to monitor connection
-    and response timeouts. This class may also be used as a general purpose
-    expiry timer.
+    Implementation of the DICOM Upper Layer's ARTIM timer. The ARTIM timer is
+    used by the state machine to monitor connection and response timeouts.
+    This class may also be used as a general purpose expiry timer.
+
+    References
+    ----------
+
+    * DICOM Standard, Part 8, Section 9.1.5.
     """
     def __init__(self, max_number_seconds):
         """Create a new Timer.

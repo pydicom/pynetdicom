@@ -16,16 +16,18 @@ LOGGER = logging.getLogger('pynetdicom3.sm')
 class StateMachine(object):
     """Implementation of the DICOM Upper Layer State Machine.
 
-    Seer PS3.8 Section 9.2.
-    """
-    '''
     Attributes
     ----------
     current_state : str
         The current state of the state machine, 'Sta1' to 'Sta13'.
     dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer service instance for the local AE
-    '''
+
+    References
+    ----------
+
+    * DICOM Standard, Part 8, Section 9.2
+    """
     def __init__(self, dul):
         """Create a new StateMachine.
 
