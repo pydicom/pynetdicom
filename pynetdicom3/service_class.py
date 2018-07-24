@@ -378,10 +378,13 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context, info)
         else:
-            raise ValueError('')
+            raise ValueError(
+                'The supplied abstract syntax is not valid for use with the
+                'Query/Retrieve Service Class'
+            )
 
     def _find_scp(self, req, context, info):
-        """The SCP implementation for the Query/Retrieve Find Service Class.
+        """The SCP implementation for Query/Retrieve - Find.
 
         Parameters
         ----------
@@ -605,7 +608,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         self.DIMSE.send_msg(rsp, context.context_id)
 
     def _get_scp(self, req, context, info):
-        """The SCP implementation for the Query/Retrieve Get Service Class.
+        """The SCP implementation for Query/Retrieve - Get.
 
         Parameters
         ----------
@@ -951,7 +954,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         self.DIMSE.send_msg(rsp, context.context_id)
 
     def _move_scp(self, req, context, info):
-        """The SCP implementation for the Query/Retrieve Move Service Class.
+        """The SCP implementation for Query/Retrieve - Move.
 
         Parameters
         ----------
@@ -1386,3 +1389,102 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     def __init__(self):
         super(BasicWorklistManagementServiceClass, self).__init__()
         self.SCP = self._find_scp
+
+    def SCP(self, req, context, info):
+        """The SCP implementation for Basic Worklist Management.
+
+        Parameters
+        ----------
+        req : pynetdicom3.dimse_primitives.C_FIND
+            The C-FIND request primitive received from the peer.
+        context : pynetdicom3.presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        info : dict
+            A dict containing details about the association.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_c_find
+        association.Association.send_c_find
+
+        Notes
+        -----
+        **C-FIND Request**
+
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Identifier
+
+        *Identifier*
+
+        The C-FIND request Identifier shall contain:
+
+        * Key Attributes values to be matched against the values of attributes
+          specified in that SOP Class.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+          character sets may be used in any of the Attributes in the request
+          Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
+          the request Identifier are to be interpreted explicitly in the
+          designated local time zone. It shall not be present otherwise.
+
+        **C-FIND Response**
+
+        *Parameters*
+
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (C) Identifier
+        | (M) Status
+
+        *Identifier*
+
+        The C-FIND response shall only include an Identifier when the Status is
+        'Pending'. When sent, the Identifier shall contain:
+
+        * Key Attributes with values corresponding to Key Attributes contained
+          in the Identifier of the requeset.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+          character sets may be used in any of the Attributes in the response
+          Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
+          the response Identifier are to be interpreted explicitly in the
+          designated local time zone. It shall not be present otherwise.
+
+        *Status*
+
+        Success
+          | ``0x0000`` Success
+
+        Pending
+          | ``0xFF00`` Matches are continuing, current match supplied
+          | ``0xFF01`` Matches are continuing, warning
+
+        Cancel
+          | ``0xFE00`` Cancel
+
+        Failure
+          | ``0x0122`` SOP class not supported
+          | ``0xA700`` Out of resources
+          | ``0xA900`` Dataset does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
+
+        References
+        ----------
+        .. [1] DICOM Standard, Part 4, `Annex K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_.
+        .. [2] DICOM Standard, Part 7, Sections
+           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+        """
+        if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
+            self._find_scp(req, context, info)
+        else:
+            raise ValueError(
+                'The supplied abstract syntax is not valid for use with the
+                'Basic Worklist Management Service Class'
+            )

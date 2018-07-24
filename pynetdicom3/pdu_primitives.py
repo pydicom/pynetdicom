@@ -1055,7 +1055,8 @@ class P_DATA(object):
 
 # User Information Negotiation primitives
 class MaximumLengthNegotiation(ServiceParameter):
-    """Represents a Maximum Length Negotiation primitive.
+    """
+    A representation of a Maximum Length Negotiation primitive.
 
     The maximum length notification allows communicating AEs to limit the size
     of the data for each P-DATA indication. This notification is required for
@@ -1688,10 +1689,12 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     Examples
     --------
 
-    >>> from pynetdicom3.pdu_items import SOPClassExtendedNegotiation
-    >>> item = SOPClassExtendedNegotiation()
-    >>> item.sop_class_uid = '1.2.840.10008.5.1.4.1.2.1.3'
-    >>> item.service_class_application_information = b'\x01'
+    .. code-block:: python
+
+       >>> from pynetdicom3.pdu_items import SOPClassExtendedNegotiation
+       >>> item = SOPClassExtendedNegotiation()
+       >>> item.sop_class_uid = '1.2.840.10008.5.1.4.1.2.1.3'
+       >>> item.service_class_application_information = b'\x01'
 
     References
     ----------

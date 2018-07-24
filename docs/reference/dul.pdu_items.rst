@@ -5,6 +5,7 @@ PDU Items and Sub-items (:mod:`pynetdicom3.pdu_items`)
 
 .. autosummary::
    :toctree: generated/
+   :nosignatures:
 
    ApplicationContextItem
    PresentationContextItemRQ
