@@ -23,7 +23,7 @@ def validate_ae_title(ae_title):
     * Must be no more than 16 characters
     * Leading and trailing spaces are not significant
     * The characters should belong to the Default Character Repertoire
-      excluding 5CH (backslash "\") and all control characters
+      excluding 0x5C (backslash) and all control characters
 
     If the supplied `ae_title` is greater than 16 characters once
     non-significant spaces have been removed then the returned AE title

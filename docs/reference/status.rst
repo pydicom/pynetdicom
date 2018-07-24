@@ -1,5 +1,7 @@
-Statuses
-========
+.. _status:
+
+Statuses (:mod:`pynetdicom3.status`)
+====================================
 
 .. currentmodule:: pynetdicom3.status
 

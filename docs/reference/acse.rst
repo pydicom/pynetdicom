@@ -1,7 +1,7 @@
 .. _acse:
 
-ACSE Service
-============
+ACSE Service (:mod:`pynetdicom3.acse`)
+======================================
 
 The Association Control Service Element (ASCE) handles association-related tasks,
 such as the processing of A-ASSOCIATE, A-RELEASE and

@@ -46,46 +46,81 @@ class C_STORE(object):
     4. The DIMSE provider issues a C-STORE confirmation primitive to the
        invoking DIMSE user, completing the C-STORE operation.
 
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | U        |
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Class UID                   | M       | U(=)     |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | M       | U(=)     |
+    +------------------------------------------+---------+----------+
+    | Priority                                 | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Move Originator Application Entity Title | U       | \-       |
+    +------------------------------------------+---------+----------+
+    | Move Originator Message ID               | U       | \-       |
+    +------------------------------------------+---------+----------+
+    | Data Set                                 | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Offending Element                        | \-      | C        |
+    +------------------------------------------+---------+----------+
+    | Error Comment                            | \-      | C        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, U] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Instance
+        For the request/indication this specifies the SOP Instance
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
     Priority : int
-        [M, -] The priority of the C-STORE operation. It shall be one of the
+        The priority of the C-STORE operation. It shall be one of the
         following:
+
         * 0: Medium
         * 1: High
         * 2: Low (Default)
     MoveOriginatorApplicationEntityTitle : bytes or str
-        [U, -] The DICOM AE Title of the AE that invoked the C-MOVE operation
+        The DICOM AE Title of the AE that invoked the C-MOVE operation
         from which this C-STORE sub-operation is being performed
     MoveOriginatorMessageID : int
-        [U, -] The Message ID of the C-MOVE request/indication primitive from
+        The Message ID of the C-MOVE request/indication primitive from
         which this C-STORE sub-operation is being performed
     DataSet : io.BytesIO
-        [M, -] The pydicom Dataset containing the Attributes of the Composite
+        The pydicom Dataset containing the Attributes of the Composite
         SOP Instance to be stored, encoded as a BytesIO object
     Status : int
-        [-, M] The error or success notification of the operation.
+        The error or success notification of the operation.
     OffendingElement : list of int or None
-        [-, C] An optional status related field containing a list of the
+        An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C] An optional status related field containing a text description
+        An optional status related field containing a text description
         of the error detected. 64 characters maximum.
 
     References
@@ -331,9 +366,6 @@ class C_STORE(object):
 class C_FIND(object):
     """Represents a C-FIND primitive.
 
-    PS3.4 Annex C.4.1.1
-    PS3.4 9.1.2
-
     **SOP Class UID**
 
     Identifies the QR Information Model against which the C-FIND is to be
@@ -385,38 +417,67 @@ class C_FIND(object):
     ID/UID not present. The named AE shall support either C-GET or C-MOVE
     SOP Class of the QR Service Class.
 
+    +-------------------------------+---------+----------+
+    | Parameter                     | Req/ind | Rsp/conf |
+    +===============================+=========+==========+
+    | Message ID                    | M       | U        |
+    +-------------------------------+---------+----------+
+    | Message ID Being Responded To | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Affected SOP Class UID        | M       | U(=)     |
+    +-------------------------------+---------+----------+
+    | Priority                      | M       | \-       |
+    +-------------------------------+---------+----------+
+    | Identifier                    | M       | C        |
+    +-------------------------------+---------+----------+
+    | Status                        | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Offending Element             | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Error Comment                 | \-      | C        |
+    +-------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, U, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M, M] The Message ID of the operation request/indication to which
+        The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class
+        For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
     Priority : int
-        [M, -, -] The priority of the C-STORE operation. It shall be one of the
+        The priority of the C-STORE operation. It shall be one of the
         following:
+
         * 0: Medium
         * 1: High
         * 2: Low (Default)
     Identifier : io.BytesIO
-        [M, C, -] A list of Attributes (in the form of an encoded pydicom
+        A list of Attributes (in the form of an encoded pydicom
         Dataset) to be matched against the values of the Attributes in the
         instances of the composite objects known to the performing DIMSE
-        service-user
+        service-user.
     Status : int
-        [-, M, -] The error or success notification of the operation.
+        The error or success notification of the operation.
     OffendingElement : list of int or None
-        [-, C, -] An optional status related field containing a list of the
+        An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C, -] An optional status related field containing a text
+        An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
     def __init__(self):
@@ -611,55 +672,93 @@ class C_GET(object):
     * Canceled, Warning, Failure or Success may contain the Number of Warning
       Sub-operations Attribute
 
+    +-------------------------------+---------+----------+
+    | Parameter                     | Req/ind | Rsp/conf |
+    +===============================+=========+==========+
+    | Message ID                    | M       | U        |
+    +-------------------------------+---------+----------+
+    | Message ID Being Responded To | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Affected SOP Class UID        | M       | U(=)     |
+    +-------------------------------+---------+----------+
+    | Priority                      | M       | \-       |
+    +-------------------------------+---------+----------+
+    | Identifier                    | M       | U        |
+    +-------------------------------+---------+----------+
+    | Status                        | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Number of Remaining Sub-ops   | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Number of Completed Sub-ops   | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Number of Failed Sub-ops      | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Number of Warning Sub-ops     | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Offending Element             | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Error Comment                 | \-      | C        |
+    +-------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, U, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M, M] The Message ID of the operation request/indication to which
+        The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class
+        For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
     Priority : int
-        [M, -, -] The priority of the C-STORE operation. It shall be one of the
+        The priority of the C-STORE operation. It shall be one of the
         following:
+
         * 0: Medium
         * 1: High
         * 2: Low (Default)
     Identifier : io.BytesIO
-        [M, U, -] The pydicom Dataset containing the list of Attributes to be
+        The pydicom Dataset containing the list of Attributes to be
         matched against the values of Attributes of known composite SOP
         Instances of the performing DIMSE service-user, encoded as a BytesIO
         object. For the list of allowed Attributes and the rules defining their
-        usage see PS3.4 Annex C.4.3.1.3
+        usage see the section corresponding to the service class in the DICOM
+        Standard, Part 4.
     Status : int
-        [-, M, -] The error or success notification of the operation.
+        The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
-        [-, C, -] The number of remaining C-STORE sub-operations to be invoked
+        The number of remaining C-STORE sub-operations to be invoked
         by this C-GET operation. It may be included in any response and shall
         be included if the status is Pending
     NumberOfCompletedSuboperations : int
-        [-, C, -] The number of C-STORE sub-operations that have completed
+        The number of C-STORE sub-operations that have completed
         successfully. It may be included in any response and shall be included
         if the status is Pending
     NumberOfFailedSuboperations : int
-        [-, C, -] The number of C-STORE sub-operations that have failed. It may
+        The number of C-STORE sub-operations that have failed. It may
         be included in any response and shall be included if the status is
         Pending
     NumberOfWarningSuboperations : int
-        [-, C, -] The number of C-STORE operations that generated Warning
+        The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
     OffendingElement : list of int or None
-        [-, C, -] An optional status related field containing a list of the
+        An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C, -] An optional status related field containing a text
+        An optional status related field containing a text
         description of the error detected. 64 characters maximum.
 
     References
@@ -943,58 +1042,98 @@ class C_MOVE(object):
     * Canceled, Warning, Failure or Success may contain the Number of Warning
       Sub-operations Attribute
 
+    +-------------------------------+---------+----------+
+    | Parameter                     | Req/ind | Rsp/conf |
+    +===============================+=========+==========+
+    | Message ID                    | M       | U        |
+    +-------------------------------+---------+----------+
+    | Message ID Being Responded To | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Affected SOP Class UID        | M       | U(=)     |
+    +-------------------------------+---------+----------+
+    | Priority                      | M       | \-       |
+    +-------------------------------+---------+----------+
+    | Move Destination              | M       | \-       |
+    +-------------------------------+---------+----------+
+    | Identifier                    | M       | U        |
+    +-------------------------------+---------+----------+
+    | Status                        | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Number of Remaining Sub-ops   | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Number of Completed Sub-ops   | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Number of Failed Sub-ops      | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Number of Warning Sub-ops     | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Offending Element             | \-      | C        |
+    +-------------------------------+---------+----------+
+    | Error Comment                 | \-      | C        |
+    +-------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, U, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M, M] The Message ID of the operation request/indication to which
+        The Message ID of the operation request/indication to which
         this response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=), -] For the request/indication this specifies the SOP Class
+        For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
     Priority : int
-        [M, -, -] The priority of the C-STORE operation. It shall be one of the
+        The priority of the C-STORE operation. It shall be one of the
         following:
+
         * 0: Medium
         * 1: High
         * 2: Low (Default)
     MoveDestination : bytes or str
-        [M, -, -] Specifies the DICOM AE Title of the destination DICOM AE to
+        Specifies the DICOM AE Title of the destination DICOM AE to
         which the C-STORE sub-operations are being performed.
     Identifier : io.BytesIO
-        [M, U, -] The pydicom Dataset containing the list of Attributes to be
+        The pydicom Dataset containing the list of Attributes to be
         matched against the values of Attributes of known composite SOP
         Instances of the performing DIMSE service-user, encoded as a BytesIO
         object. For the list of allowed Attributes and the rules defining their
-        usage see PS3.4 Annex C.4.2.1.4
+        usage see the section corresponding to the service class in the DICOM
+        Standard, Part 4.
     Status : int
-        [-, M, -] The error or success notification of the operation.
+        The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
-        [-, C, -] The number of remaining C-STORE sub-operations to be invoked
+        The number of remaining C-STORE sub-operations to be invoked
         by this C-MOVE operation. It may be included in any response and shall
         be included if the status is Pending
     NumberOfCompletedSuboperations : int
-        [-, C, -] The number of C-STORE sub-operations that have completed
+        The number of C-STORE sub-operations that have completed
         successfully. It may be included in any response and shall be included
         if the status is Pending
     NumberOfFailedSuboperations : int
-        [-, C, -] The number of C-STORE sub-operations that have failed. It may
+        The number of C-STORE sub-operations that have failed. It may
         be included in any response and shall be included if the status is
         Pending
     NumberOfWarningSuboperations : int
-        [-, C, -] The number of C-STORE operations that generated Warning
+        The number of C-STORE operations that generated Warning
         responses. It may be included in any response and shall be included if
         the status is Pending
     OffendingElement : list of int or None
-        [-, C, -] An optional status related field containing a list of the
+        An optional status related field containing a list of the
         elements in which an error was detected.
     ErrorComment : str or None
-        [-, C, -] An optional status related field containing a text
+        An optional status related field containing a text
         description of the error detected. 64 characters maximum.
 
     References
@@ -1263,24 +1402,46 @@ class C_MOVE(object):
 class C_ECHO(object):
     """Represents a C-ECHO primitive.
 
+    +-------------------------------+---------+----------+
+    | Parameter                     | Req/ind | Rsp/conf |
+    +===============================+=========+==========+
+    | Message ID                    | M       | U        |
+    +-------------------------------+---------+----------+
+    | Message ID Being Responded To | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Affected SOP Class UID        | M       | U(=)     |
+    +-------------------------------+---------+----------+
+    | Status                        | \-      | M        |
+    +-------------------------------+---------+----------+
+    | Error Comment                 | \-      | C        |
+    +-------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int or None
-        [M, U] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int or None
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str or None
-        [M, U(=)] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     Status : int or None
-        [-, M] The error or success notification of the operation.
+        The error or success notification of the operation.
     ErrorComment : str or None
-        [-, C] An optional status related field containing a text description
+        An optional status related field containing a text description
         of the error detected. 64 characters maximum.
 
     References
@@ -1407,10 +1568,24 @@ class C_ECHO(object):
 class C_CANCEL(object):
     """Represents a C-CANCEL primitive.
 
+    +-------------------------------+---------+
+    | Parameter                     | Req/ind |
+    +===============================+=========+
+    | Message ID Being Responded To | M       |
+    +-------------------------------+---------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
 
     References
@@ -1452,42 +1627,66 @@ class C_CANCEL(object):
 class N_EVENT_REPORT(object):
     """Represents a N-EVENT-REPORT primitive.
 
-    PS3.7 10.1.1.1
-    """
-    '''
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Class UID                   | M       | U(=)     |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | M       | U(=)     |
+    +------------------------------------------+---------+----------+
+    | Event Type ID                            | M       | C(=)     |
+    +------------------------------------------+---------+----------+
+    | Event Information                        | U       | \-       |
+    +------------------------------------------+---------+----------+
+    | Event Reply                              | \-      | C        |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Instance
+        For the request/indication this specifies the SOP Instance
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
     EventTypeID :
-        [M, C(=)] FIXME, PS3.4 Service Class Specifications
+        FIXME, PS3.4 Service Class Specifications
     EventInformation :
-        [U, -] FIXME, PS3.4 Service Class Specifications
+        FIXME, PS3.4 Service Class Specifications
     EventReply :
-        [-, C] FIXME, PS3.4 Service Class Specifications
+        FIXME, PS3.4 Service Class Specifications
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
+        The error or success notification of the operation. It shall be
         one of the following values:
-        FIXME: Add the status values
 
     Notes
     -----
 
-    **10.1.1.1.8 Status**
+    **Status**
 
     Failure
 
@@ -1507,7 +1706,7 @@ class N_EVENT_REPORT(object):
     Success
 
     0x0000 - success 0x0000
-    '''
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1545,41 +1744,67 @@ class N_EVENT_REPORT(object):
 class N_GET(object):
     """Represents a N-GET primitive.
 
-    PS3.7 10.1.2.1
-    """
-    '''
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Class UID                  | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Instance UID               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Attribute Identifier List                | U       | \-       |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Class UID                   | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Attribute List                           | \-      | C        |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     AttributeIdentifierList :
-        [U, -] FIXME
+        FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Instance for
+        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AttributeList :
-        [-, C] FIXME
+        FIXME
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
+        The error or success notification of the operation. It shall be
         one of the following values:
-        FIXME: Add the status values
 
-    **10.1.2.1.9 Status**
+    **Status**
 
     Warning
         attribute list error 0x0107 PS3.5 Annex C.4.2
@@ -1596,7 +1821,7 @@ class N_GET(object):
         not authorised 0x0124 PS3.5 Annex C.5.25
     Success
         success 0x0000
-    '''
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1631,41 +1856,67 @@ class N_GET(object):
 class N_SET(object):
     """Represents a N-SET primitive.
 
-    PS3.7 10.1.3.1
-    """
-    '''
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Class UID                  | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Instance UID               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Modification List                        | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Attribute List                           | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Class UID                   | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     ModificationList :
-        [M, -] FIXME
+        FIXME
     AttributeList :
-        [-, U] FIXME
+        FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Instance for
+        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
+        The error or success notification of the operation. It shall be
         one of the following values:
-        FIXME: Add the status values
 
-    **10.1.3.1.9 Status**
+    **Status**
 
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
@@ -1685,7 +1936,7 @@ class N_SET(object):
         attribute list error 0x0107 PS3.5 Annex C.4.2
     Success
         success 0x0000
-    '''
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1720,43 +1971,71 @@ class N_SET(object):
 class N_ACTION(object):
     """Represents a N-ACTION primitive.
 
-    PS3.7 10.1.4.1
-    """
-    '''
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Class UID                  | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Instance UID               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Action Type ID                           | M       | C(=)     |
+    +------------------------------------------+---------+----------+
+    | Action Information                       | U       | \-       |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Class UID                   | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Action Reply                             | \-      | C        |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     ActionTypeID :
-        [M, C(=)] FIXME
+        FIXME
     ActionInformation :
-        [U, -] FIXME
+        FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Instance for
+        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     ActionReply :
-        [-, C] FIXME
+        FIXME
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
+        The error or success notification of the operation. It shall be
         one of the following values:
-        FIXME: Add the status values
 
-    **10.1.4.1.10 Status**
+    **Status**
 
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
@@ -1774,7 +2053,7 @@ class N_ACTION(object):
         not authorised 0x0124 PS3.5 Annex C.5.25
     Success
         success 0x0000 PS3.7 Annex C.1.1
-    '''
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1810,35 +2089,55 @@ class N_ACTION(object):
 class N_CREATE(object):
     """Represents a N-CREATE primitive.
 
-    PS3.7 10.1.5.1
-    """
-    '''
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    | Affected SOP Class UID                   | M       | U(=)     |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | U       | C        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | U       | U        |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, U(=)] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [U, C] For the request/indication this specifies the SOP Instance for
+        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AttributeList :
-        [U, U] FIXME
+        FIXME
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
+        The error or success notification of the operation. It shall be
         one of the following values:
-        FIXME: Add the status values
 
-    **10.1.5.1.6 Status**
+    **Status**
 
     Failure
         duplicate SOP instance 0x0111 PS3.7 Annex C.5.8
@@ -1859,7 +2158,7 @@ class N_CREATE(object):
         attribute value out of range 0x0116 PS3.7 Annex C.4.3
     Success
         success 0x0000 PS3.7 Annex C.1.1
-    '''
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1890,37 +2189,59 @@ class N_CREATE(object):
 class N_DELETE(object):
     """Represents a N-DELETE primitive.
 
-    PS3.7 10.1.6.1
-    """
-    '''
+    +------------------------------------------+---------+----------+
+    | Parameter                                | Req/ind | Rsp/conf |
+    +==========================================+=========+==========+
+    | Message ID                               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Class UID                  | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Requested SOP Instance UID               | M       | \-       |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Class UID                   | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Affected SOP Instance UID                | \-      | U        |
+    +------------------------------------------+---------+----------+
+    | Status                                   | \-      | M        |
+    +------------------------------------------+---------+----------+
+
+    | (=) - The value of the parameter is equal to the value of the parameter in
+      the column to the left
+    | C - The parameter is conditional.
+    | M - Mandatory
+    | MF - Mandatory with a fixed value
+    | U - The use of this parameter is a DIMSE service user option
+    | UF - User option with a fixed value
+
     Attributes
     ----------
     MessageID : int
-        [M, -] Identifies the operation and is used to distinguish this
+        Identifies the operation and is used to distinguish this
         operation from other notifications or operations that may be in
         progress. No two identical values for the Message ID shall be used for
         outstanding operations.
     MessageIDBeingRespondedTo : int
-        [-, M] The Message ID of the operation request/indication to which this
+        The Message ID of the operation request/indication to which this
         response/confirmation applies.
     RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [M, -] FIXME
+        FIXME
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Class for
+        For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        [-, U] For the request/indication this specifies the SOP Instance for
+        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     Status : int
-        [-, M] The error or success notification of the operation. It shall be
+        The error or success notification of the operation. It shall be
         one of the following values:
-        FIXME: Add the status values
 
-    **10.1.6.1.7 Status**
+    **Status**
 
     Failure
         class-instance conflict 0x0119 PS3.7 Annex C.5.7
@@ -1935,7 +2256,7 @@ class N_DELETE(object):
         not authorised 0x0124 PS3.5 Annex C.5.25
     Success
         success 0x0000 PS3.7 Annex C.1.1
-    '''
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
