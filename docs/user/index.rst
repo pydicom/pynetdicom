@@ -8,10 +8,7 @@ User Guide
    :maxdepth: 2
 
    installation
-   ae.init
-   dicom
-   scu
-   scp
+   quickstart
+   ae
    association
-   message
    conformance

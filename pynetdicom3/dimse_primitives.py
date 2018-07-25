@@ -105,7 +105,7 @@ class C_STORE(object):
         * 0: Medium
         * 1: High
         * 2: Low (Default)
-    MoveOriginatorApplicationEntityTitle : bytes or str
+    MoveOriginatorApplicationEntityTitle : bytes
         The DICOM AE Title of the AE that invoked the C-MOVE operation
         from which this C-STORE sub-operation is being performed
     MoveOriginatorMessageID : int
@@ -291,8 +291,9 @@ class C_STORE(object):
             value = codecs.encode(value, 'ascii')
 
         if value is not None:
-            self._move_originator_application_entity_title = \
-                validate_ae_title(value)
+            self._move_originator_application_entity_title = validate_ae_title(
+                value
+            )
         else:
             self._move_originator_application_entity_title = None
 

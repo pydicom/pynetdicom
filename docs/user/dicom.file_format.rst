@@ -1,2 +1,0 @@
-The DICOM File Format
-=====================

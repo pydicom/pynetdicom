@@ -34,6 +34,7 @@ from .encoded_dimse_msg import (
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
+
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
     str_list = pretty_bytes(bytestream, prefix="b'\\x", delimiter='\\x',
@@ -52,18 +53,19 @@ class TestDIMSEMessage(unittest.TestCase):
         result = []
         for fragment in frag(c_echo_rsp_cmd, 1000):
             result.append(fragment)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0], c_echo_rsp_cmd)
-        self.assertTrue(isinstance(result[0], bytes))
-        self.assertTrue(result[-1] != b'')
+        assert len(result) == 1
+        assert result[0] == c_echo_rsp_cmd
+        assert isinstance(result[0], bytes)
+        assert result[-1] != b''
 
         result = []
         for fragment in frag(c_echo_rsp_cmd, 10):
             result.append(fragment)
-        self.assertEqual(len(result), 20)
-        self.assertEqual(result[0], c_echo_rsp_cmd[:4])
-        self.assertTrue(isinstance(result[0], bytes))
-        self.assertTrue(result[-1] != b'')
+
+        assert len(result) == 20
+        assert result[0] == c_echo_rsp_cmd[:4]
+        assert isinstance(result[0], bytes)
+        assert result[-1] != b''
 
         with pytest.raises(ValueError):
             next(frag(c_echo_rsp_cmd, 6))
@@ -84,9 +86,10 @@ class TestDIMSEMessage(unittest.TestCase):
         p_data_list = []
         for pdata in dimse_msg.encode_msg(12, 16):
             p_data_list.append(pdata)
-        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0:1], b'\x01')
-        self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0:1], b'\x03')
-        self.assertEqual(dimse_msg.ID, 12)
+
+        assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x01'
+        assert p_data_list[-1].presentation_data_value_list[0][1][0:1] == b'\x03'
+        assert dimse_msg.ID == 12
 
         # Test encode with dataset
         ds = Dataset()
@@ -94,23 +97,23 @@ class TestDIMSEMessage(unittest.TestCase):
         ds.PatientName = 'Tube^HeNe'
         primitive.DataSet = BytesIO(encode(ds, True, True))
 
-
         dimse_msg = C_STORE_RQ()
         dimse_msg.primitive_to_message(primitive)
         p_data_list = []
         for pdata in dimse_msg.encode_msg(13, 10):
             p_data_list.append(pdata)
-        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1][0:1], b'\x01')
-        self.assertEqual(p_data_list[-1].presentation_data_value_list[0][1][0:1], b'\x02')
-        self.assertEqual(p_data_list[-2].presentation_data_value_list[0][1][0:1], b'\x00')
-        self.assertEqual(p_data_list[-10].presentation_data_value_list[0][1][0:1], b'\x03')
-        self.assertEqual(dimse_msg.ID, 13)
+        assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x01'
+        assert p_data_list[-1].presentation_data_value_list[0][1][0:1] == b'\x02'
+        assert p_data_list[-2].presentation_data_value_list[0][1][0:1] == b'\x00'
+        assert p_data_list[-10].presentation_data_value_list[0][1][0:1] == b'\x03'
+        assert dimse_msg.ID == 13
 
         p_data_list = []
         for pdata in dimse_msg.encode_msg(1, 31682):
             p_data_list.append(pdata)
-        self.assertEqual(p_data_list[0].presentation_data_value_list[0][1], c_store_rq_cmd)
-        self.assertEqual(p_data_list[1].presentation_data_value_list[0][1], c_store_ds)
+
+        assert p_data_list[0].presentation_data_value_list[0][1] == c_store_rq_cmd
+        assert p_data_list[1].presentation_data_value_list[0][1] == c_store_ds
 
     def test_decode(self):
         """Test decoding of a DIMSE message."""
@@ -137,28 +140,28 @@ class TestDIMSEMessage(unittest.TestCase):
         dimse_msg.decode_msg(next(p_data)) # MCHB 1
         dimse_msg.decode_msg(next(p_data)) # MCHB 1
         dimse_msg.decode_msg(next(p_data)) # MCHB 3 - end of command set
-        self.assertEqual(dimse_msg.__class__, C_STORE_RQ)
+        assert dimse_msg.__class__ == C_STORE_RQ
 
         # Test decoded command set
         cs = dimse_msg.command_set
-        self.assertTrue(cs.CommandGroupLength == 102)
-        self.assertTrue(cs.AffectedSOPClassUID == UID('1.1.1'))
-        self.assertTrue(cs.AffectedSOPInstanceUID == UID('1.2.1'))
-        self.assertTrue(cs.Priority == 2)
-        self.assertTrue(cs.CommandDataSetType == 1)
-        self.assertTrue(cs.CommandField == 1)
+        assert cs.CommandGroupLength == 102
+        assert cs.AffectedSOPClassUID == UID('1.1.1')
+        assert cs.AffectedSOPInstanceUID == UID('1.2.1')
+        assert cs.Priority == 2
+        assert cs.CommandDataSetType == 1
+        assert cs.CommandField == 1
         # Bug in pydicom -> AEs not stripped of trailing spaces
-        self.assertTrue(cs.MoveOriginatorApplicationEntityTitle == b'UNITTEST        ')
-        self.assertTrue(cs.MoveOriginatorMessageID == 3)
+        assert cs.MoveOriginatorApplicationEntityTitle == b'UNITTEST        '
+        assert cs.MoveOriginatorMessageID == 3
 
         # Test decoded dataset
         dimse_msg.decode_msg(next(p_data)) # MCHB 1 # MCHB 0
         dimse_msg.decode_msg(next(p_data)) # MCHB 1 # MCHB 2
-        self.assertTrue(dimse_msg.data_set.getvalue() == c_store_ds[1:])
+        assert dimse_msg.data_set.getvalue() == c_store_ds[1:]
 
         # Test returns false
         msg = C_STORE_RSP()
-        self.assertFalse(msg.decode_msg(c_store_rsp_cmd))
+        assert not msg.decode_msg(c_store_rsp_cmd)
 
     def test_primitive_to_message(self):
         """Test converting a DIMSE primitive to a DIMSE message."""

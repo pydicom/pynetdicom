@@ -1,2 +1,0 @@
-DIMSE-C Services
-================

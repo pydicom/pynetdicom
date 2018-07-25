@@ -1,7 +1,7 @@
 .. currentmodule:: pynetdicom3.AE
 
-Initialisation
---------------
+Application Entity
+------------------
 A minimal initialisation of ``AE`` requires either the ``scu_sop_class`` or
 ``scp_sop_class`` parameter, although they can be empty. We'll get into what
 these parameters are used for later on.
