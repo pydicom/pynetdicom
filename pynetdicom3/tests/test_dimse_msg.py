@@ -60,10 +60,6 @@ class TestDIMSEMessage(object):
         result = []
         for fragment in frag(c_echo_rsp_cmd, 10):
             result.append(fragment)
-<<<<<<< HEAD
-
-=======
->>>>>>> d6a7603c4877e11d76f15082dba9c52aa3c9b3a5
         assert len(result) == 20
         assert result[0] == c_echo_rsp_cmd[:4]
         assert isinstance(result[0], bytes)
@@ -88,10 +84,6 @@ class TestDIMSEMessage(object):
         p_data_list = []
         for pdata in dimse_msg.encode_msg(12, 16):
             p_data_list.append(pdata)
-<<<<<<< HEAD
-
-=======
->>>>>>> d6a7603c4877e11d76f15082dba9c52aa3c9b3a5
         assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x01'
         assert p_data_list[-1].presentation_data_value_list[0][1][0:1] == b'\x03'
         assert dimse_msg.ID == 12
@@ -107,10 +99,7 @@ class TestDIMSEMessage(object):
         p_data_list = []
         for pdata in dimse_msg.encode_msg(13, 10):
             p_data_list.append(pdata)
-<<<<<<< HEAD
-=======
 
->>>>>>> d6a7603c4877e11d76f15082dba9c52aa3c9b3a5
         assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x01'
         assert p_data_list[-1].presentation_data_value_list[0][1][0:1] == b'\x02'
         assert p_data_list[-2].presentation_data_value_list[0][1][0:1] == b'\x00'
@@ -120,10 +109,6 @@ class TestDIMSEMessage(object):
         p_data_list = []
         for pdata in dimse_msg.encode_msg(1, 31682):
             p_data_list.append(pdata)
-<<<<<<< HEAD
-
-=======
->>>>>>> d6a7603c4877e11d76f15082dba9c52aa3c9b3a5
         assert p_data_list[0].presentation_data_value_list[0][1] == c_store_rq_cmd
         assert p_data_list[1].presentation_data_value_list[0][1] == c_store_ds
 
@@ -162,12 +147,7 @@ class TestDIMSEMessage(object):
         assert cs.Priority == 2
         assert cs.CommandDataSetType == 1
         assert cs.CommandField == 1
-<<<<<<< HEAD
-        # Bug in pydicom -> AEs not stripped of trailing spaces
-        assert cs.MoveOriginatorApplicationEntityTitle == b'UNITTEST        '
-=======
         assert cs.MoveOriginatorApplicationEntityTitle == 'UNITTEST        '
->>>>>>> d6a7603c4877e11d76f15082dba9c52aa3c9b3a5
         assert cs.MoveOriginatorMessageID == 3
 
         # Test decoded dataset

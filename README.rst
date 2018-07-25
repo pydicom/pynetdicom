@@ -194,7 +194,7 @@ SCP (at TCP/IP address *addr*, listen port number *port*):
         ae.requested_contexts = VerificationPresentationContexts
         # Or we can use inbuilt objects like CTImageStorage.
         # The requested presentation context's transfer syntaxes can also
-        #   be specified using with a str/UID or list of str/UIDs
+        #   be specified using a str/UID or list of str/UIDs
         ae.add_requested_context(CTImageStorage,
                                  transfer_syntax=ImplicitVRLittleEndian)
         # Adding a presentation context with multiple transfer syntaxes
