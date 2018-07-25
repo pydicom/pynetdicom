@@ -728,7 +728,7 @@ class DIMSEServiceProvider(object):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
         s.append('Move Destination              : {0!s}'
-                 .format(cs.MoveDestination.decode('ascii')))
+                 .format(cs.MoveDestination))
         s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='

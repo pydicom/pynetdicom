@@ -117,7 +117,7 @@ Installation
 -----------
 Dependencies
 ~~~~~~~~~~~~
-`pydicom <https://github.com/pydicom/pydicom>`_
+Current `pydicom <https://github.com/pydicom/pydicom>`_ master (1.2.0.dev0)
 
 Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
