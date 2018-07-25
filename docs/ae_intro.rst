@@ -70,9 +70,9 @@ Timeouts for ACSE, DIMSE and network messages
 
         >>> ae = AE(scu_sop_class=[VerificationSOPClass])
         >>> ae.dimse_timeout = 30
-        >> ae.acse_timeout = 60
-        >> ae.network_timeout = 60
-        >> ae.start()
+        >>> ae.acse_timeout = 60
+        >>> ae.network_timeout = 60
+        >>> ae.start()
 
 Maximum PDU Size
 ----------------
