@@ -76,7 +76,7 @@ Timeouts for ACSE, DIMSE and network messages
 
 Maximum PDU Size
 ----------------
-A value of None indicates that there is no maximum protocol data unit (PDU) size limit.
+A value of `None` indicates that there is no maximum protocol data unit (PDU) size limit.
 
 .. code-block:: python
 
