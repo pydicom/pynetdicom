@@ -232,3 +232,35 @@ class TestStorageServiceClass(object):
         assert self.scp.info['parameters']['originator_message_id'] is None
 
         self.scp.stop()
+
+    def test_scp_callback_info_move_origin(self):
+        """Test on_c_store caontext parameter"""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status = assoc.send_c_store(DATASET,
+                                    originator_aet=b'ORIGIN',
+                                    originator_id=888)
+        assert status.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        assert self.scp.info['requestor']['address'] == '127.0.0.1'
+        assert self.scp.info['requestor']['ae_title'] == b'PYNETDICOM      '
+        assert self.scp.info['requestor']['called_aet'] == b'ANY-SCP         '
+        assert isinstance(self.scp.info['requestor']['port'], int)
+        assert self.scp.info['acceptor']['port'] == 11112
+        assert self.scp.info['acceptor']['address'] == '127.0.0.1'
+        assert self.scp.info['acceptor']['ae_title'] == b'PYNETDICOM      '
+        assert self.scp.info['parameters']['message_id'] == 1
+        assert self.scp.info['parameters']['priority'] == 2
+        assert self.scp.info['parameters']['originator_aet'] == b'ORIGIN          '
+        assert self.scp.info['parameters']['originator_message_id'] == 888
+
+        self.scp.stop()
