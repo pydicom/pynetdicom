@@ -2420,3 +2420,35 @@ class TestQRMoveServiceClass(object):
         assert self.scp.store_info['parameters']['originator_message_id'] == 1
 
         self.scp.stop()
+
+    def test_scp_callback_move_aet(self):
+        """Test on_c_store caontext parameter"""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [Dataset(), 0x0000]
+        self.scp.statuses[0].Status = 0xFF00
+        self.identifiers = [self.ds, None]
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+        assoc.release()
+        assert assoc.is_released
+
+        assert self.scp.move_aet == b'TESTMOVE        '
+
+        self.scp.stop()

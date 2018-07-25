@@ -133,6 +133,7 @@ class DummyBaseSCP(threading.Thread):
             assoc.start()
             self.active_associations.append(assoc)
 
+
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""
     def __init__(self, port=11112):
@@ -287,10 +288,12 @@ class DummyMoveSCP(DummyBaseSCP):
         self.test_no_subops = False
         self.store_context = None
         self.store_info = None
+        self.move_aet = None
 
     def on_c_move(self, ds, move_aet, context, info):
         """Callback for ae.on_c_move"""
         self.context = context
+        self.move_aet = move_aet
         self.info = info
         time.sleep(self.delay)
         ds = Dataset()
