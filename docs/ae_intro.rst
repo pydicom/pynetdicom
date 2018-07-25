@@ -24,8 +24,7 @@ Service Class User
 
 Maximum PDU Size
 ----------------
-Each association request can specify its own maximum PDU receive size. A value
-of None indicates that there is no maximum size limit.
+Each association request can specify its own maximum protocol data unit (PDU) receive size. A value of `None` indicates that there is no maximum size limit.
 
 .. code-block:: python
 
@@ -41,7 +40,7 @@ AE Title Matching
 -----------------
 The called and/or calling AE title can be set to be required to match against 
 an expected value, with the association being rejected if they fail. A value
-of '' means that no matching will be performed.
+of `''` means that no matching will be performed.
 
 .. code-block:: python
 
@@ -64,7 +63,7 @@ additional association requests be rejected with a reason of
 
 Timeouts
 --------
-Timeouts for ACSE, DIMSE and network messages
+Timeouts for Association Control Service Element (ACSE), DICOM Service Element (DIMSE) and network messages
 
 .. code-block:: python
 
