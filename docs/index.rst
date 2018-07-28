@@ -71,3 +71,11 @@ API Reference
    :maxdepth: 2
 
    reference/index
+
+Release Notes
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   release_notes

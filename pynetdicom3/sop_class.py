@@ -92,7 +92,7 @@ _STORAGE_CLASSES = {
     'DigitalIntraOralXRayImageProcessingStorage' : '1.2.840.10008.5.1.1.4.1.1.3.1',  # A.28
     'CTImageStorage' : '1.2.840.10008.5.1.4.1.1.2',  # A.3
     'EnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.1',  # A.38
-    'LegacyConvertedEnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.2',  # A.70.
+    'LegacyConvertedEnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.2',  # A.70
     'UltrasoundMultiframeImageStorage' : '1.2.840.10008.5.1.4.1.1.3.1',  # A.7
     'MRImageStorage' : '1.2.840.10008.5.1.4.1.1.4',  # A.4
     'EnhancedMRImageStorage' : '1.2.840.10008.5.1.4.1.1.4.1',  # A.36.2
@@ -128,7 +128,7 @@ _STORAGE_CLASSES = {
     'MultipleVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.11',  # A.80.2
     'XRayAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1',  # A.14
     'EnhancedXAImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1.1',  # A.47
-    'XRayRadiofluoroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2',   # A.16
+    'XRayRadiofluoroscopicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2',  # A.16
     'EnhancedXRFImageStorage' : '1.2.840.10008.5.1.4.1.1.12.2.1',  # A.48
     'XRay3DAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.1',  # A.53
     'XRay3DCraniofacialImageStorage' : '1.2.840.10008.5.1.4.1.1.13.1.2',  # A.54
@@ -141,7 +141,7 @@ _STORAGE_CLASSES = {
     'ParametricMapStorage' : '1.2.840.10008.5.1.4.1.1.30',  # A.75
     'RawDataStorage' : '1.2.840.10008.5.1.4.1.1.66',  # A.37
     'SpatialRegistrationStorage' : '1.2.840.10008.5.1.4.1.1.66.1',  # A.39.1
-    'SpatialFiducialsStorage' : '1.2.840.10008.5.1.4.1.1.66.2',  # A.40.
+    'SpatialFiducialsStorage' : '1.2.840.10008.5.1.4.1.1.66.2',  # A.40
     'DeformableSpatialRegistrationStorage' : '1.2.840.10008.5.1.4.1.1.66.3',  # A.39.2
     'SegmentationStorage' : '1.2.840.10008.5.1.4.1.1.66.4',  # A.51
     'SurfaceSegmentationStorage' : '1.2.840.10008.5.1.4.1.1.66.5',  # A.57
@@ -201,7 +201,7 @@ _STORAGE_CLASSES = {
     'EnhancedPETImageStorage' : '1.2.840.10008.5.1.4.1.1.130',  # A.56
     'LegacyConvertedEnhancedPETImageStorage' : '1.2.840.10008.5.1.4.1.1.128.1',  # A.72
     'BasicStructuredDisplayStorage' : '1.2.840.10008.5.1.4.1.1.131',  # A.33.5
-    'CTPerformedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.2',   # A.82.1
+    'CTPerformedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.2',  # A.82.1
     'RTImageStorage' : '1.2.840.10008.5.1.4.1.1.481.1',  # A.17
     'RTDoseStorage' : '1.2.840.10008.5.1.4.1.1.481.2',  # A.18
     'RTStructureSetStorage' : '1.2.840.10008.5.1.4.1.1.481.3',  # A.19
