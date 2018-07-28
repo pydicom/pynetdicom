@@ -1,3 +1,5 @@
+.. _verification_sops:
+
 Verification Service Class
 ==========================
 The Verification Service Class defines a service that verifies application
@@ -8,8 +10,11 @@ DIMSE-C service.
 Supported SOP Classes
 ---------------------
 
-* Verification SOP Class - 1.2.840.10008.1.1
-
++-------------------+---------------------------+
+| UID               | SOP Class                 |
++===================+===========================+
+| 1.2.840.10008.1.1 | VerificationSOPClass      |
++-------------------+---------------------------+
 
 References
 ----------

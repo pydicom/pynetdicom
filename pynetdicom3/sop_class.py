@@ -174,13 +174,13 @@ _STORAGE_CLASSES = {
     'OphthalmicAxialMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.78.7',  # A.60.6
     'IntraocularLensCalculationsStorage' : '1.2.840.10008.5.1.4.1.1.78.8',  # A.60.7
     'MacularGridThicknessAndVolumeReport' : '1.2.840.10008.5.1.4.1.1.79.1',  # A.35.11
-    'OphthalmicVisualFieldStaticPerimetryMeasurementsStorag' : '1.2.840.10008.5.1.4.1.1.80.1',  # A.65
+    'OphthalmicVisualFieldStaticPerimetryMeasurementsStorage' : '1.2.840.10008.5.1.4.1.1.80.1',  # A.65
     'OphthalmicThicknessMapStorage' : '1.2.840.10008.5.1.4.1.1.81.1',  # A.67
     'CornealTopographyMapStorage' : '1.2.840.10008.5.1.4.1.1.82.1',  # A.73
     'BasicTextSRStorage' : '1.2.840.10008.5.1.4.1.1.88.11',  # A.35.1
     'EnhancedSRStorage' : '1.2.840.10008.5.1.4.1.1.88.22',  # A.35.2
     'ComprehensiveSRStorage' : '1.2.840.10008.5.1.4.1.1.88.33',  # A.35.3
-    'Comprehenseice3DSRStorage' : '1.2.840.10008.5.1.4.1.1.88.34',  # A.35.13
+    'Comprehensive3DSRStorage' : '1.2.840.10008.5.1.4.1.1.88.34',  # A.35.13
     'ExtensibleSRStorage' : '1.2.840.10008.5.1.4.1.1.88.35',  # A.35.15
     'ProcedureSRStorage' : '1.2.840.10008.5.1.4.1.1.88.40',  # A.35.7
     'MammographyCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.50',  # A.35.5

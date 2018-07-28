@@ -1,23 +1,51 @@
+.. _qr_sops:
+
 Query/Retrieve Service Class
 ============================
 The Query/Retrieve Service Class defines a service that facilitates querying
-and retrieval of stored Instances. This allows a DICOM Application Entity (AE)
-to retrieve Instances from a remote AE or request the remote AE initiate
-transfer of Instances to another DICOM AE by using the C-FIND, C-GET and C-MOVE
-DIMSE-C services.
+and retrieval of stored Instances.
 
 Supported SOP Classes
 ---------------------
 
-* PatientRootQueryRetrieveInformationModelFind - 1.2.840.10008.5.1.4.1.2.1.1
-* StudyRootQueryRetrieveInformationModelFind - 1.2.840.10008.5.1.4.1.2.2.1
-* PatientStudyOnlyQueryRetrieveInformationModelFind - 1.2.840.10008.5.1.4.1.2.3.1
-* PatientRootQueryRetrieveInformationModelMove - 1.2.840.10008.5.1.4.1.2.1.2
-* StudyRootQueryRetrieveInformationModelMove - 1.2.840.10008.5.1.4.1.2.2.2
-* PatientStudyOnlyQueryRetrieveInformationModelMove - 1.2.840.10008.5.1.4.1.2.3.2
-* PatientRootQueryRetrieveInformationModelGet - 1.2.840.10008.5.1.4.1.2.1.3
-* StudyRootQueryRetrieveInformationModelGet - 1.2.840.10008.5.1.4.1.2.2.3
-* PatientStudyOnlyQueryRetrieveInformationModelGet - 1.2.840.10008.5.1.4.1.2.3.3
+Query/Retrieve (Find) SOP Classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-----------------------------+---------------------------------------------------+
+| UID                         | SOP Class                                         |
++=============================+===================================================+
+| 1.2.840.10008.5.1.4.1.2.1.1 | PatientRootQueryRetrieveInformationModelFind      |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.2.1 | StudyRootQueryRetrieveInformationModelFind        |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.3.1 | PatientStudyOnlyQueryRetrieveInformationModelFind |
++-----------------------------+---------------------------------------------------+
+
+Query/Retrieve (Move) SOP Classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-----------------------------+---------------------------------------------------+
+| UID                         | SOP Class                                         |
++=============================+===================================================+
+| 1.2.840.10008.5.1.4.1.2.1.2 | PatientRootQueryRetrieveInformationModelMove      |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.2.2 | StudyRootQueryRetrieveInformationModelMove        |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.3.2 | PatientStudyOnlyQueryRetrieveInformationModelMove |
++-----------------------------+---------------------------------------------------+
+
+Query/Retrieve (Get) SOP Classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-----------------------------+---------------------------------------------------+
+| UID                         | SOP Class                                         |
++=============================+===================================================+
+| 1.2.840.10008.5.1.4.1.2.1.3 | PatientRootQueryRetrieveInformationModelGet       |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.2.3 | StudyRootQueryRetrieveInformationModelGet         |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.3.3 | PatientStudyOnlyQueryRetrieveInformationModelGet  |
++-----------------------------+---------------------------------------------------+
 
 References
 ----------

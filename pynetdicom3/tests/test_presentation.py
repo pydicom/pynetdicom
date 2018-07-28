@@ -16,7 +16,7 @@ from pynetdicom3.presentation import (
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
-    _build_context,
+    build_context,
 )
 
 
@@ -873,13 +873,13 @@ def test_default_transfer_syntaxes():
 
 
 def test_build_context():
-    """Test _build_context()"""
-    context = _build_context('1.2.840.10008.1.1')
+    """Test build_context()"""
+    context = build_context('1.2.840.10008.1.1')
     assert context.abstract_syntax == '1.2.840.10008.1.1'
     assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
     assert context.context_id is None
 
-    context = _build_context('1.2.840.10008.1.1', ['1.2.3', '4.5.6'])
+    context = build_context('1.2.840.10008.1.1', ['1.2.3', '4.5.6'])
     assert context.abstract_syntax == '1.2.840.10008.1.1'
     assert context.transfer_syntax == ['1.2.3', '4.5.6']
     assert context.context_id is None

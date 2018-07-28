@@ -53,12 +53,15 @@ classes see the :ref:`reference`.
 Examples
 --------
 
-* Verification Examples (C-ECHO)
-* Storage Examples (C-STORE)
-* Query/Retrieve Find Examples (C-FIND)
-* Query/Retrieve Get Examples (C-GET and C-STORE)
-* Query/Retrieve Move Examples (C-MOVE and C-STORE)
-* Basic Worklist Management Examples (C-FIND)
+.. toctree::
+   :maxdepth: 1
+
+   examples/verification
+   examples/storage
+   examples/qr_find
+   examples/qr_get
+   examples/qr_move
+   examples/basic_worklist
 
 
 API Reference
