@@ -7,4 +7,3 @@ Association
 
    association.associating
    association.releasing
-   association.aborting
