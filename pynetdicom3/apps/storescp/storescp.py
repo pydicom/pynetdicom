@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-"""
-    A dcmtk style storescp application.
-
-    Used as a SCP for sending DICOM objects to
-"""
+"""An implementation of a Storage Service Class Provider (Storage SCP)."""
 
 import argparse
 import logging
@@ -12,11 +7,12 @@ import os
 import socket
 import sys
 
-from pydicom.dataset import Dataset, FileDataset
-from pydicom.filewriter import write_file
+from pydicom.dataset import Dataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    ExplicitVRBigEndian,
+    DeflatedExplicitVRLittleEndian
 )
 
 from pynetdicom3 import (
@@ -26,6 +22,7 @@ from pynetdicom3 import (
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
+
 
 def setup_logger():
     """Setup the logger"""
@@ -38,9 +35,10 @@ def setup_logger():
 
     return logger
 
-LOGGER = setup_logger()
 
-VERSION = '0.3.2'
+LOGGER = setup_logger()
+VERSION = '0.3.3'
+
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -90,7 +88,7 @@ def _setup_argparser():
     net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds',
                           help="timeout for ACSE messages",
                           type=int,
-                          default=60)
+                          default=30)
     net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds',
                           help="timeout for DIMSE messages",
                           type=int,
@@ -152,10 +150,13 @@ def _setup_argparser():
 
     return parser.parse_args()
 
+
 args = _setup_argparser()
 
 if args.verbose:
     LOGGER.setLevel(logging.INFO)
+    pynetdicom_logger = logging.getLogger('pynetdicom3')
+    pynetdicom_logger.setLevel(logging.INFO)
 
 if args.debug:
     LOGGER.setLevel(logging.DEBUG)
@@ -182,29 +183,28 @@ transfer_syntax = [ImplicitVRLittleEndian,
                    ExplicitVRBigEndian]
 
 if args.prefer_uncompr and ImplicitVRLittleEndian in transfer_syntax:
-        transfer_syntax.remove(ImplicitVRLittleEndian)
-        transfer_syntax.append(ImplicitVRLittleEndian)
+    transfer_syntax.remove(ImplicitVRLittleEndian)
+    transfer_syntax.append(ImplicitVRLittleEndian)
 
 if args.implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
 if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
-        transfer_syntax.remove(ExplicitVRLittleEndian)
-        transfer_syntax.insert(0, ExplicitVRLittleEndian)
+    transfer_syntax.remove(ExplicitVRLittleEndian)
+    transfer_syntax.insert(0, ExplicitVRLittleEndian)
 
 if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
-        transfer_syntax.remove(ExplicitVRBigEndian)
-        transfer_syntax.insert(0, ExplicitVRBigEndian)
+    transfer_syntax.remove(ExplicitVRBigEndian)
+    transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_store(dataset, context, info):
-    """
-    Function replacing ApplicationEntity.on_store(). Called when a dataset is
-    received following a C-STORE. Write the received dataset to file
+
+def on_c_store(ds, context, info):
+    """Store the pydicom Dataset `ds` in the DICOM File Format.
 
     Parameters
     ----------
-    dataset : pydicom.Dataset
-        The DICOM dataset sent via the C-STORE
+    ds : pydicom.Dataset
+        The DICOM dataset sent in the C-STORE request.
     context : pynetdicom3.presentation.PresentationContextTuple
         Details of the presentation context the dataset was sent under.
     info : dict
@@ -216,31 +216,32 @@ def on_c_store(dataset, context, info):
         A valid return status code, see PS3.4 Annex B.2.3 or the
         StorageServiceClass implementation for the available statuses
     """
-    mode_prefix = 'UN'
-    mode_prefixes = {'CT Image Storage' : 'CT',
-                     'Enhanced CT Image Storage' : 'CTE',
-                     'MR Image Storage' : 'MR',
-                     'Enhanced MR Image Storage' : 'MRE',
-                     'Positron Emission Tomography Image Storage' : 'PT',
-                     'Enhanced PET Image Storage' : 'PTE',
-                     'RT Image Storage' : 'RI',
-                     'RT Dose Storage' : 'RD',
-                     'RT Plan Storage' : 'RP',
-                     'RT Structure Set Storage' : 'RS',
-                     'Computed Radiography Image Storage' : 'CR',
-                     'Ultrasound Image Storage' : 'US',
-                     'Enhanced Ultrasound Image Storage' : 'USE',
-                     'X-Ray Angiographic Image Storage' : 'XA',
-                     'Enhanced XA Image Storage' : 'XAE',
-                     'Nuclear Medicine Image Storage' : 'NM',
-                     'Secondary Capture Image Storage' : 'SC'}
+    mode_prefixes = {
+        'CT Image Storage' : 'CT',
+        'Enhanced CT Image Storage' : 'CTE',
+        'MR Image Storage' : 'MR',
+        'Enhanced MR Image Storage' : 'MRE',
+        'Positron Emission Tomography Image Storage' : 'PT',
+        'Enhanced PET Image Storage' : 'PTE',
+        'RT Image Storage' : 'RI',
+        'RT Dose Storage' : 'RD',
+        'RT Plan Storage' : 'RP',
+        'RT Structure Set Storage' : 'RS',
+        'Computed Radiography Image Storage' : 'CR',
+        'Ultrasound Image Storage' : 'US',
+        'Enhanced Ultrasound Image Storage' : 'USE',
+        'X-Ray Angiographic Image Storage' : 'XA',
+        'Enhanced XA Image Storage' : 'XAE',
+        'Nuclear Medicine Image Storage' : 'NM',
+        'Secondary Capture Image Storage' : 'SC'
+    }
 
     try:
-        mode_prefix = mode_prefixes[dataset.SOPClassUID.name]
+        mode_prefix = mode_prefixes[ds.SOPClassUID.name]
     except KeyError:
         mode_prefix = 'UN'
 
-    filename = '{0!s}.{1!s}'.format(mode_prefix, dataset.SOPInstanceUID)
+    filename = '{0!s}.{1!s}'.format(mode_prefix, ds.SOPInstanceUID)
     LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
@@ -259,16 +260,15 @@ def on_c_store(dataset, context, info):
     # Of these, we should update the following as pydicom will take care of
     #   the remainder
     meta = Dataset()
-    meta.MediaStorageSOPClassUID = dataset.SOPClassUID
-    meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
+    meta.MediaStorageSOPClassUID = ds.SOPClassUID
+    meta.MediaStorageSOPInstanceUID = ds.SOPInstanceUID
     meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     meta.TransferSyntaxUID = context.transfer_syntax
 
     # The following is not mandatory, set for convenience
     meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
-    ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
-    ds.update(dataset)
+    ds.file_meta = meta
     ds.is_little_endian = context.transfer_syntax.is_little_endian
     ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
 
@@ -289,7 +289,7 @@ def on_c_store(dataset, context, info):
             LOGGER.error('Could not write file to specified directory:')
             LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
             LOGGER.error('Directory may not exist or you may not have write '
-                    'permission')
+                         'permission')
             # Failed - Out of Resources - IOError
             status_ds.Status = 0xA700
         except:
@@ -303,7 +303,8 @@ def on_c_store(dataset, context, info):
 # Test output-directory
 if args.output_directory is not None:
     if not os.access(args.output_directory, os.W_OK|os.X_OK):
-        LOGGER.error("No write permissions or the output directory may not exist:")
+        LOGGER.error('No write permissions or the output '
+                     'directory may not exist:')
         LOGGER.error("    {0!s}".format(args.output_directory))
         sys.exit()
 

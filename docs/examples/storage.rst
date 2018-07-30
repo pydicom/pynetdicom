@@ -1,10 +1,10 @@
 Storage Service Examples
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The DICOM `Storage Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-provides a mechanism for a service user (an SCU) to request the transfer
+provides a mechanism for an SCU to request the transfer
 of :ref:`supported Storage SOP Class <storage_sops>` Instances to
-the service provider (the SCP). Transfer is accomplished by utilising the
+the service provider. Transfer is accomplished by utilising the
 DIMSE C-STORE service.
 
 In essence, if you want to send or receive DICOM images or waveforms or any
@@ -12,7 +12,7 @@ other type of data supported by the Storage SOP Classes, then the Storage
 Service is what you're looking for.
 
 Storage SCU
-~~~~~~~~~~~
+...........
 
 Associate with a peer DICOM Application Entity and request the transfer of a
 single CT dataset.
@@ -30,11 +30,11 @@ single CT dataset.
    # Add a requested presentation context
    ae.add_requested_context(CTImageStorage)
 
-   # Associate with peer AE at IP 127.0.0.1 and port 11112
-   assoc = ae.associate('127.0.0.1', 11112)
-
    # Read in our DICOM CT dataset
    ds = dcmread('path/to/CT/dataset')
+
+   # Associate with peer AE at IP 127.0.0.1 and port 11112
+   assoc = ae.associate('127.0.0.1', 11112)
 
    if assoc.is_established:
        # Use the C-STORE service to send the dataset
@@ -89,11 +89,12 @@ You can also set the requested contexts on a per association basis.
 
 
 Storage SCP
-~~~~~~~~~~~
+...........
 
-Create an AE that supports the Storage Service and then
+Create an :ref:`AE <ae>` that supports the Storage Service and then
 listen for association requests on port 11112. When a storage request is
-received over the association we write the dataset to file.
+received over the association we write the dataset to file and then return
+a 0x0000 *Success* :ref:`status <storage_statuses>`.
 
 If you're going to write SOP Instances (datasets) to file it's recommended
 that you ensure the file is conformant with the
@@ -114,7 +115,7 @@ which requires adding the File Meta Information.
    # Initialise the Application Entity and specify the listen port
    ae = AE(port=11112)
 
-   # Add a requested presentation context
+   # Add the supported presentation contexts
    ae.supported_contexts = StoragePresentationContexts
 
    # Implement the AE.on_c_store callback
@@ -149,6 +150,10 @@ which requires adding the File Meta Information.
        # Add the file meta to the dataset
        ds.file_meta = meta
 
+       # Set the transfer syntax attributes of the dataset
+       ds.is_little_endian = context.transfer_syntax.is_little_endian
+       ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
+
        # Save the dataset using the SOP Instance UID as the filename
        ds.save_as(ds.SOPInstanceUID)
 
@@ -160,7 +165,8 @@ which requires adding the File Meta Information.
    # Start listening for incoming association requests
    ae.start()
 
-As with the SCU you can also just support the contexts you're interested in
+As with the SCU you can also just support only the contexts you're
+interested in.
 
 .. code-block:: python
 

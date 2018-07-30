@@ -587,7 +587,7 @@ class ACSEServiceProvider(object):
         a_associate_ac : pdu.A_ASSOCIATE_AC
             The A-ASSOCIATE-AC PDU instance
         """
-        LOGGER.info("Association Acknowledged")
+        LOGGER.info("Association Accepted")
 
         # Shorthand
         assoc_ac = a_associate_ac
@@ -665,7 +665,7 @@ class ACSEServiceProvider(object):
         a_associate_rj : pdu.A_ASSOCIATE_RJ
             The A-ASSOCIATE-RJ PDU instance
         """
-        pass
+        LOGGER.info("Association Rejected")
 
     @staticmethod
     def debug_send_data_tf(p_data_tf):

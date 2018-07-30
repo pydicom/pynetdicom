@@ -14,21 +14,21 @@ basic DICOM connectivity.
 The following simple example shows what happens when it is succesfully run on
 an SCP that supports the *Verification SOP Class*:
 ::
-   
+
     user@host: echoscu 192.168.2.1 11112
     user@host:
 
 When attempting to send a C-ECHO to an SCP that doesn't support the
 *Verification SOP Class*:
 ::
-   
+
     user@host: echoscu 192.168.2.1 11112
     E: No Acceptable Presentation Contexts
     user@host:
 
 When attempting to associate with a non-DICOM peer
 ::
-   
+
     user@host: echoscu 192.168.2.1 11112
     E: Association Request Failed: Failed to establish association
     E: Peer aborted Association (or never connected)
@@ -74,7 +74,7 @@ Miscellaneous DICOM
               timeout for connection requests (default: unlimited)
     ``-ta   --acse-timeout [s]econds (int)``
               timeout for ACSE messages (default: 30)
-    ``-td   --dimse-timeout [s]econdsr (int)``
+    ``-td   --dimse-timeout [s]econds (int)``
               timeout for DIMSE messages (default: unlimited)
     ``-pdu  --max-pdu [n]umber of bytes (int)``
               set maximum receive PDU bytes to n bytes (default: 16384)
@@ -87,23 +87,31 @@ Miscellaneous DICOM
 DICOM Conformance
 =================
 The echoscu application supports the following SOP Class as an SCU:
-::
-   
-    Verification SOP Class          1.2.840.10008.1.1
+
++------------------+------------------------+
+| UID              | SOP Class              |
++==================+========================+
+|1.2.840.10008.1.1 | Verification SOP Class |
++------------------+------------------------+
 
 Unless the ``--propose-ts`` option is used, the echoscu application will only
 propose the *Little Endian Implicit VR Transfer Syntax* (UID 1.2.840.10008.1.2).
 The supported Transfer Syntaxes [#]_ are:
-::
-   
-    Little Endian Implicit VR       1.2.840.10008.1.2
-    Little Endian Explicit VR       1.2.840.10008.1.2.1
-    Big Endian Explicit VR          1.2.840.10008.1.2.2
+
++--------------------+---------------------------+
+| UID                | Transfer Syntax           |
++====================+===========================+
+|1.2.840.10008.1.2   | Little Endian Implicit VR |
++--------------------+---------------------------+
+|1.2.840.10008.1.2.1 | Little Endian Explicit VR |
++--------------------+---------------------------+
+|1.2.840.10008.1.2.2 | Big Endian Explicit VR    |
++--------------------+---------------------------+
 
 .. rubric:: Footnotes
 
-.. [#] See DICOM Standard 2015b PS3.6 Table A-1
-.. [#] See DICOM Standard 2015b PS3.7 Sections 9.1.5 and 9.3.5
-.. [#] See DICOM Standard 2015b PS3.8 Sections 7.1.1.13 and 9.3.2.2
-.. [#] See `the Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
-.. [#] See DICOM Standard 2015b PS3.5 Section 10 and Annex A
+.. [#] DICOM Standard, Part 6, Table A-1
+.. [#] DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5
+.. [#] DICOM Standard, Part 8, Sections 7.1.1.13 and 9.3.2.2
+.. [#] `The Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
+.. [#] DICOM Standard, Part 5, Section 10 and Annex A

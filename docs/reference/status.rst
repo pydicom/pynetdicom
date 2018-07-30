@@ -20,13 +20,6 @@ codes are used internally within pynetdicom to help aid in debugging.
 | 0xC002           | User's callback implementation returned an invalid      |
 |                  | status object (not a pydicom Dataset or an int)         |
 +------------------+---------------------------------------------------------+
-| 0xC100 to 0xC1FF | C-ECHO related                                          |
-+------------------+---------------------------------------------------------+
-| 0xC110           | Failed to decode the dataset received from the peer     |
-+------------------+---------------------------------------------------------+
-| 0xC111           | Unhandled exception raised by the user's implementation |
-|                  | of the on_c_echo callback                               |
-+------------------+---------------------------------------------------------+
 | 0xC200 to 0xC2FF | C-STORE related                                         |
 +------------------+---------------------------------------------------------+
 | 0xC210           | Failed to decode the dataset received from the peer     |

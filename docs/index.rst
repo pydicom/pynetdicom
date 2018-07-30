@@ -1,10 +1,8 @@
-Welcome to the documentation for `pynetdicom <https://github.com/pydicom/pynetdicom3>`_.
-
-
 Description
------------
+===========
+
 DICOM
-~~~~~
+-----
 `DICOM <http://dicom.nema.org/>`_ is the international standard for medical
 images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and
@@ -14,9 +12,9 @@ involved in some way.
 
 
 pynetdicom
-~~~~~~~~~~
-*pynetdicom* is a pure Python 2.7/3.4+ package that implements the DICOM
-networking protocol. Working with
+----------
+`pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python
+2.7/3.4+ package that implements the DICOM networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
@@ -38,7 +36,7 @@ pynetdicom currently supports the following DICOM service classes:
 
 
 User Guide
-----------
+==========
 The :ref:`user_guide` is intended as an introduction to pynetdicom and
 explains how to install and use the API, as well as covering the basics of
 DICOM networking. For detailed reference documentation of the functions and
@@ -51,7 +49,7 @@ classes see the :ref:`reference`.
 
 
 Examples
---------
+========
 
 .. toctree::
    :maxdepth: 1
@@ -65,15 +63,24 @@ Examples
 
 
 API Reference
--------------
+=============
+
+The reference/index
+
+Applications
+============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   reference/index
+   apps/echoscu
+   apps/echoscp
+   apps/storescu
+   apps/storescp
+
 
 Release Notes
--------------
+=============
 
 .. toctree::
    :maxdepth: 1

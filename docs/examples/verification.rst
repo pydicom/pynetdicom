@@ -1,5 +1,5 @@
 Verification Service Examples
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The DICOM `Verification Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
 allows an Application Entity to verify application level communication between
@@ -10,14 +10,12 @@ The Verification Service is mostly used to verify basic connectivity and as a
 starting point when troubleshooting associations.
 
 Verification SCU
-~~~~~~~~~~~~~~~~
+................
 
 Associate with a peer DICOM Application Entity and request the use of the
 Verification Service.
 
 .. code-block:: python
-
-   from pydicom import dcmread
 
    from pynetdicom3 import AE
    from pynetdicom3.sop_class import VerificationSOPClass
@@ -60,12 +58,12 @@ the requested contexts.
 
 
 Verification SCP
-~~~~~~~~~~~~~~~~
+................
 
-Create an AE that supports the Verification Service and then listen for
+Create an :ref:`AE <ae>` that supports the Verification Service and then listen for
 association requests on port 11112. When a verification request is received
 over the association we rely on the default implementation of ``AE.on_c_echo``
-to return an 0x0000 *Success* status.
+to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
 
 .. code-block:: python
 

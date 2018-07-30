@@ -1,11 +1,12 @@
-.. _storage_sops:
-
 Storage Service Class
 =====================
-The Storage Service Class defines a service that facilitates the simple
+The `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+defines a service that facilitates the simple
 transfer of DICOM information Instances. It allows one DICOM Application Entity
 to send images, waveforms, reports, etc., to another using the C-STORE DIMSE-C
 service.
+
+.. _storage_sops:
 
 Supported SOP Classes
 ---------------------
@@ -275,7 +276,79 @@ Supported SOP Classes
 | 1.2.840.10008.5.1.4.34.10        | RTBrachyApplicationSetupDeliveryInstructionsStorage               | A.79    |
 +----------------------------------+-------------------------------------------------------------------+---------+
 
+.. _storage_statuses:
+
+Statuses
+--------
+
+C-STORE Statuses
+~~~~~~~~~~~~~~~~
+
++------------+----------+----------------------------------+
+| Code (hex) | Category | Description                      |
++============+==========+==================================+
+| 0x0000     | Success  | Success                          |
++------------+----------+----------------------------------+
+| 0x0112     | Failure  | SOP Class not supported          |
++------------+----------+----------------------------------+
+| 0x0117     | Failure  | Invalid object instance          |
++------------+----------+----------------------------------+
+| 0x0124     | Failure  | Not authorised                   |
++------------+----------+----------------------------------+
+| 0x0210     | Failure  | Duplicate invocation             |
++------------+----------+----------------------------------+
+| 0x0211     | Failure  | Unrecognised operation           |
++------------+----------+----------------------------------+
+| 0x0212     | Failure  | Mistyped argument                |
++------------+----------+----------------------------------+
+
+Storage Service Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------------+----------+----------------------------------+
+| Code (hex)       | Category | Description                      |
++==================+==========+==================================+
+| 0xA700 to 0xA7FF | Failure  | Out of resources                 |
++------------------+----------+----------------------------------+
+| 0xA900 to 0xA9FF | Failure  | Dataset doesn't match SOP Class  |
++------------------+----------+----------------------------------+
+| 0xB000           | Warning  | Coercion of data elements        |
++------------------+----------+----------------------------------+
+| 0xB006           | Warning  | Dataset doesn't match SOP Class  |
++------------------+----------+----------------------------------+
+| 0xB007           | Warning  | Elements discarded               |
++------------------+----------+----------------------------------+
+| 0xC000 to 0xCFFF | Failure  | Cannot understand                |
++------------------+----------+----------------------------------+
+
+pynetdicom Statuses
+~~~~~~~~~~~~~~~~~~~
+
+When pynetdicom is acting as a Storage SCP it uses the following status codes
+values to indicate the corresponding issue has occurred to help aid in
+debugging.
+
++------------------+----------+-----------------------------------------------+
+| Code (hex)       | Category | Description                                   |
++==================+==========+===============================================+
+| 0xC001           | Failure  | User's callback implementation returned a     |
+|                  |          | status Dataset with no (0000,0900) *Status*   |
+|                  |          | element                                       |
++------------------+----------+-----------------------------------------------+
+| 0xC002           | Failure  | User's callback implementation returned an    |
+|                  |          | invalid status object (not a pydicom Dataset  |
+|                  |          | or an int)                                    |
++------------------+----------+-----------------------------------------------+
+| 0xC210           | Failure  | Failed to decode the dataset received from    |
+|                  |          | the peer                                      |
++------------------+----------+-----------------------------------------------+
+| 0xC211           | Failure  | Unhandled exception raised by the user's      |
+|                  |          | implementation of the ``on_c_store`` callback |
++------------------+----------+-----------------------------------------------+
+
 
 References
 ----------
-DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+
+* DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+* DICOM Standard, Part 7, `Section 9.1.1.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.1.1.9>`_

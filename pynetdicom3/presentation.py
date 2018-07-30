@@ -697,9 +697,7 @@ StoragePresentationContexts = [
     build_context('1.2.840.10008.5.1.4.1.1.481.8'),
     build_context('1.2.840.10008.5.1.4.1.1.481.9'),
     build_context('1.2.840.10008.5.1.4.34.7'),
-    build_context('1.2.840.10008.5.1.4.43.1'),
-    build_context('1.2.840.10008.5.1.4.44.1'),
-    build_context('1.2.840.10008.5.1.4.45.1'),
+    build_context('1.2.840.10008.5.1.4.34.10'),
 ]
 
 QueryRetrievePresentationContexts = [
