@@ -454,10 +454,10 @@ class TestAEGoodAssociation(object):
         assert assoc.peer_max_pdu == 54321
         assoc.release()
 
-        # Check 0 max pdu value
+        # Check 0 max pdu value - max PDU value maps to 0x10000 internally
         assoc = ae.associate('localhost', 11112, max_pdu=0)
         assert assoc.local_max_pdu == 0
-        assert self.scp.ae.active_associations[0].peer_max_pdu == 0
+        assert self.scp.ae.active_associations[0].peer_max_pdu == 0x10000
         assoc.release()
 
         self.scp.stop()
