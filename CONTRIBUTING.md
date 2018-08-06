@@ -36,6 +36,8 @@ Pull Requests
 
 - When fixing bugs your first commit should be the addition of tests that reproduce the original issue and any related issues.
 
+- Use pytest to run the unit tests.
+
 - When adding features you should have complete documentation and high coverage unit tests (95-100%) that cover not just the lines of code but ensure that the feature works as intended.
 
 - When writing documentation please reference the DICOM Standard where possible. When dealing with significant parts of the code base (`DIMSEMessage.decode_msg()` for example) you should have inline comments that reference both the DICOM Standard and explain in detail what the code is doing and why.
