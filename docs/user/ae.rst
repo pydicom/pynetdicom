@@ -20,13 +20,14 @@ Or afterwards with the ``AE.ae_title`` property:
 >>> ae.ae_title = b'MY_AE_TITLE'
 
 AE titles must meet the conditions of a DICOM data element with a
-*Value Representation* (VR) of AE [1]_:
+`Value Representation <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html>`_
+of "AE" [1]_:
 
 * Leading and trailing spaces (``0x20``) are non-significant
 * Maximum 16 characters (once non-significant characters are removed)
-* Valid characters belong to the DICOM *Default Character Repertoire* [2]_,
-  which is the basic G0 Set of the ISO646:1990 [5]_ standard excluding
-  backslash ('\\ ' ``0x5c``) and all control characters [3]_
+* Valid characters belong to the DICOM `Default Character Repertoire <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html>`_
+  [2]_, which is the basic G0 Set of the ISO646:1990 [5]_ standard excluding
+  backslash ('\\ ' ``0x5c``) and all control characters [3]_.
 
 There's also an extra restriction on Application Entity AE titles:
 
@@ -101,10 +102,10 @@ Combining the all-at-once and one-by-one approaches:
 >>> ae.add_requested_context(VerificationSOPClass)
 
 As the association requestor you're limited to a total of 128 requested
-presentation contexts. Attempting to add more than 128 contexts will raise
+presentation contexts, so attempting to add more than 128 contexts will raise
 a ``ValueError`` exception.
 
-When you add presentation contexts like this the following transfer
+When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
 
 +---------------------+------------------------------+
@@ -180,7 +181,7 @@ Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
 requested contexts) you can use the ``context`` parameter when calling
-``AE.associate()``. For more information on doing it this way see the
+``AE.associate()``. For more information see the
 Association XXX.
 
 Specifying the network port
@@ -199,47 +200,6 @@ Or you can set it afterwards:
 >>> ae.port = 11112
 
 Setting the value to ``0`` will revert the port to the first available.
-
-
-
-XXX: Move to association page
-Associating
-...........
-Once the requested presentation contexts have been added you can associate with
-a peer with the ``AE.associate()`` method which returns an Association thread:
-
-.. code-block: python
-
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import VerificationSOPClass
-
-    ae = AE()
-    ae.add_requested_context(VerificationSOPClass)
-
-    # Associate with the peer at IP address 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
-
-There are four potential outcomes of an association request: acceptance and
-establishment, rejection, abort or a connection failure, so its a good idea
-to test for acceptance prior to attempting to use the services provided by the
-SCP.
-
-.. code-block: python
-
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import VerificationSOPClass
-
-    ae = AE()
-    ae.add_requested_context(VerificationSOPClass)
-
-    # Associate with the peer at IP address 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112)
-    if assoc.is_established:
-        # Do something...
-        pass
-
-Extended Negotiation
-....................
 
 
 Creating an SCP
@@ -298,7 +258,7 @@ As the association requestor you're limited to a total of 128 requested
 presentation contexts. Attempting to add more than 128 contexts will raise
 a ``ValueError`` exception.
 
-When you add presentation contexts like this the following transfer
+When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
 
 +---------------------+------------------------------+
@@ -392,6 +352,12 @@ Or you can set it afterwards:
 >>> from pynetdicom3 import AE
 >>> ae = AE()
 >>> ae.port = 11112
+
+
+Association
+-----------
+Now that your AE is set up its time to deal with :ref:`association`.
+
 
 References
 ----------

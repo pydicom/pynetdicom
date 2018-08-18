@@ -51,33 +51,25 @@ classes see the :ref:`reference`.
 Examples
 ========
 
-.. toctree::
-   :maxdepth: 1
-
-   examples/verification
-   examples/storage
-   examples/qr_find
-   examples/qr_get
-   examples/qr_move
-   examples/basic_worklist
-
+* :doc:`Verification Service Examples <examples/verification>`
+* :doc:`Storage Service Examples <examples/storage>`
+* :doc:`Query/Retrieve (Find) Service Examples <examples/qr_find>`
+* :doc:`Query/Retrieve (Get) Service Examples <examples/qr_get>`
+* :doc:`Query/Retrieve (Move) Service Examples <examples/qr_move>`
+* :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
 
 API Reference
 =============
 
-The reference/index
+The :doc:`API Reference <reference/index>`
 
 Applications
 ============
 
-.. toctree::
-   :maxdepth: 1
-
-   apps/echoscu
-   apps/echoscp
-   apps/storescu
-   apps/storescp
-
+* :doc:`echoscu <apps/echoscu>`
+* :doc:`echoscp <apps/echoscp>`
+* :doc:`storescu <apps/storescu>`
+* :doc:`storescp <apps/storescp>`
 
 Release Notes
 =============
