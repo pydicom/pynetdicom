@@ -1,2 +1,0 @@
-Releasing an Association
-========================

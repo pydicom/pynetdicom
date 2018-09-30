@@ -7,7 +7,16 @@ itself and another AE by using the DIMSE C-ECHO service. It only has a single
 :ref:`supported SOP Class <verification_sops>`.
 
 The Verification Service is mostly used to verify basic connectivity and as a
-starting point when troubleshooting associations.
+starting point when troubleshooting associations, particularly with the log
+level set to debug:
+
+::
+
+    import logging
+
+    LOGGER = logging.getLogger('pynetdicom3')
+    LOGGER.setLevel(logging.DEBUG)
+
 
 Verification SCU
 ................

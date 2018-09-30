@@ -28,15 +28,16 @@ of **AE** [1]_:
 * Leading and trailing spaces (``0x20``) are non-significant
 * Maximum 16 characters (once non-significant characters are removed)
 * Valid characters belong to the DICOM `Default Character Repertoire <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html>`_
-  [2]_, which is the basic G0 Set of the ISO646:1990 [5]_ standard excluding
-  backslash ('\\ ' ``0x5c``) and all control characters [3]_.
+  [2]_, which is the basic G0 Set of the ISO646:1990 [5]_ (ASCII) standard
+  excluding backslash ('\\ ' ``0x5c``) and all control characters [3]_.
 
 There's also an extra restriction on Application Entity AE titles:
 
 * An AE title made entirely of spaces is not allowed [4]_
 
 AE titles in *pynetdicom* are checked for validity (using
-``utils.validate_ae_title``) and then stored as length 16 ``bytes``, with
+:py:meth:`utils.validate_ae_title() <pynetdicom3.utils.validate_ae_title>`)
+and then stored as length 16 ``bytes``, with
 trailing spaces added as padding if required. This can be important to
 remember when dealing with AE titles as the value you set may not be the
 value that gets stored.
@@ -53,8 +54,8 @@ b'MY_AE_TITLE     '
 Creating an SCU
 ~~~~~~~~~~~~~~~
 
-Setting the requested Presentation Contexts
-...........................................
+Adding requested Presentation Contexts
+......................................
 
 If you intend to use your AE as a *Service Class User* then you need to
 specify the :ref:`Presentation Contexts <concepts_presentation_contexts>`
@@ -65,8 +66,8 @@ Association negotiation. This can be done in two ways:
   :py:meth:`AE.add_requested_context() <pynetdicom3.ae.ApplicationEntity.add_requested_context>`
   method.
 * You can set all the requested contexts at once using the
-  :py:obj:`AE.requested_contexts <pynetdicom3.ae.ApplicationEntity.requested_contexts>` property. Additional contexts can still
-  be added on a one-by-one basis afterwards.
+  :py:obj:`AE.requested_contexts <pynetdicom3.ae.ApplicationEntity.requested_contexts>`
+  property. Additional contexts can still be added on a one-by-one basis afterwards.
 
 Adding presentation contexts one-by-one:
 
@@ -185,14 +186,14 @@ Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
 requested contexts) you can use the ``context`` parameter when calling
-:py:meth:`AE.associate() <pynetdicom3.ae.ApplicationEntity.associate>`.
-
-FIXME For more information see the Association.
+:py:meth:`AE.associate() <pynetdicom3.ae.ApplicationEntity.associate>` (see
+the :ref:`Association <association>` page for more information).
 
 Specifying the network port
 ...........................
-By default an SCU will use the first available port to communicate with a peer
-AE. To specify the port number you can use the ``port`` parameter when
+In general it shouldn't be necessary to specify the port when acting as an SCU.
+By default pynetdicom will use the first available port to communicate with a
+peer AE. To specify the port number you can use the ``port`` parameter when
 initialising the AE:
 
 >>> from pynetdicom3 import AE
@@ -206,11 +207,15 @@ Or you can set it afterwards:
 
 Setting the value to ``0`` will revert the port to the first available.
 
+Association
+...........
+To request an association with a peer AE see the :ref:`Association <association>` page.
+
 
 Creating an SCP
 ~~~~~~~~~~~~~~~
-Setting the requested Presentation Contexts
-...........................................
+Adding supported Presentation Contexts
+......................................
 
 If you intend to use your AE as a *Service Class Provider* then you need to
 specify the :ref:`Presentation Contexts <concepts_presentation_contexts>`
@@ -338,7 +343,7 @@ Specifying the network port
 ...........................
 By default an SCP will use the first available port to listen on for
 association requests, which is generally a bad idea as it makes it difficult
-for SCU to know what port to communicate with. To specify the port number
+for peers to know what port to communicate with. To specify the port number
 you can use the ``port`` parameter when initialising the AE:
 
 >>> from pynetdicom3 import AE
@@ -352,9 +357,9 @@ Or you can set it afterwards:
 
 
 Association
------------
-Now that you have an AE, its time to :ref:`associate <association>` it with
-another AE.
+...........
+To listen for association requests from peer AEs and how to handle them
+see the :ref:`Association <association>` page.
 
 
 References

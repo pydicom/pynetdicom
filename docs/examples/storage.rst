@@ -3,7 +3,7 @@ Storage Service Examples
 
 The DICOM `Storage Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
 provides a mechanism for an SCU to request the transfer
-of :ref:`supported Storage SOP Class <storage_sops>` Instances to
+of supported :ref:`Storage SOP Class <storage_sops>` instances to
 the service provider. Transfer is accomplished by utilising the
 DIMSE C-STORE service.
 
@@ -96,7 +96,7 @@ listen for association requests on port 11112. When a storage request is
 received over the association we write the dataset to file and then return
 a 0x0000 *Success* :ref:`status <storage_statuses>`.
 
-If you're going to write SOP Instances (datasets) to file it's recommended
+If you're going to write SOP instances (datasets) to file it's recommended
 that you ensure the file is conformant with the
 `DICOM File Format <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_,
 which requires adding the File Meta Information.

@@ -239,13 +239,14 @@ class ApplicationEntity(object):
 
     def add_requested_context(self, abstract_syntax,
                               transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
-        """Add a Presentation Context to be requested when sending Association
+        """Add a Presentation Context to be proposed when sending Association
         requests.
 
         When an SCU sends an Association request to a peer it includes a list
         of presentation contexts it would like the peer to support [1]_. This
-        method adds a single `PresentationContext` to the list of the SCU's
-        requested contexts.
+        method adds a single
+        :py:class:`PresentationContext <pynetdicom3.presentation.PresentationContext>`
+        to the list of the SCU's requested contexts.
 
         Only 128 presentation contexts can be included in the association
         request [2]_. Multiple presentation contexts may be requested with the

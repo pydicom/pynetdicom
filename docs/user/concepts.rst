@@ -49,7 +49,7 @@ information about related real-world objects (such as the
 `CT Image IOD <http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.3.html>`_
 which contains objects like *Patient*, *Study*, *Series*, *Equipment*, etc).
 
-There are many different DICOM IODs, they're all defined in
+There are many different DICOM IODs and they're all defined in
 `Part 3 <http://dicom.nema.org/medical/dicom/current/output/html/part03.html>`_
 of the DICOM Standard.
 
@@ -63,7 +63,7 @@ service group:
 * **Composite SOP Classes** are the union of Composite IODs and
   DIMSE-C services. An example of a Composite SOP Class is the *CT Image
   Storage SOP Class*, which is the union of the *CT Image IOD* and the DIMSE
-  C-STORE service. A *CT Image Storage* stores information about a
+  C-STORE service. A *CT Image Storage* instance stores information about a
   single slice of a patient's CT scan. A complete scan (a *Series*) would
   then be made up of one or more *CT Image Storage SOP Class* instances, all
   with the same *Study Instance UID* and *Series Instance UID* values but
@@ -100,12 +100,12 @@ of the DICOM Standard and each service class has its own UID defined in
 
 Presentation Contexts
 ---------------------
-A Presentation Context consists of an Abstract Syntax and one or more Transfer
-Syntaxes, along with an ID value. Presentation Contexts are used during the
-negotiation of an association to provide a method for communicating AEs to
-agree on a set of supported services.
+Presentation Contexts are used during the negotiation of an association to
+provide a method for communicating AEs to agree on a set of supported services.
+Each Presentation Context consists of an Abstract Syntax and one or more
+Transfer Syntaxes, along with an ID value.
 
-* The association *requestor* may offer multiple presentation contexts per
+* The association *requestor* may propose multiple presentation contexts per
   association but is limited to a maximum of 128 proposed contexts.
 * Each proposed presentation context contains one Abstract Syntax and one or
   more Transfer Syntaxes.
@@ -163,14 +163,16 @@ JPEG Baseline encoding. It would propose the following Presentation Context:
   * 1.2.840.10008.1.2.4.50 (JPEG Baseline)
 
 A responding AE can either reject the presentation context or accept it (and
-specify which of the three transfer syntaxes will be used).
+specify which one of the three transfer syntaxes will be used).
 
 .. _concepts_ae:
 
 Application Entities
 --------------------
-An *Application Entity* (AE) is an application that supports the DICOM
+A DICOM *Application Entity* (AE) is an application that supports the DICOM
 standard, and especially IODs, service classes and dataset encoding/decoding.
+
+In DICOM networking AEs are identified by their *AE Title*.
 
 .. _concepts_association:
 
@@ -183,9 +185,9 @@ When peer AEs want to communicate they must first set up an Association.
   of proposed presentation contexts and association negotiation items.
 * The *acceptor* receives the request and responds with:
 
-  * Acceptance, which results is an association being established, or
-  * Rejection, which results in no association, or
-  * Abort, which results in no association
+  * acceptance, which results is an association being established, or
+  * rejection, which results in no association, or
+  * abort, which results in no association
 
 An association may be rejected because none of the proposed presentation
 contexts are supported, or because the *requestor* hasn't identified itself

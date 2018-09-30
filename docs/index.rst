@@ -47,6 +47,7 @@ classes see the :ref:`reference`.
 
    user/index
 
+.. _index_examples:
 
 Examples
 ========
