@@ -2,7 +2,7 @@
 
 Query/Retrieve Service Class
 ============================
-The `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`
+The `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
 defines a service that facilitates querying and retrieval of stored Instances.
 
 Supported SOP Classes

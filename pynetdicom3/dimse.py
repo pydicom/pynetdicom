@@ -541,7 +541,7 @@ class DIMSEServiceProvider(object):
         if msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
-        LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
+        LOGGER.info("Sending Find Request: MsgID %s", cs.MessageID)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'

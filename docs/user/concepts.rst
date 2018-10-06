@@ -80,6 +80,7 @@ The DIMSE-C and DIMSE-N services are defined in
 of the DICOM Standard. Every DICOM SOP class has its own UID that can be found in
 `Part 6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html>`_.
 
+
 .. _concepts_service_classes:
 
 Service Classes
@@ -95,6 +96,18 @@ of managed SOP instances (*Query/Retrieve Service Class*), printing of images
 Service Classes are defined in `Part 4 <http://dicom.nema.org/medical/dicom/current/output/html/part04.html>`_
 of the DICOM Standard and each service class has its own UID defined in
 `Part 6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html>`_.
+
+
+.. _concepts_ae:
+
+Application Entities
+--------------------
+A DICOM *Application Entity* (AE) is an application that supports the DICOM
+standard in general, and especially IODs, service classes and dataset
+encoding/decoding.
+
+In DICOM networking, AEs are identified by their *AE Title*.
+
 
 .. _concepts_presentation_contexts:
 
@@ -165,15 +178,6 @@ JPEG Baseline encoding. It would propose the following Presentation Context:
 A responding AE can either reject the presentation context or accept it (and
 specify which one of the three transfer syntaxes will be used).
 
-.. _concepts_ae:
-
-Application Entities
---------------------
-A DICOM *Application Entity* (AE) is an application that supports the DICOM
-standard, and especially IODs, service classes and dataset encoding/decoding.
-
-In DICOM networking AEs are identified by their *AE Title*.
-
 .. _concepts_association:
 
 Association
@@ -205,8 +209,8 @@ Standard association negotiation usually involves the peer AEs agreeing on a
 set of abstract syntax/transfer syntax combinations through the mechanism
 provided by presentation contexts. In some cases it may be necessary for
 communicating AEs to exchange more detailed information about features and
-services they may optionally require/support. This is accomplished through the
-use of user information items such as:
+services they may optionally require/support. This is accomplished by sending
+additional user information items during the association request:
 
 * Maximum Length Application PDU Negotiation
 * Implementation Identification Notification
@@ -216,13 +220,13 @@ use of user information items such as:
 * SOP Class Common Extended Negotiation
 * User Identity Negotiation
 
-Some of these items are always compulsory (such as
+Some of these items are compulsory (such as
 the maximum length negotiation and implementation identification notifications)
 while the rest are either completely optional or conditionally required,
 depending on the requested service class (such as SCP/SCU role negotiation
 when the Query/Retrieve service class' C-GET operation is requested).
-Collectively these user information items are usually referred to as
-*extended negotiation*.
+Association negotiation involving these additional items is usually referred
+to as *extended negotiation*.
 
 Extended negotiation items are defined in
 `Part 7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_D.html>`_

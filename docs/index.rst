@@ -1,5 +1,7 @@
-Description
-===========
+
+
+pynetdicom Documentation
+========================
 
 DICOM
 -----
@@ -38,9 +40,9 @@ pynetdicom currently supports the following DICOM service classes:
 User Guide
 ==========
 The :ref:`user_guide` is intended as an introduction to pynetdicom and
-explains how to install and use the API, as well as covering the basics of
-DICOM networking. For detailed reference documentation of the functions and
-classes see the :ref:`reference`.
+explains how to install the API and covers basic usage. For detailed reference
+documentation of the functions and classes see the
+:ref:`API reference <reference>`.
 
 .. toctree::
    :maxdepth: 2
@@ -59,10 +61,12 @@ Examples
 * :doc:`Query/Retrieve (Move) Service Examples <examples/qr_move>`
 * :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
 
+
 API Reference
 =============
 
-The :doc:`API Reference <reference/index>`
+The :doc:`API Reference <reference/index>` provides documentation of the
+important functions and classes.
 
 Applications
 ============

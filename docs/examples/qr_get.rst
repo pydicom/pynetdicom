@@ -3,8 +3,9 @@ Query/Retrieve (Get) Service Examples
 
 The DICOM `Query/Retrieve Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
 provides a mechanism for a service user to query and retrieve the SOP Instances
-managed by a QR SCP. Querying of the SCP is accomplished by using the DIMSE
-C-FIND service while retrieval uses the C-STORE service. Both query and
+managed by a QR SCP. The QR (Get) SOP classes allow an SCU to receive SOP
+Instances that match the requested query. This is accomplished through the
+DIMSE C-GET and C-STORE services. Both query and
 retrieval occur over the same association, with the SCP of the Query/Retrieve
 Service acting as the SCU of the Storage Service (and vice versa).
 
@@ -36,10 +37,10 @@ the SERIES level.
 +--------------------+--------------------------------------------------------+
 
 One extra step needed with the Query/Retrieve (Get) Service is
-that during association we need to include a `SCP/SCU Role Selection
-Negotation <../reference/generated/pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem>`_
-item for each of the presentation contexts that may be used to support
-retrieval of SOP Instances.
+that during association we need to include a :py:class:`SCP/SCU Role Selection
+Negotation <pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem>`
+item for each of the supported presentation contexts that may be used with
+the C-STORE requests.
 
 If you're going to write SOP Instances (datasets) to file it's recommended
 that you ensure the file is conformant with the
@@ -64,22 +65,19 @@ which requires adding the File Meta Information.
     # Initialise the Application Entity
     ae = AE()
 
-    # Add the requested presentation contexts
+    # Add the requested presentation contexts (QR SCU)
     ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-    ae.add_requested_context(CTImageStorage)
-
-    # Extended negotiation items
-    ext_neg = []
+    # Add the supported presentation context (Storage SCP)
+    ae.add_supported_context(CTImageStorage)
 
     # Add an SCP/SCU Role Selection Negotiation item for CT Image Storage
-    role_selection_item = SCP_SCU_RoleSelectionNegotiation()
-    role_selection_item.sop_class_uid = CTImageStorage.uid
-    # We need the QR SCU to propose the Storage SCP Role
-    role_selection_item.scp_role = True
-    # FIXME
-    role_selection_item.scu_role = False
+    role = SCP_SCU_RoleSelectionNegotiation()
+    role.sop_class_uid = CTImageStorage.uid
+    # We will be acting as an SCP for CT Image Storage
+    role.scp_role = True
 
-    ext_neg.append(role_selection_item)
+    # Extended negotiation items
+    ext_neg = [role]
 
     # Create our Identifier (query) dataset
     # We need to supply a Unique Key Attribute for each level above the
@@ -150,7 +148,7 @@ which requires adding the File Meta Information.
             print('C-GET query status: 0x{0:04x}'.format(status.Status))
 
             # If the status is 'Pending' then identifier is the C-GET response
-            if status in (0xFF00, 0xFF01):
+            if status.Status in (0xFF00, 0xFF01):
                 print(identifier)
 
         # Release the association
@@ -161,9 +159,11 @@ which requires adding the File Meta Information.
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
-example, the following query dataset should yield C-FIND responses containing
+example, the following query dataset should yield C-GET responses containing
 the various *SOP Class UIDs* that make up the each study for a patient with
 *Patient ID* '1234567'.
+
+FIXME ^
 
 .. code-block:: python
 
@@ -186,85 +186,3 @@ Root Query Retrieve Information Model - Get* context.
    ds = Dataset()
    ds.PatientName = 'CITIZEN^Jan'
    ds.QueryRetrieveLevel = 'PATIENT'
-
-
-.. code-block:: python
-
-   import os
-
-   from pydicom import dcmread
-   from pydicom.dataset import Dataset
-
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelFind
-
-   # Initialise the Application Entity and specify the listen port
-   ae = AE(port=11112)
-
-   # Add a requested presentation context
-   ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-
-   # Implement the AE.on_c_store callback
-   def on_c_find(ds, context, info):
-       """Respond to a C-FIND request Identifier `ds`.
-
-       Parameters
-       ----------
-       ds : pydicom.dataset.Dataset
-           The Identifier dataset send by the peer.
-       context : namedtuple
-           The presentation context that the dataset was sent under.
-       info : dict
-           Information about the association and query/retrieve request.
-
-       Yields
-       ------
-       status : int or pydicom.dataset.Dataset
-           The status returned to the peer AE in the C-FIND response. Must be
-           a valid C-FIND status value for the applicable Service Class as
-           either an ``int`` or a ``Dataset`` object containing (at a
-           minimum) a (0000,0900) *Status* element.
-       identifier : pydicom.dataset.Dataset
-           If the status is 'Pending' then the *Identifier* ``Dataset`` for a
-           matching SOP Instance. The exact requirements for the C-FIND
-           response *Identifier* are Service Class specific (see the
-           DICOM Standard, Part 4).
-
-           If the status is 'Failure' or 'Cancel' then yield ``None``.
-
-           If the status is 'Success' then yield ``None``, however yielding a
-           final 'Success' status is not required and will be ignored if
-           necessary.
-       """
-       # Import stored SOP Instances
-       instances = []
-       fdir = '/path/to/directory'
-       for fpath in os.listdir(fdir):
-           instances.append(dcmread(os.path.join(fdir, fpath)))
-
-       if 'QueryRetrieveLevel' not in ds:
-           # Failure
-           yield 0xC000, None
-           return
-
-       if ds.QueryRetrieveLevel == 'PATIENT':
-           if 'PatientName' in ds:
-               if ds.PatientName not in ['*', '', '?']:
-                   matching = [
-                       inst for inst in instances if inst.PatientName == ds.PatientName
-                   ]
-
-               # Skip the other possibile values...
-
-           # Skip the other possible attributes...
-
-       # Skip the other QR levels...
-
-       for instance in matching:
-           # Pending
-           yield (0xFF00, instance)
-
-   ae.on_c_find = on_c_find
-
-   # Start listening for incoming association requests
-   ae.start()

@@ -31,7 +31,7 @@ single CT dataset.
    ae.add_requested_context(CTImageStorage)
 
    # Read in our DICOM CT dataset
-   ds = dcmread('path/to/CT/dataset')
+   ds = dcmread('path/to/dataset')
 
    # Associate with peer AE at IP 127.0.0.1 and port 11112
    assoc = ae.associate('127.0.0.1', 11112)
@@ -39,7 +39,7 @@ single CT dataset.
    if assoc.is_established:
        # Use the C-STORE service to send the dataset
        # returns a pydicom Dataset
-       response = assoc.send_c_store(ds)
+       status = assoc.send_c_store(ds)
 
        # Check the status of the storage request
        if 'Status' in status:

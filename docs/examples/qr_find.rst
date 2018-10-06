@@ -3,8 +3,9 @@ Query/Retrieve (Find) Service Examples
 
 The DICOM `Query/Retrieve Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
 provides a mechanism for a service user to query the SOP Instances managed
-by a QR SCP. Querying of the SCP is accomplished by utilising the DIMSE
-C-FIND service.
+by a QR SCP. The QR (Find) SOP classes allow an SCU to receive a list of
+attributes matching the requested query. This is accomplished through the
+DIMSE C-FIND service.
 
 
 Query/Retrieve (Find) SCU
@@ -12,7 +13,7 @@ Query/Retrieve (Find) SCU
 
 Associate with a peer DICOM Application Entity and request the SCP search for
 SOP Instances with a *Patient Name* matching 'CITIZEN^Jan' using the *Patient
-Root Query/Retrieve Information Model* at the *Patient* level.
+Root Query/Retrieve Information Model - Find* at the *Patient* level.
 
 .. code-block:: python
 
@@ -45,7 +46,7 @@ Root Query/Retrieve Information Model* at the *Patient* level.
            print('C-FIND query status: 0x{0:04x}'.format(status.Status))
 
            # If the status is 'Pending' then identifier is the C-FIND response
-           if status in (0xFF00, 0xFF01):
+           if status.Status in (0xFF00, 0xFF01):
                print(identifier)
 
        # Release the association
@@ -56,7 +57,7 @@ Root Query/Retrieve Information Model* at the *Patient* level.
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
 example, the following query dataset should yield C-FIND responses containing
-the various *SOP Class UIDs* that make up the each study for a patient with
+the various *SOP Class UIDs* that make are in each study for a patient with
 *Patient ID* '1234567'.
 
 .. code-block:: python

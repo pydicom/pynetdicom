@@ -553,9 +553,48 @@ def build_context(abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
     Parameters
     ----------
     abstract_syntax : str or UID or sop_class.SOPClass
-        The abstract syntax UID.
+        The UID or SOPClass instance to use as the abstract syntax.
     transfer_syntax : str/UID or list of str/UID
-        The transfer syntax UIDs.
+        The transfer syntax UID(s) to use (default: [Implicit VR Little Endian,
+        Explicit VR Little Endian, Implicit VR Big Endian])
+
+    Examples
+    --------
+
+    Specifying a presentation context with the default transfer syntaxes
+
+    >>> from pynetdicom3 import build_context
+    >>> context = build_context('1.2.840.10008.1.1')
+    >>> print(context)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =Explicit VR Little Endian
+        =Explicit VR Big Endian
+
+    Specifying the abstract syntax using a pynetdicom SOPClass instance and
+    a single transfer syntax
+
+    >>> from pynetdicom3 import build_context
+    >>> from pynetdicom3.sop_class import VerificationSOPClass
+    >>> context = build_context(VerificationSOPClass, '1.2.840.10008.1.2')
+    >>> print(context)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+
+    Specifying multiple transfer syntaxes
+
+    >>> from pydicom.uid import UID
+    >>> from pynetdicom3 import build_context
+    >>> context = build_context(UID('1.2.840.10008.1.1'),
+                                ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50'])
+    >>> print(context)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =JPEG Baseline (Process 1)
+
 
     Returns
     -------

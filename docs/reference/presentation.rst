@@ -14,6 +14,7 @@ Creation
    :toctree: generated/
 
    PresentationContext
+   build_context
 
 Negotiation
 

@@ -35,7 +35,7 @@ There's also an extra restriction on Application Entity AE titles:
 
 * An AE title made entirely of spaces is not allowed [4]_
 
-AE titles in *pynetdicom* are checked for validity (using
+AE titles in pynetdicom are checked for validity (using
 :py:meth:`utils.validate_ae_title() <pynetdicom3.utils.validate_ae_title>`)
 and then stored as length 16 ``bytes``, with
 trailing spaces added as padding if required. This can be important to
@@ -50,6 +50,7 @@ b'MY_AE_TITLE     '
 >>> len(ae.ae_title)
 16
 
+.. _ae_create_scu:
 
 Creating an SCU
 ~~~~~~~~~~~~~~~
@@ -71,6 +72,7 @@ Association negotiation. This can be done in two ways:
 
 Adding presentation contexts one-by-one:
 
+>>> from pydicom.uid import UID
 >>> from pynetdicom3 import AE
 >>> from pynetdicom3.sop_class import CTImageStorage
 >>> ae = AE()
@@ -84,10 +86,15 @@ Adding presentation contexts all at once:
 >>> ae = AE()
 >>> ae.requested_contexts = StoragePresentationContexts
 
-Here ``StoragePresentationContexts`` is a prebuilt list of (almost) all the
-Storage Service Class' supported SOP Classes, and there's a similar list for
+Here ``StoragePresentationContexts`` is a prebuilt list of presentation
+contexts containing (almost) all the Storage Service Class' supported SOP
+Classes, and there's a similar list for
 all the supported service classes. Alternatively you can build your own list
-of presentation contexts:
+of presentation contexts, either through creating new
+:py:class:`PresentationContext <pynetdicom3.presentation.PresentationContext>`
+instances or by using the
+:py:meth:`build_context <pynetdicom3.presentation.build_context>`
+convenience function:
 
 >>> from pynetdicom3 import AE, build_context
 >>> from pynetdicom3.sop_class import CTImageStorage
@@ -142,7 +149,8 @@ Specifying your own transfer syntax(es) can be done with the
 >>> ae.requested_contexts = [context_a, context_b]
 
 The requested presentation contexts can be accessed with the
-:py:obj:`AE.requested_contexts <pynetdicom3.ae.ApplicationEntity.requested_contexts>` property:
+:py:obj:`AE.requested_contexts <pynetdicom3.ae.ApplicationEntity.requested_contexts>`
+property and they are returned in the order they were added:
 
 >>> from pynetdicom3 import AE
 >>> from pynetdicom3.sop_class import VerificationSOPClass
@@ -209,8 +217,10 @@ Setting the value to ``0`` will revert the port to the first available.
 
 Association
 ...........
-To request an association with a peer AE see the :ref:`Association <association>` page.
+For information on how request an association with a peer AE when acting as an
+SCU please see the :ref:`Association <association>` page.
 
+.. _ae_create_scp:
 
 Creating an SCP
 ~~~~~~~~~~~~~~~
@@ -232,6 +242,7 @@ Association negotiation. This can be done in two ways:
 
 Adding presentation contexts one-by-one:
 
+>>> from pydicom.uid import UID
 >>> from pynetdicom3 import AE
 >>> from pynetdicom3.sop_class import CTImageStorage
 >>> ae = AE()
@@ -245,10 +256,15 @@ Adding presentation contexts all at once:
 >>> ae = AE()
 >>> ae.supported_contexts = StoragePresentationContexts
 
-Here ``StoragePresentationContexts`` is a prebuilt list of (almost) all the
-Storage Service Class' supported SOP Classes, and there's a similar list for
+Here ``StoragePresentationContexts`` is a prebuilt list of presentation
+contexts containing (almost) all the Storage Service Class' supported SOP
+Classes, and there's a similar list for
 all the supported service classes. Alternatively you can build your own list
-of presentation contexts:
+of presentation contexts, either through creating new
+:py:class:`PresentationContext <pynetdicom3.presentation.PresentationContext>`
+instances or by using the
+:py:meth:`build_context <pynetdicom3.presentation.build_context>`
+convenience function:
 
 >>> from pynetdicom3 import AE, build_context
 >>> from pynetdicom3.sop_class import CTImageStorage
@@ -267,8 +283,8 @@ Combining the all-at-once and one-by-one approaches:
 >>> ae.supported_contexts = StoragePresentationContexts
 >>> ae.add_supported_context(VerificationSOPClass)
 
-As the association acceptor you're not limited in the number of supported
-presentation contexts.
+As the association acceptor you're not limited in the number of presentation
+contexts that you can support.
 
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
@@ -303,7 +319,7 @@ Specifying your own transfer syntax(es) can be done with the
 
 The supported presentation contexts can be accessed with the
 :py:obj:`AE.supported_contexts <pynetdicom3.ae.ApplicationEntity.supported_contexts>`
-property:
+property and they are returned in order of their abstract syntax UID value:
 
 >>> from pynetdicom3 import AE
 >>> from pynetdicom3.sop_class import VerificationSOPClass
@@ -358,12 +374,13 @@ Or you can set it afterwards:
 
 Association
 ...........
-To listen for association requests from peer AEs and how to handle them
-see the :ref:`Association <association>` page.
+For information on how to start listening for association requests from peer
+AEs and how to handle their service requests see the
+:ref:`Association <association>` page.
 
 
 References
-----------
+..........
 
 .. [1] DICOM Standard, Part 5
    `Section 6.2 <http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2>`_
