@@ -120,8 +120,8 @@ _STORAGE_CLASSES = {
     'PseudocolorSoftcopyPresentationStageStorage' : '1.2.840.10008.5.1.4.1.1.11.3',  # A.33.3
     'BlendingSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.4',  # A.33.4
     'XAXRFGrayscaleSoftcopyPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.5',  # A.33.6
-    'GrayscalePlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.​5.​1.​4.​1.​1.​11.​6',  # A.80.1
-    'CompositingPlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.​5.​1.​4.​1.​1.​11.​7',  # A.80.1
+    'GrayscalePlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.6',  # A.80.1
+    'CompositingPlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.7',  # A.80.1
     'AdvancedBlendingPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.8',  # A.33.7
     'VolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.9',  # A.80.2
     'SegmentatedVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.10',  # A.80.2
@@ -190,10 +190,10 @@ _STORAGE_CLASSES = {
     'RadiopharmaceuticalRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.68',  # A.35.14
     'ColonCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.69',  # A.35.10
     'ImplantationPlanSRDocumentStorage' : '1.2.840.10008.5.1.4.1.1.88.70',  # A.35.12
-    'AcquisitionContextSRStorage' : '1.2.840.10008.5.​1.​4.​1.​1.​88.​71',  # A.35.16
-    'SimplifiedAdultEchoSRStorage' : '1.2.840.10008.5.​1.​4.​1.​1.​88.​72',  # A.35.17
-    'PatientRadiationDoseSRStorage' : '1.2.840.10008.5.​1.​4.​1.​1.​88.​73',  # A.35.18
-    'ContentAssessmentResultsStorage' : '1.2.840.10008.5.​1.​4.​1.​1.​90.1',  # A.81
+    'AcquisitionContextSRStorage' : '1.2.840.10008.5.​1.4.1.1.88.71',  # A.35.16
+    'SimplifiedAdultEchoSRStorage' : '1.2.840.10008.5.1.4.1.1.88.72',  # A.35.17
+    'PatientRadiationDoseSRStorage' : '1.2.840.10008.5.​1.4.1.1.88.73',  # A.35.18
+    'ContentAssessmentResultsStorage' : '1.2.840.10008.5.1.4.1.1.90.1',  # A.81
     'EncapsulatedPDFStorage' : '1.2.840.10008.5.1.4.1.1.104.1',  # A.45.1
     'EncapsulatedCDAStorage' : '1.2.840.10008.5.1.4.1.1.104.2',  # A.45.2
     'EncapsulatedSTLStorage' : '1.2.840.10008.5.1.4.1.1.104.3',  # A.85.1
