@@ -6,6 +6,9 @@ Fixes
 
 * Fixed upstream pydicom changes to AE elements breaking logging
   (:issue:``195``)
+* Fixed typos in SOP class names
+* Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
+  set
 
 
 Changes

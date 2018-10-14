@@ -897,7 +897,7 @@ class TestServiceContexts(object):
     def test_storage(self):
         """Test the storage service presentation contexts"""
         contexts = StoragePresentationContexts
-        assert len(contexts) == 117
+        assert len(contexts) == 115
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
@@ -905,7 +905,7 @@ class TestServiceContexts(object):
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
         assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.78.8'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.34.10'
 
     def test_qr(self):
         """Test the query/retrieve service presentation contexts."""
