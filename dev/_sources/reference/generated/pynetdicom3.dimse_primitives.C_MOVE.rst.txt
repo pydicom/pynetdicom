@@ -1,0 +1,40 @@
+pynetdicom3.dimse\_primitives.C\_MOVE
+=====================================
+
+.. currentmodule:: pynetdicom3.dimse_primitives
+
+.. autoclass:: C_MOVE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_MOVE.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_MOVE.AffectedSOPClassUID
+      ~C_MOVE.Identifier
+      ~C_MOVE.MessageID
+      ~C_MOVE.MessageIDBeingRespondedTo
+      ~C_MOVE.MoveDestination
+      ~C_MOVE.NumberOfCompletedSuboperations
+      ~C_MOVE.NumberOfFailedSuboperations
+      ~C_MOVE.NumberOfRemainingSuboperations
+      ~C_MOVE.NumberOfWarningSuboperations
+      ~C_MOVE.Priority
+      ~C_MOVE.Status
+      ~C_MOVE.is_valid_request
+      ~C_MOVE.is_valid_response
+   
+   

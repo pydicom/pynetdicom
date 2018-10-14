@@ -1,0 +1,477 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Association &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="0.9.1" href="../release_notes.html" />
+    <link rel="prev" title="Application Entity" href="ae.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Association</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requesting-an-association-scu">Requesting an Association (SCU)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-the-called-ae-title">Specifying the Called AE Title</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-presentation-contexts-for-each-association">Specifying Presentation Contexts for each Association</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-extended-negotiation">Using Extended Negotiation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outcomes-of-an-association-request">Outcomes of an Association Request</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#using-an-association-scu">Using an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#providing-dimse-services-scp">Providing DIMSE Services (SCP)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">User Guide</a> &raquo;</li>
+        
+      <li>Association</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/user/association.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="association">
+<span id="id1"></span><h1>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requesting-an-association-scu">
+<span id="assoc-scu"></span><h2>Requesting an Association (SCU)<a class="headerlink" href="#requesting-an-association-scu" title="Permalink to this headline">¶</a></h2>
+<p>Assuming you <a class="reference internal" href="ae.html#ae-create-scu"><span class="std std-ref">have an AE</span></a> and have added your requested presentation contexts
+then you can associate with a peer by using the
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.associate" title="pynetdicom3.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
+method, which returns an
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association" title="pynetdicom3.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
+thread:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This sends an association request to the IP address ‘127.0.0.1’ on port 11112
+with the request containing the presentation contexts from
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.requested_contexts" title="pynetdicom3.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+and the default <em>Called AE Title</em> parameter of <code class="docutils literal notranslate"><span class="pre">b'ANY-SCP</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">'</span></code>.</p>
+<div class="section" id="specifying-the-called-ae-title">
+<h3>Specifying the Called AE Title<a class="headerlink" href="#specifying-the-called-ae-title" title="Permalink to this headline">¶</a></h3>
+<p>Some SCPs will reject an association request if the <em>Called AE Title</em> parameter
+value doesn’t match its own title, so this can be set using the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code>
+parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-presentation-contexts-for-each-association">
+<h3>Specifying Presentation Contexts for each Association<a class="headerlink" href="#specifying-presentation-contexts-for-each-association" title="Permalink to this headline">¶</a></h3>
+<p>Calling
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.associate" title="pynetdicom3.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
+with only the <code class="docutils literal notranslate"><span class="pre">addr</span></code> and <code class="docutils literal notranslate"><span class="pre">port</span></code> parameters means the presentation
+contexts in
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.requested_contexts" title="pynetdicom3.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+will be used with the association. To propose presentation contexts on a
+per-association basis you can use the <code class="docutils literal notranslate"><span class="pre">contexts</span></code> parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested_contexts</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-extended-negotiation">
+<h3>Using Extended Negotiation<a class="headerlink" href="#using-extended-negotiation" title="Permalink to this headline">¶</a></h3>
+<p>If you require the use of <a class="reference internal" href="concepts.html#concepts-negotiation"><span class="std std-ref">extended negotiation</span></a>
+then you can supply the <code class="docutils literal notranslate"><span class="pre">ext_neg</span></code> parameter. Some extended negotiation
+items can only be singular and some can occur multiple times depending on the
+service class and intended usage. The following example shows how to add
+SCP/SCU Role Selection Negotiation items when requesting the use of the
+Query/Retrieve (QR) Service Class’ C-GET service (in this example the QR SCU is
+also acting as a Storage SCP):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">AE</span><span class="p">,</span>
+    <span class="n">StoragePresentationContexts</span><span class="p">,</span>
+    <span class="n">QueryRetrievePresentationContexts</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="c1"># Presentation contexts proposed as a QR SCU</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">QueryRetrievePresentationContexts</span>
+<span class="c1"># Presentation contexts supported as a Storage SCP: requires Role Selection</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+
+<span class="c1"># Add role selection items for the storage contexts we will be supporting</span>
+<span class="c1">#   as an SCP</span>
+<span class="n">negotiation_items</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">StoragePresentationContexts</span><span class="p">:</span>
+    <span class="n">role</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
+    <span class="n">role</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span>
+    <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">negotiation_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+
+<span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="n">negotiation_items</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Possible extended negotiation items are:</p>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/generated/pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Asynchronous</span> <span class="pre">Operations</span> <span class="pre">Window</span> <span class="pre">Negotiation</span></code></a></li>
+<li><a class="reference internal" href="../reference/generated/pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP/SCU</span> <span class="pre">Role</span> <span class="pre">Selection</span> <span class="pre">Negotiation</span></code></a></li>
+<li><a class="reference internal" href="../reference/generated/pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a></li>
+<li><a class="reference internal" href="../reference/generated/pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Negotiation</span></code></a></li>
+<li><a class="reference internal" href="../reference/generated/pynetdicom3.pdu_primitives.UserIdentityNegotiation.html#pynetdicom3.pdu_primitives.UserIdentityNegotiation" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span> <span class="pre">Identity</span> <span class="pre">Negotiation</span></code></a></li>
+</ul>
+</div>
+<div class="section" id="outcomes-of-an-association-request">
+<h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this headline">¶</a></h3>
+<p>There are four potential outcomes of an association request: acceptance and
+establishment, association rejection, association abort or a connection
+failure, so its a good idea to test for establishment prior to attempting to use
+the Association:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Do something with the association</span>
+    <span class="k">pass</span>
+
+    <span class="c1"># Once we are finished, release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="using-an-association-scu">
+<h2>Using an Association (SCU)<a class="headerlink" href="#using-an-association-scu" title="Permalink to this headline">¶</a></h2>
+<p>Once an association has been established with the peer then the agreed upon
+set of services are available for use. Currently pynetdicom supports the usage
+of the following DIMSE-C services:</p>
+<ul class="simple">
+<li>C-ECHO, through the
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_echo" title="pynetdicom3.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_echo()</span></code></a>
+method</li>
+<li>C-STORE, through the
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_store" title="pynetdicom3.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_store()</span></code></a>
+method</li>
+<li>C-FIND, through the
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_find" title="pynetdicom3.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a>
+method</li>
+<li>C-GET, through the
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_get" title="pynetdicom3.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a>
+method. Any AE that uses the C-GET service will also be providing the C-STORE
+service and must implement the
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_store" title="pynetdicom3.ae.ApplicationEntity.on_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code></a>
+callback (as outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</li>
+<li>C-MOVE, through the
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_move" title="pynetdicom3.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a>
+method. The current implementation of pynetdicom doesn’t support the C-MOVE
+SCU being the destination for the storage of requested datasets (the C-STORE
+SCP).</li>
+</ul>
+<p>Attempting to use a service without an established association will raise a
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>, while attempting to use a service that is not supported by
+the association will raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>For more information on using the services available to an association please
+read through the <a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the
+service class you’re interested in.</p>
+</div>
+<div class="section" id="listening-for-association-requests-scp">
+<span id="assoc-scp"></span><h2>Listening for Association Requests (SCP)<a class="headerlink" href="#listening-for-association-requests-scp" title="Permalink to this headline">¶</a></h2>
+<p>Assuming you <a class="reference internal" href="ae.html#ae-create-scp"><span class="std std-ref">have an AE</span></a> set to listen on port 11112
+and have added your supported presentation contexts then you can start
+listening for association requests from peers with the
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.start" title="pynetdicom3.ae.ApplicationEntity.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start()</span></code></a>
+method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Listen for association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The above is suitable as an implementation of the Verification Service
+Class, however other service classes will require that you implement one
+or more of the AE service class callbacks.</p>
+</div>
+<div class="section" id="providing-dimse-services-scp">
+<h2>Providing DIMSE Services (SCP)<a class="headerlink" href="#providing-dimse-services-scp" title="Permalink to this headline">¶</a></h2>
+<p>If the association supports a service class that uses one or more of the
+DIMSE-C services then the corresponding callback(s) should be implemented
+(excluding C-ECHO which has a default implementation that always returns a
+0x0000 <em>Success</em> response):</p>
+<ul class="simple">
+<li>C-ECHO: <a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_echo" title="pynetdicom3.ae.ApplicationEntity.on_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code></a></li>
+<li>C-STORE: <a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_store" title="pynetdicom3.ae.ApplicationEntity.on_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code></a></li>
+<li>C-FIND: <a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_find" title="pynetdicom3.ae.ApplicationEntity.on_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code></a></li>
+<li>C-GET: <a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_get" title="pynetdicom3.ae.ApplicationEntity.on_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code></a></li>
+<li>C-MOVE: <a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_move" title="pynetdicom3.ae.ApplicationEntity.on_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code></a></li>
+</ul>
+<p>For instance, if your SCP is to support the Storage Service then you would
+implement the <code class="docutils literal notranslate"><span class="pre">on_c_store</span></code> callback in manner similar to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Store the pydicom Dataset `ds`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : pydicom.dataset.Dataset</span>
+<span class="sd">        The dataset that the peer has requested be stored.</span>
+<span class="sd">    context : namedtuple</span>
+<span class="sd">        The presentation context that the dataset was sent under.</span>
+<span class="sd">    info : dict</span>
+<span class="sd">        Information about the association and storage request.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    status : int or pydicom.dataset.Dataset</span>
+<span class="sd">        The status returned to the peer AE in the C-STORE response. Must be</span>
+<span class="sd">        a valid C-STORE status value for the applicable Service Class as</span>
+<span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a</span>
+<span class="sd">        minimum) a (0000,0900) *Status* element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This is just a toy implementation that doesn&#39;t store anything and</span>
+    <span class="c1"># always returns a Success response</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
+
+<span class="c1"># Listen for association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more detailed information on implementing the DIMSE service
+provider callbacks please see their API reference documentation and the
+<a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the service class you’re
+interested in.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../release_notes.html" class="btn btn-neutral float-right" title="0.9.1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ae.html" class="btn btn-neutral" title="Application Entity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

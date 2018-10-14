@@ -1,0 +1,6 @@
+pynetdicom3.presentation.build\_context
+=======================================
+
+.. currentmodule:: pynetdicom3.presentation
+
+.. autofunction:: build_context

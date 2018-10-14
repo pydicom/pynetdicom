@@ -1,0 +1,36 @@
+pynetdicom3.pdu.A\_ASSOCIATE\_RJ
+================================
+
+.. currentmodule:: pynetdicom3.pdu
+
+.. autoclass:: A_ASSOCIATE_RJ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE_RJ.__init__
+      ~A_ASSOCIATE_RJ.decode
+      ~A_ASSOCIATE_RJ.encode
+      ~A_ASSOCIATE_RJ.from_primitive
+      ~A_ASSOCIATE_RJ.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE_RJ.pdu_length
+      ~A_ASSOCIATE_RJ.pdu_type
+      ~A_ASSOCIATE_RJ.reason_str
+      ~A_ASSOCIATE_RJ.result_str
+      ~A_ASSOCIATE_RJ.source_str
+   
+   

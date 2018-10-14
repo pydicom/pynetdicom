@@ -1,0 +1,31 @@
+pynetdicom3.service\_class.StorageServiceClass
+==============================================
+
+.. currentmodule:: pynetdicom3.service_class
+
+.. autoclass:: StorageServiceClass
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StorageServiceClass.SCP
+      ~StorageServiceClass.__init__
+      ~StorageServiceClass.is_valid_status
+      ~StorageServiceClass.validate_status
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StorageServiceClass.statuses
+   
+   

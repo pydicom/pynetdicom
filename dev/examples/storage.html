@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Storage Service Examples &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Storage Service Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/storage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="storage-service-examples">
+<h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Permalink to this headline">¶</a></h1>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B">Storage Service</a>
+provides a mechanism for an SCU to request the transfer
+of supported <a class="reference internal" href="../storage_service_class.html#storage-sops"><span class="std std-ref">Storage SOP Class</span></a> instances to
+the service provider. Transfer is accomplished by utilising the
+DIMSE C-STORE service.</p>
+<p>In essence, if you want to send or receive DICOM images or waveforms or any
+other type of data supported by the Storage SOP Classes, then the Storage
+Service is what you’re looking for.</p>
+<div class="section" id="storage-scu">
+<h2>Storage SCU<a class="headerlink" href="#storage-scu" title="Permalink to this headline">¶</a></h2>
+<p>Associate with a peer DICOM Application Entity and request the transfer of a
+single CT dataset.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add a requested presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+
+<span class="c1"># Read in our DICOM CT dataset</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="s1">&#39;path/to/dataset&#39;</span><span class="p">)</span>
+
+<span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Use the C-STORE service to send the dataset</span>
+    <span class="c1"># returns a pydicom Dataset</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="c1"># Check the status of the storage request</span>
+    <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+        <span class="c1"># If the storage request succeeded this will be 0x0000</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-STORE request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out or invalid response from peer&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Of course it’s rarely the case that someone wants to store just CT images,
+so you can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code> when setting
+the requested contexts or just add as many contexts as you need.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+</pre></div>
+</div>
+<p>You can also set the requested contexts on a per association basis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Create some presentation contexts</span>
+<span class="n">ct_context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+<span class="n">mr_context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">)</span>
+
+<span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">ct_context</span><span class="p">])</span>
+<span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">mr_context</span><span class="p">])</span>
+<span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="storage-scp">
+<h2>Storage SCP<a class="headerlink" href="#storage-scp" title="Permalink to this headline">¶</a></h2>
+<p>Create an <a class="reference internal" href="../reference/ae.html#ae"><span class="std std-ref">AE</span></a> that supports the Storage Service and then
+listen for association requests on port 11112. When a storage request is
+received over the association we write the dataset to file and then return
+a 0x0000 <em>Success</em> <a class="reference internal" href="../storage_service_class.html#storage-statuses"><span class="std std-ref">status</span></a>.</p>
+<p>If you’re going to write SOP instances (datasets) to file it’s recommended
+that you ensure the file is conformant with the
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7">DICOM File Format</a>,
+which requires adding the File Meta Information.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AE</span><span class="p">,</span>
+    <span class="n">StoragePresentationContexts</span><span class="p">,</span>
+    <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span><span class="p">,</span>
+    <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
+<span class="p">)</span>
+
+<span class="c1"># Initialise the Application Entity and specify the listen port</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+
+<span class="c1"># Add the supported presentation contexts</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+
+<span class="c1"># Implement the AE.on_c_store callback</span>
+<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Store the pydicom Dataset `ds`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : pydicom.dataset.Dataset</span>
+<span class="sd">        The dataset that the peer has requested be stored.</span>
+<span class="sd">    context : namedtuple</span>
+<span class="sd">        The presentation context that the dataset was sent under.</span>
+<span class="sd">    info : dict</span>
+<span class="sd">        Information about the association and storage request.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    status : int or pydicom.dataset.Dataset</span>
+<span class="sd">        The status returned to the peer AE in the C-STORE response. Must be</span>
+<span class="sd">        a valid C-STORE status value for the applicable Service Class as</span>
+<span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a</span>
+<span class="sd">        minimum) a (0000,0900) *Status* element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Add the DICOM File Meta Information</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPClassUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassUID</span>
+    <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPInstanceUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
+    <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationClassUID</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
+    <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationVersionName</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
+    <span class="n">meta</span><span class="o">.</span><span class="n">TransferSyntaxUID</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+
+    <span class="c1"># Add the file meta to the dataset</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">meta</span>
+
+    <span class="c1"># Set the transfer syntax attributes of the dataset</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">is_little_endian</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span>
+
+    <span class="c1"># Save the dataset using the SOP Instance UID as the filename</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c1"># Return a &#39;Success&#39; status</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
+
+<span class="c1"># Start listening for incoming association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>As with the SCU you can also just support only the contexts you’re
+interested in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+
+<span class="c1"># Add a supported presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="c1"># Don&#39;t store anything but respond with `Success`</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

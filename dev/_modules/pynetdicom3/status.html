@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.status &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom3.status</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom3.status</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implementation of the DIMSE Status values.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+
+
+<span class="c1"># Non-Service Class specific statuses - PS3.7 Annex C</span>
+<span class="n">GENERAL_STATUS</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x0000</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Success&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0105</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;No Such Attribute&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0106</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Invalid Attribute Value&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0107</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Attribute List Error&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0110</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Processing Failure&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0111</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Duplication SOP Instance&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0112</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;No Such SOP Instance&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0113</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;No Such Event Type&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0114</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;No Such Argument&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0115</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Invalid Argument Value&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0116</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Attribute Value Out of Range&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0117</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Invalid Object Instance&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0118</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;No Such SOP Class&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0119</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Class-Instance Conflict&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0120</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Missing Attribute&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0121</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Missing Attribute Value&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0122</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: SOP Class Not Supported&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0123</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;No Such Action&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0124</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Not Authorised&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0210</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Duplicate Invocation&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0211</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Unrecognised Operation&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0212</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Mistyped Argument&#39;</span><span class="p">),</span>
+                  <span class="mh">0x0213</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Resources Limitation&#39;</span><span class="p">),</span>
+                  <span class="mh">0xFE00</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)}</span>
+
+
+<span class="c1">## SERVICE CLASS STATUSES</span>
+<span class="c1"># Verification Service Class specific status code values</span>
+<span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="n">GENERAL_STATUS</span>
+
+
+<span class="c1"># Storage Service Class specific status code values - PS3.4 Annex B.2.3</span>
+<span class="n">STORAGE_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xB000</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Coercion of Data Elements&#39;</span><span class="p">),</span>
+    <span class="mh">0xB007</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Data Set Does Not Match SOP Class&#39;</span><span class="p">),</span>
+    <span class="mh">0xB006</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Element Discarded&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xA700</span><span class="p">,</span> <span class="mh">0xA7FF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;Refused: Out of Resources&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xA900</span><span class="p">,</span> <span class="mh">0xA9FF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;Data Set Does Not Match SOP Class&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Cannot Understand&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add the General status code values - PS3.7 9.1.1.1.9 and Annex C</span>
+<span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
+<span class="c1"># Query Retrieve Find Service Class specific status code values</span>
+<span class="c1">#   PS3.4 Annex C.4.1.1.4</span>
+<span class="n">QR_FIND_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of Resources&#39;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Identifier Does Not Match SOP Class&#39;</span><span class="p">),</span>
+    <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">,</span> <span class="s1">&#39;Matches are continuing, current match supplied&#39;</span><span class="p">),</span>
+    <span class="mh">0xFF01</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">,</span> <span class="s1">&#39;Matches are continuing, warning&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">QR_FIND_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Unable to Process&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add the General status code values - PS3.7 Annex C</span>
+<span class="n">QR_FIND_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
+<span class="c1"># Query Retrieve Move Service Class specific status code values</span>
+<span class="c1">#   PS3.4 Annex C.4.2.1.5</span>
+<span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA701</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of resources, unable to calculate &#39;</span>
+                         <span class="s1">&#39;number of matches&#39;</span><span class="p">),</span>
+    <span class="mh">0xA702</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of resources, unable to perform &#39;</span>
+                         <span class="s1">&#39;sub-operations&#39;</span><span class="p">),</span>
+    <span class="mh">0xA801</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Move destination unknown&#39;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Identifier does not match SOP class&#39;</span><span class="p">),</span>
+    <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">,</span> <span class="s1">&#39;Sub-operations are continuing&#39;</span><span class="p">),</span>
+    <span class="mh">0xB000</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Sub-operations completed, one or more failures&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Unable to Process&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add the General status code values - PS3.7 Annex C</span>
+<span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
+<span class="c1"># Query Retrieve Get Service Class specific status code values</span>
+<span class="c1">#   PS3.4 Annex C.4.3.1.4</span>
+<span class="n">QR_GET_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA701</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of resources, unable to calculate &#39;</span>
+                         <span class="s1">&#39;number of matches&#39;</span><span class="p">),</span>
+    <span class="mh">0xA702</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of resources, unable to perform &#39;</span>
+                         <span class="s1">&#39;sub-operations&#39;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Identifier does not match SOP class&#39;</span><span class="p">),</span>
+    <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">,</span> <span class="s1">&#39;Sub-operations are continuing&#39;</span><span class="p">),</span>
+    <span class="mh">0xB000</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Sub-operations complete, one or more failures or &#39;</span>
+                         <span class="s1">&#39;warnings&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">QR_GET_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Unable to Process&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add the General status code values - PS3.7 Annex C</span>
+<span class="n">QR_GET_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
+<span class="c1"># Modality Worklist Service Class specific status code values</span>
+<span class="c1">#   PS3.4 Annex FIXME</span>
+<span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of resources&#39;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Identifier does not match SOP class&#39;</span><span class="p">),</span>
+    <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">,</span> <span class="s1">&#39;Matches are continuing - current match is &#39;</span>
+                         <span class="s1">&#39;supplied and any Optional Keys were supported in &#39;</span>
+                         <span class="s1">&#39;the same manner as Required Keys&#39;</span><span class="p">),</span>
+    <span class="mh">0xFE00</span> <span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">,</span> <span class="s1">&#39;Matches are continuing - warning that one or &#39;</span>
+                         <span class="s1">&#39;more Optional Keys were not supported for &#39;</span>
+                         <span class="s1">&#39;existence for this Identifier&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span>
+                                                     <span class="s1">&#39;Unable to Process&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add the General status code values - PS3.7 Annex C</span>
+<span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="code_to_status"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.status.code_to_status.html#pynetdicom3.status.code_to_status">[docs]</a><span class="k">def</span> <span class="nf">code_to_status</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Dataset with a Status element value of `code`.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">code</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">code</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;code&#39; must be a positive integer.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="code_to_category"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.status.code_to_category.html#pynetdicom3.status.code_to_category">[docs]</a><span class="k">def</span> <span class="nf">code_to_category</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Status&#39; category as a str or &#39;Unknown&#39; if not recognised.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    DICOM Standard Part 7, Annex C</span>
+<span class="sd">    DICOM Standard Part 4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pylint: disable=too-many-return-statements</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">code</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mh">0x0000</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Success&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="p">[</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s1">&#39;Pending&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="mh">0xFE00</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Cancel&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="p">[</span><span class="mh">0x0105</span><span class="p">,</span> <span class="mh">0x0106</span><span class="p">,</span> <span class="mh">0x0110</span><span class="p">,</span> <span class="mh">0x0111</span><span class="p">,</span> <span class="mh">0x0112</span><span class="p">,</span> <span class="mh">0x0113</span><span class="p">,</span> <span class="mh">0x0114</span><span class="p">,</span>
+                      <span class="mh">0x0115</span><span class="p">,</span> <span class="mh">0x0117</span><span class="p">,</span> <span class="mh">0x0118</span><span class="p">,</span> <span class="mh">0x0119</span><span class="p">,</span> <span class="mh">0x0120</span><span class="p">,</span> <span class="mh">0x0121</span><span class="p">,</span> <span class="mh">0x0122</span><span class="p">,</span>
+                      <span class="mh">0x0123</span><span class="p">,</span> <span class="mh">0x0124</span><span class="p">,</span> <span class="mh">0x0210</span><span class="p">,</span> <span class="mh">0x0211</span><span class="p">,</span> <span class="mh">0x0212</span><span class="p">,</span> <span class="mh">0x0213</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s1">&#39;Failure&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xA000</span><span class="p">,</span> <span class="mh">0xB000</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;Failure&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xD000</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;Failure&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="p">[</span><span class="mh">0x0107</span><span class="p">,</span> <span class="mh">0x0116</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s1">&#39;Warning&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xB000</span><span class="p">,</span> <span class="mh">0xC000</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;Warning&#39;</span>
+        <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="mh">0x0001</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Warning&#39;</span>
+
+        <span class="k">return</span> <span class="s1">&#39;Unknown&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;code&#39; must be a positive integer.&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

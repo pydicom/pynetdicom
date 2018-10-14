@@ -1,0 +1,6 @@
+pynetdicom3.dsutils.decode
+==========================
+
+.. currentmodule:: pynetdicom3.dsutils
+
+.. autofunction:: decode

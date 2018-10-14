@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to pynetdicom3’s documentation! &mdash; pynetdicom3 0.9.1 documentation</title>
+  <title>pynetdicom Documentation &mdash; pynetdicom3 0.9.1 documentation</title>
   
 
   
@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ApplicationEntity" href="ae_intro.html" /> 
+    <link rel="next" title="Verification Service Class" href="verification_service_class.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -88,13 +88,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="ae_intro.html">ApplicationEntity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">Package documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -140,7 +144,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Welcome to pynetdicom3’s documentation!</li>
+      <li>pynetdicom Documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -159,48 +163,109 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-pynetdicom3-s-documentation">
-<h1>Welcome to pynetdicom3’s documentation!<a class="headerlink" href="#welcome-to-pynetdicom3-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pynetdicom-documentation">
+<h1>pynetdicom Documentation<a class="headerlink" href="#pynetdicom-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dicom">
+<h2>DICOM<a class="headerlink" href="#dicom" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://dicom.nema.org/">DICOM</a> is the international standard for medical
+images and related information. It defines the formats and communication
+protocols for media exchange in radiology, cardiology, radiotherapy and
+other medical domains. If you’ve ever had an X-ray or an ultrasound or one of
+many other medical procedures, then the chances are that the DICOM standard was
+involved in some way.</p>
+</div>
+<div class="section" id="pynetdicom">
+<h2>pynetdicom<a class="headerlink" href="#pynetdicom" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/pydicom/pynetdicom">pynetdicom</a> is a pure Python
+2.7/3.4+ package that implements the DICOM networking protocol. Working with
+<a class="reference external" href="https://github.com/pydicom/pydicom">pydicom</a>, it allows the easy creation
+of DICOM Application Entities (AEs), which can then act as <em>Service Class
+Users</em> (SCUs) and <em>Service Class Providers</em> (SCPs) by associating with other
+AEs and using or providing the services available to the association.</p>
+</div>
+<div class="section" id="supported-service-classes">
+<h2>Supported Service Classes<a class="headerlink" href="#supported-service-classes" title="Permalink to this headline">¶</a></h2>
+<p>pynetdicom currently supports the following DICOM service classes:</p>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="ae_intro.html">ApplicationEntity</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ae_intro.html#initialisation">Initialisation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ae_intro.html#service-class-user">Service Class User</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ae_intro.html#service-class-provider">Service Class Provider</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ae_intro.html#association">Association</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="user-guide">
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="user/index.html#user-guide"><span class="std std-ref">User Guide</span></a> is intended as an introduction to pynetdicom and
+explains how to install the API and covers basic usage. For detailed
+documentation of the functions and classes see the
+<a class="reference internal" href="reference/index.html#reference"><span class="std std-ref">API reference</span></a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/installation.html#installing-the-development-version">Installing the development version</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="scu_examples.html">Service Class User Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scp_examples.html">SCP examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/concepts.html">Important Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#uids">UIDs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#dicom-information-model">DICOM Information Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#application-entities">Application Entities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#presentation-contexts">Presentation Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#association">Association</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
-<li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/ae.html">Application Entity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/ae.html#creating-an-scu">Creating an SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/ae.html#creating-an-scp">Creating an SCP</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">Package documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#applicationentity">ApplicationEntity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#association">Association</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#module-pynetdicom3.sop_class">SOP Class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#acse">ACSE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#dimse">DIMSE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#dul">DUL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/association.html">Association</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#requesting-an-association-scu">Requesting an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#using-an-association-scu">Using an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#providing-dimse-services-scp">Providing DIMSE Services (SCP)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="examples">
+<span id="index-examples"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><a class="reference internal" href="examples/verification.html"><span class="doc">Verification Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/storage.html"><span class="doc">Storage Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/qr_find.html"><span class="doc">Query/Retrieve (Find) Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/qr_get.html"><span class="doc">Query/Retrieve (Get) Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/qr_move.html"><span class="doc">Query/Retrieve (Move) Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/basic_worklist.html"><span class="doc">Basic Worklist Management Service Examples</span></a></li>
 </ul>
+</div>
+<div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="reference/index.html"><span class="doc">API Reference</span></a> provides documentation of the
+important functions and classes.</p>
+</div>
+<div class="section" id="applications">
+<h1>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="apps/echoscu.html"><span class="doc">echoscu</span></a></li>
+<li><a class="reference internal" href="apps/echoscp.html"><span class="doc">echoscp</span></a></li>
+<li><a class="reference internal" href="apps/storescu.html"><span class="doc">storescu</span></a></li>
+<li><a class="reference internal" href="apps/storescp.html"><span class="doc">storescp</span></a></li>
+</ul>
+</div>
+<div class="section" id="release-notes">
+<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">0.9.1</a></li>
+</ul>
+</div>
 </div>
 
 
@@ -211,7 +276,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ae_intro.html" class="btn btn-neutral float-right" title="ApplicationEntity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="verification_service_class.html" class="btn btn-neutral float-right" title="Verification Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
@@ -221,7 +286,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors.
+        &copy; Copyright 2018, pynetdicom3 contributors
 
     </p>
   </div>
@@ -240,20 +305,14 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.9.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

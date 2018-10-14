@@ -87,13 +87,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -186,36 +190,39 @@
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.dimse&#39;</span><span class="p">)</span>
 
-<span class="n">_RQ_TO_MESSAGE</span> <span class="o">=</span> <span class="p">{</span><span class="n">C_ECHO</span> <span class="p">:</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span>
-                 <span class="n">C_STORE</span> <span class="p">:</span> <span class="n">C_STORE_RQ</span><span class="p">,</span>
-                 <span class="n">C_FIND</span> <span class="p">:</span> <span class="n">C_FIND_RQ</span><span class="p">,</span>
-                 <span class="n">C_MOVE</span> <span class="p">:</span> <span class="n">C_MOVE_RQ</span><span class="p">,</span>
-                 <span class="n">C_GET</span> <span class="p">:</span> <span class="n">C_GET_RQ</span><span class="p">,</span>
-                 <span class="n">N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span>
-                 <span class="n">N_GET</span> <span class="p">:</span> <span class="n">N_GET_RQ</span><span class="p">,</span>
-                 <span class="n">N_SET</span> <span class="p">:</span> <span class="n">N_SET_RQ</span><span class="p">,</span>
-                 <span class="n">N_ACTION</span> <span class="p">:</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span>
-                 <span class="n">N_CREATE</span> <span class="p">:</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span>
-                 <span class="n">N_DELETE</span> <span class="p">:</span> <span class="n">N_DELETE_RQ</span><span class="p">}</span>
-<span class="n">_RSP_TO_MESSAGE</span> <span class="o">=</span> <span class="p">{</span><span class="n">C_ECHO</span> <span class="p">:</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span>
-                  <span class="n">C_STORE</span> <span class="p">:</span> <span class="n">C_STORE_RSP</span><span class="p">,</span>
-                  <span class="n">C_FIND</span> <span class="p">:</span> <span class="n">C_FIND_RSP</span><span class="p">,</span>
-                  <span class="n">C_MOVE</span> <span class="p">:</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span>
-                  <span class="n">C_GET</span> <span class="p">:</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
-                  <span class="n">C_CANCEL</span> <span class="p">:</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
-                  <span class="n">N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
-                  <span class="n">N_GET</span> <span class="p">:</span> <span class="n">N_GET_RSP</span><span class="p">,</span>
-                  <span class="n">N_SET</span> <span class="p">:</span> <span class="n">N_SET_RSP</span><span class="p">,</span>
-                  <span class="n">N_ACTION</span> <span class="p">:</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
-                  <span class="n">N_CREATE</span> <span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
-                  <span class="n">N_DELETE</span> <span class="p">:</span> <span class="n">N_DELETE_RSP</span><span class="p">}</span>
+<span class="n">_RQ_TO_MESSAGE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">C_ECHO</span> <span class="p">:</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span>
+    <span class="n">C_STORE</span> <span class="p">:</span> <span class="n">C_STORE_RQ</span><span class="p">,</span>
+    <span class="n">C_FIND</span> <span class="p">:</span> <span class="n">C_FIND_RQ</span><span class="p">,</span>
+    <span class="n">C_MOVE</span> <span class="p">:</span> <span class="n">C_MOVE_RQ</span><span class="p">,</span>
+    <span class="n">C_GET</span> <span class="p">:</span> <span class="n">C_GET_RQ</span><span class="p">,</span>
+    <span class="n">N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span>
+    <span class="n">N_GET</span> <span class="p">:</span> <span class="n">N_GET_RQ</span><span class="p">,</span>
+    <span class="n">N_SET</span> <span class="p">:</span> <span class="n">N_SET_RQ</span><span class="p">,</span>
+    <span class="n">N_ACTION</span> <span class="p">:</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span>
+    <span class="n">N_CREATE</span> <span class="p">:</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span>
+    <span class="n">N_DELETE</span> <span class="p">:</span> <span class="n">N_DELETE_RQ</span>
+<span class="p">}</span>
+<span class="n">_RSP_TO_MESSAGE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">C_ECHO</span> <span class="p">:</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span>
+    <span class="n">C_STORE</span> <span class="p">:</span> <span class="n">C_STORE_RSP</span><span class="p">,</span>
+    <span class="n">C_FIND</span> <span class="p">:</span> <span class="n">C_FIND_RSP</span><span class="p">,</span>
+    <span class="n">C_MOVE</span> <span class="p">:</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span>
+    <span class="n">C_GET</span> <span class="p">:</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
+    <span class="n">C_CANCEL</span> <span class="p">:</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
+    <span class="n">N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
+    <span class="n">N_GET</span> <span class="p">:</span> <span class="n">N_GET_RSP</span><span class="p">,</span>
+    <span class="n">N_SET</span> <span class="p">:</span> <span class="n">N_SET_RSP</span><span class="p">,</span>
+    <span class="n">N_ACTION</span> <span class="p">:</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
+    <span class="n">N_CREATE</span> <span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
+    <span class="n">N_DELETE</span> <span class="p">:</span> <span class="n">N_DELETE_RSP</span>
+<span class="p">}</span>
 
 
-<div class="viewcode-block" id="DIMSEServiceProvider"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider">[docs]</a><span class="k">class</span> <span class="nc">DIMSEServiceProvider</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider">[docs]</a><span class="k">class</span> <span class="nc">DIMSEServiceProvider</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The DIMSE service provider.</span>
 
-<span class="sd">    PS3.7 6.2</span>
-<span class="sd">    The DICOM AE uses the services provided by the DICOM Message Service Element</span>
+<span class="sd">    A DICOM AE uses the services provided by the DICOM Message Service Element</span>
 <span class="sd">    (DIMSE). DIMSE specifies two sets of services.</span>
 
 <span class="sd">    - DIMSE-C supports operations associated with composite SOP Classes and</span>
@@ -256,8 +263,8 @@
 
 <span class="sd">    **Service Primitive Classes**</span>
 
-<span class="sd">    DIMSE-C: C_ECHO, C_STORE, C_GET, C_FIND, C_MOVE</span>
-<span class="sd">    DIMSE-N: N_EVENT_REPORT, N_GET, N_GET, N_ACTION, N_CREATE, N_DELETE</span>
+<span class="sd">    * DIMSE-C: C_ECHO, C_STORE, C_GET, C_FIND, C_MOVE</span>
+<span class="sd">    * DIMSE-N: N_EVENT_REPORT, N_GET, N_GET, N_ACTION, N_CREATE, N_DELETE</span>
 
 <span class="sd">    **Protocol Machine**</span>
 
@@ -274,76 +281,102 @@
 
 <span class="sd">    **Messages**</span>
 
-<span class="sd">    C-STORE:        Request/indication    - C_STORE_RQ</span>
-<span class="sd">                    Response/confirmation - C_STORE_RSP</span>
-<span class="sd">    C-FIND:         Request/indication        - C_FIND_RQ</span>
-<span class="sd">                    Response/confirmation     - C_FIND_RSP</span>
-<span class="sd">                    Cancel request/indication - C_CANCEL_RQ</span>
-<span class="sd">    C-GET:          Request/indication        - C_GET_RQ</span>
-<span class="sd">                    Response/confirmation     - C_GET_RSP</span>
-<span class="sd">                    Cancel request/indication - C_CANCEL_RQ</span>
-<span class="sd">    C-MOVE:         Request/indication    - C_MOVE_RQ</span>
-<span class="sd">                    Response/confirmation - C_MOVE_RSP</span>
-<span class="sd">                    Cancel request/indication - C_CANCEL_RQ</span>
-<span class="sd">    C-ECHO:         Request/indication    - C_ECHO_RQ</span>
-<span class="sd">                    Response/confirmation - C_ECHO_RSP</span>
-<span class="sd">    C-CANCEL:       Request/indication - C_CANCEL_RQ</span>
-<span class="sd">                    Response/confirmation - None</span>
-<span class="sd">    N-EVENT-REPORT: Request/indication    - N_EVENT_REPORT_RQ</span>
-<span class="sd">                    Response/confirmation - N_EVENT_REPORT_RSP</span>
-<span class="sd">    N-GET:          Request/indication    - N_GET_RQ</span>
-<span class="sd">                    Response/confirmation - N_GET_RSP</span>
-<span class="sd">    N-SET:          Request/indication    - N_SET_RQ</span>
-<span class="sd">                    Response/confirmation - N_SET_RSP</span>
-<span class="sd">    N-ACTION:       Request/indication    - N_ACTION_RQ</span>
-<span class="sd">                    Response/confirmation - N_ACTION_RSP</span>
-<span class="sd">    N-CREATE:       Request/indication    - N_CREATE_RQ</span>
-<span class="sd">                    Response/confirmation - N_CREATE_RSP</span>
-<span class="sd">    N-DELETE:       Request/indication    - N_DELETE_RQ</span>
-<span class="sd">                    Response/confirmation - N_DELETE_RSP</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | Primitive      | Type                  | Message Class          |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | C-CANCEL       | Request/indication    | C_CANCEL_R             |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | C-ECHO         | Request/indication    | C_ECHO_RQ              |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | C_ECHO_RSP             |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | C-FIND         | Request/indication    | C_FIND_RQ              |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | C_FIND_RSP             |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | C-GET          | Request/indication    | C_GET_RQ               |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | C_GET_RSP              |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | C-MOVE         | Request/indication    | C_MOVE_RQ              |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | C_MOVE_RSP             |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | C-STORE        | Request/indication    | C_STORE_RQ             |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | C_STORE_RSP            |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | N-ACTION       | Request/indication    | N_ACTION_RQ            |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | N_ACTION_RSP           |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | N-CREATE       | Request/indication    | N_CREATE_RQ            |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | N_CREATE_RSP           |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | N-DELETE       | Request/indication    | N_DELETE_RQ            |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | N_DELETE_RSP           |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | N-EVENT-REPORT | Request/indication    | N_EVENT_REPORT_RQ      |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | N_EVENT_REPORT_RSP     |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | N-GET          | Request/indication    | N_GET_RQ               |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | N_GET_RSP              |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
+<span class="sd">    | N-SET          | Request/indication    | N_SET_RQ               |</span>
+<span class="sd">    |                +-----------------------+------------------------+</span>
+<span class="sd">    |                | Response/confirmation | N_SET_RSP              |</span>
+<span class="sd">    +----------------+-----------------------+------------------------+</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dimse_timeout : int or float or None</span>
-<span class="sd">        The number of seconds before the DIMSE service timeout. A value of None</span>
-<span class="sd">        indicates no timeout.</span>
-<span class="sd">    DUL : pynetdicom3.dul.DULServiceProvider</span>
+<span class="sd">    dimse_timeout : numeric or None</span>
+<span class="sd">        The number of seconds before the DIMSE service timeout. A value of</span>
+<span class="sd">        ``None`` indicates no timeout.</span>
+<span class="sd">    dul : dul.DULServiceProvider</span>
 <span class="sd">        The DICOM Upper Layer service provider.</span>
 <span class="sd">    maximum_pdu_size : int</span>
-<span class="sd">            The maximum PDU size when sending DIMSE messages</span>
-<span class="sd">    message : pynetdicom3.dimse_messages.DIMSEMessage</span>
-<span class="sd">        The DIMSE message</span>
+<span class="sd">            The maximum PDU size when sending DIMSE messages.</span>
+<span class="sd">    message : dimse_messages.DIMSEMessage</span>
+<span class="sd">        The DIMSE message.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 7</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: disable=too-many-public-methods</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dul</span><span class="p">,</span> <span class="n">dimse_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum_pdu_size</span><span class="o">=</span><span class="mi">16382</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dul</span><span class="p">,</span> <span class="n">dimse_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum_pdu_size</span><span class="o">=</span><span class="mi">16382</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the DIMSE service provider.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dul : pynetdicom3.dul.DULServiceProvider</span>
+<span class="sd">        dul : dul.DULServiceProvider</span>
 <span class="sd">            The DICOM Upper Layer service provider.</span>
 <span class="sd">        dimse_timeout : int or float or None</span>
 <span class="sd">            The number of seconds before the DIMSE service timeout. A value of</span>
 <span class="sd">            None indicates no timeout.</span>
 <span class="sd">        maximum_pdu_size : int</span>
-<span class="sd">            The maximum PDU size when sending DIMSE messages, default 31682.</span>
+<span class="sd">            The maximum PDU size when sending DIMSE messages, default 16382.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">dimse_timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">dul</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">maximum_pdu_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
-
-<div class="viewcode-block" id="DIMSEServiceProvider.send_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.send_msg">[docs]</a>    <span class="k">def</span> <span class="nf">send_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.send_msg"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.send_msg">[docs]</a>    <span class="k">def</span> <span class="nf">send_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a DIMSE-C or DIMSE-N message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        primitive : pynetdicom3.dimse_primitives</span>
-<span class="sd">            The DIMSE service primitive to send to the peer.</span>
+<span class="sd">        primitive : dimse_primitives DIMSE Primitive class</span>
+<span class="sd">            The DIMSE message primitive to send to the peer.</span>
 <span class="sd">        context_id : int</span>
-<span class="sd">            The ID of the presentation context to be sent under.</span>
+<span class="sd">            The ID of the presentation context that the message is to be</span>
+<span class="sd">            sent under.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dimse_msg</span> <span class="o">=</span> <span class="n">_RQ_TO_MESSAGE</span><span class="p">[</span><span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span><span class="p">]()</span>
@@ -361,7 +394,7 @@
         <span class="k">for</span> <span class="n">pdata</span> <span class="ow">in</span> <span class="n">dimse_msg</span><span class="o">.</span><span class="n">encode_msg</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.receive_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.receive_msg">[docs]</a>    <span class="k">def</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.receive_msg"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.receive_msg">[docs]</a>    <span class="k">def</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Receive a DIMSE message from the peer.</span>
 
 <span class="sd">        Set the DIMSE provider in a mode ready to receive a response from the</span>
@@ -374,7 +407,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pynetdicom3.dimse_messages.DIMSEMessage, int or None, None</span>
+<span class="sd">        dimse_messages.DIMSEMessage, int or None, None</span>
 <span class="sd">            Returns the complete DIMSE message and its presentation context ID</span>
 <span class="sd">            or None, None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -458,7 +491,7 @@
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
 
     <span class="c1"># Debugging and AE callbacks</span>
-<div class="viewcode-block" id="DIMSEServiceProvider.on_send_dimse_message"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_send_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.on_send_dimse_message"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_send_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Controls which debugging function is called when sending.</span>
 
 <span class="sd">        Will be called immediately prior to encoding and sending a DIMSE</span>
@@ -466,7 +499,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : pynetdicom3.dimse_messages.DIMSEMessage</span>
+<span class="sd">        message : dimse_messages.DIMSEMessage</span>
 <span class="sd">            The DIMSE message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">callback</span> <span class="o">=</span> <span class="p">{</span><span class="n">C_ECHO_RQ</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_send_c_echo_rq</span><span class="p">,</span>
@@ -495,7 +528,7 @@
 
         <span class="n">callback</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)](</span><span class="n">message</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.on_receive_dimse_message"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.on_receive_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.on_receive_dimse_message"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.on_receive_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Controls which debugging function is called when receiving.</span>
 
 <span class="sd">        Function will be called immediately after receiving and decoding a</span>
@@ -503,7 +536,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : pynetdicom3.dimse_messages.DIMSEMessage</span>
+<span class="sd">        message : dimse_messages.DIMSEMessage</span>
 <span class="sd">            The DIMSE message that was received.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">callback</span> <span class="o">=</span> <span class="p">{</span><span class="n">C_ECHO_RQ</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_receive_c_echo_rq</span><span class="p">,</span>
@@ -534,58 +567,58 @@
 
     <span class="c1"># Mid-level DIMSE Message related logging/debugging</span>
     <span class="c1"># pylint: disable=unused-argument</span>
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_echo_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_echo_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_echo_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-ECHO-RQ is sent.</span>
 
 <span class="sd">        **C-ECHO Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_ECHO_RQ</span>
+<span class="sd">        msg : dimse_messages.C_ECHO_RQ</span>
 <span class="sd">            The C-ECHO-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sending Echo Request: MsgID </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_echo_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_echo_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_echo_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-ECHO-RSP is sent.</span>
 
 <span class="sd">        **C-ECHO Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (M) Status</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (M) Status</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_ECHO_RSP</span>
+<span class="sd">        msg : dimse_messages.C_ECHO_RSP</span>
 <span class="sd">            The C-ECHO-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_store_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_store_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_store_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-STORE-RQ is sent.</span>
 
 <span class="sd">        **C-STORE Request Elements**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Affected SOP Instance UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (U) Move Originator Application Entity Title</span>
-<span class="sd">        (U) Move Originator Message ID</span>
-<span class="sd">        (M) Data Set</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (U) Move Originator Application Entity Title</span>
+<span class="sd">        | (U) Move Originator Message ID</span>
+<span class="sd">        | (M) Data Set</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_STORE_RQ</span>
+<span class="sd">        msg : dimse_messages.C_STORE_RQ</span>
 <span class="sd">            The C-STORE-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -625,39 +658,39 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_store_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_store_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_store_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-STORE-RSP is sent.</span>
 
 <span class="sd">        **C-STORE Response Elements**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (U) Affected SOP Instance UID</span>
-<span class="sd">        (M) Status</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Status</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_STORE_RSP</span>
+<span class="sd">        msg : dimse_messages.C_STORE_RSP</span>
 <span class="sd">            The C-STORE-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_find_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_find_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_find_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-FIND-RQ is sent.</span>
 
 <span class="sd">        **C-FIND Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (M) Identifier</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_FIND_RQ</span>
+<span class="sd">        msg : dimse_messages.C_FIND_RQ</span>
 <span class="sd">            The C-FIND-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -671,7 +704,7 @@
         <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="n">dataset</span> <span class="o">=</span> <span class="s1">&#39;Present&#39;</span>
 
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sending Get Request: MsgID </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sending Find Request: MsgID </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">)</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
@@ -689,24 +722,22 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_find_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_find_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_find_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-FIND-RSP is sent.</span>
 
 <span class="sd">        **C-FIND Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (C) Identifier</span>
-<span class="sd">        (M) Status</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (C) Identifier</span>
+<span class="sd">        | (M) Status</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_FIND_RSP</span>
+<span class="sd">        msg : dimse_messages.C_FIND_RSP</span>
 <span class="sd">            The C-FIND-RSP message to be sent.</span>
-
-<span class="sd">        TODO: Add in the extra status related elements if present</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
 
@@ -732,20 +763,20 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_get_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_get_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_get_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-GET-RQ is sent.</span>
 
 <span class="sd">        **C-GET Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (M) Identifier</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_GET_RQ</span>
+<span class="sd">        msg : dimse_messages.C_GET_RQ</span>
 <span class="sd">            The C-GET-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -775,28 +806,26 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_get_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_get_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_get_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-GET-RSP is sent.</span>
 
 <span class="sd">        **C-GET Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (U) Identifier</span>
-<span class="sd">        (M) Status</span>
-<span class="sd">        (C) Number of Remaining Sub-operations</span>
-<span class="sd">        (C) Number of Completed Sub-operations</span>
-<span class="sd">        (C) Number of Failed Sub-operations</span>
-<span class="sd">        (C) Number of Warning Sub-operations</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Identifier</span>
+<span class="sd">        | (M) Status</span>
+<span class="sd">        | (C) Number of Remaining Sub-operations</span>
+<span class="sd">        | (C) Number of Completed Sub-operations</span>
+<span class="sd">        | (C) Number of Failed Sub-operations</span>
+<span class="sd">        | (C) Number of Warning Sub-operations</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_GET_RSP</span>
+<span class="sd">        msg : dimse_messages.C_GET_RSP</span>
 <span class="sd">            The C-GET-RSP message to be sent.</span>
-
-<span class="sd">        TODO: Add in the extra status related elements if present</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
 
@@ -824,21 +853,21 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_move_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_move_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_move_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-MOVE-RQ is sent.</span>
 
 <span class="sd">        **C-MOVE Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (M) Move Destination</span>
-<span class="sd">        (M) Identifier</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Move Destination</span>
+<span class="sd">        | (M) Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_MOVE_RQ</span>
+<span class="sd">        msg : dimse_messages.C_MOVE_RQ</span>
 <span class="sd">            The C-MOVE-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -871,28 +900,26 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_move_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_move_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_move_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-MOVE-RSP is sent.</span>
 
 <span class="sd">        **C-MOVE Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (U) Identifier</span>
-<span class="sd">        (M) Status</span>
-<span class="sd">        (C) Number of Remaining Sub-operations</span>
-<span class="sd">        (C) Number of Completed Sub-operations</span>
-<span class="sd">        (C) Number of Failed Sub-operations</span>
-<span class="sd">        (C) Number of Warning Sub-operations</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Identifier</span>
+<span class="sd">        | (M) Status</span>
+<span class="sd">        | (C) Number of Remaining Sub-operations</span>
+<span class="sd">        | (C) Number of Completed Sub-operations</span>
+<span class="sd">        | (C) Number of Failed Sub-operations</span>
+<span class="sd">        | (C) Number of Warning Sub-operations</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_MOVE_RSP</span>
+<span class="sd">        msg : dimse_messages.C_MOVE_RSP</span>
 <span class="sd">            The C-MOVE-RSP message to be sent.</span>
-
-<span class="sd">        TODO: Add in the extra status related elements if present</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
 
@@ -920,7 +947,7 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_cancel_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_cancel_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_cancel_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-CANCEL-\*-RQ is sent.</span>
 
@@ -928,23 +955,23 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_CANCEL_RQ</span>
+<span class="sd">        msg : dimse_messages.C_CANCEL_RQ</span>
 <span class="sd">            The C-CANCEL-\*-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_echo_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_echo_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_echo_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-ECHO-RQ is received.</span>
 
 <span class="sd">        **C-ECHO Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_ECHO_RQ</span>
+<span class="sd">        msg : dimse_messagesC_ECHO_RQ</span>
 <span class="sd">            The received C-ECHO-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -964,20 +991,20 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_echo_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_echo_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_echo_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-ECHO-RSP is received.</span>
 
 <span class="sd">        **C-ECHO Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (M) Status</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (M) Status</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_ECHO_RSP</span>
+<span class="sd">        msg : dimse_messages.C_ECHO_RSP</span>
 <span class="sd">            The received C-ECHO-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -993,23 +1020,23 @@
             <span class="n">status_str</span> <span class="o">=</span> <span class="s1">&#39;0x</span><span class="si">{0:04x}</span><span class="s1"> - Unknown&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received Echo Response (Status: </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">status_str</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_store_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_store_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_store_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-STORE-RQ is received.</span>
 
 <span class="sd">        **C-STORE Request Elements**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Affected SOP Instance UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (U) Move Originator Application Entity Title</span>
-<span class="sd">        (U) Move Originator Message ID</span>
-<span class="sd">        (M) Data Set</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (U) Move Originator Application Entity Title</span>
+<span class="sd">        | (U) Move Originator Message ID</span>
+<span class="sd">        | (M) Data Set</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_STORE_RQ</span>
+<span class="sd">        msg : dimse_messagesC_STORE_RQ</span>
 <span class="sd">            The received C-STORE-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1045,21 +1072,21 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_store_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_store_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_store_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-STORE-RSP is received.</span>
 
 <span class="sd">        **C-STORE Response Elements**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (U) Affected SOP Instance UID</span>
-<span class="sd">        (M) Status</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Status</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_STORE_RSP</span>
+<span class="sd">        msg : dimse_messagesC_STORE_RSP</span>
 <span class="sd">            The received C-STORE-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1100,20 +1127,20 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_find_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_find_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_find_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-FIND-RQ is received.</span>
 
 <span class="sd">        **C-FIND Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (M) Identifier</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_FIND_RQ</span>
+<span class="sd">        msg : dimse_messagesC_FIND_RQ</span>
 <span class="sd">            The received C-FIND-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1143,21 +1170,21 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_find_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_find_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_find_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-FIND-RSP is received.</span>
 
 <span class="sd">        **C-FIND Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (C) Identifier</span>
-<span class="sd">        (M) Status</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (C) Identifier</span>
+<span class="sd">        | (M) Status</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.C_FIND_RSP</span>
+<span class="sd">        msg : dimse_messages.C_FIND_RSP</span>
 <span class="sd">            The received C-FIND-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1186,7 +1213,7 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_cancel_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_cancel_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_cancel_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-CANCEL-\*-RQ is received.</span>
 
@@ -1194,7 +1221,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_CANCEL_RQ</span>
+<span class="sd">        msg : dimse_messagesC_CANCEL_RQ</span>
 <span class="sd">            The received C-CANCEL-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1212,20 +1239,20 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_get_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_get_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_get_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-GET-RQ is received.</span>
 
 <span class="sd">        **C-GET Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (M) Identifier</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_GET_RQ</span>
+<span class="sd">        msg : dimse_messagesC_GET_RQ</span>
 <span class="sd">            The received C-GET-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1255,28 +1282,26 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_get_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_get_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_get_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-GET-RSP is received.</span>
 
 <span class="sd">        **C-GET Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (U) Identifier</span>
-<span class="sd">        (M) Status</span>
-<span class="sd">        (C) Number of Remaining Sub-operations</span>
-<span class="sd">        (C) Number of Completed Sub-operations</span>
-<span class="sd">        (C) Number of Failed Sub-operations</span>
-<span class="sd">        (C) Number of Warning Sub-operations</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Identifier</span>
+<span class="sd">        | (M) Status</span>
+<span class="sd">        | (C) Number of Remaining Sub-operations</span>
+<span class="sd">        | (C) Number of Completed Sub-operations</span>
+<span class="sd">        | (C) Number of Failed Sub-operations</span>
+<span class="sd">        | (C) Number of Warning Sub-operations</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_GET_RSP</span>
+<span class="sd">        msg : dimse_messagesC_GET_RSP</span>
 <span class="sd">            The received C-GET-RSP message.</span>
-
-<span class="sd">        TODO: Add in the extra status related elements if present</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
 
@@ -1315,44 +1340,44 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_move_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_move_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_move_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-MOVE-RQ is received.</span>
 
 <span class="sd">        **C-MOVE Request Parameters**</span>
 
-<span class="sd">        (M) Message ID</span>
-<span class="sd">        (M) Affected SOP Class UID</span>
-<span class="sd">        (M) Priority</span>
-<span class="sd">        (M) Move Destination</span>
-<span class="sd">        (M) Identifier</span>
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Move Destination</span>
+<span class="sd">        | (M) Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_MOVE_RQ</span>
+<span class="sd">        msg : dimse_messagesC_MOVE_RQ</span>
 <span class="sd">            The received C-MOVE-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_move_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_move_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_move_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when a C-MOVE-RSP is received.</span>
 
 <span class="sd">        **C-MOVE Response Parameters**</span>
 
-<span class="sd">        (U) Message ID</span>
-<span class="sd">        (M) Message ID Being Responded To</span>
-<span class="sd">        (U) Affected SOP Class UID</span>
-<span class="sd">        (U) Identifier</span>
-<span class="sd">        (M) Status</span>
-<span class="sd">        (C) Number of Remaining Sub-operations</span>
-<span class="sd">        (C) Number of Completed Sub-operations</span>
-<span class="sd">        (C) Number of Failed Sub-operations</span>
-<span class="sd">        (C) Number of Warning Sub-operations</span>
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Identifier</span>
+<span class="sd">        | (M) Status</span>
+<span class="sd">        | (C) Number of Remaining Sub-operations</span>
+<span class="sd">        | (C) Number of Completed Sub-operations</span>
+<span class="sd">        | (C) Number of Failed Sub-operations</span>
+<span class="sd">        | (C) Number of Warning Sub-operations</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.DIMSEmessage.C_MOVE_RSP</span>
+<span class="sd">        msg : dimse_messagesC_MOVE_RSP</span>
 <span class="sd">            The received C-MOVE-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
@@ -1391,266 +1416,266 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_event_report_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_event_report_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_event_report_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-EVENT-REPORT-RQ is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RQ</span>
+<span class="sd">        msg : dimse_messages.N_EVENT_REPORT_RQ</span>
 <span class="sd">            The N-EVENT-REPORT-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_event_report_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_event_report_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_event_report_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-EVENT-REPORT-RSP is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RSP</span>
+<span class="sd">        msg : dimse_messages.N_EVENT_REPORT_RSP</span>
 <span class="sd">            The N-EVENT-REPORT-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_get_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_get_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_get_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-GET-RQ is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_GET_RQ</span>
+<span class="sd">        msg : dimse_messages.N_GET_RQ</span>
 <span class="sd">            The N-GET-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_get_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_get_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_get_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-GET-RSP is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_GET_RSP</span>
+<span class="sd">        msg : dimse_messages.N_GET_RSP</span>
 <span class="sd">            The N-GET-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_set_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_set_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_set_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-SET-RQ is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_SET_RQ</span>
+<span class="sd">        msg : dimse_messages.N_SET_RQ</span>
 <span class="sd">            The N-SET-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_set_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_set_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_set_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-SET-RSP is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_SET_RSP</span>
+<span class="sd">        msg : dimse_messages.N_SET_RSP</span>
 <span class="sd">            The N-SET-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_action_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_action_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_action_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-ACTION-RQ is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_ACTION_RQ</span>
+<span class="sd">        msg : dimse_messages.N_ACTION_RQ</span>
 <span class="sd">            The N-ACTION-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_action_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_action_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_action_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-ACTION-RSP is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_ACTION_RSP</span>
+<span class="sd">        msg : dimse_messages.N_ACTION_RSP</span>
 <span class="sd">            The N-ACTION-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_create_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_create_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_create_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-CREATE-RQ is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_CREATE_RQ</span>
+<span class="sd">        msg : dimse_messages.N_CREATE_RQ</span>
 <span class="sd">            The N-CREATE-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_create_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_create_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_create_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-CREATE-RSP is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_CREATE_RSP</span>
+<span class="sd">        msg : dimse_messages.N_CREATE_RSP</span>
 <span class="sd">            The N-CREATE-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_delete_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_delete_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_delete_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-DELETE-RQ is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_DELETE_RQ</span>
+<span class="sd">        msg : dimse_messages.N_DELETE_RQ</span>
 <span class="sd">            The N-DELETE-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_delete_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_delete_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_delete_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-DELETE-RSP is sent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_DELETE_RSP</span>
+<span class="sd">        msg : dimse_messages.N_DELETE_RSP</span>
 <span class="sd">            The N-DELETE-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_event_report_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_event_report_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_event_report_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-EVENT-REPORT-RQ is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RQ</span>
+<span class="sd">        msg : dimse_messages.N_EVENT_REPORT_RQ</span>
 <span class="sd">            The received N-EVENT-REPORT-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_event_report_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_event_report_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_event_report_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-EVENT-REPORT-RSP is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_EVENT_REPORT_RSP</span>
+<span class="sd">        msg : dimse_messages.N_EVENT_REPORT_RSP</span>
 <span class="sd">            The received N-EVENT-REPORT-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_get_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_get_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_get_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-GET-RQ is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_GET_RQ</span>
+<span class="sd">        msg : dimse_messages.N_GET_RQ</span>
 <span class="sd">            The received N-GET-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_get_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_get_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_get_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-GET-RSP is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_GET_RSP</span>
+<span class="sd">        msg : dimse_messages.N_GET_RSP</span>
 <span class="sd">            The received N-GET-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_set_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_set_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_set_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-SET-RQ is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_SET_RQ</span>
+<span class="sd">        msg : dimse_messages.N_SET_RQ</span>
 <span class="sd">            The received N-SET-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_set_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_set_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_set_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-SET-RSP is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_SET_RSP</span>
+<span class="sd">        msg : dimse_messages.N_SET_RSP</span>
 <span class="sd">            The received N-SET-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_action_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_action_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_action_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-ACTION-RQ is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_ACTION_RQ</span>
+<span class="sd">        msg : dimse_messages.N_ACTION_RQ</span>
 <span class="sd">            The received N-ACTION-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_action_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_action_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_action_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-ACTION-RSP is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_ACTION_RSP</span>
+<span class="sd">        msg : dimse_messages.N_ACTION_RSP</span>
 <span class="sd">            The received N-ACTION-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_create_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_create_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_create_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-CREATE-RQ is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_CREATE_RQ</span>
+<span class="sd">        msg : dimse_messages.N_CREATE_RQ</span>
 <span class="sd">            The received N-CREATE-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_create_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_create_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_create_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-CREATE-RSP is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_CREATE_RSP</span>
+<span class="sd">        msg : dimse_messages.N_CREATE_RSP</span>
 <span class="sd">            The received N-CREATE-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_delete_rq"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_delete_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_delete_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-DELETE-RQ is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_DELETE_RQ</span>
+<span class="sd">        msg : dimse_messages.N_DELETE_RQ</span>
 <span class="sd">            The received N-DELETE-RQ message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_delete_rsp"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_delete_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_delete_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging function when an N-DELETE-RSP is received.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msg : pynetdicom3.dimse_messages.N_DELETE_RSP</span>
+<span class="sd">        msg : dimse_messages.N_DELETE_RSP</span>
 <span class="sd">            The received N-DELETE-RSP message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div></div>
@@ -1666,7 +1691,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors.
+        &copy; Copyright 2018, pynetdicom3 contributors
 
     </p>
   </div>
@@ -1685,20 +1710,14 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'0.9.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

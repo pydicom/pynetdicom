@@ -1,0 +1,35 @@
+pynetdicom3.pdu\_items.UserIdentitySubItemAC
+============================================
+
+.. currentmodule:: pynetdicom3.pdu_items
+
+.. autoclass:: UserIdentitySubItemAC
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UserIdentitySubItemAC.__init__
+      ~UserIdentitySubItemAC.decode
+      ~UserIdentitySubItemAC.encode
+      ~UserIdentitySubItemAC.from_primitive
+      ~UserIdentitySubItemAC.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UserIdentitySubItemAC.item_length
+      ~UserIdentitySubItemAC.item_type
+      ~UserIdentitySubItemAC.response
+      ~UserIdentitySubItemAC.server_response_length
+   
+   

@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.pdu_primitives.UserIdentityNegotiation &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>pynetdicom3.pdu_primitives.UserIdentityNegotiation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/reference/generated/pynetdicom3.pdu_primitives.UserIdentityNegotiation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom3-pdu-primitives-useridentitynegotiation">
+<h1>pynetdicom3.pdu_primitives.UserIdentityNegotiation<a class="headerlink" href="#pynetdicom3-pdu-primitives-useridentitynegotiation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation">
+<em class="property">class </em><code class="descclassname">pynetdicom3.pdu_primitives.</code><code class="descname">UserIdentityNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#UserIdentityNegotiation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A representation of the User Identity Negotiation primitive.</p>
+<p>Allows peer AEs to exchange generic application information.</p>
+<p>The SOP Class Common Extended Negotiation is optional and there may only be
+a single SOPClassCommonExtendedNegotiation item for each available SOP
+Class UID.</p>
+<p>In general, a User Identity Negotiation request that is accepted will result
+in Association establishment and possibly a server response if requested
+and supported by the peer. If a server response is requested but not
+received then the Requestor must decide how to proceed.
+An Association rejected due to an authorisation failure will be indicated
+using Rejection Permanent with a Source of “DICOM UL service provided (ACSE
+related function)”.</p>
+<p>How the Acceptor handles authentication is to be implemented by the end-user
+and is outside the scope of the DICOM standard.</p>
+<p>A-ASSOCIATE-RQ
+| <cite>user_identity_type</cite>
+| <cite>positive_response_requested</cite>
+| <cite>primary_field</cite>
+| <cite>secondary_field</cite></p>
+<p>A-ASSOCIATE-AC
+The <cite>server_response</cite> parameter is required when a response to the User
+Identity Negotiation request is to be issued (although this depends on
+whether or not this is supported by the Acceptor).</p>
+<dl class="attribute">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.user_identity_type">
+<code class="descname">user_identity_type</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.user_identity_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A-ASSOCIATE-RQ only. One of the following values:</p>
+<ul class="simple">
+<li>1 - Username as string in UTF-8</li>
+<li>2 - Username as string in UTF-8 and passcode</li>
+<li>3 - Kerberos Service ticket</li>
+<li>4 - SAML Assertion</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.positive_response_requested">
+<code class="descname">positive_response_requested</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.positive_response_requested" title="Permalink to this definition">¶</a></dt>
+<dd><p>A-ASSOCIATE-RQ only. True when requesting a response, False otherwise
+(default is False)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.primary_field">
+<code class="descname">primary_field</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.primary_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>A-ASSOCIATE-RQ only. Contains either the username, Kerberos Service
+ticket or SAML assertion depending on <cite>user_identity_type</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.secondary_field">
+<code class="descname">secondary_field</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.secondary_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>A-ASSOCIATE-RQ only. Only required if the <cite>user_identity_type</cite> is 2,
+when it should contain the passcode as a bytes object, None otherwise</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.server_response">
+<code class="descname">server_response</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.server_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
+response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall be
+None if <cite>user_identity_type</cite> was 1 or 2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">UserIdentityNegotiation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">UserIdentityNegotiation</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">positive_response_requested</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">primary_field</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;username&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;password&#39;</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard, Part 7, Annex D.3.3.7</li>
+</ul>
+<dl class="method">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#UserIdentityNegotiation.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.__init__" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
+<td>Initialize self.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.from_primitive" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>()</td>
+<td>Convert the primitive to a PDU item ready to be encoded.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.positive_response_requested" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.positive_response_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positive_response_requested</span></code></a></td>
+<td>Return <em>Positive Response Requested</em>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.primary_field" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.primary_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary_field</span></code></a></td>
+<td>Return <em>Primary Field</em>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.secondary_field" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.secondary_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">secondary_field</span></code></a></td>
+<td>Return the <em>Secondary Field</em>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.server_response" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.server_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_response</span></code></a></td>
+<td>Return the <em>Server Response</em>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.user_identity_type" title="pynetdicom3.pdu_primitives.UserIdentityNegotiation.user_identity_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity_type</span></code></a></td>
+<td>Return the <em>User Identity Type</em>.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation.from_primitive">
+<code class="descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#UserIdentityNegotiation.from_primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>item</strong> – pdu_items.UserIdentitySubItemAC</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">pdu_items.UserIdentitySubItemRQ or</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If server_response is None and user_identity_type or primary_field
+are None</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If server_response is None and user_identity_type is 2 and
+secondary_field is None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">positive_response_requested</code></dt>
+<dd><p>Return <em>Positive Response Requested</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">primary_field</code></dt>
+<dd><p>Return <em>Primary Field</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">secondary_field</code></dt>
+<dd><p>Return the <em>Secondary Field</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">server_response</code></dt>
+<dd><p>Return the <em>Server Response</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">user_identity_type</code></dt>
+<dd><p>Return the <em>User Identity Type</em>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

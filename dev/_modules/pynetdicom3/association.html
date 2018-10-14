@@ -87,13 +87,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -202,33 +206,18 @@
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.assoc&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Association"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association">[docs]</a><span class="k">class</span> <span class="nc">Association</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Manages Associations with peer AEs.</span>
-
-<span class="sd">    The actual low level work done for Associations is performed by</span>
-<span class="sd">    pynetdicom3.acse.ACSEServiceProvider.</span>
-
-<span class="sd">    When the local AE is acting as an SCP, initialise the Association using</span>
-<span class="sd">    the socket to listen on for incoming Association requests. When the local</span>
-<span class="sd">    AE is acting as an SCU, initialise the Association with the details of the</span>
-<span class="sd">    peer AE.</span>
-
-<span class="sd">    When AE is acting as an SCP:</span>
-<span class="sd">        assoc = Association(client_socket, max_pdu)</span>
-
-<span class="sd">    When AE is acting as an SCU:</span>
-<span class="sd">        assoc = Association(peer_ae, acse_timeout, dimse_timeout,</span>
-<span class="sd">                            max_pdu, ext_neg)</span>
+<div class="viewcode-block" id="Association"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association">[docs]</a><span class="k">class</span> <span class="nc">Association</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Manage an Association with a peer AE.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    acse : ACSEServiceProvider</span>
+<span class="sd">    acse : acse.ACSEServiceProvider</span>
 <span class="sd">        The Association Control Service Element provider.</span>
 <span class="sd">    ae : ae.ApplicationEntity</span>
 <span class="sd">        The local AE.</span>
-<span class="sd">    dimse : DIMSEServiceProvider</span>
+<span class="sd">    dimse : dimse.DIMSEServiceProvider</span>
 <span class="sd">        The DICOM Message Service Element provider.</span>
-<span class="sd">    dul : DUL</span>
+<span class="sd">    dul : dul.DULServiceProvider</span>
 <span class="sd">        The DICOM Upper Layer service provider instance.</span>
 <span class="sd">    is_aborted : bool</span>
 <span class="sd">        True if the association has been aborted, False otherwise.</span>
@@ -256,7 +245,7 @@
 <span class="sd">        A list of the supported Presentation Contexts sent or received during</span>
 <span class="sd">        association negotiation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_ae</span><span class="p">,</span> <span class="n">client_socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peer_ae</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Association.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_ae</span><span class="p">,</span> <span class="n">client_socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peer_ae</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">acse_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">dimse_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_pdu</span><span class="o">=</span><span class="mi">16382</span><span class="p">,</span>
                  <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new Association.</span>
@@ -282,7 +271,7 @@
 <span class="sd">        max_pdu : int, optional</span>
 <span class="sd">            The maximum PDU receive size in bytes for the association. A value</span>
 <span class="sd">            of 0 means no maximum size (default: 16382 bytes).</span>
-<span class="sd">        ext_neg : list of extended negotiation parameters objects, optional</span>
+<span class="sd">        ext_neg : list of pdu_primitives User Information items, optional</span>
 <span class="sd">            If the association requires an extended negotiation then `ext_neg`</span>
 <span class="sd">            is a list containing the negotiation objects (default: None).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -291,11 +280,6 @@
                         <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="s1">&#39;pdv_size&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
-        <span class="c1"># Why is the AE in charge of supplying the client socket?</span>
-        <span class="c1">#   Hmm, perhaps because we can have multiple connections on the same</span>
-        <span class="c1">#       listen port. Does that even work? Probably needs testing</span>
-        <span class="c1">#   As SCP: supply port number to listen on (listen_port != None)</span>
-        <span class="c1">#   As SCU: supply addr/port to make connection on (peer_ae != None)</span>
         <span class="k">if</span> <span class="p">[</span><span class="n">client_socket</span><span class="p">,</span> <span class="n">peer_ae</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Association must be initialised with either &quot;</span>
                             <span class="s2">&quot;the client_socket or peer_ae parameters&quot;</span><span class="p">)</span>
@@ -409,9 +393,9 @@
 
         <span class="c1"># Thread setup</span>
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Association.kill"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.kill"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Kill the main association thread loop.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
@@ -420,7 +404,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">cleanup_associations</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Release the association.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">release_assoc</span><span class="p">():</span>
@@ -431,7 +415,7 @@
                 <span class="c1"># No release reply within timeout window</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Abort the association.</span>
 
 <span class="sd">        DUL service user association abort. Always gives the source as the</span>
@@ -447,7 +431,7 @@
         <span class="c1"># Add short delay to ensure everything shuts down</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The main Association control.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -856,23 +840,24 @@
 
 
     <span class="c1"># DIMSE-C services provided by the Association</span>
-<div class="viewcode-block" id="Association.send_c_echo"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_echo">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_echo"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_echo">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-ECHO request to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The message ID, must be between 0 and 65535, inclusive, (default</span>
-<span class="sd">            1).</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
 <span class="sd">            If the peer timed out or sent an invalid response then returns an</span>
-<span class="sd">            empty Dataset. If a valid response was received from the peer then</span>
-<span class="sd">            returns a Dataset containing at least a (0000,0900) Status element,</span>
-<span class="sd">            and, depending on the returned Status value, may optionally contain</span>
-<span class="sd">            additional elements (see DICOM Standard Part 7, Annex C).</span>
+<span class="sd">            empty ``Dataset``. If a valid response was received from the peer</span>
+<span class="sd">            then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and, depending on the returned Status value, may</span>
+<span class="sd">            optionally contain additional elements (see DICOM Standard Part 7,</span>
+<span class="sd">            Annex C).</span>
 
 <span class="sd">            The DICOM Standard Part 7, Table 9.3-13 indicates that the Status</span>
 <span class="sd">            value of a C-ECHO response &quot;shall have a value of Success&quot;. However</span>
@@ -880,15 +865,13 @@
 <span class="sd">            values:</span>
 
 <span class="sd">            Success</span>
-
-<span class="sd">              * 0x0000 - Success</span>
+<span class="sd">              | ``0x0000`` Success</span>
 
 <span class="sd">            Failure</span>
-
-<span class="sd">              * 0x0122 - SOP class not supported</span>
-<span class="sd">              * 0x0210 - Duplicate invocation</span>
-<span class="sd">              * 0x0211 - Unrecognised operation</span>
-<span class="sd">              * 0x0212 - Mistyped argument</span>
+<span class="sd">              | ``0x0122`` SOP class not supported</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
 
 <span class="sd">            As the actual status depends on the peer SCP, it shouldn&#39;t be</span>
 <span class="sd">            assumed that it will be one of these.</span>
@@ -898,7 +881,17 @@
 <span class="sd">        RuntimeError</span>
 <span class="sd">            If called without an association to a peer SCP.</span>
 <span class="sd">        ValueError</span>
-<span class="sd">            If no accepted Presentation Context for &#39;Verification SOP Class&#39;.</span>
+<span class="sd">            If the association has no accepted Presentation Context for</span>
+<span class="sd">            &#39;Verification SOP Class&#39;.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
+<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
+<span class="sd">        ...     status = assoc.send_c_echo()</span>
+<span class="sd">        ...     if status:</span>
+<span class="sd">        ...         print(&#39;C-ECHO Response: 0x{0:04x}&#39;.format(status.Status))</span>
+<span class="sd">        ...     assoc.release()</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -908,17 +901,12 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annex A</span>
-<span class="sd">        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C</span>
 
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
-<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
-<span class="sd">        &gt;&gt;&gt;     status = assoc.send_c_echo()</span>
-<span class="sd">        &gt;&gt;&gt;     if status:</span>
-<span class="sd">        &gt;&gt;&gt;         print(&#39;C-ECHO Response: 0x{0:04x}&#39;.format(status.Status))</span>
-<span class="sd">        &gt;&gt;&gt;     assoc.release()</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex A &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `9.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`_,</span>
+<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-ECHO without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -966,7 +954,7 @@
 
         <span class="k">return</span> <span class="n">status</span></div>
 
-<div class="viewcode-block" id="Association.send_c_store"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">originator_aet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Association.send_c_store"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">originator_aet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">originator_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-STORE request to the peer AE.</span>
 
@@ -975,30 +963,32 @@
 <span class="sd">        dataset : pydicom.dataset.Dataset</span>
 <span class="sd">            The DICOM dataset to send to the peer.</span>
 <span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The message ID, must be between 0 and 65535, inclusive, (default</span>
-<span class="sd">            1).</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default ``1``).</span>
 <span class="sd">        priority : int, optional</span>
-<span class="sd">            The C-STORE operation priority (may not be supported by the peer),</span>
-<span class="sd">            one of:</span>
+<span class="sd">            The C-STORE operation *Priority* (may not be supported by the</span>
+<span class="sd">            peer), one of:</span>
 
-<span class="sd">            - 0 - Medium</span>
-<span class="sd">            - 1 - High</span>
-<span class="sd">            - 2 - Low (default)</span>
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 <span class="sd">        originator_aet : bytes, optional</span>
 <span class="sd">            The AE title of the peer that invoked the C-MOVE operation for</span>
-<span class="sd">            which this C-STORE sub-operation is being performed (default None).</span>
+<span class="sd">            which this C-STORE sub-operation is being performed (default</span>
+<span class="sd">            ``None``).</span>
 <span class="sd">        originator_id : int, optional</span>
 <span class="sd">            The Message ID of the C-MOVE request primitive from which this</span>
-<span class="sd">            C-STORE sub-operation is being performed (default None).</span>
+<span class="sd">            C-STORE sub-operation is being performed (default ``None``).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
 <span class="sd">            If the peer timed out or sent an invalid response then returns an</span>
-<span class="sd">            empty Dataset. If a valid response was received from the peer then</span>
-<span class="sd">            returns a Dataset containing at least a (0000,0900) Status element,</span>
-<span class="sd">            and, depending on the returned Status value, may optionally contain</span>
-<span class="sd">            additional elements (see DICOM Standard Part 7, Annex C).</span>
+<span class="sd">            empty ``Dataset``. If a valid response was received from the peer</span>
+<span class="sd">            then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and, depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see DICOM Standard Part 7,</span>
+<span class="sd">            Annex C).</span>
 
 <span class="sd">            The status for the requested C-STORE operation should be one of the</span>
 <span class="sd">            following, but as the value depends on the peer SCP this can&#39;t be</span>
@@ -1006,53 +996,59 @@
 
 <span class="sd">            General C-STORE (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):</span>
 
-<span class="sd">            - Success</span>
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Success</span>
 
-<span class="sd">              * 0x0000 - Success</span>
-
-<span class="sd">            - Failure</span>
-
-<span class="sd">              * 0x0117 - Invalid SOP instance</span>
-<span class="sd">              * 0x0122 - SOP class not supported</span>
-<span class="sd">              * 0x0124 - Not authorised</span>
-<span class="sd">              * 0x0210 - Duplicate invocation</span>
-<span class="sd">              * 0x0211 - Unrecognised operation</span>
-<span class="sd">              * 0x0212 - Mistyped argument</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0117`` Invalid SOP instance</span>
+<span class="sd">              | ``0x0122`` SOP class not supported</span>
+<span class="sd">              | ``0x0124`` Not authorised</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
 
 <span class="sd">            Storage Service Class specific (DICOM Standard Part 4, Annex</span>
 <span class="sd">            B.2.3):</span>
 
-<span class="sd">            - Failure</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0xA700`` to ``0xA7FF`` Out of resources</span>
+<span class="sd">              | ``0xA900`` to ``0xA9FF`` Data set does not match SOP class</span>
+<span class="sd">              | ``0xC000`` to ``0xCFFF`` Cannot understand</span>
 
-<span class="sd">              * 0xA700 to 0xA7FF - Out of resources</span>
-<span class="sd">              * 0xA900 to 0xA9FF - Data set does not match SOP class</span>
-<span class="sd">              * 0xC000 to 0xCFFF - Cannot understand</span>
-
-<span class="sd">            - Warning</span>
-
-<span class="sd">              * 0xB000 - Coercion of data elements</span>
-<span class="sd">              * 0xB006 - Element discarded</span>
-<span class="sd">              * 0xB007 - Data set does not match SOP class</span>
+<span class="sd">            Warning</span>
+<span class="sd">              | ``0xB000`` Coercion of data elements</span>
+<span class="sd">              | ``0xB006`` Element discarded</span>
+<span class="sd">              | ``0xB007`` Data set does not match SOP class</span>
 
 <span class="sd">            Non-Patient Object Service Class specific (DICOM Standard Part 4,</span>
 <span class="sd">            Annex GG.4.2)</span>
 
-<span class="sd">            - Failure</span>
-
-<span class="sd">              * 0xA700 - Out of resources</span>
-<span class="sd">              * 0xA900 - Data set does not match SOP class</span>
-<span class="sd">              * 0xC000 - Cannot understand</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0xA700`` Out of resources</span>
+<span class="sd">              | ``0xA900`` Data set does not match SOP class</span>
+<span class="sd">              | ``0xC000`` Cannot understand</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If send_c_store is called with no established association.</span>
+<span class="sd">            If ``send_c_store`` is called with no established association.</span>
 <span class="sd">        AttributeError</span>
-<span class="sd">            If `dataset` is missing (0008,0016) &#39;SOP Class UID&#39; or</span>
-<span class="sd">            (0008,0018) &#39;SOP Instance UID&#39; elements.</span>
+<span class="sd">            If `dataset` is missing (0008,0016) *SOP Class UID* or</span>
+<span class="sd">            (0008,0018) *SOP Instance UID* elements.</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            If no accepted Presentation Context for `dataset` exists or if</span>
 <span class="sd">            unable to encode the `dataset`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; ds = pydicom.dcmread(&#39;file-in.dcm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
+<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
+<span class="sd">        ...     status = assoc.send_c_store(ds)</span>
+<span class="sd">        ...     if status:</span>
+<span class="sd">        ...         print(&#39;C-STORE Response: 0x{0:04x}&#39;.format(status.Status))</span>
+<span class="sd">        ...     assoc.release()</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1062,18 +1058,13 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes B, GG</span>
-<span class="sd">        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C</span>
 
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; ds = read_file(&#39;file-in.dcm&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
-<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
-<span class="sd">        &gt;&gt;&gt;     status = assoc.send_c_store(ds)</span>
-<span class="sd">        &gt;&gt;&gt;     if status:</span>
-<span class="sd">        &gt;&gt;&gt;         print(&#39;C-STORE Response: 0x{0:04x}&#39;.format(status.Status))</span>
-<span class="sd">        &gt;&gt;&gt;     assoc.release()</span>
+<span class="sd">        * DICOM Standard Part 4, Annexes `B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B&gt;`_ and</span>
+<span class="sd">          `GG &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_,</span>
+<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-STORE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1152,97 +1143,108 @@
 
         <span class="k">return</span> <span class="n">status</span></div>
 
-<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-FIND request to the peer AE.</span>
 
-<span class="sd">        Yields (status, identifier) pairs.</span>
+<span class="sd">        Yields ``(status, identifier)`` pairs.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset : pydicom.dataset.Dataset</span>
-<span class="sd">            The C-FIND request&#39;s Identifier dataset. The exact requirements for</span>
-<span class="sd">            the Identifier dataset are Service Class specific (see the DICOM</span>
-<span class="sd">            Standard, Part 4).</span>
+<span class="sd">            The C-FIND request&#39;s *Identifier* dataset. The exact requirements</span>
+<span class="sd">            for the *Identifier* dataset are Service Class specific (see the</span>
+<span class="sd">            DICOM Standard, Part 4).</span>
 <span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The message ID, must be between 0 and 65535, inclusive, (default</span>
-<span class="sd">            1).</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
 <span class="sd">        priority : int, optional</span>
-<span class="sd">            The C-FIND operation priority (may not be supported by the peer),</span>
+<span class="sd">            The C-FIND operation *Priority* (may not be supported by the peer),</span>
 <span class="sd">            one of:</span>
 
-<span class="sd">            - 0 - Medium</span>
-<span class="sd">            - 1 - High</span>
-<span class="sd">            - 2 - Low (default)</span>
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 
 <span class="sd">        query_model : str, optional</span>
 <span class="sd">            The Query/Retrieve Information Model to use, one of the following:</span>
 
-<span class="sd">            - &#39;P&#39; - Patient Root Information Model - FIND  (default)</span>
-<span class="sd">              1.2.840.10008.5.1.4.1.2.1.1</span>
-<span class="sd">            - &#39;S&#39; - Study Root Information Model - FIND</span>
+<span class="sd">            - ``P`` - *Patient Root Information Model - FIND*</span>
+<span class="sd">              1.2.840.10008.5.1.4.1.2.1.1 (default)</span>
+<span class="sd">            - ``S`` - *Study Root Information Model - FIND*</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.2.1</span>
-<span class="sd">            - &#39;O&#39; - Patient Study Only Information Model - FIND</span>
+<span class="sd">            - ``O`` - *Patient Study Only Information Model - FIND*</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.3.1</span>
-<span class="sd">            - &#39;W&#39; - Modality Worklist Information - FIND</span>
+<span class="sd">            - ``W`` - *Modality Worklist Information - FIND*</span>
 <span class="sd">              1.2.840.10008.5.1.4.31</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
 <span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty Dataset. If a response was received from the peer then</span>
-<span class="sd">            yields a Dataset containing at least a (0000,0900) Status element,</span>
-<span class="sd">            and depending on the returned Status value, may optionally contain</span>
-<span class="sd">            additional elements (see PS3.7 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value, may optionally</span>
+<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
+<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            The status for the requested C-FIND operation should be one of the</span>
-<span class="sd">            following Status objects/codes, but as the returned value depends</span>
+<span class="sd">            following values, but as the returned value depends</span>
 <span class="sd">            on the peer this can&#39;t be assumed:</span>
 
-<span class="sd">            General C-FIND (PS3.7 9.1.2.1.5 and Annex C)</span>
+<span class="sd">            General C-FIND (Part 7, Section 9.1.2.1.5 and Annex C)</span>
 
-<span class="sd">            - Cancel</span>
+<span class="sd">            Cancel</span>
+<span class="sd">              | ``0xFE00`` Matching terminated due to Cancel request</span>
 
-<span class="sd">              * 0xFE00 - Matching terminated due to Cancel request</span>
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Matching is complete: no final Identifier is</span>
+<span class="sd">                supplied</span>
 
-<span class="sd">            - Success</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0122`` SOP class not supported</span>
 
-<span class="sd">              * 0x0000 - Matching is complete: no final Identifier is supplied</span>
+<span class="sd">            Query/Retrieve Service and Basic Worklist Management Service Class</span>
+<span class="sd">            Specific (Part 4, Annexes C.4.1 and K.4.1.1.4):</span>
 
-<span class="sd">            - Failure</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0xA700`` Out of resources</span>
+<span class="sd">              | ``0xA900`` Identifier does not match SOP Class</span>
+<span class="sd">              | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
-<span class="sd">              * 0x0122 - SOP class not supported</span>
-
-<span class="sd">            Query/Retrieve Service Class Specific (PS3.4 Annex C.4.1):</span>
-
-<span class="sd">            - Failure</span>
-
-<span class="sd">              * 0xA700 - Out of resources</span>
-<span class="sd">              * 0xA900 - Identifier does not match SOP Class</span>
-<span class="sd">              * 0xC000 to 0xCFFF - Unable to process</span>
-
-<span class="sd">            - Pending</span>
-
-<span class="sd">              * 0xFF00 - Matches are continuing: current match is supplied and</span>
+<span class="sd">            Pending</span>
+<span class="sd">              | ``0xFF00`` Matches are continuing: current match is supplied and</span>
 <span class="sd">                any Optional Keys were supported in the same manner as Required</span>
 <span class="sd">                Keys</span>
-<span class="sd">              * 0xFF01 - Matches are continuing: warning that one or more</span>
+<span class="sd">              | ``0xFF01`` Matches are continuing: warning that one or more</span>
 <span class="sd">                Optional Keys were not supported for existence and/or matching</span>
 <span class="sd">                for this Identifier)</span>
 
 <span class="sd">        identifier : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status is &#39;Pending&#39; then the C-FIND response&#39;s Identifier</span>
-<span class="sd">            dataset. If the status is not &#39;Pending&#39; this will be None. The</span>
-<span class="sd">            exact contents of the response Identifier are Service Class</span>
+<span class="sd">            If the status is &#39;Pending&#39; then the C-FIND response&#39;s *Identifier*</span>
+<span class="sd">            ``Dataset``. If the status is not &#39;Pending&#39; this will be ``None``.</span>
+<span class="sd">            The exact contents of the response *Identifier* are Service Class</span>
 <span class="sd">            specific (see the DICOM Standard, Part 4).</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If send_c_find is called with no established association.</span>
+<span class="sd">            If ``send_c_find`` is called with no established association.</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            If no accepted Presentation Context for `dataset` exists or if</span>
-<span class="sd">            unable to encode the Identifier `dataset`.</span>
+<span class="sd">            unable to encode the *Identifier* `dataset`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; ds = Dataset()</span>
+<span class="sd">        &gt;&gt;&gt; ds.QueryRetrieveLevel = &#39;PATIENT&#39;</span>
+<span class="sd">        &gt;&gt;&gt; ds.PatientName = &#39;*&#39;</span>
+<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
+<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
+<span class="sd">        ...     response = assoc.send_c_find(ds, query_model=&#39;P&#39;)</span>
+<span class="sd">        ...     for (status, identifier) in response:</span>
+<span class="sd">        ...         print(&#39;C-FIND Response: 0x{0:04x}&#39;.format(status.Status))</span>
+<span class="sd">        ...     assoc.release()</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1252,8 +1254,13 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annex C</span>
-<span class="sd">        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C</span>
+
+<span class="sd">        * DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
+<span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_,</span>
+<span class="sd">          Annexes `C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_ and</span>
+<span class="sd">          `K &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-FIND without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1377,99 +1384,94 @@
 
         <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span></div>
 
-<div class="viewcode-block" id="Association.send_c_move"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<div class="viewcode-block" id="Association.send_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-MOVE request to the peer AE.</span>
 
-<span class="sd">        Yields (status, identifier) pairs.</span>
+<span class="sd">        Yields ``(status, identifier)`` pairs.</span>
 
-<span class="sd">        The ApplicationEntity.on_c_store callback should be implemented prior</span>
-<span class="sd">        to calling send_c_move as the peer may either return any matches</span>
-<span class="sd">        via a C-STORE sub-operation over the current association or request a</span>
-<span class="sd">        new association over which to return any matches.</span>
+<span class="sd">        The peer will attempt to start a new association with the AE with</span>
+<span class="sd">        *AE Title* ``move_aet`` and hence must be known to the SCP. Once the</span>
+<span class="sd">        association has been established it will use the C-STORE service to</span>
+<span class="sd">        send any matching datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset : pydicom.dataset.Dataset</span>
-<span class="sd">            The C-MOVE request&#39;s Identifier dataset. The exact requirements for</span>
-<span class="sd">            the Identifier dataset are Service Class specific (see the DICOM</span>
-<span class="sd">            Standard, Part 4).</span>
-<span class="sd">        move_aet : str</span>
+<span class="sd">            The C-MOVE request&#39;s *Identifier* ``Dataset``. The exact</span>
+<span class="sd">            requirements for the *Identifier* are Service Class specific (see</span>
+<span class="sd">            the DICOM Standard, Part 4).</span>
+<span class="sd">        move_aet : bytes</span>
 <span class="sd">            The AE title of the destination for the C-STORE sub-operations</span>
 <span class="sd">            performed by the peer.</span>
 <span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The message ID, must be between 0 and 65535, inclusive, (default</span>
-<span class="sd">            1).</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
 <span class="sd">        priority : int, optional</span>
-<span class="sd">            The C-MOVE operation priority (if supported by the peer), one of:</span>
+<span class="sd">            The C-MOVE operation *Priority* (if supported by the peer), one of:</span>
 
-<span class="sd">            - 0 - Medium</span>
-<span class="sd">            - 1 - High</span>
-<span class="sd">            - 2 - Low (default)</span>
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 
 <span class="sd">        query_model : str, optional</span>
 <span class="sd">            The Query/Retrieve Information Model to use, one of the following:</span>
-<span class="sd">                &#39;P&#39; - Patient Root Information Model - MOVE (default)</span>
-<span class="sd">                    1.2.840.10008.5.1.4.1.2.1.2</span>
-<span class="sd">                &#39;S&#39; - Study Root Information Model - MOVE</span>
-<span class="sd">                    1.2.840.10008.5.1.4.1.2.2.2</span>
-<span class="sd">                &#39;O&#39; - Patient Study Only Information Model - MOVE</span>
-<span class="sd">                    1.2.840.10008.5.1.4.1.2.3.2</span>
+
+<span class="sd">            - ``P`` - *Patient Root Information Model - MOVE*</span>
+<span class="sd">              1.2.840.10008.5.1.4.1.2.1.2 (default)</span>
+<span class="sd">            - ``S`` - *Study Root Information Model - MOVE*</span>
+<span class="sd">              1.2.840.10008.5.1.4.1.2.2.2</span>
+<span class="sd">            - ``O`` - *Patient Study Only Information Model - MOVE*</span>
+<span class="sd">              1.2.840.10008.5.1.4.1.2.3.2</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
 <span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty Dataset. If a response was received from the peer then</span>
-<span class="sd">            yields a Dataset containing at least a (0000,0900) Status element,</span>
-<span class="sd">            and depending on the returned Status value, may optionally contain</span>
-<span class="sd">            additional elements (see DICOM Standard Part 7, Section 9.1.4 and</span>
-<span class="sd">            Annex C).</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value, may optionally</span>
+<span class="sd">            contain additional elements (see DICOM Standard Part 7, Section</span>
+<span class="sd">            9.1.4 and Annex C).</span>
 
 <span class="sd">            The status for the requested C-MOVE operation should be one of the</span>
-<span class="sd">            following Status objects/codes, but as the returned value depends</span>
+<span class="sd">            following values, but as the returned value depends</span>
 <span class="sd">            on the peer this can&#39;t be assumed:</span>
 
 <span class="sd">            General C-MOVE (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)</span>
 
-<span class="sd">            - Cancel</span>
+<span class="sd">            Cancel</span>
+<span class="sd">              | ``0xFE00`` Sub-operations terminated due to Cancel indication</span>
 
-<span class="sd">              * 0xFE00 - Sub-operations terminated due to Cancel indication</span>
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Sub-operations complete: no failures</span>
 
-<span class="sd">            - Success</span>
-
-<span class="sd">              * 0x0000 - Sub-operations complete: no failures</span>
-
-<span class="sd">            - Failure</span>
-
-<span class="sd">              * 0x0122 - SOP class not supported</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0122`` SOP class not supported</span>
 
 <span class="sd">            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex</span>
 <span class="sd">            C):</span>
 
-<span class="sd">            - Failure</span>
-
-<span class="sd">              * 0xA701 - Out of resources: unable to calculate number of</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0xA701`` Out of resources: unable to calculate number of</span>
 <span class="sd">                matches</span>
-<span class="sd">              * 0xA702 - Out of resources: unable to perform sub-operations</span>
-<span class="sd">              * 0xA801 - Move destination unknown</span>
-<span class="sd">              * 0xA900 - Identifier does not match SOP Class</span>
-<span class="sd">              * 0xC000 to 0xCFFF - Unable to process</span>
+<span class="sd">              | ``0xA702`` Out of resources: unable to perform sub-operations</span>
+<span class="sd">              | ``0xA801`` Move destination unknown</span>
+<span class="sd">              | ``0xA900`` Identifier does not match SOP Class</span>
+<span class="sd">              | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
-<span class="sd">            - Pending</span>
+<span class="sd">            Pending</span>
+<span class="sd">              | ``0xFF00`` Sub-operations are continuing</span>
 
-<span class="sd">              * 0xFF00 - Sub-operations are continuing</span>
-
-<span class="sd">            - Warning</span>
-
-<span class="sd">              * 0xB000 - Sub-operations complete: one or more failures</span>
+<span class="sd">            Warning</span>
+<span class="sd">              | ``0xB000`` Sub-operations complete: one or more failures</span>
 
 <span class="sd">        identifier : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status is &#39;Pending&#39; or &#39;Success&#39; then yields None. If the</span>
-<span class="sd">            status is &#39;Warning&#39;, &#39;Failure&#39; or &#39;Cancel&#39; then yields a Dataset</span>
-<span class="sd">            which should contain an (0008,0058) &#39;Failed SOP Instance UID List&#39;</span>
-<span class="sd">            element, however this is not guaranteed and may return an empty</span>
-<span class="sd">            Dataset.</span>
+<span class="sd">            If the status is &#39;Pending&#39; or &#39;Success&#39; then yields ``None``. If</span>
+<span class="sd">            the status is &#39;Warning&#39;, &#39;Failure&#39; or &#39;Cancel&#39; then yields a</span>
+<span class="sd">            ``Dataset`` which should contain an (0008,0058) *Failed SOP</span>
+<span class="sd">            Instance UID List* element, however this is not guaranteed and may</span>
+<span class="sd">            instead return an empty ``Dataset``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1480,8 +1482,12 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annex C</span>
-<span class="sd">        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C</span>
+
+<span class="sd">        * DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `9.1.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4&gt;`_,</span>
+<span class="sd">          `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-MOVE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1636,108 +1642,104 @@
             <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_CANCEL</span> <span class="ow">and</span> <span class="n">rsp</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">==</span> <span class="n">msg_id</span><span class="p">:</span>
                 <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Association.send_c_get"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-GET request to the peer AE.</span>
 
-<span class="sd">        Yields (status, identifier) pairs.</span>
+<span class="sd">        Yields ``(status, identifier)`` pairs.</span>
 
-<span class="sd">        The ApplicationEntity.on_c_store callback should be implemented prior</span>
-<span class="sd">        to calling send_c_get as the peer will return any matches via a C-STORE</span>
-<span class="sd">        sub-operation over the current association.</span>
+<span class="sd">        The ``AE.on_c_store`` callback should be implemented prior</span>
+<span class="sd">        to calling ``send_c_get`` as the peer will return any matches via a</span>
+<span class="sd">        C-STORE sub-operation over the current association. In addition,</span>
+<span class="sd">        SCP/SCU Role Selection Negotiation must be supported by the</span>
+<span class="sd">        Association.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset : pydicom.dataset.Dataset</span>
-<span class="sd">            The C-GET request&#39;s Identifier dataset. The exact requirements for</span>
-<span class="sd">            the Identifier dataset are Service Class specific (see the DICOM</span>
-<span class="sd">            Standard, Part 4).</span>
+<span class="sd">            The C-GET request&#39;s *Identifier* ``Dataset``. The exact</span>
+<span class="sd">            requirements for the *Identifier* are Service Class specific (see</span>
+<span class="sd">            the DICOM Standard, Part 4).</span>
 <span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The message ID, must be between 0 and 65535, inclusive, (default</span>
-<span class="sd">            1).</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
 <span class="sd">        priority : int, optional</span>
-<span class="sd">            The C-GET operation priority (may not be supported by the peer),</span>
+<span class="sd">            The C-GET operation *Priority* (may not be supported by the peer),</span>
 <span class="sd">            one of:</span>
 
-<span class="sd">            - 0 - Medium</span>
-<span class="sd">            - 1 - High</span>
-<span class="sd">            - 2 - Low (default)</span>
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 
 <span class="sd">        query_model : str, optional</span>
 <span class="sd">            The Query/Retrieve Information Model to use, one of the following:</span>
 
-<span class="sd">            - &#39;P&#39; - Patient Root Information Model - GET</span>
+<span class="sd">            - ``P`` - *Patient Root Information Model - GET*</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.1.3 (default)</span>
-<span class="sd">            - &#39;S&#39; - Study Root Information Model - GET</span>
+<span class="sd">            - ``S`` - *Study Root Information Model - GET*</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.2.3</span>
-<span class="sd">            - &#39;O&#39; - Patient Study Only Information Model - GET</span>
+<span class="sd">            - ``O`` - *Patient Study Only Information Model - GET*</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.3.3</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
 <span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty Dataset. If a response was received from the peer then yields</span>
-<span class="sd">            a Dataset containing at least a (0000,0900) Status element, and</span>
-<span class="sd">            depending on the returned Status value may optionally contain</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value may optionally contain</span>
 <span class="sd">            additional elements (see DICOM Standard Part 7, Section 9.1.2.1.5</span>
 <span class="sd">            and Annex C).</span>
 
 <span class="sd">            The status for the requested C-GET operation should be one of the</span>
-<span class="sd">            following Status codes, but as the returned value depends on the</span>
+<span class="sd">            following values, but as the returned value depends on the</span>
 <span class="sd">            peer this can&#39;t be assumed:</span>
 
 <span class="sd">            General C-GET (DICOM Standard Part 7, Section 9.1.3 and Annex C)</span>
 
-<span class="sd">            - Success</span>
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Sub-operations complete: no failures or warnings</span>
 
-<span class="sd">              * 0x0000 - Sub-operations complete: no failures or warnings</span>
-
-<span class="sd">            - Failure</span>
-
-<span class="sd">              * 0x0122 - SOP class not supported</span>
-<span class="sd">              * 0x0124 - Not authorised</span>
-<span class="sd">              * 0x0210 - Duplicate invocation</span>
-<span class="sd">              * 0x0211 - Unrecognised operation</span>
-<span class="sd">              * 0x0212 - Mistyped argument</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0122`` SOP class not supported</span>
+<span class="sd">              | ``0x0124`` Not authorised</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
 
 <span class="sd">            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex</span>
 <span class="sd">            C.4.3):</span>
 
-<span class="sd">            - Pending</span>
+<span class="sd">            Pending</span>
+<span class="sd">              | ``0xFF00`` Sub-operations are continuing</span>
 
-<span class="sd">              * 0xFF00 - Sub-operations are continuing</span>
+<span class="sd">            Cancel</span>
+<span class="sd">              | ``0xFE00`` Sub-operations terminated due to Cancel indication</span>
 
-<span class="sd">            - Cancel</span>
-
-<span class="sd">              * 0xFE00 - Sub-operations terminated due to Cancel indication</span>
-
-<span class="sd">            - Failure</span>
-
-<span class="sd">              *  0xA701 - Out of resources: unable to calculate number of</span>
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0xA701`` Out of resources: unable to calculate number of</span>
 <span class="sd">                 matches</span>
-<span class="sd">              *  0xA702 - Out of resources: unable to perform sub-operations</span>
-<span class="sd">              *  0xA900 - Identifier does not match SOP class</span>
-<span class="sd">              *  0xC000 to 0xCFFF - Unable to process</span>
+<span class="sd">              | ``0xA702`` Out of resources: unable to perform sub-operations</span>
+<span class="sd">              | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">              | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
-<span class="sd">            - Warning</span>
-
-<span class="sd">              *  0xB000 - Sub-operations completed: one or more failures or</span>
+<span class="sd">            Warning</span>
+<span class="sd">              | ``0xB000`` Sub-operations completed: one or more failures or</span>
 <span class="sd">                 warnings</span>
 
 <span class="sd">        identifier : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status is &#39;Pending&#39; or &#39;Success&#39; then yields None. If the</span>
-<span class="sd">            status is &#39;Warning&#39;, &#39;Failure&#39; or &#39;Cancel&#39; then yields a Dataset</span>
-<span class="sd">            which should contain an (0008,0058) &#39;Failed SOP Instance UID List&#39;</span>
-<span class="sd">            element, however this is not guaranteed and may return an empty</span>
-<span class="sd">            Dataset.</span>
+<span class="sd">            If the status is &#39;Pending&#39; or &#39;Success&#39; then yields ``None``. If</span>
+<span class="sd">            the status is &#39;Warning&#39;, &#39;Failure&#39; or &#39;Cancel&#39; then yields a</span>
+<span class="sd">            ``Dataset`` which should contain an (0008,0058) *Failed SOP</span>
+<span class="sd">            Instance UID List* element, however this is not guaranteed and may</span>
+<span class="sd">            instead return an empty ``Dataset``.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If send_c_get is called with no established association.</span>
+<span class="sd">            If ``send_c_get`` is called with no established association.</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            If no accepted Presentation Context for `dataset` exists or if</span>
-<span class="sd">            unable to encode the Identifier `dataset`.</span>
+<span class="sd">            unable to encode the *Identifier* `dataset`.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1748,8 +1750,12 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annex C</span>
-<span class="sd">        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C</span>
+
+<span class="sd">        * DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`_,</span>
+<span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-GET without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2054,7 +2060,7 @@
 
     <span class="c1"># DIMSE-N services provided by the Association</span>
     <span class="c1"># TODO: Implement DIMSE-N services</span>
-<div class="viewcode-block" id="Association.send_n_event_report"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-EVENT-REPORT request message to the peer AE.&quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-EVENT-REPORT without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2063,7 +2069,7 @@
                                <span class="s2">&quot;request&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Association.send_n_get"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-GET request message to the peer AE.&quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-GET without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2072,7 +2078,7 @@
                                <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Association.send_n_set"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-SET request message to the peer AE.&quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-SET without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2081,7 +2087,7 @@
                                <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-ACTION request message to the peer AE.&quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-ACTION without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2090,7 +2096,7 @@
                                <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-CREATE request message to the peer AE.&quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-CREATE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2099,7 +2105,7 @@
                                <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-DELETE request message to the peer AE.&quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-DELETE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2110,7 +2116,7 @@
 
 
     <span class="c1"># Association logging/debugging functions</span>
-<div class="viewcode-block" id="Association.debug_association_requested"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.debug_association_requested">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Association.debug_association_requested"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.debug_association_requested">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_association_requested</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging information when an A-ASSOCIATE request received.</span>
 
@@ -2121,7 +2127,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Association.debug_association_accepted"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.debug_association_accepted">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Association.debug_association_accepted"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.debug_association_accepted">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_association_accepted</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging information when an A-ASSOCIATE accept is received.</span>
 
@@ -2132,7 +2138,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Association.debug_association_rejected"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.debug_association_rejected">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Association.debug_association_rejected"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.debug_association_rejected">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_association_rejected</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging information when an A-ASSOCIATE rejection received.</span>
 
@@ -2180,7 +2186,7 @@
                      <span class="n">source_str</span><span class="p">[</span><span class="n">source</span><span class="p">])</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Reason: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">reason_str</span><span class="p">[</span><span class="n">source</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">reason</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="Association.debug_association_released"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.debug_association_released">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Association.debug_association_released"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.debug_association_released">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_association_released</span><span class="p">(</span><span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging information when an A-RELEASE request received.</span>
 
@@ -2191,7 +2197,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Released&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Association.debug_association_aborted"><a class="viewcode-back" href="../../api.html#pynetdicom3.association.Association.debug_association_aborted">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Association.debug_association_aborted"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.debug_association_aborted">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_association_aborted</span><span class="p">(</span><span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Debugging information when an A-ABORT request received.</span>
 
@@ -2213,7 +2219,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors.
+        &copy; Copyright 2018, pynetdicom3 contributors
 
     </p>
   </div>
@@ -2232,20 +2238,14 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'0.9.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

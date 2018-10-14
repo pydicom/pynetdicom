@@ -1,0 +1,33 @@
+pynetdicom3.dimse\_primitives.C\_ECHO
+=====================================
+
+.. currentmodule:: pynetdicom3.dimse_primitives
+
+.. autoclass:: C_ECHO
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_ECHO.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_ECHO.AffectedSOPClassUID
+      ~C_ECHO.MessageID
+      ~C_ECHO.MessageIDBeingRespondedTo
+      ~C_ECHO.Status
+      ~C_ECHO.is_valid_request
+      ~C_ECHO.is_valid_response
+   
+   

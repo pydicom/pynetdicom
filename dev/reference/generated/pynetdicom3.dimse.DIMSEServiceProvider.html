@@ -1,0 +1,1502 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.dimse.DIMSEServiceProvider &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>pynetdicom3.dimse.DIMSEServiceProvider</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom3-dimse-dimseserviceprovider">
+<h1>pynetdicom3.dimse.DIMSEServiceProvider<a class="headerlink" href="#pynetdicom3-dimse-dimseserviceprovider" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider">
+<em class="property">class </em><code class="descclassname">pynetdicom3.dimse.</code><code class="descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em>dul</em>, <em>dimse_timeout=None</em>, <em>maximum_pdu_size=16382</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DIMSE service provider.</p>
+<p>A DICOM AE uses the services provided by the DICOM Message Service Element
+(DIMSE). DIMSE specifies two sets of services.</p>
+<ul class="simple">
+<li>DIMSE-C supports operations associated with composite SOP Classes and
+provides effective compatibility with the previous versions of the DICOM
+standards.</li>
+<li>DIMSE-N supports operations associated with normalised SOP Classes and
+provides an extended set of object-orientated operations and notifications</li>
+</ul>
+<p><strong>Service Overview</strong></p>
+<p>The DIMSE service provider supports communication between peer DIMSE service
+users. A service user acts in one of two roles:</p>
+<ul class="simple">
+<li>invoking DIMSE user</li>
+<li>performing DIMSE user</li>
+</ul>
+<p>Service users make use of service primitives provided by the DIMSE service
+provider. A service primitive shall be one of the following types:</p>
+<ul class="simple">
+<li>request primitive</li>
+<li>indication primitive</li>
+<li>response primitive</li>
+<li>confirmation primitive</li>
+</ul>
+<p>These primitives are used as follows:</p>
+<ul class="simple">
+<li>The invoking service user issues a request primitive to the DIMSE provider</li>
+<li>The DIMSE provider receives the request primitive and issues an indication
+primitive to the performing service user</li>
+<li>The performing service user receives the indication primitive and performs
+the requested service</li>
+<li>The performing service user issues a response primitive to the DIMSE
+provider</li>
+<li>The DIMSE provider receives the response primitive and issues a
+confirmation primitive to the invoking service user</li>
+<li>The invoking service user receives the confirmation primitive, completing
+the DIMSE service.</li>
+</ul>
+<p><strong>Service Primitive Classes</strong></p>
+<ul class="simple">
+<li>DIMSE-C: C_ECHO, C_STORE, C_GET, C_FIND, C_MOVE</li>
+<li>DIMSE-N: N_EVENT_REPORT, N_GET, N_GET, N_ACTION, N_CREATE, N_DELETE</li>
+</ul>
+<p><strong>Protocol Machine</strong></p>
+<p>PS3.7 8.1
+The DIMSE protocol machine defines the procedures and the encoding rules
+necessary to construct Messages used to exchange command requests and
+responses between peer DIMSE service users.</p>
+<p>The DIMSE protocol machine accepts service user requests and response
+service primitives and constructs Messages defined by the procedures in
+PS3.7 9.3 and 10.3. The DIMSE protocol machine accepts Messages and passes
+them to the DIMSE service user by the means of indication and confirmation
+service primitives.</p>
+<p><strong>Messages</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="37%" />
+<col width="38%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Primitive</td>
+<td>Type</td>
+<td>Message Class</td>
+</tr>
+<tr class="row-even"><td>C-CANCEL</td>
+<td>Request/indication</td>
+<td>C_CANCEL_R</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">C-ECHO</td>
+<td>Request/indication</td>
+<td>C_ECHO_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>C_ECHO_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">C-FIND</td>
+<td>Request/indication</td>
+<td>C_FIND_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>C_FIND_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">C-GET</td>
+<td>Request/indication</td>
+<td>C_GET_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>C_GET_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">C-MOVE</td>
+<td>Request/indication</td>
+<td>C_MOVE_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>C_MOVE_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">C-STORE</td>
+<td>Request/indication</td>
+<td>C_STORE_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>C_STORE_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">N-ACTION</td>
+<td>Request/indication</td>
+<td>N_ACTION_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>N_ACTION_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">N-CREATE</td>
+<td>Request/indication</td>
+<td>N_CREATE_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>N_CREATE_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">N-DELETE</td>
+<td>Request/indication</td>
+<td>N_DELETE_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>N_DELETE_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">N-EVENT-REPORT</td>
+<td>Request/indication</td>
+<td>N_EVENT_REPORT_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>N_EVENT_REPORT_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">N-GET</td>
+<td>Request/indication</td>
+<td>N_GET_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>N_GET_RSP</td>
+</tr>
+<tr class="row-odd"><td rowspan="2">N-SET</td>
+<td>Request/indication</td>
+<td>N_SET_RQ</td>
+</tr>
+<tr class="row-even"><td>Response/confirmation</td>
+<td>N_SET_RSP</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.dimse_timeout">
+<code class="descname">dimse_timeout</code><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.dimse_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of seconds before the DIMSE service timeout. A value of
+<code class="docutils literal notranslate"><span class="pre">None</span></code> indicates no timeout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">numeric or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.dul">
+<code class="descname">dul</code><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.dul" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DICOM Upper Layer service provider.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider" title="pynetdicom3.dul.DULServiceProvider">dul.DULServiceProvider</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.maximum_pdu_size">
+<code class="descname">maximum_pdu_size</code><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.maximum_pdu_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum PDU size when sending DIMSE messages.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.message">
+<code class="descname">message</code><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DIMSE message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dimse_messages.DIMSEMessage</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard, Part 7</li>
+</ul>
+<dl class="method">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>dul</em>, <em>dimse_timeout=None</em>, <em>maximum_pdu_size=16382</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the DIMSE service provider.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dul</strong> (<a class="reference internal" href="pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider" title="pynetdicom3.dul.DULServiceProvider"><em>dul.DULServiceProvider</em></a>) – The DICOM Upper Layer service provider.</li>
+<li><strong>dimse_timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The number of seconds before the DIMSE service timeout. A value of
+None indicates no timeout.</li>
+<li><strong>maximum_pdu_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The maximum PDU size when sending DIMSE messages, default 16382.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.__init__" title="pynetdicom3.dimse.DIMSEServiceProvider.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dul[,&nbsp;dimse_timeout,&nbsp;maximum_pdu_size])</td>
+<td>Start the DIMSE service provider.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_cancel_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-CANCEL-*-RQ is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_echo_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-ECHO-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_echo_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-ECHO-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_find_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-FIND-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_find_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-FIND-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_get_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-GET-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_get_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-GET-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_move_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-MOVE-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_move_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-MOVE-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_store_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-STORE-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_c_store_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-STORE-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_action_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-ACTION-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_action_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-ACTION-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_create_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-CREATE-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_create_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-CREATE-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_delete_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-DELETE-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_delete_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-DELETE-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_event_report_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-EVENT-REPORT-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_event_report_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-EVENT-REPORT-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_get_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-GET-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_get_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-GET-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_set_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-SET-RQ is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_receive_n_set_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-SET-RSP is received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_cancel_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-CANCEL-*-RQ is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_echo_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-ECHO-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_echo_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-ECHO-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_find_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-FIND-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_find_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-FIND-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_get_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-GET-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_get_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-GET-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_move_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-MOVE-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_move_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-MOVE-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_store_rq</span></code></a>(msg)</td>
+<td>Debugging function when a C-STORE-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_c_store_rsp</span></code></a>(msg)</td>
+<td>Debugging function when a C-STORE-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_action_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-ACTION-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_action_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-ACTION-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_create_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-CREATE-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_create_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-CREATE-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_delete_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-DELETE-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_delete_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-DELETE-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_event_report_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-EVENT-REPORT-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_event_report_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-EVENT-REPORT-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_get_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-GET-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_get_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-GET-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rq" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_set_rq</span></code></a>(msg)</td>
+<td>Debugging function when an N-SET-RQ is sent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp" title="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_send_n_set_rsp</span></code></a>(msg)</td>
+<td>Debugging function when an N-SET-RSP is sent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.on_receive_dimse_message" title="pynetdicom3.dimse.DIMSEServiceProvider.on_receive_dimse_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_receive_dimse_message</span></code></a>(message)</td>
+<td>Controls which debugging function is called when receiving.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message" title="pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_send_dimse_message</span></code></a>(message)</td>
+<td>Controls which debugging function is called when sending.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.receive_msg" title="pynetdicom3.dimse.DIMSEServiceProvider.receive_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">receive_msg</span></code></a>([wait])</td>
+<td>Receive a DIMSE message from the peer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse.DIMSEServiceProvider.send_msg" title="pynetdicom3.dimse.DIMSEServiceProvider.send_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_msg</span></code></a>(primitive,&nbsp;context_id)</td>
+<td>Send a DIMSE-C or DIMSE-N message to the peer AE.</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq">
+<em class="property">static </em><code class="descname">debug_receive_c_cancel_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_cancel_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-CANCEL-*-RQ is received.</p>
+<p>Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_CANCEL_RQ</em>) – The received C-CANCEL-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rq">
+<em class="property">static </em><code class="descname">debug_receive_c_echo_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_echo_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-ECHO-RQ is received.</p>
+<p><strong>C-ECHO Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_ECHO_RQ</em>) – The received C-ECHO-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rsp">
+<em class="property">static </em><code class="descname">debug_receive_c_echo_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_echo_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_echo_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-ECHO-RSP is received.</p>
+<p><strong>C-ECHO Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(M) Status</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_ECHO_RSP.html#pynetdicom3.dimse_messages.C_ECHO_RSP" title="pynetdicom3.dimse_messages.C_ECHO_RSP"><em>dimse_messages.C_ECHO_RSP</em></a>) – The received C-ECHO-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rq">
+<em class="property">static </em><code class="descname">debug_receive_c_find_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_find_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-FIND-RQ is received.</p>
+<p><strong>C-FIND Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(M) Identifier</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_FIND_RQ</em>) – The received C-FIND-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rsp">
+<em class="property">static </em><code class="descname">debug_receive_c_find_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_find_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_find_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-FIND-RSP is received.</p>
+<p><strong>C-FIND Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(C) Identifier</div>
+<div class="line">(M) Status</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_FIND_RSP.html#pynetdicom3.dimse_messages.C_FIND_RSP" title="pynetdicom3.dimse_messages.C_FIND_RSP"><em>dimse_messages.C_FIND_RSP</em></a>) – The received C-FIND-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rq">
+<em class="property">static </em><code class="descname">debug_receive_c_get_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_get_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-GET-RQ is received.</p>
+<p><strong>C-GET Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(M) Identifier</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_GET_RQ</em>) – The received C-GET-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rsp">
+<em class="property">static </em><code class="descname">debug_receive_c_get_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_get_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_get_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-GET-RSP is received.</p>
+<p><strong>C-GET Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(U) Identifier</div>
+<div class="line">(M) Status</div>
+<div class="line">(C) Number of Remaining Sub-operations</div>
+<div class="line">(C) Number of Completed Sub-operations</div>
+<div class="line">(C) Number of Failed Sub-operations</div>
+<div class="line">(C) Number of Warning Sub-operations</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_GET_RSP</em>) – The received C-GET-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rq">
+<em class="property">static </em><code class="descname">debug_receive_c_move_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_move_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-MOVE-RQ is received.</p>
+<p><strong>C-MOVE Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(M) Move Destination</div>
+<div class="line">(M) Identifier</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_MOVE_RQ</em>) – The received C-MOVE-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rsp">
+<em class="property">static </em><code class="descname">debug_receive_c_move_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_move_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_move_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-MOVE-RSP is received.</p>
+<p><strong>C-MOVE Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(U) Identifier</div>
+<div class="line">(M) Status</div>
+<div class="line">(C) Number of Remaining Sub-operations</div>
+<div class="line">(C) Number of Completed Sub-operations</div>
+<div class="line">(C) Number of Failed Sub-operations</div>
+<div class="line">(C) Number of Warning Sub-operations</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_MOVE_RSP</em>) – The received C-MOVE-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rq">
+<em class="property">static </em><code class="descname">debug_receive_c_store_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_store_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-STORE-RQ is received.</p>
+<p><strong>C-STORE Request Elements</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Affected SOP Instance UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(U) Move Originator Application Entity Title</div>
+<div class="line">(U) Move Originator Message ID</div>
+<div class="line">(M) Data Set</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_STORE_RQ</em>) – The received C-STORE-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rsp">
+<em class="property">static </em><code class="descname">debug_receive_c_store_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_c_store_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_c_store_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-STORE-RSP is received.</p>
+<p><strong>C-STORE Response Elements</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(U) Affected SOP Instance UID</div>
+<div class="line">(M) Status</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messagesC_STORE_RSP</em>) – The received C-STORE-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rq">
+<em class="property">static </em><code class="descname">debug_receive_n_action_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_action_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-ACTION-RQ is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_ACTION_RQ</em>) – The received N-ACTION-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rsp">
+<em class="property">static </em><code class="descname">debug_receive_n_action_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_action_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_action_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-ACTION-RSP is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_ACTION_RSP</em>) – The received N-ACTION-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rq">
+<em class="property">static </em><code class="descname">debug_receive_n_create_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_create_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-CREATE-RQ is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_CREATE_RQ</em>) – The received N-CREATE-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rsp">
+<em class="property">static </em><code class="descname">debug_receive_n_create_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_create_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_create_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-CREATE-RSP is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_CREATE_RSP</em>) – The received N-CREATE-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rq">
+<em class="property">static </em><code class="descname">debug_receive_n_delete_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_delete_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-DELETE-RQ is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_DELETE_RQ</em>) – The received N-DELETE-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rsp">
+<em class="property">static </em><code class="descname">debug_receive_n_delete_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_delete_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_delete_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-DELETE-RSP is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_DELETE_RSP</em>) – The received N-DELETE-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq">
+<em class="property">static </em><code class="descname">debug_receive_n_event_report_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_event_report_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-EVENT-REPORT-RQ is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_EVENT_REPORT_RQ</em>) – The received N-EVENT-REPORT-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rsp">
+<em class="property">static </em><code class="descname">debug_receive_n_event_report_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_event_report_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-EVENT-REPORT-RSP is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_EVENT_REPORT_RSP</em>) – The received N-EVENT-REPORT-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rq">
+<em class="property">static </em><code class="descname">debug_receive_n_get_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_get_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-GET-RQ is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_GET_RQ</em>) – The received N-GET-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rsp">
+<em class="property">static </em><code class="descname">debug_receive_n_get_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_get_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_get_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-GET-RSP is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_GET_RSP</em>) – The received N-GET-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rq">
+<em class="property">static </em><code class="descname">debug_receive_n_set_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_set_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-SET-RQ is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_SET_RQ</em>) – The received N-SET-RQ message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rsp">
+<em class="property">static </em><code class="descname">debug_receive_n_set_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_receive_n_set_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_set_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-SET-RSP is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_SET_RSP</em>) – The received N-SET-RSP message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq">
+<em class="property">static </em><code class="descname">debug_send_c_cancel_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_cancel_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-CANCEL-*-RQ is sent.</p>
+<p>Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_CANCEL_RQ.html#pynetdicom3.dimse_messages.C_CANCEL_RQ" title="pynetdicom3.dimse_messages.C_CANCEL_RQ"><em>dimse_messages.C_CANCEL_RQ</em></a>) – The C-CANCEL-*-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rq">
+<em class="property">static </em><code class="descname">debug_send_c_echo_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_echo_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-ECHO-RQ is sent.</p>
+<p><strong>C-ECHO Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_ECHO_RQ.html#pynetdicom3.dimse_messages.C_ECHO_RQ" title="pynetdicom3.dimse_messages.C_ECHO_RQ"><em>dimse_messages.C_ECHO_RQ</em></a>) – The C-ECHO-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rsp">
+<em class="property">static </em><code class="descname">debug_send_c_echo_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_echo_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_echo_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-ECHO-RSP is sent.</p>
+<p><strong>C-ECHO Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(M) Status</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_ECHO_RSP.html#pynetdicom3.dimse_messages.C_ECHO_RSP" title="pynetdicom3.dimse_messages.C_ECHO_RSP"><em>dimse_messages.C_ECHO_RSP</em></a>) – The C-ECHO-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rq">
+<em class="property">static </em><code class="descname">debug_send_c_find_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_find_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-FIND-RQ is sent.</p>
+<p><strong>C-FIND Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(M) Identifier</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_FIND_RQ.html#pynetdicom3.dimse_messages.C_FIND_RQ" title="pynetdicom3.dimse_messages.C_FIND_RQ"><em>dimse_messages.C_FIND_RQ</em></a>) – The C-FIND-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rsp">
+<em class="property">static </em><code class="descname">debug_send_c_find_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_find_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_find_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-FIND-RSP is sent.</p>
+<p><strong>C-FIND Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(C) Identifier</div>
+<div class="line">(M) Status</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_FIND_RSP.html#pynetdicom3.dimse_messages.C_FIND_RSP" title="pynetdicom3.dimse_messages.C_FIND_RSP"><em>dimse_messages.C_FIND_RSP</em></a>) – The C-FIND-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rq">
+<em class="property">static </em><code class="descname">debug_send_c_get_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_get_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-GET-RQ is sent.</p>
+<p><strong>C-GET Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(M) Identifier</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_GET_RQ.html#pynetdicom3.dimse_messages.C_GET_RQ" title="pynetdicom3.dimse_messages.C_GET_RQ"><em>dimse_messages.C_GET_RQ</em></a>) – The C-GET-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rsp">
+<em class="property">static </em><code class="descname">debug_send_c_get_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_get_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_get_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-GET-RSP is sent.</p>
+<p><strong>C-GET Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(U) Identifier</div>
+<div class="line">(M) Status</div>
+<div class="line">(C) Number of Remaining Sub-operations</div>
+<div class="line">(C) Number of Completed Sub-operations</div>
+<div class="line">(C) Number of Failed Sub-operations</div>
+<div class="line">(C) Number of Warning Sub-operations</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_GET_RSP.html#pynetdicom3.dimse_messages.C_GET_RSP" title="pynetdicom3.dimse_messages.C_GET_RSP"><em>dimse_messages.C_GET_RSP</em></a>) – The C-GET-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rq">
+<em class="property">static </em><code class="descname">debug_send_c_move_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_move_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-MOVE-RQ is sent.</p>
+<p><strong>C-MOVE Request Parameters</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(M) Move Destination</div>
+<div class="line">(M) Identifier</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_MOVE_RQ.html#pynetdicom3.dimse_messages.C_MOVE_RQ" title="pynetdicom3.dimse_messages.C_MOVE_RQ"><em>dimse_messages.C_MOVE_RQ</em></a>) – The C-MOVE-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rsp">
+<em class="property">static </em><code class="descname">debug_send_c_move_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_move_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_move_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-MOVE-RSP is sent.</p>
+<p><strong>C-MOVE Response Parameters</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(U) Identifier</div>
+<div class="line">(M) Status</div>
+<div class="line">(C) Number of Remaining Sub-operations</div>
+<div class="line">(C) Number of Completed Sub-operations</div>
+<div class="line">(C) Number of Failed Sub-operations</div>
+<div class="line">(C) Number of Warning Sub-operations</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_MOVE_RSP.html#pynetdicom3.dimse_messages.C_MOVE_RSP" title="pynetdicom3.dimse_messages.C_MOVE_RSP"><em>dimse_messages.C_MOVE_RSP</em></a>) – The C-MOVE-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rq">
+<em class="property">static </em><code class="descname">debug_send_c_store_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_store_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-STORE-RQ is sent.</p>
+<p><strong>C-STORE Request Elements</strong></p>
+<div class="line-block">
+<div class="line">(M) Message ID</div>
+<div class="line">(M) Affected SOP Class UID</div>
+<div class="line">(M) Affected SOP Instance UID</div>
+<div class="line">(M) Priority</div>
+<div class="line">(U) Move Originator Application Entity Title</div>
+<div class="line">(U) Move Originator Message ID</div>
+<div class="line">(M) Data Set</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_STORE_RQ.html#pynetdicom3.dimse_messages.C_STORE_RQ" title="pynetdicom3.dimse_messages.C_STORE_RQ"><em>dimse_messages.C_STORE_RQ</em></a>) – The C-STORE-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rsp">
+<em class="property">static </em><code class="descname">debug_send_c_store_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_c_store_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_c_store_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when a C-STORE-RSP is sent.</p>
+<p><strong>C-STORE Response Elements</strong></p>
+<div class="line-block">
+<div class="line">(U) Message ID</div>
+<div class="line">(M) Message ID Being Responded To</div>
+<div class="line">(U) Affected SOP Class UID</div>
+<div class="line">(U) Affected SOP Instance UID</div>
+<div class="line">(M) Status</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<a class="reference internal" href="pynetdicom3.dimse_messages.C_STORE_RSP.html#pynetdicom3.dimse_messages.C_STORE_RSP" title="pynetdicom3.dimse_messages.C_STORE_RSP"><em>dimse_messages.C_STORE_RSP</em></a>) – The C-STORE-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq">
+<em class="property">static </em><code class="descname">debug_send_n_action_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_action_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-ACTION-RQ is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_ACTION_RQ</em>) – The N-ACTION-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rsp">
+<em class="property">static </em><code class="descname">debug_send_n_action_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_action_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-ACTION-RSP is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_ACTION_RSP</em>) – The N-ACTION-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rq">
+<em class="property">static </em><code class="descname">debug_send_n_create_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_create_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-CREATE-RQ is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_CREATE_RQ</em>) – The N-CREATE-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rsp">
+<em class="property">static </em><code class="descname">debug_send_n_create_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_create_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_create_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-CREATE-RSP is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_CREATE_RSP</em>) – The N-CREATE-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rq">
+<em class="property">static </em><code class="descname">debug_send_n_delete_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_delete_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-DELETE-RQ is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_DELETE_RQ</em>) – The N-DELETE-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp">
+<em class="property">static </em><code class="descname">debug_send_n_delete_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_delete_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-DELETE-RSP is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_DELETE_RSP</em>) – The N-DELETE-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq">
+<em class="property">static </em><code class="descname">debug_send_n_event_report_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_event_report_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-EVENT-REPORT-RQ is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_EVENT_REPORT_RQ</em>) – The N-EVENT-REPORT-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp">
+<em class="property">static </em><code class="descname">debug_send_n_event_report_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_event_report_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-EVENT-REPORT-RSP is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_EVENT_REPORT_RSP</em>) – The N-EVENT-REPORT-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rq">
+<em class="property">static </em><code class="descname">debug_send_n_get_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_get_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-GET-RQ is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_GET_RQ</em>) – The N-GET-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rsp">
+<em class="property">static </em><code class="descname">debug_send_n_get_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_get_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_get_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-GET-RSP is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_GET_RSP</em>) – The N-GET-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rq">
+<em class="property">static </em><code class="descname">debug_send_n_set_rq</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_set_rq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-SET-RQ is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_SET_RQ</em>) – The N-SET-RQ message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp">
+<em class="property">static </em><code class="descname">debug_send_n_set_rsp</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.debug_send_n_set_rsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debugging function when an N-SET-RSP is sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg</strong> (<em>dimse_messages.N_SET_RSP</em>) – The N-SET-RSP message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.on_receive_dimse_message">
+<code class="descname">on_receive_dimse_message</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.on_receive_dimse_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.on_receive_dimse_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls which debugging function is called when receiving.</p>
+<p>Function will be called immediately after receiving and decoding a
+DIMSE message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>dimse_messages.DIMSEMessage</em>) – The DIMSE message that was received.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message">
+<code class="descname">on_send_dimse_message</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.on_send_dimse_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls which debugging function is called when sending.</p>
+<p>Will be called immediately prior to encoding and sending a DIMSE
+message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>dimse_messages.DIMSEMessage</em>) – The DIMSE message to be sent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.receive_msg">
+<code class="descname">receive_msg</code><span class="sig-paren">(</span><em>wait=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.receive_msg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.receive_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a DIMSE message from the peer.</p>
+<p>Set the DIMSE provider in a mode ready to receive a response from the
+peer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Wait until a response has been received (default: False).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns the complete DIMSE message and its presentation context ID
+or None, None.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dimse_messages.DIMSEMessage, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom3.dimse.DIMSEServiceProvider.send_msg">
+<code class="descname">send_msg</code><span class="sig-paren">(</span><em>primitive</em>, <em>context_id</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse.html#DIMSEServiceProvider.send_msg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a DIMSE-C or DIMSE-N message to the peer AE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>primitive</strong> (<em>dimse_primitives DIMSE Primitive class</em>) – The DIMSE message primitive to send to the peer.</li>
+<li><strong>context_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The ID of the presentation context that the message is to be
+sent under.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

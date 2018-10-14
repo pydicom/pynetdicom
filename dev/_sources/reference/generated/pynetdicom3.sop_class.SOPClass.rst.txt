@@ -1,0 +1,31 @@
+pynetdicom3.sop\_class.SOPClass
+===============================
+
+.. currentmodule:: pynetdicom3.sop_class
+
+.. autoclass:: SOPClass
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SOPClass.count
+      ~SOPClass.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SOPClass.UID
+      ~SOPClass.service_class
+      ~SOPClass.uid
+   
+   

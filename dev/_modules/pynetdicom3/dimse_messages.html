@@ -87,13 +87,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -178,91 +182,146 @@
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.dimse&#39;</span><span class="p">)</span>
 
-<span class="n">_MESSAGE_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x0001</span><span class="p">:</span> <span class="s1">&#39;C-STORE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8001</span><span class="p">:</span> <span class="s1">&#39;C-STORE-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0020</span><span class="p">:</span> <span class="s1">&#39;C-FIND-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8020</span><span class="p">:</span> <span class="s1">&#39;C-FIND-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0010</span><span class="p">:</span> <span class="s1">&#39;C-GET-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8010</span><span class="p">:</span> <span class="s1">&#39;C-GET-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0021</span><span class="p">:</span> <span class="s1">&#39;C-MOVE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8021</span><span class="p">:</span> <span class="s1">&#39;C-MOVE-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0030</span><span class="p">:</span> <span class="s1">&#39;C-ECHO-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8030</span><span class="p">:</span> <span class="s1">&#39;C-ECHO-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0FFF</span><span class="p">:</span> <span class="s1">&#39;C-CANCEL-RQ&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0100</span><span class="p">:</span> <span class="s1">&#39;N-EVENT-REPORT-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8100</span><span class="p">:</span> <span class="s1">&#39;N-EVENT-REPORT-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0110</span><span class="p">:</span> <span class="s1">&#39;N-GET-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8110</span><span class="p">:</span> <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0120</span><span class="p">:</span> <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8120</span><span class="p">:</span> <span class="s1">&#39;N-SET-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0130</span><span class="p">:</span> <span class="s1">&#39;N-ACTION-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8130</span><span class="p">:</span> <span class="s1">&#39;N-ACTION-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0140</span><span class="p">:</span> <span class="s1">&#39;N-CREATE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8140</span><span class="p">:</span> <span class="s1">&#39;N-CREATE-RSP&#39;</span><span class="p">,</span>
-                  <span class="mh">0x0150</span><span class="p">:</span> <span class="s1">&#39;N-DELETE-RQ&#39;</span><span class="p">,</span> <span class="mh">0x8150</span><span class="p">:</span> <span class="s1">&#39;N-DELETE-RSP&#39;</span><span class="p">}</span>
+<span class="n">_MESSAGE_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0x0001</span><span class="p">:</span> <span class="s1">&#39;C-STORE-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8001</span><span class="p">:</span> <span class="s1">&#39;C-STORE-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0020</span><span class="p">:</span> <span class="s1">&#39;C-FIND-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8020</span><span class="p">:</span> <span class="s1">&#39;C-FIND-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0010</span><span class="p">:</span> <span class="s1">&#39;C-GET-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8010</span><span class="p">:</span> <span class="s1">&#39;C-GET-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0021</span><span class="p">:</span> <span class="s1">&#39;C-MOVE-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8021</span><span class="p">:</span> <span class="s1">&#39;C-MOVE-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0030</span><span class="p">:</span> <span class="s1">&#39;C-ECHO-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8030</span><span class="p">:</span> <span class="s1">&#39;C-ECHO-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0FFF</span><span class="p">:</span> <span class="s1">&#39;C-CANCEL-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x0100</span><span class="p">:</span> <span class="s1">&#39;N-EVENT-REPORT-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8100</span><span class="p">:</span> <span class="s1">&#39;N-EVENT-REPORT-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0110</span><span class="p">:</span> <span class="s1">&#39;N-GET-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8110</span><span class="p">:</span> <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0120</span><span class="p">:</span> <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8120</span><span class="p">:</span> <span class="s1">&#39;N-SET-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0130</span><span class="p">:</span> <span class="s1">&#39;N-ACTION-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8130</span><span class="p">:</span> <span class="s1">&#39;N-ACTION-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0140</span><span class="p">:</span> <span class="s1">&#39;N-CREATE-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8140</span><span class="p">:</span> <span class="s1">&#39;N-CREATE-RSP&#39;</span><span class="p">,</span>
+    <span class="mh">0x0150</span><span class="p">:</span> <span class="s1">&#39;N-DELETE-RQ&#39;</span><span class="p">,</span>
+    <span class="mh">0x8150</span><span class="p">:</span> <span class="s1">&#39;N-DELETE-RSP&#39;</span>
+<span class="p">}</span>
 
 <span class="c1"># PS3.7 Section 9.3</span>
 <span class="n">_COMMAND_SET_ELEM</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;C-ECHO-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span>  <span class="c1"># CommandGroupLength</span>
-                  <span class="mh">0x00000002</span><span class="p">,</span>  <span class="c1"># AffectedSOPClassUID</span>
-                  <span class="mh">0x00000100</span><span class="p">,</span>  <span class="c1"># CommandField</span>
-                  <span class="mh">0x00000110</span><span class="p">,</span>  <span class="c1"># MessageID</span>
-                  <span class="mh">0x00000800</span><span class="p">),</span>  <span class="c1"># CommandDataSetType</span>
-    <span class="s1">&#39;C-ECHO-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                   <span class="mh">0x00000120</span><span class="p">,</span>  <span class="c1"># MessageIDBeingRespondedTo</span>
-                   <span class="mh">0x00000800</span><span class="p">,</span>
-                   <span class="mh">0x00000900</span><span class="p">,</span>  <span class="c1"># Status</span>
-                   <span class="mh">0x00000902</span><span class="p">),</span>  <span class="c1"># ErrorComment</span>
-    <span class="s1">&#39;C-STORE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span>
-                   <span class="mh">0x00000700</span><span class="p">,</span>  <span class="c1"># Priority</span>
-                   <span class="mh">0x00000800</span><span class="p">,</span>
-                   <span class="mh">0x00001000</span><span class="p">,</span>  <span class="c1"># AffectedSOPInstanceUID</span>
-                   <span class="mh">0x00001030</span><span class="p">,</span>  <span class="c1"># MoveOriginatorApplicationEntityTitle</span>
-                   <span class="mh">0x00001031</span><span class="p">),</span>  <span class="c1"># MoveOriginatorMessageID</span>
-    <span class="s1">&#39;C-STORE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                    <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
-                    <span class="mh">0x00000901</span><span class="p">,</span>  <span class="c1"># OffendingElement</span>
-                    <span class="mh">0x00000902</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">),</span>
-    <span class="s1">&#39;C-FIND-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                  <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">),</span>
-    <span class="s1">&#39;C-FIND-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                   <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">),</span>
-    <span class="s1">&#39;C-CANCEL-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">),</span>
-    <span class="s1">&#39;C-GET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                 <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">),</span>
-    <span class="s1">&#39;C-GET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                  <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span>
-                  <span class="mh">0x00001020</span><span class="p">,</span>  <span class="c1"># NumberOfRemainingSuboperations</span>
-                  <span class="mh">0x00001021</span><span class="p">,</span>  <span class="c1"># NumberOfCompletedSuboperations</span>
-                  <span class="mh">0x00001022</span><span class="p">,</span>  <span class="c1"># NumberOfFailedSuboperations</span>
-                  <span class="mh">0x00001023</span><span class="p">),</span>  <span class="c1"># NumberOfWarningSuboperations</span>
-    <span class="s1">&#39;C-MOVE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                  <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span>
-                  <span class="mh">0x00000600</span><span class="p">),</span>  <span class="c1"># MoveDestination</span>
-    <span class="s1">&#39;C-MOVE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                   <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span>
-                   <span class="mh">0x00001020</span><span class="p">,</span> <span class="mh">0x00001021</span><span class="p">,</span> <span class="mh">0x00001022</span><span class="p">,</span> <span class="mh">0x00001023</span><span class="p">),</span>
-    <span class="s1">&#39;N-EVENT-REPORT-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                          <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span>
-                          <span class="mh">0x00001002</span><span class="p">),</span>  <span class="c1"># EventTypeID</span>
-    <span class="s1">&#39;N-EVENT-REPORT-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                           <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00001002</span><span class="p">),</span>
-    <span class="s1">&#39;N-GET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span>
-                 <span class="mh">0x00001001</span><span class="p">,</span>  <span class="c1"># RequestedSOPInstanceUID</span>
-                 <span class="mh">0x00001005</span><span class="p">),</span>  <span class="c1"># AttributeIdentifierList</span>
-    <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                  <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">),</span>
-    <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                 <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">),</span>
-    <span class="s1">&#39;N-SET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                  <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">),</span>
-    <span class="s1">&#39;N-ACTION-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                    <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">,</span>
-                    <span class="mh">0x00001008</span><span class="p">),</span>  <span class="c1"># ActionTypeID</span>
-    <span class="s1">&#39;N-ACTION-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                     <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00001008</span><span class="p">),</span>
-    <span class="s1">&#39;N-CREATE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                    <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">),</span>
-    <span class="s1">&#39;N-CREATE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                     <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">),</span>
-    <span class="s1">&#39;N-DELETE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
-                    <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">),</span>
-    <span class="s1">&#39;N-DELETE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-                     <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">)</span>
+    <span class="s1">&#39;C-ECHO-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span>  <span class="c1"># CommandGroupLength</span>
+        <span class="mh">0x00000002</span><span class="p">,</span>  <span class="c1"># AffectedSOPClassUID</span>
+        <span class="mh">0x00000100</span><span class="p">,</span>  <span class="c1"># CommandField</span>
+        <span class="mh">0x00000110</span><span class="p">,</span>  <span class="c1"># MessageID</span>
+        <span class="mh">0x00000800</span><span class="p">,</span>  <span class="c1"># CommandDataSetType</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-ECHO-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+        <span class="mh">0x00000120</span><span class="p">,</span>  <span class="c1"># MessageIDBeingRespondedTo</span>
+        <span class="mh">0x00000800</span><span class="p">,</span>
+        <span class="mh">0x00000900</span><span class="p">,</span>  <span class="c1"># Status</span>
+        <span class="mh">0x00000902</span><span class="p">,</span>  <span class="c1"># ErrorComment</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-STORE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span>
+        <span class="mh">0x00000700</span><span class="p">,</span>  <span class="c1"># Priority</span>
+        <span class="mh">0x00000800</span><span class="p">,</span>
+        <span class="mh">0x00001000</span><span class="p">,</span>  <span class="c1"># AffectedSOPInstanceUID</span>
+        <span class="mh">0x00001030</span><span class="p">,</span>  <span class="c1"># MoveOriginatorApplicationEntityTitle</span>
+        <span class="mh">0x00001031</span><span class="p">,</span>  <span class="c1"># MoveOriginatorMessageID</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-STORE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+        <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span>
+        <span class="mh">0x00000901</span><span class="p">,</span>  <span class="c1"># OffendingElement</span>
+        <span class="mh">0x00000902</span><span class="p">,</span> <span class="mh">0x00001000</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-FIND-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-FIND-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-CANCEL-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span> <span class="mh">0x00000800</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-GET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-GET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span>
+        <span class="mh">0x00001020</span><span class="p">,</span>  <span class="c1"># NumberOfRemainingSuboperations</span>
+        <span class="mh">0x00001021</span><span class="p">,</span>  <span class="c1"># NumberOfCompletedSuboperations</span>
+        <span class="mh">0x00001022</span><span class="p">,</span>  <span class="c1"># NumberOfFailedSuboperations</span>
+        <span class="mh">0x00001023</span><span class="p">,</span>  <span class="c1"># NumberOfWarningSuboperations</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-MOVE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+        <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000700</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span>
+        <span class="mh">0x00000600</span><span class="p">,</span>  <span class="c1"># MoveDestination</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;C-MOVE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00000901</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span>
+        <span class="mh">0x00001020</span><span class="p">,</span> <span class="mh">0x00001021</span><span class="p">,</span> <span class="mh">0x00001022</span><span class="p">,</span> <span class="mh">0x00001023</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-EVENT-REPORT-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+        <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span>
+        <span class="mh">0x00001002</span><span class="p">,</span>   <span class="c1"># EventTypeID</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-EVENT-REPORT-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00001002</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-GET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span>
+        <span class="mh">0x00001001</span><span class="p">,</span>  <span class="c1"># RequestedSOPInstanceUID</span>
+        <span class="mh">0x00001005</span><span class="p">,</span>  <span class="c1"># AttributeIdentifierList</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-SET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-ACTION-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+        <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span><span class="p">,</span>
+        <span class="mh">0x00001008</span><span class="p">,</span>  <span class="c1"># ActionTypeID</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-ACTION-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00001008</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-CREATE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span>
+        <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001000</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-CREATE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-DELETE-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;N-DELETE-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span>
+    <span class="p">)</span>
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="DIMSEMessage"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage">[docs]</a><span class="k">class</span> <span class="nc">DIMSEMessage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">DIMSEMessage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a DIMSE Message.</span>
 
 <span class="sd">    Information is communicated across the DICOM network interface in a DICOM</span>
@@ -317,7 +376,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">encoded_command_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
 
-<div class="viewcode-block" id="DIMSEMessage.decode_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.decode_msg">[docs]</a>    <span class="k">def</span> <span class="nf">decode_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decode_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts P-DATA primitives into a DIMSEMessage sub-class.</span>
 
 <span class="sd">        Decodes the data from the P-DATA service primitive (which</span>
@@ -327,13 +386,18 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        primitive : pynetdicom3.pdu_primitives.P_DATA</span>
+<span class="sd">        primitive : pdu_primitives.P_DATA</span>
 <span class="sd">            The P-DATA service primitive to be decoded into a DIMSE message.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            True when the DIMSE message is completely decoded, False otherwise.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 8, Annex E</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Make sure this is a P-DATA primitive</span>
         <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">!=</span> <span class="n">P_DATA</span> <span class="ow">or</span> <span class="n">primitive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -342,7 +406,7 @@
         <span class="k">for</span> <span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">primitive</span><span class="o">.</span><span class="n">presentation_data_value_list</span><span class="p">:</span>
 
             <span class="c1"># The first byte of the P-DATA is the Message Control Header</span>
-            <span class="c1">#   See PS3.8 Annex E.2</span>
+            <span class="c1">#   See Part 8, Annex E.2</span>
             <span class="c1"># The standard says that only the significant bits (ie the last</span>
             <span class="c1">#   two) should be checked</span>
             <span class="c1"># xxxxxx00 - Message Dataset information, not the last fragment</span>
@@ -393,8 +457,9 @@
                                               <span class="kc">True</span><span class="p">)</span>
 
                     <span class="c1"># Determine which DIMSE Message class to use</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> \
-                        <span class="n">_MESSAGE_CLASS_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandField</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">_MESSAGE_CLASS_TYPES</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandField</span>
+                    <span class="p">]</span>
 
                     <span class="c1"># Determine if a Data Set is present by checking for</span>
                     <span class="c1">#   (0000, 0800) CommandDataSetType US 1. If the value is</span>
@@ -420,17 +485,17 @@
                     <span class="k">return</span> <span class="kc">True</span>
 
         <span class="c1"># We return False to indicate that the message isn&#39;t yet fully decoded</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="DIMSEMessage.encode_msg"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.encode_msg">[docs]</a>    <span class="k">def</span> <span class="nf">encode_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_id</span><span class="p">,</span> <span class="n">max_pdu_length</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Yield P-DATE primitive(s) for the current DIMSE Message.</span>
+    <span class="k">def</span> <span class="nf">encode_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_id</span><span class="p">,</span> <span class="n">max_pdu_length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Yield P-DATA primitive(s) for the current DIMSE Message.</span>
 
-<span class="sd">        PS3.7 6.3.1</span>
+<span class="sd">        **Encoding**</span>
+<span class="sd">        </span>
 <span class="sd">        The encoding of the Command Set shall be Little Endian Implicit VR,</span>
 <span class="sd">        while the Data Set will be encoded as per the agreed presentation</span>
 <span class="sd">        context.</span>
 
-<span class="sd">        PS3.8 Annex E</span>
 <span class="sd">        A P-DATA request PDV List parameter shall contain one or more PDVs.</span>
 <span class="sd">        Each PDV is wholly contained in a given P-DATA request and doesn&#39;t</span>
 <span class="sd">        span across several P-DATA request primitives.</span>
@@ -450,14 +515,15 @@
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
-<span class="sd">        pynetdicom3.pdu_primitives.P_DATA</span>
+<span class="sd">        pdu_primitives.P_DATA</span>
 <span class="sd">            The current DIMSE message as one or more P-DATA service</span>
 <span class="sd">            primitives.</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard, Part 7, Section 6.3.1</span>
-<span class="sd">        DICOM Standard, Part 8, Annex E</span>
+
+<span class="sd">        * DICOM Standard, Part 7, Section 6.3.1</span>
+<span class="sd">        * DICOM Standard, Part 8, Annex E</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">context_id</span>
 
@@ -512,7 +578,7 @@
                 <span class="n">pdata</span><span class="o">.</span><span class="n">presentation_data_value_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">[</span><span class="n">context_id</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">next</span><span class="p">(</span><span class="n">ds_fragments</span><span class="p">)]</span>
                 <span class="p">)</span>
-                <span class="k">yield</span> <span class="n">pdata</span></div>
+                <span class="k">yield</span> <span class="n">pdata</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_generate_pdv_fragments</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">fragment_length</span><span class="p">):</span>
@@ -562,13 +628,14 @@
             <span class="k">yield</span> <span class="n">bytestream</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">offset</span> <span class="o">+</span> <span class="n">fragment_length</span><span class="p">]</span>
             <span class="n">offset</span> <span class="o">+=</span> <span class="n">fragment_length</span>
 
-<div class="viewcode-block" id="DIMSEMessage.message_to_primitive"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.message_to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">message_to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">message_to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert the DIMSEMessage class to a DIMSE primitive.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        primitive</span>
-<span class="sd">            One of the pynetdicom3.dimse_primitives primitives generated from</span>
+<span class="sd">        DIMSE message primitive</span>
+<span class="sd">            One of the DIMSE message primitives from</span>
+<span class="sd">            pynetdicom3.dimse_primitives generated from</span>
 <span class="sd">            the current DIMSEMessage.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=too-many-branches</span>
@@ -629,16 +696,16 @@
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RSP&#39;</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ActionReply&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
-<div class="viewcode-block" id="DIMSEMessage.primitive_to_message"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_messages.DIMSEMessage.primitive_to_message">[docs]</a>    <span class="k">def</span> <span class="nf">primitive_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">primitive_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert a DIMSE `primitive` to the current DIMSEMessage object.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        primitive</span>
-<span class="sd">            The pynetdicom3.dimse_primitives DIMSE service primitive to convert</span>
-<span class="sd">            to the current DIMSEMessage object.</span>
+<span class="sd">            A DIMSE message primitive from pynetdicom3.dimse_primitives</span>
+<span class="sd">            to convert to the current DIMSEMessage object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=too-many-branches,too-many-statements</span>
         <span class="c1"># Command Set</span>
@@ -729,7 +796,7 @@
         <span class="c1"># &#39;C_CANCEL_RQ&#39;, &#39;N_DELETE_RSP&#39;, &#39;C_FIND_RSP&#39;</span>
 
         <span class="c1"># Set the Command Set length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_command_group_length</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_command_group_length</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_set_command_group_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reset the Command Group Length element value.</span>
@@ -746,7 +813,7 @@
             <span class="c1"># The Command Set is always Implicit VR Little Endian</span>
             <span class="n">length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">encode_element</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandGroupLength</span> <span class="o">=</span> <span class="n">length</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandGroupLength</span> <span class="o">=</span> <span class="n">length</span>
 
 
 <span class="k">def</span> <span class="nf">_build_message_classes</span><span class="p">(</span><span class="n">message_name</span><span class="p">):</span>
@@ -818,18 +885,31 @@
     <span class="n">_build_message_classes</span><span class="p">(</span><span class="n">__msg_type</span><span class="p">)</span>
 
 <span class="c1"># Values from PS3.5</span>
-<span class="n">_MESSAGE_CLASS_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x0001</span><span class="p">:</span> <span class="n">C_STORE_RQ</span><span class="p">,</span> <span class="mh">0x8001</span><span class="p">:</span> <span class="n">C_STORE_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0020</span><span class="p">:</span> <span class="n">C_FIND_RQ</span><span class="p">,</span> <span class="mh">0x8020</span><span class="p">:</span> <span class="n">C_FIND_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0FFF</span><span class="p">:</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
-                        <span class="mh">0x0010</span><span class="p">:</span> <span class="n">C_GET_RQ</span><span class="p">,</span> <span class="mh">0x8010</span><span class="p">:</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0021</span><span class="p">:</span> <span class="n">C_MOVE_RQ</span><span class="p">,</span> <span class="mh">0x8021</span><span class="p">:</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0030</span><span class="p">:</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span> <span class="mh">0x8030</span><span class="p">:</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0100</span><span class="p">:</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span> <span class="mh">0x8100</span><span class="p">:</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0110</span><span class="p">:</span> <span class="n">N_GET_RQ</span><span class="p">,</span> <span class="mh">0x8110</span><span class="p">:</span> <span class="n">N_GET_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0120</span><span class="p">:</span> <span class="n">N_SET_RQ</span><span class="p">,</span> <span class="mh">0x8120</span><span class="p">:</span> <span class="n">N_SET_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0130</span><span class="p">:</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span> <span class="mh">0x8130</span><span class="p">:</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0140</span><span class="p">:</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span> <span class="mh">0x8140</span><span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
-                        <span class="mh">0x0150</span><span class="p">:</span> <span class="n">N_DELETE_RQ</span><span class="p">,</span> <span class="mh">0x8150</span><span class="p">:</span> <span class="n">N_DELETE_RSP</span><span class="p">}</span>
+<span class="n">_MESSAGE_CLASS_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0x0001</span><span class="p">:</span> <span class="n">C_STORE_RQ</span><span class="p">,</span>
+    <span class="mh">0x8001</span><span class="p">:</span> <span class="n">C_STORE_RSP</span><span class="p">,</span>
+    <span class="mh">0x0020</span><span class="p">:</span> <span class="n">C_FIND_RQ</span><span class="p">,</span>
+    <span class="mh">0x8020</span><span class="p">:</span> <span class="n">C_FIND_RSP</span><span class="p">,</span>
+    <span class="mh">0x0FFF</span><span class="p">:</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
+    <span class="mh">0x0010</span><span class="p">:</span> <span class="n">C_GET_RQ</span><span class="p">,</span>
+    <span class="mh">0x8010</span><span class="p">:</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
+    <span class="mh">0x0021</span><span class="p">:</span> <span class="n">C_MOVE_RQ</span><span class="p">,</span>
+    <span class="mh">0x8021</span><span class="p">:</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span>
+    <span class="mh">0x0030</span><span class="p">:</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span>
+    <span class="mh">0x8030</span><span class="p">:</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span>
+    <span class="mh">0x0100</span><span class="p">:</span> <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span>
+    <span class="mh">0x8100</span><span class="p">:</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
+    <span class="mh">0x0110</span><span class="p">:</span> <span class="n">N_GET_RQ</span><span class="p">,</span>
+    <span class="mh">0x8110</span><span class="p">:</span> <span class="n">N_GET_RSP</span><span class="p">,</span>
+    <span class="mh">0x0120</span><span class="p">:</span> <span class="n">N_SET_RQ</span><span class="p">,</span>
+    <span class="mh">0x8120</span><span class="p">:</span> <span class="n">N_SET_RSP</span><span class="p">,</span>
+    <span class="mh">0x0130</span><span class="p">:</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span>
+    <span class="mh">0x8130</span><span class="p">:</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
+    <span class="mh">0x0140</span><span class="p">:</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span>
+    <span class="mh">0x8140</span><span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
+    <span class="mh">0x0150</span><span class="p">:</span> <span class="n">N_DELETE_RQ</span><span class="p">,</span>
+    <span class="mh">0x8150</span><span class="p">:</span> <span class="n">N_DELETE_RSP</span>
+<span class="p">}</span>
 </pre></div>
 
            </div>
@@ -842,7 +922,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors.
+        &copy; Copyright 2018, pynetdicom3 contributors
 
     </p>
   </div>
@@ -861,20 +941,14 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'0.9.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

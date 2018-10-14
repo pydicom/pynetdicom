@@ -1,0 +1,35 @@
+pynetdicom3.dimse\_primitives.C\_FIND
+=====================================
+
+.. currentmodule:: pynetdicom3.dimse_primitives
+
+.. autoclass:: C_FIND
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_FIND.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_FIND.AffectedSOPClassUID
+      ~C_FIND.Identifier
+      ~C_FIND.MessageID
+      ~C_FIND.MessageIDBeingRespondedTo
+      ~C_FIND.Priority
+      ~C_FIND.Status
+      ~C_FIND.is_valid_request
+      ~C_FIND.is_valid_response
+   
+   

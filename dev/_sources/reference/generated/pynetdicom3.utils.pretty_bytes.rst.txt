@@ -1,0 +1,6 @@
+pynetdicom3.utils.pretty\_bytes
+===============================
+
+.. currentmodule:: pynetdicom3.utils
+
+.. autofunction:: pretty_bytes

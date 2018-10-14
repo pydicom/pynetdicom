@@ -87,13 +87,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -186,7 +190,7 @@
 <span class="c1"># DIMSE-C Services</span>
 
 
-<div class="viewcode-block" id="C_STORE"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.C_STORE">[docs]</a><span class="k">class</span> <span class="nc">C_STORE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="C_STORE"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_STORE.html#pynetdicom3.dimse_primitives.C_STORE">[docs]</a><span class="k">class</span> <span class="nc">C_STORE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a C-STORE primitive.</span>
 
 <span class="sd">    The C-STORE service is used by a DIMSE user to store a composite SOP</span>
@@ -205,53 +209,90 @@
 <span class="sd">    4. The DIMSE provider issues a C-STORE confirmation primitive to the</span>
 <span class="sd">       invoking DIMSE user, completing the C-STORE operation.</span>
 
-<span class="sd">    PS3.4 Annex B</span>
-<span class="sd">    PS3.7 9.1.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID                   | M       | U(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | M       | U(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Priority                                 | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Move Originator Application Entity Title | U       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Move Originator Message ID               | U       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Data Set                                 | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Offending Element                        | \-      | C        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Error Comment                            | \-      | C        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, U] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=)] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=)] For the request/indication this specifies the SOP Instance</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance</span>
 <span class="sd">        for storage. If included in the response/confirmation, it shall be</span>
 <span class="sd">        equal to the value in the request/indication</span>
 <span class="sd">    Priority : int</span>
-<span class="sd">        [M, -] The priority of the C-STORE operation. It shall be one of the</span>
+<span class="sd">        The priority of the C-STORE operation. It shall be one of the</span>
 <span class="sd">        following:</span>
+
 <span class="sd">        * 0: Medium</span>
 <span class="sd">        * 1: High</span>
 <span class="sd">        * 2: Low (Default)</span>
-<span class="sd">    MoveOriginatorApplicationEntityTitle : bytes or str</span>
-<span class="sd">        [U, -] The DICOM AE Title of the AE that invoked the C-MOVE operation</span>
+<span class="sd">    MoveOriginatorApplicationEntityTitle : bytes</span>
+<span class="sd">        The DICOM AE Title of the AE that invoked the C-MOVE operation</span>
 <span class="sd">        from which this C-STORE sub-operation is being performed</span>
 <span class="sd">    MoveOriginatorMessageID : int</span>
-<span class="sd">        [U, -] The Message ID of the C-MOVE request/indication primitive from</span>
+<span class="sd">        The Message ID of the C-MOVE request/indication primitive from</span>
 <span class="sd">        which this C-STORE sub-operation is being performed</span>
 <span class="sd">    DataSet : io.BytesIO</span>
-<span class="sd">        [M, -] The pydicom Dataset containing the Attributes of the Composite</span>
+<span class="sd">        The pydicom Dataset containing the Attributes of the Composite</span>
 <span class="sd">        SOP Instance to be stored, encoded as a BytesIO object</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation.</span>
+<span class="sd">        The error or success notification of the operation.</span>
 <span class="sd">    OffendingElement : list of int or None</span>
-<span class="sd">        [-, C] An optional status related field containing a list of the</span>
+<span class="sd">        An optional status related field containing a list of the</span>
 <span class="sd">        elements in which an error was detected.</span>
 <span class="sd">    ErrorComment : str or None</span>
-<span class="sd">        [-, C] An optional status related field containing a text description</span>
+<span class="sd">        An optional status related field containing a text description</span>
 <span class="sd">        of the error detected. 64 characters maximum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 4, Annex B</span>
+<span class="sd">    * DICOM Standard, Part 7, 9.1.1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="C_STORE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_STORE.html#pynetdicom3.dimse_primitives.C_STORE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Variable names need to match the corresponding DICOM Element keywords</span>
         <span class="c1">#   in order for the DIMSE Message classes to be built correctly.</span>
         <span class="c1"># Changes to the variable names can be made provided the DIMSEMessage()</span>
@@ -273,18 +314,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">OffendingElement</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># For Warning statuses 0xB000, 0xB006, 0xB007</span>
         <span class="c1"># For Failure statuses 0xCxxx, 0xA9xx, 0xA7xx, 0x0122, 0x0124</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span></div>
         <span class="c1"># For Failure statuses 0x0117</span>
         <span class="c1"># self.AffectedSOPInstanceUID</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the DIMSE message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the DIMSE *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
 
     <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the DIMSE message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the DIMSE *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -298,12 +339,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
 
     <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
@@ -317,12 +358,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the AffectedSOPClassUID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
 
     <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Affected SOP Class UID parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -349,12 +390,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Affected SOP Instance UID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Instance UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span>
 
     <span class="nd">@AffectedSOPInstanceUID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Affected SOP Instance UID parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Instance UID*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -381,12 +422,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span>
 
     <span class="nd">@Priority</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -396,12 +437,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MoveOriginatorApplicationEntityTitle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Move Originator AE Title parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Move Originator Application Entity Title*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span>
 
     <span class="nd">@MoveOriginatorApplicationEntityTitle</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MoveOriginatorApplicationEntityTitle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Move Originator AE Title parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Move Originator Application Entity Title*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -413,19 +454,20 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span> <span class="o">=</span> \
-                <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span>
+                <span class="n">value</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MoveOriginatorMessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Move Originator Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Move Originator Message ID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_message_id</span>
 
     <span class="nd">@MoveOriginatorMessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MoveOriginatorMessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Move Originator Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Move Originator Message ID*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -439,12 +481,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">DataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Data Set parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Data Set*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
 
     <span class="nd">@DataSet</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">DataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Data Set parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Data Set*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
@@ -454,12 +496,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -467,7 +509,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-STORE RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;Priority&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span><span class="p">,</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -477,7 +519,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-STORE RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -485,11 +527,8 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="C_FIND"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.C_FIND">[docs]</a><span class="k">class</span> <span class="nc">C_FIND</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="C_FIND"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_FIND.html#pynetdicom3.dimse_primitives.C_FIND">[docs]</a><span class="k">class</span> <span class="nc">C_FIND</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a C-FIND primitive.</span>
-
-<span class="sd">    PS3.4 Annex C.4.1.1</span>
-<span class="sd">    PS3.4 9.1.2</span>
 
 <span class="sd">    **SOP Class UID**</span>
 
@@ -542,42 +581,70 @@
 <span class="sd">    ID/UID not present. The named AE shall support either C-GET or C-MOVE</span>
 <span class="sd">    SOP Class of the QR Service Class.</span>
 
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                     | Req/ind | Rsp/conf |</span>
+<span class="sd">    +===============================+=========+==========+</span>
+<span class="sd">    | Message ID                    | M       | U        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID        | M       | U(=)     |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Priority                      | M       | \-       |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Identifier                    | M       | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Status                        | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Offending Element             | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Error Comment                 | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, U, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M, M] The Message ID of the operation request/indication to which</span>
+<span class="sd">        The Message ID of the operation request/indication to which</span>
 <span class="sd">        this response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=), -] For the request/indication this specifies the SOP Class</span>
+<span class="sd">        For the request/indication this specifies the SOP Class</span>
 <span class="sd">        for storage. If included in the response/confirmation, it shall be</span>
 <span class="sd">        equal to the value in the request/indication</span>
 <span class="sd">    Priority : int</span>
-<span class="sd">        [M, -, -] The priority of the C-STORE operation. It shall be one of the</span>
+<span class="sd">        The priority of the C-STORE operation. It shall be one of the</span>
 <span class="sd">        following:</span>
+
 <span class="sd">        * 0: Medium</span>
 <span class="sd">        * 1: High</span>
 <span class="sd">        * 2: Low (Default)</span>
 <span class="sd">    Identifier : io.BytesIO</span>
-<span class="sd">        [M, C, -] A list of Attributes (in the form of an encoded pydicom</span>
+<span class="sd">        A list of Attributes (in the form of an encoded pydicom</span>
 <span class="sd">        Dataset) to be matched against the values of the Attributes in the</span>
 <span class="sd">        instances of the composite objects known to the performing DIMSE</span>
-<span class="sd">        service-user</span>
+<span class="sd">        service-user.</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M, -] The error or success notification of the operation.</span>
+<span class="sd">        The error or success notification of the operation.</span>
 <span class="sd">    OffendingElement : list of int or None</span>
-<span class="sd">        [-, C, -] An optional status related field containing a list of the</span>
+<span class="sd">        An optional status related field containing a list of the</span>
 <span class="sd">        elements in which an error was detected.</span>
 <span class="sd">    ErrorComment : str or None</span>
-<span class="sd">        [-, C, -] An optional status related field containing a text</span>
+<span class="sd">        An optional status related field containing a text</span>
 <span class="sd">        description of the error detected. 64 characters maximum.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="C_FIND.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_FIND.html#pynetdicom3.dimse_primitives.C_FIND.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Variable names need to match the corresponding DICOM Element keywords</span>
         <span class="c1">#   in order for the DIMSE Message classes to be built correctly.</span>
         <span class="c1"># Changes to the variable names can be made provided the DIMSEMessage()</span>
@@ -594,16 +661,16 @@
         <span class="c1"># For Failure statuses 0xA900, 0xCxxx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">OffendingElement</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># For Failure statuses 0xA900, 0xA700, 0x0122, 0xCxxx</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
 
     <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -617,12 +684,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
 
     <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
@@ -636,12 +703,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Affected SOP Class UID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
 
     <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Affected SOP Class UID parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -668,12 +735,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span>
 
     <span class="nd">@Priority</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -683,12 +750,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Identifier parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Identifier*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_identifier</span>
 
     <span class="nd">@Identifier</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Identifier parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Identifier*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_identifier</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
@@ -698,12 +765,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -711,7 +778,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-FIND RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;Priority&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;Identifier&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -721,7 +788,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-FIND RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -729,7 +796,7 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="C_GET"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.C_GET">[docs]</a><span class="k">class</span> <span class="nc">C_GET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="C_GET"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_GET.html#pynetdicom3.dimse_primitives.C_GET">[docs]</a><span class="k">class</span> <span class="nc">C_GET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a C-GET primitive.</span>
 
 <span class="sd">    The C-GET service is used</span>
@@ -769,62 +836,102 @@
 <span class="sd">    * Canceled, Warning, Failure or Success may contain the Number of Warning</span>
 <span class="sd">      Sub-operations Attribute</span>
 
-<span class="sd">    PS3.4 Annex C.4.3</span>
-<span class="sd">    PS3.7 9.1.3</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                     | Req/ind | Rsp/conf |</span>
+<span class="sd">    +===============================+=========+==========+</span>
+<span class="sd">    | Message ID                    | M       | U        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID        | M       | U(=)     |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Priority                      | M       | \-       |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Identifier                    | M       | U        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Status                        | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Remaining Sub-ops   | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Completed Sub-ops   | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Failed Sub-ops      | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Warning Sub-ops     | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Offending Element             | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Error Comment                 | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, U, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M, M] The Message ID of the operation request/indication to which</span>
+<span class="sd">        The Message ID of the operation request/indication to which</span>
 <span class="sd">        this response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=), -] For the request/indication this specifies the SOP Class</span>
+<span class="sd">        For the request/indication this specifies the SOP Class</span>
 <span class="sd">        for storage. If included in the response/confirmation, it shall be</span>
 <span class="sd">        equal to the value in the request/indication</span>
 <span class="sd">    Priority : int</span>
-<span class="sd">        [M, -, -] The priority of the C-STORE operation. It shall be one of the</span>
+<span class="sd">        The priority of the C-STORE operation. It shall be one of the</span>
 <span class="sd">        following:</span>
+
 <span class="sd">        * 0: Medium</span>
 <span class="sd">        * 1: High</span>
 <span class="sd">        * 2: Low (Default)</span>
 <span class="sd">    Identifier : io.BytesIO</span>
-<span class="sd">        [M, U, -] The pydicom Dataset containing the list of Attributes to be</span>
+<span class="sd">        The pydicom Dataset containing the list of Attributes to be</span>
 <span class="sd">        matched against the values of Attributes of known composite SOP</span>
 <span class="sd">        Instances of the performing DIMSE service-user, encoded as a BytesIO</span>
 <span class="sd">        object. For the list of allowed Attributes and the rules defining their</span>
-<span class="sd">        usage see PS3.4 Annex C.4.3.1.3</span>
+<span class="sd">        usage see the section corresponding to the service class in the DICOM</span>
+<span class="sd">        Standard, Part 4.</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M, -] The error or success notification of the operation.</span>
+<span class="sd">        The error or success notification of the operation.</span>
 <span class="sd">    NumberOfRemainingSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of remaining C-STORE sub-operations to be invoked</span>
+<span class="sd">        The number of remaining C-STORE sub-operations to be invoked</span>
 <span class="sd">        by this C-GET operation. It may be included in any response and shall</span>
 <span class="sd">        be included if the status is Pending</span>
 <span class="sd">    NumberOfCompletedSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of C-STORE sub-operations that have completed</span>
+<span class="sd">        The number of C-STORE sub-operations that have completed</span>
 <span class="sd">        successfully. It may be included in any response and shall be included</span>
 <span class="sd">        if the status is Pending</span>
 <span class="sd">    NumberOfFailedSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of C-STORE sub-operations that have failed. It may</span>
+<span class="sd">        The number of C-STORE sub-operations that have failed. It may</span>
 <span class="sd">        be included in any response and shall be included if the status is</span>
 <span class="sd">        Pending</span>
 <span class="sd">    NumberOfWarningSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of C-STORE operations that generated Warning</span>
+<span class="sd">        The number of C-STORE operations that generated Warning</span>
 <span class="sd">        responses. It may be included in any response and shall be included if</span>
 <span class="sd">        the status is Pending</span>
 <span class="sd">    OffendingElement : list of int or None</span>
-<span class="sd">        [-, C, -] An optional status related field containing a list of the</span>
+<span class="sd">        An optional status related field containing a list of the</span>
 <span class="sd">        elements in which an error was detected.</span>
 <span class="sd">    ErrorComment : str or None</span>
-<span class="sd">        [-, C, -] An optional status related field containing a text</span>
+<span class="sd">        An optional status related field containing a text</span>
 <span class="sd">        description of the error detected. 64 characters maximum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 4, Annex C.4.3</span>
+<span class="sd">    * DICOM Standard, Part 7, Section 9.1.3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="C_GET.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_GET.html#pynetdicom3.dimse_primitives.C_GET.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Variable names need to match the corresponding DICOM Element keywords</span>
         <span class="c1">#   in order for the DIMSE Message classes to be built correctly.</span>
         <span class="c1"># Changes to the variable names can be made provided the DIMSEMessage()</span>
@@ -843,7 +950,7 @@
 
         <span class="c1"># For Failure statuses 0xA701, 0xA900</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">OffendingElement</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OffendingElement</span> <span class="o">=</span> <span class="kc">None</span></div>
         <span class="c1"># For 0xA702, 0xFE00, 0xB000, 0x0000</span>
         <span class="c1"># self.NumberOfRemainingSuboperations</span>
         <span class="c1"># self.NumberOfCompletedSuboperations</span>
@@ -852,12 +959,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
 
     <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -871,12 +978,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
 
     <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
@@ -890,12 +997,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Affected SOP Class UID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
 
     <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Affected SOP Class UID parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -922,12 +1029,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span>
 
     <span class="nd">@Priority</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -937,12 +1044,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Identifier parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Identifier*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_identifier</span>
 
     <span class="nd">@Identifier</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Identifier parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Identifier*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_identifier</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
@@ -952,12 +1059,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -965,12 +1072,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfRemainingSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Remaining Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Remaining Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_remaining_suboperations</span>
 
     <span class="nd">@NumberOfRemainingSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfRemainingSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Remaining Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Remaining Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_remaining_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -984,12 +1091,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfCompletedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Completed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Completed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_completed_suboperations</span>
 
     <span class="nd">@NumberOfCompletedSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfCompletedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Completed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Completed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_completed_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1003,12 +1110,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfFailedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Failed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Failed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_failed_suboperations</span>
 
     <span class="nd">@NumberOfFailedSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfFailedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Failed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Failed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_failed_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1022,12 +1129,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfWarningSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Warning Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Warning Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_warning_suboperations</span>
 
     <span class="nd">@NumberOfWarningSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfWarningSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Warning Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Warning Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_warning_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1041,7 +1148,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-GET RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;Priority&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;Identifier&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1051,7 +1158,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-GET RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -1059,7 +1166,7 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="C_MOVE"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.C_MOVE">[docs]</a><span class="k">class</span> <span class="nc">C_MOVE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="C_MOVE"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_MOVE.html#pynetdicom3.dimse_primitives.C_MOVE">[docs]</a><span class="k">class</span> <span class="nc">C_MOVE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a C-MOVE primitive.</span>
 
 <span class="sd">    The C-MOVE service is used</span>
@@ -1099,65 +1206,107 @@
 <span class="sd">    * Canceled, Warning, Failure or Success may contain the Number of Warning</span>
 <span class="sd">      Sub-operations Attribute</span>
 
-<span class="sd">    PS3.4 Annex C.4.2</span>
-<span class="sd">    PS3.7 9.1.4</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                     | Req/ind | Rsp/conf |</span>
+<span class="sd">    +===============================+=========+==========+</span>
+<span class="sd">    | Message ID                    | M       | U        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID        | M       | U(=)     |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Priority                      | M       | \-       |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Move Destination              | M       | \-       |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Identifier                    | M       | U        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Status                        | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Remaining Sub-ops   | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Completed Sub-ops   | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Failed Sub-ops      | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Number of Warning Sub-ops     | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Offending Element             | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Error Comment                 | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, U, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M, M] The Message ID of the operation request/indication to which</span>
+<span class="sd">        The Message ID of the operation request/indication to which</span>
 <span class="sd">        this response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=), -] For the request/indication this specifies the SOP Class</span>
+<span class="sd">        For the request/indication this specifies the SOP Class</span>
 <span class="sd">        for storage. If included in the response/confirmation, it shall be</span>
 <span class="sd">        equal to the value in the request/indication</span>
 <span class="sd">    Priority : int</span>
-<span class="sd">        [M, -, -] The priority of the C-STORE operation. It shall be one of the</span>
+<span class="sd">        The priority of the C-STORE operation. It shall be one of the</span>
 <span class="sd">        following:</span>
+
 <span class="sd">        * 0: Medium</span>
 <span class="sd">        * 1: High</span>
 <span class="sd">        * 2: Low (Default)</span>
 <span class="sd">    MoveDestination : bytes or str</span>
-<span class="sd">        [M, -, -] Specifies the DICOM AE Title of the destination DICOM AE to</span>
+<span class="sd">        Specifies the DICOM AE Title of the destination DICOM AE to</span>
 <span class="sd">        which the C-STORE sub-operations are being performed.</span>
 <span class="sd">    Identifier : io.BytesIO</span>
-<span class="sd">        [M, U, -] The pydicom Dataset containing the list of Attributes to be</span>
+<span class="sd">        The pydicom Dataset containing the list of Attributes to be</span>
 <span class="sd">        matched against the values of Attributes of known composite SOP</span>
 <span class="sd">        Instances of the performing DIMSE service-user, encoded as a BytesIO</span>
 <span class="sd">        object. For the list of allowed Attributes and the rules defining their</span>
-<span class="sd">        usage see PS3.4 Annex C.4.2.1.4</span>
+<span class="sd">        usage see the section corresponding to the service class in the DICOM</span>
+<span class="sd">        Standard, Part 4.</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M, -] The error or success notification of the operation.</span>
+<span class="sd">        The error or success notification of the operation.</span>
 <span class="sd">    NumberOfRemainingSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of remaining C-STORE sub-operations to be invoked</span>
+<span class="sd">        The number of remaining C-STORE sub-operations to be invoked</span>
 <span class="sd">        by this C-MOVE operation. It may be included in any response and shall</span>
 <span class="sd">        be included if the status is Pending</span>
 <span class="sd">    NumberOfCompletedSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of C-STORE sub-operations that have completed</span>
+<span class="sd">        The number of C-STORE sub-operations that have completed</span>
 <span class="sd">        successfully. It may be included in any response and shall be included</span>
 <span class="sd">        if the status is Pending</span>
 <span class="sd">    NumberOfFailedSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of C-STORE sub-operations that have failed. It may</span>
+<span class="sd">        The number of C-STORE sub-operations that have failed. It may</span>
 <span class="sd">        be included in any response and shall be included if the status is</span>
 <span class="sd">        Pending</span>
 <span class="sd">    NumberOfWarningSuboperations : int</span>
-<span class="sd">        [-, C, -] The number of C-STORE operations that generated Warning</span>
+<span class="sd">        The number of C-STORE operations that generated Warning</span>
 <span class="sd">        responses. It may be included in any response and shall be included if</span>
 <span class="sd">        the status is Pending</span>
 <span class="sd">    OffendingElement : list of int or None</span>
-<span class="sd">        [-, C, -] An optional status related field containing a list of the</span>
+<span class="sd">        An optional status related field containing a list of the</span>
 <span class="sd">        elements in which an error was detected.</span>
 <span class="sd">    ErrorComment : str or None</span>
-<span class="sd">        [-, C, -] An optional status related field containing a text</span>
+<span class="sd">        An optional status related field containing a text</span>
 <span class="sd">        description of the error detected. 64 characters maximum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 4, Annex C.4.2</span>
+<span class="sd">    * DICOM Standard, Part 7, Section 9.1.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="C_MOVE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_MOVE.html#pynetdicom3.dimse_primitives.C_MOVE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Variable names need to match the corresponding DICOM Element keywords</span>
         <span class="c1">#   in order for the DIMSE Message classes to be built correctly.</span>
         <span class="c1"># Changes to the variable names can be made provided the DIMSEMessage()</span>
@@ -1180,16 +1329,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">OffendingElement</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># For Failure statuses 0xA801, 0xA701, 0xA702, 0x0122, 0xA900, 0xCxxx</span>
         <span class="c1">#   0x0124</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
 
     <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -1203,12 +1352,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID Being Responding To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responding To*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
 
     <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID Being Responding To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responding To*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
@@ -1222,12 +1371,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Affected SOP Class UID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
 
     <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Affected SOP Class UID parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1254,12 +1403,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span>
 
     <span class="nd">@Priority</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Priority parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Priority*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_priority</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1269,12 +1418,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MoveDestination</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Move Destination parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Move Destination*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_destination</span>
 
     <span class="nd">@MoveDestination</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MoveDestination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Move Destination parameter</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Move Destination*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1292,12 +1441,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Identifier parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Identifier*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_identifier</span>
 
     <span class="nd">@Identifier</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Identifier parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Identifier*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_identifier</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
@@ -1307,12 +1456,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1320,12 +1469,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfRemainingSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Remaining Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Remaining Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_remaining_suboperations</span>
 
     <span class="nd">@NumberOfRemainingSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfRemainingSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Remaining Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Remaining Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_remaining_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1339,12 +1488,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfCompletedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Completed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Completed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_completed_suboperations</span>
 
     <span class="nd">@NumberOfCompletedSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfCompletedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Completed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Completed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_completed_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1358,12 +1507,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfFailedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Failed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Failed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_failed_suboperations</span>
 
     <span class="nd">@NumberOfFailedSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfFailedSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Failed Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Failed Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_failed_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1377,12 +1526,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NumberOfWarningSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Number of Warning Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Number of Warning Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_warning_suboperations</span>
 
     <span class="nd">@NumberOfWarningSuboperations</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">NumberOfWarningSuboperations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Number of Warning Suboperations parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Number of Warning Suboperations*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_number_of_warning_suboperations</span> <span class="o">=</span> <span class="n">value</span>
@@ -1396,7 +1545,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-MOVE RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;Priority&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span> <span class="s1">&#39;MoveDestination&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1406,7 +1555,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-MOVE RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -1414,48 +1563,57 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="C_ECHO"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.C_ECHO">[docs]</a><span class="k">class</span> <span class="nc">C_ECHO</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="C_ECHO"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_ECHO.html#pynetdicom3.dimse_primitives.C_ECHO">[docs]</a><span class="k">class</span> <span class="nc">C_ECHO</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a C-ECHO primitive.</span>
 
-<span class="sd">    **C-ECHO Service Procedure**</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                     | Req/ind | Rsp/conf |</span>
+<span class="sd">    +===============================+=========+==========+</span>
+<span class="sd">    | Message ID                    | M       | U        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID        | M       | U(=)     |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Status                        | \-      | M        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
+<span class="sd">    | Error Comment                 | \-      | C        |</span>
+<span class="sd">    +-------------------------------+---------+----------+</span>
 
-
-<span class="sd">    1. The invoking DIMSE user requests verification of communication to the</span>
-<span class="sd">        performing DIMSE user by issuing a C-ECHO request primitive to the</span>
-<span class="sd">        DIMSE provider.</span>
-<span class="sd">    2. The DIMSE provider issues a C-ECHO indication primitive to the</span>
-<span class="sd">        performing DIMSE user</span>
-<span class="sd">    3. The performing DIMSE user verifies communication by issuing a C-ECHO</span>
-<span class="sd">        response primitive to the DISME provider</span>
-<span class="sd">    4. The DIMSE provider issues a C-ECHO confirmation primitive to the</span>
-<span class="sd">        invoking DIMSE user, completing the C-ECHO operations</span>
-
-<span class="sd">    So, local AE sends C-ECHO-RQ to peer, peer sends C-ECHO-RP to local.</span>
-
-<span class="sd">    PS3.7 Section 9.1.5</span>
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int or None</span>
-<span class="sd">        [M, U] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int or None</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str or None</span>
-<span class="sd">        [M, U(=)] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    Status : int or None</span>
-<span class="sd">        [-, M] The error or success notification of the operation.</span>
+<span class="sd">        The error or success notification of the operation.</span>
 <span class="sd">    ErrorComment : str or None</span>
-<span class="sd">        [-, C] An optional status related field containing a text description</span>
+<span class="sd">        An optional status related field containing a text description</span>
 <span class="sd">        of the error detected. 64 characters maximum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 7, Section 9.1.5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="C_ECHO.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_ECHO.html#pynetdicom3.dimse_primitives.C_ECHO.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Variable names need to match the corresponding DICOM Element keywords</span>
         <span class="c1">#   in order for the DIMSE Message classes to be built correctly.</span>
         <span class="c1"># Changes to the variable names can be made provided the DIMSEMessage()</span>
@@ -1467,16 +1625,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># (Optional) for Failure status 0x0122</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
 
     <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -1490,12 +1648,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
 
     <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
@@ -1509,12 +1667,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Afffected SOP Class UID parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
 
     <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Affected SOP Class UID parameter.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1541,12 +1699,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Status parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1554,7 +1712,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-ECHO RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -1563,7 +1721,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the C-ECHO RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -1571,37 +1729,52 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="C_CANCEL"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.C_CANCEL">[docs]</a><span class="k">class</span> <span class="nc">C_CANCEL</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="C_CANCEL"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_CANCEL.html#pynetdicom3.dimse_primitives.C_CANCEL">[docs]</a><span class="k">class</span> <span class="nc">C_CANCEL</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a C-CANCEL primitive.</span>
 
-<span class="sd">    PS3.7 Section 9.3.2.3-4 (C-CANCEL-FIND-RQ)</span>
-<span class="sd">    PS3.7 Section 9.3.3.3-4 (C-CANCEL-GET-RQ)</span>
-<span class="sd">    PS3.7 Section 9.3.4.3-4 (C-CANCEL-MOVE-RQ)</span>
+<span class="sd">    +-------------------------------+---------+</span>
+<span class="sd">    | Parameter                     | Req/ind |</span>
+<span class="sd">    +===============================+=========+</span>
+<span class="sd">    | Message ID Being Responded To | M       |</span>
+<span class="sd">    +-------------------------------+---------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 7, Section 9.3.2.3-4</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="C_CANCEL.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse_primitives.C_CANCEL.html#pynetdicom3.dimse_primitives.C_CANCEL.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise the C_CANCEL&quot;&quot;&quot;</span>
         <span class="c1"># Variable names need to match the corresponding DICOM Element keywords</span>
         <span class="c1">#   in order for the DIMSE Message classes to be built correctly.</span>
         <span class="c1"># Changes to the variable names can be made provided the DIMSEMessage()</span>
         <span class="c1">#   class&#39; message_to_primitive() and primitive_to_message() methods</span>
         <span class="c1">#   are also changed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
 
     <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Message ID Being Responded To parameter.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
@@ -1615,41 +1788,69 @@
 
 
 <span class="c1"># DIMSE-N Services</span>
-<div class="viewcode-block" id="N_EVENT_REPORT"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.N_EVENT_REPORT">[docs]</a><span class="k">class</span> <span class="nc">N_EVENT_REPORT</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">N_EVENT_REPORT</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-EVENT-REPORT primitive.</span>
 
-<span class="sd">    PS3.7 10.1.1.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID                   | M       | U(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | M       | U(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Event Type ID                            | M       | C(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Event Information                        | U       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Event Reply                              | \-      | C        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=)] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=)] For the request/indication this specifies the SOP Instance</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance</span>
 <span class="sd">        for storage. If included in the response/confirmation, it shall be</span>
 <span class="sd">        equal to the value in the request/indication</span>
 <span class="sd">    EventTypeID :</span>
-<span class="sd">        [M, C(=)] FIXME, PS3.4 Service Class Specifications</span>
+<span class="sd">        FIXME, PS3.4 Service Class Specifications</span>
 <span class="sd">    EventInformation :</span>
-<span class="sd">        [U, -] FIXME, PS3.4 Service Class Specifications</span>
+<span class="sd">        FIXME, PS3.4 Service Class Specifications</span>
 <span class="sd">    EventReply :</span>
-<span class="sd">        [-, C] FIXME, PS3.4 Service Class Specifications</span>
+<span class="sd">        FIXME, PS3.4 Service Class Specifications</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation. It shall be</span>
+<span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
-<span class="sd">        FIXME: Add the status values</span>
 
-<span class="sd">    **10.1.1.1.8 Status**</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    **Status**</span>
 
 <span class="sd">    Failure</span>
 
@@ -1669,9 +1870,7 @@
 <span class="sd">    Success</span>
 
 <span class="sd">    0x0000 - success 0x0000</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1688,7 +1887,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-EVENT-REPORT RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;EventTypeID&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1698,52 +1897,78 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-EVENT-REPORT RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="N_GET"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.N_GET">[docs]</a><span class="k">class</span> <span class="nc">N_GET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">N_GET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-GET primitive.</span>
 
-<span class="sd">    PS3.7 10.1.2.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Class UID                  | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Instance UID               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Attribute Identifier List                | U       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID                   | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Attribute List                           | \-      | C        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
 
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    RequestedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    AttributeIdentifierList :</span>
-<span class="sd">        [U, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Instance for</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AttributeList :</span>
-<span class="sd">        [-, C] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation. It shall be</span>
+<span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
-<span class="sd">        FIXME: Add the status values</span>
 
-<span class="sd">    **10.1.2.1.9 Status**</span>
+<span class="sd">    **Status**</span>
 
 <span class="sd">    Warning</span>
 <span class="sd">        attribute list error 0x0107 PS3.5 Annex C.4.2</span>
@@ -1761,7 +1986,6 @@
 <span class="sd">    Success</span>
 <span class="sd">        success 0x0000</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1775,7 +1999,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-GET RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1785,51 +2009,78 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-GET RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="N_SET"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.N_SET">[docs]</a><span class="k">class</span> <span class="nc">N_SET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">N_SET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-SET primitive.</span>
 
-<span class="sd">    PS3.7 10.1.3.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Class UID                  | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Instance UID               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Modification List                        | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Attribute List                           | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID                   | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    RequestedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    ModificationList :</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    AttributeList :</span>
-<span class="sd">        [-, U] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Instance for</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation. It shall be</span>
+<span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
-<span class="sd">        FIXME: Add the status values</span>
 
-<span class="sd">    **10.1.3.1.9 Status**</span>
+<span class="sd">    **Status**</span>
 
 <span class="sd">    Failure</span>
 <span class="sd">        class-instance conflict 0x0119 PS3.7 Annex C.5.7</span>
@@ -1850,7 +2101,6 @@
 <span class="sd">    Success</span>
 <span class="sd">        success 0x0000</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1864,7 +2114,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-SET RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1874,53 +2124,82 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-SET RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="N_ACTION"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.N_ACTION">[docs]</a><span class="k">class</span> <span class="nc">N_ACTION</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">N_ACTION</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-ACTION primitive.</span>
 
-<span class="sd">    PS3.7 10.1.4.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Class UID                  | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Instance UID               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Action Type ID                           | M       | C(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Action Information                       | U       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID                   | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Action Reply                             | \-      | C        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    RequestedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    ActionTypeID :</span>
-<span class="sd">        [M, C(=)] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    ActionInformation :</span>
-<span class="sd">        [U, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Instance for</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    ActionReply :</span>
-<span class="sd">        [-, C] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation. It shall be</span>
+<span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
-<span class="sd">        FIXME: Add the status values</span>
 
-<span class="sd">    **10.1.4.1.10 Status**</span>
+<span class="sd">    **Status**</span>
 
 <span class="sd">    Failure</span>
 <span class="sd">        class-instance conflict 0x0119 PS3.7 Annex C.5.7</span>
@@ -1939,7 +2218,6 @@
 <span class="sd">    Success</span>
 <span class="sd">        success 0x0000 PS3.7 Annex C.1.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1954,7 +2232,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-ACTION RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1964,45 +2242,66 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-ACTION RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="N_CREATE"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.N_CREATE">[docs]</a><span class="k">class</span> <span class="nc">N_CREATE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">N_CREATE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-CREATE primitive.</span>
 
-<span class="sd">    PS3.7 10.1.5.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    | Affected SOP Class UID                   | M       | U(=)     |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | U       | C        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | U       | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, U(=)] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [U, C] For the request/indication this specifies the SOP Instance for</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AttributeList :</span>
-<span class="sd">        [U, U] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation. It shall be</span>
+<span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
-<span class="sd">        FIXME: Add the status values</span>
 
-<span class="sd">    **10.1.5.1.6 Status**</span>
+<span class="sd">    **Status**</span>
 
 <span class="sd">    Failure</span>
 <span class="sd">        duplicate SOP instance 0x0111 PS3.7 Annex C.5.8</span>
@@ -2024,7 +2323,6 @@
 <span class="sd">    Success</span>
 <span class="sd">        success 0x0000 PS3.7 Annex C.1.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2035,7 +2333,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-CREATE RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
@@ -2044,47 +2342,70 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-CREATE RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
-<div class="viewcode-block" id="N_DELETE"><a class="viewcode-back" href="../../api.html#pynetdicom3.dimse_primitives.N_DELETE">[docs]</a><span class="k">class</span> <span class="nc">N_DELETE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">N_DELETE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-DELETE primitive.</span>
 
-<span class="sd">    PS3.7 10.1.6.1</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Parameter                                | Req/ind | Rsp/conf |</span>
+<span class="sd">    +==========================================+=========+==========+</span>
+<span class="sd">    | Message ID                               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Message ID Being Responded To            | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Class UID                  | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Requested SOP Instance UID               | M       | \-       |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Class UID                   | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Affected SOP Instance UID                | \-      | U        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+<span class="sd">    | Status                                   | \-      | M        |</span>
+<span class="sd">    +------------------------------------------+---------+----------+</span>
+
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
+<span class="sd">      the column to the left</span>
+<span class="sd">    | C - The parameter is conditional.</span>
+<span class="sd">    | M - Mandatory</span>
+<span class="sd">    | MF - Mandatory with a fixed value</span>
+<span class="sd">    | U - The use of this parameter is a DIMSE service user option</span>
+<span class="sd">    | UF - User option with a fixed value</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    MessageID : int</span>
-<span class="sd">        [M, -] Identifies the operation and is used to distinguish this</span>
+<span class="sd">        Identifies the operation and is used to distinguish this</span>
 <span class="sd">        operation from other notifications or operations that may be in</span>
 <span class="sd">        progress. No two identical values for the Message ID shall be used for</span>
 <span class="sd">        outstanding operations.</span>
 <span class="sd">    MessageIDBeingRespondedTo : int</span>
-<span class="sd">        [-, M] The Message ID of the operation request/indication to which this</span>
+<span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    RequestedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [M, -] FIXME</span>
+<span class="sd">        FIXME</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Class for</span>
+<span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        [-, U] For the request/indication this specifies the SOP Instance for</span>
+<span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        [-, M] The error or success notification of the operation. It shall be</span>
+<span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
-<span class="sd">        FIXME: Add the status values</span>
 
-<span class="sd">    **10.1.6.1.7 Status**</span>
+<span class="sd">    **Status**</span>
 
 <span class="sd">    Failure</span>
 <span class="sd">        class-instance conflict 0x0119 PS3.7 Annex C.5.7</span>
@@ -2100,7 +2421,6 @@
 <span class="sd">    Success</span>
 <span class="sd">        success 0x0000 PS3.7 Annex C.1.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2112,7 +2432,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RQ are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-DELETE RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2122,12 +2442,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if the required parameters for a C-ECHO RSP are set.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the N-DELETE RSP is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageIDBeingRespondedTo&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 </pre></div>
 
            </div>
@@ -2140,7 +2460,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors.
+        &copy; Copyright 2018, pynetdicom3 contributors
 
     </p>
   </div>
@@ -2159,20 +2479,14 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'0.9.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

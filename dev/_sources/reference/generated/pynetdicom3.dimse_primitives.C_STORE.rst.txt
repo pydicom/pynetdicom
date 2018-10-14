@@ -1,0 +1,38 @@
+pynetdicom3.dimse\_primitives.C\_STORE
+======================================
+
+.. currentmodule:: pynetdicom3.dimse_primitives
+
+.. autoclass:: C_STORE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_STORE.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_STORE.AffectedSOPClassUID
+      ~C_STORE.AffectedSOPInstanceUID
+      ~C_STORE.DataSet
+      ~C_STORE.MessageID
+      ~C_STORE.MessageIDBeingRespondedTo
+      ~C_STORE.MoveOriginatorApplicationEntityTitle
+      ~C_STORE.MoveOriginatorMessageID
+      ~C_STORE.Priority
+      ~C_STORE.Status
+      ~C_STORE.is_valid_request
+      ~C_STORE.is_valid_response
+   
+   

@@ -1,0 +1,37 @@
+pynetdicom3.pdu\_items.PresentationContextItemAC
+================================================
+
+.. currentmodule:: pynetdicom3.pdu_items
+
+.. autoclass:: PresentationContextItemAC
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PresentationContextItemAC.__init__
+      ~PresentationContextItemAC.decode
+      ~PresentationContextItemAC.encode
+      ~PresentationContextItemAC.from_primitive
+      ~PresentationContextItemAC.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PresentationContextItemAC.context_id
+      ~PresentationContextItemAC.item_length
+      ~PresentationContextItemAC.item_type
+      ~PresentationContextItemAC.result
+      ~PresentationContextItemAC.result_str
+      ~PresentationContextItemAC.transfer_syntax
+   
+   

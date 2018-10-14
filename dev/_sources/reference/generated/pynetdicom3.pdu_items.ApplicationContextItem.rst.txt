@@ -1,0 +1,32 @@
+pynetdicom3.pdu\_items.ApplicationContextItem
+=============================================
+
+.. currentmodule:: pynetdicom3.pdu_items
+
+.. autoclass:: ApplicationContextItem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ApplicationContextItem.__init__
+      ~ApplicationContextItem.decode
+      ~ApplicationContextItem.encode
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ApplicationContextItem.application_context_name
+      ~ApplicationContextItem.item_length
+      ~ApplicationContextItem.item_type
+   
+   

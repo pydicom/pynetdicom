@@ -87,13 +87,17 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../ae_intro.html">ApplicationEntity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../assoc_intro.html">Introduction to Association</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">Package documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -182,8 +186,9 @@
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.dul&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DULServiceProvider"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider">[docs]</a><span class="k">class</span> <span class="nc">DULServiceProvider</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DULServiceProvider"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider">[docs]</a><span class="k">class</span> <span class="nc">DULServiceProvider</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The DICOM Upper Layer Service Provider.</span>
+
 <span class="sd">    Three ways to call DULServiceProvider:</span>
 
 <span class="sd">    - If a port number is given, the DUL will wait for incoming connections on</span>
@@ -194,9 +199,9 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    artim_timer : pynetdicom3.timer.Timer</span>
+<span class="sd">    artim_timer : timer.Timer</span>
 <span class="sd">        The ARTIM timer</span>
-<span class="sd">    association : pynetdicom3.association.Association</span>
+<span class="sd">    association : association.Association</span>
 <span class="sd">        The DUL&#39;s current Association</span>
 <span class="sd">    dul_from_user_queue : queue.Queue</span>
 <span class="sd">        Queue of PDUs from the DUL service user to be processed by the DUL</span>
@@ -211,11 +216,10 @@
 <span class="sd">    scu_socket : socket.socket()</span>
 <span class="sd">        If the local AE is acting as an SCU, this is the connection from the</span>
 <span class="sd">        local AE to the peer AE SCP</span>
-<span class="sd">    state_machine : pynetdicom3.fsm.StateMachine</span>
+<span class="sd">    state_machine : fsm.StateMachine</span>
 <span class="sd">        The DICOM Upper Layer&#39;s State Machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dul_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assoc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dul_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assoc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -226,7 +230,7 @@
 <span class="sd">        dul_timeout : float, optional</span>
 <span class="sd">            The maximum amount of time to wait for connection responses</span>
 <span class="sd">            (in seconds)</span>
-<span class="sd">        assoc : pynetdicom3.association.Association</span>
+<span class="sd">        assoc : association.Association</span>
 <span class="sd">            The DUL&#39;s current Association</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">socket</span> <span class="ow">and</span> <span class="n">port</span><span class="p">:</span>
@@ -308,9 +312,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Controls the minimum delay between loops in run()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span> <span class="o">=</span> <span class="mf">0.001</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span> <span class="o">=</span> <span class="mf">0.001</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.idle_timer_expired"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.idle_timer_expired">[docs]</a>    <span class="k">def</span> <span class="nf">idle_timer_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.idle_timer_expired"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.idle_timer_expired">[docs]</a>    <span class="k">def</span> <span class="nf">idle_timer_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the idle timer has expired</span>
 
@@ -327,23 +331,23 @@
 
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.kill_dul"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.kill_dul">[docs]</a>    <span class="k">def</span> <span class="nf">kill_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.kill_dul"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.kill_dul">[docs]</a>    <span class="k">def</span> <span class="nf">kill_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Immediately interrupts the thread&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.on_receive_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.on_receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.on_receive_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.on_receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Called after the first byte of an incoming PDU is read.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.peek_next_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.peek_next_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">peek_next_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.peek_next_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.peek_next_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">peek_next_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the next PDU to be processed.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">queue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.receive_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.receive_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the next item to be processed out of the queue of items sent</span>
 <span class="sd">        from the DUL service provider to the service user</span>
@@ -378,7 +382,7 @@
         <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.run"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The main threading.Thread run loop. Runs constantly, checking the</span>
 <span class="sd">        connection for incoming data. When incoming data is received it</span>
@@ -423,7 +427,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">do_action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.send_pdu"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.send_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">send_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.send_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.send_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">send_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -433,7 +437,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.stop_dul"><a class="viewcode-back" href="../../api.html#pynetdicom3.dul.DULServiceProvider.stop_dul">[docs]</a>    <span class="k">def</span> <span class="nf">stop_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.stop_dul"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.stop_dul">[docs]</a>    <span class="k">def</span> <span class="nf">stop_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Interrupts the thread if state is &quot;Sta1&quot;</span>
 
@@ -634,7 +638,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        pdu : pynetdicom3.pdu.PDU</span>
+<span class="sd">        pdu : pdu.PDU</span>
 <span class="sd">            The PDU</span>
 
 <span class="sd">        Returns</span>
@@ -668,7 +672,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        primitive : pynetdicom3.pdu_primitives.ServiceParameter</span>
+<span class="sd">        primitive : pdu_primitives.ServiceParameter</span>
 <span class="sd">            The Association primitive</span>
 
 <span class="sd">        Returns</span>
@@ -741,7 +745,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pdu : pynetdicom3.pdu.PDU</span>
+<span class="sd">        pdu : pdu.PDU</span>
 <span class="sd">            The decoded data as a PDU object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pdutype</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[:</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
@@ -780,7 +784,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors.
+        &copy; Copyright 2018, pynetdicom3 contributors
 
     </p>
   </div>
@@ -799,20 +803,14 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'0.9.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

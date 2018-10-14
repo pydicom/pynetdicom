@@ -1,0 +1,971 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.presentation &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom3.presentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom3.presentation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implementation of the Presentation service.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">UID</span><span class="p">,</span>
+    <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span>
+    <span class="n">ExplicitVRLittleEndian</span><span class="p">,</span>
+    <span class="n">ExplicitVRBigEndian</span>
+<span class="p">)</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.presentation&#39;</span><span class="p">)</span>
+
+<span class="c1"># The default transfer syntaxes used when creating Presentation Contexts</span>
+<span class="n">DEFAULT_TRANSFER_SYNTAXES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span>
+    <span class="n">ExplicitVRLittleEndian</span><span class="p">,</span>
+    <span class="n">ExplicitVRBigEndian</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="c1"># Used with the on_c_* callbacks to give the users access to the context</span>
+<span class="n">PresentationContextTuple</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;PresentationContextTuple&#39;</span><span class="p">,</span>
+                                      <span class="p">[</span><span class="s1">&#39;context_id&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;abstract_syntax&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;transfer_syntax&#39;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="PresentationContext"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationContext.html#pynetdicom3.presentation.PresentationContext">[docs]</a><span class="k">class</span> <span class="nc">PresentationContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Presentation Context primitive.</span>
+
+<span class="sd">    **Rules**</span>
+
+<span class="sd">    - Each Presentation Context (request) contains:</span>
+
+<span class="sd">      - One context ID, an odd integer between 1 and 255.</span>
+<span class="sd">      - One abstract syntax.</span>
+<span class="sd">      - One or more transfer syntaxes.</span>
+<span class="sd">    - Each Presentation Context (response) contains:</span>
+
+<span class="sd">      - One context ID, corresponding to a Presentation Context received from</span>
+<span class="sd">        the Requestor</span>
+<span class="sd">      - A result, one of 0x00 (acceptance), 0x01 (user rejection), 0x02</span>
+<span class="sd">        (provider rejection), 0x03 (abstract syntax not supported) or 0x04</span>
+<span class="sd">        (transfer syntaxes not supported).</span>
+<span class="sd">      - If the result is 0x00, then a transfer syntax.</span>
+<span class="sd">      - If any other result, then a transfer syntax may or may not be present.</span>
+<span class="sd">    - If the result is not 0x00 then the transfer syntax in the reply is not</span>
+<span class="sd">      significant.</span>
+<span class="sd">    - The same abstract syntax can be present in more than one Presententation</span>
+<span class="sd">      Context.</span>
+<span class="sd">    - Only one transfer syntax can be accepted per Presentation Context.</span>
+<span class="sd">    - The Presentation Contexts may be sent by the Requestor in any order.</span>
+<span class="sd">    - The Presentation Contexts may be sent by the Acceptor in any order.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ---------</span>
+<span class="sd">    abstract_syntax : pydicom.uid.UID or None</span>
+<span class="sd">        The Presentation Context&#39;s *Abstract Syntax*.</span>
+<span class="sd">    context_id : int or None</span>
+<span class="sd">        The Presentation Context&#39;s *Context ID*.</span>
+<span class="sd">    result : int or None</span>
+<span class="sd">        If part of an A-ASSOCIATE (request) then None. If part of an</span>
+<span class="sd">        A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</span>
+<span class="sd">    transfer_syntax : list of pydicom.uid.UID</span>
+<span class="sd">        The Presentation Context&#39;s *Transfer Syntax(es)*.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    * DICOM Standard, Part 7, Annexes</span>
+<span class="sd">      `D.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2&gt;`_ and</span>
+<span class="sd">      `D.3.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4&gt;`_</span>
+<span class="sd">    * DICOM Standard, Part 8, Sections</span>
+<span class="sd">      `9.3.2.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2&gt;`_,</span>
+<span class="sd">      `9.3.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2&gt;`_ and</span>
+<span class="sd">      `Annex B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PresentationContext.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationContext.html#pynetdicom3.presentation.PresentationContext.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new PresentationContext.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abstract_syntax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Used with SCP/SCU Role Selection negotiation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scu_role</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scp_role</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">abstract_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the presentation context&#39;s *Abstract Syntax* as a UID.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.uid.UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abstract_syntax</span>
+
+    <span class="nd">@abstract_syntax</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">abstract_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the presentation context&#39;s *Abstract Syntax*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        uid : str or bytes or pydicom.uid.UID</span>
+<span class="sd">            The abstract syntax UIDs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;abstract_syntax&#39; must be str or bytes or UID&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">uid</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;abstract_syntax&#39; set to a non-conformant UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_abstract_syntax</span> <span class="o">=</span> <span class="n">uid</span>
+
+<div class="viewcode-block" id="PresentationContext.add_transfer_syntax"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationContext.html#pynetdicom3.presentation.PresentationContext.add_transfer_syntax">[docs]</a>    <span class="k">def</span> <span class="nf">add_transfer_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syntax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Append a transfer syntax to the presentation context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        syntax : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The transfer syntax to add to the presentation context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syntax</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syntax</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">syntax</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Attempted to add an invalid transfer syntax&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># If the transfer syntax is rejected we may add an empty str</span>
+        <span class="k">if</span> <span class="n">syntax</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax</span> <span class="ow">and</span> <span class="n">syntax</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">syntax</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;A non-conformant UID has been added &quot;</span>
+                               <span class="s2">&quot;to &#39;transfer_syntax&#39;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">syntax</span><span class="o">.</span><span class="n">is_private</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">syntax</span><span class="o">.</span><span class="n">is_transfer_syntax</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;A UID has been added to &#39;transfer_syntax&#39; &quot;</span>
+                               <span class="s2">&quot;that is not a transfer syntax&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a namedtuple representation of the presentation context.</span>
+
+<span class="sd">        Intended to be used when the result is 0x00 (accepted) as only the</span>
+<span class="sd">        first transfer syntax item is returned in the tuple.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PresentationContextTuple</span>
+<span class="sd">            A representation of an accepted presentation context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PresentationContextTuple</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">context_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the presentation context&#39;s *ID* parameter as an int.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_id</span>
+
+    <span class="nd">@context_id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">context_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the presentation context&#39;s *ID* parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : int</span>
+<span class="sd">            An odd integer between 1 and 255 (inclusive).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">255</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;context_id&#39; must be an odd integer between 1 &quot;</span>
+                             <span class="s2">&quot;and 255, inclusive&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context_id</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if `self` is equal to `other`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span>
+
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="c1"># Python 2: Classes defining __eq__ should flag themselves as unhashable</span>
+    <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if `self` does not equal `other`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a descriptive str of the presentation context&#39;s *Result*.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The string representation of the result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Pending&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Accepted&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x01</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;User Rejected&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x02</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Provider Rejected&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x03</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Abstract Syntax Not Supported&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x04</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Transfer Syntax(es) Not Supported&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;Unknown&#39;</span>
+
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the Presentation Context.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;ID: </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;Abstract Syntax: </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;Transfer Syntax(es):</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">syntax</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;    =</span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;    =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Result: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transfer_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the presentation context&#39;s *Transfer Syntaxes* as a list.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of pydicom.uid.UID</span>
+<span class="sd">            The transfer syntaxes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax</span>
+
+    <span class="nd">@transfer_syntax</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">transfer_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syntaxes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the presentation context&#39;s *Transfer Syntaxes*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        syntaxes : list of (str or bytes or pydicom.uid.UID)</span>
+<span class="sd">            The transfer syntax UIDs to add to the Presentation Context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syntaxes</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;transfer_syntax&#39; must be a list&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">syntax</span> <span class="ow">in</span> <span class="n">syntaxes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_transfer_syntax</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PresentationService"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService">[docs]</a><span class="k">class</span> <span class="nc">PresentationService</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Provides Presentation related services to the AE.</span>
+
+<span class="sd">    For each SOP Class or Meta SOP Class, a Presentation Context must be</span>
+<span class="sd">    negotiated such that this Presentation Context supports the associated</span>
+<span class="sd">    Abstract Syntax and a suitable Transfer Syntax.</span>
+
+<span class="sd">    * The Association requestor may off multiple Presentation Contexts per</span>
+<span class="sd">      Association.</span>
+<span class="sd">    * Each Presentation Context supports one Abstract Syntax and one or more</span>
+<span class="sd">      Transfer Syntaxes.</span>
+<span class="sd">    * The Association acceptor may accept or reject each Presentation Context</span>
+<span class="sd">      individually.</span>
+<span class="sd">    * The Association acceptor selects a suitable Transfer Syntax for each</span>
+<span class="sd">      Presentation Context accepted.</span>
+
+<span class="sd">    **SCP/SCU Role Selection Negotiation**</span>
+
+<span class="sd">    The SCP/SCU role selection negotiation allows peer AEs to negotiate the</span>
+<span class="sd">    roles in which they will server for each SOP Class or Meta SOP Class</span>
+<span class="sd">    supported on the Association. This negotiation is optional.</span>
+
+<span class="sd">    The Association requestor, for each SOP Class UID or Meta SOP Class UID,</span>
+<span class="sd">    may use one SCP/SCU Role Selection item, with the SOP Class or Meta SOP</span>
+<span class="sd">    Class identified by its corresponding Abstract Syntax Name, followed by</span>
+<span class="sd">    one of the three role values:</span>
+
+<span class="sd">    * Association requestor is SCU only</span>
+<span class="sd">    * Association requestor is SCP only</span>
+<span class="sd">    * Association requestor is both SCU and SCP</span>
+
+<span class="sd">    If the SCP/SCU Role Selection item is absent then the Association requestor</span>
+<span class="sd">    shall be SCU and the Association acceptor shall be SCP.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    DICOM Standard, Part 7, Annex D.3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PresentationService.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PresentationService.negotiate"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.negotiate">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">negotiate</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process an Association&#39;s Presentation Contexts.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s1">&#39;acceptor&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_as_acceptor</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">assoc</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s1">&#39;requestor&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_as_requestor</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PresentationService.negotiate_as_acceptor"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.negotiate_as_acceptor">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">negotiate_as_acceptor</span><span class="p">(</span><span class="n">rq_contexts</span><span class="p">,</span> <span class="n">ac_contexts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process the Presentation Contexts as an Association acceptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rq_contexts : list of PresentationContext</span>
+<span class="sd">            The Presentation Contexts proposed by the peer. Each item has</span>
+<span class="sd">            values for Context ID, Abstract Syntax and Transfer Syntax.</span>
+<span class="sd">        ac_contexts : list of PresentationContext</span>
+<span class="sd">            The Presentation Contexts supported by the local AE when acting</span>
+<span class="sd">            as an Association acceptor. Each item has values for Context ID</span>
+<span class="sd">            Abstract Syntax and Transfer Syntax.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result_contexts : list of PresentationContext</span>
+<span class="sd">            The accepted presentation context items, each with a Result value</span>
+<span class="sd">            a Context ID, an Abstract Syntax and one Transfer Syntax item.</span>
+<span class="sd">            Items are sorted in increasing Context ID value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_contexts</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># No requestor presentation contexts</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rq_contexts</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result_contexts</span>
+
+        <span class="c1"># Acceptor doesn&#39;t support any presentation contexts</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ac_contexts</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">rq_context</span> <span class="ow">in</span> <span class="n">rq_contexts</span><span class="p">:</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">abstract_syntax</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x03</span>
+                <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result_contexts</span>
+
+        <span class="c1"># Optimisation notes (for iterating through contexts only, not</span>
+        <span class="c1">#   including actual context negotiation)</span>
+        <span class="c1"># - Create dict, use set intersection/difference of dict keys: ~600 us</span>
+        <span class="c1"># - Create dict, iterate over dict keys: ~400 us</span>
+        <span class="c1"># - Iterate over lists: ~52000 us</span>
+
+        <span class="c1"># Requestor may use the same Abstract Syntax in multiple Presentation</span>
+        <span class="c1">#   Contexts so we need a more specific key than UID</span>
+        <span class="n">requestor_contexts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">):</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">rq_contexts</span>
+        <span class="p">}</span>
+        <span class="c1"># Acceptor supported SOP Classes must be unique so we can use UID as</span>
+        <span class="c1">#   the key</span>
+        <span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">{</span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ac_contexts</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">cntx_id</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">)</span> <span class="ow">in</span> <span class="n">requestor_contexts</span><span class="p">:</span>
+            <span class="c1"># Convenience variable</span>
+            <span class="n">rq_context</span> <span class="o">=</span> <span class="n">requestor_contexts</span><span class="p">[(</span><span class="n">cntx_id</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">)]</span>
+
+            <span class="c1"># Create a new PresentationContext item that will store the</span>
+            <span class="c1">#   results of the negotiation</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">cntx_id</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">ab_syntax</span>
+
+            <span class="c1"># Check if the acceptor supports the Abstract Syntax</span>
+            <span class="k">if</span> <span class="n">ab_syntax</span> <span class="ow">in</span> <span class="n">acceptor_contexts</span><span class="p">:</span>
+                <span class="c1"># Convenience variable</span>
+                <span class="n">ac_context</span> <span class="o">=</span> <span class="n">acceptor_contexts</span><span class="p">[</span><span class="n">ab_syntax</span><span class="p">]</span>
+
+                <span class="c1"># Abstract syntax supported so check Transfer Syntax</span>
+                <span class="k">for</span> <span class="n">tr_syntax</span> <span class="ow">in</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
+
+                    <span class="c1"># If transfer syntax supported</span>
+                    <span class="k">if</span> <span class="n">tr_syntax</span> <span class="ow">in</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
+                        <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">tr_syntax</span><span class="p">]</span>
+                        <span class="c1"># Accept the presentation context</span>
+                        <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x00</span>
+
+                        <span class="c1"># SCP/SCU Role Selection needs to be reimplemented as it</span>
+                        <span class="c1">#   doesn&#39;t meet the DICOM Standard</span>
+                        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                        ## SCP/SCU Role Selection Negotiation</span>
+<span class="sd">                        # Only give an answer if the acceptor supports Role</span>
+<span class="sd">                        #   Selection Negotiation (i.e. `ac_context.SCU` and</span>
+<span class="sd">                        #   `ac_context.SCP` are not None)</span>
+<span class="sd">                        if None not in (ac_context.SCP, ac_context.SCU):</span>
+<span class="sd">                            # Requestor has proposed SCP role for context</span>
+<span class="sd">                            if rq_context.SCP:</span>
+<span class="sd">                                if ac_context.SCP:</span>
+<span class="sd">                                    context.SCP = True</span>
+<span class="sd">                                else:</span>
+<span class="sd">                                    context.SCP = False</span>
+
+<span class="sd">                            # Requestor has proposed SCU role for context</span>
+<span class="sd">                            if rq_context.SCU:</span>
+<span class="sd">                                if ac_context.SCU:</span>
+<span class="sd">                                    context.SCU = True</span>
+<span class="sd">                                else:</span>
+<span class="sd">                                    context.SCU = False</span>
+<span class="sd">                        &#39;&#39;&#39;</span>
+
+                        <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                <span class="c1"># Need to check against None as 0x00 is a possible value</span>
+                <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Reject context - transfer syntax not supported</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x04</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Reject context - abstract syntax not supported</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x03</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="c1"># Sort by presentation context ID and return</span>
+        <span class="c1">#   This isn&#39;t required by the DICOM Standard but its a nice thing to do</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result_contexts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PresentationService.negotiate_as_requestor"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.negotiate_as_requestor">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">negotiate_as_requestor</span><span class="p">(</span><span class="n">rq_contexts</span><span class="p">,</span> <span class="n">ac_contexts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process the Presentation Contexts as an Association requestor.</span>
+
+<span class="sd">        The acceptor has processed the requestor&#39;s presentation context</span>
+<span class="sd">        definition list and returned the results. We want to do two things:</span>
+
+<span class="sd">        - Process the SCP/SCU Role Selection Negotiation (if any) (TO BE</span>
+<span class="sd">          IMPLEMENTED)</span>
+<span class="sd">        - Return a nice list of PresentationContexts with the Results and</span>
+<span class="sd">          original Abstract Syntax values to make things easier to use.</span>
+
+<span class="sd">        Presentation Context Item (RQ)</span>
+
+<span class="sd">        - Presentation context ID</span>
+<span class="sd">        - Abstract Syntax: one</span>
+<span class="sd">        - Transfer syntax: one or more</span>
+
+<span class="sd">        Presentation Context Item (AC)</span>
+
+<span class="sd">        - Presentation context ID</span>
+<span class="sd">        - Result: 0x00, 0x01, 0x02, 0x03, 0x04</span>
+<span class="sd">        - Transfer syntax: one, not to be tested if result is not 0x00</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rq_contexts : list of PresentationContext</span>
+<span class="sd">            The Presentation Contexts sent to the peer as the A-ASSOCIATE&#39;s</span>
+<span class="sd">            Presentation Context Definition List.</span>
+<span class="sd">        ac_contexts : list of PresentationContext</span>
+<span class="sd">            The Presentation Contexts return by the peer as the A-ASSOCIATE&#39;s</span>
+<span class="sd">            Presentation Context Definition Result List.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of PresentationContext</span>
+<span class="sd">            The contexts in the returned Presentation Context Definition Result</span>
+<span class="sd">            List, with added Abstract Syntax value. Items are sorted in</span>
+<span class="sd">            increasing Context ID value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rq_contexts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Requestor contexts are required&#39;</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Create dicts, indexed by the presentation context ID</span>
+        <span class="n">requestor_contexts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">context</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">rq_contexts</span>
+        <span class="p">}</span>
+        <span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">context</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">ac_contexts</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">context_id</span> <span class="ow">in</span> <span class="n">requestor_contexts</span><span class="p">:</span>
+            <span class="c1"># Convenience variable</span>
+            <span class="n">rq_context</span> <span class="o">=</span> <span class="n">requestor_contexts</span><span class="p">[</span><span class="n">context_id</span><span class="p">]</span>
+
+            <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">context_id</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">abstract_syntax</span>
+
+            <span class="k">if</span> <span class="n">context_id</span> <span class="ow">in</span> <span class="n">acceptor_contexts</span><span class="p">:</span>
+                <span class="c1"># Convenience variable</span>
+                <span class="n">ac_context</span> <span class="o">=</span> <span class="n">acceptor_contexts</span><span class="p">[</span><span class="n">context_id</span><span class="p">]</span>
+
+                <span class="c1"># Update with accepted values</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">ac_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">result</span>
+
+                <span class="c1"># SCP/SCU Role Selection needs to be reimplemented as it</span>
+                <span class="c1">#   doesn&#39;t meet the DICOM Standard</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                ## SCP/SCU Role Selection Negotiation</span>
+<span class="sd">                # Skip if context rejected or acceptor ignored proposal</span>
+<span class="sd">                if (ac_context.Result == 0x00</span>
+<span class="sd">                            and None not in (ac_context.SCP, ac_context.SCU)):</span>
+<span class="sd">                    # Requestor has proposed SCP role for context:</span>
+<span class="sd">                    #   acceptor agrees: use agreed role</span>
+<span class="sd">                    #   acceptor disagrees: use default role</span>
+<span class="sd">                    if rq_context.SCP == ac_context.SCP:</span>
+<span class="sd">                        context.SCP = ac_context.SCP</span>
+<span class="sd">                    else:</span>
+<span class="sd">                        context.SCP = False</span>
+
+<span class="sd">                    # Requestor has proposed SCU role for context:</span>
+<span class="sd">                    #   acceptor agrees: use agreed role</span>
+<span class="sd">                    #   acceptor disagrees: use default role</span>
+<span class="sd">                    if rq_context.SCU == ac_context.SCU:</span>
+<span class="sd">                        context.SCU = ac_context.SCU</span>
+<span class="sd">                    else:</span>
+<span class="sd">                        context.SCU = False</span>
+<span class="sd">                else:</span>
+<span class="sd">                    # We are the association requestor, so SCU role only</span>
+<span class="sd">                    context.SCP = False</span>
+<span class="sd">                    context.SCU = True</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+
+            <span class="c1"># Add any missing contexts as rejected</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x02</span>
+
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="c1"># Sort returned list by context ID</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="build_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.build_context.html#pynetdicom3.presentation.build_context">[docs]</a><span class="k">def</span> <span class="nf">build_context</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="n">DEFAULT_TRANSFER_SYNTAXES</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a PresentationContext built from the `abstract_syntax`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    abstract_syntax : str or UID or sop_class.SOPClass</span>
+<span class="sd">        The UID or SOPClass instance to use as the abstract syntax.</span>
+<span class="sd">    transfer_syntax : str/UID or list of str/UID</span>
+<span class="sd">        The transfer syntax UID(s) to use (default: [Implicit VR Little Endian,</span>
+<span class="sd">        Explicit VR Little Endian, Implicit VR Big Endian])</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    Specifying a presentation context with the default transfer syntaxes</span>
+
+<span class="sd">    &gt;&gt;&gt; from pynetdicom3 import build_context</span>
+<span class="sd">    &gt;&gt;&gt; context = build_context(&#39;1.2.840.10008.1.1&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(context)</span>
+<span class="sd">    Abstract Syntax: Verification SOP Class</span>
+<span class="sd">    Transfer Syntax(es):</span>
+<span class="sd">        =Implicit VR Little Endian</span>
+<span class="sd">        =Explicit VR Little Endian</span>
+<span class="sd">        =Explicit VR Big Endian</span>
+
+<span class="sd">    Specifying the abstract syntax using a pynetdicom SOPClass instance and</span>
+<span class="sd">    a single transfer syntax</span>
+
+<span class="sd">    &gt;&gt;&gt; from pynetdicom3 import build_context</span>
+<span class="sd">    &gt;&gt;&gt; from pynetdicom3.sop_class import VerificationSOPClass</span>
+<span class="sd">    &gt;&gt;&gt; context = build_context(VerificationSOPClass, &#39;1.2.840.10008.1.2&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(context)</span>
+<span class="sd">    Abstract Syntax: Verification SOP Class</span>
+<span class="sd">    Transfer Syntax(es):</span>
+<span class="sd">        =Implicit VR Little Endian</span>
+
+<span class="sd">    Specifying multiple transfer syntaxes</span>
+
+<span class="sd">    &gt;&gt;&gt; from pydicom.uid import UID</span>
+<span class="sd">    &gt;&gt;&gt; from pynetdicom3 import build_context</span>
+<span class="sd">    &gt;&gt;&gt; context = build_context(UID(&#39;1.2.840.10008.1.1&#39;),</span>
+<span class="sd">                                [&#39;1.2.840.10008.1.2&#39;, &#39;1.2.840.10008.1.2.4.50&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; print(context)</span>
+<span class="sd">    Abstract Syntax: Verification SOP Class</span>
+<span class="sd">    Transfer Syntax(es):</span>
+<span class="sd">        =Implicit VR Little Endian</span>
+<span class="sd">        =JPEG Baseline (Process 1)</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    presentation.PresentationContext</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">):</span>
+        <span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">)</span>
+
+    <span class="c1"># Allow single transfer syntax values for convenience</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">transfer_syntax</span><span class="p">]</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">abstract_syntax</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">transfer_syntax</span>
+
+    <span class="k">return</span> <span class="n">context</span></div>
+
+
+<span class="c1"># Service specific pre-generated Presentation Contexts</span>
+<span class="n">VerificationPresentationContexts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="n">StoragePresentationContexts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.2.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.1.4.1.1.3.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.2.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.2.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.3.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.6.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.6.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.1.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.1.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.2.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.3.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.4.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.4.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.5.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.6.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.5&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.2.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.5&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.14.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.14.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.20&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.30&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.5&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.67&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.68.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.68.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.2.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.4.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.5&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.6&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.6&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.5&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.6&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.7&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.8&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.79.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.80.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.81.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.82.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.11&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.22&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.33&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.34&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.35&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.40&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.50&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.59&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.65&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.67&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.68&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.69&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.70&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.104.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.104.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.128&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.130&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.128.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.131&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.4&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.5&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.6&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.7&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.8&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.9&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.34.7&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.34.10&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">QueryRetrievePresentationContexts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.3&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.2&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.3&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">BasicWorklistManagementPresentationContexts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.31&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom3.dimse_primitives.C_ECHO &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>pynetdicom3.dimse_primitives.C_ECHO</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/reference/generated/pynetdicom3.dimse_primitives.C_ECHO.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom3-dimse-primitives-c-echo">
+<h1>pynetdicom3.dimse_primitives.C_ECHO<a class="headerlink" href="#pynetdicom3-dimse-primitives-c-echo" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO">
+<em class="property">class </em><code class="descclassname">pynetdicom3.dimse_primitives.</code><code class="descname">C_ECHO</code><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_ECHO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a C-ECHO primitive.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="62%" />
+<col width="18%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Req/ind</th>
+<th class="head">Rsp/conf</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Message ID</td>
+<td>M</td>
+<td>U</td>
+</tr>
+<tr class="row-odd"><td>Message ID Being Responded To</td>
+<td>-</td>
+<td>M</td>
+</tr>
+<tr class="row-even"><td>Affected SOP Class UID</td>
+<td>M</td>
+<td>U(=)</td>
+</tr>
+<tr class="row-odd"><td>Status</td>
+<td>-</td>
+<td>M</td>
+</tr>
+<tr class="row-even"><td>Error Comment</td>
+<td>-</td>
+<td>C</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">(=) - The value of the parameter is equal to the value of the parameter in
+the column to the left</div>
+<div class="line">C - The parameter is conditional.</div>
+<div class="line">M - Mandatory</div>
+<div class="line">MF - Mandatory with a fixed value</div>
+<div class="line">U - The use of this parameter is a DIMSE service user option</div>
+<div class="line">UF - User option with a fixed value</div>
+</div>
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.MessageID">
+<code class="descname">MessageID</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.MessageID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identifies the operation and is used to distinguish this
+operation from other notifications or operations that may be in
+progress. No two identical values for the Message ID shall be used for
+outstanding operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo">
+<code class="descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Message ID of the operation request/indication to which this
+response/confirmation applies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.AffectedSOPClassUID">
+<code class="descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<dd><p>For the request/indication this specifies the SOP Class for
+storage. If included in the response/confirmation, it shall be equal
+to the value in the request/indication</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.Status">
+<code class="descname">Status</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.Status" title="Permalink to this definition">¶</a></dt>
+<dd><p>The error or success notification of the operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.ErrorComment">
+<code class="descname">ErrorComment</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.ErrorComment" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional status related field containing a text description
+of the error detected. 64 characters maximum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard, Part 7, Section 9.1.5</li>
+</ul>
+<dl class="method">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_ECHO.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.__init__" title="pynetdicom3.dimse_primitives.C_ECHO.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
+<td>Initialize self.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.AffectedSOPClassUID" title="pynetdicom3.dimse_primitives.C_ECHO.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></td>
+<td>Return the <em>Affected SOP Class UID</em>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.MessageID" title="pynetdicom3.dimse_primitives.C_ECHO.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></td>
+<td>Return the <em>Message ID</em>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo" title="pynetdicom3.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></td>
+<td>Return the <em>Message ID Being Responded To</em>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.Status" title="pynetdicom3.dimse_primitives.C_ECHO.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a></td>
+<td>Return the <em>Status</em>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.is_valid_request" title="pynetdicom3.dimse_primitives.C_ECHO.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></td>
+<td>Return True if the C-ECHO RQ is valid.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_ECHO.is_valid_response" title="pynetdicom3.dimse_primitives.C_ECHO.is_valid_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_response</span></code></a></td>
+<td>Return True if the C-ECHO RSP is valid.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt>
+<code class="descname">AffectedSOPClassUID</code></dt>
+<dd><p>Return the <em>Affected SOP Class UID</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">MessageID</code></dt>
+<dd><p>Return the <em>Message ID</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">MessageIDBeingRespondedTo</code></dt>
+<dd><p>Return the <em>Message ID Being Responded To</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">Status</code></dt>
+<dd><p>Return the <em>Status</em>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.is_valid_request">
+<code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.is_valid_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the C-ECHO RQ is valid.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.dimse_primitives.C_ECHO.is_valid_response">
+<code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_ECHO.is_valid_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the C-ECHO RSP is valid.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

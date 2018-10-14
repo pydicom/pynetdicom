@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Query/Retrieve (Move) Service Examples &mdash; pynetdicom3 0.9.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom3
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">0.9.1</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom3</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Query/Retrieve (Move) Service Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/qr_move.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="query-retrieve-move-service-examples">
+<h1>Query/Retrieve (Move) Service Examples<a class="headerlink" href="#query-retrieve-move-service-examples" title="Permalink to this headline">¶</a></h1>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Query/Retrieve Service</a>
+provides a mechanism for a service user to query and retrieve the SOP Instances
+managed by a QR SCP. The QR (Move) SOP classes allow an SCU to request an SCP
+send matching SOP Instances to a known Storage SCP over a new association.
+This is accomplished through the DIMSE C-MOVE and C-STORE services.</p>
+<p>One limitation of the C-MOVE service is that the Move SCP/Storage SCU must
+know in advance the details (AE title, IP address, port number) of the
+destination Storage SCP. If the Move SCP doesn’t know the destination AE then
+it will usually respond with an <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> status code.</p>
+<p>Due to the way pynetdicom is currently implemented it does not support the
+QR Move SCU being able to also act as the destination Storage SCP. In order to
+have a destination Storage SCP it is necessary to create it in a separate AE.</p>
+<div class="section" id="query-retrieve-move-scu">
+<h2>Query/Retrieve (Move) SCU<a class="headerlink" href="#query-retrieve-move-scu" title="Permalink to this headline">¶</a></h2>
+<p>Associate with a peer DICOM Application Entity and request it send
+all SOP Instances for the patient with <em>Patient ID</em> ‘1234567’ belonging to the
+series with <em>Study Instance UID</em> ‘1.2.3’ and <em>Series Instance UID</em> ‘1.2.3.4’ to
+the Storage SCP with AE title b’STORE_SCP’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add a requested presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">)</span>
+
+<span class="c1"># Create out identifier (query) dataset</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;SERIES&#39;</span>
+<span class="c1"># Unique key for PATIENT level</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">PatientID</span> <span class="o">=</span> <span class="s1">&#39;1234567&#39;</span>
+<span class="c1"># Unique key for STUDY level</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">StudyInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3&#39;</span>
+<span class="c1"># Unique key for SERIES level</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3.4&#39;</span>
+
+<span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Use the C-MOVE service to send the identifier</span>
+    <span class="c1"># A query_model value of &#39;P&#39; means use the &#39;Patient Root Query</span>
+    <span class="c1">#   Retrieve Information Model - Move&#39; presentation context</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_move</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-MOVE query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+
+        <span class="c1"># If the status is &#39;Pending&#39; then the identifier is the C-MOVE response</span>
+        <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The responses received from the SCP include notifications on whether or not
+the storage sub-operations have been successful.</p>
+</div>
+<div class="section" id="query-retrieve-move-scp">
+<h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Permalink to this headline">¶</a></h2>
+<p>The following represents a toy implementation of a Query/Retrieve (Move) SCP
+where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
+Root Query Retrieve Information Model - Move</em> context and the move destination
+AE title b’STORE_SCP’ is known to correspond to the IP address ‘127.0.0.1’ and
+listen port number ‘11113’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;PATIENT&#39;</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">PatientID</span> <span class="o">=</span> <span class="s1">&#39;1234567&#39;</span>
+</pre></div>
+</div>
+<p>This is a very bad way of managing stored SOP Instances, in reality its
+probably best to store the instance attributes in a database and run the
+query against that.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
+<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
+
+<span class="c1"># Create application entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+
+<span class="c1"># Add the requested presentation contexts (Storage SCU)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+<span class="c1"># Add a supported presentation context (QR Move SCP)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">)</span>
+
+<span class="c1"># Implement the AE.on_c_move callback</span>
+<span class="k">def</span> <span class="nf">on_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Respond to a C-MOVE request Identifier `ds`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : pydicom.dataset.Dataset</span>
+<span class="sd">        The Identifier dataset sent by the peer.</span>
+<span class="sd">    move_aet : bytes</span>
+<span class="sd">        The destination AE title that matching SOP Instances will be sent</span>
+<span class="sd">        to using C-STORE sub-operations. ``move_aet`` will be a correctly</span>
+<span class="sd">        formatted AE title (16 chars, with trailing spaces as padding).</span>
+<span class="sd">    context : presentation.PresentationContextTuple</span>
+<span class="sd">        The presentation context that the C-MOVE message was sent under.</span>
+<span class="sd">    info : dict</span>
+<span class="sd">        A dict containing information about the current association.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    addr, port : str, int or None, None</span>
+<span class="sd">        The first yield should be the TCP/IP address and port number of the</span>
+<span class="sd">        destination AE (if known) or ``(None, None)`` if unknown. If</span>
+<span class="sd">        ``(None, None)`` is yielded then the SCP will send a C-MOVE</span>
+<span class="sd">        response with a &#39;Failure&#39; Status of ``0xA801`` (move destination</span>
+<span class="sd">        unknown), in which case nothing more needs to be yielded.</span>
+<span class="sd">    int</span>
+<span class="sd">        The second yield should be the number of C-STORE sub-operations</span>
+<span class="sd">        required to complete the C-MOVE operation. In other words, this is</span>
+<span class="sd">        the number of matching SOP Instances to be sent to the peer.</span>
+<span class="sd">    status : pydiom.dataset.Dataset or int</span>
+<span class="sd">        The status returned to the peer AE in the C-MOVE response. Must be</span>
+<span class="sd">        a valid C-MOVE status value for the applicable Service Class as</span>
+<span class="sd">        either an ``int`` or a ``Dataset`` containing (at a minimum) a</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` then it</span>
+<span class="sd">        may also contain optional elements related to the Status (as in</span>
+<span class="sd">        DICOM Standard Part 7, Annex C).</span>
+<span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
+<span class="sd">        If the status is &#39;Pending&#39; then yield the ``Dataset``</span>
+<span class="sd">        to send to the peer via a C-STORE sub-operation over a new</span>
+<span class="sd">        association.</span>
+
+<span class="sd">        If the status is &#39;Failed&#39;, &#39;Warning&#39; or &#39;Cancel&#39; then yield a</span>
+<span class="sd">        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*</span>
+<span class="sd">        element containing the list of the C-STORE sub-operation SOP</span>
+<span class="sd">        Instance UIDs for which the C-MOVE operation has failed.</span>
+
+<span class="sd">        If the status is &#39;Success&#39; then yield ``None``, although yielding a</span>
+<span class="sd">        final &#39;Success&#39; status is not required and will be ignored if</span>
+<span class="sd">        necessary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;QueryRetrieveLevel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="c1"># Failure</span>
+        <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Check move_aet is known</span>
+    <span class="c1"># get_known_aet() is here to represent a user-implemented method of</span>
+    <span class="c1">#   getting known AEs</span>
+    <span class="n">known_aet_dict</span> <span class="o">=</span> <span class="n">get_known_aet</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">move_aet</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_aet_dict</span><span class="p">:</span>
+        <span class="c1"># Unknown destination AE</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Assuming known_ae_dict is {b&#39;STORE_SCP       &#39; : (&#39;127.0.0.1&#39;, 11113)}</span>
+    <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="o">=</span> <span class="n">known_ae_dict</span><span class="p">[</span><span class="n">move_ae</span><span class="p">]</span>
+
+    <span class="c1"># Yield the IP address and listen port of the destination AE</span>
+    <span class="k">yield</span> <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+    <span class="c1"># Import stored SOP Instances</span>
+    <span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fdir</span> <span class="o">=</span> <span class="s1">&#39;/path/to/directory&#39;</span>
+    <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">fdir</span><span class="p">):</span>
+        <span class="n">instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dcmread</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">==</span> <span class="s1">&#39;PATIENT&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;PatientID&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">matching</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">inst</span> <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">instances</span> <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">PatientID</span> <span class="o">==</span> <span class="n">ds</span><span class="o">.</span><span class="n">PatientID</span>
+            <span class="p">]</span>
+
+        <span class="c1"># Skip the other possible attributes...</span>
+
+    <span class="c1"># Skip the other QR levels...</span>
+
+    <span class="c1"># Yield the total number of C-STORE sub-operations required</span>
+    <span class="k">yield</span> <span class="nb">len</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="c1"># Yield the matching instances</span>
+    <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">matching</span><span class="p">:</span>
+        <span class="c1"># Pending</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">on_c_move</span> <span class="o">=</span> <span class="n">on_c_move</span>
+
+<span class="c1"># Start listening for incoming association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pynetdicom3 contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
