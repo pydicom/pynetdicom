@@ -19,17 +19,19 @@ def validate_ae_title(ae_title):
     """Return a valid AE title from `ae_title`, if possible.
 
     An AE title:
-    *   Must be no more than 16 characters
-    *   Leading and trailing spaces are not significant
-    *   The characters should belong to the Default Character Repertoire
-        excluding 5CH (backslash "\") and all control characters
+
+    * Must be no more than 16 characters
+    * Leading and trailing spaces are not significant
+    * The characters should belong to the Default Character Repertoire
+      excluding 0x5C (backslash) and all control characters
 
     If the supplied `ae_title` is greater than 16 characters once
-        non-significant spaces have been removed then the returned AE title
-        will be truncated to remove the excess characters.
+    non-significant spaces have been removed then the returned AE title
+    will be truncated to remove the excess characters.
+
     If the supplied `ae_title` is less than 16 characters once non-significant
-        spaces have been removed, the spare trailing characters will be
-        set to space (0x20)
+    spaces have been removed, the spare trailing characters will be set to
+    space (0x20)
 
     Parameters
     ----------
@@ -100,9 +102,10 @@ def validate_ae_title(ae_title):
         raise TypeError("Invalid value for an AE title; must be a "
                         "non-empty string or bytes.")
 
-def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
+
+def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
                  max_size=512, suffix=''):
-    """Turn the bytestring `lst` into a list of nicely formatted str.
+    """Turn the bytestring `bytestream` into a list of nicely formatted str.
 
     Parameters
     ----------
@@ -111,7 +114,7 @@ def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
     prefix : str
         Insert `prefix` at the start of every item in the output string list
     delimiter : str
-        Delimit each of the bytes in `lst` using `delimiter`
+        Delimit each of the bytes in `bytestream` using `delimiter`
     items_per_line : int
         The number of bytes in each item of the output string list.
     max_size : int or None
@@ -126,14 +129,14 @@ def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
         The output string list
     """
     lines = []
-    if isinstance(lst, BytesIO):
-        lst = lst.getvalue()
+    if isinstance(bytestream, BytesIO):
+        bytestream = bytestream.getvalue()
 
     cutoff_output = False
     byte_count = 0
-    for ii in range(0, len(lst), items_per_line):
+    for ii in range(0, len(bytestream), items_per_line):
         # chunk is a bytes in python3 and a str in python2
-        chunk = lst[ii:ii + items_per_line]
+        chunk = bytestream[ii:ii + items_per_line]
         byte_count += len(chunk)
 
         # Python 2 compatibility
@@ -161,6 +164,8 @@ def pretty_bytes(lst, prefix='  ', delimiter='  ', items_per_line=16,
 
 class PresentationContextManager(object):
     """
+    **DEPRECATED, TO BE REMOVED**
+
     Manages the presentation contexts supplied by the association requestor and
     acceptor
 
@@ -169,8 +174,6 @@ class PresentationContextManager(object):
     using another list of PresentationContext items. The accepted contexts are
     then available in the `accepted` attribute while the rejected ones are in
     the `rejected` attribute.
-
-    FIXME: Add Attributes section
     """
     def __init__(self, request_contexts=None, response_contexts=None):
         """Create a new PresentationContextManager.

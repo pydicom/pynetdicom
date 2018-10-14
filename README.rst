@@ -23,7 +23,7 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom3* is a pure Python (2.7/3.4+) program that implements the DICOM
+*pynetdicom3* is a pure Python (2.7/3.4+) package that implements the DICOM
 networking protocol. Working with `pydicom <https://github.com/pydicom/pydicom>`_,
 it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 *Service Class Providers* (SCPs).
@@ -194,7 +194,7 @@ SCP (at TCP/IP address *addr*, listen port number *port*):
         ae.requested_contexts = VerificationPresentationContexts
         # Or we can use inbuilt objects like CTImageStorage.
         # The requested presentation context's transfer syntaxes can also
-        #   be specified using with a str/UID or list of str/UIDs
+        #   be specified using a str/UID or list of str/UIDs
         ae.add_requested_context(CTImageStorage,
                                  transfer_syntax=ImplicitVRLittleEndian)
         # Adding a presentation context with multiple transfer syntaxes

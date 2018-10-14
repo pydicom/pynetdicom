@@ -16,14 +16,17 @@ LOGGER = logging.getLogger('pynetdicom3.sm')
 class StateMachine(object):
     """Implementation of the DICOM Upper Layer State Machine.
 
-    Seer PS3.8 Section 9.2.
-
     Attributes
     ----------
     current_state : str
         The current state of the state machine, 'Sta1' to 'Sta13'.
     dul : pynetdicom3.dul.DULServiceProvider
         The DICOM Upper Layer service instance for the local AE
+
+    References
+    ----------
+
+    * DICOM Standard, Part 8, Section 9.2
     """
     def __init__(self, dul):
         """Create a new StateMachine.
@@ -109,8 +112,10 @@ def AE_1(dul):
 
     State-event triggers: Sta1 + Evt1
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -150,8 +155,10 @@ def AE_2(dul):
 
     Callbacks: ApplicationEntity.on_send_associate_rq(PDU)
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -182,8 +189,10 @@ def AE_3(dul):
 
     State-event triggers: Sta5 + Evt3
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -208,8 +217,10 @@ def AE_4(dul):
 
     State-event triggers: Sta5 + Evt4
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -238,8 +249,10 @@ def AE_5(dul):
 
     State-event triggers: Sta1 + Evt5
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -264,16 +277,19 @@ def AE_6(dul):
 
     On receiving an A-ASSOCIATE-RQ PDU from the peer then stop the ARTIM timer
     and then either
-        * issue an A-ASSOCIATE indication primitive if the -RQ is acceptable or
-        * issue an A-ASSOCIATE-RJ PDU to the peer and start the ARTIM timer
 
-    This is a lower-level DUL Service Provider initiated rejection - for example
-        this could be where the protocol version is checked
+    * issue an A-ASSOCIATE indication primitive if the -RQ is acceptable or
+    * issue an A-ASSOCIATE-RJ PDU to the peer and start the ARTIM timer
+
+    This is a lower-level DUL Service Provider initiated rejection - for
+    example this could be where the protocol version is checked
 
     State-event triggers: Sta2 + Evt6
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -326,8 +342,10 @@ def AE_7(dul):
 
     State-event triggers: Sta3 + Evt7
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -358,8 +376,10 @@ def AE_8(dul):
 
     State-event triggers: Sta3 + Evt8
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -392,8 +412,10 @@ def DT_1(dul):
 
     State-event triggers: Sta6 + Evt9
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related
-        Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -425,8 +447,10 @@ def DT_2(dul):
 
     State-event triggers: Sta6 + Evt10
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-7, "Data Transfer Related
-        Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -451,8 +475,10 @@ def AR_1(dul):
 
     State-event triggers: Sta6 + Evt11
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -483,8 +509,10 @@ def AR_2(dul):
 
     State-event triggers: Sta6 + Evt12
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -509,8 +537,10 @@ def AR_3(dul):
 
     State-event triggers: Sta7 + Evt13, Sta11 + Evt13
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -536,8 +566,10 @@ def AR_4(dul):
 
     State-event triggers: Sta8 + Evt14, Sta12 + Evt14
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -569,8 +601,10 @@ def AR_5(dul):
 
     State-event triggers: Sta13 + Evt17
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -595,8 +629,10 @@ def AR_6(dul):
 
     State-event triggers: Sta7 + Evt10
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -621,8 +657,10 @@ def AR_7(dul):
 
     State-event triggers: Sta8 + Evt9
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -654,8 +692,10 @@ def AR_8(dul):
 
     State-event triggers: Sta7 + Evt12
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -681,8 +721,10 @@ def AR_9(dul):
 
     State-event triggers: Sta9 + Evt14
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -712,8 +754,10 @@ def AR_10(dul):
 
     State-event triggers: Sta10 + Evt13
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-8, "Associate Release
-        Related Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -740,8 +784,10 @@ def AA_1(dul):
     State-event triggers: Sta2 + Evt3/Evt4/Evt10/Evt12/Evt13/Evt19,
     Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 + Evt15
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -785,8 +831,10 @@ def AA_2(dul):
 
     State-event triggers: Sta2 + Evt16/Evt18, Sta4 + Evt15, Sta13 + Evt16/Evt18
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -814,8 +862,10 @@ def AA_3(dul):
     State-event triggers: Sta3/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12 +
     Evt16
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -847,8 +897,10 @@ def AA_4(dul):
     State-event triggers: Sta3/Sta4/Sta5/Sta6/Sta7/Sta8/Sta9/Sta10/Sta11/Sta12
     + Evt17
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -874,8 +926,10 @@ def AA_5(dul):
 
     State-event triggers: Sta2 + Evt17
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -899,8 +953,10 @@ def AA_6(dul):
 
     State-event triggers: Sta13 + Evt3/Evt4/Evt10/Evt12/Evt13
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -925,8 +981,10 @@ def AA_7(dul):
 
     State-event triggers: Sta13 + Evt6/Evt19
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------
@@ -960,8 +1018,10 @@ def AA_8(dul):
     Evt10 + Sta3/5/8/9/10/11/12, Evt12 + Sta3/5/8/9/10/11/12,
     Evt13 + Sta3/5/6/8/9/12, Evt19 + Sta3/5/6/7/8/9/10/11/12
 
-    .. [1] DICOM Standard 2015b, PS3.8, Table 9-9, "Associate Abort Related
-    Actions"
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
 
     Parameters
     ----------

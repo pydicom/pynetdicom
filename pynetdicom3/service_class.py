@@ -33,7 +33,7 @@ class ServiceClass(object):
     ----------
     AE : ae.ApplicationEntity
         The local AE (needed for the callbacks).
-    DIMSE : pynetdicom3.dimse.DIMSEServiceProvider
+    DIMSE : dimse.DIMSEServiceProvider
         The DIMSE service provider (needed to send/receive messages)
     """
     def __init__(self):
@@ -67,12 +67,12 @@ class ServiceClass(object):
         ----------
         status : pydicom.dataset.Dataset or int
             A Dataset containing a Status element or an int.
-        rsp : pynetdicom3.dimse_primitive
+        rsp : dimse_primitive
             The response primitive to be sent to the peer.
 
         Returns
         -------
-        rsp : pynetdicom3.dimse_primitive
+        rsp : dimse_primitive
             The response primitie to be sent to the peer (containing a valid
             Status parameter).
         """
@@ -126,9 +126,9 @@ class VerificationServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_ECHO
+        req : dimse_primitives.C_ECHO
             The C-ECHO request primitive sent by the peer.
-        context : pynetdicom3.presentation.PresentationContext
+        context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         info : dict
             A dict containing details about the association.
@@ -158,7 +158,7 @@ class VerificationServiceClass(ServiceClass):
 
         *Status*
 
-        The DICOM Standard [2]_ (Table 9.3-13) indicates that the Status value
+        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status value
         of a C-ECHO response "shall have a value of Success". However Section
         9.1.5.1.4 indicates it may have any of the following values:
 
@@ -173,11 +173,12 @@ class VerificationServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-        .. [2] DICOM Standard, Part 7, Sections
-           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-           `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+
+        * DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        * DICOM Standard, Part 7, Sections
+          `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build C-ECHO response primitive
         rsp = C_ECHO()
@@ -186,7 +187,7 @@ class VerificationServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         info['parameters'] = {
-            'message_id' : req.MessageID
+             'message_id' : req.MessageID
         }
 
         # Try and run the user's on_c_echo callback. The callback should return
@@ -234,9 +235,9 @@ class StorageServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_STORE
+        req : dimse_primitives.C_STORE
             The C-STORE request primitive sent by the peer.
-        context : pynetdicom3.presentation.PresentationContext
+        context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         info : dict
             A dict containing details about the association.
@@ -294,11 +295,12 @@ class StorageServiceClass(ServiceClass):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
-        .. [2] DICOM Standard, Part 7, Sections
-           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+
+        * DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
+        * DICOM Standard, Part 7, Sections
+          `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
+          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-STORE response primitive
         rsp = C_STORE()
@@ -323,10 +325,10 @@ class StorageServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority,
-            'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-            'originator_message_id' : req.MoveOriginatorMessageID
+             'message_id' : req.MessageID,
+             'priority' : req.Priority,
+             'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+             'originator_message_id' : req.MoveOriginatorMessageID
         }
 
         # Attempt to run the ApplicationEntity's on_c_store callback
@@ -349,12 +351,13 @@ class QueryRetrieveServiceClass(ServiceClass):
     statuses = None
 
     def SCP(self, req, context, info):
-        """
+        """The SCP implementation for the Query/Retrieve Service Class.
+
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_FIND
-            The C-FIND request primitive received from the peer.
-        context : pynetdicom3.presentation.PresentationContext
+        req : dimse_primitives.C_FIND or C_GET or C_MOVE
+            The request primitive received from the peer.
+        context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         info : dict
             A dict containing details about the association.
@@ -375,16 +378,19 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context, info)
         else:
-            raise ValueError('')
+            raise ValueError(
+                'The supplied abstract syntax is not valid for use with the '
+                'Query/Retrieve Service Class'
+            )
 
     def _find_scp(self, req, context, info):
-        """The SCP implementation for the Query/Retrieve Find Service Class.
+        """The SCP implementation for Query/Retrieve - Find.
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_FIND
+        req : dimse_primitives.C_FIND
             The C-FIND request primitive received from the peer.
-        context : pynetdicom3.presentation.PresentationContext
+        context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         info : dict
             A dict containing details about the association.
@@ -510,8 +516,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
 
         stopper = object()
@@ -602,12 +608,16 @@ class QueryRetrieveServiceClass(ServiceClass):
         self.DIMSE.send_msg(rsp, context.context_id)
 
     def _get_scp(self, req, context, info):
-        """The SCP implementation for the Query/Retrieve Get Service Class.
+        """The SCP implementation for Query/Retrieve - Get.
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_GET
+        req : dimse_primitives.C_GET
             The C-GET request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        info : dict
+            A dict containing details about the association.
 
         See Also
         --------
@@ -750,8 +760,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
 
         # Callback - C-GET
@@ -948,13 +958,13 @@ class QueryRetrieveServiceClass(ServiceClass):
         self.DIMSE.send_msg(rsp, context.context_id)
 
     def _move_scp(self, req, context, info):
-        """The SCP implementation for the Query/Retrieve Move Service Class.
+        """The SCP implementation for Query/Retrieve - Move.
 
         Parameters
         ----------
-        req : pynetdicom3.dimse_primitives.C_MOVE
+        req : dimse_primitives.C_MOVE
             The C-MOVE request primitive sent by the peer.
-        context : pynetdicom3.presentation.PresentationContext
+        context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         info : dict
             A dict containing details about the association.
@@ -1102,8 +1112,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
 
         # Callback - C-MOVE
@@ -1383,3 +1393,103 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     def __init__(self):
         super(BasicWorklistManagementServiceClass, self).__init__()
         self.SCP = self._find_scp
+
+    def SCP(self, req, context, info):
+        """The SCP implementation for Basic Worklist Management.
+
+        Parameters
+        ----------
+        req : dimse_primitives.C_FIND
+            The C-FIND request primitive received from the peer.
+        context : presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        info : dict
+            A dict containing details about the association.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_c_find
+        association.Association.send_c_find
+
+        Notes
+        -----
+        **C-FIND Request**
+
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Identifier
+
+        *Identifier*
+
+        The C-FIND request Identifier shall contain:
+
+        * Key Attributes values to be matched against the values of attributes
+          specified in that SOP Class.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+          character sets may be used in any of the Attributes in the request
+          Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
+          the request Identifier are to be interpreted explicitly in the
+          designated local time zone. It shall not be present otherwise.
+
+        **C-FIND Response**
+
+        *Parameters*
+
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (C) Identifier
+        | (M) Status
+
+        *Identifier*
+
+        The C-FIND response shall only include an Identifier when the Status is
+        'Pending'. When sent, the Identifier shall contain:
+
+        * Key Attributes with values corresponding to Key Attributes contained
+          in the Identifier of the requeset.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+          character sets may be used in any of the Attributes in the response
+          Identifier. It shall not be present otherwise.
+        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
+          the response Identifier are to be interpreted explicitly in the
+          designated local time zone. It shall not be present otherwise.
+
+        *Status*
+
+        Success
+          | ``0x0000`` Success
+
+        Pending
+          | ``0xFF00`` Matches are continuing, current match supplied
+          | ``0xFF01`` Matches are continuing, warning
+
+        Cancel
+          | ``0xFE00`` Cancel
+
+        Failure
+          | ``0x0122`` SOP class not supported
+          | ``0xA700`` Out of resources
+          | ``0xA900`` Dataset does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
+
+        References
+        ----------
+
+        * DICOM Standard, Part 4, `Annex K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_.
+        * [2] DICOM Standard, Part 7, Sections
+          `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+        """
+        if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
+            self._find_scp(req, context, info)
+        else:
+            raise ValueError(
+                'The supplied abstract syntax is not valid for use with the '
+                'Basic Worklist Management Service Class'
+            )

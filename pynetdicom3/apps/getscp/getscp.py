@@ -162,7 +162,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 def on_c_get(dataset, context, info):
     """Implement the on_c_get callback"""
     basedir = '../../tests/dicom_files/'
-    dcm_files = ['RTImageStorage.dcm']
+    dcm_files = ['RTImageStorage.dcm', 'CTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
     yield len(dcm_files)
 

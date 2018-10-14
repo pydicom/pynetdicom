@@ -29,34 +29,15 @@ PresentationContextTuple = namedtuple('PresentationContextTuple',
 class PresentationContext(object):
     """A Presentation Context primitive.
 
-    PS3.8 7.1.1
-    An A-ASSOCIATE request primitive will contain a Presentation Context
-    Definition List, which consists or one or more presentation contexts. Each
-    item contains an ID, an Abstract Syntax and a list of one or more Transfer
-    Syntaxes.
+    **Rules**
 
-    An A-ASSOCIATE response primitive will contain a Presentation Context
-    Definition Result List, which takes the form of a list of result values,
-    with a one-to-one correspondence with the Presentation Context Definition
-    List.
-
-    A Presentation Context defines the presentation of the data on an
-    Association. It consists of three components, a Presentation Context ID,
-    an Abstract Syntax Name and a list or one or more Transfer Syntax Names.
-
-    Only one Abstract Syntax shall be offered per Presentation Context. While
-    multiple Transfer Syntaxes may be offered per Presentation Context only
-    one shall be accepted.
-
-    The same Abstract Syntax can be used in more than one Presentation Context.
-
-    Rules
-    -----
     - Each Presentation Context (request) contains:
+
       - One context ID, an odd integer between 1 and 255.
       - One abstract syntax.
       - One or more transfer syntaxes.
     - Each Presentation Context (response) contains:
+
       - One context ID, corresponding to a Presentation Context received from
         the Requestor
       - A result, one of 0x00 (acceptance), 0x01 (user rejection), 0x02
@@ -75,24 +56,25 @@ class PresentationContext(object):
     Attributes
     ---------
     abstract_syntax : pydicom.uid.UID or None
-        The Presentation Context's abstract syntax.
+        The Presentation Context's *Abstract Syntax*.
     context_id : int or None
-        The Presentation Context's Context ID.
+        The Presentation Context's *Context ID*.
     result : int or None
         If part of an A-ASSOCIATE (request) then None. If part of an
         A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
     transfer_syntax : list of pydicom.uid.UID
-        The Presentation Context's transfer syntax(es).
+        The Presentation Context's *Transfer Syntax(es)*.
 
     References
     ----------
-    DICOM Standard, Part 7, Annexes
-    `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_
-    `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
-    DICOM Standard, Part 8, Sections
-    `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_
-    `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_
-    `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
+
+    * DICOM Standard, Part 7, Annexes
+      `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_ and
+      `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
+    * DICOM Standard, Part 8, Sections
+      `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_,
+      `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_ and
+      `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
     """
     def __init__(self):
         """Create a new PresentationContext."""
@@ -107,7 +89,7 @@ class PresentationContext(object):
 
     @property
     def abstract_syntax(self):
-        """Return the presentation context's abstract ayntax as a UID.
+        """Return the presentation context's *Abstract Syntax* as a UID.
 
         Returns
         -------
@@ -117,7 +99,7 @@ class PresentationContext(object):
 
     @abstract_syntax.setter
     def abstract_syntax(self, uid):
-        """Set the presentation context's abstract syntax.
+        """Set the presentation context's *Abstract Syntax*.
 
         Parameters
         ----------
@@ -181,12 +163,12 @@ class PresentationContext(object):
 
     @property
     def context_id(self):
-        """Return the presentation context's ID parameter as an int."""
+        """Return the presentation context's *ID* parameter as an int."""
         return self._context_id
 
     @context_id.setter
     def context_id(self, value):
-        """Set the presentation context's ID parameter.
+        """Set the presentation context's *ID* parameter.
 
         Parameters
         ----------
@@ -218,7 +200,7 @@ class PresentationContext(object):
 
     @property
     def status(self):
-        """Return a descriptive str of the presentation context's result.
+        """Return a descriptive str of the presentation context's *Result*.
 
         Returns
         -------
@@ -263,7 +245,7 @@ class PresentationContext(object):
 
     @property
     def transfer_syntax(self):
-        """Return the presentation context's transfer syntaxes as a list.
+        """Return the presentation context's *Transfer Syntaxes* as a list.
 
         Returns
         -------
@@ -274,7 +256,7 @@ class PresentationContext(object):
 
     @transfer_syntax.setter
     def transfer_syntax(self, syntaxes):
-        """Set the presentation context's transfer syntaxes.
+        """Set the presentation context's *Transfer Syntaxes*.
 
         Parameters
         ----------
@@ -298,16 +280,16 @@ class PresentationService(object):
     Abstract Syntax and a suitable Transfer Syntax.
 
     * The Association requestor may off multiple Presentation Contexts per
-    Association.
+      Association.
     * Each Presentation Context supports one Abstract Syntax and one or more
-    Transfer Syntaxes.
+      Transfer Syntaxes.
     * The Association acceptor may accept or reject each Presentation Context
-    individually.
+      individually.
     * The Association acceptor selects a suitable Transfer Syntax for each
-    Presentation Context accepted.
+      Presentation Context accepted.
 
-    SCP/SCU Role Selection Negotiation
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **SCP/SCU Role Selection Negotiation**
+
     The SCP/SCU role selection negotiation allows peer AEs to negotiate the
     roles in which they will server for each SOP Class or Meta SOP Class
     supported on the Association. This negotiation is optional.
@@ -316,6 +298,7 @@ class PresentationService(object):
     may use one SCP/SCU Role Selection item, with the SOP Class or Meta SOP
     Class identified by its corresponding Abstract Syntax Name, followed by
     one of the three role values:
+
     * Association requestor is SCU only
     * Association requestor is SCP only
     * Association requestor is both SCU and SCP
@@ -463,17 +446,20 @@ class PresentationService(object):
 
         The acceptor has processed the requestor's presentation context
         definition list and returned the results. We want to do two things:
+
         - Process the SCP/SCU Role Selection Negotiation (if any) (TO BE
           IMPLEMENTED)
         - Return a nice list of PresentationContexts with the Results and
           original Abstract Syntax values to make things easier to use.
 
         Presentation Context Item (RQ)
+
         - Presentation context ID
         - Abstract Syntax: one
         - Transfer syntax: one or more
 
         Presentation Context Item (AC)
+
         - Presentation context ID
         - Result: 0x00, 0x01, 0x02, 0x03, 0x04
         - Transfer syntax: one, not to be tested if result is not 0x00
@@ -561,163 +547,210 @@ class PresentationService(object):
         return sorted(output, key=lambda x: x.context_id)
 
 
-def _build_context(abstract, transfer=DEFAULT_TRANSFER_SYNTAXES):
-    """Return a PresentationContext from `abstract` and `transfer`.
+def build_context(abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+    """Return a PresentationContext built from the `abstract_syntax`.
 
     Parameters
     ----------
-    abstract : str or UID
-        The abstract syntax UID.
-    transfer : list of str/UID
-        The transfer syntax UIDs.
+    abstract_syntax : str or UID or sop_class.SOPClass
+        The UID or SOPClass instance to use as the abstract syntax.
+    transfer_syntax : str/UID or list of str/UID
+        The transfer syntax UID(s) to use (default: [Implicit VR Little Endian,
+        Explicit VR Little Endian, Implicit VR Big Endian])
+
+    Examples
+    --------
+
+    Specifying a presentation context with the default transfer syntaxes
+
+    >>> from pynetdicom3 import build_context
+    >>> context = build_context('1.2.840.10008.1.1')
+    >>> print(context)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =Explicit VR Little Endian
+        =Explicit VR Big Endian
+
+    Specifying the abstract syntax using a pynetdicom SOPClass instance and
+    a single transfer syntax
+
+    >>> from pynetdicom3 import build_context
+    >>> from pynetdicom3.sop_class import VerificationSOPClass
+    >>> context = build_context(VerificationSOPClass, '1.2.840.10008.1.2')
+    >>> print(context)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+
+    Specifying multiple transfer syntaxes
+
+    >>> from pydicom.uid import UID
+    >>> from pynetdicom3 import build_context
+    >>> context = build_context(UID('1.2.840.10008.1.1'),
+                                ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50'])
+    >>> print(context)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =JPEG Baseline (Process 1)
+
 
     Returns
     -------
     presentation.PresentationContext
     """
+    if hasattr(abstract_syntax, 'uid'):
+        abstract_syntax = UID(abstract_syntax.uid)
+    else:
+        abstract_syntax = UID(abstract_syntax)
+
+    # Allow single transfer syntax values for convenience
+    if isinstance(transfer_syntax, str):
+        transfer_syntax = [transfer_syntax]
+
     context = PresentationContext()
-    context.abstract_syntax = abstract
-    context.transfer_syntax = transfer
+    context.abstract_syntax = abstract_syntax
+    context.transfer_syntax = transfer_syntax
+
     return context
 
 
 # Service specific pre-generated Presentation Contexts
 VerificationPresentationContexts = [
-    _build_context('1.2.840.10008.1.1')
+    build_context('1.2.840.10008.1.1')
 ]
 
 StoragePresentationContexts = [
-    _build_context('1.2.840.10008.5.1.4.1.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.1.1.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.1.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.1.2.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.1.3'),
-    _build_context('1.2.840.10008.5.1.1.4.1.1.3.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.2.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.2.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.3.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.4.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.4.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.4.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.4.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.6.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.6.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.7'),
-    _build_context('1.2.840.10008.5.1.4.1.1.7.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.7.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.7.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.7.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.1.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.1.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.2.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.3.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.4.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.4.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.5.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.9.6.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.11.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.11.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.11.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.11.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.11.5'),
-    _build_context('1.2.840.10008.5.1.4.1.1.12.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.12.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.12.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.12.2.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.13.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.13.1.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.13.1.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.13.1.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.13.1.5'),
-    _build_context('1.2.840.10008.5.1.4.1.1.14.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.14.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.20'),
-    _build_context('1.2.840.10008.5.1.4.1.1.30'),
-    _build_context('1.2.840.10008.5.1.4.1.1.66'),
-    _build_context('1.2.840.10008.5.1.4.1.1.66.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.66.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.66.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.66.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.66.5'),
-    _build_context('1.2.840.10008.5.1.4.1.1.67'),
-    _build_context('1.2.840.10008.5.1.4.1.1.68.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.68.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.2.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.4.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.5.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.5.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.5.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.5.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.5.5'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.5.6'),
-    _build_context('1.2.840.10008.5.1.4.1.1.77.1.6'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.5'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.6'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.7'),
-    _build_context('1.2.840.10008.5.1.4.1.1.78.8'),
-    _build_context('1.2.840.10008.5.1.4.1.1.79.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.80.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.81.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.82.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.11'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.22'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.33'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.34'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.35'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.40'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.50'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.59'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.65'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.67'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.68'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.69'),
-    _build_context('1.2.840.10008.5.1.4.1.1.88.70'),
-    _build_context('1.2.840.10008.5.1.4.1.1.104.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.104.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.128'),
-    _build_context('1.2.840.10008.5.1.4.1.1.130'),
-    _build_context('1.2.840.10008.5.1.4.1.1.128.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.131'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.1'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.2'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.3'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.4'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.5'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.6'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.7'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.8'),
-    _build_context('1.2.840.10008.5.1.4.1.1.481.9'),
-    _build_context('1.2.840.10008.5.1.4.34.7'),
-    _build_context('1.2.840.10008.5.1.4.43.1'),
-    _build_context('1.2.840.10008.5.1.4.44.1'),
-    _build_context('1.2.840.10008.5.1.4.45.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.1.1.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.1.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.1.2.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.1.3'),
+    build_context('1.2.840.10008.5.1.1.4.1.1.3.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.2.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.2.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.3.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.4.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.4.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.4.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.4.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.6.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.6.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.7'),
+    build_context('1.2.840.10008.5.1.4.1.1.7.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.7.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.7.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.7.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.1.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.1.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.2.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.3.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.4.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.4.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.5.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.9.6.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.11.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.11.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.11.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.11.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.11.5'),
+    build_context('1.2.840.10008.5.1.4.1.1.12.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.12.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.12.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.12.2.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.13.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.13.1.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.13.1.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.13.1.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.13.1.5'),
+    build_context('1.2.840.10008.5.1.4.1.1.14.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.14.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.20'),
+    build_context('1.2.840.10008.5.1.4.1.1.30'),
+    build_context('1.2.840.10008.5.1.4.1.1.66'),
+    build_context('1.2.840.10008.5.1.4.1.1.66.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.66.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.66.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.66.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.66.5'),
+    build_context('1.2.840.10008.5.1.4.1.1.67'),
+    build_context('1.2.840.10008.5.1.4.1.1.68.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.68.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.2.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.4.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.5'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.6'),
+    build_context('1.2.840.10008.5.1.4.1.1.77.1.6'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.5'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.6'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.7'),
+    build_context('1.2.840.10008.5.1.4.1.1.78.8'),
+    build_context('1.2.840.10008.5.1.4.1.1.79.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.80.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.81.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.82.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.11'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.22'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.33'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.34'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.35'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.40'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.50'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.59'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.65'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.67'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.68'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.69'),
+    build_context('1.2.840.10008.5.1.4.1.1.88.70'),
+    build_context('1.2.840.10008.5.1.4.1.1.104.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.104.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.128'),
+    build_context('1.2.840.10008.5.1.4.1.1.130'),
+    build_context('1.2.840.10008.5.1.4.1.1.128.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.131'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.2'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.3'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.4'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.5'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.6'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.7'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.8'),
+    build_context('1.2.840.10008.5.1.4.1.1.481.9'),
+    build_context('1.2.840.10008.5.1.4.34.7'),
+    build_context('1.2.840.10008.5.1.4.34.10'),
 ]
 
 QueryRetrievePresentationContexts = [
-    _build_context('1.2.840.10008.5.1.4.1.2.1.1'),
-    _build_context('1.2.840.10008.5.1.4.1.2.1.2'),
-    _build_context('1.2.840.10008.5.1.4.1.2.1.3'),
-    _build_context('1.2.840.10008.5.1.4.1.2.2.1'),
-    _build_context('1.2.840.10008.5.1.4.1.2.2.2'),
-    _build_context('1.2.840.10008.5.1.4.1.2.2.3'),
-    _build_context('1.2.840.10008.5.1.4.1.2.3.1'),
-    _build_context('1.2.840.10008.5.1.4.1.2.3.2'),
-    _build_context('1.2.840.10008.5.1.4.1.2.3.3'),
+    build_context('1.2.840.10008.5.1.4.1.2.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.2.1.2'),
+    build_context('1.2.840.10008.5.1.4.1.2.1.3'),
+    build_context('1.2.840.10008.5.1.4.1.2.2.1'),
+    build_context('1.2.840.10008.5.1.4.1.2.2.2'),
+    build_context('1.2.840.10008.5.1.4.1.2.2.3'),
+    build_context('1.2.840.10008.5.1.4.1.2.3.1'),
+    build_context('1.2.840.10008.5.1.4.1.2.3.2'),
+    build_context('1.2.840.10008.5.1.4.1.2.3.3'),
 ]
 
 BasicWorklistManagementPresentationContexts = [
-    _build_context('1.2.840.10008.5.1.4.31'),
+    build_context('1.2.840.10008.5.1.4.31'),
 ]

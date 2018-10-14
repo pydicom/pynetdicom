@@ -12,9 +12,6 @@ LOGGER = logging.getLogger('pynetdicom3.dsutils')
 def decode(bytestring, is_implicit_vr, is_little_endian):
     """Decode `bytestring` to a pydicom Dataset.
 
-    When sent a DIMSE Message from a peer AE, decode the data and convert
-    it to a pydicom Dataset instance.
-
     Parameters
     ----------
     byestring : io.BytesIO
@@ -44,7 +41,7 @@ def decode(bytestring, is_implicit_vr, is_little_endian):
     return read_dataset(bytestring, is_implicit_vr, is_little_endian)
 
 def encode(ds, is_implicit_vr, is_little_endian):
-    """Encode a pydicom Dataset `ds` to a byte stream.
+    """Encode a pydicom Dataset `ds` to bytes.
 
     Parameters
     ----------
@@ -58,7 +55,8 @@ def encode(ds, is_implicit_vr, is_little_endian):
     Returns
     -------
     bytes or None
-        The encoded dataset (if successful), None if the encoding failed.
+        The encoded dataset as ``bytes`` (if successful) or ``None`` if the
+        encoding failed.
     """
     # pylint: disable=broad-except
     fp = DicomBytesIO()
@@ -78,19 +76,17 @@ def encode(ds, is_implicit_vr, is_little_endian):
     return bytestring
 
 def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
-    """Encode a pydicom DataElement `elem` to a byte stream.
-
-    The default is to encode the element as implicit VR little endian.
+    """Encode a pydicom DataElement `elem` to bytes.
 
     Parameters
     ----------
     elem : pydicom.dataelem.DataElement
-        The element to encode
+        The element to encode.
     is_implicit_vr : bool, optional
         The element encoding scheme the element will be encoded with, default
-        is True.
+        True.
     is_little_endian : bool, optional
-        The byte ordering the element will be encoded in, default is True.
+        The byte ordering the element will be encoded in, default True.
 
     Returns
     -------

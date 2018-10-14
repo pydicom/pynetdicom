@@ -50,24 +50,24 @@ class ApplicationEntity(object):
     ----------
     acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of None means no timeout. (default: 60)
-    active_associations : list of pynetdicom3.association.Association
+        messages. A value of ``None`` means no timeout. (default: 60)
+    active_associations : list of association.Association
         The currently active associations between the local and peer AEs.
     address : str
         The local AE's TCP/IP address.
     ae_title : bytes
         The local AE's AE title.
-    bind_addr : str, optional
+    bind_addr : str
         The network interface to listen to (default: all available network
         interfaces on the machine).
     client_socket : socket.socket
         The socket used for connections with peer AEs
     dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of None means no timeout. (default: None)
+        messages. A value of ``None`` means no timeout. (default: None)
     network_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for network messages.
-        A value of None means no timeout. (default: None)
+        A value of ``None`` means no timeout. (default: None)
     maximum_associations : int
         The maximum number of simultaneous associations (default: 2)
     maximum_pdu_size : int
@@ -97,10 +97,10 @@ class ApplicationEntity(object):
 
     If the SCP is being used for any DICOM Service Classes other than the
     *Verification Service Class* you also need to implement one or more of
-    the callbacks corresponding to the DIMSE-C services (on_c_store, on_c_find,
-    on_c_get, on_c_move).
+    the callbacks corresponding to the DIMSE-C services (``on_c_store``,
+    ``on_c_find``, ``on_c_get``, ``on_c_move``).
 
-    The SCP can then be started using `ApplicationEntity.start()`
+    The SCP can then be started using ``ApplicationEntity.start()``
 
     **C-STORE SCP Example**
 
@@ -130,7 +130,7 @@ class ApplicationEntity(object):
 
     To use *AE* as an SCU you only need to specify the Presentation Contexts
     that the SCU is requesting for support by the SCP. You can then call
-    `ApplicationEntity.associate(addr, port)` where *addr* and *port* are the
+    ``ApplicationEntity.associate(addr, port)`` where *addr* and *port* are the
     TCP/IP address and the listen port number of the peer SCP, respectively.
 
     Once the Association is established you can then request the use of the
@@ -165,11 +165,11 @@ class ApplicationEntity(object):
         Parameters
         ----------
         ae_title : bytes, optional
-            The AE title of the Application Entity (default: b'PYNETDICOM')
+            The AE title of the Application Entity (default: ``b'PYNETDICOM'``)
         port : int, optional
             The port number to listen for association requests when acting as
             an SCP and to use when requesting an association as an SCU. When
-            set to 0 the OS will use the first available port (default 0).
+            set to 0 the OS will use the first available port (default ``0``).
         """
         from pynetdicom3 import (
             PYNETDICOM_IMPLEMENTATION_UID,
@@ -239,20 +239,21 @@ class ApplicationEntity(object):
 
     def add_requested_context(self, abstract_syntax,
                               transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
-        """Add a Presentation Context to be requested when sending Association
+        """Add a Presentation Context to be proposed when sending Association
         requests.
 
         When an SCU sends an Association request to a peer it includes a list
         of presentation contexts it would like the peer to support [1]_. This
-        method adds a single `PresentationContext` to the list of the SCU's
-        requested contexts.
+        method adds a single
+        :py:class:`PresentationContext <pynetdicom3.presentation.PresentationContext>`
+        to the list of the SCU's requested contexts.
 
         Only 128 presentation contexts can be included in the association
         request [2]_. Multiple presentation contexts may be requested with the
         same abstract syntax.
 
         To remove a requested context or one or more of its transfer syntaxes
-        see the `remove_requested_context` method.
+        see the ``remove_requested_context`` method.
 
         Parameters
         ----------
@@ -270,7 +271,7 @@ class ApplicationEntity(object):
         Examples
         --------
         Add a requested presentation context for *Verification SOP Class* with
-        the default transfer syntaxes by using its UID.
+        the default transfer syntaxes by using its UID value.
 
         >>> from pynetdicom3 import AE
         >>> ae = AE()
@@ -366,7 +367,7 @@ class ApplicationEntity(object):
         Where the abstract syntax is already supported the transfer syntaxes
         will be extended by the those supplied in `transfer_syntax`. To remove
         a supported context or one or more of its transfer syntaxes see the
-        `remove_supported_context` method.
+        ``remove_supported_context`` method.
 
         Parameters
         ----------
@@ -380,7 +381,7 @@ class ApplicationEntity(object):
         --------
         Add support for presentation contexts with an abstract syntax of
         *Verification SOP Class* and the default transfer syntaxes by using
-        its UID.
+        its UID value.
 
         >>> from pynetdicom3 import AE
         >>> ae = AE()
@@ -486,8 +487,8 @@ class ApplicationEntity(object):
 
         When requesting an association the local AE is acting as an SCU. The
         Association thread is returned whether or not the association is
-        accepted and should be checked using Association.is_established before
-        sending any messages.
+        accepted and should be checked using ``Association.is_established``
+        before sending any messages.
 
         Parameters
         ----------
@@ -505,7 +506,7 @@ class ApplicationEntity(object):
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
             association (default 16832).
-        ext_neg : List of UserInformation objects, optional
+        ext_neg : list of UserInformation objects, optional
             Used if extended association negotiation is required.
 
         Returns
@@ -517,7 +518,8 @@ class ApplicationEntity(object):
         ------
         RuntimeError
             If called with no requested presentation contexts (i.e. `contexts`
-            has not been supplied and AE.requested_contexts is empty).
+            has not been supplied and ``ApplicationEntity.requested_contexts``
+            is empty).
         """
         if not isinstance(addr, str):
             raise TypeError("'addr' must be a valid IPv4 string")
@@ -589,12 +591,7 @@ class ApplicationEntity(object):
         self.local_socket.listen(1)
 
     def cleanup_associations(self):
-        """Remove dead associations.
-
-        AE.start(): Removes any dead associations from self.active_associations
-        by checking to see if the association thread is still alive. Separated
-        out from start() to enable better unit testing
-        """
+        """Remove dead associations."""
         # We can use threading.enumerate() to list all alive threads
         #   assoc.is_alive() is inherited from threading.thread
         self.active_associations = [
@@ -608,7 +605,7 @@ class ApplicationEntity(object):
 
     @dimse_timeout.setter
     def dimse_timeout(self, value):
-        """Get the DIMSE timeout."""
+        """Set the DIMSE timeout in seconds."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
             self._dimse_timeout = None
@@ -660,7 +657,7 @@ class ApplicationEntity(object):
 
     @property
     def maximum_associations(self):
-        """Return the number of maximum associations as an int."""
+        """Return the number of maximum associations as int."""
         return self._maximum_associations
 
     @maximum_associations.setter
@@ -675,7 +672,7 @@ class ApplicationEntity(object):
 
     @property
     def maximum_pdu_size(self):
-        """Return the maximum PDU size as an int."""
+        """Return the maximum PDU size accepted by the AE as int."""
         return self._maximum_pdu_size
 
     @maximum_pdu_size.setter
@@ -767,15 +764,14 @@ class ApplicationEntity(object):
 
         Depending on the supplied parameters one of the following will occur:
 
-        * `abstract_syntax` alone
-          All contexts with a matching abstract syntax all be removed.
-        * `abstract_syntax` and `transfer_syntax`
-          For all contexts with a matching abstract syntax:
-            If the supplied `transfer_syntax` list contains all of the context's
-            requested transfer syntaxes then the entire context will be removed.
-            Otherwise only the matching transfer syntaxes will be removed from
-            the context (and the context will remain with one or more transfer
-            syntaxes).
+        * `abstract_syntax` alone -  all contexts with a matching abstract
+          syntax all be removed.
+        * `abstract_syntax` and `transfer_syntax` -  for all contexts with a
+          matching abstract syntax; if the supplied `transfer_syntax` list
+          contains all of the context's requested transfer syntaxes then the
+          entire context will be removed. Otherwise only the matching transfer
+          syntaxes will be removed from the context (and the context will
+          remain with one or more transfer syntaxes).
 
         Parameters
         ----------
@@ -791,7 +787,7 @@ class ApplicationEntity(object):
         Examples
         --------
         Remove all requested presentation contexts with an abstract syntax of
-        *Verification SOP Class* using its UID.
+        *Verification SOP Class* using its UID value.
 
         >>> from pynetdicom3 import AE
         >>> ae = AE()
@@ -891,11 +887,12 @@ class ApplicationEntity(object):
         """Remove a supported presentation context.
 
         Depending on the supplied parameters one of the following will occur:
-        * `abstract_syntax` alone
-          The entire supported context will be removed.
-        * `abstract_syntax` and `transfer_syntax`
-          If the supplied `transfer_syntax` list contains all of the context's
-          supported transfer syntaxes then the entire context will be removed.
+
+        * `abstract_syntax` alone-  the entire supported context will be
+          removed.
+        * `abstract_syntax` and `transfer_syntax` -  If the supplied
+          `transfer_syntax` list contains all of the context's supported
+          transfer syntaxes then the entire context will be removed.
           Otherwise only the matching transfer syntaxes will be removed from
           the context (and the context will remain with one or more transfer
           syntaxes).
@@ -914,7 +911,7 @@ class ApplicationEntity(object):
         Examples
         --------
         Remove the supported presentation context with an abstract syntax of
-        *Verification SOP Class* using its UID.
+        *Verification SOP Class* using its UID value.
 
         >>> from pynetdicom3 import AE
         >>> ae = AE()
@@ -961,7 +958,7 @@ class ApplicationEntity(object):
         >>> len(ae.supported_contexts)
         0
 
-        Presentation context has at least one remaining transfer syntaxes:
+        Presentation context has at least one remaining transfer syntax:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
         >>> from pynetdicom3 import AE
@@ -1010,7 +1007,7 @@ class ApplicationEntity(object):
 
     @property
     def requested_contexts(self):
-        """Return a list of the requested PresentationContext.
+        """Return a list of the requested PresentationContext items.
 
         Returns
         -------
@@ -1076,7 +1073,7 @@ class ApplicationEntity(object):
 
     @property
     def require_called_aet(self):
-        """Return the required called AE title as a length 16 bytes."""
+        """Return the required called AE title as a length 16 ``bytes``."""
         return self._require_called_aet
 
     @require_called_aet.setter
@@ -1102,7 +1099,7 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        """Return the required calling AE title as a length 16 bytes."""
+        """Return the required calling AE title as a length 16 ``bytes``."""
         return self._require_calling_aet
 
     @require_calling_aet.setter
@@ -1246,7 +1243,7 @@ class ApplicationEntity(object):
 
     @property
     def supported_contexts(self):
-        """Return a list of the supported PresentationContexts.
+        """Return a list of the supported PresentationContexts items.
 
         Returns
         -------
@@ -1340,22 +1337,23 @@ class ApplicationEntity(object):
         Parameters
         ----------
         user_id_type : int
-            The User Identity Type value (1, 2, 3, 4).
+            The *User Identity Type* value (1, 2, 3, 4).
         primary_field : bytes
-            The value of the Primary Field
+            The of the *Primary Field* value.
         secondary_field : bytes or None
-            The value of the Secondary Field. Will be None unless the
-            `user_id_type` is 2
+            The *Secondary Field* value. Will be ``None`` unless the
+            *User Identity Type* is ``2``
 
         Returns
         -------
         response : bytes or None
-            If `user_id_type` is :
-              * 1 or 2, then return b''.
-              * 3 then return the Kerberos Server ticket.
-              * 4 then return the SAML response.
+            If ``user_id_type`` is :
 
-            If the identity check fails then return None
+            * 1 or 2, then return ``b''``.
+            * 3 then return the Kerberos Server ticket.
+            * 4 then return the SAML response.
+
+            If the identity check fails then return ``None``.
         """
         raise NotImplementedError
 
@@ -1365,80 +1363,81 @@ class ApplicationEntity(object):
         """Callback for when a C-ECHO request is received.
 
         User implementation is not required for the C-ECHO service, but if you
-        intend to do so it should be defined prior to calling AE.start() and
-        must return either an int or a pydicom Dataset containing a (0000,0900)
-        Status element with a valid C-ECHO status value.
-
-        Called by pynetdicom3.sop_class.VerificationServiceClass.SCP()
-        after receiving a C-ECHO request and prior to sending the response.
+        intend to do so it should be defined prior to calling
+        ``ApplicationEntity.start()`` and
+        must return either an ``int`` or a pydicom ``Dataset`` containing a
+        (0000,0900) *Status* element with a valid C-ECHO status value.
 
         **Supported Service Classes**
 
-        Verification Service Class
+        *Verification Service Class*
 
         **Status**
 
-        The DICOM Standard Part 7, Table 9.3-13 indicates that the returned
-        status "shall have a value of Success", however Section 9.1.5.1.4
-        states that the status of the response may have any of the following
-        values:
-
         Success
-
-        - 0x000 - Success
+          | ``0x0000`` Success
 
         Failure
-
-        - 0x0122 - SOP class not supported
-        - 0x0210 - Duplicate invocation
-        - 0x0212 - Mistyped argument
-        - 0x0211 - Unrecognised operation
+          | ``0x0122`` Refused: SOP Class Not Supported
+          | ``0x0210`` Refused: Duplicate Invocation
+          | ``0x0211`` Refused: Unrecognised Operation
+          | ``0x0212`` Refused: Mistyped Argument
 
         Parameters
         ----------
         context : presentation.PresentationContextTuple
             The presentation context that the C-ECHO message was sent under
-            as a namedtuple with field names context_id, abstract_syntax and
-            transfer_syntax.
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
         info : dict
             A dict containing information about the current association, with
             the keys:
 
-            - 'requestor' : {
-              | 'ae_title' : bytes, the requestor's calling AE title
-              | 'called_aet' : bytes, the requestor's called AE title
-              | 'address' : str, the requestor's IP address
-              | 'port' : int, the requestor's port number
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
               }
-            - 'acceptor' : {
-              | 'ae_title' : bytes, the acceptor's AE title
-              | 'address' : str, the acceptor's IP address
-              | 'port' : int, the acceptor's port number
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
               }
-            - 'parameters' : {
-              | 'message_id' : int, the DIMSE message ID
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'priority' : int, the requested operation priority
+                  'originator_aet' : bytes or None, the move originator's AE title
+                  'originator_message_id' : int or None, the move originator's message ID
               }
 
         Returns
         -------
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-ECHO response. Must be
-            a valid C-ECHO/Verification Service Class status value as either an
-            int or a Dataset object containing (at a minimum) a (0000,0900)
-            'Status' element. If returning a Dataset object then it may also
-            contain optional elements related to the Status (as in the DICOM
-            Standard Part 7, Annex C).
+            a valid C-ECHO status value for the applicable Service Class as
+            either an ``int`` or a ``Dataset`` object containing (at a minimum)
+            a (0000,0900) *Status* element. If returning a ``Dataset`` object
+            then it may also contain optional elements related to the Status
+            (as in the DICOM Standard Part 7, Annex C).
 
         See Also
         --------
         association.Association.send_c_echo
         dimse_primitives.C_ECHO
-        sop_class.VerificationServiceClass
+        service_class.VerificationServiceClass
 
         References
         ----------
-        DICOM Standard Part 4, Annex A
-        DICOM Standard Part 7, Sections 9.1.5, 9.3.5 and Annex C
+
+        * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+
         """
         # User implementation of on_c_echo is optional
         return 0x0000
@@ -1446,43 +1445,36 @@ class ApplicationEntity(object):
     def on_c_find(self, dataset, context, info):
         """Callback for when a C-FIND request is received.
 
-        Must be defined by the user prior to calling AE.start() and must yield
-        status (as either an int or pydicom Dataset containing a (0000,0900)
-        Status element) and an Identifier dataset. In addition, the
-        AE.on_c_find_cancel() callback must also be defined.
-
-        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
-        method after receiving a C-FIND request and prior to sending the
-        response.
+        Must be defined by the user prior to calling ``AE.start()`` and must
+        yield ``(status, identifier)`` pairs, where *status* is either an
+        ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*
+        element and *identifier* is a C-FIND *Identifier* ``Dataset``.
 
         **Supported Service Classes**
 
-        Query/Retrieve Service Class
-        Basic Worklist Management Service
+        * *Query/Retrieve Service Class*
+        * *Basic Worklist Management Service*
 
         **Status**
 
         Success
-
-        - 0x0000 - Success
+          | ``0x0000`` Success
 
         Failure
-
-        - 0xA700 - Out of resources
-        - 0xA900 - Identifier does not match SOP class
-        - 0xC000 to 0xCFFF - Unable to process
+          | ``0xA700`` Out of resources
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Cancel
-
-        - 0xFE00 - Matching terminated due to Cancel request
+          | ``0xFE00`` Matching terminated due to Cancel request
 
         Pending
-
-        - 0xFF00 - Matches are continuing: current match is supplied and any
-          Optional Keys were supported in the same manner as Required Keys
-        - 0xFF01 - Matches are continuing: warning that one or more Optional
-          Keys were not supported for existence and/or matching for this
-          Identifier
+          | ``0xFF00`` Matches are continuing: current match is supplied and
+             any Optional Keys were supported in the same manner as Required
+             Keys
+          | ``0xFF01`` Matches are continuing: warning that one or more Optional
+            Keys were not supported for existence and/or matching for this
+            Identifier
 
         Parameters
         ----------
@@ -1491,26 +1483,28 @@ class ApplicationEntity(object):
             request.
         context : presentation.PresentationContextTuple
             The presentation context that the C-FIND message was sent under
-            as a namedtuple with field names context_id, abstract_syntax and
-            transfer_syntax.
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
         info : dict
             A dict containing information about the current association, with
             the keys:
 
-            - 'requestor' : {
-              | 'ae_title' : bytes, the requestor's calling AE title
-              | 'called_aet' : bytes, the requestor's called AE title
-              | 'address' : str, the requestor's IP address
-              | 'port' : int, the requestor's port number
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
               }
-            - 'acceptor' : {
-              | 'ae_title' : bytes, the acceptor's AE title
-              | 'address' : str, the acceptor's IP address
-              | 'port' : int, the acceptor's port number
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
               }
-            - 'parameters' : {
-              | 'message_id' : int, the DIMSE message ID
-              | 'priority' : int, the requested operation priority
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'priority' : int, the requested operation priority
               }
 
         Yields
@@ -1518,19 +1512,19 @@ class ApplicationEntity(object):
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-FIND response. Must be
             a valid C-FIND status vuale for the applicable Service Class as
-            either an int or a Dataset object containing (at a minimum) a
-            (0000,0900) 'Status' element. If returning a Dataset object then it
-            may also contain optional elements related to the Status (as in
+            either an ``int`` or a ``Dataset`` object containing (at a minimum)
+            a (0000,0900) *Status* element. If returning a Dataset object then
+            it may also contain optional elements related to the Status (as in
             DICOM Standard Part 7, Annex C).
-        dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then the Identifier dataset for a
+        identifier : pydicom.dataset.Dataset or None
+            If the status is 'Pending' then the *Identifier* ``Dataset`` for a
             matching SOP Instance. The exact requirements for the C-FIND
-            response Identifier dataset are Service Class specific (see the
+            response *Identifier* are Service Class specific (see the
             DICOM Standard, Part 4).
 
-            If the status is 'Failure' or 'Cancel' then yield None.
+            If the status is 'Failure' or 'Cancel' then yield ``None``.
 
-            If the status is 'Success' then yield None, however yielding a
+            If the status is 'Success' then yield ``None``, however yielding a
             final 'Success' status is not required and will be ignored if
             necessary.
 
@@ -1542,8 +1536,21 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annexes C, K, Q, U, V, X, BB, CC and HH
-        DICOM Standard Part 7, Sections 9.1.2, 9.3.2 and Annex C
+
+        * DICOM Standard Part 4, Annexes
+          `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
+          `K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_,
+          `Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_,
+          `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
+          `V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_,
+          `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
+          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_,
+          `CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_ and
+          `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
@@ -1563,9 +1570,10 @@ class ApplicationEntity(object):
     def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
 
-        Must be defined by the user prior to calling AE.start() and must yield
-        a int containing the total number of C-STORE sub-operations, then yield
-        (status, dataset) pairs.
+        Must be defined by the user prior to calling
+        ``ApplicationEntity.start()`` and must yield a ``int`` containing the
+        total number of C-STORE sub-operations, then yield ``(status,
+        dataset)`` pairs.
 
         **Supported Service Classes**
 
@@ -1574,28 +1582,24 @@ class ApplicationEntity(object):
         **Status**
 
         Success
-
-        - 0x0000 - Sub-operations complete, no failures or warnings
+          | ``0x0000`` Sub-operations complete, no failures or warnings
 
         Failure
-
-        - 0xA701 - Out of resources: unable to calculate the number of matches
-        - 0xA702 - Out of resources: unable to perform sub-operations
-        - 0xA900 - Identifier does not match SOP class
-        - 0xC000 to 0xCFFF - Unable to process
+          | ``0xA701`` Out of resources: unable to calculate the number of
+            matches
+          | ``0xA702`` Out of resources: unable to perform sub-operations
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Cancel
-
-        - 0xFE00 - Sub-operations terminated due to Cancel request
+          | ``0xFE00`` Sub-operations terminated due to Cancel request
 
         Warning
-
-        - 0xB000 - Sub-operations complete, one or more failures or warnings
+          | ``0xB000`` Sub-operations complete, one or more failures or warnings
 
         Pending
-
-        - 0xFF00 - Matches are continuing - Current Match is supplied and any
-          Optional Keys were supported in the same manner as Required Keys
+          | ``0xFF00`` Matches are continuing - Current Match is supplied and any
+            Optional Keys were supported in the same manner as Required Keys
 
         Parameters
         ----------
@@ -1603,26 +1607,28 @@ class ApplicationEntity(object):
             The DICOM Identifier dataset sent by the peer in the C-GET request.
         context : presentation.PresentationContextTuple
             The presentation context that the C-GET message was sent under
-            as a namedtuple with field names context_id, abstract_syntax and
-            transfer_syntax.
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
         info : dict
             A dict containing information about the current association, with
             the keys:
 
-            - 'requestor' : {
-              | 'ae_title' : bytes, the requestor's calling AE title
-              | 'called_aet' : bytes, the requestor's called AE title
-              | 'address' : str, the requestor's IP address
-              | 'port' : int, the requestor's port number
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
               }
-            - 'acceptor' : {
-              | 'ae_title' : bytes, the acceptor's AE title
-              | 'address' : str, the acceptor's IP address
-              | 'port' : int, the acceptor's port number
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
               }
-            - 'parameters' : {
-              | 'message_id' : int, the DIMSE message ID
-              | 'priority' : int, the requested operation priority
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'priority' : int, the requested operation priority
               }
 
         Yields
@@ -1635,20 +1641,20 @@ class ApplicationEntity(object):
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-GET response. Must be a
             valid C-GET status value for the applicable Service Class as either
-            an int or a Dataset object containing (at a minimum) a (0000,0900)
-            'Status' element. If returning a Dataset object then it may also
-            contain optional elements related to the Status (as in DICOM
-            Standard Part 7, Annex C).
+            an ``int`` or a ``Dataset`` object containing (at a minimum) a
+            (0000,0900) *Status* element. If returning a Dataset object then
+            it may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then yield the dataset to send to the
-            peer via a C-STORE sub-operation over the current association.
+            If the status is 'Pending' then yield the ``Dataset`` to send to
+            the peer via a C-STORE sub-operation over the current association.
 
             If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-            Dataset with a (0008,0058) 'Failed SOP Instance UID List' element
-            containing a list of the C-STORE sub-operation SOP Instance UIDs
-            for which the C-GET operation has failed.
+            ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
+            element containing a list of the C-STORE sub-operation SOP Instance
+            UIDs for which the C-GET operation has failed.
 
-            If the status is 'Success' then yield None, although yielding a
+            If the status is 'Success' then yield ``None``, although yielding a
             final 'Success' status is not required and will be ignored if
             necessary.
 
@@ -1660,8 +1666,19 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annexes C, U, X, Y, Z, BB and HH
-        DICOM Standard Part 7, Sections 9.1.3, 9.3.3 and Annex C
+
+        * DICOM Standard Part 4, Annexes
+          `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
+          `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
+          `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
+          `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
+          `Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_,
+          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_ and
+          `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
+          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
@@ -1675,47 +1692,44 @@ class ApplicationEntity(object):
     def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
 
-        Must be defined by the user prior to calling AE.start().
+        Must be defined by the user prior to calling
+        ``ApplicationEntity.start()``.
 
-        The first yield should be the (addr, port) of the move destination, the
-        second yield the number of required C-STORE sub-operations, and the
-        remaining yields the (status, dataset) pairs.
+        The first yield should be the ``(addr, port)`` of the move destination,
+        the second yield the number of required C-STORE sub-operations as an
+        ``int``, and the remaining yields the ``(status, dataset)`` pairs.
 
         Matching SOP Instances will be sent to the peer AE with AE title
-        `move_aet` over a new association. If `move_aet` is unknown then the
-        SCP will send a response with a 'Failure' status of 0xA801 (move
-        destination unknown).
+        ``move_aet`` over a new association. If ``move_aet`` is unknown then
+        the SCP will send a response with a 'Failure' status of ``0xA801``
+        'Move Destination Unknown'.
 
         **Supported Service Classes**
 
-        Query/Retrieve Service Class
+        *Query/Retrieve Service Class*
 
         **Status**
 
         Success
-
-        - 0x0000 - Sub-operations complete, no failures
+          | ``0x0000`` Sub-operations complete, no failures
 
         Pending
-
-        - 0xFF00 - Sub-operations are continuing
+          | ``0xFF00`` Sub-operations are continuing
 
         Cancel
-
-        - 0xFE00 - Sub-operations terminated due to Cancel indication
+          | ``0xFE00`` Sub-operations terminated due to Cancel indication
 
         Failure
-
-        - 0x0122 - SOP class not supported
-        - 0x0124 - Not authorised
-        - 0x0210 - Duplicate invocation
-        - 0x0211 - Unrecognised operation
-        - 0x0212 - Mistyped argument
-        - 0xA701 - Out of resources: unable to calculate number of matches
-        - 0xA702 - Out of resources: unable to perform sub-operations
-        - 0xA801 - Move destination unknown
-        - 0xA900 - Identifier does not match SOP class
-        - 0xC000 to 0xCFFF - Unable to process
+          | ``0x0122`` SOP class not supported
+          | ``0x0124`` Not authorised
+          | ``0x0210`` Duplicate invocation
+          | ``0x0211`` Unrecognised operation
+          | ``0x0212`` Mistyped argument
+          | ``0xA701`` Out of resources: unable to calculate number of matches
+          | ``0xA702`` Out of resources: unable to perform sub-operations
+          | ``0xA801`` Move destination unknown
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Parameters
         ----------
@@ -1723,40 +1737,42 @@ class ApplicationEntity(object):
             The DICOM Identifier dataset sent by the peer in the C-MOVE request.
         move_aet : bytes
             The destination AE title that matching SOP Instances will be sent
-            to using C-STORE sub-operations. `move_aet` will be a correctly
+            to using C-STORE sub-operations. ``move_aet`` will be a correctly
             formatted AE title (16 chars, with trailing spaces as padding).
         context : presentation.PresentationContextTuple
             The presentation context that the C-MOVE message was sent under
-            as a namedtuple with field names context_id, abstract_syntax and
-            transfer_syntax.
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
         info : dict
             A dict containing information about the current association, with
             the keys:
 
-            - 'requestor' : {
-              | 'ae_title' : bytes, the requestor's calling AE title
-              | 'called_aet' : bytes, the requestor's called AE title
-              | 'address' : str, the requestor's IP address
-              | 'port' : int, the requestor's port number
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
               }
-            - 'acceptor' : {
-              | 'ae_title' : bytes, the acceptor's AE title
-              | 'address' : str, the acceptor's IP address
-              | 'port' : int, the acceptor's port number
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
               }
-            - 'parameters' : {
-              | 'message_id' : int, the DIMSE message ID
-              | 'priority' : int, the requested operation priority
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'priority' : int, the requested operation priority
               }
 
         Yields
         ------
         addr, port : str, int or None, None
             The first yield should be the TCP/IP address and port number of the
-            destination AE (if known) or (None, None) if unknown. If (None,
-            None) is yielded then the SCP will send a C-MOVE response with a
-            'Failure' Status of 0xA801 (move destination unknown), in which
-            case nothing more needs to be yielded.
+            destination AE (if known) or ``(None, None)`` if unknown. If
+            ``(None, None)`` is yielded then the SCP will send a C-MOVE
+            response with a 'Failure' Status of ``0xA801`` (move destination
+            unknown), in which case nothing more needs to be yielded.
         int
             The second yield should be the number of C-STORE sub-operations
             required to complete the C-MOVE operation. In other words, this is
@@ -1764,20 +1780,21 @@ class ApplicationEntity(object):
         status : pydiom.dataset.Dataset or int
             The status returned to the peer AE in the C-MOVE response. Must be
             a valid C-MOVE status value for the applicable Service Class as
-            either an int or a Dataset object containing (at a minimum) a
-            (0000,0900) 'Status' element. If returning a Dataset object then it
+            either an ``int`` or a ``Dataset`` containing (at a minimum) a
+            (0000,0900) *Status* element. If returning a ``Dataset`` then it
             may also contain optional elements related to the Status (as in
             DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then yield the dataset to send to the
-            peer via a C-STORE sub-operation over a new association.
+            If the status is 'Pending' then yield the ``Dataset``
+            to send to the peer via a C-STORE sub-operation over a new
+            association.
 
             If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-            Dataset with a (0008,0058) 'Failed SOP Instance UID List' element
-            containing the list of the C-STORE sub-operation SOP Instance UIDs
-            for which the C-MOVE operation has failed.
+            ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
+            element containing the list of the C-STORE sub-operation SOP
+            Instance UIDs for which the C-MOVE operation has failed.
 
-            If the status is 'Success' then yield None, although yielding a
+            If the status is 'Success' then yield ``None``, although yielding a
             final 'Success' status is not required and will be ignored if
             necessary.
 
@@ -1789,8 +1806,18 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annexes C, U, X, Y, BB and HH
-        DICOM Standard Part 7, Sections 9.1.4, 9.3.4 and Annex C
+
+        * DICOM Standard Part 4, Annexes
+          `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
+          `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
+          `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
+          `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
+          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_ and
+          `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
+          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
@@ -1804,13 +1831,10 @@ class ApplicationEntity(object):
     def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.
 
-        Must be defined by the user prior to calling AE.start() and must return
-        either an int or a pydicom Dataset containing a (0000,0900) Status
-        element with a valid C-STORE status value.
-
-        Called by the corresponding pynetdicom3.sop_class Service Class' SCP()
-        method after receiving a C-STORE request and prior to sending the
-        response.
+        Must be defined by the user prior to calling
+        ``ApplicationEntity.start()`` and must return
+        either an ``int`` or a pydicom ``Dataset`` containing a (0000,0900)
+        *Status* element with a valid C-STORE status value.
 
         If the user is storing `dataset` in the DICOM File Format (as in the
         DICOM Standard Part 10, Section 7) then they are responsible for adding
@@ -1823,26 +1847,23 @@ class ApplicationEntity(object):
         **Status**
 
         Success
-
-        - 0x0000 - Success
+          | ``0x0000`` - Success
 
         Warning
-
-        - 0xB000 - Coercion of data elements
-        - 0xB006 - Elements discarded
-        - 0xB007 - Dataset does not match SOP class
+          | ``0xB000`` Coercion of data elements
+          | ``0xB006`` Elements discarded
+          | ``0xB007`` Dataset does not match SOP class
 
         Failure
-
-        - 0x0117 - Invalid SOP instance
-        - 0x0122 - SOP class not supported
-        - 0x0124 - Not authorised
-        - 0x0210 - Duplicate invocation
-        - 0x0211 - Unrecognised operation
-        - 0x0212 - Mistyped argument
-        - 0xA700 to 0xA7FF - Out of resources
-        - 0xA900 to 0xA9FF - Dataset does not match SOP class
-        - 0xC000 to 0xCFFF - Cannot understand
+          | ``0x0117`` Invalid SOP instance
+          | ``0x0122`` SOP class not supported
+          | ``0x0124`` Not authorised
+          | ``0x0210`` Duplicate invocation
+          | ``0x0211`` Unrecognised operation
+          | ``0x0212`` Mistyped argument
+          | ``0xA700`` to ``0xA7FF`` Out of resources
+          | ``0xA900`` to ``0xA9FF`` Dataset does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Cannot understand
 
         Parameters
         ----------
@@ -1850,28 +1871,30 @@ class ApplicationEntity(object):
             The DICOM dataset sent by the peer in the C-STORE request.
         context : presentation.PresentationContextTuple
             The presentation context that the C-STORE message was sent under
-            as a namedtuple with field names context_id, abstract_syntax and
-            transfer_syntax.
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
         info : dict
             A dict containing information about the current association, with
             the keys:
 
-            - 'requestor' : {
-              | 'ae_title' : bytes, the requestor's calling AE title
-              | 'called_aet' : bytes, the requestor's called AE title
-              | 'address' : str, the requestor's IP address
-              | 'port' : int, the requestor's port number
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
               }
-            - 'acceptor' : {
-              | 'ae_title' : bytes, the acceptor's AE title
-              | 'address' : str, the acceptor's IP address
-              | 'port' : int, the acceptor's port number
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
               }
-            - 'parameters' : {
-              | 'message_id' : int, the DIMSE message ID
-              | 'priority' : int, the requested operation priority
-              | 'originator_aet' : bytes or None, the move originator's AE title
-              | 'originator_message_id' : int or None, the move originator's message ID
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'priority' : int, the requested operation priority
+                  'originator_aet' : bytes or None, the move originator's AE title
+                  'originator_message_id' : int or None, the move originator's message ID
               }
 
         Returns
@@ -1879,10 +1902,10 @@ class ApplicationEntity(object):
         status : pydicom.dataset.Dataset or int
             The status returned to the peer AE in the C-STORE response. Must be
             a valid C-STORE status value for the applicable Service Class as
-            either an int or a Dataset object containing (at a minimum) a
-            (0000,0900) 'Status' element. If returning a Dataset object then it
-            may also contain optional elements related to the Status (as in the
-            DICOM Standard Part 7, Annex C).
+            either an ``int`` or a ``Dataset`` object containing (at a
+            minimum) a (0000,0900) *Status* element. If returning a Dataset
+            object then it may also contain optional elements related to the
+            Status (as in the DICOM Standard Part 7, Annex C).
 
         Raises
         ------
@@ -1897,9 +1920,18 @@ class ApplicationEntity(object):
 
         References
         ----------
-        DICOM Standard Part 4, Annexes B, AA, FF and GG
-        DICOM Standard Part 7, Sections 9.1.1, 9.3.1 and Annex C
-        DICOM Standard Part 10, Section 7
+
+        * DICOM Standard Part 4, Annexes
+          `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_,
+          `AA <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_,
+          `FF <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_ and
+          `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+        * DICOM Standard Part 7, Sections
+          `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
+          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard Part 10,
+          `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
@@ -1975,34 +2007,47 @@ class ApplicationEntity(object):
 
     # Communication related callbacks
     def on_receive_connection(self):
-        """Callback for a connection is received."""
+        """Callback for a connection is received.
+
+        ** NOT IMPLEMENTED **
+        """
         raise NotImplementedError()
 
     def on_make_connection(self):
-        """Callback for a connection is made."""
+        """Callback for a connection is made.
+
+        ** NOT IMPLEMENTED **
+        """
         raise NotImplementedError()
 
 
     # High-level Association related callbacks
     def on_association_requested(self, primitive):
-        """Callback for an association is requested."""
+        """Callback for an association is requested.
+
+        ** NOT IMPLEMENTED **
+        """
         pass
 
     def on_association_accepted(self, primitive):
         """Callback for when an association is accepted.
+
+        ** NOT IMPLEMENTED **
 
         Placeholder for a function callback. Function will be called
         when an association attempt is accepted by either the local or peer AE
 
         Parameters
         ----------
-        primitive
-            The A-ASSOCIATE-AC PDU instance received from the peer AE
+        pdu_primitives.A_ASSOCIATE
+            The A-ASSOCIATE (accept) primitive.
         """
         pass
 
     def on_association_rejected(self, primitive):
         """Callback for when an association is rejected.
+
+        ** NOT IMPLEMENTED **
 
         Placeholder for a function callback. Function will be called
         when an association attempt is rejected by a peer AE
@@ -2015,10 +2060,16 @@ class ApplicationEntity(object):
         pass
 
     def on_association_released(self, primitive=None):
-        """Callback for when an association is released."""
+        """Callback for when an association is released.
+
+        ** NOT IMPLEMENTED **
+        """
         pass
 
     def on_association_aborted(self, primitive=None):
-        """Callback for when an association is aborted."""
+        """Callback for when an association is aborted.
+
+        ** NOT IMPLEMENTED **
+        """
         # FIXME: Need to standardise callback parameters for A-ABORT
         pass

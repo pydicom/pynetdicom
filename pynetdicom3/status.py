@@ -138,7 +138,7 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 def code_to_status(code):
-    """Return a Dataset with Status element matching `code`."""
+    """Return a Dataset with a Status element value of `code`."""
     if isinstance(code, int) and code >= 0:
         ds = Dataset()
         ds.Status = code

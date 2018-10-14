@@ -24,7 +24,8 @@ LOGGER = logging.getLogger('pynetdicom3.dul')
 
 
 class DULServiceProvider(Thread):
-    """
+    """The DICOM Upper Layer Service Provider.
+
     Three ways to call DULServiceProvider:
 
     - If a port number is given, the DUL will wait for incoming connections on
@@ -35,9 +36,9 @@ class DULServiceProvider(Thread):
 
     Attributes
     ----------
-    artim_timer : pynetdicom3.timer.Timer
+    artim_timer : timer.Timer
         The ARTIM timer
-    association : pynetdicom3.association.Association
+    association : association.Association
         The DUL's current Association
     dul_from_user_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
@@ -52,10 +53,9 @@ class DULServiceProvider(Thread):
     scu_socket : socket.socket()
         If the local AE is acting as an SCU, this is the connection from the
         local AE to the peer AE SCP
-    state_machine : pynetdicom3.fsm.StateMachine
+    state_machine : fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
-
     def __init__(self, socket=None, port=None, dul_timeout=None, assoc=None):
         """
         Parameters
@@ -67,7 +67,7 @@ class DULServiceProvider(Thread):
         dul_timeout : float, optional
             The maximum amount of time to wait for connection responses
             (in seconds)
-        assoc : pynetdicom3.association.Association
+        assoc : association.Association
             The DUL's current Association
         """
         if socket and port:
@@ -475,7 +475,7 @@ class DULServiceProvider(Thread):
 
         Parameters
         ----------
-        pdu : pynetdicom3.pdu.PDU
+        pdu : pdu.PDU
             The PDU
 
         Returns
@@ -509,7 +509,7 @@ class DULServiceProvider(Thread):
 
         Parameters
         ----------
-        primitive : pynetdicom3.pdu_primitives.ServiceParameter
+        primitive : pdu_primitives.ServiceParameter
             The Association primitive
 
         Returns
@@ -582,7 +582,7 @@ class DULServiceProvider(Thread):
 
         Returns
         -------
-        pdu : pynetdicom3.pdu.PDU
+        pdu : pdu.PDU
             The decoded data as a PDU object
         """
         pdutype = unpack('B', data[:1])[0]

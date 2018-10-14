@@ -33,6 +33,7 @@ from .encoded_dimse_msg import (
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
+
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
     str_list = pretty_bytes(bytestream, prefix="b'\\x", delimiter='\\x',

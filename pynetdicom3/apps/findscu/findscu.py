@@ -19,7 +19,11 @@ from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
-from pynetdicom3 import AE, QueryRetrievePresentationContexts
+from pynetdicom3 import (
+    AE,
+    QueryRetrievePresentationContexts,
+    BasicWorklistManagementPresentationContexts
+)
 
 logger = logging.Logger('findscu')
 stream_logger = logging.StreamHandler()
@@ -131,7 +135,9 @@ logger.debug('')
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
 ae = AE(ae_title=args.calling_aet, port=0)
-ae.requested_contexts = QueryRetrievePresentationContexts
+ae.requested_contexts = (
+    QueryRetrievePresentationContexts + BasicWorklistManagementPresentationContexts
+)
 
 # Request association with remote
 assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
@@ -152,23 +158,10 @@ if assoc.is_established:
         assoc.release()
         sys.exit()
 
-    # Modify keys if requested
-    #if args.key:
-    #    pass
-        # Format examples:
-        # "(gggg,eeee)=" Null value
-        # "(gggg,eeee)=CITIZEN*" Typical use
-        # "(gggg,eeee)[0].Modality=CT" Sequence
-        # "(gggg,eeee)[*].Modality=CT" Sequence with wildcard
-        # "(gggg,eeee)=1\\2\\3\\4" VM of 4
-        # Parse (), [], ., =, \\
-        #   () to get tag
-        #   ()[]()[]()[]()
-        #   ()[].()[].()[].()
-
     # Create identifier dataset
     identifier = Dataset()
     identifier.PatientName = '*'
+    #identifier.PatientID = ''
     identifier.QueryRetrieveLevel = "PATIENT"
 
     # Query/Retrieve Information Models
@@ -190,7 +183,8 @@ if assoc.is_established:
     response = assoc.send_c_find(identifier, query_model=query_model)
 
     for status, identifier in response:
-        pass
-        #print(status)
+        #pass
+        if status.Status in (0xFF00, 0xFF01):
+            print(identifier)
 
     assoc.release()

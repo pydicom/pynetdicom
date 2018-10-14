@@ -303,8 +303,9 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(unittest.TestCase):
         primitive = SCP_SCU_RoleSelectionNegotiation()
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
         primitive.scu_role = True
-        with self.assertRaises(ValueError):
-            item = primitive.from_primitive()
+        item = primitive.from_primitive()
+        assert item.scu_role
+        assert not item.scp_role
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
         primitive.scp_role = True

@@ -23,7 +23,7 @@ from pynetdicom3 import (
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
-from pynetdicom3.presentation import _build_context
+from pynetdicom3.presentation import build_context
 from pynetdicom3.sop_class import (
     RTImageStorage,
     VerificationSOPClass,
@@ -993,7 +993,7 @@ class TestAESupportedPresentationContexts(object):
 
     def test_supported_contexts_setter(self):
         """Test the AE.supported_contexts property setter."""
-        context = _build_context('1.2.840.10008.1.1')
+        context = build_context('1.2.840.10008.1.1')
         self.ae.supported_contexts = [context]
 
         contexts = self.ae.supported_contexts
@@ -1004,7 +1004,7 @@ class TestAESupportedPresentationContexts(object):
 
     def test_supported_contexts_empty(self):
         """Test the setting supported_contexts to an empty list."""
-        context = _build_context('1.2.840.10008.1.1')
+        context = build_context('1.2.840.10008.1.1')
         self.ae.supported_contexts = [context]
         assert len(self.ae.supported_contexts) == 1
 
@@ -1037,7 +1037,7 @@ class TestAESupportedPresentationContexts(object):
         """Test setting supported_contexts with more than 128 contexts."""
         contexts = []
         for ii in range(300):
-            contexts.append(_build_context(str(ii)))
+            contexts.append(build_context(str(ii)))
 
         self.ae.supported_contexts = contexts
         assert len(self.ae.supported_contexts) == 300
@@ -1296,7 +1296,7 @@ class TestAERequestedPresentationContexts(object):
 
     def test_requested_contexts_setter(self):
         """Test the AE.requested_contexts property setter."""
-        context = _build_context('1.2.840.10008.1.1')
+        context = build_context('1.2.840.10008.1.1')
         self.ae.requested_contexts = [context]
 
         contexts = self.ae.requested_contexts
@@ -1307,7 +1307,7 @@ class TestAERequestedPresentationContexts(object):
 
     def test_requested_contexts_empty(self):
         """Test the setting requested_contexts to an empty list."""
-        context = _build_context('1.2.840.10008.1.1')
+        context = build_context('1.2.840.10008.1.1')
         self.ae.requested_contexts = [context]
         assert len(self.ae.requested_contexts) == 1
 
@@ -1340,12 +1340,12 @@ class TestAERequestedPresentationContexts(object):
         """Test setting requested_contexts with more than 128 contexts."""
         contexts = []
         for ii in range(128):
-            contexts.append(_build_context(str(ii)))
+            contexts.append(build_context(str(ii)))
 
         self.ae.requested_contexts = contexts
         assert len(self.ae.requested_contexts) == 128
 
-        contexts.append(_build_context('129'))
+        contexts.append(build_context('129'))
 
         with pytest.raises(ValueError):
             self.ae.requested_contexts = contexts
