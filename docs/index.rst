@@ -20,8 +20,7 @@ pynetdicom
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
-AEs and providing or using one or more of the services available to the
-association.
+AEs and using or providing the services available to the association.
 
 
 Supported Service Classes
@@ -40,7 +39,7 @@ pynetdicom currently supports the following DICOM service classes:
 User Guide
 ==========
 The :ref:`user_guide` is intended as an introduction to pynetdicom and
-explains how to install the API and covers basic usage. For detailed reference
+explains how to install the API and covers basic usage. For detailed
 documentation of the functions and classes see the
 :ref:`API reference <reference>`.
 

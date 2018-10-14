@@ -77,7 +77,7 @@ also acting as a Storage SCP):
     from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
     ae = AE()
-    # Presentation contexts proposed as an QR SCU
+    # Presentation contexts proposed as a QR SCU
     ae.requested_contexts = QueryRetrievePresentationContexts
     # Presentation contexts supported as a Storage SCP
     ae.supported_contexts = StoragePresentationContexts

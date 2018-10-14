@@ -164,16 +164,6 @@ if assoc.is_established:
     #identifier.PatientID = ''
     identifier.QueryRetrieveLevel = "PATIENT"
 
-    #proc_seq = Dataset()
-    #proc_seq.ScheduledStationAETitle = 'TM_CT_CMW_V3.00'
-    #proc_seq.ScheduledProcedureStepStartDate = '20181005'
-    #proc_seq.ScheduledProcedureStepStartTime = '103000.000000'
-    #proc_seq.ScheduledPerformingPhysicianName = '*'
-    #proc_seq.Modality = 'CT'
-
-    #identifier.ScheduledProcedureStepSequence = [proc_seq]
-
-
     # Query/Retrieve Information Models
     if args.worklist:
         query_model = 'W'

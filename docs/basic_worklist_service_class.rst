@@ -42,7 +42,7 @@ Basic Worklist Management Service Statuses
 +==================+==========+==============================================+
 | 0xA700           | Failure  | Out of resources                             |
 +------------------+----------+----------------------------------------------+
-| 0xA900           | Failure  | Dataset does not match SOP Class             |
+| 0xA900           | Failure  | Identifier does not match SOP Class          |
 +------------------+----------+----------------------------------------------+
 | 0xC000 to 0xCFFF | Failure  | Unable to process                            |
 +------------------+----------+----------------------------------------------+
@@ -51,6 +51,35 @@ Basic Worklist Management Service Statuses
 | 0xFF01           | Pending  | Matches are continuing; one or more Optional |
 |                  |          | keys was not supported                       |
 +------------------+----------+----------------------------------------------+
+
+pynetdicom Basic Worklist Management Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When pynetdicom is acting as a Basic Worklist Management SCP it uses the
+following status codes values to indicate the corresponding issue has occurred
+to help aid in debugging.
+
++------------------+----------+-----------------------------------------------+
+| Code (hex)       | Category | Description                                   |
++==================+==========+===============================================+
+| 0xC001           | Failure  | User's callback implementation returned a     |
+|                  |          | status Dataset with no (0000,0900) *Status*   |
+|                  |          | element                                       |
++------------------+----------+-----------------------------------------------+
+| 0xC002           | Failure  | User's callback implementation returned an    |
+|                  |          | invalid status object (not a pydicom Dataset  |
+|                  |          | or an int)                                    |
++------------------+----------+-----------------------------------------------+
+| 0xC310           | Failure  | Failed to decode the dataset received from    |
+|                  |          | the peer                                      |
++------------------+----------+-----------------------------------------------+
+| 0xC311           | Failure  | Unhandled exception raised by the user's      |
+|                  |          | implementation of the ``on_c_find`` callback  |
++------------------+----------+-----------------------------------------------+
+| 0xC312           | Failure  | Failed to encode the dataset received from    |
+|                  |          | the user's implementation of the ``on_c_find``|
+|                  |          | callback                                      |
++------------------+----------+-----------------------------------------------+
 
 References
 ----------

@@ -155,7 +155,7 @@ which requires adding the File Meta Information.
        ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
 
        # Save the dataset using the SOP Instance UID as the filename
-       ds.save_as(ds.SOPInstanceUID)
+       ds.save_as(ds.SOPInstanceUID, write_like_original=False)
 
        # Return a 'Success' status
        return 0x0000

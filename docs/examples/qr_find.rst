@@ -82,6 +82,9 @@ Root Query Retrieve Information Model - Find* context.
    ds.PatientName = 'CITIZEN^Jan'
    ds.QueryRetrieveLevel = 'PATIENT'
 
+This is a very bad way of managing stored SOP Instances, in reality its
+probably best to store the instance attributes in a database and run the
+query against that.
 
 .. code-block:: python
 
@@ -157,9 +160,8 @@ Root Query Retrieve Information Model - Find* context.
 
        for instance in matching:
            identifier = Dataset()
-           identifier.SpecificCharacterSet = instance.SpecificCharacterSet
            identifier.PatientName = instance.PatientName
-           identifier.QueryRetrieveLevel = instance.QueryRetrieveLevel
+           identifier.QueryRetrieveLevel = ds.QueryRetrieveLevel
 
            # Pending
            yield (0xFF00, identifier)
