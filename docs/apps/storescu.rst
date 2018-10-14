@@ -1,7 +1,7 @@
 ========
 storescu
 ========
-    ``storescu [options] addr port file``
+    ``storescu [options] addr port dcmfile``
 
 Description
 ===========
@@ -9,7 +9,7 @@ The ``storescu`` application implements a *Service Class User* (SCU) for
 the *Storage Service Class* [#]_. It requests an association with a peer
 Application Entity on IP address ``addr`` and ``port`` and, once an
 Association is established, requests the transfer of the Storage SOP Instance
-in ``file``.
+in ``dcmfile``.
 
 The following simple example shows what happens when it is succesfully run on
 a Storage SCP:
@@ -135,5 +135,3 @@ The supported Transfer Syntaxes [#]_ are:
 .. [#] DICOM Standard, Part 6, Table A-1
 .. [#] DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5
 .. [#] DICOM Standard, Part 8, Sections 7.1.1.13 and 9.3.2.2
-.. [#] `The Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
-.. [#] DICOM Standard, Part 5, Section 10 and Annex A

@@ -7,9 +7,9 @@ Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
 *Verification SOP Class* (UID 1.2.840.10008.1.1) [#]_. It establishes an
-Association with peer Application Entities (AEs) and receives DICOM C-ECHO-RQ
-[#]_ message to which it responds with a DICOM C-ECHO-RSP message. The
-application can be used to verify basic DICOM connectivity.
+Association with peer Application Entities (AEs) and listens for
+DICOM C-ECHO-RQ [#]_ messages to which it responds with a DICOM C-ECHO-RSP
+message. The application can be used to verify basic DICOM connectivity.
 
 The following example shows what happens when it is started and receives
 a C-ECHO request from a peer:
@@ -34,19 +34,16 @@ When a peer AE attempts to send non C-ECHO message:
     user@host: echoscu 192.168.2.1 11112 -v
     I: Association Received
     I: Association Accepted
-    I: Association Aborted
+    I: Aborting Association
 
 Much more information is available when a connection is received while
 running with the ``-d`` option:
 ::
 
     user@host: echoscp 11112 -d
-    D: $echosco.py v0.2.0 2016-03-15 $
+    D: $echosco.py v0.4.1
     D:
-    D: Starting DICOM UL service "Thread-1"
-    D: PDU Type: Associate Request, PDU Length: 215 + 6 bytes PDU header
-    D:     01 00 00 00 00 d1 00 01 00 00 41 4e 59 2d 53 43
-    ...
+    I: Association Received
     D: Request Parameters:
     D: ====================== BEGIN A-ASSOCIATE-RQ =============================
     D: Their Implementation Class UID: 1.2.826.0.1.3680043.9.381.0.9.0
@@ -54,7 +51,6 @@ running with the ``-d`` option:
     I: Received Echo Request (MsgID 1)
     ...
     I: Association Released
-    D: DICOM UL service "Thread-1" stopped
 
 
 Options
@@ -126,6 +122,5 @@ The supported Transfer Syntaxes [#]_ are:
 
 .. [#] DICOM Standard, Part 6, Table A-1
 .. [#] DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5
-.. [#] DICOM Standard, Part 8, Sections 7.1.1.13 and 9.3.2.2
 .. [#] `The Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
 .. [#] DICOM Standard, Part 5, Section 10 and Annex A

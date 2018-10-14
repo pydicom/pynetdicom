@@ -2328,8 +2328,14 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             The primitive to use to set the Item's field values.
         """
         self.sop_class_uid = primitive.sop_class_uid
-        self.scu_role = int(primitive.scu_role)
-        self.scp_role = int(primitive.scp_role)
+        if primitive.scu_role is not None:
+            self.scu_role = int(primitive.scu_role)
+        else:
+            self.scu_role = False
+        if primitive.scp_role is not None:
+            self.scp_role = int(primitive.scp_role)
+        else:
+            self.scp_role = False
 
     def to_primitive(self):
         """Return an SCP/SCU Role Selection primitive from the current Item.

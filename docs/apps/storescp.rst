@@ -132,6 +132,3 @@ The supported Transfer Syntaxes [#]_ are:
 
 .. [#] DICOM Standard, Part 6, Table A-1
 .. [#] DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5
-.. [#] DICOM Standard, Part 8, Sections 7.1.1.13 and 9.3.2.2
-.. [#] `The Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
-.. [#] DICOM Standard, Part 5, Section 10 and Annex A

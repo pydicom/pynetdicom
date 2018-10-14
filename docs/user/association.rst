@@ -79,12 +79,15 @@ also acting as a Storage SCP):
     ae = AE()
     # Presentation contexts proposed as a QR SCU
     ae.requested_contexts = QueryRetrievePresentationContexts
-    # Presentation contexts supported as a Storage SCP
-    ae.supported_contexts = StoragePresentationContexts
+    # Presentation contexts supported as a Storage SCP: requires Role Selection
+    ae.requested_contexts = StoragePresentationContexts
 
+    # Add role selection items for the storage contexts we will be supporting
+    #   as an SCP
     negotiation_items = []
-    for context in ae.supported_contexts:
+    for context in StoragePresentationContexts:
         role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = context.abstract_syntax
         role.scp_role = True
         negotiation_items.append(role)
 

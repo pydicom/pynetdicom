@@ -1544,12 +1544,11 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         ValueError
             If SCU Role and SCP Role are both False
         """
-        if self.sop_class_uid is None or self.scu_role is None \
-                or self.scp_role is None:
-            LOGGER.error("sop_class_uid, scu_role and scp_role must "
-                         "to be set prior to Association")
-            raise ValueError("sop_class_uid, scu_role and scp_role must "
-                             "to be set prior to Association")
+        if self.sop_class_uid is None:
+            LOGGER.error("'sop_class_uid' must be set prior to Association")
+            raise ValueError(
+                "'sop_class_uid' must be set prior to Association"
+            )
 
         # To get to this point self.sop_class_uid must be set
         if not self.scu_role and not self.scp_role:

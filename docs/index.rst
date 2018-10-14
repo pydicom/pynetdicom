@@ -44,7 +44,7 @@ documentation of the functions and classes see the
 :ref:`API reference <reference>`.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    user/index
 

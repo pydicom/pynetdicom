@@ -15,30 +15,26 @@ The following simple example shows what happens when it is succesfully run on
 an SCP that supports the *Verification SOP Class*:
 ::
 
-    user@host: echoscu 192.168.2.1 11112
+    user@host: echoscu 127.0.0.1 11112
     user@host:
 
 When attempting to send a C-ECHO to an SCP that doesn't support the
 *Verification SOP Class*:
 ::
 
-    user@host: echoscu 192.168.2.1 11112
+    user@host: echoscu 127.0.0.1 11112
     E: No Acceptable Presentation Contexts
     user@host:
 
 When attempting to associate with a non-DICOM peer
 ::
 
-    user@host: echoscu 192.168.2.1 11112
+    user@host: echoscu 127.0.0.1 11112
     E: Association Request Failed: Failed to establish association
     E: Peer aborted Association (or never connected)
-    E: TCP Initialisation Error: (Connection refused)
+    E: TCP Initialisation Error: Connection refused
     user@host:
 
-Using the ``--propose-pc [n]`` option, the echoscu application can also
-propose *n* Presentation Contexts [#]_ (all with an Abstract Syntax of
-*Verification SOP Class*) in order to provide debugging assistance for
-association negotiation
 
 Options
 =======
@@ -112,6 +108,5 @@ The supported Transfer Syntaxes [#]_ are:
 
 .. [#] DICOM Standard, Part 6, Table A-1
 .. [#] DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5
-.. [#] DICOM Standard, Part 8, Sections 7.1.1.13 and 9.3.2.2
 .. [#] `The Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
 .. [#] DICOM Standard, Part 5, Section 10 and Annex A

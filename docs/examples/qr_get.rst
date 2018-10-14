@@ -67,8 +67,8 @@ which requires adding the File Meta Information.
 
     # Add the requested presentation contexts (QR SCU)
     ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-    # Add the supported presentation context (Storage SCP)
-    ae.add_supported_context(CTImageStorage)
+    # Add the requested presentation context (Storage SCP)
+    ae.add_requested_context(CTImageStorage)
 
     # Add an SCP/SCU Role Selection Negotiation item for CT Image Storage
     role = SCP_SCU_RoleSelectionNegotiation()
@@ -191,8 +191,8 @@ query against that.
     # Create application entity
     ae = AE(port=11112)
 
-    # Add the requested presentation contexts (Storage SCU)
-    ae.requested_contexts = StoragePresentationContexts
+    # Add the supported presentation contexts (Storage SCU)
+    ae.supported_contexts = StoragePresentationContexts
     # Add a supported presentation context (QR Get SCP)
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 

@@ -40,8 +40,8 @@ Verification Service.
 
    if assoc.is_established:
        # Use the C-ECHO service to send the request
-       # returns a pydicom Dataset
-       response = assoc.send_c_echo()
+       # returns the response status a pydicom Dataset
+       status = assoc.send_c_echo()
 
        # Check the status of the verification request
        if 'Status' in status:
