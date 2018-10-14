@@ -190,9 +190,9 @@ _STORAGE_CLASSES = {
     'RadiopharmaceuticalRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.68',  # A.35.14
     'ColonCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.69',  # A.35.10
     'ImplantationPlanSRDocumentStorage' : '1.2.840.10008.5.1.4.1.1.88.70',  # A.35.12
-    'AcquisitionContextSRStorage' : '1.2.840.10008.5.​1.4.1.1.88.71',  # A.35.16
+    'AcquisitionContextSRStorage' : '1.2.840.10008.5.1.4.1.1.88.71',  # A.35.16
     'SimplifiedAdultEchoSRStorage' : '1.2.840.10008.5.1.4.1.1.88.72',  # A.35.17
-    'PatientRadiationDoseSRStorage' : '1.2.840.10008.5.​1.4.1.1.88.73',  # A.35.18
+    'PatientRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.73',  # A.35.18
     'ContentAssessmentResultsStorage' : '1.2.840.10008.5.1.4.1.1.90.1',  # A.81
     'EncapsulatedPDFStorage' : '1.2.840.10008.5.1.4.1.1.104.1',  # A.45.1
     'EncapsulatedCDAStorage' : '1.2.840.10008.5.1.4.1.1.104.2',  # A.45.2
