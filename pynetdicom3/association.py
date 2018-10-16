@@ -29,7 +29,8 @@ from pynetdicom3.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
-    PatientStudyOnlyQueryRetrieveInformationModelGet
+    PatientStudyOnlyQueryRetrieveInformationModelGet,
+    CompositeInstanceRetrieveWithoutBulkDataGet
 )
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
@@ -1516,6 +1517,8 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.2.3
             - ``O`` - *Patient Study Only Information Model - GET*
               1.2.840.10008.5.1.4.1.2.3.3
+            - ``C`` - *Composite Instance Retrieve Without Bulk Data - GET*
+              1.2.840.10008.5.1.4.1.2.5.3
 
         Yields
         ------
@@ -1543,8 +1546,8 @@ class Association(threading.Thread):
               | ``0x0211`` Unrecognised operation
               | ``0x0212`` Mistyped argument
 
-            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
-            C.4.3):
+            Query/Retrieve Service Class Specific (DICOM Standard Part 4,
+            Annexes C.4.3 and Z.4.2.1.4):
 
             Pending
               | ``0xFF00`` Sub-operations are continuing
@@ -1589,6 +1592,7 @@ class Association(threading.Thread):
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
@@ -1605,9 +1609,13 @@ class Association(threading.Thread):
             sop_class = StudyRootQueryRetrieveInformationModelGet
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
+        elif query_model == "C":
+            sop_class = CompositeInstanceRetrieveWithoutBulkDataGet
         else:
-            raise ValueError("Association.send_c_get() query_model "
-                             "must be 'P', 'S' or 'O']")
+            raise ValueError(
+                "Association.send_c_get() query_model must be 'P', 'S', 'O' "
+                "or 'C'"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`

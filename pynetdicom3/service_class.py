@@ -349,6 +349,12 @@ class StorageServiceClass(ServiceClass):
 class QueryRetrieveServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Service Class."""
     statuses = None
+    # Used with Composite Instance Retrieve Without Bulk Data
+    BULK_DATA_KEYWORDS = [
+        'PixelData', 'FloatPixelData', 'DoubleFloatPixelData',
+        'PixelDataProviderURL', 'SpectroscopyData', 'OverlayData',
+        'CurveData', 'AudioSampleData', 'EncapsulatedDocument'
+    ]
 
     def SCP(self, req, context, info):
         """The SCP implementation for the Query/Retrieve Service Class.
@@ -369,7 +375,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             self._find_scp(req, context, info)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
                                          '1.2.840.10008.5.1.4.1.2.2.3',
-                                         '1.2.840.10008.5.1.4.1.2.3.3']:
+                                         '1.2.840.10008.5.1.4.1.2.3.3',
+                                         '1.2.840.10008.5.1.4.1.2.5.3']:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context, info)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',
@@ -897,6 +904,34 @@ class QueryRetrieveServiceClass(ServiceClass):
                     continue
 
                 LOGGER.info('Get SCP Response: %s (Pending)', ii + 1)
+
+                # If the Composite Instance Retrieve Without Bulk Data Service
+                #   is being used then we must remove the bulk data elements
+                #   (if present)
+                if context.abstract_syntax == '1.2.840.10008.5.1.4.1.2.5.3':
+                    # Doesn't include WaveformData
+                    _bulk_data = [
+                        kw for kw in self.BULK_DATA_KEYWORDS if kw in dataset
+                    ]
+                    for keyword in _bulk_data:
+                        delattr(dataset, keyword)
+
+                    # Needs to be handled separately
+                    if 'WaveformSequence' in dataset:
+                        for item in dataset.WaveformSequence:
+                            if 'WaveformData' in item:
+                                del item.WaveformData
+                                if 'WaveformData' not in _bulk_data:
+                                    _bulk_data.append('WaveformData')
+
+                    if _bulk_data:
+                        LOGGER.warning(
+                            "The Query/Retrieve - Composite Instance Retrieve "
+                            "Without Bulk Data service is requested but a "
+                            "yielded dataset contains the following (to be "
+                            "removed) bulk data elements: {}"
+                            .format(','.join(_bulk_data))
+                        )
 
                 # Send `dataset` via C-STORE sub-operations over the existing
                 #   association and check that the response's Status exists and

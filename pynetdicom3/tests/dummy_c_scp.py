@@ -23,7 +23,8 @@ from pynetdicom3.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
-    PatientStudyOnlyQueryRetrieveInformationModelMove
+    PatientStudyOnlyQueryRetrieveInformationModelMove,
+    CompositeInstanceRetrieveWithoutBulkDataGet
 )
 from pynetdicom3.status import code_to_category
 
@@ -225,6 +226,7 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
+        self.ae.add_supported_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         self.ae.add_supported_context(CTImageStorage)
 
         self.ae.add_requested_context(CTImageStorage)
