@@ -1546,8 +1546,8 @@ class Association(threading.Thread):
               | ``0x0211`` Unrecognised operation
               | ``0x0212`` Mistyped argument
 
-            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
-            C.4.3):
+            Query/Retrieve Service Class Specific (DICOM Standard Part 4,
+            Annexes C.4.3 and Z.4.2.1.4):
 
             Pending
               | ``0xFF00`` Sub-operations are continuing
@@ -1592,6 +1592,7 @@ class Association(threading.Thread):
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
