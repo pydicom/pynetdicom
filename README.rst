@@ -3,7 +3,7 @@
     :target: https://codecov.io/gh/pydicom/pynetdicom3
 .. image:: https://travis-ci.org/pydicom/pynetdicom3.svg?branch=master
     :target: https://travis-ci.org/pydicom/pynetdicom3
-.. image:: https://circleci.com/gh/pydicom/pynetdicom3/tree/master.svg?style=svg
+.. image:: https://circleci.com/gh/pydicom/pynetdicom3/tree/master.svg?style=shield
     :target: https://circleci.com/gh/pydicom/pynetdicom3/tree/master
 
 
