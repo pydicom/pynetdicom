@@ -25,7 +25,8 @@ from pynetdicom3.sop_class import (
     CTImageStorage,
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
-    PatientRootQueryRetrieveInformationModelMove
+    PatientRootQueryRetrieveInformationModelMove,
+    CompositeInstanceRetrieveWithoutBulkDataGet,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP,
@@ -37,8 +38,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -1246,7 +1247,7 @@ class TestQRGetServiceClass(object):
         self.scp.stop()
 
     def test_get_success(self):
-        """Test when on_c_get returns failure status"""
+        """Test when on_c_get returns success status"""
         self.scp = DummyGetSCP()
         def on_c_store(ds, context, assoc_info):
             return 0x0000
@@ -2451,4 +2452,119 @@ class TestQRMoveServiceClass(object):
 
         assert self.scp.move_aet == b'TESTMOVE        '
 
+        self.scp.stop()
+
+
+class TestQRCompositeInstanceWithoutBulk(object):
+    """Tests for QR + Composite Instance Without Bulk Data"""
+    def setup(self):
+        """Run prior to each test"""
+        self.query = Dataset()
+        self.query.PatientName = '*'
+        self.query.QueryRetrieveLevel = "PATIENT"
+
+        self.ds = Dataset()
+        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPInstanceUID = '1.1.1'
+        self.ds.PatientName = 'Test'
+
+        self.fail = Dataset()
+        self.fail.FailedSOPInstanceUIDList = ['1.2.3']
+
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_pixel_data(self):
+        """Test pixel data is removed"""
+        self.scp = DummyGetSCP()
+        assert 'PixelData' in DATASET
+        self.scp.datasets = [DATASET, None]
+        self.scp.statuses = [0xFF00, 0x0000]
+        self.scp.no_suboperations = 1
+
+        def on_c_store(ds, context, assoc_info):
+            assert 'PixelData' not in ds
+            return 0x0000
+
+        # SCP should override final success status
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='C')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
+    def test_waveform_sequence(self):
+        """Test when on_c_get returns success status"""
+        self.scp = DummyGetSCP()
+        self.ds.WaveformSequence = [Dataset(), Dataset()]
+        self.ds.WaveformSequence[0].WaveformData = b'\x00\x01'
+        self.ds.WaveformSequence[0].WaveformBitsAllocated = 16
+        self.ds.WaveformSequence[1].WaveformData = b'\x00\x02'
+        self.ds.WaveformSequence[1].WaveformBitsAllocated = 8
+        self.scp.datasets = [self.ds]
+        self.scp.statuses = [0xFF00]
+        self.scp.no_suboperations = 1
+
+        assert 'WaveformData' in self.ds.WaveformSequence[0]
+        assert 'WaveformData' in self.ds.WaveformSequence[1]
+
+        def on_c_store(ds, context, assoc_info):
+            assert 'WaveformData' not in self.ds.WaveformSequence[0]
+            assert 'WaveformData' not in self.ds.WaveformSequence[1]
+            return 0x0000
+
+        # SCP should override final success status
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='C')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
         self.scp.stop()

@@ -29,7 +29,8 @@ from pynetdicom3.sop_class import (
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
-    PatientStudyOnlyQueryRetrieveInformationModelGet
+    PatientStudyOnlyQueryRetrieveInformationModelGet,
+    CompositeInstanceRetrieveWithoutBulkDataGet
 )
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
@@ -1516,6 +1517,8 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.2.3
             - ``O`` - *Patient Study Only Information Model - GET*
               1.2.840.10008.5.1.4.1.2.3.3
+            - ``C`` - *Composite Instance Retrieve Without Bulk Data - GET*
+              1.2.840.10008.5.1.4.1.2.5.3
 
         Yields
         ------
@@ -1605,9 +1608,13 @@ class Association(threading.Thread):
             sop_class = StudyRootQueryRetrieveInformationModelGet
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
+        elif query_model == "C":
+            sop_class = CompositeInstanceRetrieveWithoutBulkDataGet
         else:
-            raise ValueError("Association.send_c_get() query_model "
-                             "must be 'P', 'S' or 'O']")
+            raise ValueError(
+                "Association.send_c_get() query_model must be 'P', 'S', 'O' "
+                "or 'C'"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
