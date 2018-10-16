@@ -34,8 +34,8 @@ from pynetdicom3.sop_class import (
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -91,6 +91,7 @@ class TestAEVerificationSCP(object):
         """Test str output for default AE"""
         ae = AE()
         ae.__str__()
+
 
 class TestAEPresentationSCU(object):
     """Tests for AE presentation contexts when running as an SCU"""

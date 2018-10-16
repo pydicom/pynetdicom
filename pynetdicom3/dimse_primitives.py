@@ -1674,15 +1674,18 @@ class N_EVENT_REPORT(object):
         For the request/indication this specifies the SOP Instance
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    EventTypeID :
-        FIXME, PS3.4 Service Class Specifications
-    EventInformation :
-        FIXME, PS3.4 Service Class Specifications
-    EventReply :
-        FIXME, PS3.4 Service Class Specifications
+    EventTypeID : int
+        The type of event being reported, depends on the Service Class
+        specification. Shall be included if Event Reply is included.
+    EventInformation : io.BytesIO
+        Contains information the invoking DIMSE user is able to supply about
+        the event. An encoded DICOM Dataset containing additional Service
+        Class specific information related to the operation.
+    EventReply : io.BytesIO
+        Contains the optional reply to the event report. An encoded DICOM
+        Dataset containing additional Service Class specific information.
     Status : int
-        The error or success notification of the operation. It shall be
-        one of the following values:
+        The error or success notification of the operation.
 
     Notes
     -----

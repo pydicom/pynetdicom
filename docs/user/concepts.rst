@@ -94,8 +94,7 @@ of managed SOP instances (*Query/Retrieve Service Class*), printing of images
 (*Print Management Service Class*) and many others.
 
 Service Classes are defined in `Part 4 <http://dicom.nema.org/medical/dicom/current/output/html/part04.html>`_
-of the DICOM Standard and each service class has its own UID defined in
-`Part 6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html>`_.
+of the DICOM Standard.
 
 
 .. _concepts_ae:

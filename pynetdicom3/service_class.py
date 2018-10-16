@@ -228,6 +228,7 @@ class VerificationServiceClass(ServiceClass):
 
 class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
+    uid = '1.2.840.10008.4.2'
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context, info):
