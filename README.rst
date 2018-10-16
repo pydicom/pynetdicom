@@ -79,7 +79,7 @@ Presentation Context has been accepted):
   *move_aet* over a new association.
 
 Where *dataset* is a pydicom `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
-object. See the `SCU Examples <docs/scu_examples.rst>`_ for more information.
+object.
 
 
 Supported DIMSE SCP Services
@@ -109,7 +109,7 @@ title.
 
 Documentation
 -------------
-Documentation is available for the current `development version
+The pynetdicom `user guide <https://pydicom.github.io/pynetdicom3/dev/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom3/dev/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom3/dev/reference/index.html>`_ documentation is available for the current `development version
 <https://pydicom.github.io/pynetdicom3/dev>`_.
 
 
@@ -117,15 +117,13 @@ Installation
 -----------
 Dependencies
 ~~~~~~~~~~~~
-Current `pydicom <https://github.com/pydicom/pydicom>`_ master (1.2.0.dev0)
+`pydicom <https://github.com/pydicom/pydicom>`_
 
 Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-        $ git clone https://github.com/pydicom/pynetdicom3.git
-        $ cd pynetdicom3
-        $ python setup.py install
+        $ python -m pip install git+git://github.com/pydicom/pynetdicom3.git
 
 Examples
 --------
