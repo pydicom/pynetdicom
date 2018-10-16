@@ -1528,8 +1528,3 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
                 'The supplied abstract syntax is not valid for use with the '
                 'Basic Worklist Management Service Class'
             )
-
-
-class CompositeInstanceRetrieveWithoutBulkDataServiceClass(ServiceClass):
-    """"""
-    pass
