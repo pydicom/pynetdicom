@@ -192,7 +192,8 @@
     <span class="n">PatientStudyOnlyQueryRetrieveInformationModelMove</span><span class="p">,</span>
     <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
     <span class="n">StudyRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
-    <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span>
+    <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span><span class="p">,</span>
+    <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">UserIdentityNegotiation</span><span class="p">,</span>
                                         <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
@@ -1679,6 +1680,8 @@
 <span class="sd">              1.2.840.10008.5.1.4.1.2.2.3</span>
 <span class="sd">            - ``O`` - *Patient Study Only Information Model - GET*</span>
 <span class="sd">              1.2.840.10008.5.1.4.1.2.3.3</span>
+<span class="sd">            - ``C`` - *Composite Instance Retrieve Without Bulk Data - GET*</span>
+<span class="sd">              1.2.840.10008.5.1.4.1.2.5.3</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -1706,8 +1709,8 @@
 <span class="sd">              | ``0x0211`` Unrecognised operation</span>
 <span class="sd">              | ``0x0212`` Mistyped argument</span>
 
-<span class="sd">            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex</span>
-<span class="sd">            C.4.3):</span>
+<span class="sd">            Query/Retrieve Service Class Specific (DICOM Standard Part 4,</span>
+<span class="sd">            Annexes C.4.3 and Z.4.2.1.4):</span>
 
 <span class="sd">            Pending</span>
 <span class="sd">              | ``0xFF00`` Sub-operations are continuing</span>
@@ -1752,6 +1755,7 @@
 <span class="sd">        ----------</span>
 
 <span class="sd">        * DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex Z &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`_,</span>
 <span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_ and</span>
@@ -1768,9 +1772,13 @@
             <span class="n">sop_class</span> <span class="o">=</span> <span class="n">StudyRootQueryRetrieveInformationModelGet</span>
         <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
             <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span>
+        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Association.send_c_get() query_model &quot;</span>
-                             <span class="s2">&quot;must be &#39;P&#39;, &#39;S&#39; or &#39;O&#39;]&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Association.send_c_get() query_model must be &#39;P&#39;, &#39;S&#39;, &#39;O&#39; &quot;</span>
+                <span class="s2">&quot;or &#39;C&#39;&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>

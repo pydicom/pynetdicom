@@ -512,6 +512,12 @@
 <div class="viewcode-block" id="QueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.QueryRetrieveServiceClass.html#pynetdicom3.service_class.QueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">QueryRetrieveServiceClass</span><span class="p">(</span><span class="n">ServiceClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the Query/Retrieve Service Class.&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Used with Composite Instance Retrieve Without Bulk Data</span>
+    <span class="n">BULK_DATA_KEYWORDS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;PixelData&#39;</span><span class="p">,</span> <span class="s1">&#39;FloatPixelData&#39;</span><span class="p">,</span> <span class="s1">&#39;DoubleFloatPixelData&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;PixelDataProviderURL&#39;</span><span class="p">,</span> <span class="s1">&#39;SpectroscopyData&#39;</span><span class="p">,</span> <span class="s1">&#39;OverlayData&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CurveData&#39;</span><span class="p">,</span> <span class="s1">&#39;AudioSampleData&#39;</span><span class="p">,</span> <span class="s1">&#39;EncapsulatedDocument&#39;</span>
+    <span class="p">]</span>
 
 <div class="viewcode-block" id="QueryRetrieveServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.QueryRetrieveServiceClass.html#pynetdicom3.service_class.QueryRetrieveServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Query/Retrieve Service Class.</span>
@@ -532,7 +538,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.3&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.3&#39;</span><span class="p">,</span>
-                                         <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.3&#39;</span><span class="p">]:</span>
+                                         <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.3&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.5.3&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_GET_SERVICE_CLASS_STATUS</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.2&#39;</span><span class="p">,</span>
@@ -1060,6 +1067,34 @@
                     <span class="k">continue</span>
 
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Response: </span><span class="si">%s</span><span class="s1"> (Pending)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># If the Composite Instance Retrieve Without Bulk Data Service</span>
+                <span class="c1">#   is being used then we must remove the bulk data elements</span>
+                <span class="c1">#   (if present)</span>
+                <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">==</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.5.3&#39;</span><span class="p">:</span>
+                    <span class="c1"># Doesn&#39;t include WaveformData</span>
+                    <span class="n">_bulk_data</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">kw</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BULK_DATA_KEYWORDS</span> <span class="k">if</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">dataset</span>
+                    <span class="p">]</span>
+                    <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">_bulk_data</span><span class="p">:</span>
+                        <span class="nb">delattr</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span>
+
+                    <span class="c1"># Needs to be handled separately</span>
+                    <span class="k">if</span> <span class="s1">&#39;WaveformSequence&#39;</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">WaveformSequence</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="s1">&#39;WaveformData&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                                <span class="k">del</span> <span class="n">item</span><span class="o">.</span><span class="n">WaveformData</span>
+                                <span class="k">if</span> <span class="s1">&#39;WaveformData&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_bulk_data</span><span class="p">:</span>
+                                    <span class="n">_bulk_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;WaveformData&#39;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">_bulk_data</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;The Query/Retrieve - Composite Instance Retrieve &quot;</span>
+                            <span class="s2">&quot;Without Bulk Data service is requested but a &quot;</span>
+                            <span class="s2">&quot;yielded dataset contains the following (to be &quot;</span>
+                            <span class="s2">&quot;removed) bulk data elements: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_bulk_data</span><span class="p">))</span>
+                        <span class="p">)</span>
 
                 <span class="c1"># Send `dataset` via C-STORE sub-operations over the existing</span>
                 <span class="c1">#   association and check that the response&#39;s Status exists and</span>
