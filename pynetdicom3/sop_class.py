@@ -239,6 +239,100 @@ _generate_sop_classes(_QR_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 
 
+# WIP SOP Classes
+_PROCEDURE_STEP_CLASSES = {
+    'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',
+    'ModalityPerformedProcedureStepRetrieveSOPClass' : '1.2.840.10008.3.1.2.3.4',
+    'ModalityPerformedProcedureStepNotificationSOPClass' : '1.2.840.10008.3.1.2.3.5',
+}
+
+_PRINT_MANAGEMENT_CLASSES = {
+    'BasicFilmSessionSOPClass' : '1.2.840.10008.5.1.1.1',
+    'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
+    'BasicGrayscaleImageBoxSOPClass' : '1.2.840.10008.5.1.1.4',
+    'BasicColourImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
+    'PrintJobSOPClass' : '1.2.840.100008.5.1.1.14',
+    'BasicAnnotationBoxSOPClass' : '1.2.840.10008.5.1.1.15',
+    'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
+    'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',
+    'PresentationLUTSOPClass' : '1.2.840.10008.5.1.1.23',
+}
+
+_MEDIA_STORAGE_CLASSES = {
+    'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
+}
+
+_RELEVANT_PATIENT_INFORMATION_QR_CLASSES = {
+    'GeneralRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.1',
+    'BreastImagingRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.2',
+    'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
+}
+
+_HANGING_PROTOCOL_QR_CLASSES = {
+    'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',
+    'HangingProtocolInformationModelMove' : '1.2.840.10008.5.1.4.38.3',
+    'HangingProtocolInformationModelGet' : '1.2.840.10008.5.1.4.38.4',
+}
+
+_SUBSTANCE_ADMINISTRATION_CLASSES = {
+    'ProductCharacteristicsQueryInformationModelFind' : '1.2.840.10008.5.1.4.41'
+}
+
+_COLOR_PALETTE_QR_CLASSES = {
+    'ColorPaletteInformationModelFind' : '1.2.840.10008.5.1.4.39.2',
+    'ColorPaletteInformationModelMove' : '1.2.840.10008.5.1.4.39.3',
+    'ColorPaletteInformationModelGet' : '1.2.840.10008.5.1.4.39.4',
+}
+
+_COMPOSITE_INSTANCE_CLASSES = {
+    'CompositeInstanceRootRetrieveMove' : '1.2.840.10008.5.1.4.1.2.4.2',
+    'CompositeInstanceRootRetrieveGet' : '1.2.840.10008.5.1.4.1.2.4.3',
+}
+
+_IMPLANT_TEMPLATE_QR_CLASSES = {
+    'GenericImplantTemplateInformationModelFind' : '1.2.840.10008.5.1.4.43.2',
+    'GenericImplantTemplateInformationModelMove' : '1.2.840.10008.5.1.4.43.3',
+    'GenericImplantTemplateInformationModelGet' : '1.2.840.10008.5.1.4.43.4',
+    'ImplantAssemblyTemplateInformationModelFind' : '1.2.840.10008.5.1.4.44.2',
+    'ImplantAssemblyTemplateInformationModelMove' : '1.2.840.10008.5.1.4.44.3',
+    'ImplantAssemblyTemplateInformationModelGet' : '1.2.840.10008.5.1.4.44.4',
+    'ImplantAssemblyGroupInformationModelFind' : '1.2.840.10008.5.1.4.45.2',
+    'ImplantAssemblyGroupInformationModelMove' : '1.2.840.10008.5.1.4.45.3',
+    'ImplantAssemblyGroupInformationModelGet' : '1.2.840.10008.5.1.4.45.4',
+}
+
+_UNITED_PROCEDURE_STEP_CLASSES = {
+    'UnitedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
+    'UnitedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
+    'UnitedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
+    'UnitedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
+}
+
+_RT_MACHINE_VERIFICATION_CLASSES = {
+    'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8',
+    'RTIonMachineVerification' : '1.2.840.10008.5.1.4.34.9',
+}
+
+_DISPLAY_SYSTEM_MANAGEMENT_CLASSES = {
+    'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
+}
+
+_NON_PATIENT_OBJECT_CLASSES = {
+    'HangingProtocolStorage' : '1.2.840.10008.5.1.4.38.1',
+    'ColorPaletteStorage' : '1.2.840.10008.5.1.4.39.1',
+    'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
+    'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
+    'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1',
+    'CTDefinedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.1',
+}
+
+_DEFINED_PROCEDURE_STEP_CLASSES = {
+    'DefinedProcedureProtocolInformationModelFind' : '1.2.840.10008.5.1.4.20.1',
+    'DefinedProcedureProtocolInformationModelMove' : '1.2.840.10008.5.1.4.20.2',
+    'DefinedProcedureProtocolInformationModelGet' : '1.2.840.10008.5.1.4.20.3',
+}
+
+
 def uid_to_sop_class(uid):
     """Return the SOPClass object corresponding to `uid`.
 

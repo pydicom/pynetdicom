@@ -1,7 +1,5 @@
-"""
-Define the DIMSE Message classes.
-"""
-from __future__ import division
+"""Define the DIMSE Message classes."""
+
 from io import BytesIO
 import logging
 from math import ceil
@@ -10,10 +8,10 @@ from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 from pydicom._dicom_dict import DicomDictionary as dcm_dict
 
-from pynetdicom3.dimse_primitives import (C_STORE, C_FIND, C_GET, C_MOVE,
-                                          C_ECHO, C_CANCEL, N_EVENT_REPORT,
-                                          N_GET, N_SET, N_ACTION, N_CREATE,
-                                          N_DELETE)
+from pynetdicom3.dimse_primitives import (
+    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
+    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
+)
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
 
@@ -169,12 +167,12 @@ class DIMSEMessage(object):
 
     ::
 
-                            primitive_to_message         Encode
-        .----------------------.  ----->   .----------.  ----->  .------------.
-        |        DIMSE         |           |   DIMSE  |          |   P-DATA   |
-        |      primitive       |           |  message |          |  primitive |
-        .----------------------.  <-----   .----------.  <-----  .------------.
-                            message_to_primitive         Decode
+                          primitive_to_message       encode_msg
+        .--------------------.  ----->   .----------.  ----->  .------------.
+        |       DIMSE        |           |   DIMSE  |          |   P-DATA   |
+        |     primitive      |           |  message |          |  primitive |
+        .--------------------.  <-----   .----------.  <-----  .------------.
+                          message_to_primitive       decode_msg
 
 
     **Command Set**
@@ -328,7 +326,7 @@ class DIMSEMessage(object):
         """Yield P-DATA primitive(s) for the current DIMSE Message.
 
         **Encoding**
-        
+
         The encoding of the Command Set shall be Little Endian Implicit VR,
         while the Data Set will be encoded as per the agreed presentation
         context.
@@ -501,8 +499,6 @@ class DIMSEMessage(object):
             primitive = N_CREATE()
         elif 'N_DELETE' in cls_type_name:
             primitive = N_DELETE()
-        # elif 'C_CANCEL' in cls_type_name:
-        #    primitive = C_CANCEL()
 
         # Command Set
         # For each parameter in the primitive, set the appropriate value
@@ -515,23 +511,23 @@ class DIMSEMessage(object):
         # Datasets
         # Set the primitive's DataSet/Identifier/etc attribute
         if cls_type_name == 'C_STORE_RQ':
-            setattr(primitive, 'DataSet', self.data_set)
+            primitive.DataSet = self.data_set
         elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP', 'C_GET_RQ',
                                'C_GET_RSP', 'C_MOVE_RQ', 'C_MOVE_RSP']:
-            setattr(primitive, 'Identifier', self.data_set)
+            primitive.Identifier = self.data_set
         elif cls_type_name == 'N_EVENT_REPORT_RQ':
-            setattr(primitive, 'EventInformation', self.data_set)
+            primitive.EventInformation = self.data_set
         elif cls_type_name == 'N_EVENT_REPORT_RSP':
-            setattr(primitive, 'EventReply', self.data_set)
+            primitive.EventReply = self.data_set
         elif cls_type_name in ['N_GET_RSP', 'N_SET_RSP',
                                'N_CREATE_RQ', 'N_CREATE_RSP']:
-            setattr(primitive, 'AttributeList', self.data_set)
+            primitive.AttributeList = self.data_set
         elif cls_type_name == 'N_SET_RQ':
-            setattr(primitive, 'ModificationList', self.data_set)
+            primitive.ModificationList = self.data_set
         elif cls_type_name == 'N_ACTION_RQ':
-            setattr(primitive, 'ActionInformation', self.data_set)
+            primitive.ActionInformation = self.data_set
         elif cls_type_name == 'N_ACTION_RSP':
-            setattr(primitive, 'ActionReply', self.data_set)
+            primitive.ActionReply = self.data_set
 
         return primitive
 
@@ -579,8 +575,8 @@ class DIMSEMessage(object):
                 else:
                     del self.command_set[elem.tag]  # Careful!
 
-        # Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so invert
-        #   it for convenience
+        # Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so
+        #   invert it for convenience
         rev_type = {}
         for value in _MESSAGE_TYPES:
             rev_type[_MESSAGE_TYPES[value]] = value
@@ -592,20 +588,13 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set.CommandDataSetType = 0x0101
 
-        # TODO: This can probably be refactored to be cleaner
-        #   dict = {['C_STORE_RQ'] : 'DataSet',
-        #           ['C_FIND_RQ', 'C_GET_RQ'] : 'Identifier'}
-        #   for cls_names in dict.keys():
-        #       if cls_type_name in cls_names and hasattr(primitive, dict[cls_type_name]):
-        #           self.data_set = getattr(primitive.dict[cls_type_name])
-        #           self.command_set.CommandDataSetType = 0x0001
         cls_type_name = self.__class__.__name__
         if cls_type_name == 'C_STORE_RQ':
             self.data_set = primitive.DataSet
             self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name in ['C_FIND_RQ', 'C_GET_RQ', 'C_MOVE_RQ',
-                               'C_FIND_RSP', 'C_GET_RSP', 'C_MOVE_RSP'] and \
-                primitive.Identifier:
+        elif (cls_type_name in [
+                'C_FIND_RQ', 'C_GET_RQ', 'C_MOVE_RQ', 'C_FIND_RSP',
+                'C_GET_RSP', 'C_MOVE_RSP'] and primitive.Identifier):
             self.data_set = primitive.Identifier
             self.command_set.CommandDataSetType = 0x0001
         elif cls_type_name == 'N_EVENT_REPORT_RQ':
@@ -630,7 +619,7 @@ class DIMSEMessage(object):
 
         # The following message types don't have a dataset
         # 'C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 'C_STORE_RSP',
-        # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP'
+        # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
 
         # Set the Command Set length
         self._set_command_group_length()
@@ -638,11 +627,11 @@ class DIMSEMessage(object):
     def _set_command_group_length(self):
         """Reset the Command Group Length element value.
 
-        Once the self.command_set Dataset has been built and filled with values,
-        this should be called to set the CommandGroupLength element value
-        correctly.
+        Once the self.command_set Dataset has been built and filled with
+        values, this should be called to set the CommandGroupLength element
+        value correctly.
         """
-        # Remove CommandGroupLength to stop it messing up the length calculation
+        # Remove CommandGroupLength to stop it messing up the length calc
         del self.command_set.CommandGroupLength
 
         length = 0
