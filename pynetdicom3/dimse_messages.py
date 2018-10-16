@@ -1,5 +1,6 @@
 """Define the DIMSE Message classes."""
 
+from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
