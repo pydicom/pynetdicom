@@ -27,5 +27,6 @@ pynetdicom3.service\_class.StorageServiceClass
    .. autosummary::
    
       ~StorageServiceClass.statuses
+      ~StorageServiceClass.uid
    
    

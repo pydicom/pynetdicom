@@ -161,9 +161,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pynetdicom3.dimse_messages</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Define the DIMSE Message classes.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Define the DIMSE Message classes.&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -173,10 +172,10 @@
 <span class="kn">from</span> <span class="nn">pydicom.tag</span> <span class="k">import</span> <span class="n">Tag</span>
 <span class="kn">from</span> <span class="nn">pydicom._dicom_dict</span> <span class="k">import</span> <span class="n">DicomDictionary</span> <span class="k">as</span> <span class="n">dcm_dict</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom3.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span>
-                                          <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span> <span class="n">N_EVENT_REPORT</span><span class="p">,</span>
-                                          <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span> <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span>
-                                          <span class="n">N_DELETE</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
+    <span class="n">N_EVENT_REPORT</span><span class="p">,</span> <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span> <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span> <span class="n">N_DELETE</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dsutils</span> <span class="k">import</span> <span class="n">encode_element</span><span class="p">,</span> <span class="n">encode</span><span class="p">,</span> <span class="n">decode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">P_DATA</span>
 
@@ -332,12 +331,12 @@
 
 <span class="sd">    ::</span>
 
-<span class="sd">                            primitive_to_message         Encode</span>
-<span class="sd">        .----------------------.  -----&gt;   .----------.  -----&gt;  .------------.</span>
-<span class="sd">        |        DIMSE         |           |   DIMSE  |          |   P-DATA   |</span>
-<span class="sd">        |      primitive       |           |  message |          |  primitive |</span>
-<span class="sd">        .----------------------.  &lt;-----   .----------.  &lt;-----  .------------.</span>
-<span class="sd">                            message_to_primitive         Decode</span>
+<span class="sd">                          primitive_to_message       encode_msg</span>
+<span class="sd">        .--------------------.  -----&gt;   .----------.  -----&gt;  .------------.</span>
+<span class="sd">        |       DIMSE        |           |   DIMSE  |          |   P-DATA   |</span>
+<span class="sd">        |     primitive      |           |  message |          |  primitive |</span>
+<span class="sd">        .--------------------.  &lt;-----   .----------.  &lt;-----  .------------.</span>
+<span class="sd">                          message_to_primitive       decode_msg</span>
 
 
 <span class="sd">    **Command Set**</span>
@@ -491,7 +490,7 @@
         <span class="sd">&quot;&quot;&quot;Yield P-DATA primitive(s) for the current DIMSE Message.</span>
 
 <span class="sd">        **Encoding**</span>
-<span class="sd">        </span>
+
 <span class="sd">        The encoding of the Command Set shall be Little Endian Implicit VR,</span>
 <span class="sd">        while the Data Set will be encoded as per the agreed presentation</span>
 <span class="sd">        context.</span>
@@ -664,8 +663,6 @@
             <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_CREATE</span><span class="p">()</span>
         <span class="k">elif</span> <span class="s1">&#39;N_DELETE&#39;</span> <span class="ow">in</span> <span class="n">cls_type_name</span><span class="p">:</span>
             <span class="n">primitive</span> <span class="o">=</span> <span class="n">N_DELETE</span><span class="p">()</span>
-        <span class="c1"># elif &#39;C_CANCEL&#39; in cls_type_name:</span>
-        <span class="c1">#    primitive = C_CANCEL()</span>
 
         <span class="c1"># Command Set</span>
         <span class="c1"># For each parameter in the primitive, set the appropriate value</span>
@@ -678,23 +675,23 @@
         <span class="c1"># Datasets</span>
         <span class="c1"># Set the primitive&#39;s DataSet/Identifier/etc attribute</span>
         <span class="k">if</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;C_STORE_RQ&#39;</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">DataSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span>
                                <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;EventInformation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">EventInformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RSP&#39;</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;EventReply&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">EventReply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;N_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;N_SET_RSP&#39;</span><span class="p">,</span>
                                <span class="s1">&#39;N_CREATE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;N_CREATE_RSP&#39;</span><span class="p">]:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_SET_RQ&#39;</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ModificationList&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">ModificationList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RQ&#39;</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ActionInformation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">ActionInformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RSP&#39;</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="s1">&#39;ActionReply&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+            <span class="n">primitive</span><span class="o">.</span><span class="n">ActionReply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
 
         <span class="k">return</span> <span class="n">primitive</span>
 
@@ -742,8 +739,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span>  <span class="c1"># Careful!</span>
 
-        <span class="c1"># Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so invert</span>
-        <span class="c1">#   it for convenience</span>
+        <span class="c1"># Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so</span>
+        <span class="c1">#   invert it for convenience</span>
         <span class="n">rev_type</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_MESSAGE_TYPES</span><span class="p">:</span>
             <span class="n">rev_type</span><span class="p">[</span><span class="n">_MESSAGE_TYPES</span><span class="p">[</span><span class="n">value</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
@@ -755,20 +752,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0101</span>
 
-        <span class="c1"># TODO: This can probably be refactored to be cleaner</span>
-        <span class="c1">#   dict = {[&#39;C_STORE_RQ&#39;] : &#39;DataSet&#39;,</span>
-        <span class="c1">#           [&#39;C_FIND_RQ&#39;, &#39;C_GET_RQ&#39;] : &#39;Identifier&#39;}</span>
-        <span class="c1">#   for cls_names in dict.keys():</span>
-        <span class="c1">#       if cls_type_name in cls_names and hasattr(primitive, dict[cls_type_name]):</span>
-        <span class="c1">#           self.data_set = getattr(primitive.dict[cls_type_name])</span>
-        <span class="c1">#           self.command_set.CommandDataSetType = 0x0001</span>
         <span class="n">cls_type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">if</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;C_STORE_RQ&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">DataSet</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]</span> <span class="ow">and</span> \
-                <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
         <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span><span class="p">:</span>
@@ -793,7 +783,7 @@
 
         <span class="c1"># The following message types don&#39;t have a dataset</span>
         <span class="c1"># &#39;C_ECHO_RQ&#39;, &#39;C_ECHO_RSP&#39;, &#39;N_DELETE_RQ&#39;, &#39;C_STORE_RSP&#39;,</span>
-        <span class="c1"># &#39;C_CANCEL_RQ&#39;, &#39;N_DELETE_RSP&#39;, &#39;C_FIND_RSP&#39;</span>
+        <span class="c1"># &#39;C_CANCEL_RQ&#39;, &#39;N_DELETE_RSP&#39;, &#39;C_FIND_RSP&#39;, &#39;N_GET_RQ&#39;</span>
 
         <span class="c1"># Set the Command Set length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_command_group_length</span><span class="p">()</span>
@@ -801,11 +791,11 @@
     <span class="k">def</span> <span class="nf">_set_command_group_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reset the Command Group Length element value.</span>
 
-<span class="sd">        Once the self.command_set Dataset has been built and filled with values,</span>
-<span class="sd">        this should be called to set the CommandGroupLength element value</span>
-<span class="sd">        correctly.</span>
+<span class="sd">        Once the self.command_set Dataset has been built and filled with</span>
+<span class="sd">        values, this should be called to set the CommandGroupLength element</span>
+<span class="sd">        value correctly.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Remove CommandGroupLength to stop it messing up the length calculation</span>
+        <span class="c1"># Remove CommandGroupLength to stop it messing up the length calc</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandGroupLength</span>
 
         <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>

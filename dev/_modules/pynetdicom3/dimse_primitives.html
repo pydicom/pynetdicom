@@ -1837,15 +1837,18 @@
 <span class="sd">        For the request/indication this specifies the SOP Instance</span>
 <span class="sd">        for storage. If included in the response/confirmation, it shall be</span>
 <span class="sd">        equal to the value in the request/indication</span>
-<span class="sd">    EventTypeID :</span>
-<span class="sd">        FIXME, PS3.4 Service Class Specifications</span>
-<span class="sd">    EventInformation :</span>
-<span class="sd">        FIXME, PS3.4 Service Class Specifications</span>
-<span class="sd">    EventReply :</span>
-<span class="sd">        FIXME, PS3.4 Service Class Specifications</span>
+<span class="sd">    EventTypeID : int</span>
+<span class="sd">        The type of event being reported, depends on the Service Class</span>
+<span class="sd">        specification. Shall be included if Event Reply is included.</span>
+<span class="sd">    EventInformation : io.BytesIO</span>
+<span class="sd">        Contains information the invoking DIMSE user is able to supply about</span>
+<span class="sd">        the event. An encoded DICOM Dataset containing additional Service</span>
+<span class="sd">        Class specific information related to the operation.</span>
+<span class="sd">    EventReply : io.BytesIO</span>
+<span class="sd">        Contains the optional reply to the event report. An encoded DICOM</span>
+<span class="sd">        Dataset containing additional Service Class specific information.</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        The error or success notification of the operation. It shall be</span>
-<span class="sd">        one of the following values:</span>
+<span class="sd">        The error or success notification of the operation.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
