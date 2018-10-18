@@ -236,7 +236,7 @@ class TestQRFindServiceClass(object):
     def test_callback_exception(self):
         """Test SCP handles on_c_find yielding an exception"""
         self.scp = DummyFindSCP()
-        def on_c_find(ds): raise ValueError
+        def on_c_find(ds, context, info): raise ValueError
         self.scp.ae.on_c_find = on_c_find
         self.scp.start()
 
@@ -756,7 +756,7 @@ class TestQRGetServiceClass(object):
     def test_get_callback_exception(self):
         """Test SCP handles on_c_get yielding an exception"""
         self.scp = DummyGetSCP()
-        def on_c_get(ds): raise ValueError
+        def on_c_get(ds, context, info): raise ValueError
         self.scp.ae.on_c_get = on_c_get
         self.scp.start()
 
@@ -1770,7 +1770,7 @@ class TestQRMoveServiceClass(object):
     def test_move_callback_exception(self):
         """Test SCP handles on_c_move yielding an exception"""
         self.scp = DummyMoveSCP()
-        def on_c_move(ds, dest): raise ValueError
+        def on_c_move(ds, dest, context, info): raise ValueError
         self.scp.ae.on_c_move = on_c_move
         self.scp.start()
 

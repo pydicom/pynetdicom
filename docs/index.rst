@@ -34,6 +34,7 @@ pynetdicom currently supports the following DICOM service classes:
    storage_service_class
    query_retrieve_service_class
    basic_worklist_service_class
+   relevant_patient_service_class
 
 
 User Guide

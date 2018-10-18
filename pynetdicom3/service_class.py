@@ -16,6 +16,12 @@ from pynetdicom3.status import (
     QR_MOVE_SERVICE_CLASS_STATUS,
     QR_GET_SERVICE_CLASS_STATUS,
     MODALITY_WORKLIST_SERVICE_CLASS_STATUS,
+    RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
+    STATUS_FAILURE,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
+    STATUS_PENDING,
+    STATUS_CANCEL,
 )
 
 
@@ -562,24 +568,24 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
 
-            if status[0] == 'Cancel':
+            if status[0] == STATUS_CANCEL:
                 # If cancel, then rsp_identifier is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info('Find SCP Response: (Cancel)')
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
-            elif status[0] == 'Failure':
+            elif status[0] == STATUS_FAILURE:
                 # If failed, then rsp_identifier is None
                 LOGGER.info('Find SCP Response: (Failure - %s)', status[1])
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
-            elif status[0] == 'Success':
+            elif status[0] == STATUS_SUCCESS:
                 # User isn't supposed to send these, but handle anyway
                 # If success, then rsp_identifier is None
                 LOGGER.info('Find SCP Response: %s (Success)', ii + 1)
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
-            elif status[0] == 'Pending':
+            elif status[0] == STATUS_PENDING:
                 # If pending, the rsp_identifier is the Identifier dataset
                 bytestream = encode(rsp_identifier,
                                     transfer_syntax.is_implicit_VR,
@@ -822,7 +828,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
 
-            if status[0] == 'Cancel':
+            if status[0] == STATUS_CANCEL:
                 # If cancel, dataset is a Dataset with a
                 # 'FailedSOPInstanceUIDList' element
                 LOGGER.info('Get SCP Received C-CANCEL-GET RQ from peer')
@@ -843,7 +849,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.Identifier = BytesIO(bytestream)
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
-            elif status[0] in ['Failure', 'Warning']:
+            elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
                 # If failure or warning, dataset is a Dataset with a
                 # 'FailedSOPInstanceUIDList' element
                 LOGGER.info('Get SCP Result (%s - %s)', status[0], status[1])
@@ -866,7 +872,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.Identifier = BytesIO(bytestream)
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
-            elif status[0] == 'Success':
+            elif status[0] == STATUS_SUCCESS:
                 # If user yields Success, check it
                 # dataset is None
                 if store_results[1] or store_results[2]:
@@ -889,7 +895,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 self.DIMSE.send_msg(rsp, context.context_id)
                 return
-            elif status[0] == 'Pending' and dataset:
+            elif status[0] == STATUS_PENDING and dataset:
                 # If pending, dataset is the Dataset to send
                 if not isinstance(dataset, Dataset):
                     LOGGER.error('Received invalid dataset from callback')
@@ -944,19 +950,19 @@ class QueryRetrieveServiceClass(ServiceClass):
                 except Exception as ex:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
-                    store_status = ['Failure', 'Unknown']
+                    store_status = [STATUS_FAILURE, 'Unknown']
 
                 LOGGER.info('Get SCP: Received Store SCU response (%s)',
                             store_status[0])
 
                 # Update the C-STORE sub-operation result tracker
-                if store_status[0] == 'Failure':
+                if store_status[0] == STATUS_FAILURE:
                     store_results[1] += 1
                     _add_failed_instance(dataset)
-                elif store_status[0] == 'Warning':
+                elif store_status[0] == STATUS_WARNING:
                     store_results[2] += 1
                     _add_failed_instance(dataset)
-                elif store_status[0] == 'Success':
+                elif store_status[0] == STATUS_SUCCESS:
                     store_results[3] += 1
 
                 store_results[0] -= 1
@@ -1247,7 +1253,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # If usr_status is Cancel, Failure, Warning or Success then
                 #   generate a final response, if Pending then do C-STORE
                 #   sub-operation
-                if status[0] == 'Cancel':
+                if status[0] == STATUS_CANCEL:
                     # If cancel, then dataset is a Dataset with a
                     #   'FailedSOPInstanceUIDList' element
                     LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
@@ -1271,7 +1277,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                     self.DIMSE.send_msg(rsp, context.context_id)
                     return
-                elif status[0] in ['Failure', 'Warning']:
+                elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
                     # If failed or warning, then dataset is a Dataset with a
                     #   'FailedSOPInstanceUIDList' element
                     LOGGER.info('Move SCP Result (%s - %s)',
@@ -1299,7 +1305,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                     self.DIMSE.send_msg(rsp, context.context_id)
                     return
-                elif status[0] == 'Success':
+                elif status[0] == STATUS_SUCCESS:
                     # If success, then dataset is None
                     store_assoc.release()
 
@@ -1326,7 +1332,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                     self.DIMSE.send_msg(rsp, context.context_id)
                     return
-                elif status[0] == 'Pending' and dataset:
+                elif status[0] == STATUS_PENDING and dataset:
                     # If pending, then dataset is the Dataset to send
                     if not isinstance(dataset, Dataset):
                         LOGGER.error('Received invalid dataset from callback')
@@ -1359,19 +1365,19 @@ class QueryRetrieveServiceClass(ServiceClass):
                     except Exception as ex:
                         # An exception implies a C-STORE failure
                         LOGGER.warning("C-STORE sub-operation failed.")
-                        store_status = ['Failure', 'Unknown']
+                        store_status = [STATUS_FAILURE, 'Unknown']
 
                     LOGGER.info('Move SCP: Received Store SCU response (%s)',
                                 store_status[0])
 
                     # Update the C-STORE sub-operation result tracker
-                    if store_status[0] == 'Failure':
+                    if store_status[0] == STATUS_FAILURE:
                         store_results[1] += 1
                         _add_failed_instance(dataset)
-                    elif store_status[0] == 'Warning':
+                    elif store_status[0] == STATUS_WARNING:
                         store_results[2] += 1
                         _add_failed_instance(dataset)
-                    elif store_status[0] == 'Success':
+                    elif store_status[0] == STATUS_SUCCESS:
                         store_results[3] += 1
 
                     store_results[0] -= 1
@@ -1529,3 +1535,192 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
                 'The supplied abstract syntax is not valid for use with the '
                 'Basic Worklist Management Service Class'
             )
+
+
+class RelevantPatientInformationQueryServiceClass(ServiceClass):
+    """Implementation of the Relevant Patient Information Query"""
+    statuses = RELEVANT_PATIENT_SERVICE_CLASS_STATUS
+
+    def SCP(self, req, context, info):
+        """The SCP implementation for the Relevant Patient Information Query
+        Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.C_FIND
+            The C-FIND request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        info : dict
+            A dict containing details about the association.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_c_find
+        association.Association.send_c_find
+
+        Notes
+        -----
+        **C-FIND Request**
+
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Identifier
+
+        **C-FIND Response**
+
+        *Parameters*
+
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (C) Identifier
+        | (M) Status
+
+        *Status*
+
+        Success
+          | ``0x0000`` Success
+
+        Pending
+          | ``0xFF00`` Matches are continuing, current match supplied
+          | ``0xFF01`` Matches are continuing, warning
+
+        Cancel
+          | ``0xFE00`` Matching terminated due to cancel request
+
+        Failure
+          | ``0x0122`` SOP class not supported
+          | ``0xA700`` Out of resources
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC100`` More than one match found
+          | ``0xC200`` Unable to support requested template
+
+        References
+        ----------
+
+        * DICOM Standard, Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_.
+        * DICOM Standard, Part 7, Sections
+           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+        """
+        # Build C-FIND response primitive
+        rsp = C_FIND()
+        rsp.MessageID = req.MessageID
+        rsp.MessageIDBeingRespondedTo = req.MessageID
+        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
+
+        # Decode and log Identifier
+        transfer_syntax = context.transfer_syntax[0]
+        try:
+            identifier = decode(req.Identifier,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Dataset')
+            for elem in identifier.iterall():
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except Exception as ex:
+            LOGGER.error("Failed to decode the request's Identifier dataset.")
+            LOGGER.exception(ex)
+            # Failure - Unable to Process - Failed to decode Identifier
+            rsp.Status = 0xC310
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+
+        info['parameters'] = {
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
+        }
+
+        # Relevant Patient Query only allows the following responses:
+        #   pending + match; success
+        #   cancel or failure
+        #   success (no match)
+        # In other words there can only be 1 or 2 responses
+        try:
+            # If we get a valid yield then send the corresponding message
+            #   if the yield is pending, send message then success and return
+            #   if the yield is cancel or failure, send message and return
+            #   if StopIteration send success and return
+            responses = self.AE.on_c_find(identifier, context.as_tuple, info)
+            (rsp_status, rsp_identifier) = next(responses)
+        except StopIteration:
+            # There were no matches, so return Success
+            # If success, then rsp_identifier is None
+            LOGGER.info('Find SCP Response: (Success)')
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+        except Exception as ex:
+            LOGGER.error("Exception in user's on_c_find implementation.")
+            LOGGER.exception(ex)
+            rsp.Status = 0xC311
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+
+        rsp = self.validate_status(rsp_status, rsp)
+
+        if rsp.Status in self.statuses:
+            status = self.statuses[rsp.Status]
+        else:
+            # Unknown status
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+
+        if status[0] == STATUS_CANCEL:
+            # If cancel, then rsp_identifier is None
+            LOGGER.info('Received C-CANCEL-FIND RQ from peer')
+            LOGGER.info('Find SCP Response: (Cancel)')
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+        elif status[0] == STATUS_FAILURE:
+            # If failed, then rsp_identifier is None
+            LOGGER.info('Find SCP Response: (Failure)')
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+        elif status[0] == STATUS_SUCCESS:
+            # User isn't supposed to send these, but handle anyway
+            # If success, then rsp_identifier is None
+            LOGGER.info('Find SCP Response: (Success)')
+            self.DIMSE.send_msg(rsp, context.context_id)
+            return
+        elif status[0] == STATUS_PENDING:
+            # If pending, the rsp_identifier is the Identifier dataset
+            bytestream = encode(rsp_identifier,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+            bytestream = BytesIO(bytestream)
+
+            if bytestream.getvalue() == b'':
+                LOGGER.error("Failed to encode the received Identifier "
+                             "dataset")
+                # Failure: Unable to Process - Can't decode dataset
+                #   returned by on_c_find callback
+                rsp.Status = 0xC312
+                self.DIMSE.send_msg(rsp, context.context_id)
+                return
+
+            rsp.Identifier = bytestream
+
+            LOGGER.info('Find SCP Response: (Pending)')
+            LOGGER.debug('Find SCP Response Identifier:')
+            LOGGER.debug('')
+            LOGGER.debug('# DICOM Dataset')
+            for elem in rsp_identifier.iterall():
+                LOGGER.debug(elem)
+            LOGGER.debug('')
+
+            # Send pending response
+            self.DIMSE.send_msg(rsp, context.context_id)
+
+            # Send final success response
+            rsp.Status = 0x0000
+            LOGGER.info('Find SCP Response: (Success)')
+            self.DIMSE.send_msg(rsp, context.context_id)
