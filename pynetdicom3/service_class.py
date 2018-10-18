@@ -1570,6 +1570,20 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         | (M) Priority
         | (M) Identifier
 
+        *Identifier*
+
+        The C-FIND request Identifier shall contain:
+
+        * Key Attributes with values corresponding to Key Attributes contained
+          in the Identifier of the request.
+        * (0040,A504) Content Template Sequence, which shall include a single
+          sequence item containing (0040,DB00) Template Identifier and
+          (0008,0105) Mapping Resource attributes, to identify the template
+          structure used in the C-FIND responses.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+          character sets may be used in any of the Attributes in the request
+          Identifier. It shall not be present otherwise.
+
         **C-FIND Response**
 
         *Parameters*

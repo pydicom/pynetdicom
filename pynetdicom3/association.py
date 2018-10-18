@@ -492,7 +492,6 @@ class Association(threading.Thread):
                     return
 
                 service_class = uid_to_service_class(msg.AffectedSOPClassUID)()
-                print(service_class)
 
                 # Check that the SOP Class is supported by the AE
                 # New method

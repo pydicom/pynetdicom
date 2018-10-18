@@ -60,6 +60,7 @@ Examples
 * :doc:`Query/Retrieve (Get) Service Examples <examples/qr_get>`
 * :doc:`Query/Retrieve (Move) Service Examples <examples/qr_move>`
 * :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
+* :doc:`Relevant Patient Information Query Service Examples <examples/relevant_patient>`
 
 
 API Reference
