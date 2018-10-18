@@ -16,6 +16,7 @@ from pynetdicom3.presentation import (
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
+    RelevantPatientInformationQueryPresentationContexts,
     build_context,
 )
 
@@ -910,7 +911,7 @@ class TestServiceContexts(object):
     def test_qr(self):
         """Test the query/retrieve service presentation contexts."""
         contexts = QueryRetrievePresentationContexts
-        assert len(contexts) == 9
+        assert len(contexts) == 10
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
@@ -918,7 +919,7 @@ class TestServiceContexts(object):
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.2.1.1'
         assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.1.2.2.2'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.2.3.3'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.2.5.3'
 
     def test_worklist(self):
         """Test the basic worklist service presentation contexts."""
@@ -928,3 +929,16 @@ class TestServiceContexts(object):
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert contexts[0].context_id is None
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.31'
+
+    def test_relevant_patient(self):
+        """Tests with relevant patient info presentation contexts"""
+        contexts = RelevantPatientInformationQueryPresentationContexts
+        assert len(contexts) == 3
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.37.1'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.37.2'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.37.3'

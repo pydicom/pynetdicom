@@ -14,3 +14,4 @@ pynetdicom supports the following Service Classes
    StorageServiceClass
    QueryRetrieveServiceClass
    BasicWorklistManagementServiceClass
+   RelevantPatientInformationQueryServiceClass

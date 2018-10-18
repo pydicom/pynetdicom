@@ -30,7 +30,10 @@ from pynetdicom3.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
-    CompositeInstanceRetrieveWithoutBulkDataGet
+    CompositeInstanceRetrieveWithoutBulkDataGet,
+    GeneralRelevantPatientInformationQuery,
+    BreastImagingRelevantPatientInformationQuery,
+    CardiacRelevantPatientInformationQuery,
 )
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
@@ -735,7 +738,7 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_echo
         dimse_primitives.C_ECHO
-        sop_class.VerificationServiceClass
+        service_class.VerificationServiceClass
 
         References
         ----------
@@ -892,7 +895,7 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
-        sop_class.StorageServiceClass
+        service_class.StorageServiceClass
 
         References
         ----------
@@ -1014,6 +1017,12 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.3.1
             - ``W`` - *Modality Worklist Information - FIND*
               1.2.840.10008.5.1.4.31
+            - ``G`` - *General Relevant Patient Information Query*
+              1.2.840.10008.5.1.4.37.1
+            - ``B`` - *Breast Imaging Relevant Patient Information Query*
+              1.2.840.10008.5.1.4.37.2
+            - ``C`` - *Cardiac Relevant Patient Information Query*
+              1.2.840.10008.5.1.4.37.3
 
         Yields
         ------
@@ -1088,12 +1097,14 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_find
         dimse_primitives.C_FIND
-        sop_class.QueryRetrieveFindServiceClass
+        service_class.QueryRetrieveFindServiceClass
+        service_class.RelevantPatientInformationQueryServiceClass
 
         References
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
         * DICOM Standard Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
@@ -1113,9 +1124,16 @@ class Association(threading.Thread):
             sop_class = StudyRootQueryRetrieveInformationModelFind
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind
+        elif query_model == "G":
+            sop_class = GeneralRelevantPatientInformationQuery
+        elif query_model == "B":
+            sop_class = BreastImagingRelevantPatientInformationQuery
+        elif query_model == "C":
+            sop_class = CardiacRelevantPatientInformationQuery
         else:
-            raise ValueError("Association.send_c_find - 'query_model' "
-                             "must be 'W', 'P', 'S' or 'O'")
+            raise ValueError(
+                "Unknown `query_model` value: {}".format(query_model)
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1316,7 +1334,7 @@ class Association(threading.Thread):
         ae.ApplicationEntity.on_c_move
         ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
-        sop_class.QueryRetrieveMoveServiceClass
+        service_class.QueryRetrieveMoveServiceClass
 
         References
         ----------
@@ -1585,7 +1603,7 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_get
         ae.ApplicationEntity.on_c_store
-        sop_class.QueryRetrieveGetServiceClass
+        service_class.QueryRetrieveGetServiceClass
         dimse_primitives.C_GET
 
         References

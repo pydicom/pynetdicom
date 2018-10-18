@@ -40,7 +40,10 @@ from pynetdicom3.sop_class import (
     StudyRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
-    StudyRootQueryRetrieveInformationModelMove
+    StudyRootQueryRetrieveInformationModelMove,
+    GeneralRelevantPatientInformationQuery,
+    BreastImagingRelevantPatientInformationQuery,
+    CardiacRelevantPatientInformationQuery,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -1199,7 +1202,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
-            next(assoc.send_c_find(self.ds, query_model='X'))
+            next(assoc.send_c_find(self.ds, query_model='XXX'))
         assoc.release()
         assert assoc.is_released
         scp.stop()
@@ -1214,6 +1217,9 @@ class TestAssociationSendCFind(object):
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
         ae.add_requested_context(ModalityWorklistInformationFind)
+        ae.add_requested_context(GeneralRelevantPatientInformationQuery)
+        ae.add_requested_context(BreastImagingRelevantPatientInformationQuery)
+        ae.add_requested_context(CardiacRelevantPatientInformationQuery)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1225,6 +1231,12 @@ class TestAssociationSendCFind(object):
         for (status, ds) in assoc.send_c_find(self.ds, query_model='O'):
             assert status.Status == 0x0000
         for (status, ds) in assoc.send_c_find(self.ds, query_model='W'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='G'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='B'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='C'):
             assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released

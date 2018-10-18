@@ -24,7 +24,10 @@ from pynetdicom3.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
-    CompositeInstanceRetrieveWithoutBulkDataGet
+    CompositeInstanceRetrieveWithoutBulkDataGet,
+    GeneralRelevantPatientInformationQuery,
+    BreastImagingRelevantPatientInformationQuery,
+    CardiacRelevantPatientInformationQuery,
 )
 from pynetdicom3.status import code_to_category
 
@@ -194,6 +197,9 @@ class DummyFindSCP(DummyBaseSCP):
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
         self.ae.add_supported_context(ModalityWorklistInformationFind)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
+        self.ae.add_supported_context(GeneralRelevantPatientInformationQuery)
+        self.ae.add_supported_context(BreastImagingRelevantPatientInformationQuery)
+        self.ae.add_supported_context(CardiacRelevantPatientInformationQuery)
 
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]

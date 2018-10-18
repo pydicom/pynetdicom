@@ -10,16 +10,19 @@ from pynetdicom3.sop_class import (
     _STORAGE_CLASSES,
     _QR_CLASSES,
     _BASIC_WORKLIST_CLASSES,
+    _RELEVANT_PATIENT_QUERY_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
     StudyRootQueryRetrieveInformationModelFind,
     ModalityWorklistInformationFind,
+    GeneralRelevantPatientInformationQuery,
 )
 from pynetdicom3.service_class import (
     VerificationServiceClass,
     StorageServiceClass,
     QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
+    RelevantPatientInformationQueryServiceClass,
 )
 
 
@@ -56,6 +59,11 @@ class TestUIDToServiceClass(object):
         """Test that the Basic Worklist SOP Class UIDs work correctly."""
         for uid in _BASIC_WORKLIST_CLASSES.values():
             assert uid_to_service_class(uid) == BasicWorklistManagementServiceClass
+
+    def test_basic_worklist_uids(self):
+        """Test that the Basic Worklist SOP Class UIDs work correctly."""
+        for uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
+            assert uid_to_service_class(uid) == RelevantPatientInformationQueryServiceClass
 
     def test_unknown_uid_raises(self):
         """Test that an unknown UID raises exception."""
@@ -95,3 +103,9 @@ class TestSOPClass(object):
         assert ModalityWorklistInformationFind.uid == '1.2.840.10008.5.1.4.31'
         assert ModalityWorklistInformationFind.UID == '1.2.840.10008.5.1.4.31'
         assert ModalityWorklistInformationFind.service_class == BasicWorklistManagementServiceClass
+
+    def test_relevant_patient_info_sop(self):
+        """Test a Relevant Patient Information Query Service SOP Class."""
+        assert GeneralRelevantPatientInformationQuery.uid == '1.2.840.10008.5.1.4.37.1'
+        assert GeneralRelevantPatientInformationQuery.UID == '1.2.840.10008.5.1.4.37.1'
+        assert GeneralRelevantPatientInformationQuery.service_class == RelevantPatientInformationQueryServiceClass

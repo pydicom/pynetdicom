@@ -12,6 +12,7 @@ from pynetdicom3.service_class import (
     StorageServiceClass,
     QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
+    RelevantPatientInformationQueryServiceClass,
 )
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
@@ -44,6 +45,8 @@ def uid_to_service_class(uid):
         return QueryRetrieveServiceClass
     elif uid in _BASIC_WORKLIST_CLASSES.values():
         return BasicWorklistManagementServiceClass
+    elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
+        return RelevantPatientInformationQueryServiceClass
     else:
         raise NotImplementedError(
             "The Service Class for the SOP Class with UID '{}' has not "
@@ -232,11 +235,18 @@ _BASIC_WORKLIST_CLASSES = {
     'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31',
 }
 
+_RELEVANT_PATIENT_QUERY_CLASSES = {
+    'GeneralRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.1',
+    'BreastImagingRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.2',
+    'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
+}
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
 _generate_sop_classes(_QR_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
+_generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
 
 
 # WIP SOP Classes
@@ -262,11 +272,7 @@ _MEDIA_STORAGE_CLASSES = {
     'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
 }
 
-_RELEVANT_PATIENT_INFORMATION_QR_CLASSES = {
-    'GeneralRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.1',
-    'BreastImagingRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.2',
-    'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
-}
+
 
 _HANGING_PROTOCOL_QR_CLASSES = {
     'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',

@@ -755,3 +755,9 @@ QueryRetrievePresentationContexts = [
 BasicWorklistManagementPresentationContexts = [
     build_context('1.2.840.10008.5.1.4.31'),
 ]
+
+RelevantPatientInformationQueryPresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.37.1'),
+    build_context('1.2.840.10008.5.1.4.37.2'),
+    build_context('1.2.840.10008.5.1.4.37.3'),
+]

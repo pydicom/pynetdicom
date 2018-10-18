@@ -128,7 +128,7 @@ QR_GET_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Modality Worklist Service Class specific status code values
-#   PS3.4 Annex FIXME
+#   PS3.4 Annex K
 MODALITY_WORKLIST_SERVICE_CLASS_STATUS = {
     0xA700 : (STATUS_FAILURE, 'Refused: Out of resources'),
     0xA900 : (STATUS_FAILURE, 'Identifier does not match SOP class'),
@@ -148,6 +148,19 @@ for _code in range(0xC000, 0xCFFF + 1):
 
 # Add the General status code values - PS3.7 Annex C
 MODALITY_WORKLIST_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+
+
+# Relevant Patient Information Query Service Class specific status code values
+# PS3.4 Annex Q
+RELEVANT_PATIENT_SERVICE_CLASS_STATUS = {
+    0xA700 : (STATUS_FAILURE, "Out of resources"),
+    0xA900 : (STATUS_FAILURE, "Identifier doesn't match SOP Class"),
+    0xC000 : (STATUS_FAILURE, "Unable to process"),
+    0xC100 : (STATUS_FAILURE, "More than one match found"),
+    0xC200 : (STATUS_FAILURE, "Unable to support requested template"),
+    0xFF00 : (STATUS_PENDING, "Current match is supplied"),
+}
+RELEVANT_PATIENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Procedure Step SOP Class specific status code values - WIP
@@ -242,17 +255,6 @@ _APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS = {
               "Update of Medication Administration Record failed"),
 }
 _APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
-
-
-# Relevant Patient Information Query Service Class specific status code values - WIP
-_RELEVANT_PATIENT_INFORMATION_QUERY_SERVICE_CLASS_STATUS = {
-    0xA700 : (STATUS_FAILURE, "Out of resources"),
-    0xA900 : (STATUS_FAILURE, "Identifier doesn't match SOP Class"),
-    0xC000 : (STATUS_FAILURE, "Unable to process"),
-    0xC100 : (STATUS_FAILURE, "More than one match found"),
-    0xC200 : (STATUS_FAILURE, "Unable to support requested template"),
-}
-_RELEVANT_PATIENT_INFORMATION_QUERY_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Media Creation Management Service Class specific status code values - WIP
