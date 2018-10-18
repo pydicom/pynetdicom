@@ -1634,7 +1634,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             identifier = decode(req.Identifier,
                                 transfer_syntax.is_implicit_VR,
                                 transfer_syntax.is_little_endian)
-            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
             for elem in identifier.iterall():
@@ -1716,7 +1716,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             if bytestream.getvalue() == b'':
                 LOGGER.error("Failed to encode the received Identifier "
                              "dataset")
-                # Failure: Unable to Process - Can't decode dataset
+                # Failure: Unable to Process - Can't encode dataset
                 #   returned by on_c_find callback
                 rsp.Status = 0xC312
                 self.DIMSE.send_msg(rsp, context.context_id)

@@ -88,7 +88,7 @@ query against that.
     from pydicom.dataset import Dataset
 
     from pynetdicom3 import AE
-    from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelFind
+    from pynetdicom3.sop_class import GeneralRelevantPatientInformationQuery
 
     # Initialise the Application Entity and specify the listen port
     ae = AE(port=11112)

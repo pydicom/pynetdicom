@@ -738,7 +738,7 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_echo
         dimse_primitives.C_ECHO
-        sop_class.VerificationServiceClass
+        service_class.VerificationServiceClass
 
         References
         ----------
@@ -895,7 +895,7 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
-        sop_class.StorageServiceClass
+        service_class.StorageServiceClass
 
         References
         ----------
@@ -1097,8 +1097,8 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_find
         dimse_primitives.C_FIND
-        sop_class.QueryRetrieveFindServiceClass
-        sop_class.RelevantPatientInformationQueryServiceClass
+        service_class.QueryRetrieveFindServiceClass
+        service_class.RelevantPatientInformationQueryServiceClass
 
         References
         ----------
@@ -1124,11 +1124,11 @@ class Association(threading.Thread):
             sop_class = StudyRootQueryRetrieveInformationModelFind
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind
-        elif query_model == 'G':
+        elif query_model == "G":
             sop_class = GeneralRelevantPatientInformationQuery
-        elif query_model == 'B':
+        elif query_model == "B":
             sop_class = BreastImagingRelevantPatientInformationQuery
-        elif query_model == 'C':
+        elif query_model == "C":
             sop_class = CardiacRelevantPatientInformationQuery
         else:
             raise ValueError(
@@ -1334,7 +1334,7 @@ class Association(threading.Thread):
         ae.ApplicationEntity.on_c_move
         ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
-        sop_class.QueryRetrieveMoveServiceClass
+        service_class.QueryRetrieveMoveServiceClass
 
         References
         ----------
@@ -1603,7 +1603,7 @@ class Association(threading.Thread):
         --------
         ae.ApplicationEntity.on_c_get
         ae.ApplicationEntity.on_c_store
-        sop_class.QueryRetrieveGetServiceClass
+        service_class.QueryRetrieveGetServiceClass
         dimse_primitives.C_GET
 
         References
