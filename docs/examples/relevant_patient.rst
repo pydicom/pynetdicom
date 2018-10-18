@@ -31,7 +31,7 @@ single patient with ID '1234567'.
    ds.PatientID = '1234567'
    ds.ContentTemplateSequence = [Dataset()]
    # Request the General Relevant Patient Information template (TID 9007)
-   # See DICOM Standard, Part 16, Annex A, TID 9000-90007
+   # See DICOM Standard, Part 16, Annex A, TID 9000-9007
    ds.ContentTemplateSequence[0].MappingResource = 'DCMR'
    ds.ContentTemplateSequence[0].TemplateIdentifier = '9007'
 
@@ -139,7 +139,8 @@ query against that.
             inst for inst in instances if inst.PatientID == ds.PatientID
         ]
 
-        # There must either be no match or 1 match
+        # There must either be no match or 1 match, everything else
+        #   is a failure
         if len(matching) == 1:
             # User-defined function to create the identifier based off a
             #   template, outside the scope of the current example

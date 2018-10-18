@@ -1228,12 +1228,31 @@ class TestUserInformation_RoleSelection(object):
         assert item.to_primitive() == check
 
     def test_from_primitive(self):
-        """ Check converting from primitive """
+        """Check converting from primitive"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_role)
 
         orig = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
         params = orig.to_primitive()
+
+        new = SCP_SCU_RoleSelectionSubItem()
+        new.from_primitive(params)
+
+        assert orig == new
+
+    def test_from_primitive_no_scu(self):
+        """Check converting from primitive with scu_role undefined"""
+        pdu = A_ASSOCIATE_RQ()
+        pdu.decode(a_associate_rq_role)
+
+        orig = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
+        params = orig.to_primitive()
+        print(dir(params))
+
+        assert not params.scu_role
+        # None should become False
+        params.scu_role = None
+        assert params.scu_role is None
 
         new = SCP_SCU_RoleSelectionSubItem()
         new.from_primitive(params)

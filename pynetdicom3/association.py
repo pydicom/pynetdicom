@@ -984,8 +984,7 @@ class Association(threading.Thread):
 
         return status
 
-    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='P',
-                    query_uid=None):
+    def send_c_find(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-FIND request to the peer AE.
 
         Yields ``(status, identifier)`` pairs.

@@ -1669,6 +1669,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         except StopIteration:
             # There were no matches, so return Success
             # If success, then rsp_identifier is None
+            rsp.Status = 0x0000
             LOGGER.info('Find SCP Response: (Success)')
             self.DIMSE.send_msg(rsp, context.context_id)
             return

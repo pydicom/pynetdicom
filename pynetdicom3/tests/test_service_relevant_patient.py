@@ -393,6 +393,28 @@ class TestRelevantPatientServiceClass(object):
         assoc.release()
         self.scp.stop()
 
+    def test_no_response(self):
+        """Test on_c_find yielding success status"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = []
+        self.scp.identifiers = []
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(GeneralRelevantPatientInformationQuery)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, query_model='G')
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        self.scp.stop()
+
     def test_scp_callback_context(self):
         """Test on_c_store caontext parameter"""
         self.scp = DummyFindSCP()
