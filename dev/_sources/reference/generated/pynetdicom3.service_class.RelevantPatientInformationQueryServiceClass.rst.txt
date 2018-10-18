@@ -1,0 +1,31 @@
+pynetdicom3.service\_class.RelevantPatientInformationQueryServiceClass
+======================================================================
+
+.. currentmodule:: pynetdicom3.service_class
+
+.. autoclass:: RelevantPatientInformationQueryServiceClass
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RelevantPatientInformationQueryServiceClass.SCP
+      ~RelevantPatientInformationQueryServiceClass.__init__
+      ~RelevantPatientInformationQueryServiceClass.is_valid_status
+      ~RelevantPatientInformationQueryServiceClass.validate_status
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RelevantPatientInformationQueryServiceClass.statuses
+   
+   

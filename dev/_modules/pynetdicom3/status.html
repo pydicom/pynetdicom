@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -291,7 +292,7 @@
 
 
 <span class="c1"># Modality Worklist Service Class specific status code values</span>
-<span class="c1">#   PS3.4 Annex FIXME</span>
+<span class="c1">#   PS3.4 Annex K</span>
 <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Refused: Out of resources&#39;</span><span class="p">),</span>
     <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Identifier does not match SOP class&#39;</span><span class="p">),</span>
@@ -311,6 +312,19 @@
 
 <span class="c1"># Add the General status code values - PS3.7 Annex C</span>
 <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
+<span class="c1"># Relevant Patient Information Query Service Class specific status code values</span>
+<span class="c1"># PS3.4 Annex Q</span>
+<span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Out of resources&quot;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Identifier doesn&#39;t match SOP Class&quot;</span><span class="p">),</span>
+    <span class="mh">0xC000</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Unable to process&quot;</span><span class="p">),</span>
+    <span class="mh">0xC100</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;More than one match found&quot;</span><span class="p">),</span>
+    <span class="mh">0xC200</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Unable to support requested template&quot;</span><span class="p">),</span>
+    <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="s2">&quot;Current match is supplied&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
 
 
 <span class="c1"># Procedure Step SOP Class specific status code values - WIP</span>
@@ -405,17 +419,6 @@
               <span class="s2">&quot;Update of Medication Administration Record failed&quot;</span><span class="p">),</span>
 <span class="p">}</span>
 <span class="n">_APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
-
-
-<span class="c1"># Relevant Patient Information Query Service Class specific status code values - WIP</span>
-<span class="n">_RELEVANT_PATIENT_INFORMATION_QUERY_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Out of resources&quot;</span><span class="p">),</span>
-    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Identifier doesn&#39;t match SOP Class&quot;</span><span class="p">),</span>
-    <span class="mh">0xC000</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Unable to process&quot;</span><span class="p">),</span>
-    <span class="mh">0xC100</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;More than one match found&quot;</span><span class="p">),</span>
-    <span class="mh">0xC200</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Unable to support requested template&quot;</span><span class="p">),</span>
-<span class="p">}</span>
-<span class="n">_RELEVANT_PATIENT_INFORMATION_QUERY_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
 
 
 <span class="c1"># Media Creation Management Service Class specific status code values - WIP</span>

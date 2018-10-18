@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -193,7 +194,10 @@
     <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
     <span class="n">StudyRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
     <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span><span class="p">,</span>
-    <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span>
+    <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span><span class="p">,</span>
+    <span class="n">GeneralRelevantPatientInformationQuery</span><span class="p">,</span>
+    <span class="n">BreastImagingRelevantPatientInformationQuery</span><span class="p">,</span>
+    <span class="n">CardiacRelevantPatientInformationQuery</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">UserIdentityNegotiation</span><span class="p">,</span>
                                         <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
@@ -898,7 +902,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        ae.ApplicationEntity.on_c_echo</span>
 <span class="sd">        dimse_primitives.C_ECHO</span>
-<span class="sd">        sop_class.VerificationServiceClass</span>
+<span class="sd">        service_class.VerificationServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -1055,7 +1059,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        ae.ApplicationEntity.on_c_store</span>
 <span class="sd">        dimse_primitives.C_STORE</span>
-<span class="sd">        sop_class.StorageServiceClass</span>
+<span class="sd">        service_class.StorageServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -1177,6 +1181,12 @@
 <span class="sd">              1.2.840.10008.5.1.4.1.2.3.1</span>
 <span class="sd">            - ``W`` - *Modality Worklist Information - FIND*</span>
 <span class="sd">              1.2.840.10008.5.1.4.31</span>
+<span class="sd">            - ``G`` - *General Relevant Patient Information Query*</span>
+<span class="sd">              1.2.840.10008.5.1.4.37.1</span>
+<span class="sd">            - ``B`` - *Breast Imaging Relevant Patient Information Query*</span>
+<span class="sd">              1.2.840.10008.5.1.4.37.2</span>
+<span class="sd">            - ``C`` - *Cardiac Relevant Patient Information Query*</span>
+<span class="sd">              1.2.840.10008.5.1.4.37.3</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -1251,12 +1261,14 @@
 <span class="sd">        --------</span>
 <span class="sd">        ae.ApplicationEntity.on_c_find</span>
 <span class="sd">        dimse_primitives.C_FIND</span>
-<span class="sd">        sop_class.QueryRetrieveFindServiceClass</span>
+<span class="sd">        service_class.QueryRetrieveFindServiceClass</span>
+<span class="sd">        service_class.RelevantPatientInformationQueryServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
 
 <span class="sd">        * DICOM Standard Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex Q &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
 <span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_,</span>
@@ -1276,9 +1288,16 @@
             <span class="n">sop_class</span> <span class="o">=</span> <span class="n">StudyRootQueryRetrieveInformationModelFind</span>
         <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
             <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelFind</span>
+        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;G&quot;</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">GeneralRelevantPatientInformationQuery</span>
+        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">BreastImagingRelevantPatientInformationQuery</span>
+        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">CardiacRelevantPatientInformationQuery</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Association.send_c_find - &#39;query_model&#39; &quot;</span>
-                             <span class="s2">&quot;must be &#39;W&#39;, &#39;P&#39;, &#39;S&#39; or &#39;O&#39;&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown `query_model` value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
@@ -1479,7 +1498,7 @@
 <span class="sd">        ae.ApplicationEntity.on_c_move</span>
 <span class="sd">        ae.ApplicationEntity.on_c_store</span>
 <span class="sd">        dimse_primitives.C_MOVE</span>
-<span class="sd">        sop_class.QueryRetrieveMoveServiceClass</span>
+<span class="sd">        service_class.QueryRetrieveMoveServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -1748,7 +1767,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        ae.ApplicationEntity.on_c_get</span>
 <span class="sd">        ae.ApplicationEntity.on_c_store</span>
-<span class="sd">        sop_class.QueryRetrieveGetServiceClass</span>
+<span class="sd">        service_class.QueryRetrieveGetServiceClass</span>
 <span class="sd">        dimse_primitives.C_GET</span>
 
 <span class="sd">        References</span>

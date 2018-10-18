@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -744,7 +745,7 @@ assumed that it will be one of these.</p>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_echo()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_ECHO()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">sop_class.VerificationServiceClass()</span></code></p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_echo()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_ECHO()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.VerificationServiceClass()</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
@@ -789,6 +790,12 @@ one of:</p>
 1.2.840.10008.5.1.4.1.2.3.1</li>
 <li><code class="docutils literal notranslate"><span class="pre">W</span></code> - <em>Modality Worklist Information - FIND</em>
 1.2.840.10008.5.1.4.31</li>
+<li><code class="docutils literal notranslate"><span class="pre">G</span></code> - <em>General Relevant Patient Information Query</em>
+1.2.840.10008.5.1.4.37.1</li>
+<li><code class="docutils literal notranslate"><span class="pre">B</span></code> - <em>Breast Imaging Relevant Patient Information Query</em>
+1.2.840.10008.5.1.4.37.2</li>
+<li><code class="docutils literal notranslate"><span class="pre">C</span></code> - <em>Cardiac Relevant Patient Information Query</em>
+1.2.840.10008.5.1.4.37.3</li>
 </ul>
 </li>
 </ul>
@@ -876,11 +883,12 @@ unable to encode the <em>Identifier</em> <cite>dataset</cite>.</li>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_FIND()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">sop_class.QueryRetrieveFindServiceClass()</span></code></p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_FIND()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveFindServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.RelevantPatientInformationQueryServiceClass()</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
 <li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q">Annex Q</a></li>
 <li>DICOM Standard Part 7, Sections
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2">9.1.2</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2">9.3.2</a>,
@@ -1009,7 +1017,7 @@ unable to encode the <em>Identifier</em> <cite>dataset</cite>.</li>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_get()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">sop_class.QueryRetrieveGetServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_GET()</span></code></p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_get()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveGetServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_GET()</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
@@ -1129,7 +1137,7 @@ instead return an empty <code class="docutils literal notranslate"><span class="
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_move()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_MOVE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">sop_class.QueryRetrieveMoveServiceClass()</span></code></p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_move()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_MOVE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveMoveServiceClass()</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
@@ -1254,7 +1262,7 @@ unable to encode the <cite>dataset</cite>.</li>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_STORE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">sop_class.StorageServiceClass()</span></code></p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_STORE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.StorageServiceClass()</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">

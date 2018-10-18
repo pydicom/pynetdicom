@@ -34,6 +34,7 @@ pynetdicom currently supports the following DICOM service classes:
    storage_service_class
    query_retrieve_service_class
    basic_worklist_service_class
+   relevant_patient_service_class
 
 
 User Guide
@@ -59,6 +60,7 @@ Examples
 * :doc:`Query/Retrieve (Get) Service Examples <examples/qr_get>`
 * :doc:`Query/Retrieve (Move) Service Examples <examples/qr_move>`
 * :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
+* :doc:`Relevant Patient Information Query Service Examples <examples/relevant_patient>`
 
 
 API Reference

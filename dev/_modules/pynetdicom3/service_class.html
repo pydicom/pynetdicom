@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -179,6 +180,12 @@
     <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">QR_GET_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">STATUS_FAILURE</span><span class="p">,</span>
+    <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
+    <span class="n">STATUS_WARNING</span><span class="p">,</span>
+    <span class="n">STATUS_PENDING</span><span class="p">,</span>
+    <span class="n">STATUS_CANCEL</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -725,24 +732,24 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
 
-            <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_CANCEL</span><span class="p">:</span>
                 <span class="c1"># If cancel, then rsp_identifier is None</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Received C-CANCEL-FIND RQ from peer&#39;</span><span class="p">)</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Cancel)&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Failure&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                 <span class="c1"># If failed, then rsp_identifier is None</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Failure - </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
                 <span class="c1"># User isn&#39;t supposed to send these, but handle anyway</span>
                 <span class="c1"># If success, then rsp_identifier is None</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: </span><span class="si">%s</span><span class="s1"> (Success)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                 <span class="c1"># If pending, the rsp_identifier is the Identifier dataset</span>
                 <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">rsp_identifier</span><span class="p">,</span>
                                     <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -985,7 +992,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
 
-            <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_CANCEL</span><span class="p">:</span>
                 <span class="c1"># If cancel, dataset is a Dataset with a</span>
                 <span class="c1"># &#39;FailedSOPInstanceUIDList&#39; element</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Received C-CANCEL-GET RQ from peer&#39;</span><span class="p">)</span>
@@ -1006,7 +1013,7 @@
                 <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">]:</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                 <span class="c1"># If failure or warning, dataset is a Dataset with a</span>
                 <span class="c1"># &#39;FailedSOPInstanceUIDList&#39; element</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">status</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -1029,7 +1036,7 @@
                 <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
                 <span class="c1"># If user yields Success, check it</span>
                 <span class="c1"># dataset is None</span>
                 <span class="k">if</span> <span class="n">store_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">store_results</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
@@ -1052,7 +1059,7 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span> <span class="ow">and</span> <span class="n">dataset</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span> <span class="ow">and</span> <span class="n">dataset</span><span class="p">:</span>
                 <span class="c1"># If pending, dataset is the Dataset to send</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received invalid dataset from callback&#39;</span><span class="p">)</span>
@@ -1107,19 +1114,19 @@
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                     <span class="c1"># An exception implies a C-STORE failure</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;C-STORE sub-operation failed.&quot;</span><span class="p">)</span>
-                    <span class="n">store_status</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">]</span>
+                    <span class="n">store_status</span> <span class="o">=</span> <span class="p">[</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">]</span>
 
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP: Received Store SCU response (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span>
                             <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
                 <span class="c1"># Update the C-STORE sub-operation result tracker</span>
-                <span class="k">if</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Failure&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                     <span class="n">store_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="n">_add_failed_instance</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Warning&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_WARNING</span><span class="p">:</span>
                     <span class="n">store_results</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="n">_add_failed_instance</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
                     <span class="n">store_results</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
                 <span class="n">store_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -1410,7 +1417,7 @@
                 <span class="c1"># If usr_status is Cancel, Failure, Warning or Success then</span>
                 <span class="c1">#   generate a final response, if Pending then do C-STORE</span>
                 <span class="c1">#   sub-operation</span>
-                <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_CANCEL</span><span class="p">:</span>
                     <span class="c1"># If cancel, then dataset is a Dataset with a</span>
                     <span class="c1">#   &#39;FailedSOPInstanceUIDList&#39; element</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Received C-CANCEL-MOVE RQ from peer&#39;</span><span class="p">)</span>
@@ -1434,7 +1441,7 @@
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                     <span class="k">return</span>
-                <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                     <span class="c1"># If failed or warning, then dataset is a Dataset with a</span>
                     <span class="c1">#   &#39;FailedSOPInstanceUIDList&#39; element</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Result (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span>
@@ -1462,7 +1469,7 @@
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                     <span class="k">return</span>
-                <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
                     <span class="c1"># If success, then dataset is None</span>
                     <span class="n">store_assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
@@ -1489,7 +1496,7 @@
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                     <span class="k">return</span>
-                <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span> <span class="ow">and</span> <span class="n">dataset</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span> <span class="ow">and</span> <span class="n">dataset</span><span class="p">:</span>
                     <span class="c1"># If pending, then dataset is the Dataset to send</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received invalid dataset from callback&#39;</span><span class="p">)</span>
@@ -1522,19 +1529,19 @@
                     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                         <span class="c1"># An exception implies a C-STORE failure</span>
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;C-STORE sub-operation failed.&quot;</span><span class="p">)</span>
-                        <span class="n">store_status</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Failure&#39;</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">]</span>
+                        <span class="n">store_status</span> <span class="o">=</span> <span class="p">[</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">]</span>
 
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP: Received Store SCU response (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span>
                                 <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
                     <span class="c1"># Update the C-STORE sub-operation result tracker</span>
-                    <span class="k">if</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Failure&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                         <span class="n">store_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                         <span class="n">_add_failed_instance</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Warning&#39;</span><span class="p">:</span>
+                    <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_WARNING</span><span class="p">:</span>
                         <span class="n">store_results</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                         <span class="n">_add_failed_instance</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+                    <span class="k">elif</span> <span class="n">store_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
                         <span class="n">store_results</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
                     <span class="n">store_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -1692,6 +1699,210 @@
                 <span class="s1">&#39;The supplied abstract syntax is not valid for use with the &#39;</span>
                 <span class="s1">&#39;Basic Worklist Management Service Class&#39;</span>
             <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RelevantPatientInformationQueryServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom3.service_class.RelevantPatientInformationQueryServiceClass">[docs]</a><span class="k">class</span> <span class="nc">RelevantPatientInformationQueryServiceClass</span><span class="p">(</span><span class="n">ServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Relevant Patient Information Query&quot;&quot;&quot;</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span>
+
+<div class="viewcode-block" id="RelevantPatientInformationQueryServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom3.service_class.RelevantPatientInformationQueryServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The SCP implementation for the Relevant Patient Information Query</span>
+<span class="sd">        Service Class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.C_FIND</span>
+<span class="sd">            The C-FIND request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            A dict containing details about the association.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ae.ApplicationEntity.on_c_find</span>
+<span class="sd">        association.Association.send_c_find</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **C-FIND Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
+
+<span class="sd">        *Identifier*</span>
+
+<span class="sd">        The C-FIND request Identifier shall contain:</span>
+
+<span class="sd">        * Key Attributes with values corresponding to Key Attributes contained</span>
+<span class="sd">          in the Identifier of the request.</span>
+<span class="sd">        * (0040,A504) Content Template Sequence, which shall include a single</span>
+<span class="sd">          sequence item containing (0040,DB00) Template Identifier and</span>
+<span class="sd">          (0008,0105) Mapping Resource attributes, to identify the template</span>
+<span class="sd">          structure used in the C-FIND responses.</span>
+<span class="sd">        * (0008,0005) Specific Character Set, if expanded or replacement</span>
+<span class="sd">          character sets may be used in any of the Attributes in the request</span>
+<span class="sd">          Identifier. It shall not be present otherwise.</span>
+
+<span class="sd">        **C-FIND Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (C) Identifier</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` Success</span>
+
+<span class="sd">        Pending</span>
+<span class="sd">          | ``0xFF00`` Matches are continuing, current match supplied</span>
+<span class="sd">          | ``0xFF01`` Matches are continuing, warning</span>
+
+<span class="sd">        Cancel</span>
+<span class="sd">          | ``0xFE00`` Matching terminated due to cancel request</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0122`` SOP class not supported</span>
+<span class="sd">          | ``0xA700`` Out of resources</span>
+<span class="sd">          | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">          | ``0xC100`` More than one match found</span>
+<span class="sd">          | ``0xC200`` Unable to support requested template</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex Q &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q&gt;`_.</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
+<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
+<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build C-FIND response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_FIND</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
+
+        <span class="c1"># Decode and log Identifier</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Request Identifier:&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="o">.</span><span class="n">iterall</span><span class="p">():</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the request&#39;s Identifier dataset.&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="c1"># Failure - Unable to Process - Failed to decode Identifier</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC310</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Relevant Patient Query only allows the following responses:</span>
+        <span class="c1">#   pending + match; success</span>
+        <span class="c1">#   cancel or failure</span>
+        <span class="c1">#   success (no match)</span>
+        <span class="c1"># In other words there can only be 1 or 2 responses</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If we get a valid yield then send the corresponding message</span>
+            <span class="c1">#   if the yield is pending, send message then success and return</span>
+            <span class="c1">#   if the yield is cancel or failure, send message and return</span>
+            <span class="c1">#   if StopIteration send success and return</span>
+            <span class="n">responses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AE</span><span class="o">.</span><span class="n">on_c_find</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp_identifier</span><span class="p">)</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="c1"># There were no matches, so return Success</span>
+            <span class="c1"># If success, then rsp_identifier is None</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in user&#39;s on_c_find implementation.&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_CANCEL</span><span class="p">:</span>
+            <span class="c1"># If cancel, then rsp_identifier is None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Received C-CANCEL-FIND RQ from peer&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Cancel)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
+            <span class="c1"># If failed, then rsp_identifier is None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Failure)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
+            <span class="c1"># User isn&#39;t supposed to send these, but handle anyway</span>
+            <span class="c1"># If success, then rsp_identifier is None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
+            <span class="c1"># If pending, the rsp_identifier is the Identifier dataset</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">rsp_identifier</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the received Identifier &quot;</span>
+                             <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+                <span class="c1"># Failure: Unable to Process - Can&#39;t encode dataset</span>
+                <span class="c1">#   returned by on_c_find callback</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC312</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="n">bytestream</span>
+
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Pending)&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Find SCP Response Identifier:&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">rsp_identifier</span><span class="o">.</span><span class="n">iterall</span><span class="p">():</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Send pending response</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+            <span class="c1"># Send final success response</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
