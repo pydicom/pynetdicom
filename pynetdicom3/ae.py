@@ -1848,6 +1848,7 @@ class ApplicationEntity(object):
         **Supported Service Classes**
 
         Storage Service Class
+        Non-Patient Object Storage Service Class
 
         **Status**
 
@@ -1922,6 +1923,7 @@ class ApplicationEntity(object):
         association.Association.send_c_store
         dimse_primitives.C_STORE
         service_class.StorageServiceClass
+        service_class.NonPatientObjectStorageServiceClass
 
         References
         ----------

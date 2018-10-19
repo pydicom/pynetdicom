@@ -756,8 +756,23 @@ BasicWorklistManagementPresentationContexts = [
     build_context('1.2.840.10008.5.1.4.31'),
 ]
 
-RelevantPatientInformationQueryPresentationContexts = [
+RelevantPatientInformationPresentationContexts = [
     build_context('1.2.840.10008.5.1.4.37.1'),
     build_context('1.2.840.10008.5.1.4.37.2'),
     build_context('1.2.840.10008.5.1.4.37.3'),
+]
+
+SubstanceAdministrationPresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.41'),
+    build_context('1.2.840.10008.5.1.4.42'),
+]
+
+NonPatientObjectPresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.38.1'),
+    build_context('1.2.840.10008.5.1.4.39.1'),
+    build_context('1.2.840.10008.5.1.4.43.1'),
+    build_context('1.2.840.10008.5.1.4.44.1'),
+    build_context('1.2.840.10008.5.1.4.45.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.200.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.200.3'),
 ]

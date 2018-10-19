@@ -12,12 +12,14 @@ from pynetdicom3.sop_class import (
     _BASIC_WORKLIST_CLASSES,
     _RELEVANT_PATIENT_QUERY_CLASSES,
     _SUBSTANCE_ADMINISTRATION_CLASSES,
+    _NON_PATIENT_OBJECT_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
     StudyRootQueryRetrieveInformationModelFind,
     ModalityWorklistInformationFind,
     GeneralRelevantPatientInformationQuery,
     ProductCharacteristicsQueryInformationModelFind,
+    HangingProtocolStorage,
 )
 from pynetdicom3.service_class import (
     VerificationServiceClass,
@@ -26,6 +28,7 @@ from pynetdicom3.service_class import (
     BasicWorklistManagementServiceClass,
     RelevantPatientInformationQueryServiceClass,
     SubstanceAdministrationQueryServiceClass,
+    NonPatientObjectStorageServiceClass,
 )
 
 
@@ -72,6 +75,11 @@ class TestUIDToServiceClass(object):
         """Test that the Substance Administration SOP Class UIDs work correctly."""
         for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
             assert uid_to_service_class(uid) == SubstanceAdministrationQueryServiceClass
+
+    def test_non_patient_uids(self):
+        """Test that the Non-Patient Object SOP Class UIDs work correctly."""
+        for uid in _NON_PATIENT_OBJECT_CLASSES.values():
+            assert uid_to_service_class(uid) == NonPatientObjectStorageServiceClass
 
     def test_unknown_uid_raises(self):
         """Test that an unknown UID raises exception."""
@@ -123,3 +131,9 @@ class TestSOPClass(object):
         assert ProductCharacteristicsQueryInformationModelFind.uid == '1.2.840.10008.5.1.4.41'
         assert ProductCharacteristicsQueryInformationModelFind.UID == '1.2.840.10008.5.1.4.41'
         assert ProductCharacteristicsQueryInformationModelFind.service_class == SubstanceAdministrationQueryServiceClass
+
+    def test_non_patient_sop(self):
+        """Test a Non-Patient Object Service SOP Class."""
+        assert HangingProtocolStorage.uid == '1.2.840.10008.5.1.4.38.1'
+        assert HangingProtocolStorage.UID == '1.2.840.10008.5.1.4.38.1'
+        assert HangingProtocolStorage.service_class == NonPatientObjectStorageServiceClass

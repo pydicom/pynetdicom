@@ -898,6 +898,7 @@ class Association(threading.Thread):
         ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
         service_class.StorageServiceClass
+        service_class.NonPatientObjectStorageServiceClass
 
         References
         ----------

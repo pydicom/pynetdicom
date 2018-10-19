@@ -30,6 +30,7 @@ from pynetdicom3.sop_class import (
     CardiacRelevantPatientInformationQuery,
     ProductCharacteristicsQueryInformationModelFind,
     SubstanceApprovalQueryInformationModelFind,
+    HangingProtocolStorage,
 )
 from pynetdicom3.status import code_to_category
 
@@ -176,6 +177,7 @@ class DummyStorageSCP(DummyBaseSCP):
         self.ae.add_supported_context(CTImageStorage)
         self.ae.add_supported_context(RTImageStorage)
         self.ae.add_supported_context(MRImageStorage)
+        self.ae.add_supported_context(HangingProtocolStorage)
 
         DummyBaseSCP.__init__(self)
         self.status = 0x0000

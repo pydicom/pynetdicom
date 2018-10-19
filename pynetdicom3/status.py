@@ -185,6 +185,17 @@ for _code in range(0xC000, 0xCFFF + 1):
 
 SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
+
+# Non-Patient Object Storage Service Class specific status code value
+#   PS3.4 Annex GG
+NON_PATIENT_SERVICE_CLASS_STATUS = {
+    0xA700 : (STATUS_FAILURE, "Out of resources"),
+    0xA900 : (STATUS_FAILURE, "Data set doesn't match SOP Class"),
+    0xC000 : (STATUS_FAILURE, "Cannot understand"),
+}
+NON_PATIENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+
+
 # Procedure Step SOP Class specific status code values - WIP
 #   PS3.4 Annex F
 _PROCEDURE_STEP_STATUS = {
@@ -403,15 +414,6 @@ _RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS = {
               "No such object instance - Referenced RT Plan not found"),
 }
 _RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
-
-
-# Non-Patient Object Storage Service Class specific status code value - WIP
-_NON_PATIENT_OBJECT_STORAGE_SERVICE_CLASS_STATUE = {
-    0xA700 : (STATUS_FAILURE, "Out of resources"),
-    0xA900 : (STATUS_FAILURE, "Data set doesn't match SOP Class"),
-    0xC000 : (STATUS_FAILURE, "Cannot understand"),
-}
-_NON_PATIENT_OBJECT_STORAGE_SERVICE_CLASS_STATUE.update(GENERAL_STATUS)
 
 
 def code_to_status(code):

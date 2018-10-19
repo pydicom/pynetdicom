@@ -14,7 +14,9 @@ from pynetdicom3.service_class import (
     BasicWorklistManagementServiceClass,
     RelevantPatientInformationQueryServiceClass,
     SubstanceAdministrationQueryServiceClass,
+    NonPatientObjectStorageServiceClass,
 )
+
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
 
@@ -50,6 +52,8 @@ def uid_to_service_class(uid):
         return RelevantPatientInformationQueryServiceClass
     elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass
+    elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
+        return NonPatientObjectStorageServiceClass
     else:
         raise NotImplementedError(
             "The Service Class for the SOP Class with UID '{}' has not "
@@ -249,6 +253,16 @@ _SUBSTANCE_ADMINISTRATION_CLASSES = {
     'SubstanceApprovalQueryInformationModelFind' : '1.2.840.10008.5.1.4.42'
 }
 
+_NON_PATIENT_OBJECT_CLASSES = {
+    'HangingProtocolStorage' : '1.2.840.10008.5.1.4.38.1',
+    'ColorPaletteStorage' : '1.2.840.10008.5.1.4.39.1',
+    'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
+    'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
+    'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1',
+    'CTDefinedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.1',
+    'ProtocolApprovalStorage' : '1.2.840.10008.5.1.4.1.1.200.3',
+}
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
@@ -256,6 +270,7 @@ _generate_sop_classes(_QR_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 _generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
 _generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
+_generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
 
 
 # WIP SOP Classes
@@ -324,15 +339,6 @@ _RT_MACHINE_VERIFICATION_CLASSES = {
 
 _DISPLAY_SYSTEM_MANAGEMENT_CLASSES = {
     'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
-}
-
-_NON_PATIENT_OBJECT_CLASSES = {
-    'HangingProtocolStorage' : '1.2.840.10008.5.1.4.38.1',
-    'ColorPaletteStorage' : '1.2.840.10008.5.1.4.39.1',
-    'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
-    'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
-    'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1',
-    'CTDefinedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.1',
 }
 
 _DEFINED_PROCEDURE_STEP_CLASSES = {
