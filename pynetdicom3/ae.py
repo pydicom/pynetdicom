@@ -1594,6 +1594,13 @@ class ApplicationEntity(object):
             matches
           | ``0xA702`` Out of resources: unable to perform sub-operations
           | ``0xA900`` Identifier does not match SOP class
+          | ``0xAA00`` None of the frames requested were found in the SOP
+            instance
+          | ``0xAA01`` Unable to create new object for this SOP class
+          | ``0xAA02`` Unable to extract frames
+          | ``0xAA03`` Time-based request received for a non-time-based
+            original SOP Instance
+          | ``0xAA04`` Invalid request
           | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Cancel
@@ -1734,6 +1741,13 @@ class ApplicationEntity(object):
           | ``0xA702`` Out of resources: unable to perform sub-operations
           | ``0xA801`` Move destination unknown
           | ``0xA900`` Identifier does not match SOP class
+          | ``0xAA00`` None of the frames requested were found in the SOP
+            instance
+          | ``0xAA01`` Unable to create new object for this SOP class
+          | ``0xAA02`` Unable to extract frames
+          | ``0xAA03`` Time-based request received for a non-time-based
+            original SOP Instance
+          | ``0xAA04`` Invalid request
           | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Parameters

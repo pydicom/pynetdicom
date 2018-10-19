@@ -913,7 +913,7 @@ class TestServiceContexts(object):
     def test_qr(self):
         """Test the query/retrieve service presentation contexts."""
         contexts = QueryRetrievePresentationContexts
-        assert len(contexts) == 10
+        assert len(contexts) == 12
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES

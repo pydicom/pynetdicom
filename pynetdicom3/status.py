@@ -84,7 +84,7 @@ QR_FIND_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Query Retrieve Move Service Class specific status code values
-#   PS3.4 Annex C.4.2.1.5
+#   PS3.4 Annex C.4.2.1.5 and Annex Y.4.1.1.4
 QR_MOVE_SERVICE_CLASS_STATUS = {
     0xA701 : (STATUS_FAILURE,
               'Refused: Out of resources, unable to calculate '
@@ -93,6 +93,15 @@ QR_MOVE_SERVICE_CLASS_STATUS = {
               'Refused: Out of resources, unable to perform sub-operations'),
     0xA801 : (STATUS_FAILURE, 'Move destination unknown'),
     0xA900 : (STATUS_FAILURE, 'Identifier does not match SOP class'),
+    0xAA00 : (STATUS_FAILURE,
+              "None of the frames requested were found in the SOP instance"),
+    0xAA01 : (STATUS_FAILURE,
+              "Unable to create new object for this SOP class"),
+    0xAA02 : (STATUS_FAILURE, "Unable to extract frames"),
+    0xAA03 : (STATUS_FAILURE,
+              "Time-based request received for a non-time-based original "
+              "SOP Instance"),
+    0xAA04 : (STATUS_FAILURE, "Invalid request"),
     0xFF00 : (STATUS_PENDING, 'Sub-operations are continuing'),
     0xB000 : (STATUS_WARNING, 'Sub-operations completed, one or more failures')
 }
@@ -106,7 +115,7 @@ QR_MOVE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Query Retrieve Get Service Class specific status code values
-#   PS3.4 Annex C.4.3.1.4
+#   PS3.4 Annex C.4.3.1.4 and Annex Y.4.2.1.4
 QR_GET_SERVICE_CLASS_STATUS = {
     0xA701 : (STATUS_FAILURE,
               'Refused: Out of resources, unable to calculate '
@@ -114,6 +123,15 @@ QR_GET_SERVICE_CLASS_STATUS = {
     0xA702 : (STATUS_FAILURE,
               'Refused: Out of resources, unable to perform sub-operations'),
     0xA900 : (STATUS_FAILURE, 'Identifier does not match SOP class'),
+    0xAA00 : (STATUS_FAILURE,
+              "None of the frames requested were found in the SOP instance"),
+    0xAA01 : (STATUS_FAILURE,
+              "Unable to create new object for this SOP class"),
+    0xAA02 : (STATUS_FAILURE, "Unable to extract frames"),
+    0xAA03 : (STATUS_FAILURE,
+              "Time-based request received for a non-time-based original "
+              "SOP Instance"),
+    0xAA04 : (STATUS_FAILURE, "Invalid request"),
     0xFF00 : (STATUS_PENDING, 'Sub-operations are continuing'),
     0xB000 : (STATUS_WARNING,
               'Sub-operations complete, one or more failures or warnings'),

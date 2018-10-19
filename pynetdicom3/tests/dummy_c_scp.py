@@ -31,6 +31,8 @@ from pynetdicom3.sop_class import (
     ProductCharacteristicsQueryInformationModelFind,
     SubstanceApprovalQueryInformationModelFind,
     HangingProtocolStorage,
+    CompositeInstanceRootRetrieveGet,
+    CompositeInstanceRootRetrieveMove,
 )
 from pynetdicom3.status import code_to_category
 
@@ -239,6 +241,7 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        self.ae.add_supported_context(CompositeInstanceRootRetrieveGet)
         self.ae.add_supported_context(CTImageStorage)
 
         self.ae.add_requested_context(CTImageStorage)
@@ -281,6 +284,7 @@ class DummyMoveSCP(DummyBaseSCP):
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        self.ae.add_supported_context(CompositeInstanceRootRetrieveMove)
         self.ae.add_supported_context(RTImageStorage)
         self.ae.add_supported_context(CTImageStorage)
 

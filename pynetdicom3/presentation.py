@@ -749,7 +749,9 @@ QueryRetrievePresentationContexts = [
     build_context('1.2.840.10008.5.1.4.1.2.3.1'),
     build_context('1.2.840.10008.5.1.4.1.2.3.2'),
     build_context('1.2.840.10008.5.1.4.1.2.3.3'),
-    build_context('1.2.840.10008.5.1.4.1.2.5.3')
+    build_context('1.2.840.10008.5.1.4.1.2.4.2'),
+    build_context('1.2.840.10008.5.1.4.1.2.4.3'),
+    build_context('1.2.840.10008.5.1.4.1.2.5.3'),
 ]
 
 BasicWorklistManagementPresentationContexts = [

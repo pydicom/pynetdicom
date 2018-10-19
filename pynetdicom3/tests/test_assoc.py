@@ -46,6 +46,9 @@ from pynetdicom3.sop_class import (
     CardiacRelevantPatientInformationQuery,
     ProductCharacteristicsQueryInformationModelFind,
     SubstanceApprovalQueryInformationModelFind,
+    CompositeInstanceRootRetrieveGet,
+    CompositeInstanceRootRetrieveMove,
+    CompositeInstanceRetrieveWithoutBulkDataGet,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -1588,7 +1591,9 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context( PatientStudyOnlyQueryRetrieveInformationModelGet)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CompositeInstanceRootRetrieveGet)
+        ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1598,6 +1603,10 @@ class TestAssociationSendCGet(object):
         for (status, ds) in assoc.send_c_get(self.ds, query_model='S'):
             assert status.Status == 0x0000
         for (status, ds) in assoc.send_c_get(self.ds, query_model='O'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='C'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_get(self.ds, query_model='CB'):
             assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
@@ -1991,6 +2000,7 @@ class TestAssociationSendCMove(object):
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CompositeInstanceRootRetrieveMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2024,6 +2034,17 @@ class TestAssociationSendCMove(object):
         assert status.Status == 0x0000
         with pytest.raises(StopIteration):
             next(result)
+
+        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='C')
+        (status, ds) = next(result)
+        assert status.Status == 0xFF00
+        (status, ds) = next(result)
+        assert status.Status == 0xFF00
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        with pytest.raises(StopIteration):
+            next(result)
+
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
