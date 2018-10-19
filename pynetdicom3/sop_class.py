@@ -235,6 +235,8 @@ _QR_CLASSES = {
     'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1',
     'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2',
     'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3',
+    'CompositeInstanceRootRetrieveMove' : '1.2.840.10008.5.1.4.1.2.4.2',
+    'CompositeInstanceRootRetrieveGet' : '1.2.840.10008.5.1.4.1.2.4.3',
     'CompositeInstanceRetrieveWithoutBulkDataGet' : '1.2.840.10008.5.1.4.1.2.5.3',
 }
 
