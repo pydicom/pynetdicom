@@ -44,6 +44,8 @@ from pynetdicom3.sop_class import (
     GeneralRelevantPatientInformationQuery,
     BreastImagingRelevantPatientInformationQuery,
     CardiacRelevantPatientInformationQuery,
+    ProductCharacteristicsQueryInformationModelFind,
+    SubstanceApprovalQueryInformationModelFind,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -1220,6 +1222,8 @@ class TestAssociationSendCFind(object):
         ae.add_requested_context(GeneralRelevantPatientInformationQuery)
         ae.add_requested_context(BreastImagingRelevantPatientInformationQuery)
         ae.add_requested_context(CardiacRelevantPatientInformationQuery)
+        ae.add_requested_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_requested_context(SubstanceApprovalQueryInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1237,6 +1241,10 @@ class TestAssociationSendCFind(object):
         for (status, ds) in assoc.send_c_find(self.ds, query_model='B'):
             assert status.Status == 0x0000
         for (status, ds) in assoc.send_c_find(self.ds, query_model='C'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='PC'):
+            assert status.Status == 0x0000
+        for (status, ds) in assoc.send_c_find(self.ds, query_model='SA'):
             assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released

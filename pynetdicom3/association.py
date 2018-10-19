@@ -34,6 +34,8 @@ from pynetdicom3.sop_class import (
     GeneralRelevantPatientInformationQuery,
     BreastImagingRelevantPatientInformationQuery,
     CardiacRelevantPatientInformationQuery,
+    ProductCharacteristicsQueryInformationModelFind,
+    SubstanceApprovalQueryInformationModelFind,
 )
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
@@ -1007,7 +1009,7 @@ class Association(threading.Thread):
             - ``2`` - Low (default)
 
         query_model : str, optional
-            The Query/Retrieve Information Model to use, one of the following:
+            The Information Model to use, one of the following:
 
             - ``P`` - *Patient Root Information Model - FIND*
               1.2.840.10008.5.1.4.1.2.1.1 (default)
@@ -1023,6 +1025,10 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.37.2
             - ``C`` - *Cardiac Relevant Patient Information Query*
               1.2.840.10008.5.1.4.37.3
+            - ``PC`` - *Product Characteristics Query Information Model - FIND*
+              1.2.840.10008.5.1.4.41
+            - ``SA`` - *Substance Approval Query Information Model - FIND*
+              1.2.840.10008.5.1.4.42
 
         Yields
         ------
@@ -1099,12 +1105,14 @@ class Association(threading.Thread):
         dimse_primitives.C_FIND
         service_class.QueryRetrieveFindServiceClass
         service_class.RelevantPatientInformationQueryServiceClass
+        service_class.SubstanceAdministrationQueryServiceClass
 
         References
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
         * DICOM Standard Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
+        * DICOM Standard Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
         * DICOM Standard Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
@@ -1130,6 +1138,10 @@ class Association(threading.Thread):
             sop_class = BreastImagingRelevantPatientInformationQuery
         elif query_model == "C":
             sop_class = CardiacRelevantPatientInformationQuery
+        elif query_model == "PC":
+            sop_class = ProductCharacteristicsQueryInformationModelFind
+        elif query_model == "SA":
+            sop_class = SubstanceApprovalQueryInformationModelFind
         else:
             raise ValueError(
                 "Unknown `query_model` value: {}".format(query_model)

@@ -1454,6 +1454,8 @@ class ApplicationEntity(object):
 
         * *Query/Retrieve Service Class*
         * *Basic Worklist Management Service*
+        * *Relevant Patient Information Query Service*
+        * *Substance Administration Query Service*
 
         **Status**
 
@@ -1532,7 +1534,10 @@ class ApplicationEntity(object):
         --------
         association.Association.send_c_find
         dimse_primitives.C_FIND
-        sop_class.QueryRetrieveFindServiceClass
+        service_class.QueryRetrieveFindServiceClass
+        service_class.BasicWorklistManagementServiceClass
+        service_class.RelevantPatientInformationQueryServiceClass
+        service_class.SubstanceAdministrationQueryServiceClass
 
         References
         ----------
@@ -1662,7 +1667,7 @@ class ApplicationEntity(object):
         --------
         association.Association.send_c_get
         dimse_primitives.C_GET
-        sop_class.QueryRetrieveGetServiceClass
+        service_class.QueryRetrieveGetServiceClass
 
         References
         ----------
@@ -1802,7 +1807,7 @@ class ApplicationEntity(object):
         --------
         association.Association.send_c_move
         dimse_primitives.C_MOVE
-        sop_class.QueryRetrieveMoveServiceClass
+        service_class.QueryRetrieveMoveServiceClass
 
         References
         ----------
@@ -1916,7 +1921,7 @@ class ApplicationEntity(object):
         --------
         association.Association.send_c_store
         dimse_primitives.C_STORE
-        sop_class.StorageServiceClass
+        service_class.StorageServiceClass
 
         References
         ----------

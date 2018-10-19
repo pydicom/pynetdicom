@@ -163,6 +163,28 @@ RELEVANT_PATIENT_SERVICE_CLASS_STATUS = {
 RELEVANT_PATIENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
+# Substance Administration Query Service Class specific status code values
+#   PS3.4 Annex V
+SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS = {
+    0xA700 : (STATUS_FAILURE, "Out of resources"),
+    0xA900 : (STATUS_FAILURE, "Data set doesn't match SOP Class"),
+    0xFF00 : (STATUS_PENDING,
+              "Matches are continuing, current match is supplied and any "
+              "Optional Keys were supported in the same manner as Required "
+              "Keys"),
+    0xFF01 : (STATUS_PENDING,
+              "Matches are continuing, warning that one or more Optional "
+              "Keys were not supported for existence for this Identifier")
+}
+
+# Ranged values
+for _code in range(0xC000, 0xCFFF + 1):
+    SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS[_code] = (
+        STATUS_FAILURE, 'Unable to Process'
+    )
+
+SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+
 # Procedure Step SOP Class specific status code values - WIP
 #   PS3.4 Annex F
 _PROCEDURE_STEP_STATUS = {
@@ -400,6 +422,7 @@ def code_to_status(code):
         return ds
     else:
         raise ValueError("'code' must be a positive integer.")
+
 
 def code_to_category(code):
     """Return a Status' category as a str or 'Unknown' if not recognised.

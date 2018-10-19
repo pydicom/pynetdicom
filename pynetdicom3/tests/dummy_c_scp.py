@@ -28,6 +28,8 @@ from pynetdicom3.sop_class import (
     GeneralRelevantPatientInformationQuery,
     BreastImagingRelevantPatientInformationQuery,
     CardiacRelevantPatientInformationQuery,
+    ProductCharacteristicsQueryInformationModelFind,
+    SubstanceApprovalQueryInformationModelFind,
 )
 from pynetdicom3.status import code_to_category
 
@@ -200,6 +202,8 @@ class DummyFindSCP(DummyBaseSCP):
         self.ae.add_supported_context(GeneralRelevantPatientInformationQuery)
         self.ae.add_supported_context(BreastImagingRelevantPatientInformationQuery)
         self.ae.add_supported_context(CardiacRelevantPatientInformationQuery)
+        self.ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        self.ae.add_supported_context(SubstanceApprovalQueryInformationModelFind)
 
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]

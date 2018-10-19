@@ -13,6 +13,7 @@ from pynetdicom3.service_class import (
     QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
     RelevantPatientInformationQueryServiceClass,
+    SubstanceAdministrationQueryServiceClass,
 )
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
@@ -47,6 +48,8 @@ def uid_to_service_class(uid):
         return BasicWorklistManagementServiceClass
     elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
         return RelevantPatientInformationQueryServiceClass
+    elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
+        return SubstanceAdministrationQueryServiceClass
     else:
         raise NotImplementedError(
             "The Service Class for the SOP Class with UID '{}' has not "
@@ -127,7 +130,7 @@ _STORAGE_CLASSES = {
     'CompositingPlanarMPRVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.7',  # A.80.1
     'AdvancedBlendingPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.8',  # A.33.7
     'VolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.9',  # A.80.2
-    'SegmentatedVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.10',  # A.80.2
+    'SegmentedVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.10',  # A.80.2
     'MultipleVolumeRenderingVolumetricPresentationStateStorage' : '1.2.840.10008.5.1.4.1.1.11.11',  # A.80.2
     'XRayAngiographicImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1',  # A.14
     'EnhancedXAImageStorage' : '1.2.840.10008.5.1.4.1.1.12.1.1',  # A.47
@@ -241,12 +244,18 @@ _RELEVANT_PATIENT_QUERY_CLASSES = {
     'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
 }
 
+_SUBSTANCE_ADMINISTRATION_CLASSES = {
+    'ProductCharacteristicsQueryInformationModelFind' : '1.2.840.10008.5.1.4.41',
+    'SubstanceApprovalQueryInformationModelFind' : '1.2.840.10008.5.1.4.42'
+}
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
 _generate_sop_classes(_QR_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 _generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
+_generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
 
 
 # WIP SOP Classes
@@ -272,16 +281,10 @@ _MEDIA_STORAGE_CLASSES = {
     'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
 }
 
-
-
 _HANGING_PROTOCOL_QR_CLASSES = {
     'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',
     'HangingProtocolInformationModelMove' : '1.2.840.10008.5.1.4.38.3',
     'HangingProtocolInformationModelGet' : '1.2.840.10008.5.1.4.38.4',
-}
-
-_SUBSTANCE_ADMINISTRATION_CLASSES = {
-    'ProductCharacteristicsQueryInformationModelFind' : '1.2.840.10008.5.1.4.41'
 }
 
 _COLOR_PALETTE_QR_CLASSES = {
