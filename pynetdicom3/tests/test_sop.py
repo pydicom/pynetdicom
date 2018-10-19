@@ -11,11 +11,13 @@ from pynetdicom3.sop_class import (
     _QR_CLASSES,
     _BASIC_WORKLIST_CLASSES,
     _RELEVANT_PATIENT_QUERY_CLASSES,
+    _SUBSTANCE_ADMINISTRATION_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
     StudyRootQueryRetrieveInformationModelFind,
     ModalityWorklistInformationFind,
     GeneralRelevantPatientInformationQuery,
+    ProductCharacteristicsQueryInformationModelFind,
 )
 from pynetdicom3.service_class import (
     VerificationServiceClass,
@@ -23,6 +25,7 @@ from pynetdicom3.service_class import (
     QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
     RelevantPatientInformationQueryServiceClass,
+    SubstanceAdministrationQueryServiceClass,
 )
 
 
@@ -60,10 +63,15 @@ class TestUIDToServiceClass(object):
         for uid in _BASIC_WORKLIST_CLASSES.values():
             assert uid_to_service_class(uid) == BasicWorklistManagementServiceClass
 
-    def test_basic_worklist_uids(self):
-        """Test that the Basic Worklist SOP Class UIDs work correctly."""
+    def test_relevant_patient_uids(self):
+        """Test that the Relevant Patient SOP Class UIDs work correctly."""
         for uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
             assert uid_to_service_class(uid) == RelevantPatientInformationQueryServiceClass
+
+    def test_substance_admin_uids(self):
+        """Test that the Substance Administration SOP Class UIDs work correctly."""
+        for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
+            assert uid_to_service_class(uid) == SubstanceAdministrationQueryServiceClass
 
     def test_unknown_uid_raises(self):
         """Test that an unknown UID raises exception."""
@@ -109,3 +117,9 @@ class TestSOPClass(object):
         assert GeneralRelevantPatientInformationQuery.uid == '1.2.840.10008.5.1.4.37.1'
         assert GeneralRelevantPatientInformationQuery.UID == '1.2.840.10008.5.1.4.37.1'
         assert GeneralRelevantPatientInformationQuery.service_class == RelevantPatientInformationQueryServiceClass
+
+    def test_substance_admin_sop(self):
+        """Test s Substance Administration Query Service SOP Class."""
+        assert ProductCharacteristicsQueryInformationModelFind.uid == '1.2.840.10008.5.1.4.41'
+        assert ProductCharacteristicsQueryInformationModelFind.UID == '1.2.840.10008.5.1.4.41'
+        assert ProductCharacteristicsQueryInformationModelFind.service_class == SubstanceAdministrationQueryServiceClass

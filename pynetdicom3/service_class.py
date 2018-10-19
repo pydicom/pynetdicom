@@ -17,6 +17,7 @@ from pynetdicom3.status import (
     QR_GET_SERVICE_CLASS_STATUS,
     MODALITY_WORKLIST_SERVICE_CLASS_STATUS,
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
+    SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
     STATUS_FAILURE,
     STATUS_SUCCESS,
     STATUS_WARNING,
@@ -1434,7 +1435,6 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
 
     def __init__(self):
         super(BasicWorklistManagementServiceClass, self).__init__()
-        self.SCP = self._find_scp
 
     def SCP(self, req, context, info):
         """The SCP implementation for Basic Worklist Management.
@@ -1739,3 +1739,89 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             rsp.Status = 0x0000
             LOGGER.info('Find SCP Response: (Success)')
             self.DIMSE.send_msg(rsp, context.context_id)
+
+
+class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Substance Administration Query Service"""
+    statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
+
+    def __init__(self):
+        super(SubstanceAdministrationQueryServiceClass, self).__init__()
+
+    def SCP(self, req, context, info):
+        """The SCP implementation for the Relevant Patient Information Query
+        Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.C_FIND
+            The C-FIND request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        info : dict
+            A dict containing details about the association.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_c_find
+        association.Association.send_c_find
+
+        Notes
+        -----
+        **C-FIND Request**
+
+        *Parameters*
+
+        | (M) Message ID
+        | (M) Affected SOP Class UID
+        | (M) Priority
+        | (M) Identifier
+
+        *Identifier*
+
+        The C-FIND request Identifier shall contain:
+
+        * Key Attributes with values corresponding to Key Attributes contained
+          in the Identifier of the request.
+        * (0008,0005) Specific Character Set, if expanded or replacement
+          character sets may be used in any of the Attributes in the request
+          Identifier. It shall not be present otherwise.
+
+        **C-FIND Response**
+
+        *Parameters*
+
+        | (U) Message ID
+        | (M) Message ID Being Responded To
+        | (U) Affected SOP Class UID
+        | (C) Identifier
+        | (M) Status
+
+        *Status*
+
+        Success
+          | ``0x0000`` Success
+
+        Pending
+          | ``0xFF00`` Matches are continuing, current match supplied
+          | ``0xFF01`` Matches are continuing, warning
+
+        Cancel
+          | ``0xFE00`` Matching terminated due to cancel request
+
+        Failure
+          | ``0x0122`` SOP class not supported
+          | ``0xA700`` Out of resources
+          | ``0xA900`` Identifier does not match SOP class
+          | ``0xC000`` to ``0xCFFF`` Unable to process
+
+        References
+        ----------
+
+        * DICOM Standard, Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_.
+        * DICOM Standard, Part 7, Sections
+           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
+           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+        """
+        self._find_scp(req, context, info)
