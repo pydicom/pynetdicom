@@ -16,7 +16,9 @@ from pynetdicom3.presentation import (
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
-    RelevantPatientInformationQueryPresentationContexts,
+    RelevantPatientInformationPresentationContexts,
+    SubstanceAdministrationPresentationContexts,
+    NonPatientObjectPresentationContexts,
     build_context,
 )
 
@@ -932,7 +934,7 @@ class TestServiceContexts(object):
 
     def test_relevant_patient(self):
         """Tests with relevant patient info presentation contexts"""
-        contexts = RelevantPatientInformationQueryPresentationContexts
+        contexts = RelevantPatientInformationPresentationContexts
         assert len(contexts) == 3
 
         for context in contexts:
@@ -942,3 +944,32 @@ class TestServiceContexts(object):
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.37.1'
         assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.37.2'
         assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.37.3'
+
+    def test_substance_admin(self):
+        """Tests with substance administration presentation contexts"""
+        contexts = SubstanceAdministrationPresentationContexts
+        assert len(contexts) == 2
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.41'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.42'
+
+    def test_non_patient(self):
+        """Tests with non patient object presentation contexts"""
+        contexts = NonPatientObjectPresentationContexts
+        assert len(contexts) == 7
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.38.1'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.39.1'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.43.1'
+        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.44.1'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
+        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.1'
+        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.3'

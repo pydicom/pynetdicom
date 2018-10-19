@@ -62,6 +62,7 @@ pynetdicom3 supports the following DICOM service classes:
 - `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
 - `Relevant Patient Information Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
 - `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
+- `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
 
 Supported DIMSE SCU Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

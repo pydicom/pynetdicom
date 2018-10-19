@@ -18,6 +18,7 @@ from pynetdicom3.status import (
     MODALITY_WORKLIST_SERVICE_CLASS_STATUS,
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
     SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
+    NON_PATIENT_SERVICE_CLASS_STATUS,
     STATUS_FAILURE,
     STATUS_SUCCESS,
     STATUS_WARNING,
@@ -305,6 +306,7 @@ class StorageServiceClass(ServiceClass):
         ----------
 
         * DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
+        * DICOM Standard, Part 4, `Annex GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_.
         * DICOM Standard, Part 7, Sections
           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
@@ -1825,3 +1827,8 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
            `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         self._find_scp(req, context, info)
+
+
+class NonPatientObjectStorageServiceClass(StorageServiceClass):
+    """Implementation of the Non-Patient Object Storage Service"""
+    statuses = NON_PATIENT_SERVICE_CLASS_STATUS

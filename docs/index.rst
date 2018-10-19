@@ -36,6 +36,7 @@ pynetdicom currently supports the following DICOM service classes:
    basic_worklist_service_class
    relevant_patient_service_class
    substance_admin_service_class
+   non_patient_service_class
 
 
 User Guide

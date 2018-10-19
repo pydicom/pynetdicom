@@ -35,5 +35,7 @@ from pynetdicom3.presentation import (
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
-    RelevantPatientInformationQueryPresentationContexts,
+    RelevantPatientInformationPresentationContexts,
+    SubstanceAdministrationPresentationContexts,
+    NonPatientObjectPresentationContexts,
 )
