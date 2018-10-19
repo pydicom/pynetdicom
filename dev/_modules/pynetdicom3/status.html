@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -350,6 +351,17 @@
 
 <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
 
+
+<span class="c1"># Non-Patient Object Storage Service Class specific status code value</span>
+<span class="c1">#   PS3.4 Annex GG</span>
+<span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Out of resources&quot;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Data set doesn&#39;t match SOP Class&quot;</span><span class="p">),</span>
+    <span class="mh">0xC000</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Cannot understand&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
+
 <span class="c1"># Procedure Step SOP Class specific status code values - WIP</span>
 <span class="c1">#   PS3.4 Annex F</span>
 <span class="n">_PROCEDURE_STEP_STATUS</span> <span class="o">=</span> <span class="p">{</span>
@@ -568,15 +580,6 @@
               <span class="s2">&quot;No such object instance - Referenced RT Plan not found&quot;</span><span class="p">),</span>
 <span class="p">}</span>
 <span class="n">_RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
-
-
-<span class="c1"># Non-Patient Object Storage Service Class specific status code value - WIP</span>
-<span class="n">_NON_PATIENT_OBJECT_STORAGE_SERVICE_CLASS_STATUE</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Out of resources&quot;</span><span class="p">),</span>
-    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Data set doesn&#39;t match SOP Class&quot;</span><span class="p">),</span>
-    <span class="mh">0xC000</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Cannot understand&quot;</span><span class="p">),</span>
-<span class="p">}</span>
-<span class="n">_NON_PATIENT_OBJECT_STORAGE_SERVICE_CLASS_STATUE</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="code_to_status"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.status.code_to_status.html#pynetdicom3.status.code_to_status">[docs]</a><span class="k">def</span> <span class="nf">code_to_status</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>

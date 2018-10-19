@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -183,6 +184,7 @@
     <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">STATUS_FAILURE</span><span class="p">,</span>
     <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
     <span class="n">STATUS_WARNING</span><span class="p">,</span>
@@ -470,6 +472,7 @@
 <span class="sd">        ----------</span>
 
 <span class="sd">        * DICOM Standard, Part 4, `Annex B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B&gt;`_.</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex GG &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG&gt;`_.</span>
 <span class="sd">        * DICOM Standard, Part 7, Sections</span>
 <span class="sd">          `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_,</span>
 <span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_ and</span>
@@ -1990,6 +1993,11 @@
 <span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">NonPatientObjectStorageServiceClass</span><span class="p">(</span><span class="n">StorageServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Non-Patient Object Storage Service&quot;&quot;&quot;</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span>
 </pre></div>
 
            </div>

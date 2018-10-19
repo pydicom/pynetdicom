@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Substance Administration Query Service Class &mdash; pynetdicom3 0.9.1 documentation</title>
+  <title>Non-Patient Object Storage Service Class &mdash; pynetdicom3 0.9.1 documentation</title>
   
 
   
@@ -32,8 +32,8 @@
   <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Non-Patient Object Storage Service Class" href="non_patient_service_class.html" />
-    <link rel="prev" title="Relevant Patient Information Query Service Class" href="relevant_patient_service_class.html" /> 
+    <link rel="next" title="User Guide" href="user/index.html" />
+    <link rel="prev" title="Substance Administration Query Service Class" href="substance_admin_service_class.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -95,18 +95,18 @@
 <li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Substance Administration Query Service Class</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Non-Patient Object Storage Service Class</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#supported-sop-classes">Supported SOP Classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#statuses">Statuses</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#c-find-statuses">C-FIND Statuses</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#substance-administration-query-service-statuses">Substance Administration Query Service Statuses</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pynetdicom-substance-administration-query-statuses">pynetdicom Substance Administration Query Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c-store-statuses">C-STORE Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#non-patient-object-storage-service-statuses">Non-Patient Object Storage Service Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pynetdicom-statuses">pynetdicom Statuses</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
@@ -158,13 +158,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Substance Administration Query Service Class</li>
+      <li>Non-Patient Object Storage Service Class</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/substance_admin_service_class.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/non_patient_service_class.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -177,17 +177,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="substance-administration-query-service-class">
-<span id="subadm-sops"></span><h1>Substance Administration Query Service Class<a class="headerlink" href="#substance-administration-query-service-class" title="Permalink to this headline">¶</a></h1>
-<p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V">Substance Administration Query Service Class</a>
-defines a service that facilitates obtaining information about substances or
-devices used in imaging, image-guided treatment and related procedures.</p>
+  <div class="section" id="non-patient-object-storage-service-class">
+<h1>Non-Patient Object Storage Service Class<a class="headerlink" href="#non-patient-object-storage-service-class" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG">Non-Patient Object Storage Service Class</a>
+defines a service that facilitates the transfer of non-patient related
+information to another AE.</p>
 <div class="section" id="supported-sop-classes">
-<span id="id2"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<span id="nonpat-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="33%" />
-<col width="67%" />
+<col width="47%" />
+<col width="53%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">UID</th>
@@ -195,19 +195,34 @@ devices used in imaging, image-guided treatment and related procedures.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>1.2.840.10008.5.1.4.41</td>
-<td>ProductCharacteristicsQueryInformationModelFind</td>
+<tr class="row-even"><td>1.2.840.10008.5.1.4.38.1</td>
+<td>HangingProtocolStorage</td>
 </tr>
-<tr class="row-odd"><td>1.2.840.10008.5.1.4.42</td>
-<td>SubstanceApprovalQueryInformationModelFind</td>
+<tr class="row-odd"><td>1.2.840.10008.5.1.4.39.1</td>
+<td>ColorPaletteStorage</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.5.1.4.43.1</td>
+<td>GenericImplantTemplateStorage</td>
+</tr>
+<tr class="row-odd"><td>1.2.840.10008.5.1.4.44.1</td>
+<td>ImplantAssemblyTemplateStorage</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.5.1.4.45.1</td>
+<td>ImplantTemplateGroupStorage</td>
+</tr>
+<tr class="row-odd"><td>1.2.840.10008.5.1.4.1.1.200.1</td>
+<td>CTDefinedProcedureProtocolStorage</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.5.1.4.1.1.200.3</td>
+<td>ProtocolApprovalStorage</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="statuses">
-<span id="subadm-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="c-find-statuses">
-<h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Permalink to this headline">¶</a></h3>
+<span id="nonpat-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="c-store-statuses">
+<h3>C-STORE Statuses<a class="headerlink" href="#c-store-statuses" title="Permalink to this headline">¶</a></h3>
 <table border="1" class="docutils">
 <colgroup>
 <col width="21%" />
@@ -225,24 +240,40 @@ devices used in imaging, image-guided treatment and related procedures.</p>
 <td>Success</td>
 <td>Success</td>
 </tr>
-<tr class="row-odd"><td>0x0122</td>
+<tr class="row-odd"><td>0x0112</td>
 <td>Failure</td>
 <td>SOP Class not supported</td>
 </tr>
-<tr class="row-even"><td>0xFE00</td>
-<td>Cancel</td>
-<td>Processing has been terminated</td>
+<tr class="row-even"><td>0x0117</td>
+<td>Failure</td>
+<td>Invalid object instance</td>
+</tr>
+<tr class="row-odd"><td>0x0124</td>
+<td>Failure</td>
+<td>Not authorised</td>
+</tr>
+<tr class="row-even"><td>0x0210</td>
+<td>Failure</td>
+<td>Duplicate invocation</td>
+</tr>
+<tr class="row-odd"><td>0x0211</td>
+<td>Failure</td>
+<td>Unrecognised operation</td>
+</tr>
+<tr class="row-even"><td>0x0212</td>
+<td>Failure</td>
+<td>Mistyped argument</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="substance-administration-query-service-statuses">
-<h3>Substance Administration Query Service Statuses<a class="headerlink" href="#substance-administration-query-service-statuses" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="non-patient-object-storage-service-statuses">
+<h3>Non-Patient Object Storage Service Statuses<a class="headerlink" href="#non-patient-object-storage-service-statuses" title="Permalink to this headline">¶</a></h3>
 <table border="1" class="docutils">
 <colgroup>
-<col width="24%" />
-<col width="14%" />
-<col width="62%" />
+<col width="29%" />
+<col width="16%" />
+<col width="55%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Code (hex)</th>
@@ -257,24 +288,20 @@ devices used in imaging, image-guided treatment and related procedures.</p>
 </tr>
 <tr class="row-odd"><td>0xA900</td>
 <td>Failure</td>
-<td>Identifier does not match SOP Class</td>
+<td>Dataset doesn’t match SOP Class</td>
 </tr>
-<tr class="row-even"><td>0xC000 to 0xCFFF</td>
+<tr class="row-even"><td>0xC000</td>
 <td>Failure</td>
-<td>Unable to process</td>
-</tr>
-<tr class="row-odd"><td>0xFF00</td>
-<td>Pending</td>
-<td>Matches are continuing</td>
+<td>Cannot understand</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="pynetdicom-substance-administration-query-statuses">
-<h3>pynetdicom Substance Administration Query Statuses<a class="headerlink" href="#pynetdicom-substance-administration-query-statuses" title="Permalink to this headline">¶</a></h3>
-<p>When pynetdicom is acting as a Substance Administration SCP it uses the
-following status codes values to indicate the corresponding issue has occurred
-to help aid in debugging.</p>
+<div class="section" id="pynetdicom-statuses">
+<h3>pynetdicom Statuses<a class="headerlink" href="#pynetdicom-statuses" title="Permalink to this headline">¶</a></h3>
+<p>When pynetdicom is acting as a Non-Patient Object Storage SCP it uses the
+following status codes values to indicate the corresponding issue has
+occurred to help aid in debugging.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="24%" />
@@ -300,21 +327,15 @@ element</td>
 invalid status object (not a pydicom Dataset
 or an int)</td>
 </tr>
-<tr class="row-even"><td>0xC310</td>
+<tr class="row-even"><td>0xC210</td>
 <td>Failure</td>
 <td>Failed to decode the dataset received from
 the peer</td>
 </tr>
-<tr class="row-odd"><td>0xC311</td>
+<tr class="row-odd"><td>0xC211</td>
 <td>Failure</td>
 <td>Unhandled exception raised by the user’s
-implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_find</span></code> callback</td>
-</tr>
-<tr class="row-even"><td>0xC312</td>
-<td>Failure</td>
-<td>Failed to encode the dataset received from
-the user’s implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_find</span></code>
-callback</td>
+implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_store</span></code> callback</td>
 </tr>
 </tbody>
 </table>
@@ -323,9 +344,8 @@ callback</td>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V">Annex V</a></li>
-<li>DICOM Standard, Part 7, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5">9.1.2.1.5</a></li>
+<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG">Annex GG</a></li>
+<li>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.1.1.9">Section 9.1.1.1.9</a></li>
 </ul>
 </div>
 </div>
@@ -338,10 +358,10 @@ callback</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="non_patient_service_class.html" class="btn btn-neutral float-right" title="Non-Patient Object Storage Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="user/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="relevant_patient_service_class.html" class="btn btn-neutral" title="Relevant Patient Information Query Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="substance_admin_service_class.html" class="btn btn-neutral" title="Substance Administration Query Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
