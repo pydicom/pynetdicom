@@ -166,7 +166,7 @@ Query/Retrieve (Get) Service Statuses
 |                  |          | the SOP Instance                             |
 +------------------+----------+----------------------------------------------+
 | 0xAA01           | Failure  | Unable to create new object for this SOP     |
-|                  |          |class                                         |
+|                  |          | class                                        |
 +------------------+----------+----------------------------------------------+
 | 0xAA02           | Failure  | Unable to extract frames                     |
 +------------------+----------+----------------------------------------------+
@@ -252,7 +252,7 @@ Query/Retrieve (Move) Service Statuses
 |                  |          | the SOP Instance                             |
 +------------------+----------+----------------------------------------------+
 | 0xAA01           | Failure  | Unable to create new object for this SOP     |
-|                  |          |class                                         |
+|                  |          | class                                        |
 +------------------+----------+----------------------------------------------+
 | 0xAA02           | Failure  | Unable to extract frames                     |
 +------------------+----------+----------------------------------------------+

@@ -36,6 +36,8 @@ from pynetdicom3.sop_class import (
     CardiacRelevantPatientInformationQuery,
     ProductCharacteristicsQueryInformationModelFind,
     SubstanceApprovalQueryInformationModelFind,
+    CompositeInstanceRootRetrieveGet,
+    CompositeInstanceRootRetrieveMove,
 )
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
@@ -1292,6 +1294,8 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.2.2
             - ``O`` - *Patient Study Only Information Model - MOVE*
               1.2.840.10008.5.1.4.1.2.3.2
+            - ``C`` - *Composite Instance Root Retrieva - MOVE*
+              1.2.840.10008.5.1.4.1.2.4.2
 
         Yields
         ------
@@ -1318,8 +1322,8 @@ class Association(threading.Thread):
             Failure
               | ``0x0122`` SOP class not supported
 
-            Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
-            C):
+            Query/Retrieve Service Class Specific (DICOM Standard Part 4,
+            Annexes C and Y):
 
             Failure
               | ``0xA701`` Out of resources: unable to calculate number of
@@ -1327,6 +1331,13 @@ class Association(threading.Thread):
               | ``0xA702`` Out of resources: unable to perform sub-operations
               | ``0xA801`` Move destination unknown
               | ``0xA900`` Identifier does not match SOP Class
+              | ``0xAA00`` None of the frames requested were found in the SOP
+                instance
+              | ``0xAA01`` Unable to create new object for this SOP class
+              | ``0xAA02`` Unable to extract frames
+              | ``0xAA03`` Time-based request received for a non-time-based
+                original SOP Instance
+              | ``0xAA04`` Invalid request
               | ``0xC000`` to ``0xCFFF`` Unable to process
 
             Pending
@@ -1353,6 +1364,7 @@ class Association(threading.Thread):
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
         * DICOM Standard Part 7, Sections
           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
@@ -1369,9 +1381,11 @@ class Association(threading.Thread):
             sop_class = StudyRootQueryRetrieveInformationModelMove
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove
+        elif query_model == "C":
+            sop_class = CompositeInstanceRootRetrieveMove
         else:
             raise ValueError("Association.send_c_move - 'query_model' must "
-                             "be 'P', 'S' or 'O'")
+                             "be 'P', 'S', 'O' or 'C'")
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1548,7 +1562,9 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.2.3
             - ``O`` - *Patient Study Only Information Model - GET*
               1.2.840.10008.5.1.4.1.2.3.3
-            - ``C`` - *Composite Instance Retrieve Without Bulk Data - GET*
+            - ``C`` - *Composite Instance Root Retrieve - GET*
+              1.2.840.10008.5.1.4.1.2.4.3
+            - ``CB`` - *Composite Instance Retrieve Without Bulk Data - GET*
               1.2.840.10008.5.1.4.1.2.5.3
 
         Yields
@@ -1578,7 +1594,7 @@ class Association(threading.Thread):
               | ``0x0212`` Mistyped argument
 
             Query/Retrieve Service Class Specific (DICOM Standard Part 4,
-            Annexes C.4.3 and Z.4.2.1.4):
+            Annexes C.4.3, Y.C.4.2.1.4 and Z.4.2.1.4):
 
             Pending
               | ``0xFF00`` Sub-operations are continuing
@@ -1591,6 +1607,13 @@ class Association(threading.Thread):
                  matches
               | ``0xA702`` Out of resources: unable to perform sub-operations
               | ``0xA900`` Identifier does not match SOP class
+              | ``0xAA00`` None of the frames requested were found in the SOP
+                instance
+              | ``0xAA01`` Unable to create new object for this SOP class
+              | ``0xAA02`` Unable to extract frames
+              | ``0xAA03`` Time-based request received for a non-time-based
+                original SOP Instance
+              | ``0xAA04`` Invalid request
               | ``0xC000`` to ``0xCFFF`` Unable to process
 
             Warning
@@ -1623,6 +1646,7 @@ class Association(threading.Thread):
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
         * DICOM Standard Part 4, `Annex Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
@@ -1641,11 +1665,12 @@ class Association(threading.Thread):
         elif query_model == "O":
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
         elif query_model == "C":
+            sop_class = CompositeInstanceRootRetrieveGet
+        elif query_model == "CB":
             sop_class = CompositeInstanceRetrieveWithoutBulkDataGet
         else:
             raise ValueError(
-                "Association.send_c_get() query_model must be 'P', 'S', 'O' "
-                "or 'C'"
+                "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under

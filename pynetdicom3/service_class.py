@@ -386,8 +386,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
                                          '1.2.840.10008.5.1.4.1.2.2.3',
                                          '1.2.840.10008.5.1.4.1.2.3.3',
-                                         '1.2.840.10008.5.1.4.1.2.5.3',
-                                         '1.2.840.10008.5.1.4.1.2.4.3']:
+                                         '1.2.840.10008.5.1.4.1.2.4.3',
+                                         '1.2.840.10008.5.1.4.1.2.5.3']:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context, info)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',

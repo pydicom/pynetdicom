@@ -2508,7 +2508,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, query_model='C')
+        result = assoc.send_c_get(self.query, query_model='CB')
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -2554,7 +2554,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, query_model='C')
+        result = assoc.send_c_get(self.query, query_model='CB')
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
