@@ -51,8 +51,6 @@ Substance Administration Query Service Statuses
 +------------------+----------+----------------------------------------------+
 | 0xA900           | Failure  | Identifier does not match SOP Class          |
 +------------------+----------+----------------------------------------------+
-| 0xC000           | Failure  | Unable to process                            |
-+------------------+----------+----------------------------------------------+
 | 0xC000 to 0xCFFF | Failure  | Unable to process                            |
 +------------------+----------+----------------------------------------------+
 | 0xFF00           | Pending  | Matches are continuing                       |
@@ -94,4 +92,3 @@ References
 * DICOM Standard, Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
 * DICOM Standard, Part 7, Section
   `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_
-* DICOM Standard, Part 16, Annex A, `TIDs 9000-9007 <http://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_RelevantPatientInformationTemplates.html>`_
