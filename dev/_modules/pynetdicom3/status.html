@@ -327,6 +327,28 @@
 <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
 
 
+<span class="c1"># Substance Administration Query Service Class specific status code values</span>
+<span class="c1">#   PS3.4 Annex V</span>
+<span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Out of resources&quot;</span><span class="p">),</span>
+    <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Data set doesn&#39;t match SOP Class&quot;</span><span class="p">),</span>
+    <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_PENDING</span><span class="p">,</span>
+              <span class="s2">&quot;Matches are continuing, current match is supplied and any &quot;</span>
+              <span class="s2">&quot;Optional Keys were supported in the same manner as Required &quot;</span>
+              <span class="s2">&quot;Keys&quot;</span><span class="p">),</span>
+    <span class="mh">0xFF01</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_PENDING</span><span class="p">,</span>
+              <span class="s2">&quot;Matches are continuing, warning that one or more Optional &quot;</span>
+              <span class="s2">&quot;Keys were not supported for existence for this Identifier&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unable to Process&#39;</span>
+    <span class="p">)</span>
+
+<span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
+
 <span class="c1"># Procedure Step SOP Class specific status code values - WIP</span>
 <span class="c1">#   PS3.4 Annex F</span>
 <span class="n">_PROCEDURE_STEP_STATUS</span> <span class="o">=</span> <span class="p">{</span>
@@ -564,6 +586,7 @@
         <span class="k">return</span> <span class="n">ds</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;code&#39; must be a positive integer.&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="code_to_category"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.status.code_to_category.html#pynetdicom3.status.code_to_category">[docs]</a><span class="k">def</span> <span class="nf">code_to_category</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return a Status&#39; category as a str or &#39;Unknown&#39; if not recognised.</span>

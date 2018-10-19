@@ -1618,6 +1618,8 @@
 
 <span class="sd">        * *Query/Retrieve Service Class*</span>
 <span class="sd">        * *Basic Worklist Management Service*</span>
+<span class="sd">        * *Relevant Patient Information Query Service*</span>
+<span class="sd">        * *Substance Administration Query Service*</span>
 
 <span class="sd">        **Status**</span>
 
@@ -1696,7 +1698,10 @@
 <span class="sd">        --------</span>
 <span class="sd">        association.Association.send_c_find</span>
 <span class="sd">        dimse_primitives.C_FIND</span>
-<span class="sd">        sop_class.QueryRetrieveFindServiceClass</span>
+<span class="sd">        service_class.QueryRetrieveFindServiceClass</span>
+<span class="sd">        service_class.BasicWorklistManagementServiceClass</span>
+<span class="sd">        service_class.RelevantPatientInformationQueryServiceClass</span>
+<span class="sd">        service_class.SubstanceAdministrationQueryServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -1826,7 +1831,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        association.Association.send_c_get</span>
 <span class="sd">        dimse_primitives.C_GET</span>
-<span class="sd">        sop_class.QueryRetrieveGetServiceClass</span>
+<span class="sd">        service_class.QueryRetrieveGetServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -1966,7 +1971,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        association.Association.send_c_move</span>
 <span class="sd">        dimse_primitives.C_MOVE</span>
-<span class="sd">        sop_class.QueryRetrieveMoveServiceClass</span>
+<span class="sd">        service_class.QueryRetrieveMoveServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -2080,7 +2085,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        association.Association.send_c_store</span>
 <span class="sd">        dimse_primitives.C_STORE</span>
-<span class="sd">        sop_class.StorageServiceClass</span>
+<span class="sd">        service_class.StorageServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>

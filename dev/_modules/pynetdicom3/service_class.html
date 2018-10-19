@@ -181,6 +181,7 @@
     <span class="n">QR_GET_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">STATUS_FAILURE</span><span class="p">,</span>
     <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
     <span class="n">STATUS_WARNING</span><span class="p">,</span>
@@ -1597,8 +1598,7 @@
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_FIND_SERVICE_CLASS_STATUS</span>
 
 <div class="viewcode-block" id="BasicWorklistManagementServiceClass.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.BasicWorklistManagementServiceClass.html#pynetdicom3.service_class.BasicWorklistManagementServiceClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BasicWorklistManagementServiceClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">SCP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BasicWorklistManagementServiceClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="BasicWorklistManagementServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.BasicWorklistManagementServiceClass.html#pynetdicom3.service_class.BasicWorklistManagementServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for Basic Worklist Management.</span>
@@ -1903,6 +1903,92 @@
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">SubstanceAdministrationQueryServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Substance Administration Query Service&quot;&quot;&quot;</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SubstanceAdministrationQueryServiceClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The SCP implementation for the Relevant Patient Information Query</span>
+<span class="sd">        Service Class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.C_FIND</span>
+<span class="sd">            The C-FIND request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            A dict containing details about the association.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ae.ApplicationEntity.on_c_find</span>
+<span class="sd">        association.Association.send_c_find</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **C-FIND Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
+
+<span class="sd">        *Identifier*</span>
+
+<span class="sd">        The C-FIND request Identifier shall contain:</span>
+
+<span class="sd">        * Key Attributes with values corresponding to Key Attributes contained</span>
+<span class="sd">          in the Identifier of the request.</span>
+<span class="sd">        * (0008,0005) Specific Character Set, if expanded or replacement</span>
+<span class="sd">          character sets may be used in any of the Attributes in the request</span>
+<span class="sd">          Identifier. It shall not be present otherwise.</span>
+
+<span class="sd">        **C-FIND Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (C) Identifier</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` Success</span>
+
+<span class="sd">        Pending</span>
+<span class="sd">          | ``0xFF00`` Matches are continuing, current match supplied</span>
+<span class="sd">          | ``0xFF01`` Matches are continuing, warning</span>
+
+<span class="sd">        Cancel</span>
+<span class="sd">          | ``0xFE00`` Matching terminated due to cancel request</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0122`` SOP class not supported</span>
+<span class="sd">          | ``0xA700`` Out of resources</span>
+<span class="sd">          | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">          | ``0xC000`` to ``0xCFFF`` Unable to process</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex V &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V&gt;`_.</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
+<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
+<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
 </pre></div>
 
            </div>

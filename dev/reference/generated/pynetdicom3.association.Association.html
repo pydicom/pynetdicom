@@ -780,7 +780,7 @@ one of:</p>
 <li><code class="docutils literal notranslate"><span class="pre">2</span></code> - Low (default)</li>
 </ul>
 </li>
-<li><strong>query_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – <p>The Query/Retrieve Information Model to use, one of the following:</p>
+<li><strong>query_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – <p>The Information Model to use, one of the following:</p>
 <ul>
 <li><code class="docutils literal notranslate"><span class="pre">P</span></code> - <em>Patient Root Information Model - FIND</em>
 1.2.840.10008.5.1.4.1.2.1.1 (default)</li>
@@ -796,6 +796,10 @@ one of:</p>
 1.2.840.10008.5.1.4.37.2</li>
 <li><code class="docutils literal notranslate"><span class="pre">C</span></code> - <em>Cardiac Relevant Patient Information Query</em>
 1.2.840.10008.5.1.4.37.3</li>
+<li><code class="docutils literal notranslate"><span class="pre">PC</span></code> - <em>Product Characteristics Query Information Model - FIND</em>
+1.2.840.10008.5.1.4.41</li>
+<li><code class="docutils literal notranslate"><span class="pre">SA</span></code> - <em>Substance Approval Query Information Model - FIND</em>
+1.2.840.10008.5.1.4.42</li>
 </ul>
 </li>
 </ul>
@@ -883,12 +887,13 @@ unable to encode the <em>Identifier</em> <cite>dataset</cite>.</li>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_FIND()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveFindServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.RelevantPatientInformationQueryServiceClass()</span></code></p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_FIND()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveFindServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.RelevantPatientInformationQueryServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.SubstanceAdministrationQueryServiceClass()</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
 <li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></li>
 <li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q">Annex Q</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V">Annex V</a></li>
 <li>DICOM Standard Part 7, Sections
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2">9.1.2</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2">9.3.2</a>,
