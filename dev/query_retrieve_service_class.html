@@ -241,6 +241,9 @@ defines a service that facilitates querying and retrieval of stored Instances.</
 <tr class="row-even"><td>1.2.840.10008.5.1.4.1.2.3.2</td>
 <td>PatientStudyOnlyQueryRetrieveInformationModelMove</td>
 </tr>
+<tr class="row-odd"><td>1.2.840.10008.5.1.4.1.2.4.2</td>
+<td>CompositeInstanceRootRetrieveMove</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -268,6 +271,9 @@ defines a service that facilitates querying and retrieval of stored Instances.</
 </tr>
 <tr class="row-odd"><td>1.2.840.10008.5.1.4.1.2.5.3</td>
 <td>CompositeInstanceRetrieveWithoutBulkDataGet</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.5.1.4.1.2.4.3</td>
+<td>CompositeInstanceRootRetrieveGet</td>
 </tr>
 </tbody>
 </table>
@@ -464,16 +470,39 @@ sub-operations</td>
 <td>Failure</td>
 <td>Dataset does not match SOP Class</td>
 </tr>
-<tr class="row-odd"><td>0xB000</td>
+<tr class="row-odd"><td>0xAA00</td>
+<td>Failure</td>
+<td>None of the frames requested were found in
+the SOP Instance</td>
+</tr>
+<tr class="row-even"><td>0xAA01</td>
+<td>Failure</td>
+<td>Unable to create new object for this SOP
+class</td>
+</tr>
+<tr class="row-odd"><td>0xAA02</td>
+<td>Failure</td>
+<td>Unable to extract frames</td>
+</tr>
+<tr class="row-even"><td>0xAA03</td>
+<td>Failure</td>
+<td>Time-based request received for a
+non-time-based original SOP Instance</td>
+</tr>
+<tr class="row-odd"><td>0xAA04</td>
+<td>Failure</td>
+<td>Invalid request</td>
+</tr>
+<tr class="row-even"><td>0xB000</td>
 <td>Warning</td>
 <td>Sub-operations complete, one or more
 or warnings</td>
 </tr>
-<tr class="row-even"><td>0xC000 to 0xCFFF</td>
+<tr class="row-odd"><td>0xC000 to 0xCFFF</td>
 <td>Failure</td>
 <td>Unable to process</td>
 </tr>
-<tr class="row-odd"><td>0xFF00</td>
+<tr class="row-even"><td>0xFF00</td>
 <td>Pending</td>
 <td>Sub-operations are continuing</td>
 </tr>
@@ -605,6 +634,33 @@ sub-operations</td>
 <td>Failure</td>
 <td>Dataset does not match SOP Class</td>
 </tr>
+<tr class="row-even"><td>0xAA00</td>
+<td>Failure</td>
+<td>None of the frames requested were found in
+the SOP Instance</td>
+</tr>
+<tr class="row-odd"><td>0xAA01</td>
+<td>Failure</td>
+<td>Unable to create new object for this SOP
+class</td>
+</tr>
+<tr class="row-even"><td>0xAA02</td>
+<td>Failure</td>
+<td>Unable to extract frames</td>
+</tr>
+<tr class="row-odd"><td>0xAA03</td>
+<td>Failure</td>
+<td>Time-based request received for a
+non-time-based original SOP Instance</td>
+</tr>
+<tr class="row-even"><td>0xAA04</td>
+<td>Failure</td>
+<td>Invalid request</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
 <tr class="row-even"><td>0xB000</td>
 <td>Warning</td>
 <td>Sub-operations complete, one or more
@@ -684,6 +740,7 @@ port) pair</td>
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></li>
+<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y">Annex Y</a></li>
 <li>DICOM Standard, Part 7, Sections
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5">9.1.2.1.5</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6">9.1.3.1.6</a> and

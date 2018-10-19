@@ -37,6 +37,8 @@ Query/Retrieve (Move) SOP Classes
 +-----------------------------+---------------------------------------------------+
 | 1.2.840.10008.5.1.4.1.2.3.2 | PatientStudyOnlyQueryRetrieveInformationModelMove |
 +-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.4.2 | CompositeInstanceRootRetrieveMove                 |
++-----------------------------+---------------------------------------------------+
 
 .. _qr_get_sops:
 
@@ -53,6 +55,8 @@ Query/Retrieve (Get) SOP Classes
 | 1.2.840.10008.5.1.4.1.2.3.3 | PatientStudyOnlyQueryRetrieveInformationModelGet  |
 +-----------------------------+---------------------------------------------------+
 | 1.2.840.10008.5.1.4.1.2.5.3 | CompositeInstanceRetrieveWithoutBulkDataGet       |
++-----------------------------+---------------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.4.3 | CompositeInstanceRootRetrieveGet                  |
 +-----------------------------+---------------------------------------------------+
 
 .. _qr_statuses:
@@ -158,6 +162,19 @@ Query/Retrieve (Get) Service Statuses
 +------------------+----------+----------------------------------------------+
 | 0xA900           | Failure  | Dataset does not match SOP Class             |
 +------------------+----------+----------------------------------------------+
+| 0xAA00           | Failure  | None of the frames requested were found in   |
+|                  |          | the SOP Instance                             |
++------------------+----------+----------------------------------------------+
+| 0xAA01           | Failure  | Unable to create new object for this SOP     |
+|                  |          | class                                        |
++------------------+----------+----------------------------------------------+
+| 0xAA02           | Failure  | Unable to extract frames                     |
++------------------+----------+----------------------------------------------+
+| 0xAA03           | Failure  | Time-based request received for a            |
+|                  |          | non-time-based original SOP Instance         |
++------------------+----------+----------------------------------------------+
+| 0xAA04           | Failure  | Invalid request                              |
++------------------+----------+----------------------------------------------+
 | 0xB000           | Warning  | Sub-operations complete, one or more         |
 |                  |          | or warnings                                  |
 +------------------+----------+----------------------------------------------+
@@ -231,6 +248,20 @@ Query/Retrieve (Move) Service Statuses
 +------------------+----------+----------------------------------------------+
 | 0xA900           | Failure  | Dataset does not match SOP Class             |
 +------------------+----------+----------------------------------------------+
+| 0xAA00           | Failure  | None of the frames requested were found in   |
+|                  |          | the SOP Instance                             |
++------------------+----------+----------------------------------------------+
+| 0xAA01           | Failure  | Unable to create new object for this SOP     |
+|                  |          | class                                        |
++------------------+----------+----------------------------------------------+
+| 0xAA02           | Failure  | Unable to extract frames                     |
++------------------+----------+----------------------------------------------+
+| 0xAA03           | Failure  | Time-based request received for a            |
+|                  |          | non-time-based original SOP Instance         |
++------------------+----------+----------------------------------------------+
+| 0xAA04           | Failure  | Invalid request                              |
++------------------+----------+----------------------------------------------+
++------------------+----------+----------------------------------------------+
 | 0xB000           | Warning  | Sub-operations complete, one or more         |
 |                  |          | or warnings                                  |
 +------------------+----------+----------------------------------------------+
@@ -279,6 +310,7 @@ References
 ----------
 
 * DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+* DICOM Standard, Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
 * DICOM Standard, Part 7, Sections
   `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,
   `9.1.3.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6>`_ and

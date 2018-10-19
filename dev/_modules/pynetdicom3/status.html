@@ -250,7 +250,7 @@
 
 
 <span class="c1"># Query Retrieve Move Service Class specific status code values</span>
-<span class="c1">#   PS3.4 Annex C.4.2.1.5</span>
+<span class="c1">#   PS3.4 Annex C.4.2.1.5 and Annex Y.4.1.1.4</span>
 <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mh">0xA701</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
               <span class="s1">&#39;Refused: Out of resources, unable to calculate &#39;</span>
@@ -259,6 +259,15 @@
               <span class="s1">&#39;Refused: Out of resources, unable to perform sub-operations&#39;</span><span class="p">),</span>
     <span class="mh">0xA801</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Move destination unknown&#39;</span><span class="p">),</span>
     <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Identifier does not match SOP class&#39;</span><span class="p">),</span>
+    <span class="mh">0xAA00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
+              <span class="s2">&quot;None of the frames requested were found in the SOP instance&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA01</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
+              <span class="s2">&quot;Unable to create new object for this SOP class&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA02</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Unable to extract frames&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA03</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
+              <span class="s2">&quot;Time-based request received for a non-time-based original &quot;</span>
+              <span class="s2">&quot;SOP Instance&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA04</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Invalid request&quot;</span><span class="p">),</span>
     <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="s1">&#39;Sub-operations are continuing&#39;</span><span class="p">),</span>
     <span class="mh">0xB000</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="s1">&#39;Sub-operations completed, one or more failures&#39;</span><span class="p">)</span>
 <span class="p">}</span>
@@ -272,7 +281,7 @@
 
 
 <span class="c1"># Query Retrieve Get Service Class specific status code values</span>
-<span class="c1">#   PS3.4 Annex C.4.3.1.4</span>
+<span class="c1">#   PS3.4 Annex C.4.3.1.4 and Annex Y.4.2.1.4</span>
 <span class="n">QR_GET_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mh">0xA701</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
               <span class="s1">&#39;Refused: Out of resources, unable to calculate &#39;</span>
@@ -280,6 +289,15 @@
     <span class="mh">0xA702</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
               <span class="s1">&#39;Refused: Out of resources, unable to perform sub-operations&#39;</span><span class="p">),</span>
     <span class="mh">0xA900</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Identifier does not match SOP class&#39;</span><span class="p">),</span>
+    <span class="mh">0xAA00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
+              <span class="s2">&quot;None of the frames requested were found in the SOP instance&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA01</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
+              <span class="s2">&quot;Unable to create new object for this SOP class&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA02</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Unable to extract frames&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA03</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
+              <span class="s2">&quot;Time-based request received for a non-time-based original &quot;</span>
+              <span class="s2">&quot;SOP Instance&quot;</span><span class="p">),</span>
+    <span class="mh">0xAA04</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Invalid request&quot;</span><span class="p">),</span>
     <span class="mh">0xFF00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="s1">&#39;Sub-operations are continuing&#39;</span><span class="p">),</span>
     <span class="mh">0xB000</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_WARNING</span><span class="p">,</span>
               <span class="s1">&#39;Sub-operations complete, one or more failures or warnings&#39;</span><span class="p">),</span>

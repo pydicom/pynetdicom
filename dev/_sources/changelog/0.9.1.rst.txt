@@ -61,4 +61,8 @@ Enhancements
 * Allow more than 128 supported presentation contexts (SCP)
 * Documentation added: user guide, examples, API reference (:issue:``1``,
   :issue:``45``, :issue:``49``, :issue:``50``)
-* Add support for the QR Composite Instance Retrieval Without Bulk Data service
+* Add support for QR Instance and Frame Level Retrieve
+* Add support for QR Composite Instance Root Retrieval
+* Add support for the Substance Administration Query service
+* Add support for the Relevant Patient Information Query service
+* Add support for the Non-Patient Information Query service

@@ -940,7 +940,9 @@ one of:</p>
 1.2.840.10008.5.1.4.1.2.2.3</li>
 <li><code class="docutils literal notranslate"><span class="pre">O</span></code> - <em>Patient Study Only Information Model - GET</em>
 1.2.840.10008.5.1.4.1.2.3.3</li>
-<li><code class="docutils literal notranslate"><span class="pre">C</span></code> - <em>Composite Instance Retrieve Without Bulk Data - GET</em>
+<li><code class="docutils literal notranslate"><span class="pre">C</span></code> - <em>Composite Instance Root Retrieve - GET</em>
+1.2.840.10008.5.1.4.1.2.4.3</li>
+<li><code class="docutils literal notranslate"><span class="pre">CB</span></code> - <em>Composite Instance Retrieve Without Bulk Data - GET</em>
 1.2.840.10008.5.1.4.1.2.5.3</li>
 </ul>
 </li>
@@ -975,7 +977,7 @@ peer this can’t be assumed:</p>
 </dd>
 </dl>
 <p>Query/Retrieve Service Class Specific (DICOM Standard Part 4,
-Annexes C.4.3 and Z.4.2.1.4):</p>
+Annexes C.4.3, Y.C.4.2.1.4 and Z.4.2.1.4):</p>
 <dl class="docutils">
 <dt>Pending</dt>
 <dd><div class="first last line-block">
@@ -993,6 +995,13 @@ Annexes C.4.3 and Z.4.2.1.4):</p>
 matches</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA702</span></code> Out of resources: unable to perform sub-operations</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> Identifier does not match SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA00</span></code> None of the frames requested were found in the SOP
+instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA01</span></code> Unable to create new object for this SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA02</span></code> Unable to extract frames</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA03</span></code> Time-based request received for a non-time-based
+original SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA04</span></code> Invalid request</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> Unable to process</div>
 </div>
 </dd>
@@ -1029,6 +1038,7 @@ unable to encode the <em>Identifier</em> <cite>dataset</cite>.</li>
 <p class="rubric">References</p>
 <ul class="simple">
 <li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y">Annex Y</a></li>
 <li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z">Annex Z</a></li>
 <li>DICOM Standard Part 7, Sections
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3">9.1.3</a>,
@@ -1073,6 +1083,8 @@ performed by the peer.</li>
 1.2.840.10008.5.1.4.1.2.2.2</li>
 <li><code class="docutils literal notranslate"><span class="pre">O</span></code> - <em>Patient Study Only Information Model - MOVE</em>
 1.2.840.10008.5.1.4.1.2.3.2</li>
+<li><code class="docutils literal notranslate"><span class="pre">C</span></code> - <em>Composite Instance Root Retrieva - MOVE</em>
+1.2.840.10008.5.1.4.1.2.4.2</li>
 </ul>
 </li>
 </ul>
@@ -1106,8 +1118,8 @@ on the peer this can’t be assumed:</p>
 </div>
 </dd>
 </dl>
-<p>Query/Retrieve Service Class Specific (DICOM Standard Part 4, Annex
-C):</p>
+<p>Query/Retrieve Service Class Specific (DICOM Standard Part 4,
+Annexes C and Y):</p>
 <dl class="docutils">
 <dt>Failure</dt>
 <dd><div class="first last line-block">
@@ -1116,6 +1128,13 @@ matches</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA702</span></code> Out of resources: unable to perform sub-operations</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA801</span></code> Move destination unknown</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> Identifier does not match SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA00</span></code> None of the frames requested were found in the SOP
+instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA01</span></code> Unable to create new object for this SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA02</span></code> Unable to extract frames</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA03</span></code> Time-based request received for a non-time-based
+original SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA04</span></code> Invalid request</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> Unable to process</div>
 </div>
 </dd>
@@ -1149,6 +1168,7 @@ instead return an empty <code class="docutils literal notranslate"><span class="
 <p class="rubric">References</p>
 <ul class="simple">
 <li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y">Annex Y</a></li>
 <li>DICOM Standard Part 7, Sections
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4">9.1.4</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4">9.3.4</a> and
