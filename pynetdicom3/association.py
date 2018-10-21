@@ -38,6 +38,24 @@ from pynetdicom3.sop_class import (
     SubstanceApprovalQueryInformationModelFind,
     CompositeInstanceRootRetrieveGet,
     CompositeInstanceRootRetrieveMove,
+    HangingProtocolInformationModelGet,
+    HangingProtocolInformationModelFind,
+    HangingProtocolInformationModelMove,
+    DefinedProcedureProtocolInformationModelGet,
+    DefinedProcedureProtocolInformationModelFind,
+    DefinedProcedureProtocolInformationModelMove,
+    ColorPaletteInformationModelGet,
+    ColorPaletteInformationModelFind,
+    ColorPaletteInformationModelMove,
+    GenericImplantTemplateInformationModelGet,
+    GenericImplantTemplateInformationModelFind,
+    GenericImplantTemplateInformationModelMove,
+    ImplantAssemblyTemplateInformationModelGet,
+    ImplantAssemblyTemplateInformationModelFind,
+    ImplantAssemblyTemplateInformationModelMove,
+    ImplantTemplateGroupInformationModelFind,
+    ImplantTemplateGroupInformationModelGet,
+    ImplantTemplateGroupInformationModelMove,
 )
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
@@ -852,8 +870,8 @@ class Association(threading.Thread):
               | ``0x0211`` Unrecognised operation
               | ``0x0212`` Mistyped argument
 
-            Storage Service Class specific (DICOM Standard Part 4, Annex
-            B.2.3):
+            Storage Service and Non-Patient Object Storage Service specific
+            (DICOM Standard Part 4, Annexes B.2.3 and GG):
 
             Failure
               | ``0xA700`` to ``0xA7FF`` Out of resources
@@ -905,8 +923,8 @@ class Association(threading.Thread):
         References
         ----------
 
-        * DICOM Standard Part 4, Annexes `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_ and
-          `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+        * DICOM Standard Part 4, Annex `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+        * DICOM Standard Part 4, Annex `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
         * DICOM Standard Part 7, Sections
           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
@@ -1032,6 +1050,18 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.41
             - ``SA`` - *Substance Approval Query Information Model - FIND*
               1.2.840.10008.5.1.4.42
+            - ``H`` - *Hanging Protocol Information Model - FIND*
+              1.2.840.10008.5.1.4.38.2
+            - ``D`` - *Defined Procedure Protocol Information Model - FIND*
+              1.2.840.10008.5.1.4.20.1
+            - ``CP`` - *Color Palette Information Model - FIND*
+              1.2.840.10008.5.1.4.39.2
+            - ``IG`` - *Generic Implant Template Information Model - FIND*
+              1.2.840.10008.5.1.4.43.2
+            - ``IA`` - *Implant Assembly Template Information Model - FIND*
+              1.2.840.10008.5.1.4.44.2
+            - ``IT`` - *Implant Template Group Information Model - FIND*
+              1.2.840.10008.5.1.4.44.2
 
         Yields
         ------
@@ -1059,8 +1089,13 @@ class Association(threading.Thread):
             Failure
               | ``0x0122`` SOP class not supported
 
-            Query/Retrieve Service and Basic Worklist Management Service Class
-            Specific (Part 4, Annexes C.4.1 and K.4.1.1.4):
+            Query/Retrieve Service, Basic Worklist Management Service,
+            Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
+            Query/Retrieve Service, Substance Administration Query Service,
+            Color Palette Query/Retrieve Service and Implant Template
+            Query/Retrieve Service specific
+            (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
+            V.4.1.1.4, X and BB):
 
             Failure
               | ``0xA700`` Out of resources
@@ -1074,6 +1109,21 @@ class Association(threading.Thread):
               | ``0xFF01`` Matches are continuing: warning that one or more
                 Optional Keys were not supported for existence and/or matching
                 for this Identifier)
+
+            Relevant Patient Information Query Service specific (DICOM
+            Standard Part 4, Annex Q.2.1.1.4):
+
+            Failure
+              | ``0xA700`` Out of resources
+              | ``0xA900`` Identifier does not match SOP Class
+              | ``0xC000`` Unable to process
+              | ``0xC100`` More than one match found
+              | ``0xC200`` Unable to support requested template
+
+            Pending
+              | ``0xFF00`` Matches are continuing: current match is supplied and
+                any Optional Keys were supported in the same manner as Required
+                Keys
 
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' then the C-FIND response's *Identifier*
@@ -1109,13 +1159,21 @@ class Association(threading.Thread):
         service_class.QueryRetrieveFindServiceClass
         service_class.RelevantPatientInformationQueryServiceClass
         service_class.SubstanceAdministrationQueryServiceClass
+        service_class.HangingProtocolQueryRetrieveServiceClass
+        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+        service_class.ColorPaletteQueryRetrieveServiceClass
+        service_class.ImplantTemplateQueryRetrieveServiceClass
 
         References
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
         * DICOM Standard Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
+        * DICOM Standard Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
         * DICOM Standard Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
+        * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
+        * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+        * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
@@ -1145,9 +1203,21 @@ class Association(threading.Thread):
             sop_class = ProductCharacteristicsQueryInformationModelFind
         elif query_model == "SA":
             sop_class = SubstanceApprovalQueryInformationModelFind
+        elif query_model == "H":
+            sop_class = HangingProtocolInformationModelFind
+        elif query_model == "D":
+            sop_class = DefinedProcedureProtocolInformationModelFind
+        elif query_model == "CP":
+            sop_class = ColorPaletteInformationModelFind
+        elif query_model == "IG":
+            sop_class = GenericImplantTemplateInformationModelFind
+        elif query_model == "IA":
+            sop_class = ImplantAssemblyTemplateInformationModelFind
+        elif query_model == "IT":
+            sop_class = ImplantTemplateGroupInformationModelFind
         else:
             raise ValueError(
-                "Unknown `query_model` value: {}".format(query_model)
+                "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
@@ -1294,8 +1364,20 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.2.2
             - ``O`` - *Patient Study Only Information Model - MOVE*
               1.2.840.10008.5.1.4.1.2.3.2
-            - ``C`` - *Composite Instance Root Retrieva - MOVE*
+            - ``C`` - *Composite Instance Root Retrieve - MOVE*
               1.2.840.10008.5.1.4.1.2.4.2
+            - ``H`` - *Hanging Protocol Information Model - MOVE*
+              1.2.840.10008.5.1.4.38.3
+            - ``D`` - *Defined Procedure Protocol Information Model - MOVE*
+              1.2.840.10008.5.1.4.20.2
+            - ``CP`` - *Color Palette Information Model - MOVE*
+              1.2.840.10008.5.1.4.39.3
+            - ``IG`` - *Generic Implant Template Information Model - MOVE*
+              1.2.840.10008.5.1.4.43.3
+            - ``IA`` - *Implant Assembly Template Information Model - MOVE*
+              1.2.840.10008.5.1.4.44.3
+            - ``IT`` - *Implant Template Group Information Model - MOVE*
+              1.2.840.10008.5.1.4.44.3
 
         Yields
         ------
@@ -1322,8 +1404,11 @@ class Association(threading.Thread):
             Failure
               | ``0x0122`` SOP class not supported
 
-            Query/Retrieve Service Class Specific (DICOM Standard Part 4,
-            Annexes C and Y):
+            Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+            Defined Procedure Protocol Query/Retrieve Service, Color Palette
+            Query/Retrieve Service and Implant Template Query/Retreive
+            Service
+            specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):
 
             Failure
               | ``0xA701`` Out of resources: unable to calculate number of
@@ -1359,12 +1444,19 @@ class Association(threading.Thread):
         ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
         service_class.QueryRetrieveMoveServiceClass
+        service_class.HangingProtocolQueryRetrieveServiceClass
+        service_class.ColorPaletteQueryRetrieveServiceClass
+        service_class.ImplantTemplateQueryRetrieveServiceClass
 
         References
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
+        * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
         * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
+        * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+        * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
@@ -1383,9 +1475,22 @@ class Association(threading.Thread):
             sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove
         elif query_model == "C":
             sop_class = CompositeInstanceRootRetrieveMove
+        elif query_model == "H":
+            sop_class = HangingProtocolInformationModelMove
+        elif query_model == "D":
+            sop_class = DefinedProcedureProtocolInformationModelMove
+        elif query_model == "CP":
+            sop_class = ColorPaletteInformationModelMove
+        elif query_model == "IG":
+            sop_class = GenericImplantTemplateInformationModelMove
+        elif query_model == "IA":
+            sop_class = ImplantAssemblyTemplateInformationModelMove
+        elif query_model == "IT":
+            sop_class = ImplantTemplateGroupInformationModelMove
         else:
-            raise ValueError("Association.send_c_move - 'query_model' must "
-                             "be 'P', 'S', 'O' or 'C'")
+            raise ValueError(
+                "Unsupported value for `query_model`: {}".format(query_model)
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1566,6 +1671,18 @@ class Association(threading.Thread):
               1.2.840.10008.5.1.4.1.2.4.3
             - ``CB`` - *Composite Instance Retrieve Without Bulk Data - GET*
               1.2.840.10008.5.1.4.1.2.5.3
+            - ``H`` - *Hanging Protocol Information Model - GET*
+              1.2.840.10008.5.1.4.38.4
+            - ``D`` - *Defined Procedure  Protocol Information Model - GET*
+              1.2.840.10008.5.1.4.20.3
+            - ``CP`` - *Palette Color Information Model - GET*
+              1.2.840.10008.5.1.4.39.4
+            - ``IG`` - *Generic Implant Template Information Model - GET*
+              1.2.840.10008.5.1.4.43.4
+            - ``IA`` - *Implant Assembly Template Information Model - GET*
+              1.2.840.10008.5.1.4.44.4
+            - ``IT`` - *Implant Template Group Information Model - GET*
+              1.2.840.10008.5.1.4.44.4
 
         Yields
         ------
@@ -1593,8 +1710,11 @@ class Association(threading.Thread):
               | ``0x0211`` Unrecognised operation
               | ``0x0212`` Mistyped argument
 
-            Query/Retrieve Service Class Specific (DICOM Standard Part 4,
-            Annexes C.4.3, Y.C.4.2.1.4 and Z.4.2.1.4):
+            Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+            Defined Procedure Protocol Query/Retrieve Service, Color Palette
+            Query/Retrieve Service and Implant Template Query/Retrieve Service
+            specific (DICOM Standard Part 4, Annexes C.4.3, Y.C.4.2.1.4,
+            Z.4.2.1.4, U.4.3, X, BB and HH):
 
             Pending
               | ``0xFF00`` Sub-operations are continuing
@@ -1640,14 +1760,22 @@ class Association(threading.Thread):
         ae.ApplicationEntity.on_c_get
         ae.ApplicationEntity.on_c_store
         service_class.QueryRetrieveGetServiceClass
+        service_class.HangingProtocolQueryRetrieveServiceClass
+        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+        service_class.ColorPaletteQueryRetrieveServiceClass
+        service_class.ImplantTemplateQueryRetrieveServiceClass
         dimse_primitives.C_GET
 
         References
         ----------
 
         * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        * DICOM Standard Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
+        * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
         * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
         * DICOM Standard Part 4, `Annex Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
+        * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+        * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
@@ -1668,6 +1796,18 @@ class Association(threading.Thread):
             sop_class = CompositeInstanceRootRetrieveGet
         elif query_model == "CB":
             sop_class = CompositeInstanceRetrieveWithoutBulkDataGet
+        elif query_model == "H":
+            sop_class = HangingProtocolInformationModelGet
+        elif query_model == "D":
+            sop_class = DefinedProcedureProtocolInformationModelGet
+        elif query_model == "CP":
+            sop_class = ColorPaletteInformationModelGet
+        elif query_model == "IG":
+            sop_class = GenericImplantTemplateInformationModelGet
+        elif query_model == "IA":
+            sop_class = ImplantAssemblyTemplateInformationModelGet
+        elif query_model == "IT":
+            sop_class = ImplantTemplateGroupInformationModelGet
         else:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)

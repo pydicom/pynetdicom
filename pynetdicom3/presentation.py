@@ -778,3 +778,33 @@ NonPatientObjectPresentationContexts = [
     build_context('1.2.840.10008.5.1.4.1.1.200.1'),
     build_context('1.2.840.10008.5.1.4.1.1.200.3'),
 ]
+
+HangingProtocolPresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.38.2'),
+    build_context('1.2.840.10008.5.1.4.38.3'),
+    build_context('1.2.840.10008.5.1.4.38.4'),
+]
+
+DefinedProcedureProtocolPresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.20.1'),
+    build_context('1.2.840.10008.5.1.4.20.2'),
+    build_context('1.2.840.10008.5.1.4.20.3'),
+]
+
+ColorPalettePresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.39.2'),
+    build_context('1.2.840.10008.5.1.4.39.3'),
+    build_context('1.2.840.10008.5.1.4.39.4'),
+]
+
+ImplantTemplatePresentationContexts = [
+    build_context('1.2.840.10008.5.1.4.43.2'),
+    build_context('1.2.840.10008.5.1.4.43.3'),
+    build_context('1.2.840.10008.5.1.4.43.4'),
+    build_context('1.2.840.10008.5.1.4.44.2'),
+    build_context('1.2.840.10008.5.1.4.44.3'),
+    build_context('1.2.840.10008.5.1.4.44.4'),
+    build_context('1.2.840.10008.5.1.4.45.2'),
+    build_context('1.2.840.10008.5.1.4.45.3'),
+    build_context('1.2.840.10008.5.1.4.45.4'),
+]
