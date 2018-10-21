@@ -13,8 +13,10 @@ from pydicom.uid import UID
 # pylint: disable=no-name-in-module
 from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
-from pynetdicom3.dimse_primitives import (C_ECHO, C_MOVE, C_STORE, C_GET,
-                                          C_FIND, C_CANCEL)
+from pynetdicom3.dimse_primitives import (
+    C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
+    N_GET
+)
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.sop_class import (
@@ -2110,14 +2112,107 @@ class Association(threading.Thread):
                                "request")
         raise NotImplementedError
 
-    def send_n_get(self):
-        """Send an N-GET request message to the peer AE."""
+    def send_n_get(self, attribute_list, sop_class, sop_instance, msg_id=1):
+        """Send an N-GET request message to the peer AE.
+
+        Parameters
+        ----------
+        attribute_list : list of pydicom.tag.Tag
+            A list of DICOM Data Element tags to be sent in the request's
+            (0000,1005) *Attribute Identifier List* element.
+        sop_class : pydicom.uid.UID
+            The SOP Class UID to be sent in the request's (0000,0003)
+            *Requested SOP Class UID* element.
+
+            Display System SOP Class : 1.2.840.10008.5.1.1.40
+            Media Creation Management SOP Class : 1.2.840.10008.5.1.1.33
+            Print Job SOP Class : 1.2.840.10008.5.1.1.14
+            Printer SOP Class : 1.2.840.10008.5.1.1.16
+            Printer Configuration Retrieval SOP Class : 1.2.840.10008.5.1.1.16.376
+
+        sop_instance : pydicom.uid.UID
+            The SOP Class UID to be sent in the request's (0000,1001)
+            *Requested SOP Instance UID* element.
+
+            Display System SOP Instance : 1.2.840.10008.5.1.1.40.1
+            Printer SOP Instance : 1.2.840.10008.5.1.1.17
+            Printer Configuration Retrieval SOP Instance : 1.2.840.10008.5.1.1.17.376
+
+        msg_id : int, optional
+            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
+            (default 1).
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty ``Dataset``. If a response was received from the peer then
+            yields a ``Dataset`` containing at least a (0000,0900) *Status*
+            element, and depending on the returned value, may optionally
+            contain additional elements (see the DICOM Standard, Part 7,
+            Section 9.1.2.1.5 and Annex C).
+        attribute_list : pydicom.dataset.Dataset
+            A dataset containing the values of the attributes.
+        """
         # Can't send an N-GET without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending an N-GET "
-                               "request.")
-        raise NotImplementedError
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending an N-GET request."
+            )
+
+        # Determine the Presentation Context we are operating under
+        #   and hence the transfer syntax to use for encoding `dataset`
+        transfer_syntax = None
+        for context in self.acse.context_manager.accepted:
+            if sop_class == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
+        else:
+            LOGGER.error(
+                "Association.send_n_get - no accepted Presentation Context "
+                "for: '{}'".format(sop_class)
+            )
+            LOGGER.error(
+                "Get SCU failed due to there being no accepted presentation "
+                "context"
+            )
+            raise ValueError(
+                "No accepted Presentation Context for the SOP Class UID '{}'"
+                .format(sop_class)
+            )
+
+        # Build N-GET request primitive
+        #   (M) Message ID
+        #   (M) Requested SOP Class UID
+        #   (M) Requested SOP Instance UID
+        #   (U) Attribute Identifier List
+        req = N_GET()
+        req.MessageID = msg_id
+        req.RequestedSOPClassUID = sop_class
+        req.RequestedSOPInstanceUID = sop_instance
+        req.AttributeIdentifierList = attribute_list
+
+        # Send N-GET request to the peer via DIMSE and wait for the response
+        self.dimse.send_msg(req, context_id)
+        rsp, _ = self.dimse.receive_msg(wait=True)
+
+        # Determine validity of the response and get the status
+        status = Dataset()
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            for keyword in ['ErrorComment', 'OffendingElement']:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error('Received an invalid N-GET response from the peer')
+            self.abort()
+
+        return status, rsp.AttributeList
 
     def send_n_set(self):
         """Send an N-SET request message to the peer AE."""

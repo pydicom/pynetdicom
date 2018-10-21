@@ -34,7 +34,7 @@ GENERAL_STATUS = {
     0x0210 : (STATUS_FAILURE, 'Duplicate Invocation'),
     0x0211 : (STATUS_FAILURE, 'Unrecognised Operation'),
     0x0212 : (STATUS_FAILURE, 'Mistyped Argument'),
-    0x0213 : (STATUS_FAILURE, 'Resources Limitation'),
+    0x0213 : (STATUS_FAILURE, 'Resource Limitation'),
     0xFE00 : (STATUS_CANCEL, '')
 }
 

@@ -2027,8 +2027,58 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self, context, info):
+    def on_n_get(self, elem, context, info):
         """Callback for when a N-GET is received.
+
+        Parameters
+        ----------
+        elem : pydicom.dataelem.DataElement
+            An (0000,1005) *Attribute Idenfier List* element containing the
+            attribute tags for the N-GET operation.
+        context : presentation.PresentationContextTuple
+            The presentation context that the C-ECHO message was sent under
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
+              }
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
+              }
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'requested_sop_class' : str, the N-GET-RQ's requested SOP
+                  Class UID value
+                  'requested_sop_instance' : str, the N-GET-RQ's requested SOP
+                  Instance UID value
+              }
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the N-GET response. Must be a
+            valid N-GET status value for the applicable Service Class as either
+            an ``int`` or a ``Dataset`` object containing (at a minimum) a
+            (0000,0900) *Status* element. If returning a Dataset object then
+            it may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
+        dataset : pydicom.dataset.Dataset or None
+            If the status is 'Success' then a dataset containing elements
+            matching the request's Attribute List conformant to the
+            specifications in the corresponding Service Class.
+
+            If the status is not 'Successs' then return None.
 
         References
         ----------

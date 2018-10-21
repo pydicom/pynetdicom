@@ -63,6 +63,12 @@ Enhancements
   :issue:``45``, :issue:``49``, :issue:``50``)
 * Add support for QR Instance and Frame Level Retrieve
 * Add support for QR Composite Instance Root Retrieval
-* Add support for the Substance Administration Query service
 * Add support for the Relevant Patient Information Query service
-* Add support for the Non-Patient Information Query service
+* Add support for the Hanging Protocol QR service
+* Add support for the Substance Administration Query service
+* Add support for the Color Palette QR service
+* Add support for the Implant Template QR service
+* Add support for the Non-Patient Information Storage service
+* Add support for the Defined Procedure Protocol QR service
+* Add experimental support for N-GET
+* Add support for the Display System Management service
