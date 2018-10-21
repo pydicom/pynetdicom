@@ -380,20 +380,38 @@ class QueryRetrieveServiceClass(ServiceClass):
         """
         if context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.1',
                                        '1.2.840.10008.5.1.4.1.2.2.1',
-                                       '1.2.840.10008.5.1.4.1.2.3.1']:
+                                       '1.2.840.10008.5.1.4.1.2.3.1',
+                                       '1.2.840.10008.5.1.4.20.1',
+                                       '1.2.840.10008.5.1.4.38.2',
+                                       '1.2.840.10008.5.1.4.39.2',
+                                       '1.2.840.10008.5.1.4.43.2',
+                                       '1.2.840.10008.5.1.4.44.2',
+                                       '1.2.840.10008.5.1.4.45.2']:
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
             self._find_scp(req, context, info)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
                                          '1.2.840.10008.5.1.4.1.2.2.3',
                                          '1.2.840.10008.5.1.4.1.2.3.3',
                                          '1.2.840.10008.5.1.4.1.2.4.3',
-                                         '1.2.840.10008.5.1.4.1.2.5.3']:
+                                         '1.2.840.10008.5.1.4.1.2.5.3',
+                                         '1.2.840.10008.5.1.4.20.3',
+                                         '1.2.840.10008.5.1.4.38.4',
+                                         '1.2.840.10008.5.1.4.39.4',
+                                         '1.2.840.10008.5.1.4.43.4',
+                                         '1.2.840.10008.5.1.4.44.4',
+                                         '1.2.840.10008.5.1.4.45.4']:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context, info)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',
                                          '1.2.840.10008.5.1.4.1.2.2.2',
                                          '1.2.840.10008.5.1.4.1.2.3.2',
-                                         '1.2.840.10008.5.1.4.1.2.4.2']:
+                                         '1.2.840.10008.5.1.4.1.2.4.2',
+                                         '1.2.840.10008.5.1.4.20.2',
+                                         '1.2.840.10008.5.1.4.38.3',
+                                         '1.2.840.10008.5.1.4.39.3',
+                                         '1.2.840.10008.5.1.4.43.3',
+                                         '1.2.840.10008.5.1.4.44.3',
+                                         '1.2.840.10008.5.1.4.45.3']:
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context, info)
         else:
@@ -1834,3 +1852,23 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
 class NonPatientObjectStorageServiceClass(StorageServiceClass):
     """Implementation of the Non-Patient Object Storage Service"""
     statuses = NON_PATIENT_SERVICE_CLASS_STATUS
+
+
+class HangingProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Hanging Protocol QR Service."""
+    pass
+
+
+class DefinedProcedureProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Defined Procedure Protocol QR Service."""
+    pass
+
+
+class ColorPaletteQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Color Palette QR Service."""
+    pass
+
+
+class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Implant Template QR Service."""
+    pass

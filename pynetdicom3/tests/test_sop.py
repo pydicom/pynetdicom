@@ -20,6 +20,10 @@ from pynetdicom3.sop_class import (
     GeneralRelevantPatientInformationQuery,
     ProductCharacteristicsQueryInformationModelFind,
     HangingProtocolStorage,
+    HangingProtocolInformationModelGet,
+    DefinedProcedureProtocolInformationModelFind,
+    ColorPaletteInformationModelMove,
+    ImplantTemplateGroupInformationModelFind,
 )
 from pynetdicom3.service_class import (
     VerificationServiceClass,
@@ -29,6 +33,10 @@ from pynetdicom3.service_class import (
     RelevantPatientInformationQueryServiceClass,
     SubstanceAdministrationQueryServiceClass,
     NonPatientObjectStorageServiceClass,
+    HangingProtocolQueryRetrieveServiceClass,
+    DefinedProcedureProtocolQueryRetrieveServiceClass,
+    ColorPaletteQueryRetrieveServiceClass,
+    ImplantTemplateQueryRetrieveServiceClass,
 )
 
 
@@ -137,3 +145,27 @@ class TestSOPClass(object):
         assert HangingProtocolStorage.uid == '1.2.840.10008.5.1.4.38.1'
         assert HangingProtocolStorage.UID == '1.2.840.10008.5.1.4.38.1'
         assert HangingProtocolStorage.service_class == NonPatientObjectStorageServiceClass
+
+    def test_hanging_protocol_sop(self):
+        """Test a Hanging Protocol Service SOP Class."""
+        assert HangingProtocolInformationModelGet.uid == '1.2.840.10008.5.1.4.38.4'
+        assert HangingProtocolInformationModelGet.UID == '1.2.840.10008.5.1.4.38.4'
+        assert HangingProtocolInformationModelGet.service_class == HangingProtocolQueryRetrieveServiceClass
+
+    def test_defined_procedure_sop(self):
+        """Test a Defined Procedure Protocol Service SOP Class."""
+        assert DefinedProcedureProtocolInformationModelFind.uid == '1.2.840.10008.5.1.4.20.1'
+        assert DefinedProcedureProtocolInformationModelFind.UID == '1.2.840.10008.5.1.4.20.1'
+        assert DefinedProcedureProtocolInformationModelFind.service_class == DefinedProcedureProtocolQueryRetrieveServiceClass
+
+    def test_color_palette_sop(self):
+        """Test a Color Palette Service SOP Class."""
+        assert ColorPaletteInformationModelMove.uid == '1.2.840.10008.5.1.4.39.3'
+        assert ColorPaletteInformationModelMove.UID == '1.2.840.10008.5.1.4.39.3'
+        assert ColorPaletteInformationModelMove.service_class == ColorPaletteQueryRetrieveServiceClass
+
+    def test_implant_template_sop(self):
+        """Test an Implant Template Service SOP Class."""
+        assert ImplantTemplateGroupInformationModelFind.uid == '1.2.840.10008.5.1.4.45.2'
+        assert ImplantTemplateGroupInformationModelFind.UID == '1.2.840.10008.5.1.4.45.2'
+        assert ImplantTemplateGroupInformationModelFind.service_class == ImplantTemplateQueryRetrieveServiceClass

@@ -49,6 +49,24 @@ from pynetdicom3.sop_class import (
     CompositeInstanceRootRetrieveGet,
     CompositeInstanceRootRetrieveMove,
     CompositeInstanceRetrieveWithoutBulkDataGet,
+    HangingProtocolInformationModelGet,
+    HangingProtocolInformationModelFind,
+    HangingProtocolInformationModelMove,
+    DefinedProcedureProtocolInformationModelGet,
+    DefinedProcedureProtocolInformationModelFind,
+    DefinedProcedureProtocolInformationModelMove,
+    ColorPaletteInformationModelGet,
+    ColorPaletteInformationModelFind,
+    ColorPaletteInformationModelMove,
+    GenericImplantTemplateInformationModelGet,
+    GenericImplantTemplateInformationModelFind,
+    GenericImplantTemplateInformationModelMove,
+    ImplantAssemblyTemplateInformationModelGet,
+    ImplantAssemblyTemplateInformationModelFind,
+    ImplantAssemblyTemplateInformationModelMove,
+    ImplantTemplateGroupInformationModelFind,
+    ImplantTemplateGroupInformationModelGet,
+    ImplantTemplateGroupInformationModelMove,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -1227,28 +1245,22 @@ class TestAssociationSendCFind(object):
         ae.add_requested_context(CardiacRelevantPatientInformationQuery)
         ae.add_requested_context(ProductCharacteristicsQueryInformationModelFind)
         ae.add_requested_context(SubstanceApprovalQueryInformationModelFind)
+        ae.add_requested_context(HangingProtocolInformationModelFind)
+        ae.add_requested_context(DefinedProcedureProtocolInformationModelFind)
+        ae.add_requested_context(ColorPaletteInformationModelFind)
+        ae.add_requested_context(GenericImplantTemplateInformationModelFind)
+        ae.add_requested_context(ImplantAssemblyTemplateInformationModelFind)
+        ae.add_requested_context(ImplantTemplateGroupInformationModelFind)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='S'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='O'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='W'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='G'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='B'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='C'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='PC'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='SA'):
-            assert status.Status == 0x0000
+
+        for qm in ['P', 'S', 'O', 'W', 'G', 'B', 'C', 'PC', 'SA', 'H',
+                   'D', 'CP', 'IG', 'IA', 'IT']:
+            for (status, ds) in assoc.send_c_find(self.ds, query_model=qm):
+                assert status.Status == 0x0000
+
         assoc.release()
         assert assoc.is_released
         scp.stop()
@@ -1594,20 +1606,21 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
         ae.add_requested_context(CompositeInstanceRootRetrieveGet)
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        ae.add_requested_context(HangingProtocolInformationModelGet)
+        ae.add_requested_context(DefinedProcedureProtocolInformationModelGet)
+        ae.add_requested_context(ColorPaletteInformationModelGet)
+        ae.add_requested_context(GenericImplantTemplateInformationModelGet)
+        ae.add_requested_context(ImplantAssemblyTemplateInformationModelGet)
+        ae.add_requested_context(ImplantTemplateGroupInformationModelGet)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='S'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='O'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='C'):
-            assert status.Status == 0x0000
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='CB'):
-            assert status.Status == 0x0000
+
+        for qm in ['P', 'S', 'O', 'C', 'CB', 'H', 'D', 'CP', 'IG', 'IA', 'IT']:
+            for (status, ds) in assoc.send_c_get(self.ds, query_model=qm):
+                assert status.Status == 0x0000
+
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -2001,49 +2014,27 @@ class TestAssociationSendCMove(object):
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         ae.add_requested_context(CompositeInstanceRootRetrieveMove)
+        ae.add_requested_context(HangingProtocolInformationModelMove)
+        ae.add_requested_context(DefinedProcedureProtocolInformationModelMove)
+        ae.add_requested_context(ColorPaletteInformationModelMove)
+        ae.add_requested_context(GenericImplantTemplateInformationModelMove)
+        ae.add_requested_context(ImplantAssemblyTemplateInformationModelMove)
+        ae.add_requested_context(ImplantTemplateGroupInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        with pytest.raises(StopIteration):
-            next(result)
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='S')
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        with pytest.raises(StopIteration):
-            next(result)
-
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='O')
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        with pytest.raises(StopIteration):
-            next(result)
-
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='C')
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        with pytest.raises(StopIteration):
-            next(result)
+        for qm in ['P', 'S', 'O', 'C', 'H', 'D', 'CP', 'IG', 'IA', 'IT']:
+            result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model=qm)
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            (status, ds) = next(result)
+            assert status.Status == 0x0000
+            with pytest.raises(StopIteration):
+                next(result)
 
         assoc.release()
         assert assoc.is_released

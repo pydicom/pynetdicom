@@ -1456,6 +1456,10 @@ class ApplicationEntity(object):
         * *Basic Worklist Management Service*
         * *Relevant Patient Information Query Service*
         * *Substance Administration Query Service*
+        * *Hanging Protocol Query/Retrieve Service*
+        * *Defined Procedure Protocol Query/Retrieve Service*
+        * *Color Palette Query/Retrieve Service*
+        * *Implant Template Query/Retrieve Service*
 
         **Status**
 
@@ -1538,6 +1542,10 @@ class ApplicationEntity(object):
         service_class.BasicWorklistManagementServiceClass
         service_class.RelevantPatientInformationQueryServiceClass
         service_class.SubstanceAdministrationQueryServiceClass
+        service_class.HangingProtocolQueryRetrieveServiceClass
+        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+        service_class.ColorPaletteQueryRetrieveServiceClass
+        service_class.ImplantTemplateQueryRetrieveServiceClass
 
         References
         ----------
@@ -1582,7 +1590,11 @@ class ApplicationEntity(object):
 
         **Supported Service Classes**
 
-        Query/Retrieve Service Class
+        * *Query/Retrieve Service Class*
+        * *Hanging Protocol Query/Retrieve Service*
+        * *Defined Procedure Protocol Query/Retrieve Service*
+        * *Color Palette Query/Retrieve Service*
+        * *Implant Template Query/Retrieve Service*
 
         **Status**
 
@@ -1675,6 +1687,10 @@ class ApplicationEntity(object):
         association.Association.send_c_get
         dimse_primitives.C_GET
         service_class.QueryRetrieveGetServiceClass
+        service_class.HangingProtocolQueryRetrieveServiceClass
+        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+        service_class.ColorPaletteQueryRetrieveServiceClass
+        service_class.ImplantTemplateQueryRetrieveServiceClass
 
         References
         ----------
@@ -1718,7 +1734,11 @@ class ApplicationEntity(object):
 
         **Supported Service Classes**
 
-        *Query/Retrieve Service Class*
+        * *Query/Retrieve Service*
+        * *Hanging Protocol Query/Retrieve Service*
+        * *Defined Procedure Protocol Query/Retrieve Service*
+        * *Color Palette Query/Retrieve Service*
+        * *Implant Template Query/Retrieve Service*
 
         **Status**
 
@@ -1822,6 +1842,10 @@ class ApplicationEntity(object):
         association.Association.send_c_move
         dimse_primitives.C_MOVE
         service_class.QueryRetrieveMoveServiceClass
+        service_class.HangingProtocolQueryRetrieveServiceClass
+        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+        service_class.ColorPaletteQueryRetrieveServiceClass
+        service_class.ImplantTemplateQueryRetrieveServiceClass
 
         References
         ----------
@@ -1861,8 +1885,8 @@ class ApplicationEntity(object):
 
         **Supported Service Classes**
 
-        Storage Service Class
-        Non-Patient Object Storage Service Class
+        * *Storage Service Class*
+        * *Non-Patient Object Storage Service Class*
 
         **Status**
 

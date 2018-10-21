@@ -65,8 +65,16 @@ for _code in range(0xC000, 0xCFFF + 1):
 STORAGE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Query Retrieve Find Service Class specific status code values
+# Query Retrieve - FIND specific status code values
 #   PS3.4 Annex C.4.1.1.4
+# Hanging Protocol - FIND specific status code values
+#   PS3.4 Annex U.4.1
+# Color Palette - FIND specific status code values
+#   PS3.4 Annex X
+# Implant Template - FIND specific status code values
+#   PS3.4 Annex BB
+# Defined Procedure Protocol - FIND specific status code values
+#   PS3.4 Annex HH
 QR_FIND_SERVICE_CLASS_STATUS = {
     0xA700 : (STATUS_FAILURE, 'Refused: Out of Resources'),
     0xA900 : (STATUS_FAILURE, 'Identifier Does Not Match SOP Class'),
@@ -83,8 +91,16 @@ for _code in range(0xC000, 0xCFFF + 1):
 QR_FIND_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Query Retrieve Move Service Class specific status code values
+# Query Retrieve - MOVE specific status code values
 #   PS3.4 Annex C.4.2.1.5 and Annex Y.4.1.1.4
+# Hanging Protocol - MOVE specific status code values
+#   PS3.4 Annex U.4.2
+# Color Palette - MOVE specific status code values
+#   PS3.4 Annex X
+# Implant Template - MOVE specific status code values
+#   PS3.4 Annex BB
+# Defined Procedure Protocol - MOVE specific status code values
+#   PS3.4 Annex HH
 QR_MOVE_SERVICE_CLASS_STATUS = {
     0xA701 : (STATUS_FAILURE,
               'Refused: Out of resources, unable to calculate '
@@ -114,8 +130,16 @@ for _code in range(0xC000, 0xCFFF + 1):
 QR_MOVE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Query Retrieve Get Service Class specific status code values
+# Query Retrieve - GET specific status code values
 #   PS3.4 Annex C.4.3.1.4 and Annex Y.4.2.1.4
+# Hanging Protocol  - GET specific status code values
+#   PS3.4 Annex U.4.3
+# Color Palette - GET specific status code values
+#   PS3.4 Annex X
+# Implant Template - GET specific status code values
+#   PS3.4 Annex BB
+# Defined Procedure Protocol - GET specific status code values
+#   PS3.4 Annex HH
 QR_GET_SERVICE_CLASS_STATUS = {
     0xA701 : (STATUS_FAILURE,
               'Refused: Out of resources, unable to calculate '
@@ -204,7 +228,7 @@ for _code in range(0xC000, 0xCFFF + 1):
 SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Non-Patient Object Storage Service Class specific status code value
+# Non-Patient Object Storage Service Class specific status code values
 #   PS3.4 Annex GG
 NON_PATIENT_SERVICE_CLASS_STATUS = {
     0xA700 : (STATUS_FAILURE, "Out of resources"),
@@ -322,36 +346,6 @@ _MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS = {
     0xC203 : (STATUS_FAILURE, "Cancellation denied for unspecified reason"),
 }
 _MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
-
-
-# Instance and Frame Level Retrieval Service Class specific status code values - WIP
-_INSTANCE_AND_FRAME_LEVEL_RETRIEVAL_SERVICE_CLASS_STATUS = {
-    0xA701 : (STATUS_FAILURE,
-              "Out of resources - unable to calculate number of matches"),
-    0xA702 : (STATUS_FAILURE,
-              "Out of resources - unable to perform sub-operations"),
-    0xA801 : (STATUS_FAILURE, "Move Destination unknown"),
-    0xA900 : (STATUS_FAILURE, "Identifier doesn't match SOP Class"),
-    0xAA00 : (STATUS_FAILURE,
-              "None of the frames requested were found in the SOP Instance"),
-    0xAA01 : (STATUS_FAILURE,
-              "Unable to create new object for this SOP class"),
-    0xAA02 : (STATUS_FAILURE, "Unable to extract frames"),
-    0xAA03 : (STATUS_FAILURE,
-              "Time-based request received for a non-time-based original SOP "
-              "Instance"),
-    0xAA04 : (STATUS_FAILURE, "Invalid request"),
-    0xB000 : (STATUS_WARNING, 'Sub-operations completed, one or more failures'),
-    0xFF00 : (STATUS_PENDING, 'Sub-operations are continuing'),
-}
-
-# Ranged values
-for _code in range(0xC000, 0xCFFF + 1):
-    _INSTANCE_AND_FRAME_LEVEL_RETRIEVAL_SERVICE_CLASS_STATUS[_code] = (
-        STATUS_FAILURE, 'Unable to Process'
-    )
-
-_INSTANCE_AND_FRAME_LEVEL_RETRIEVAL_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Unified Procedure Step Service specific status code values - WIP

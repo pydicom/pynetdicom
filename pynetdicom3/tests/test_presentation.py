@@ -19,6 +19,10 @@ from pynetdicom3.presentation import (
     RelevantPatientInformationPresentationContexts,
     SubstanceAdministrationPresentationContexts,
     NonPatientObjectPresentationContexts,
+    HangingProtocolPresentationContexts,
+    DefinedProcedureProtocolPresentationContexts,
+    ColorPalettePresentationContexts,
+    ImplantTemplatePresentationContexts,
     build_context,
 )
 
@@ -973,3 +977,61 @@ class TestServiceContexts(object):
         assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
         assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.1'
         assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.3'
+
+    def test_hanging_protocol(self):
+        """Tests with hanging protocol presentation contexts"""
+        contexts = HangingProtocolPresentationContexts
+        assert len(contexts) == 3
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.38.2'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.38.3'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.38.4'
+
+    def test_defined_procedure(self):
+        """Tests with defined procedure protocol presentation contexts"""
+        contexts = DefinedProcedureProtocolPresentationContexts
+        assert len(contexts) == 3
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.20.1'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.20.2'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.20.3'
+
+    def test_color_palette(self):
+        """Tests with color palette presentation contexts"""
+        contexts = ColorPalettePresentationContexts
+        assert len(contexts) == 3
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.39.2'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.39.3'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.39.4'
+
+    def test_implant_template(self):
+        """Tests with implant template presentation contexts"""
+        contexts = ImplantTemplatePresentationContexts
+        assert len(contexts) == 9
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.43.2'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.43.3'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.43.4'
+        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.44.2'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.44.3'
+        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.44.4'
+        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.45.2'
+        assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.4.45.3'
+        assert contexts[8].abstract_syntax == '1.2.840.10008.5.1.4.45.4'

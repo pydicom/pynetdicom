@@ -15,6 +15,10 @@ from pynetdicom3.service_class import (
     RelevantPatientInformationQueryServiceClass,
     SubstanceAdministrationQueryServiceClass,
     NonPatientObjectStorageServiceClass,
+    HangingProtocolQueryRetrieveServiceClass,
+    DefinedProcedureProtocolQueryRetrieveServiceClass,
+    ColorPaletteQueryRetrieveServiceClass,
+    ImplantTemplateQueryRetrieveServiceClass,
 )
 
 
@@ -54,6 +58,14 @@ def uid_to_service_class(uid):
         return SubstanceAdministrationQueryServiceClass
     elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
         return NonPatientObjectStorageServiceClass
+    elif uid in _HANGING_PROTOCOL_CLASSES.values():
+        return HangingProtocolQueryRetrieveServiceClass
+    elif uid in _DEFINED_PROCEDURE_CLASSES.values():
+        return DefinedProcedureProtocolQueryRetrieveServiceClass
+    elif uid in _COLOR_PALETTE_CLASSES.values():
+        return ColorPaletteQueryRetrieveServiceClass
+    elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
+        return ImplantTemplateQueryRetrieveServiceClass
     else:
         raise NotImplementedError(
             "The Service Class for the SOP Class with UID '{}' has not "
@@ -265,6 +277,36 @@ _NON_PATIENT_OBJECT_CLASSES = {
     'ProtocolApprovalStorage' : '1.2.840.10008.5.1.4.1.1.200.3',
 }
 
+_HANGING_PROTOCOL_CLASSES = {
+    'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',
+    'HangingProtocolInformationModelMove' : '1.2.840.10008.5.1.4.38.3',
+    'HangingProtocolInformationModelGet' : '1.2.840.10008.5.1.4.38.4',
+}
+
+_DEFINED_PROCEDURE_CLASSES = {
+    'DefinedProcedureProtocolInformationModelFind' : '1.2.840.10008.5.1.4.20.1',
+    'DefinedProcedureProtocolInformationModelMove' : '1.2.840.10008.5.1.4.20.2',
+    'DefinedProcedureProtocolInformationModelGet' : '1.2.840.10008.5.1.4.20.3',
+}
+
+_COLOR_PALETTE_CLASSES = {
+    'ColorPaletteInformationModelFind' : '1.2.840.10008.5.1.4.39.2',
+    'ColorPaletteInformationModelMove' : '1.2.840.10008.5.1.4.39.3',
+    'ColorPaletteInformationModelGet' : '1.2.840.10008.5.1.4.39.4',
+}
+
+_IMPLANT_TEMPLATE_CLASSES = {
+    'GenericImplantTemplateInformationModelFind' : '1.2.840.10008.5.1.4.43.2',
+    'GenericImplantTemplateInformationModelMove' : '1.2.840.10008.5.1.4.43.3',
+    'GenericImplantTemplateInformationModelGet' : '1.2.840.10008.5.1.4.43.4',
+    'ImplantAssemblyTemplateInformationModelFind' : '1.2.840.10008.5.1.4.44.2',
+    'ImplantAssemblyTemplateInformationModelMove' : '1.2.840.10008.5.1.4.44.3',
+    'ImplantAssemblyTemplateInformationModelGet' : '1.2.840.10008.5.1.4.44.4',
+    'ImplantTemplateGroupInformationModelFind' : '1.2.840.10008.5.1.4.45.2',
+    'ImplantTemplateGroupInformationModelMove' : '1.2.840.10008.5.1.4.45.3',
+    'ImplantTemplateGroupInformationModelGet' : '1.2.840.10008.5.1.4.45.4',
+}
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
@@ -273,6 +315,10 @@ _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 _generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
 _generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
 _generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
+_generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
+_generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
+_generate_sop_classes(_COLOR_PALETTE_CLASSES)
+_generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
 
 
 # WIP SOP Classes
@@ -298,35 +344,6 @@ _MEDIA_STORAGE_CLASSES = {
     'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
 }
 
-_HANGING_PROTOCOL_QR_CLASSES = {
-    'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',
-    'HangingProtocolInformationModelMove' : '1.2.840.10008.5.1.4.38.3',
-    'HangingProtocolInformationModelGet' : '1.2.840.10008.5.1.4.38.4',
-}
-
-_COLOR_PALETTE_QR_CLASSES = {
-    'ColorPaletteInformationModelFind' : '1.2.840.10008.5.1.4.39.2',
-    'ColorPaletteInformationModelMove' : '1.2.840.10008.5.1.4.39.3',
-    'ColorPaletteInformationModelGet' : '1.2.840.10008.5.1.4.39.4',
-}
-
-_COMPOSITE_INSTANCE_CLASSES = {
-    'CompositeInstanceRootRetrieveMove' : '1.2.840.10008.5.1.4.1.2.4.2',
-    'CompositeInstanceRootRetrieveGet' : '1.2.840.10008.5.1.4.1.2.4.3',
-}
-
-_IMPLANT_TEMPLATE_QR_CLASSES = {
-    'GenericImplantTemplateInformationModelFind' : '1.2.840.10008.5.1.4.43.2',
-    'GenericImplantTemplateInformationModelMove' : '1.2.840.10008.5.1.4.43.3',
-    'GenericImplantTemplateInformationModelGet' : '1.2.840.10008.5.1.4.43.4',
-    'ImplantAssemblyTemplateInformationModelFind' : '1.2.840.10008.5.1.4.44.2',
-    'ImplantAssemblyTemplateInformationModelMove' : '1.2.840.10008.5.1.4.44.3',
-    'ImplantAssemblyTemplateInformationModelGet' : '1.2.840.10008.5.1.4.44.4',
-    'ImplantAssemblyGroupInformationModelFind' : '1.2.840.10008.5.1.4.45.2',
-    'ImplantAssemblyGroupInformationModelMove' : '1.2.840.10008.5.1.4.45.3',
-    'ImplantAssemblyGroupInformationModelGet' : '1.2.840.10008.5.1.4.45.4',
-}
-
 _UNITED_PROCEDURE_STEP_CLASSES = {
     'UnitedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
     'UnitedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
@@ -341,12 +358,6 @@ _RT_MACHINE_VERIFICATION_CLASSES = {
 
 _DISPLAY_SYSTEM_MANAGEMENT_CLASSES = {
     'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
-}
-
-_DEFINED_PROCEDURE_STEP_CLASSES = {
-    'DefinedProcedureProtocolInformationModelFind' : '1.2.840.10008.5.1.4.20.1',
-    'DefinedProcedureProtocolInformationModelMove' : '1.2.840.10008.5.1.4.20.2',
-    'DefinedProcedureProtocolInformationModelGet' : '1.2.840.10008.5.1.4.20.3',
 }
 
 

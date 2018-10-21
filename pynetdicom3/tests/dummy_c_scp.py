@@ -33,6 +33,24 @@ from pynetdicom3.sop_class import (
     HangingProtocolStorage,
     CompositeInstanceRootRetrieveGet,
     CompositeInstanceRootRetrieveMove,
+    HangingProtocolInformationModelGet,
+    HangingProtocolInformationModelFind,
+    HangingProtocolInformationModelMove,
+    DefinedProcedureProtocolInformationModelGet,
+    DefinedProcedureProtocolInformationModelFind,
+    DefinedProcedureProtocolInformationModelMove,
+    ColorPaletteInformationModelGet,
+    ColorPaletteInformationModelFind,
+    ColorPaletteInformationModelMove,
+    GenericImplantTemplateInformationModelGet,
+    GenericImplantTemplateInformationModelFind,
+    GenericImplantTemplateInformationModelMove,
+    ImplantAssemblyTemplateInformationModelGet,
+    ImplantAssemblyTemplateInformationModelFind,
+    ImplantAssemblyTemplateInformationModelMove,
+    ImplantTemplateGroupInformationModelFind,
+    ImplantTemplateGroupInformationModelGet,
+    ImplantTemplateGroupInformationModelMove,
 )
 from pynetdicom3.status import code_to_category
 
@@ -208,6 +226,12 @@ class DummyFindSCP(DummyBaseSCP):
         self.ae.add_supported_context(CardiacRelevantPatientInformationQuery)
         self.ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
         self.ae.add_supported_context(SubstanceApprovalQueryInformationModelFind)
+        self.ae.add_supported_context(HangingProtocolInformationModelFind)
+        self.ae.add_supported_context(DefinedProcedureProtocolInformationModelFind)
+        self.ae.add_supported_context(ColorPaletteInformationModelFind)
+        self.ae.add_supported_context(GenericImplantTemplateInformationModelFind)
+        self.ae.add_supported_context(ImplantAssemblyTemplateInformationModelFind)
+        self.ae.add_supported_context(ImplantTemplateGroupInformationModelFind)
 
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
@@ -242,6 +266,12 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         self.ae.add_supported_context(CompositeInstanceRootRetrieveGet)
+        self.ae.add_supported_context(HangingProtocolInformationModelGet)
+        self.ae.add_supported_context(DefinedProcedureProtocolInformationModelGet)
+        self.ae.add_supported_context(ColorPaletteInformationModelGet)
+        self.ae.add_supported_context(GenericImplantTemplateInformationModelGet)
+        self.ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
+        self.ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
         self.ae.add_supported_context(CTImageStorage)
 
         self.ae.add_requested_context(CTImageStorage)
@@ -285,6 +315,12 @@ class DummyMoveSCP(DummyBaseSCP):
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(CompositeInstanceRootRetrieveMove)
+        self.ae.add_supported_context(HangingProtocolInformationModelMove)
+        self.ae.add_supported_context(DefinedProcedureProtocolInformationModelMove)
+        self.ae.add_supported_context(ColorPaletteInformationModelMove)
+        self.ae.add_supported_context(GenericImplantTemplateInformationModelMove)
+        self.ae.add_supported_context(ImplantAssemblyTemplateInformationModelMove)
+        self.ae.add_supported_context(ImplantTemplateGroupInformationModelMove)
         self.ae.add_supported_context(RTImageStorage)
         self.ae.add_supported_context(CTImageStorage)
 

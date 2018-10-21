@@ -1,4 +1,12 @@
-"""Tests for the QueryRetrieveServiceClass."""
+"""Tests for the following Service Classes:
+
+* QueryRetrieveServiceClass
+* HangingProtocolQueryRetrieveServiceClass
+* DefinedProcedureProtocolQueryRetrieveServiceClass
+* ColorPaletteQueryRetrieveServiceClass
+* ImplantTemplateQueryRetrieveServiceClass
+
+"""
 
 from io import BytesIO
 import logging
