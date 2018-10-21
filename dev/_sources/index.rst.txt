@@ -37,6 +37,10 @@ pynetdicom currently supports the following DICOM service classes:
    relevant_patient_service_class
    substance_admin_service_class
    non_patient_service_class
+   color_palette_service_class
+   defined_procedure_service_class
+   hanging_protocol_service_class
+   implant_template_service_class
 
 
 User Guide

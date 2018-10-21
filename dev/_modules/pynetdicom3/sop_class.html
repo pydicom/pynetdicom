@@ -95,6 +95,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -181,6 +185,10 @@
     <span class="n">RelevantPatientInformationQueryServiceClass</span><span class="p">,</span>
     <span class="n">SubstanceAdministrationQueryServiceClass</span><span class="p">,</span>
     <span class="n">NonPatientObjectStorageServiceClass</span><span class="p">,</span>
+    <span class="n">HangingProtocolQueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">DefinedProcedureProtocolQueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">ColorPaletteQueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">ImplantTemplateQueryRetrieveServiceClass</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -220,6 +228,14 @@
         <span class="k">return</span> <span class="n">SubstanceAdministrationQueryServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">NonPatientObjectStorageServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_HANGING_PROTOCOL_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HangingProtocolQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">DefinedProcedureProtocolQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_COLOR_PALETTE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ColorPaletteQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ImplantTemplateQueryRetrieveServiceClass</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;The Service Class for the SOP Class with UID &#39;</span><span class="si">{}</span><span class="s2">&#39; has not &quot;</span>
@@ -431,6 +447,36 @@
     <span class="s1">&#39;ProtocolApprovalStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.3&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">_HANGING_PROTOCOL_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;HangingProtocolInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HangingProtocolInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HangingProtocolInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_DEFINED_PROCEDURE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DefinedProcedureProtocolInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DefinedProcedureProtocolInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DefinedProcedureProtocolInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.3&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_COLOR_PALETTE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ColorPaletteInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ColorPaletteInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ColorPaletteInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_IMPLANT_TEMPLATE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;GenericImplantTemplateInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GenericImplantTemplateInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GenericImplantTemplateInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
 <span class="c1"># pylint: enable=line-too-long</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_VERIFICATION_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_STORAGE_CLASSES</span><span class="p">)</span>
@@ -439,6 +485,10 @@
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_HANGING_PROTOCOL_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_COLOR_PALETTE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="p">)</span>
 
 
 <span class="c1"># WIP SOP Classes</span>
@@ -464,35 +514,6 @@
     <span class="s1">&#39;MediaStorageDirectoryStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.1.3.10&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">_HANGING_PROTOCOL_QR_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;HangingProtocolInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;HangingProtocolInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.3&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;HangingProtocolInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.4&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">_COLOR_PALETTE_QR_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;ColorPaletteInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ColorPaletteInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.3&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ColorPaletteInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.4&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">_COMPOSITE_INSTANCE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;CompositeInstanceRootRetrieveMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.4.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;CompositeInstanceRootRetrieveGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.4.3&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">_IMPLANT_TEMPLATE_QR_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;GenericImplantTemplateInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;GenericImplantTemplateInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.3&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;GenericImplantTemplateInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.4&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.3&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.4&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ImplantAssemblyGroupInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ImplantAssemblyGroupInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.3&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ImplantAssemblyGroupInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
 <span class="n">_UNITED_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;UnitedProcedureStepPush&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.1&#39;</span><span class="p">,</span>
     <span class="s1">&#39;UnitedProcedureStepWatch&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.2&#39;</span><span class="p">,</span>
@@ -507,12 +528,6 @@
 
 <span class="n">_DISPLAY_SYSTEM_MANAGEMENT_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;DisplaySystemSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">_DEFINED_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;DefinedProcedureProtocolInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.1&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;DefinedProcedureProtocolInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;DefinedProcedureProtocolInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.3&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 
