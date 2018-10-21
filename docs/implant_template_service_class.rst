@@ -2,7 +2,7 @@
 
 Implant Template Query/Retrieve Service Class
 =======================================================
-The `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+The `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
 defines a service that facilitates access to Implant Template objects.
 
 Supported SOP Classes

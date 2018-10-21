@@ -2,7 +2,7 @@
 
 Hanging Protocol Query/Retrieve Service Class
 =======================================================
-The `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+The `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
 defines a service that facilitates access to Hanging Protocol objects.
 
 Supported SOP Classes
@@ -268,7 +268,7 @@ References
 ----------
 
 * DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-* DICOM Standard, Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+* DICOM Standard, Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
 * DICOM Standard, Part 7, Sections
   `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,
   `9.1.3.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6>`_ and
