@@ -37,14 +37,6 @@ LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.DEBUG)
 
 
-class DummyDIMSE(object):
-    def __init__(self):
-        self.status = None
-
-    def send_msg(self, rsp, context_id):
-        self.status = rsp.Status
-
-
 class TestAssociationSendNEventReport(object):
     """Run tests on Assocation send_n_event_report."""
     def setup(self):
@@ -281,7 +273,6 @@ class TestAssociationSendNGet(object):
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
-
 
 
 class TestAssociationSendNSet(object):
