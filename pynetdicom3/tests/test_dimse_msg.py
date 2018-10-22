@@ -28,6 +28,9 @@ from .encoded_dimse_msg import (
     c_get_rq_ds, c_get_rsp_cmd, c_get_rsp_ds, c_move_rq_cmd, c_move_rq_ds,
     c_move_rsp_cmd, c_move_rsp_ds
 )
+from .encoded_dimse_n_msg import (
+    n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds
+)
 
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -372,13 +375,37 @@ class TestDIMSEMessage(object):
         """Test converting N_GET_RQ and _RSP to primitive."""
         # N-GET-RQ
         msg = N_GET_RQ()
+        for data in [n_get_rq_cmd]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_GET)
+        assert primitive.RequestedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2')
+        assert primitive.RequestedSOPInstanceUID == UID('1.2.392.200036.9116.2.6.1.48')
+        assert primitive.MessageID == 7
+        primitive.AttributeIdentifierList = [
+            (0x7fe0,0x0010), (0x0000,0x0000), (0xFFFF,0xFFFF)
+        ]
 
-        # N-GET-RSP
         msg = N_GET_RSP()
+        for data in [n_get_rsp_cmd, n_get_rsp_ds]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
+        msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_GET)
+        assert isinstance(primitive.AttributeList, BytesIO)
+        assert primitive.AttributeIdentifierList is None
+        assert primitive.AffectedSOPClassUID == UID('1.2.4.10')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
+        assert primitive.MessageIDBeingRespondedTo == 5
+        assert primitive.Status == 0x0000
+
+        ds = decode(primitive.AttributeList, True, True)
+        assert ds.PatientName == 'Tube HeNe'
+        assert ds.PatientID == 'Test1101'
 
     def test_message_to_primitive_n_set(self):
         """Test converting N_SET_RQ and _RSP to primitive."""
