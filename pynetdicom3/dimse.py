@@ -551,7 +551,7 @@ class DIMSEServiceProvider(object):
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
-        s.append('Data Set                      : {0!s}'.format(dataset))
+        s.append('Identifier                    : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -776,7 +776,7 @@ class DIMSEServiceProvider(object):
         else:
             s.append('Affected SOP Class UID        : none')
         s.append('Identifier                    : {0!s}'.format(identifier))
-        s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+        s.append('Status                        : 0x{0:04x}'.format(cs.Status))
 
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1284,7 +1284,28 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_GET_RQ
             The N-GET-RQ message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        attributes = ''
+        if 'AttributeIdentifierList' in cs:
+            attributes = ','.join(
+                [str(tag) for tag in cs.AttributeIdentifierList]
+            )
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
+        s.append('Requested SOP Class UID       : {0!s}'
+                 .format(cs.RequestedSOPClassUID))
+        s.append('Requested SOP Instance UID    : {0!s}'
+                 .format(cs.RequestedSOPInstanceUID))
+        s.append('Attribute Identifier List     : {0!s}'.format(attributes))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_get_rsp(msg):
@@ -1295,7 +1316,30 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_GET_RSP
             The N-GET-RSP message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        attribute_list = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            attribute_list = 'Present'
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPInstanceUID' in cs:
+            s.append('Affected SOP Instance UID     : {0!s}'
+                     .format(cs.AffectedSOPInstanceUID))
+        s.append('Attribute List                : {0!s}'.format(attribute_list))
+        s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_set_rq(msg):
@@ -1427,7 +1471,33 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_GET_RSP
             The received N-GET-RSP message.
         """
-        pass
+        cs = msg.command_set
+
+        dataset = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            dataset = 'Present'
+
+        LOGGER.info('Received Get Response')
+        s = []
+        s.append('===================== INCOMING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPInstanceUID' in cs:
+            s.append('Affected SOP Instance UID     : {0!s}'
+                     .format(cs.AffectedSOPInstanceUID))
+        s.append('Attribute List                : {0!s}'.format(dataset))
+        s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_receive_n_set_rq(msg):

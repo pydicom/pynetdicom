@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 """Test DIMSE-N operations."""
 
+try:
+    from collections.abc import MutableSequence
+except ImportError:
+    from collections import MutableSequence
 from io import BytesIO
 import logging
 
 import pytest
 
 from pydicom.dataset import Dataset
+from pydicom.dataelem import DataElement
 from pydicom.tag import Tag
 from pydicom.uid import UID
 
@@ -116,7 +121,15 @@ class TestPrimitive_N_GET(object):
         assert [Tag(0x0000,0x1000),
                 Tag(0x0000,0x1000),
                 Tag(0x7fe0,0x0010)] == primitive.AttributeIdentifierList
+        primitive.AttributeIdentifierList = [(0x7fe0, 0x0010)]
+        assert [Tag(0x7fe0,0x0010)] == primitive.AttributeIdentifierList
+        primitive.AttributeIdentifierList = (0x7fe0, 0x0010)
+        assert [Tag(0x7fe0,0x0010)] == primitive.AttributeIdentifierList
 
+        elem = DataElement((0x0000, 0x0005), 'AT', [Tag(0x0000,0x1000)])
+        assert isinstance(elem.value, MutableSequence)
+        primitive.AttributeIdentifierList = elem.value
+        assert [Tag(0x0000, 0x1000)] == primitive.AttributeIdentifierList
 
         # MessageID
         primitive.MessageID = 11
@@ -228,6 +241,9 @@ class TestPrimitive_N_GET(object):
 
         with pytest.raises(ValueError, match="Attribute Identifier List must"):
             primitive.AttributeIdentifierList = ['ijk', 'abc']
+
+        with pytest.raises(ValueError, match="Attribute Identifier List must"):
+            primitive.AttributeIdentifierList = []
 
         # AttributeList
         with pytest.raises(TypeError):

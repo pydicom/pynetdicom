@@ -2027,14 +2027,14 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self, elem, context, info):
+    def on_n_get(self, attr, context, info):
         """Callback for when a N-GET is received.
 
         Parameters
         ----------
-        elem : pydicom.dataelem.DataElement
-            An (0000,1005) *Attribute Idenfier List* element containing the
-            attribute tags for the N-GET operation.
+        attr : list of pydicom.tag.Tag
+            The value of the (0000,1005) *Attribute Idenfier List* element
+            containing the attribute tags for the N-GET operation.
         context : presentation.PresentationContextTuple
             The presentation context that the C-ECHO message was sent under
             as a ``namedtuple`` with field names ``context_id``,
@@ -2084,9 +2084,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_get function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_get function prior to calling "
+            "AE.start()"
+        )
 
     def on_n_set(self, context, info):
         """Callback for when a N-SET is received.

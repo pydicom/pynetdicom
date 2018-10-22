@@ -18,6 +18,7 @@ from pynetdicom3.status import (
     STATUS_WARNING,
     STATUS_PENDING,
     STATUS_CANCEL,
+    GENERAL_STATUS,
 )
 
 
@@ -124,6 +125,7 @@ def _n_get_scp(req, context, info, statuses):
 
 class DisplaySystemManagementServiceClass(ServiceClass):
     """"""
+    statuses = GENERAL_STATUS
     def SCP(self, req, context, info):
         """The implementation for the DIMSE N-GET service.
 
@@ -180,7 +182,6 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
-        req.AttributeList = b''
 
         info['parameters'] = {
              'message_id' : req.MessageID,
@@ -190,6 +191,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_n_get callback
         try:
+            # Send the value rather than the element
             (rsp_status, ds) = self.AE.on_n_get(req.AttributeIdentifierList,
                                                 context.as_tuple, info)
         except Exception as exc:
@@ -197,8 +199,8 @@ class DisplaySystemManagementServiceClass(ServiceClass):
                 "Exception in the ApplicationEntity.on_n_get() callback"
             )
             LOGGER.exception(exc)
+            # FIXME
             # Failure: Cannot Understand - Error in on_n_get callback
-            # FIXME: assign custom status value
             rsp_status = 0x0110
 
         # Validate rsp_status and set rsp.Status accordingly

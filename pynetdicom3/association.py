@@ -506,16 +506,28 @@ class Association(threading.Thread):
             msg, msg_context_id = self.dimse.receive_msg(wait=False)
 
             # DIMSE message received
+            # FIXME: This is not a good way to handle messages, they should
+            #   be managed via their message ID and/or SOP Class UIDs
             if msg:
-                # Use the Message's Affected SOP Class UID to create a new
-                #   SOP Class instance, if there's no AffectedSOPClassUID
+                # Use the Message's Affected SOP Class UID or Requested SOP
+                #   Class UID to determine which service to use
+                # If there's no AffectedSOPClassUID or RequestedSOPClassUID
                 #   then we received a C-CANCEL request
-                # FIXME
-                if not hasattr(msg, 'AffectedSOPClassUID'):
+                if getattr(msg, 'AffectedSOPClassUID') is not None:
+                    # DIMSE-C, N-EVENT-REPORT and N-CREATE use AffectedSOPClassUID
+                    sop_class_uid = msg.AffectedSOPClassUID
+                elif getattr(msg, 'RequestedSOPClassUID') is not None:
+                    # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
+                    sop_class_uid = msg.RequestedSOPClassUID
+                else:
+                    # FIXME: C-CANCEL requests are not being handled correctly
+                    #   need a way to identify which service it belongs to
+                    #   or maybe just call the callback now?
                     self.abort()
                     return
 
-                service_class = uid_to_service_class(msg.AffectedSOPClassUID)()
+                # Convert the SOP Class UID to the corresponding service
+                service_class = uid_to_service_class(sop_class_uid)()
 
                 # Check that the SOP Class is supported by the AE
                 # New method
@@ -2200,19 +2212,21 @@ class Association(threading.Thread):
 
         # Determine validity of the response and get the status
         status = Dataset()
+        attribute_list = Dataset()
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
             self.abort()
         elif rsp.is_valid_response:
             status.Status = rsp.Status
+            attribute_list = rsp.AttributeList
             for keyword in ['ErrorComment', 'OffendingElement']:
-                if getattr(rsp, keyword) is not None:
+                if getattr(rsp, keyword, None) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
         else:
             LOGGER.error('Received an invalid N-GET response from the peer')
             self.abort()
 
-        return status, rsp.AttributeList
+        return status, attribute_list
 
     def send_n_set(self):
         """Send an N-SET request message to the peer AE."""

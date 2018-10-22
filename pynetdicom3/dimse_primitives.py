@@ -11,6 +11,10 @@ TODO: Add string output for the DIMSE-C classes
 """
 
 import codecs
+try:
+    from collections.abc import MutableSequence
+except ImportError:
+    from collections import MutableSequence
 from io import BytesIO
 import logging
 
@@ -1828,6 +1832,9 @@ class N_GET(object):
         self.AttributeList = None
         self.Status = None
 
+        # (Optional) for Failure status 0x0122
+        self.ErrorComment = None
+
     @property
     def AffectedSOPClassUID(self):
         """Return the *Affected SOP Class UID*."""
@@ -1907,15 +1914,21 @@ class N_GET(object):
             A list of pydicom Tags or any values acceptable for creating a new
             pydicom Tag object.
         """
-        if value is not None:
+        if value:
+            if not isinstance(value, (list, MutableSequence)):
+                value = [value]
             try:
                 self._attribute_identifier_list = [Tag(tag) for tag in value]
             except (TypeError, ValueError):
                 raise ValueError(
                     "Attribute Identifier List must be a list of pydicom Tags"
                 )
-        else:
+        elif value is None:
             self._attribute_identifier_list = None
+        else:
+            raise ValueError(
+                "Attribute Identifier List must be a list of pydicom Tags"
+            )
 
     @property
     def AttributeList(self):

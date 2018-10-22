@@ -504,31 +504,23 @@ class DIMSEMessage(object):
         # Command Set
         # For each parameter in the primitive, set the appropriate value
         #   from the Message's Command Set elements
+        print('Converting...')
         for elem in self.command_set:
             if hasattr(primitive, elem.keyword):
+                print(elem.keyword)
+                if elem.keyword == 'AttributeIdentifierList':
+                    print(elem)
                 setattr(primitive, elem.keyword,
                         self.command_set.__getattr__(elem.keyword))
 
+        print('Done')
         # Datasets
         # Set the primitive's DataSet/Identifier/etc attribute
-        if cls_type_name == 'C_STORE_RQ':
-            primitive.DataSet = self.data_set
-        elif cls_type_name in ['C_FIND_RQ', 'C_FIND_RSP', 'C_GET_RQ',
-                               'C_GET_RSP', 'C_MOVE_RQ', 'C_MOVE_RSP']:
-            primitive.Identifier = self.data_set
-        elif cls_type_name == 'N_EVENT_REPORT_RQ':
-            primitive.EventInformation = self.data_set
-        elif cls_type_name == 'N_EVENT_REPORT_RSP':
-            primitive.EventReply = self.data_set
-        elif cls_type_name in ['N_GET_RSP', 'N_SET_RSP',
-                               'N_CREATE_RQ', 'N_CREATE_RSP']:
-            primitive.AttributeList = self.data_set
-        elif cls_type_name == 'N_SET_RQ':
-            primitive.ModificationList = self.data_set
-        elif cls_type_name == 'N_ACTION_RQ':
-            primitive.ActionInformation = self.data_set
-        elif cls_type_name == 'N_ACTION_RSP':
-            primitive.ActionReply = self.data_set
+        try:
+            dataset_keyword = _DATASET_KEYWORDS[cls_type_name]
+            setattr(primitive, dataset_keyword, self.data_set)
+        except KeyError:
+            pass
 
         return primitive
 
@@ -589,38 +581,17 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set.CommandDataSetType = 0x0101
 
-        cls_type_name = self.__class__.__name__
-        if cls_type_name == 'C_STORE_RQ':
-            self.data_set = primitive.DataSet
-            self.command_set.CommandDataSetType = 0x0001
-        elif (cls_type_name in [
-                'C_FIND_RQ', 'C_GET_RQ', 'C_MOVE_RQ', 'C_FIND_RSP',
-                'C_GET_RSP', 'C_MOVE_RSP'] and primitive.Identifier):
-            self.data_set = primitive.Identifier
-            self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name == 'N_EVENT_REPORT_RQ':
-            self.data_set = primitive.EventInformation
-            self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name == 'N_EVENT_REPORT_RSP':
-            self.data_set = primitive.EventReply
-            self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name in ['N_GET_RSP', 'N_SET_RSP',
-                               'N_CREATE_RQ', 'N_CREATE_RSP']:
-            self.data_set = primitive.AttributeList
-            self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name == 'N_SET_RQ':
-            self.data_set = primitive.ModificationList
-            self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name == 'N_ACTION_RQ':
-            self.data_set = primitive.ActionInformation
-            self.command_set.CommandDataSetType = 0x0001
-        elif cls_type_name == 'N_ACTION_RSP':
-            self.data_set = primitive.ActionReply
-            self.command_set.CommandDataSetType = 0x0001
-
-        # The following message types don't have a dataset
-        # 'C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 'C_STORE_RSP',
-        # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
+        try:
+            # These message types *may* have a dataset
+            dataset_keyword = _DATASET_KEYWORDS[self.__class__.__name__]
+            if getattr(primitive, dataset_keyword):
+                self.data_set = getattr(primitive, dataset_keyword)
+                self.command_set.CommandDataSetType = 0x0001
+        except KeyError:
+            # The following message types never have a dataset
+            # 'C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 'C_STORE_RSP',
+            # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
+            pass
 
         # Set the Command Set length
         self._set_command_group_length()
@@ -736,4 +707,23 @@ _MESSAGE_CLASS_TYPES = {
     0x8140: N_CREATE_RSP,
     0x0150: N_DELETE_RQ,
     0x8150: N_DELETE_RSP
+}
+
+_DATASET_KEYWORDS = {
+    'C_STORE_RQ' : 'DataSet',
+    'C_FIND_RQ' : 'Identifier',
+    'C_GET_RQ' : 'Identifier',
+    'C_MOVE_RQ' : 'Identifier',
+    'C_FIND_RSP' : 'Identifier',
+    'C_GET_RSP' : 'Identifier',
+    'C_MOVE_RSP' : 'Identifier',
+    'N_EVENT_REPORT_RQ' : 'EventInformation',
+    'N_EVENT_REPORT_RSP' : 'EventReply',
+    'N_GET_RSP' : 'AttributeList',
+    'N_SET_RSP' : 'AttributeList',
+    'N_CREATE_RQ' : 'AttributeList',
+    'N_CREATE_RSP' : 'AttributeList',
+    'N_SET_RQ' : 'ModificationList',
+    'N_ACTION_RQ' : 'ActionInformation',
+    'N_ACTION_RSP' : 'ActionReply',
 }
